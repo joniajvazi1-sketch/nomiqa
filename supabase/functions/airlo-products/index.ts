@@ -31,6 +31,7 @@ interface AirloPackage {
     iso_code: string;
     name: string;
   };
+  is_stock_available: boolean;
 }
 
 async function getAirloAccessToken(): Promise<string> {
@@ -102,22 +103,24 @@ serve(async (req) => {
     // Fetch packages from Airlo
     const packages = await fetchAirloPackages(accessToken);
 
-    // Transform and insert into database
-    const products = packages.map((pkg) => ({
-      airlo_package_id: pkg.id,
-      name: pkg.title,
-      country_code: pkg.country.iso_code,
-      country_name: pkg.country.name,
-      data_amount: `${pkg.data.amount}${pkg.data.unit}`,
-      validity_days: pkg.validity.amount,
-      price_usd: pkg.price.amount,
-      features: {
-        coverage: pkg.country.name,
-        speed: '4G/5G',
-        activation: 'Instant',
-      },
-      is_popular: pkg.price.amount >= 10 && pkg.price.amount <= 30,
-    }));
+    // Transform and insert into database (only in-stock packages)
+    const products = packages
+      .filter(pkg => pkg.is_stock_available !== false)
+      .map((pkg) => ({
+        airlo_package_id: pkg.id,
+        name: pkg.title,
+        country_code: pkg.country.iso_code,
+        country_name: pkg.country.name,
+        data_amount: `${pkg.data.amount}${pkg.data.unit}`,
+        validity_days: pkg.validity.amount,
+        price_usd: pkg.price.amount,
+        features: {
+          coverage: pkg.country.name,
+          speed: '4G/5G',
+          activation: 'Instant',
+        },
+        is_popular: pkg.price.amount >= 10 && pkg.price.amount <= 30,
+      }));
 
     console.log(`Upserting ${products.length} products...`);
 
