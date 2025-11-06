@@ -28,9 +28,8 @@ export default function Affiliate() {
   const [creating, setCreating] = useState(false);
   const [affiliate, setAffiliate] = useState<AffiliateData | null>(null);
   const [affiliateLink, setAffiliateLink] = useState("");
-  const [needsUsername, setNeedsUsername] = useState(false);
-  const [username, setUsername] = useState("");
-  const [savingUsername, setSavingUsername] = useState(false);
+  const [email, setEmail] = useState("");
+  const [isGuest, setIsGuest] = useState(false);
 
   useEffect(() => {
     checkUser();
@@ -40,24 +39,27 @@ export default function Affiliate() {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
-      if (!user) {
-        navigate('/auth');
-        return;
-      }
-
-      setUser(user);
-      
-      // Check if user has a profile with username
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('username')
-        .eq('user_id', user.id)
-        .maybeSingle();
-      
-      if (!profile) {
-        setNeedsUsername(true);
-      } else {
+      if (user) {
+        setUser(user);
         await fetchAffiliate(user.email!);
+      } else {
+        // Check if guest affiliate exists in localStorage
+        const guestAffiliateCode = localStorage.getItem('guest_affiliate_code');
+        if (guestAffiliateCode) {
+          const { data } = await supabase
+            .from('affiliates')
+            .select('*')
+            .eq('affiliate_code', guestAffiliateCode)
+            .maybeSingle();
+          
+          if (data) {
+            setAffiliate(data);
+            setAffiliateLink(`${window.location.origin}/?ref=${data.affiliate_code}`);
+            setIsGuest(true);
+          }
+        } else {
+          setIsGuest(true);
+        }
       }
     } catch (error) {
       console.error('Error checking user:', error);
@@ -79,58 +81,20 @@ export default function Affiliate() {
     }
   };
 
-  const saveUsername = async () => {
-    if (!user || !username) return;
-
-    setSavingUsername(true);
-    try {
-      // Check if username already exists
-      const { data: existingProfile } = await supabase
-        .from('profiles')
-        .select('username')
-        .eq('username', username.toLowerCase())
-        .maybeSingle();
-
-      if (existingProfile) {
-        toast.error('Username already taken');
-        return;
-      }
-
-      // Create profile
-      const { error } = await supabase
-        .from('profiles')
-        .insert({
-          user_id: user.id,
-          username: username.toLowerCase()
-        });
-
-      if (error) throw error;
-
-      toast.success("Username saved!");
-      setNeedsUsername(false);
-      await fetchAffiliate(user.email!);
-    } catch (error: any) {
-      toast.error(error.message || "Failed to save username");
-    } finally {
-      setSavingUsername(false);
-    }
+  const generateCode = () => {
+    return Math.random().toString(36).substring(2, 10).toUpperCase();
   };
 
   const createAffiliate = async () => {
-    if (!user) return;
+    if (!email && !user) {
+      toast.error("Please enter your email");
+      return;
+    }
 
     setCreating(true);
     try {
-      // Get user's profile with username
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('username')
-        .eq('user_id', user.id)
-        .single();
-
-      if (profileError || !profile) {
-        throw new Error('Username not found. Please contact support.');
-      }
+      const code = generateCode();
+      const affiliateEmail = user?.email || email;
 
       // Get referrer's affiliate ID if user signed up with a ref code
       const { referralCode } = useAffiliateTracking.getState();
@@ -151,9 +115,9 @@ export default function Affiliate() {
       const { data, error } = await supabase
         .from('affiliates')
         .insert({
-          user_id: user.id,
-          email: user.email,
-          affiliate_code: profile.username,
+          user_id: user?.id || null,
+          email: affiliateEmail,
+          affiliate_code: code,
           parent_affiliate_id: parentAffiliateId,
         })
         .select()
@@ -163,6 +127,12 @@ export default function Affiliate() {
 
       setAffiliate(data);
       setAffiliateLink(`${window.location.origin}/?ref=${data.affiliate_code}`);
+      
+      // Store in localStorage for guest users
+      if (!user) {
+        localStorage.setItem('guest_affiliate_code', data.affiliate_code);
+      }
+      
       toast.success("Affiliate account created!");
     } catch (error: any) {
       toast.error(error.message || "Failed to create affiliate account");
@@ -197,59 +167,18 @@ export default function Affiliate() {
             </p>
           </div>
 
-          {needsUsername ? (
+          {!affiliate ? (
             <Card className="max-w-2xl mx-auto">
               <CardHeader>
-                <CardTitle>Set Your Username</CardTitle>
+                <CardTitle>Start Earning Today</CardTitle>
                 <CardDescription>
-                  Choose a username for your affiliate link
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <label htmlFor="username" className="text-sm font-medium">
-                    Username
-                  </label>
-                  <Input
-                    id="username"
-                    type="text"
-                    placeholder="your_username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value.replace(/[^a-zA-Z0-9_]/g, ''))}
-                    minLength={3}
-                    maxLength={20}
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    3-20 characters, letters, numbers and underscores only
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Your affiliate link will be: {window.location.origin}/?ref=<span className="font-bold">{username.toLowerCase() || 'username'}</span>
-                  </p>
-                </div>
-
-                <Button 
-                  onClick={saveUsername} 
-                  className="w-full" 
-                  size="lg"
-                  disabled={savingUsername || !username || username.length < 3}
-                >
-                  {savingUsername && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Save Username & Continue
-                </Button>
-              </CardContent>
-            </Card>
-          ) : !affiliate ? (
-            <Card className="max-w-2xl mx-auto">
-              <CardHeader>
-                <CardTitle>Join Our Affiliate Program</CardTitle>
-                <CardDescription>
-                  Get your unique referral link and start earning commissions
+                  Get your unique referral link instantly - no account required!
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-6">
                   <div className="grid md:grid-cols-3 gap-4">
-                  <div className="text-center p-4 bg-primary/5 rounded-lg">
+                    <div className="text-center p-4 bg-primary/5 rounded-lg">
                       <DollarSign className="w-8 h-8 text-primary mx-auto mb-2" />
                       <h3 className="font-bold">Multi-Level Rewards</h3>
                       <p className="text-sm text-muted-foreground">9% → 6% → 3%</p>
@@ -266,14 +195,29 @@ export default function Affiliate() {
                     </div>
                   </div>
 
+                  {!user && (
+                    <div className="space-y-2">
+                      <label htmlFor="email" className="text-sm font-medium">
+                        Email (to track your earnings)
+                      </label>
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="you@example.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                      />
+                    </div>
+                  )}
+
                   <Button 
                     onClick={createAffiliate} 
                     className="w-full" 
                     size="lg"
-                    disabled={creating}
+                    disabled={creating || (!user && !email)}
                   >
                     {creating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    Create Affiliate Account
+                    Get My Affiliate Link
                   </Button>
                 </div>
               </CardContent>

@@ -5,7 +5,7 @@ import { useCart } from "@/hooks/useCart";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Input } from "./ui/input";
-import { Loader2, ShoppingCart, Search, Wifi, Calendar, Globe, MapPin } from "lucide-react";
+import { Loader2, ShoppingCart, Search, Wifi, Calendar, Globe, MapPin, Share2 } from "lucide-react";
 import { toast } from "sonner";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import * as CountryFlags from 'country-flag-icons/react/3x2';
@@ -68,6 +68,10 @@ export const Shop = () => {
   const handleAddToCart = (product: any) => {
     addItem(product);
     toast.success(`${product.name} added to cart!`);
+  };
+
+  const handleShare = (product: any) => {
+    navigate('/affiliate');
   };
 
   const getCountryFlag = (countryCode: string) => {
@@ -157,6 +161,22 @@ export const Shop = () => {
                   </div>
                 </CardContent>
 
+                <CardFooter className="flex gap-2">
+                  <Button 
+                    onClick={() => handleAddToCart(product)}
+                    className="flex-1"
+                  >
+                    <ShoppingCart className="mr-2 h-4 w-4" />
+                    Add to Cart
+                  </Button>
+                  <Button 
+                    onClick={() => handleShare(product)}
+                    variant="outline"
+                    size="icon"
+                  >
+                    <Share2 className="h-4 w-4" />
+                  </Button>
+                </CardFooter>
               </Card>
             ))}
           </div>
