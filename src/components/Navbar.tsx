@@ -45,12 +45,24 @@ export const Navbar = () => {
             <a href="/#shop" className="text-white/80 hover:text-white transition-colors">
               Shop
             </a>
-            <a href="/#coverage" className="text-white/80 hover:text-white transition-colors">
-              Coverage
-            </a>
-            <a href="/#how-it-works" className="text-white/80 hover:text-white transition-colors">
-              How It Works
-            </a>
+            <button
+              onClick={() => navigate('/learn-crypto')}
+              className="text-white/80 hover:text-white transition-colors"
+            >
+              Learn Crypto
+            </button>
+            <button
+              onClick={() => navigate('/stake')}
+              className="text-white/80 hover:text-white transition-colors"
+            >
+              Stake
+            </button>
+            <button
+              onClick={() => navigate('/roadmap')}
+              className="text-white/80 hover:text-white transition-colors"
+            >
+              Roadmap
+            </button>
             {user && (
               <button
                 onClick={() => navigate('/orders')}

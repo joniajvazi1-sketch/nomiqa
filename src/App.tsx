@@ -8,6 +8,9 @@ import NotFound from "./pages/NotFound";
 import Checkout from "./pages/Checkout";
 import Orders from "./pages/Orders";
 import Auth from "./pages/Auth";
+import LearnCrypto from "./pages/LearnCrypto";
+import Stake from "./pages/Stake";
+import Roadmap from "./pages/Roadmap";
 
 const queryClient = new QueryClient();
 
@@ -22,6 +25,9 @@ const App = () => (
           <Route path="/auth" element={<Auth />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/orders" element={<Orders />} />
+          <Route path="/learn-crypto" element={<LearnCrypto />} />
+          <Route path="/stake" element={<Stake />} />
+          <Route path="/roadmap" element={<Roadmap />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
