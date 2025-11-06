@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import { ShoppingCart, Globe, Shield } from "lucide-react";
 import heroImage from "@/assets/hero-bg.jpg";
 
@@ -24,18 +23,7 @@ export const Hero = () => {
             The first crypto-native eSIM with anonymous activation, wallet payments, and token rewards.
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-            <Button variant="hero" size="xl">
-              <ShoppingCart className="mr-2" />
-              Browse Plans
-            </Button>
-            <Button variant="outline" size="xl" className="bg-white/10 text-white border-white/20 hover:bg-white/20">
-              <Shield className="mr-2" />
-              How It Works
-            </Button>
-          </div>
-          
-          <div className="flex flex-wrap gap-8 justify-center items-center text-white/80">
+          <div className="flex flex-wrap gap-8 justify-center items-center text-white/80 mb-12">
             <div className="flex items-center gap-2">
               <Globe className="w-5 h-5 text-accent" />
               <span>200+ Countries</span>

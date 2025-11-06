@@ -85,20 +85,6 @@ export const Shop = () => {
               Global connectivity at your fingertips
             </p>
           </div>
-          
-          {items.length > 0 && (
-            <Button
-              onClick={() => navigate('/checkout')}
-              size="lg"
-              className="relative"
-            >
-              <ShoppingCart className="mr-2 h-5 w-5" />
-              Cart
-              <Badge className="ml-2 bg-white text-primary hover:bg-white">
-                {items.reduce((sum, item) => sum + item.quantity, 0)}
-              </Badge>
-            </Button>
-          )}
         </div>
 
         {/* Filters */}
@@ -111,34 +97,6 @@ export const Shop = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
             />
-          </div>
-          
-          <div className="flex gap-2 flex-wrap">
-            <Button
-              variant={coverageFilter === "all" ? "default" : "outline"}
-              onClick={() => setCoverageFilter("all")}
-              size="sm"
-            >
-              All Plans
-            </Button>
-            <Button
-              variant={coverageFilter === "local" ? "default" : "outline"}
-              onClick={() => setCoverageFilter("local")}
-              size="sm"
-              className="flex items-center gap-2"
-            >
-              <MapPin className="h-4 w-4" />
-              Local
-            </Button>
-            <Button
-              variant={coverageFilter === "regional" ? "default" : "outline"}
-              onClick={() => setCoverageFilter("regional")}
-              size="sm"
-              className="flex items-center gap-2"
-            >
-              <Globe className="h-4 w-4" />
-              Regional
-            </Button>
           </div>
         </div>
 
@@ -199,15 +157,6 @@ export const Shop = () => {
                   </div>
                 </CardContent>
 
-                <CardFooter>
-                  <Button
-                    className="w-full"
-                    onClick={() => handleAddToCart(product)}
-                  >
-                    <ShoppingCart className="mr-2 h-4 w-4" />
-                    Add to Cart
-                  </Button>
-                </CardFooter>
               </Card>
             ))}
           </div>
