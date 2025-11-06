@@ -124,13 +124,21 @@ for (const env of envs) {
   console.log(`Starting Airlo products sync from ${baseUrl} (${env})...`);
 
   try {
-    // Get Airlo access token
+    // token + packages (attempt 1)
     const { accessToken, tokenType } = await getAirloAccessToken(baseUrl);
-
-    // Fetch packages from Airlo
-    packages = await fetchAirloPackages(baseUrl, accessToken, tokenType);
-    console.log(`Fetched ${packages.length} packages from ${env}`);
-    break; // success
+    try {
+      packages = await fetchAirloPackages(baseUrl, accessToken, tokenType);
+      console.log(`Fetched ${packages.length} packages from ${env}`);
+      break; // success
+    } catch (pkgErr) {
+      const msg = pkgErr instanceof Error ? pkgErr.message : String(pkgErr);
+      console.warn(`First package fetch failed on ${env}: ${msg}. Retrying with a fresh token...`);
+      // retry once with a fresh token (helps if token was rejected)
+      const { accessToken: atk2, tokenType: tt2 } = await getAirloAccessToken(baseUrl);
+      packages = await fetchAirloPackages(baseUrl, atk2, tt2);
+      console.log(`Fetched ${packages.length} packages from ${env} on retry`);
+      break; // success on retry
+    }
   } catch (e) {
     lastError = e;
     console.error(`Sync attempt with ${env} failed:`, e);
