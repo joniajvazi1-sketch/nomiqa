@@ -152,40 +152,62 @@ if (packages.length === 0) {
   throw lastError || new Error('Failed to fetch packages from all environments');
 }
 
-    // Transform and insert into database with defensive checks
-    const filtered = packages.filter((pkg) => {
-      const ok = pkg.is_stock_available !== false &&
-        pkg.country?.iso_code && pkg.country?.name &&
-        pkg.data?.amount != null && pkg.data?.unit &&
-        pkg.validity?.amount != null &&
-        pkg.price?.amount != null;
-      if (!ok) {
-        console.warn('Skipping package due to missing fields:', {
-          id: pkg.id,
-          hasCountry: !!pkg.country,
-          hasIso: !!pkg.country?.iso_code,
-          hasName: !!pkg.country?.name,
-        });
-      }
-      return ok;
+    // Quick debug: log sample structure
+    if (packages.length > 0) {
+      const sample = packages[0];
+      console.log('Sample country keys:', sample?.country ? Object.keys(sample.country) : 'no country');
+      console.log('Sample data keys:', sample?.data ? Object.keys(sample.data) : 'no data');
+    }
+
+    // Normalize packages and defensively map fields
+    const normalized = packages.map((raw: any) => {
+      const id = raw?.id ?? raw?.package_id ?? raw?.packageId ?? raw?.uuid ?? raw?.code;
+      const countryObj = raw?.country ?? {};
+      const country_code =
+        countryObj?.iso_code ?? countryObj?.isoCode ?? countryObj?.code ?? raw?.country_code ?? raw?.country_iso ?? raw?.countryIso;
+      const country_name =
+        countryObj?.name ?? countryObj?.title ?? raw?.country_name ?? raw?.countryName;
+      const data_amount_val = raw?.data?.amount ?? raw?.data_amount ?? raw?.dataAmount ?? raw?.package_data_amount;
+      const data_unit = raw?.data?.unit ?? raw?.data_unit ?? raw?.dataUnit ?? 'GB';
+      const validity_days = raw?.validity?.amount ?? raw?.validity_days ?? raw?.validityDays;
+      const price_usd = raw?.price?.amount ?? raw?.price_usd ?? raw?.priceUsd ?? raw?.amount;
+
+      const is_stock_available = raw?.is_stock_available ?? (typeof raw?.stock === 'number' ? raw.stock > 0 : true);
+
+      return {
+        ok: !!id && !!country_code && !!country_name && data_amount_val != null && validity_days != null && price_usd != null && is_stock_available !== false,
+        id,
+        name: raw?.title ?? raw?.name ?? `${country_name} ${data_amount_val}${data_unit}`,
+        country_code,
+        country_name,
+        data_amount: `${data_amount_val}${data_unit}`,
+        validity_days: Number(validity_days),
+        price_usd: Number(price_usd),
+      };
     });
 
-    console.log(`Preparing to upsert ${filtered.length} valid packages (skipped ${packages.length - filtered.length})`);
+    const valid = normalized.filter(n => n.ok);
 
-    const products = filtered.map((pkg) => ({
-      airlo_package_id: pkg.id,
-      name: pkg.title,
-      country_code: pkg.country!.iso_code,
-      country_name: pkg.country!.name,
-      data_amount: `${pkg.data.amount}${pkg.data.unit}`,
-      validity_days: pkg.validity.amount,
-      price_usd: pkg.price.amount,
+    console.log(`Preparing to upsert ${valid.length} valid packages (skipped ${packages.length - valid.length})`);
+
+    if (valid.length > 0) {
+      console.log('Normalized sample:', valid[0]);
+    }
+
+    const products = valid.map((n) => ({
+      airlo_package_id: n.id,
+      name: n.name,
+      country_code: n.country_code,
+      country_name: n.country_name,
+      data_amount: n.data_amount,
+      validity_days: n.validity_days,
+      price_usd: n.price_usd,
       features: {
-        coverage: pkg.country!.name,
+        coverage: n.country_name,
         speed: '4G/5G',
         activation: 'Instant',
       },
-      is_popular: pkg.price.amount >= 10 && pkg.price.amount <= 30,
+      is_popular: n.price_usd >= 10 && n.price_usd <= 30,
     }));
 
     console.log(`Upserting ${products.length} products...`);

@@ -3,13 +3,14 @@ import { useProducts, useSyncProducts } from "@/hooks/useProducts";
 import { Button } from "./ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export const PlansSection = () => {
   const { data: products, isLoading, refetch } = useProducts();
   const syncProducts = useSyncProducts();
   const { toast } = useToast();
   const [isSyncing, setIsSyncing] = useState(false);
+  const [autoSynced, setAutoSynced] = useState(false);
 
   const handleSync = async () => {
     try {
@@ -30,6 +31,13 @@ export const PlansSection = () => {
       setIsSyncing(false);
     }
   };
+  
+  useEffect(() => {
+    if (!isLoading && !isSyncing && (!products || products.length === 0) && !autoSynced) {
+      setAutoSynced(true);
+      handleSync();
+    }
+  }, [isLoading, isSyncing, products, autoSynced]);
 
   return (
     <section id="plans" className="py-20 bg-background">
