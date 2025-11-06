@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useProducts, useSyncProducts, Product } from "@/hooks/useProducts";
+import { useProducts, useSyncProducts } from "@/hooks/useProducts";
 import { useCart } from "@/hooks/useCart";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
-import { Loader2, ShoppingCart } from "lucide-react";
+import { Input } from "./ui/input";
+import { Loader2, ShoppingCart, Search, Wifi, Calendar, Globe } from "lucide-react";
 import { toast } from "sonner";
-import { ProductDetailModal } from "./ProductDetailModal";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
+import * as CountryFlags from 'country-flag-icons/react/3x2';
 
 export const Shop = () => {
   const navigate = useNavigate();
@@ -15,8 +17,8 @@ export const Shop = () => {
   const syncProducts = useSyncProducts();
   const [isSyncing, setIsSyncing] = useState(false);
   const [autoSynced, setAutoSynced] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCountry, setSelectedCountry] = useState("all");
 
   const handleSync = async () => {
     setIsSyncing(true);
@@ -39,32 +41,33 @@ export const Shop = () => {
     }
   }, [products, isLoading, autoSynced, isSyncing]);
 
-  const groupedProducts = products?.reduce((acc, product) => {
-    const days = product.validity_days;
-    if (!acc[days]) {
-      acc[days] = [];
-    }
-    acc[days].push(product);
-    return acc;
-  }, {} as Record<number, typeof products>);
+  const filteredProducts = products?.filter(product => {
+    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         product.country_name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCountry = selectedCountry === "all" || product.country_code === selectedCountry;
+    return matchesSearch && matchesCountry;
+  });
 
-  const sortedDurations = Object.keys(groupedProducts || {})
-    .map(Number)
-    .sort((a, b) => a - b);
+  const countries = Array.from(new Set(products?.map(p => p.country_code) || []));
 
-  const handleAddToCart = (product: Product) => {
+  const handleAddToCart = (product: any) => {
     addItem(product);
     toast.success(`${product.name} added to cart!`);
   };
 
+  const getCountryFlag = (countryCode: string) => {
+    const FlagComponent = (CountryFlags as any)[countryCode];
+    return FlagComponent ? <FlagComponent className="w-8 h-6 rounded shadow" /> : null;
+  };
+
   return (
-    <section id="shop" className="py-20 px-4 bg-background">
-      <div className="container mx-auto max-w-4xl">
+    <section id="shop" className="py-20 px-4 bg-gradient-to-br from-primary/5 via-background to-secondary/5">
+      <div className="container mx-auto max-w-7xl">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h2 className="text-4xl font-bold mb-2">Shop eSIMs</h2>
+            <h2 className="text-4xl font-bold mb-2">eSIM Plans</h2>
             <p className="text-muted-foreground">
-              Choose the perfect data package for your travel needs
+              Global connectivity at your fingertips
             </p>
           </div>
           
@@ -83,87 +86,126 @@ export const Shop = () => {
           )}
         </div>
 
-        <div className="flex justify-center mb-8">
-          <Button
-            onClick={handleSync}
-            disabled={isSyncing}
-            variant="outline"
-            size="sm"
-          >
-            {isSyncing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Sync Products
-          </Button>
+        {/* Filters */}
+        <div className="mb-8 flex flex-col md:flex-row gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search by country or plan..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          
+          <div className="flex gap-2 flex-wrap">
+            <Button
+              variant={selectedCountry === "all" ? "default" : "outline"}
+              onClick={() => setSelectedCountry("all")}
+              size="sm"
+            >
+              All Countries
+            </Button>
+            {countries.slice(0, 5).map(code => (
+              <Button
+                key={code}
+                variant={selectedCountry === code ? "default" : "outline"}
+                onClick={() => setSelectedCountry(code)}
+                size="sm"
+                className="flex items-center gap-2"
+              >
+                {getCountryFlag(code)}
+                {code}
+              </Button>
+            ))}
+            <Button
+              onClick={handleSync}
+              disabled={isSyncing}
+              variant="outline"
+              size="sm"
+            >
+              {isSyncing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Sync
+            </Button>
+          </div>
         </div>
 
         {isLoading ? (
-          <div className="flex justify-center py-12">
+          <div className="flex justify-center py-20">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
-        ) : !products?.length ? (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground mb-4">No products available</p>
-            <Button onClick={handleSync} disabled={isSyncing}>
-              {isSyncing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Load Products
-            </Button>
+        ) : !filteredProducts?.length ? (
+          <div className="text-center py-20">
+            <p className="text-muted-foreground mb-4">
+              {searchQuery || selectedCountry !== "all" ? "No products match your filters" : "No products available"}
+            </p>
+            {!products?.length && (
+              <Button onClick={handleSync} disabled={isSyncing}>
+                {isSyncing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Load Products
+              </Button>
+            )}
           </div>
         ) : (
-          <div className="space-y-8">
-            <div className="bg-card rounded-lg border p-6">
-              <h3 className="text-xl font-semibold mb-6">Choose your package</h3>
-              
-              {sortedDurations.map((days) => (
-                <div key={days} className="mb-8 last:mb-0">
-                  <h4 className="text-base font-semibold mb-4">
-                    {days} {days === 1 ? 'day' : 'days'}
-                  </h4>
-                  
-                  <div className="space-y-3">
-                    {groupedProducts[days]
-                      ?.sort((a, b) => a.price_usd - b.price_usd)
-                      .map((product) => (
-                        <div
-                          key={product.id}
-                          className="w-full flex items-center justify-between p-4 rounded-lg border bg-background hover:border-primary transition-all group"
-                        >
-                          <button
-                            onClick={() => {
-                              setSelectedProduct(product);
-                              setIsModalOpen(true);
-                            }}
-                            className="flex-1 text-left"
-                          >
-                            <span className="text-base font-medium">
-                              {product.data_amount}
-                            </span>
-                          </button>
-                          
-                          <div className="flex items-center gap-4">
-                            <span className="text-base font-semibold">
-                              ${product.price_usd.toFixed(2)}
-                            </span>
-                            <Button
-                              size="sm"
-                              onClick={() => handleAddToCart(product)}
-                            >
-                              <ShoppingCart className="mr-2 h-4 w-4" />
-                              Add
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredProducts.map((product) => (
+              <Card key={product.id} className="hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex items-center gap-3">
+                      {getCountryFlag(product.country_code)}
+                      <div>
+                        <CardTitle className="text-xl">{product.country_name}</CardTitle>
+                        <CardDescription>{product.name}</CardDescription>
+                      </div>
+                    </div>
+                    {product.is_popular && (
+                      <Badge className="bg-gradient-to-r from-primary to-primary/80">
+                        Popular
+                      </Badge>
+                    )}
                   </div>
-                </div>
-              ))}
-            </div>
+                </CardHeader>
+
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-sm">
+                      <Wifi className="h-4 w-4 text-primary" />
+                      <span className="font-semibold">{product.data_amount}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <Calendar className="h-4 w-4 text-primary" />
+                      <span>{product.validity_days} days validity</span>
+                    </div>
+                    {product.features?.coverage && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <Globe className="h-4 w-4 text-primary" />
+                        <span>{product.features.coverage}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="pt-4 border-t">
+                    <div className="text-3xl font-bold text-primary">
+                      ${product.price_usd.toFixed(2)}
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">One-time payment</p>
+                  </div>
+                </CardContent>
+
+                <CardFooter>
+                  <Button
+                    className="w-full"
+                    onClick={() => handleAddToCart(product)}
+                  >
+                    <ShoppingCart className="mr-2 h-4 w-4" />
+                    Add to Cart
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))}
           </div>
         )}
-
-        <ProductDetailModal
-          product={selectedProduct}
-          open={isModalOpen}
-          onOpenChange={setIsModalOpen}
-        />
       </div>
     </section>
   );
