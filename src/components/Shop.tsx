@@ -9,6 +9,7 @@ import { Loader2, ShoppingCart, Search, Wifi, Calendar, Globe, MapPin, Share2 } 
 import { toast } from "sonner";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import * as CountryFlags from 'country-flag-icons/react/3x2';
+import { ShareModal } from "./ShareModal";
 
 type CoverageType = "all" | "local" | "regional";
 
@@ -31,6 +32,8 @@ export const Shop = () => {
   const { items, addItem } = useCart();
   const [searchQuery, setSearchQuery] = useState("");
   const [coverageFilter, setCoverageFilter] = useState<CoverageType>("all");
+  const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
 
   // Classify products by coverage type
   const getProductCoverageType = (product: any): CoverageType => {
@@ -71,7 +74,8 @@ export const Shop = () => {
   };
 
   const handleShare = (product: any) => {
-    navigate('/affiliate');
+    setSelectedProduct(product);
+    setShareModalOpen(true);
   };
 
   const getCountryFlag = (countryCode: string) => {
@@ -181,6 +185,12 @@ export const Shop = () => {
             ))}
           </div>
         )}
+
+        <ShareModal 
+          open={shareModalOpen}
+          onOpenChange={setShareModalOpen}
+          product={selectedProduct}
+        />
       </div>
     </section>
   );
