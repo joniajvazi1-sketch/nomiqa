@@ -78,27 +78,52 @@ async function getAirloAccessToken(baseUrl: string): Promise<{ accessToken: stri
 }
 
 async function fetchAirloPackages(baseUrl: string, accessToken: string, tokenType: string): Promise<AirloCountry[]> {
-  console.log('Fetching packages from Airlo...');
-  console.log(`Using Authorization: ${tokenType} ${accessToken.substring(0, 20)}...`);
+  console.log('Fetching all packages from Airlo with pagination...');
+  
+  let allPackages: AirloCountry[] = [];
+  let page = 1;
+  let hasMore = true;
+  const limit = 100; // Fetch 100 per page
+  
+  while (hasMore) {
+    console.log(`Fetching page ${page}...`);
+    
+    const response = await fetch(`${baseUrl}/v2/packages?limit=${limit}&page=${page}`, {
+      headers: {
+        'Authorization': `${tokenType} ${accessToken}`,
+        'Accept': 'application/json',
+      },
+    });
 
-  const response = await fetch(`${baseUrl}/v2/packages?limit=50`, {
-    headers: {
-      'Authorization': `${tokenType} ${accessToken}`,
-      'Accept': 'application/json',
-    },
-  });
+    if (!response.ok) {
+      const error = await response.text();
+      console.error(`Airlo packages error (${response.status}):`, error);
+      throw new Error(`Failed to fetch packages: ${response.status} - ${error}`);
+    }
 
-  console.log(`Packages response status: ${response.status}`);
-
-  if (!response.ok) {
-    const error = await response.text();
-    console.error(`Airlo packages error (${response.status}):`, error);
-    throw new Error(`Failed to fetch packages: ${response.status} - ${error}`);
+    const data = await response.json();
+    const packages = data.data || [];
+    
+    console.log(`Page ${page}: Fetched ${packages.length} packages`);
+    
+    if (packages.length > 0) {
+      allPackages = [...allPackages, ...packages];
+      page++;
+      
+      // Check if there are more pages based on meta information
+      if (data.meta && data.meta.last_page && page > data.meta.last_page) {
+        hasMore = false;
+      } else if (packages.length < limit) {
+        // If we got fewer packages than the limit, we've reached the end
+        hasMore = false;
+      }
+    } else {
+      hasMore = false;
+    }
   }
-
-  const data = await response.json();
-  console.log(`Fetched ${data.data?.length || 0} packages from Airlo`);
-  return data.data || [];
+  
+  console.log(`Total packages fetched: ${allPackages.length}`);
+  return allPackages;
 }
 
 serve(async (req) => {
