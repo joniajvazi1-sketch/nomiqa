@@ -152,24 +152,41 @@ if (packages.length === 0) {
   throw lastError || new Error('Failed to fetch packages from all environments');
 }
 
-    // Transform and insert into database (only in-stock packages)
-    const products = packages
-      .filter(pkg => pkg.is_stock_available !== false)
-      .map((pkg) => ({
-        airlo_package_id: pkg.id,
-        name: pkg.title,
-        country_code: pkg.country.iso_code,
-        country_name: pkg.country.name,
-        data_amount: `${pkg.data.amount}${pkg.data.unit}`,
-        validity_days: pkg.validity.amount,
-        price_usd: pkg.price.amount,
-        features: {
-          coverage: pkg.country.name,
-          speed: '4G/5G',
-          activation: 'Instant',
-        },
-        is_popular: pkg.price.amount >= 10 && pkg.price.amount <= 30,
-      }));
+    // Transform and insert into database with defensive checks
+    const filtered = packages.filter((pkg) => {
+      const ok = pkg.is_stock_available !== false &&
+        pkg.country?.iso_code && pkg.country?.name &&
+        pkg.data?.amount != null && pkg.data?.unit &&
+        pkg.validity?.amount != null &&
+        pkg.price?.amount != null;
+      if (!ok) {
+        console.warn('Skipping package due to missing fields:', {
+          id: pkg.id,
+          hasCountry: !!pkg.country,
+          hasIso: !!pkg.country?.iso_code,
+          hasName: !!pkg.country?.name,
+        });
+      }
+      return ok;
+    });
+
+    console.log(`Preparing to upsert ${filtered.length} valid packages (skipped ${packages.length - filtered.length})`);
+
+    const products = filtered.map((pkg) => ({
+      airlo_package_id: pkg.id,
+      name: pkg.title,
+      country_code: pkg.country!.iso_code,
+      country_name: pkg.country!.name,
+      data_amount: `${pkg.data.amount}${pkg.data.unit}`,
+      validity_days: pkg.validity.amount,
+      price_usd: pkg.price.amount,
+      features: {
+        coverage: pkg.country!.name,
+        speed: '4G/5G',
+        activation: 'Instant',
+      },
+      is_popular: pkg.price.amount >= 10 && pkg.price.amount <= 30,
+    }));
 
     console.log(`Upserting ${products.length} products...`);
 
