@@ -352,6 +352,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_user_email: { Args: never; Returns: string }
       update_all_prices: { Args: never; Returns: number }
     }
     Enums: {
