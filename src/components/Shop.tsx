@@ -1,54 +1,64 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useProducts, useSyncProducts } from "@/hooks/useProducts";
+import { useProducts } from "@/hooks/useProducts";
 import { useCart } from "@/hooks/useCart";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Input } from "./ui/input";
-import { Loader2, ShoppingCart, Search, Wifi, Calendar, Globe } from "lucide-react";
+import { Loader2, ShoppingCart, Search, Wifi, Calendar, Globe, MapPin } from "lucide-react";
 import { toast } from "sonner";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import * as CountryFlags from 'country-flag-icons/react/3x2';
 
+type CoverageType = "all" | "local" | "regional" | "global";
+
 export const Shop = () => {
   const navigate = useNavigate();
-  const { data: products, isLoading, refetch } = useProducts();
+  const { data: products, isLoading } = useProducts();
   const { items, addItem } = useCart();
-  const syncProducts = useSyncProducts();
-  const [isSyncing, setIsSyncing] = useState(false);
-  const [autoSynced, setAutoSynced] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCountry, setSelectedCountry] = useState("all");
+  const [coverageFilter, setCoverageFilter] = useState<CoverageType>("all");
 
-  const handleSync = async () => {
-    setIsSyncing(true);
-    try {
-      await syncProducts();
-      await refetch();
-      toast.success("Products synced successfully");
-    } catch (error) {
-      toast.error("Failed to sync products");
-      console.error(error);
-    } finally {
-      setIsSyncing(false);
+  // Classify products by coverage type
+  const getProductCoverageType = (product: any): CoverageType => {
+    const countryCode = product.country_code?.toLowerCase() || "";
+    const countryName = product.country_name?.toLowerCase() || "";
+    
+    // Global packages (check for specific global indicators)
+    if (countryCode.includes("global") || 
+        countryName.includes("global") || 
+        countryCode === "mcd" ||
+        product.name?.toLowerCase().includes("global")) {
+      return "global";
     }
+    
+    // Regional packages (multi-country regions)
+    if (countryCode.includes("region") || 
+        countryName.includes("region") ||
+        countryCode.length > 2 || // Regional codes are often longer
+        countryName.includes("europe") ||
+        countryName.includes("asia") ||
+        countryName.includes("africa") ||
+        countryName.includes("caribbean") ||
+        countryName.includes("latin")) {
+      return "regional";
+    }
+    
+    // Local packages (single country)
+    return "local";
   };
-
-  useEffect(() => {
-    if (!products?.length && !isLoading && !autoSynced && !isSyncing) {
-      setAutoSynced(true);
-      handleSync();
-    }
-  }, [products, isLoading, autoSynced, isSyncing]);
 
   const filteredProducts = products?.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          product.country_name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCountry = selectedCountry === "all" || product.country_code === selectedCountry;
-    return matchesSearch && matchesCountry;
+    
+    if (coverageFilter === "all") {
+      return matchesSearch;
+    }
+    
+    const productType = getProductCoverageType(product);
+    return matchesSearch && productType === coverageFilter;
   });
-
-  const countries = Array.from(new Set(products?.map(p => p.country_code) || []));
 
   const handleAddToCart = (product: any) => {
     addItem(product);
@@ -100,32 +110,38 @@ export const Shop = () => {
           
           <div className="flex gap-2 flex-wrap">
             <Button
-              variant={selectedCountry === "all" ? "default" : "outline"}
-              onClick={() => setSelectedCountry("all")}
+              variant={coverageFilter === "all" ? "default" : "outline"}
+              onClick={() => setCoverageFilter("all")}
               size="sm"
             >
-              All Countries
+              All Plans
             </Button>
-            {countries.slice(0, 5).map(code => (
-              <Button
-                key={code}
-                variant={selectedCountry === code ? "default" : "outline"}
-                onClick={() => setSelectedCountry(code)}
-                size="sm"
-                className="flex items-center gap-2"
-              >
-                {getCountryFlag(code)}
-                {code}
-              </Button>
-            ))}
             <Button
-              onClick={handleSync}
-              disabled={isSyncing}
-              variant="outline"
+              variant={coverageFilter === "local" ? "default" : "outline"}
+              onClick={() => setCoverageFilter("local")}
               size="sm"
+              className="flex items-center gap-2"
             >
-              {isSyncing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Sync
+              <MapPin className="h-4 w-4" />
+              Local
+            </Button>
+            <Button
+              variant={coverageFilter === "regional" ? "default" : "outline"}
+              onClick={() => setCoverageFilter("regional")}
+              size="sm"
+              className="flex items-center gap-2"
+            >
+              <Globe className="h-4 w-4" />
+              Regional
+            </Button>
+            <Button
+              variant={coverageFilter === "global" ? "default" : "outline"}
+              onClick={() => setCoverageFilter("global")}
+              size="sm"
+              className="flex items-center gap-2"
+            >
+              <Globe className="h-4 w-4" />
+              Global
             </Button>
           </div>
         </div>
@@ -136,15 +152,9 @@ export const Shop = () => {
           </div>
         ) : !filteredProducts?.length ? (
           <div className="text-center py-20">
-            <p className="text-muted-foreground mb-4">
-              {searchQuery || selectedCountry !== "all" ? "No products match your filters" : "No products available"}
+            <p className="text-muted-foreground">
+              {searchQuery || coverageFilter !== "all" ? "No products match your filters" : "No products available"}
             </p>
-            {!products?.length && (
-              <Button onClick={handleSync} disabled={isSyncing}>
-                {isSyncing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Load Products
-              </Button>
-            )}
           </div>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
