@@ -27,8 +27,8 @@ export const useProducts = () => {
       const { data, error } = await supabase
         .from('products')
         .select('*')
-        .order('is_popular', { ascending: false })
-        .order('price_usd', { ascending: true });
+        .order('price_usd', { ascending: true })
+        .order('is_popular', { ascending: false });
 
       if (error) throw error;
       return data as Product[];
