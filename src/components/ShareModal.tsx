@@ -96,10 +96,11 @@ export const ShareModal = ({ open, onOpenChange, product }: ShareModalProps) => 
   if (!product) return null;
 
   const affiliateLink = affiliateCode 
-    ? `${window.location.origin}/?ref=${affiliateCode}&product=${product.id}`
+    ? `${window.location.origin}/r/${affiliateCode}`
     : '';
 
   const shareText = `Check out this amazing eSIM plan: ${product.name} - ${product.data_amount} for ${product.validity_days} days in ${product.country_name}! Only $${product.price_usd.toFixed(2)}`;
+
 
   const copyLink = () => {
     if (affiliateLink) {

@@ -77,7 +77,7 @@ export default function Affiliate() {
 
     if (!error && data) {
       setAffiliate(data);
-      setAffiliateLink(`${window.location.origin}/?ref=${data.affiliate_code}`);
+      setAffiliateLink(`${window.location.origin}/r/${data.affiliate_code}`);
     }
   };
 
@@ -126,7 +126,7 @@ export default function Affiliate() {
       if (error) throw error;
 
       setAffiliate(data);
-      setAffiliateLink(`${window.location.origin}/?ref=${data.affiliate_code}`);
+      setAffiliateLink(`${window.location.origin}/r/${data.affiliate_code}`);
       
       // Store in localStorage for guest users
       if (!user) {
