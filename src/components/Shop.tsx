@@ -1,14 +1,17 @@
 import { useEffect, useState } from "react";
-import { useProducts, useSyncProducts } from "@/hooks/useProducts";
+import { useProducts, useSyncProducts, Product } from "@/hooks/useProducts";
 import { Button } from "./ui/button";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { ProductDetailModal } from "./ProductDetailModal";
 
 export const Shop = () => {
   const { data: products, isLoading, refetch } = useProducts();
   const syncProducts = useSyncProducts();
   const [isSyncing, setIsSyncing] = useState(false);
   const [autoSynced, setAutoSynced] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleSync = async () => {
     setIsSyncing(true);
@@ -97,6 +100,10 @@ export const Shop = () => {
                       .map((product) => (
                         <button
                           key={product.id}
+                          onClick={() => {
+                            setSelectedProduct(product);
+                            setIsModalOpen(true);
+                          }}
                           className="w-full flex items-center justify-between p-4 rounded-lg border bg-background hover:border-primary transition-all group"
                         >
                           <span className="text-base font-medium">
@@ -113,6 +120,12 @@ export const Shop = () => {
             </div>
           </div>
         )}
+
+        <ProductDetailModal
+          product={selectedProduct}
+          open={isModalOpen}
+          onOpenChange={setIsModalOpen}
+        />
       </div>
     </section>
   );
