@@ -14,6 +14,7 @@ export default function Auth() {
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("");
 
   useEffect(() => {
     // Check if user is already logged in
@@ -30,7 +31,18 @@ export default function Auth() {
 
     try {
       if (isSignUp) {
-        const { error } = await supabase.auth.signUp({
+        // Check if username already exists
+        const { data: existingProfile } = await supabase
+          .from('profiles')
+          .select('username')
+          .eq('username', username.toLowerCase())
+          .maybeSingle();
+
+        if (existingProfile) {
+          throw new Error('Username already taken');
+        }
+
+        const { data: authData, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -39,6 +51,19 @@ export default function Auth() {
         });
 
         if (error) throw error;
+
+        // Create profile with username
+        if (authData.user) {
+          const { error: profileError } = await supabase
+            .from('profiles')
+            .insert({
+              user_id: authData.user.id,
+              username: username.toLowerCase()
+            });
+
+          if (profileError) throw profileError;
+        }
+
         toast.success("Check your email to confirm your account!");
       } else {
         const { error } = await supabase.auth.signInWithPassword({
@@ -70,6 +95,24 @@ export default function Auth() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleAuth} className="space-y-4">
+            {isSignUp && (
+              <div className="space-y-2">
+                <Label htmlFor="username">Username</Label>
+                <Input
+                  id="username"
+                  type="text"
+                  placeholder="your_username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value.replace(/[^a-zA-Z0-9_]/g, ''))}
+                  required={isSignUp}
+                  minLength={3}
+                  maxLength={20}
+                />
+                <p className="text-xs text-muted-foreground">
+                  3-20 characters, letters, numbers and underscores only
+                </p>
+              </div>
+            )}
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input

@@ -19,6 +19,7 @@ export type Database = {
           affiliate_id: string
           clicked_at: string
           commission_amount_usd: number | null
+          commission_level: number | null
           converted_at: string | null
           created_at: string
           id: string
@@ -30,6 +31,7 @@ export type Database = {
           affiliate_id: string
           clicked_at?: string
           commission_amount_usd?: number | null
+          commission_level?: number | null
           converted_at?: string | null
           created_at?: string
           id?: string
@@ -41,6 +43,7 @@ export type Database = {
           affiliate_id?: string
           clicked_at?: string
           commission_amount_usd?: number | null
+          commission_level?: number | null
           converted_at?: string | null
           created_at?: string
           id?: string
@@ -72,6 +75,7 @@ export type Database = {
           created_at: string
           email: string
           id: string
+          parent_affiliate_id: string | null
           status: string | null
           total_clicks: number | null
           total_conversions: number | null
@@ -85,6 +89,7 @@ export type Database = {
           created_at?: string
           email: string
           id?: string
+          parent_affiliate_id?: string | null
           status?: string | null
           total_clicks?: number | null
           total_conversions?: number | null
@@ -98,6 +103,7 @@ export type Database = {
           created_at?: string
           email?: string
           id?: string
+          parent_affiliate_id?: string | null
           status?: string | null
           total_clicks?: number | null
           total_conversions?: number | null
@@ -105,7 +111,15 @@ export type Database = {
           updated_at?: string
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "affiliates_parent_affiliate_id_fkey"
+            columns: ["parent_affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "affiliates"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       esim_usage: {
         Row: {
@@ -279,6 +293,30 @@ export type Database = {
           price_usd?: number
           updated_at?: string
           validity_days?: number
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+          username: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+          username: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+          username?: string
         }
         Relationships: []
       }

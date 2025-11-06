@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Copy, TrendingUp, Users, DollarSign, CheckCircle2, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useAffiliateTracking } from "@/hooks/useAffiliateTracking";
 
 interface AffiliateData {
   id: string;
@@ -55,7 +56,7 @@ export default function Affiliate() {
       .from('affiliates')
       .select('*')
       .eq('email', email)
-      .single();
+      .maybeSingle();
 
     if (!error && data) {
       setAffiliate(data);
@@ -63,23 +64,45 @@ export default function Affiliate() {
     }
   };
 
-  const generateCode = () => {
-    return Math.random().toString(36).substring(2, 10).toUpperCase();
-  };
-
   const createAffiliate = async () => {
     if (!user) return;
 
     setCreating(true);
     try {
-      const code = generateCode();
-      
+      // Get user's profile with username
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('username')
+        .eq('user_id', user.id)
+        .single();
+
+      if (profileError || !profile) {
+        throw new Error('Username not found. Please contact support.');
+      }
+
+      // Get referrer's affiliate ID if user signed up with a ref code
+      const { referralCode } = useAffiliateTracking.getState();
+      let parentAffiliateId = null;
+
+      if (referralCode) {
+        const { data: parentAffiliate } = await supabase
+          .from('affiliates')
+          .select('id')
+          .eq('affiliate_code', referralCode)
+          .maybeSingle();
+
+        if (parentAffiliate) {
+          parentAffiliateId = parentAffiliate.id;
+        }
+      }
+
       const { data, error } = await supabase
         .from('affiliates')
         .insert({
           user_id: user.id,
           email: user.email,
-          affiliate_code: code,
+          affiliate_code: profile.username,
+          parent_affiliate_id: parentAffiliateId,
         })
         .select()
         .single();
@@ -133,10 +156,10 @@ export default function Affiliate() {
               <CardContent>
                 <div className="space-y-6">
                   <div className="grid md:grid-cols-3 gap-4">
-                    <div className="text-center p-4 bg-primary/5 rounded-lg">
+                  <div className="text-center p-4 bg-primary/5 rounded-lg">
                       <DollarSign className="w-8 h-8 text-primary mx-auto mb-2" />
-                      <h3 className="font-bold">10% Commission</h3>
-                      <p className="text-sm text-muted-foreground">On every sale</p>
+                      <h3 className="font-bold">Multi-Level Rewards</h3>
+                      <p className="text-sm text-muted-foreground">9% → 6% → 3%</p>
                     </div>
                     <div className="text-center p-4 bg-primary/5 rounded-lg">
                       <Users className="w-8 h-8 text-primary mx-auto mb-2" />
@@ -195,10 +218,13 @@ export default function Affiliate() {
                 </Card>
                 <Card>
                   <CardHeader className="pb-3">
-                    <CardDescription>Commission Rate</CardDescription>
+                    <CardDescription>Commission Rates</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-3xl font-bold">{affiliate.commission_rate}%</div>
+                    <div className="space-y-1">
+                      <div className="text-lg font-bold">L1: 9%</div>
+                      <div className="text-sm text-muted-foreground">L2: 6% • L3: 3%</div>
+                    </div>
                   </CardContent>
                 </Card>
               </div>
@@ -261,7 +287,7 @@ export default function Affiliate() {
                       <div>
                         <h4 className="font-semibold mb-1">Earn Commission</h4>
                         <p className="text-sm text-muted-foreground">
-                          You earn {affiliate.commission_rate}% commission on every successful sale
+                          Earn 9% on direct referrals, 6% on level 2, and 3% on level 3
                         </p>
                       </div>
                     </li>

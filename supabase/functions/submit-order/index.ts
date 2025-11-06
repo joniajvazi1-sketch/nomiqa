@@ -98,6 +98,96 @@ serve(async (req) => {
       throw orderError;
     }
 
+    // Handle multi-level affiliate commissions
+    // Get the most recent referral for this order's visitor
+    const { data: referrals } = await supabase
+      .from('affiliate_referrals')
+      .select('affiliate_id')
+      .is('order_id', null)
+      .order('clicked_at', { ascending: false })
+      .limit(1);
+
+    if (referrals && referrals.length > 0 && product?.price_usd) {
+      const referral = referrals[0];
+      const totalPrice = product.price_usd;
+      const commissionRates = [0.09, 0.06, 0.03]; // Level 1: 9%, Level 2: 6%, Level 3: 3%
+      
+      // Update the referral with order_id and mark as converted
+      await supabase
+        .from('affiliate_referrals')
+        .update({
+          order_id: order.id,
+          status: 'converted',
+          converted_at: new Date().toISOString(),
+          commission_amount_usd: totalPrice * commissionRates[0],
+          commission_level: 1
+        })
+        .eq('affiliate_id', referral.affiliate_id)
+        .is('order_id', null);
+
+      // Get level 1 affiliate details
+      const { data: level1Aff } = await supabase
+        .from('affiliates')
+        .select('id, total_earnings_usd, total_conversions, parent_affiliate_id')
+        .eq('id', referral.affiliate_id)
+        .single();
+
+      if (level1Aff) {
+        // Update level 1 affiliate earnings
+        const level1Commission = totalPrice * commissionRates[0];
+        await supabase
+          .from('affiliates')
+          .update({
+            total_earnings_usd: (level1Aff.total_earnings_usd || 0) + level1Commission,
+            total_conversions: (level1Aff.total_conversions || 0) + 1
+          })
+          .eq('id', level1Aff.id);
+
+        // Handle level 2 and 3 commissions
+        let currentAffiliateId = level1Aff.parent_affiliate_id;
+        let level = 2;
+
+        while (currentAffiliateId && level <= 3) {
+          const commission = totalPrice * commissionRates[level - 1];
+          
+          // Create referral record for this level
+          await supabase
+            .from('affiliate_referrals')
+            .insert({
+              affiliate_id: currentAffiliateId,
+              order_id: order.id,
+              status: 'converted',
+              converted_at: new Date().toISOString(),
+              commission_amount_usd: commission,
+              commission_level: level
+            });
+
+          // Update affiliate earnings
+          const { data: currentAff } = await supabase
+            .from('affiliates')
+            .select('total_earnings_usd, total_conversions, parent_affiliate_id')
+            .eq('id', currentAffiliateId)
+            .single();
+
+          if (currentAff) {
+            await supabase
+              .from('affiliates')
+              .update({
+                total_earnings_usd: (currentAff.total_earnings_usd || 0) + commission,
+                total_conversions: (currentAff.total_conversions || 0) + 1
+              })
+              .eq('id', currentAffiliateId);
+
+            currentAffiliateId = currentAff.parent_affiliate_id;
+          } else {
+            break;
+          }
+
+          level++;
+        }
+      }
+    }
+
     return new Response(
       JSON.stringify({
         success: true,
