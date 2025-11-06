@@ -14,7 +14,101 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      orders: {
+        Row: {
+          activation_code: string | null
+          airlo_order_id: string | null
+          created_at: string
+          email: string
+          id: string
+          product_id: string
+          qr_code_url: string | null
+          status: string
+          total_amount_usd: number
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          activation_code?: string | null
+          airlo_order_id?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          product_id: string
+          qr_code_url?: string | null
+          status?: string
+          total_amount_usd: number
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          activation_code?: string | null
+          airlo_order_id?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          product_id?: string
+          qr_code_url?: string | null
+          status?: string
+          total_amount_usd?: number
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          airlo_package_id: string
+          country_code: string
+          country_name: string
+          created_at: string
+          data_amount: string
+          features: Json | null
+          id: string
+          is_popular: boolean | null
+          name: string
+          price_usd: number
+          updated_at: string
+          validity_days: number
+        }
+        Insert: {
+          airlo_package_id: string
+          country_code: string
+          country_name: string
+          created_at?: string
+          data_amount: string
+          features?: Json | null
+          id?: string
+          is_popular?: boolean | null
+          name: string
+          price_usd: number
+          updated_at?: string
+          validity_days: number
+        }
+        Update: {
+          airlo_package_id?: string
+          country_code?: string
+          country_name?: string
+          created_at?: string
+          data_amount?: string
+          features?: Json | null
+          id?: string
+          is_popular?: boolean | null
+          name?: string
+          price_usd?: number
+          updated_at?: string
+          validity_days?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
