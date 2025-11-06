@@ -7,9 +7,14 @@ const corsHeaders = {
 };
 
 interface AirloAuthResponse {
-  access_token: string;
-  token_type: string;
-  expires_in: number;
+  data: {
+    access_token: string;
+    token_type: string;
+    expires_in: number;
+  };
+  meta?: {
+    message?: string;
+  };
 }
 
 interface AirloPackage {
@@ -34,23 +39,23 @@ interface AirloPackage {
   is_stock_available: boolean;
 }
 
-async function getAirloAccessToken(): Promise<string> {
+async function getAirloAccessToken(): Promise<{ accessToken: string; tokenType: string }> {
   const clientId = Deno.env.get('AIRLO_CLIENT_ID');
   const clientSecret = Deno.env.get('AIRLO_CLIENT_SECRET');
 
   console.log('Requesting Airlo access token...');
 
+  const form = new FormData();
+  form.append('client_id', clientId || '');
+  form.append('client_secret', clientSecret || '');
+  form.append('grant_type', 'client_credentials');
+
   const response = await fetch('https://partners-api.airalo.com/v2/token', {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
       'Accept': 'application/json',
     },
-    body: JSON.stringify({
-      client_id: clientId,
-      client_secret: clientSecret,
-      grant_type: 'client_credentials',
-    }),
+    body: form,
   });
 
   if (!response.ok) {
@@ -59,17 +64,25 @@ async function getAirloAccessToken(): Promise<string> {
     throw new Error(`Failed to authenticate with Airlo: ${response.status}`);
   }
 
-  const data: AirloAuthResponse = await response.json();
+  const json: AirloAuthResponse = await response.json();
+  const accessToken = json?.data?.access_token;
+  const tokenType = json?.data?.token_type || 'Bearer';
+
+  if (!accessToken) {
+    console.error('Airlo auth missing access_token:', JSON.stringify(json));
+    throw new Error('Airlo auth succeeded but no access_token returned');
+  }
+
   console.log('Successfully obtained Airlo access token');
-  return data.access_token;
+  return { accessToken, tokenType };
 }
 
-async function fetchAirloPackages(accessToken: string): Promise<AirloPackage[]> {
+async function fetchAirloPackages(accessToken: string, tokenType: string): Promise<AirloPackage[]> {
   console.log('Fetching packages from Airlo...');
 
   const response = await fetch('https://partners-api.airalo.com/v2/packages?limit=50', {
     headers: {
-      'Authorization': `Bearer ${accessToken}`,
+      'Authorization': `${tokenType} ${accessToken}`,
       'Accept': 'application/json',
     },
   });
@@ -97,11 +110,11 @@ serve(async (req) => {
 
     console.log('Starting Airlo products sync from partners-api.airalo.com...');
 
-    // Get Airlo access token
-    const accessToken = await getAirloAccessToken();
+// Get Airlo access token
+const { accessToken, tokenType } = await getAirloAccessToken();
 
-    // Fetch packages from Airlo
-    const packages = await fetchAirloPackages(accessToken);
+// Fetch packages from Airlo
+const packages = await fetchAirloPackages(accessToken, tokenType);
 
     // Transform and insert into database (only in-stock packages)
     const products = packages
