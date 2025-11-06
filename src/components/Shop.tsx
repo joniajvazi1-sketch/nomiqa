@@ -34,6 +34,7 @@ export const Shop = () => {
   const [coverageFilter, setCoverageFilter] = useState<CoverageType>("all");
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
+  const [displayCount, setDisplayCount] = useState(10);
 
   // Classify products by coverage type
   const getProductCoverageType = (product: any): CoverageType => {
@@ -67,6 +68,9 @@ export const Shop = () => {
     const productType = getProductCoverageType(product);
     return matchesSearch && productType === coverageFilter;
   });
+
+  const displayedProducts = filteredProducts?.slice(0, displayCount);
+  const hasMore = filteredProducts && filteredProducts.length > displayCount;
 
   const handleAddToCart = (product: any) => {
     addItem(product);
@@ -119,8 +123,9 @@ export const Shop = () => {
             </p>
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredProducts.map((product) => (
+          <>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {displayedProducts?.map((product) => (
               <Card key={product.id} className="hover:shadow-lg transition-shadow">
                 <CardHeader>
                   <div className="flex items-start justify-between mb-2">
@@ -182,8 +187,21 @@ export const Shop = () => {
                   </Button>
                 </CardFooter>
               </Card>
-            ))}
-          </div>
+              ))}
+            </div>
+            
+            {hasMore && (
+              <div className="flex justify-center mt-8">
+                <Button 
+                  onClick={() => setDisplayCount(prev => prev + 10)}
+                  variant="outline"
+                  size="lg"
+                >
+                  Load More ({filteredProducts.length - displayCount} remaining)
+                </Button>
+              </div>
+            )}
+          </>
         )}
 
         <ShareModal 
