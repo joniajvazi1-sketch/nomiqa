@@ -1,93 +1,116 @@
-import { PlanCard } from "./PlanCard";
+import { useEffect, useState } from "react";
 import { useProducts, useSyncProducts } from "@/hooks/useProducts";
 import { Button } from "./ui/button";
-import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export const Shop = () => {
   const { data: products, isLoading, refetch } = useProducts();
   const syncProducts = useSyncProducts();
-  const { toast } = useToast();
   const [isSyncing, setIsSyncing] = useState(false);
   const [autoSynced, setAutoSynced] = useState(false);
 
   const handleSync = async () => {
+    setIsSyncing(true);
     try {
-      setIsSyncing(true);
       await syncProducts();
       await refetch();
-      toast({
-        title: "Products synced",
-        description: "eSIM products updated from Airlo",
-      });
+      toast.success("Products synced successfully");
     } catch (error) {
-      toast({
-        title: "Sync failed",
-        description: "Could not sync products from Airlo",
-        variant: "destructive",
-      });
+      toast.error("Failed to sync products");
+      console.error(error);
     } finally {
       setIsSyncing(false);
     }
   };
-  
+
   useEffect(() => {
-    if (!isLoading && !isSyncing && (!products || products.length === 0) && !autoSynced) {
+    if (!products?.length && !isLoading && !autoSynced && !isSyncing) {
       setAutoSynced(true);
       handleSync();
     }
-  }, [isLoading, isSyncing, products, autoSynced]);
+  }, [products, isLoading, autoSynced, isSyncing]);
+
+  // Group products by validity_days
+  const groupedProducts = products?.reduce((acc, product) => {
+    const days = product.validity_days;
+    if (!acc[days]) {
+      acc[days] = [];
+    }
+    acc[days].push(product);
+    return acc;
+  }, {} as Record<number, typeof products>);
+
+  // Sort duration groups
+  const sortedDurations = Object.keys(groupedProducts || {})
+    .map(Number)
+    .sort((a, b) => a - b);
 
   return (
-    <section id="shop" className="py-20 bg-background">
-      <div className="container px-4">
+    <section id="shop" className="py-20 px-4 bg-background">
+      <div className="container mx-auto max-w-4xl">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold mb-4">Shop eSIMs</h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Browse and purchase eSIM data packages for your travels worldwide.
+          <p className="text-muted-foreground">
+            Choose the perfect data package for your travel needs
           </p>
-          <Button 
-            onClick={handleSync} 
+        </div>
+
+        <div className="flex justify-center mb-8">
+          <Button
+            onClick={handleSync}
             disabled={isSyncing}
             variant="outline"
-            className="mt-4"
+            size="sm"
           >
             {isSyncing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Sync Products from Airlo
+            Sync Products
           </Button>
         </div>
-        
+
         {isLoading ? (
-          <div className="flex justify-center items-center py-20">
-            <Loader2 className="h-8 w-8 animate-spin text-accent" />
+          <div className="flex justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
-        ) : products && products.length > 0 ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {products.map((product) => (
-              <PlanCard 
-                key={product.id}
-                name={product.name}
-                data={product.data_amount}
-                validity={`${product.validity_days} Days`}
-                price={`$${product.price_usd.toFixed(2)}`}
-                features={[
-                  `Coverage in ${product.country_name}`,
-                  product.features.speed || '4G/5G speeds',
-                  product.features.activation || 'Instant activation',
-                  'Keep your WhatsApp number'
-                ]}
-                popular={product.is_popular}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-20">
-            <p className="text-muted-foreground mb-4">No products available yet.</p>
+        ) : !products?.length ? (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground mb-4">No products available</p>
             <Button onClick={handleSync} disabled={isSyncing}>
               {isSyncing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Load Products from Airlo
+              Load Products
             </Button>
+          </div>
+        ) : (
+          <div className="space-y-8">
+            <div className="bg-card rounded-lg border p-6">
+              <h3 className="text-xl font-semibold mb-6">Choose your package</h3>
+              
+              {sortedDurations.map((days) => (
+                <div key={days} className="mb-8 last:mb-0">
+                  <h4 className="text-base font-semibold mb-4">
+                    {days} {days === 1 ? 'day' : 'days'}
+                  </h4>
+                  
+                  <div className="space-y-3">
+                    {groupedProducts[days]
+                      ?.sort((a, b) => a.price_usd - b.price_usd)
+                      .map((product) => (
+                        <button
+                          key={product.id}
+                          className="w-full flex items-center justify-between p-4 rounded-lg border bg-background hover:border-primary transition-all group"
+                        >
+                          <span className="text-base font-medium">
+                            {product.data_amount}
+                          </span>
+                          <span className="text-base font-semibold">
+                            ${product.price_usd.toFixed(2)}
+                          </span>
+                        </button>
+                      ))}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>
