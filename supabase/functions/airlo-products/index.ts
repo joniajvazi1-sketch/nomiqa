@@ -82,8 +82,8 @@ async function fetchAirloPackages(baseUrl: string, accessToken: string, tokenTyp
   
   let allPackages: AirloCountry[] = [];
   
-  // Fetch both local and global packages
-  const types = ['local', 'global'];
+  // Fetch local, global, AND regional packages
+  const types = ['local', 'global', 'regional'];
   
   for (const type of types) {
     console.log(`Fetching ${type} packages...`);
