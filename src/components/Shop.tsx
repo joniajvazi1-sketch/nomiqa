@@ -1,12 +1,17 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useProducts, useSyncProducts, Product } from "@/hooks/useProducts";
+import { useCart } from "@/hooks/useCart";
 import { Button } from "./ui/button";
-import { Loader2 } from "lucide-react";
+import { Badge } from "./ui/badge";
+import { Loader2, ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
 import { ProductDetailModal } from "./ProductDetailModal";
 
 export const Shop = () => {
+  const navigate = useNavigate();
   const { data: products, isLoading, refetch } = useProducts();
+  const { items, addItem } = useCart();
   const syncProducts = useSyncProducts();
   const [isSyncing, setIsSyncing] = useState(false);
   const [autoSynced, setAutoSynced] = useState(false);
@@ -34,7 +39,6 @@ export const Shop = () => {
     }
   }, [products, isLoading, autoSynced, isSyncing]);
 
-  // Group products by validity_days
   const groupedProducts = products?.reduce((acc, product) => {
     const days = product.validity_days;
     if (!acc[days]) {
@@ -44,19 +48,39 @@ export const Shop = () => {
     return acc;
   }, {} as Record<number, typeof products>);
 
-  // Sort duration groups
   const sortedDurations = Object.keys(groupedProducts || {})
     .map(Number)
     .sort((a, b) => a - b);
 
+  const handleAddToCart = (product: Product) => {
+    addItem(product);
+    toast.success(`${product.name} added to cart!`);
+  };
+
   return (
     <section id="shop" className="py-20 px-4 bg-background">
       <div className="container mx-auto max-w-4xl">
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold mb-4">Shop eSIMs</h2>
-          <p className="text-muted-foreground">
-            Choose the perfect data package for your travel needs
-          </p>
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h2 className="text-4xl font-bold mb-2">Shop eSIMs</h2>
+            <p className="text-muted-foreground">
+              Choose the perfect data package for your travel needs
+            </p>
+          </div>
+          
+          {items.length > 0 && (
+            <Button
+              onClick={() => navigate('/checkout')}
+              size="lg"
+              className="relative"
+            >
+              <ShoppingCart className="mr-2 h-5 w-5" />
+              Cart
+              <Badge className="ml-2 bg-white text-primary hover:bg-white">
+                {items.reduce((sum, item) => sum + item.quantity, 0)}
+              </Badge>
+            </Button>
+          )}
         </div>
 
         <div className="flex justify-center mb-8">
@@ -98,21 +122,35 @@ export const Shop = () => {
                     {groupedProducts[days]
                       ?.sort((a, b) => a.price_usd - b.price_usd)
                       .map((product) => (
-                        <button
+                        <div
                           key={product.id}
-                          onClick={() => {
-                            setSelectedProduct(product);
-                            setIsModalOpen(true);
-                          }}
                           className="w-full flex items-center justify-between p-4 rounded-lg border bg-background hover:border-primary transition-all group"
                         >
-                          <span className="text-base font-medium">
-                            {product.data_amount}
-                          </span>
-                          <span className="text-base font-semibold">
-                            ${product.price_usd.toFixed(2)}
-                          </span>
-                        </button>
+                          <button
+                            onClick={() => {
+                              setSelectedProduct(product);
+                              setIsModalOpen(true);
+                            }}
+                            className="flex-1 text-left"
+                          >
+                            <span className="text-base font-medium">
+                              {product.data_amount}
+                            </span>
+                          </button>
+                          
+                          <div className="flex items-center gap-4">
+                            <span className="text-base font-semibold">
+                              ${product.price_usd.toFixed(2)}
+                            </span>
+                            <Button
+                              size="sm"
+                              onClick={() => handleAddToCart(product)}
+                            >
+                              <ShoppingCart className="mr-2 h-4 w-4" />
+                              Add
+                            </Button>
+                          </div>
+                        </div>
                       ))}
                   </div>
                 </div>

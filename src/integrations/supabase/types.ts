@@ -14,45 +14,125 @@ export type Database = {
   }
   public: {
     Tables: {
+      esim_usage: {
+        Row: {
+          created_at: string | null
+          expired_at: string | null
+          iccid: string
+          id: string
+          last_updated: string | null
+          order_id: string | null
+          remaining_mb: number | null
+          remaining_text: number | null
+          remaining_voice: number | null
+          status: string | null
+          total_mb: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          expired_at?: string | null
+          iccid: string
+          id?: string
+          last_updated?: string | null
+          order_id?: string | null
+          remaining_mb?: number | null
+          remaining_text?: number | null
+          remaining_voice?: number | null
+          status?: string | null
+          total_mb?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          expired_at?: string | null
+          iccid?: string
+          id?: string
+          last_updated?: string | null
+          order_id?: string | null
+          remaining_mb?: number | null
+          remaining_text?: number | null
+          remaining_voice?: number | null
+          status?: string | null
+          total_mb?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "esim_usage_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       orders: {
         Row: {
           activation_code: string | null
           airlo_order_id: string | null
+          airlo_request_id: string | null
           created_at: string
+          data_amount: string | null
           email: string
+          iccid: string | null
           id: string
+          lpa: string | null
+          manual_installation: string | null
+          matching_id: string | null
+          package_name: string | null
           product_id: string
           qr_code_url: string | null
+          qrcode: string | null
+          qrcode_installation: string | null
           status: string
           total_amount_usd: number
           updated_at: string
           user_id: string | null
+          validity_days: number | null
         }
         Insert: {
           activation_code?: string | null
           airlo_order_id?: string | null
+          airlo_request_id?: string | null
           created_at?: string
+          data_amount?: string | null
           email: string
+          iccid?: string | null
           id?: string
+          lpa?: string | null
+          manual_installation?: string | null
+          matching_id?: string | null
+          package_name?: string | null
           product_id: string
           qr_code_url?: string | null
+          qrcode?: string | null
+          qrcode_installation?: string | null
           status?: string
           total_amount_usd: number
           updated_at?: string
           user_id?: string | null
+          validity_days?: number | null
         }
         Update: {
           activation_code?: string | null
           airlo_order_id?: string | null
+          airlo_request_id?: string | null
           created_at?: string
+          data_amount?: string | null
           email?: string
+          iccid?: string | null
           id?: string
+          lpa?: string | null
+          manual_installation?: string | null
+          matching_id?: string | null
+          package_name?: string | null
           product_id?: string
           qr_code_url?: string | null
+          qrcode?: string | null
+          qrcode_installation?: string | null
           status?: string
           total_amount_usd?: number
           updated_at?: string
           user_id?: string | null
+          validity_days?: number | null
         }
         Relationships: [
           {
@@ -106,6 +186,33 @@ export type Database = {
           price_usd?: number
           updated_at?: string
           validity_days?: number
+        }
+        Relationships: []
+      }
+      webhook_logs: {
+        Row: {
+          created_at: string | null
+          event_type: string
+          id: string
+          payload: Json
+          processed: boolean | null
+          signature: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          event_type: string
+          id?: string
+          payload: Json
+          processed?: boolean | null
+          signature?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          event_type?: string
+          id?: string
+          payload?: Json
+          processed?: boolean | null
+          signature?: string | null
         }
         Relationships: []
       }
