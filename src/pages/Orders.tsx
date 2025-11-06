@@ -15,6 +15,13 @@ import {
 } from "@/components/ui/dialog";
 import QRCode from "react-qr-code";
 
+interface UsageData {
+  remaining_mb: number;
+  total_mb: number;
+  status: string;
+  expired_at: string | null;
+}
+
 interface Order {
   id: string;
   email: string;
@@ -38,6 +45,7 @@ export default function Orders() {
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [showQR, setShowQR] = useState(false);
+  const [usageData, setUsageData] = useState<Record<string, UsageData>>({});
 
   const fetchOrders = async () => {
     try {
@@ -56,6 +64,25 @@ export default function Orders() {
 
       if (error) throw error;
       setOrders(data || []);
+
+      // Fetch usage data for each order
+      if (data && data.length > 0) {
+        const usageMap: Record<string, UsageData> = {};
+        
+        for (const order of data) {
+          const { data: usage } = await supabase
+            .from('esim_usage')
+            .select('remaining_mb, total_mb, status, expired_at')
+            .eq('order_id', order.id)
+            .single();
+          
+          if (usage) {
+            usageMap[order.id] = usage;
+          }
+        }
+        
+        setUsageData(usageMap);
+      }
     } catch (error: any) {
       console.error('Error fetching orders:', error);
       toast.error("Failed to load orders");
@@ -141,6 +168,24 @@ export default function Orders() {
                       <p className="text-sm text-muted-foreground">Package Details</p>
                       <p className="font-medium">{order.data_amount} • {order.validity_days} days</p>
                       <p className="text-sm">Total: ${order.total_amount_usd.toFixed(2)}</p>
+                      
+                      {usageData[order.id] && (
+                        <div className="mt-3 pt-3 border-t">
+                          <p className="text-sm font-medium mb-1">Usage Data</p>
+                          <p className="text-sm text-muted-foreground">
+                            {(usageData[order.id].remaining_mb / 1024).toFixed(2)} GB remaining 
+                            of {(usageData[order.id].total_mb / 1024).toFixed(2)} GB
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            Status: {usageData[order.id].status}
+                          </p>
+                          {usageData[order.id].expired_at && (
+                            <p className="text-sm text-muted-foreground">
+                              Expires: {formatDate(usageData[order.id].expired_at!)}
+                            </p>
+                          )}
+                        </div>
+                      )}
                     </div>
 
                     {order.status === 'completed' && order.qrcode && (
