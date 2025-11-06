@@ -78,59 +78,50 @@ async function getAirloAccessToken(baseUrl: string): Promise<{ accessToken: stri
 }
 
 async function fetchAirloPackages(baseUrl: string, accessToken: string, tokenType: string): Promise<AirloCountry[]> {
-  console.log('Fetching all packages from Airlo with pagination...');
+  console.log('Fetching all packages from Airlo with pagination (no type filter)...');
   
   let allPackages: AirloCountry[] = [];
+  let page = 1;
+  let hasMore = true;
+  const limit = 100;
   
-  // Fetch local, global, AND regional packages
-  const types = ['local', 'global', 'regional'];
-  
-  for (const type of types) {
-    console.log(`Fetching ${type} packages...`);
-    let page = 1;
-    let hasMore = true;
-    const limit = 100;
+  while (hasMore) {
+    console.log(`Fetching packages - page ${page}...`);
     
-    while (hasMore) {
-      console.log(`Fetching ${type} packages - page ${page}...`);
-      
-      const response = await fetch(`${baseUrl}/v2/packages?filter[type]=${type}&limit=${limit}&page=${page}`, {
-        headers: {
-          'Authorization': `${tokenType} ${accessToken}`,
-          'Accept': 'application/json',
-        },
-      });
+    const response = await fetch(`${baseUrl}/v2/packages?limit=${limit}&page=${page}`, {
+      headers: {
+        'Authorization': `${tokenType} ${accessToken}`,
+        'Accept': 'application/json',
+      },
+    });
 
-      if (!response.ok) {
-        const error = await response.text();
-        console.error(`Airlo packages error (${response.status}):`, error);
-        throw new Error(`Failed to fetch ${type} packages: ${response.status} - ${error}`);
-      }
+    if (!response.ok) {
+      const error = await response.text();
+      console.error(`Airlo packages error (${response.status}):`, error);
+      throw new Error(`Failed to fetch packages: ${response.status} - ${error}`);
+    }
 
-      const data = await response.json();
-      const packages = data.data || [];
+    const data = await response.json();
+    const packages = data.data || [];
+    
+    console.log(`Page ${page}: Fetched ${packages.length} packages`);
+    
+    if (packages.length > 0) {
+      allPackages = [...allPackages, ...packages];
+      page++;
       
-      console.log(`${type} page ${page}: Fetched ${packages.length} packages`);
-      
-      if (packages.length > 0) {
-        allPackages = [...allPackages, ...packages];
-        page++;
-        
-        // Check if there are more pages
-        if (data.meta && data.meta.last_page && page > data.meta.last_page) {
-          hasMore = false;
-        } else if (packages.length < limit) {
-          hasMore = false;
-        }
-      } else {
+      // Check if there are more pages
+      if (data.meta && data.meta.last_page && page > data.meta.last_page) {
+        hasMore = false;
+      } else if (packages.length < limit) {
         hasMore = false;
       }
+    } else {
+      hasMore = false;
     }
-    
-    console.log(`Total ${type} packages fetched: ${allPackages.length}`);
   }
   
-  console.log(`Total all packages fetched: ${allPackages.length}`);
+  console.log(`Total packages fetched: ${allPackages.length}`);
   return allPackages;
 }
 
