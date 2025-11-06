@@ -28,6 +28,9 @@ export default function Affiliate() {
   const [creating, setCreating] = useState(false);
   const [affiliate, setAffiliate] = useState<AffiliateData | null>(null);
   const [affiliateLink, setAffiliateLink] = useState("");
+  const [needsUsername, setNeedsUsername] = useState(false);
+  const [username, setUsername] = useState("");
+  const [savingUsername, setSavingUsername] = useState(false);
 
   useEffect(() => {
     checkUser();
@@ -43,7 +46,19 @@ export default function Affiliate() {
       }
 
       setUser(user);
-      await fetchAffiliate(user.email!);
+      
+      // Check if user has a profile with username
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('username')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      
+      if (!profile) {
+        setNeedsUsername(true);
+      } else {
+        await fetchAffiliate(user.email!);
+      }
     } catch (error) {
       console.error('Error checking user:', error);
     } finally {
@@ -61,6 +76,43 @@ export default function Affiliate() {
     if (!error && data) {
       setAffiliate(data);
       setAffiliateLink(`${window.location.origin}/?ref=${data.affiliate_code}`);
+    }
+  };
+
+  const saveUsername = async () => {
+    if (!user || !username) return;
+
+    setSavingUsername(true);
+    try {
+      // Check if username already exists
+      const { data: existingProfile } = await supabase
+        .from('profiles')
+        .select('username')
+        .eq('username', username.toLowerCase())
+        .maybeSingle();
+
+      if (existingProfile) {
+        toast.error('Username already taken');
+        return;
+      }
+
+      // Create profile
+      const { error } = await supabase
+        .from('profiles')
+        .insert({
+          user_id: user.id,
+          username: username.toLowerCase()
+        });
+
+      if (error) throw error;
+
+      toast.success("Username saved!");
+      setNeedsUsername(false);
+      await fetchAffiliate(user.email!);
+    } catch (error: any) {
+      toast.error(error.message || "Failed to save username");
+    } finally {
+      setSavingUsername(false);
     }
   };
 
@@ -145,7 +197,48 @@ export default function Affiliate() {
             </p>
           </div>
 
-          {!affiliate ? (
+          {needsUsername ? (
+            <Card className="max-w-2xl mx-auto">
+              <CardHeader>
+                <CardTitle>Set Your Username</CardTitle>
+                <CardDescription>
+                  Choose a username for your affiliate link
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <label htmlFor="username" className="text-sm font-medium">
+                    Username
+                  </label>
+                  <Input
+                    id="username"
+                    type="text"
+                    placeholder="your_username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value.replace(/[^a-zA-Z0-9_]/g, ''))}
+                    minLength={3}
+                    maxLength={20}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    3-20 characters, letters, numbers and underscores only
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Your affiliate link will be: {window.location.origin}/?ref=<span className="font-bold">{username.toLowerCase() || 'username'}</span>
+                  </p>
+                </div>
+
+                <Button 
+                  onClick={saveUsername} 
+                  className="w-full" 
+                  size="lg"
+                  disabled={savingUsername || !username || username.length < 3}
+                >
+                  {savingUsername && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Save Username & Continue
+                </Button>
+              </CardContent>
+            </Card>
+          ) : !affiliate ? (
             <Card className="max-w-2xl mx-auto">
               <CardHeader>
                 <CardTitle>Join Our Affiliate Program</CardTitle>
