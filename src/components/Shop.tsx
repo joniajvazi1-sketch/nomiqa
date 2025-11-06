@@ -12,11 +12,18 @@ import * as CountryFlags from 'country-flag-icons/react/3x2';
 
 type CoverageType = "all" | "local" | "regional";
 
-// Regional/continental identifiers based on Airalo's regional packages
-const REGIONAL_IDENTIFIERS = [
-  'africa', 'europe', 'asia', 'caribbean', 'latin', 'north-america', 
-  'middle-east', 'mena', 'oceania', 'region', 'multi'
-];
+// Regional package identifiers based on Airalo's naming
+const REGIONAL_PACKAGES = {
+  africa: ['hello africa', 'hello-africa'],
+  asia: ['asialink'],
+  oceania: ['oceanlink'],
+  europe: ['eurolink'],
+  latinAmerica: ['latamlink'],
+  mena: ['menalink'],
+  northAmerica: ['american mex', 'american-mex']
+};
+
+const ALL_REGIONAL_IDENTIFIERS = Object.values(REGIONAL_PACKAGES).flat();
 
 export const Shop = () => {
   const navigate = useNavigate();
@@ -29,10 +36,13 @@ export const Shop = () => {
   const getProductCoverageType = (product: any): CoverageType => {
     const countryCode = product.country_code?.toLowerCase() || "";
     const countryName = product.country_name?.toLowerCase() || "";
+    const packageName = product.name?.toLowerCase() || "";
     
-    // Check if it's a regional/continental package
-    const isRegional = REGIONAL_IDENTIFIERS.some(identifier => 
-      countryCode.includes(identifier) || countryName.includes(identifier)
+    // Check if it's a regional package by name
+    const isRegional = ALL_REGIONAL_IDENTIFIERS.some(identifier => 
+      countryCode.includes(identifier) || 
+      countryName.includes(identifier) ||
+      packageName.includes(identifier)
     );
     
     if (isRegional) {
