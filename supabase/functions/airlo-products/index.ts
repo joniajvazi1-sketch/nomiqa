@@ -39,18 +39,18 @@ interface AirloPackage {
   is_stock_available: boolean;
 }
 
-async function getAirloAccessToken(): Promise<{ accessToken: string; tokenType: string }> {
+async function getAirloAccessToken(baseUrl: string): Promise<{ accessToken: string; tokenType: string }> {
   const clientId = Deno.env.get('AIRLO_CLIENT_ID');
   const clientSecret = Deno.env.get('AIRLO_CLIENT_SECRET');
 
-  console.log('Requesting Airlo access token...');
+  console.log(`Requesting Airlo access token from ${baseUrl}...`);
 
   const form = new FormData();
   form.append('client_id', clientId || '');
   form.append('client_secret', clientSecret || '');
   form.append('grant_type', 'client_credentials');
 
-  const response = await fetch('https://partners-api.airalo.com/v2/token', {
+  const response = await fetch(`${baseUrl}/v2/token`, {
     method: 'POST',
     headers: {
       'Accept': 'application/json',
@@ -77,10 +77,10 @@ async function getAirloAccessToken(): Promise<{ accessToken: string; tokenType: 
   return { accessToken, tokenType };
 }
 
-async function fetchAirloPackages(accessToken: string, tokenType: string): Promise<AirloPackage[]> {
+async function fetchAirloPackages(baseUrl: string, accessToken: string, tokenType: string): Promise<AirloPackage[]> {
   console.log('Fetching packages from Airlo...');
 
-  const response = await fetch('https://partners-api.airalo.com/v2/packages?limit=50', {
+  const response = await fetch(`${baseUrl}/v2/packages?limit=50`, {
     headers: {
       'Authorization': `${tokenType} ${accessToken}`,
       'Accept': 'application/json',
@@ -108,13 +108,38 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    console.log('Starting Airlo products sync from partners-api.airalo.com...');
+console.log('Preparing Airlo products sync...');
 
-// Get Airlo access token
-const { accessToken, tokenType } = await getAirloAccessToken();
+const preferredEnv = (Deno.env.get('AIRLO_ENV')?.toLowerCase() === 'sandbox') ? 'sandbox' : 'prod';
+const envs = [preferredEnv, preferredEnv === 'prod' ? 'sandbox' : 'prod'];
 
-// Fetch packages from Airlo
-const packages = await fetchAirloPackages(accessToken, tokenType);
+let packages: AirloPackage[] = [];
+let lastError: any = null;
+
+for (const env of envs) {
+  const baseUrl = env === 'sandbox' 
+    ? 'https://sandbox-partners-api.airalo.com' 
+    : 'https://partners-api.airalo.com';
+
+  console.log(`Starting Airlo products sync from ${baseUrl} (${env})...`);
+
+  try {
+    // Get Airlo access token
+    const { accessToken, tokenType } = await getAirloAccessToken(baseUrl);
+
+    // Fetch packages from Airlo
+    packages = await fetchAirloPackages(baseUrl, accessToken, tokenType);
+    console.log(`Fetched ${packages.length} packages from ${env}`);
+    break; // success
+  } catch (e) {
+    lastError = e;
+    console.error(`Sync attempt with ${env} failed:`, e);
+  }
+}
+
+if (packages.length === 0) {
+  throw lastError || new Error('Failed to fetch packages from all environments');
+}
 
     // Transform and insert into database (only in-stock packages)
     const products = packages
