@@ -39,7 +39,7 @@ async function getAirloAccessToken(): Promise<string> {
 
   console.log('Requesting Airlo access token...');
 
-  const response = await fetch('https://api.airalo.com/v2/token', {
+  const response = await fetch('https://partners-api.airalo.com/v2/token', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -66,7 +66,7 @@ async function getAirloAccessToken(): Promise<string> {
 async function fetchAirloPackages(accessToken: string): Promise<AirloPackage[]> {
   console.log('Fetching packages from Airlo...');
 
-  const response = await fetch('https://api.airalo.com/v2/packages?limit=50', {
+  const response = await fetch('https://partners-api.airalo.com/v2/packages?limit=50', {
     headers: {
       'Authorization': `Bearer ${accessToken}`,
       'Accept': 'application/json',
