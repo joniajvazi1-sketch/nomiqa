@@ -81,48 +81,56 @@ async function fetchAirloPackages(baseUrl: string, accessToken: string, tokenTyp
   console.log('Fetching all packages from Airlo with pagination...');
   
   let allPackages: AirloCountry[] = [];
-  let page = 1;
-  let hasMore = true;
-  const limit = 100; // Fetch 100 per page
   
-  while (hasMore) {
-    console.log(`Fetching page ${page}...`);
+  // Fetch both local and global packages
+  const types = ['local', 'global'];
+  
+  for (const type of types) {
+    console.log(`Fetching ${type} packages...`);
+    let page = 1;
+    let hasMore = true;
+    const limit = 100;
     
-    const response = await fetch(`${baseUrl}/v2/packages?limit=${limit}&page=${page}`, {
-      headers: {
-        'Authorization': `${tokenType} ${accessToken}`,
-        'Accept': 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      const error = await response.text();
-      console.error(`Airlo packages error (${response.status}):`, error);
-      throw new Error(`Failed to fetch packages: ${response.status} - ${error}`);
-    }
-
-    const data = await response.json();
-    const packages = data.data || [];
-    
-    console.log(`Page ${page}: Fetched ${packages.length} packages`);
-    
-    if (packages.length > 0) {
-      allPackages = [...allPackages, ...packages];
-      page++;
+    while (hasMore) {
+      console.log(`Fetching ${type} packages - page ${page}...`);
       
-      // Check if there are more pages based on meta information
-      if (data.meta && data.meta.last_page && page > data.meta.last_page) {
-        hasMore = false;
-      } else if (packages.length < limit) {
-        // If we got fewer packages than the limit, we've reached the end
+      const response = await fetch(`${baseUrl}/v2/packages?filter[type]=${type}&limit=${limit}&page=${page}`, {
+        headers: {
+          'Authorization': `${tokenType} ${accessToken}`,
+          'Accept': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const error = await response.text();
+        console.error(`Airlo packages error (${response.status}):`, error);
+        throw new Error(`Failed to fetch ${type} packages: ${response.status} - ${error}`);
+      }
+
+      const data = await response.json();
+      const packages = data.data || [];
+      
+      console.log(`${type} page ${page}: Fetched ${packages.length} packages`);
+      
+      if (packages.length > 0) {
+        allPackages = [...allPackages, ...packages];
+        page++;
+        
+        // Check if there are more pages
+        if (data.meta && data.meta.last_page && page > data.meta.last_page) {
+          hasMore = false;
+        } else if (packages.length < limit) {
+          hasMore = false;
+        }
+      } else {
         hasMore = false;
       }
-    } else {
-      hasMore = false;
     }
+    
+    console.log(`Total ${type} packages fetched: ${allPackages.length}`);
   }
   
-  console.log(`Total packages fetched: ${allPackages.length}`);
+  console.log(`Total all packages fetched: ${allPackages.length}`);
   return allPackages;
 }
 
