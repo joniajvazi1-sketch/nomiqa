@@ -5,7 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
-export const PlansSection = () => {
+export const Shop = () => {
   const { data: products, isLoading, refetch } = useProducts();
   const syncProducts = useSyncProducts();
   const { toast } = useToast();
@@ -40,12 +40,12 @@ export const PlansSection = () => {
   }, [isLoading, isSyncing, products, autoSynced]);
 
   return (
-    <section id="plans" className="py-20 bg-background">
+    <section id="shop" className="py-20 bg-background">
       <div className="container px-4">
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold mb-4">Choose Your Plan</h2>
+          <h2 className="text-4xl font-bold mb-4">Shop eSIMs</h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Flexible data plans for every type of traveler. No contracts, no hassle.
+            Browse and purchase eSIM data packages for your travels worldwide.
           </p>
           <Button 
             onClick={handleSync} 
