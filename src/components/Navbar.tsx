@@ -16,8 +16,8 @@ export const Navbar = () => {
           </div>
           
           <div className="hidden md:flex items-center gap-8">
-            <a href="#plans" className="text-white/80 hover:text-white transition-colors">
-              Plans
+            <a href="#shop" className="text-white/80 hover:text-white transition-colors">
+              Shop
             </a>
             <a href="#coverage" className="text-white/80 hover:text-white transition-colors">
               Coverage

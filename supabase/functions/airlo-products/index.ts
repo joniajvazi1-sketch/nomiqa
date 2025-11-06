@@ -97,6 +97,19 @@ async function fetchAirloPackages(baseUrl: string, accessToken: string, tokenTyp
   }
 
   const data = await response.json();
+  try {
+    const first = Array.isArray(data?.data) ? data.data[0] : undefined;
+    console.log('API wrapper keys:', Object.keys(data || {}));
+    console.log('packages array?', Array.isArray(data?.data), 'length:', data?.data?.length || 0);
+    if (first) {
+      console.log('First package keys:', Object.keys(first || {}));
+      const ops = (first as any)?.operators;
+      console.log('First operators length:', Array.isArray(ops) ? ops.length : 0);
+      if (Array.isArray(ops) && ops.length > 0) {
+        console.log('First operator keys:', Object.keys(ops[0] || {}));
+      }
+    }
+  } catch (_) {}
   console.log(`Fetched ${data.data?.length || 0} packages from Airlo`);
   return data.data || [];
 }
@@ -155,6 +168,10 @@ if (packages.length === 0) {
     // Quick debug: log sample structure
     if (packages.length > 0) {
       const sample = packages[0];
+      try {
+        console.log('Raw first package:', JSON.stringify(sample));
+        console.log('First keys:', Object.keys(sample || {}));
+      } catch (_) {}
       console.log('Sample country keys:', sample?.country ? Object.keys(sample.country) : 'no country');
       console.log('Sample data keys:', sample?.data ? Object.keys(sample.data) : 'no data');
     }
