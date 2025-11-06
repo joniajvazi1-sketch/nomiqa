@@ -95,7 +95,7 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    console.log('Starting Airlo products sync...');
+    console.log('Starting Airlo products sync from partners-api.airalo.com...');
 
     // Get Airlo access token
     const accessToken = await getAirloAccessToken();
