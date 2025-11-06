@@ -1,8 +1,11 @@
+import { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { useAffiliateTracking } from "@/hooks/useAffiliateTracking";
+import { supabase } from "@/integrations/supabase/client";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Checkout from "./pages/Checkout";
@@ -11,8 +14,50 @@ import Auth from "./pages/Auth";
 import LearnCrypto from "./pages/LearnCrypto";
 import Stake from "./pages/Stake";
 import Roadmap from "./pages/Roadmap";
+import Affiliate from "./pages/Affiliate";
 
 const queryClient = new QueryClient();
+
+function AffiliateTracker() {
+  const location = useLocation();
+  const { setReferralCode } = useAffiliateTracking();
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const ref = params.get('ref');
+    
+    if (ref) {
+      setReferralCode(ref);
+      
+      // Track the click
+      supabase
+        .from('affiliates')
+        .select('id, total_clicks')
+        .eq('affiliate_code', ref)
+        .single()
+        .then(({ data }) => {
+          if (data) {
+            // Update click count
+            supabase
+              .from('affiliates')
+              .update({ total_clicks: (data.total_clicks || 0) + 1 })
+              .eq('id', data.id)
+              .then(() => {
+                // Record the referral
+                supabase
+                  .from('affiliate_referrals')
+                  .insert({
+                    affiliate_id: data.id,
+                    visitor_id: `visitor_${Date.now()}_${Math.random()}`
+                  });
+              });
+          }
+        });
+    }
+  }, [location, setReferralCode]);
+
+  return null;
+}
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -20,6 +65,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <AffiliateTracker />
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
@@ -28,6 +74,7 @@ const App = () => (
           <Route path="/learn-crypto" element={<LearnCrypto />} />
           <Route path="/stake" element={<Stake />} />
           <Route path="/roadmap" element={<Roadmap />} />
+          <Route path="/affiliate" element={<Affiliate />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

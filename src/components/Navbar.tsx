@@ -63,6 +63,12 @@ export const Navbar = () => {
             >
               Roadmap
             </button>
+            <button
+              onClick={() => navigate('/affiliate')}
+              className="text-white/80 hover:text-white transition-colors"
+            >
+              Affiliate
+            </button>
             {user && (
               <button
                 onClick={() => navigate('/orders')}

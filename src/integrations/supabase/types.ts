@@ -14,6 +14,99 @@ export type Database = {
   }
   public: {
     Tables: {
+      affiliate_referrals: {
+        Row: {
+          affiliate_id: string
+          clicked_at: string
+          commission_amount_usd: number | null
+          converted_at: string | null
+          created_at: string
+          id: string
+          order_id: string | null
+          status: string | null
+          visitor_id: string | null
+        }
+        Insert: {
+          affiliate_id: string
+          clicked_at?: string
+          commission_amount_usd?: number | null
+          converted_at?: string | null
+          created_at?: string
+          id?: string
+          order_id?: string | null
+          status?: string | null
+          visitor_id?: string | null
+        }
+        Update: {
+          affiliate_id?: string
+          clicked_at?: string
+          commission_amount_usd?: number | null
+          converted_at?: string | null
+          created_at?: string
+          id?: string
+          order_id?: string | null
+          status?: string | null
+          visitor_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliate_referrals_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "affiliates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "affiliate_referrals_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      affiliates: {
+        Row: {
+          affiliate_code: string
+          commission_rate: number | null
+          created_at: string
+          email: string
+          id: string
+          status: string | null
+          total_clicks: number | null
+          total_conversions: number | null
+          total_earnings_usd: number | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          affiliate_code: string
+          commission_rate?: number | null
+          created_at?: string
+          email: string
+          id?: string
+          status?: string | null
+          total_clicks?: number | null
+          total_conversions?: number | null
+          total_earnings_usd?: number | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          affiliate_code?: string
+          commission_rate?: number | null
+          created_at?: string
+          email?: string
+          id?: string
+          status?: string | null
+          total_clicks?: number | null
+          total_conversions?: number | null
+          total_earnings_usd?: number | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       esim_usage: {
         Row: {
           created_at: string | null
@@ -221,7 +314,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      update_all_prices: { Args: never; Returns: number }
     }
     Enums: {
       [_ in never]: never
