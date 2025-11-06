@@ -79,6 +79,7 @@ async function getAirloAccessToken(baseUrl: string): Promise<{ accessToken: stri
 
 async function fetchAirloPackages(baseUrl: string, accessToken: string, tokenType: string): Promise<AirloPackage[]> {
   console.log('Fetching packages from Airlo...');
+  console.log(`Using Authorization: ${tokenType} ${accessToken.substring(0, 20)}...`);
 
   const response = await fetch(`${baseUrl}/v2/packages?limit=50`, {
     headers: {
@@ -87,10 +88,12 @@ async function fetchAirloPackages(baseUrl: string, accessToken: string, tokenTyp
     },
   });
 
+  console.log(`Packages response status: ${response.status}`);
+
   if (!response.ok) {
     const error = await response.text();
-    console.error('Airlo packages error:', error);
-    throw new Error(`Failed to fetch packages: ${response.status}`);
+    console.error(`Airlo packages error (${response.status}):`, error);
+    throw new Error(`Failed to fetch packages: ${response.status} - ${error}`);
   }
 
   const data = await response.json();
