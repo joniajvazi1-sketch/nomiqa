@@ -17,26 +17,26 @@ interface AirloAuthResponse {
   };
 }
 
+interface AirloCountry {
+  slug: string;
+  country_code: string;
+  title: string;
+  operators: AirloOperator[];
+}
+
+interface AirloOperator {
+  id: number;
+  title: string;
+  packages: AirloPackage[];
+}
+
 interface AirloPackage {
   id: string;
   title: string;
-  data: {
-    amount: number;
-    unit: string;
-  };
-  validity: {
-    amount: number;
-    unit: string;
-  };
-  price: {
-    amount: number;
-    currency: string;
-  };
-  country: {
-    iso_code: string;
-    name: string;
-  };
-  is_stock_available: boolean;
+  data: string;
+  price: number;
+  amount: number;
+  day: number;
 }
 
 async function getAirloAccessToken(baseUrl: string): Promise<{ accessToken: string; tokenType: string }> {
@@ -77,7 +77,7 @@ async function getAirloAccessToken(baseUrl: string): Promise<{ accessToken: stri
   return { accessToken, tokenType };
 }
 
-async function fetchAirloPackages(baseUrl: string, accessToken: string, tokenType: string): Promise<AirloPackage[]> {
+async function fetchAirloPackages(baseUrl: string, accessToken: string, tokenType: string): Promise<AirloCountry[]> {
   console.log('Fetching packages from Airlo...');
   console.log(`Using Authorization: ${tokenType} ${accessToken.substring(0, 20)}...`);
 
@@ -97,19 +97,6 @@ async function fetchAirloPackages(baseUrl: string, accessToken: string, tokenTyp
   }
 
   const data = await response.json();
-  try {
-    const first = Array.isArray(data?.data) ? data.data[0] : undefined;
-    console.log('API wrapper keys:', Object.keys(data || {}));
-    console.log('packages array?', Array.isArray(data?.data), 'length:', data?.data?.length || 0);
-    if (first) {
-      console.log('First package keys:', Object.keys(first || {}));
-      const ops = (first as any)?.operators;
-      console.log('First operators length:', Array.isArray(ops) ? ops.length : 0);
-      if (Array.isArray(ops) && ops.length > 0) {
-        console.log('First operator keys:', Object.keys(ops[0] || {}));
-      }
-    }
-  } catch (_) {}
   console.log(`Fetched ${data.data?.length || 0} packages from Airlo`);
   return data.data || [];
 }
@@ -129,7 +116,7 @@ console.log('Preparing Airlo products sync...');
 const preferredEnv = (Deno.env.get('AIRLO_ENV')?.toLowerCase() === 'sandbox') ? 'sandbox' : 'prod';
 const envs = [preferredEnv, preferredEnv === 'prod' ? 'sandbox' : 'prod'];
 
-let packages: AirloPackage[] = [];
+let packages: AirloCountry[] = [];
 let lastError: any = null;
 
 for (const env of envs) {
@@ -140,20 +127,18 @@ for (const env of envs) {
   console.log(`Starting Airlo products sync from ${baseUrl} (${env})...`);
 
   try {
-    // token + packages (attempt 1)
     const { accessToken, tokenType } = await getAirloAccessToken(baseUrl);
     try {
       packages = await fetchAirloPackages(baseUrl, accessToken, tokenType);
-      console.log(`Fetched ${packages.length} packages from ${env}`);
-      break; // success
+      console.log(`Fetched ${packages.length} countries from ${env}`);
+      break;
     } catch (pkgErr) {
       const msg = pkgErr instanceof Error ? pkgErr.message : String(pkgErr);
       console.warn(`First package fetch failed on ${env}: ${msg}. Retrying with a fresh token...`);
-      // retry once with a fresh token (helps if token was rejected)
       const { accessToken: atk2, tokenType: tt2 } = await getAirloAccessToken(baseUrl);
       packages = await fetchAirloPackages(baseUrl, atk2, tt2);
-      console.log(`Fetched ${packages.length} packages from ${env} on retry`);
-      break; // success on retry
+      console.log(`Fetched ${packages.length} countries from ${env} on retry`);
+      break;
     }
   } catch (e) {
     lastError = e;
@@ -161,49 +146,39 @@ for (const env of envs) {
   }
 }
 
-if (packages.length === 0) {
-  throw lastError || new Error('Failed to fetch packages from all environments');
-}
-
-    // Quick debug: log sample structure
-    if (packages.length > 0) {
-      const sample = packages[0];
-      try {
-        console.log('Raw first package:', JSON.stringify(sample));
-        console.log('First keys:', Object.keys(sample || {}));
-      } catch (_) {}
-      console.log('Sample country keys:', sample?.country ? Object.keys(sample.country) : 'no country');
-      console.log('Sample data keys:', sample?.data ? Object.keys(sample.data) : 'no data');
+    if (packages.length === 0) {
+      throw lastError || new Error('Failed to fetch packages from all environments');
     }
 
-    // Normalize packages and defensively map fields
-    const normalized = packages.map((raw: any) => {
-      const id = raw?.id ?? raw?.package_id ?? raw?.packageId ?? raw?.uuid ?? raw?.code;
-      const countryObj = raw?.country ?? {};
-      const country_code =
-        countryObj?.iso_code ?? countryObj?.isoCode ?? countryObj?.code ?? raw?.country_code ?? raw?.country_iso ?? raw?.countryIso;
-      const country_name =
-        countryObj?.name ?? countryObj?.title ?? raw?.country_name ?? raw?.countryName;
-      const data_amount_val = raw?.data?.amount ?? raw?.data_amount ?? raw?.dataAmount ?? raw?.package_data_amount;
-      const data_unit = raw?.data?.unit ?? raw?.data_unit ?? raw?.dataUnit ?? 'GB';
-      const validity_days = raw?.validity?.amount ?? raw?.validity_days ?? raw?.validityDays;
-      const price_usd = raw?.price?.amount ?? raw?.price_usd ?? raw?.priceUsd ?? raw?.amount;
+    // Extract packages from nested operators structure
+    const allPackages: any[] = [];
+    
+    for (const country of packages) {
+      const countryCode = country.country_code;
+      const countryName = country.title;
+      
+      if (!country.operators || !Array.isArray(country.operators)) continue;
+      
+      for (const operator of country.operators) {
+        if (!operator.packages || !Array.isArray(operator.packages)) continue;
+        
+        for (const pkg of operator.packages) {
+          allPackages.push({
+            id: pkg.id,
+            name: pkg.title || pkg.data,
+            country_code: countryCode,
+            country_name: countryName,
+            data_amount: pkg.data || `${pkg.amount}MB`,
+            validity_days: pkg.day,
+            price_usd: pkg.price,
+          });
+        }
+      }
+    }
 
-      const is_stock_available = raw?.is_stock_available ?? (typeof raw?.stock === 'number' ? raw.stock > 0 : true);
-
-      return {
-        ok: !!id && !!country_code && !!country_name && data_amount_val != null && validity_days != null && price_usd != null && is_stock_available !== false,
-        id,
-        name: raw?.title ?? raw?.name ?? `${country_name} ${data_amount_val}${data_unit}`,
-        country_code,
-        country_name,
-        data_amount: `${data_amount_val}${data_unit}`,
-        validity_days: Number(validity_days),
-        price_usd: Number(price_usd),
-      };
-    });
-
-    const valid = normalized.filter(n => n.ok);
+    const valid = allPackages.filter(pkg => 
+      pkg.id && pkg.country_code && pkg.country_name && pkg.data_amount && pkg.validity_days && pkg.price_usd
+    );
 
     console.log(`Preparing to upsert ${valid.length} valid packages (skipped ${packages.length - valid.length})`);
 
