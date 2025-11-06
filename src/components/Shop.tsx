@@ -10,7 +10,13 @@ import { toast } from "sonner";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import * as CountryFlags from 'country-flag-icons/react/3x2';
 
-type CoverageType = "all" | "local" | "regional" | "global";
+type CoverageType = "all" | "local" | "regional";
+
+// Regional/continental identifiers based on Airalo's regional packages
+const REGIONAL_IDENTIFIERS = [
+  'africa', 'europe', 'asia', 'caribbean', 'latin', 'north-america', 
+  'middle-east', 'mena', 'oceania', 'region', 'multi'
+];
 
 export const Shop = () => {
   const navigate = useNavigate();
@@ -24,27 +30,16 @@ export const Shop = () => {
     const countryCode = product.country_code?.toLowerCase() || "";
     const countryName = product.country_name?.toLowerCase() || "";
     
-    // Global packages (check for specific global indicators)
-    if (countryCode.includes("global") || 
-        countryName.includes("global") || 
-        countryCode === "mcd" ||
-        product.name?.toLowerCase().includes("global")) {
-      return "global";
-    }
+    // Check if it's a regional/continental package
+    const isRegional = REGIONAL_IDENTIFIERS.some(identifier => 
+      countryCode.includes(identifier) || countryName.includes(identifier)
+    );
     
-    // Regional packages (multi-country regions)
-    if (countryCode.includes("region") || 
-        countryName.includes("region") ||
-        countryCode.length > 2 || // Regional codes are often longer
-        countryName.includes("europe") ||
-        countryName.includes("asia") ||
-        countryName.includes("africa") ||
-        countryName.includes("caribbean") ||
-        countryName.includes("latin")) {
+    if (isRegional) {
       return "regional";
     }
     
-    // Local packages (single country)
+    // Everything else is local (single country)
     return "local";
   };
 
@@ -133,15 +128,6 @@ export const Shop = () => {
             >
               <Globe className="h-4 w-4" />
               Regional
-            </Button>
-            <Button
-              variant={coverageFilter === "global" ? "default" : "outline"}
-              onClick={() => setCoverageFilter("global")}
-              size="sm"
-              className="flex items-center gap-2"
-            >
-              <Globe className="h-4 w-4" />
-              Global
             </Button>
           </div>
         </div>
