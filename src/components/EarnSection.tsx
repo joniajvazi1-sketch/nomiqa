@@ -31,8 +31,7 @@ export const EarnSection = () => {
           </h2>
           
           <p className="text-lg md:text-xl mb-12 text-foreground/80">
-            Unlock rewards by staking your Nomiqa tokens or sharing our platform through our
-            affiliate program. Start earning today with secure, fast crypto transactions.
+            {t("earnDesc")}
           </p>
           
           <div className="flex flex-wrap gap-4 justify-center animate-bounce-in" style={{ animationDelay: "0.3s" }}>

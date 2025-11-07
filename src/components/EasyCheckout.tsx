@@ -1,9 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import happyTravelers from "@/assets/happy-travelers.jpg";
+import { useTranslation } from "@/contexts/TranslationContext";
 
 export const EasyCheckout = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   
   return (
     <section className="py-20 bg-nomiqa-blue/10 relative overflow-hidden">
@@ -17,15 +19,13 @@ export const EasyCheckout = () => {
               EASY CHECKOUT
             </p>
             <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              Pay with Solana & Nomiqa token
+              {t("easyCheckoutTitle")}
             </h2>
           </div>
           
           <div className="text-center lg:text-left">
             <p className="text-lg mb-8">
-              Buy eSIMs with Solana in 3 simple steps: 1. Copy the provided Solana address. 2.
-              Pay securely with your Phantom Wallet. 3. Receive your eSIM instantly after
-              confirmation.
+              {t("easyCheckoutDesc")}
             </p>
             
             <img 
@@ -40,7 +40,7 @@ export const EasyCheckout = () => {
                 size="lg"
                 onClick={() => navigate('/shop')}
               >
-                Shop
+                {t("shop")}
               </Button>
             </div>
           </div>

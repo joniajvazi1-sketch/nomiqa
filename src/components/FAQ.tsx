@@ -59,7 +59,7 @@ export const FAQ = () => {
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold mb-4">{t("faqTitle")}</h2>
             <p className="text-xl text-muted-foreground">
-              Everything you need to know about Nomiqa eSIMs
+              {t("faqSubtitle")}
             </p>
           </div>
 

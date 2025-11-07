@@ -27,7 +27,7 @@ export const Navbar = () => {
   const { items } = useCart();
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { language, setLanguage } = useTranslation();
+  const { language, setLanguage, t } = useTranslation();
 
   const languages = [
     { code: "EN" as const, name: "English" },
@@ -81,38 +81,38 @@ export const Navbar = () => {
               onClick={() => navigate('/shop')}
               className="text-foreground/70 hover:text-foreground transition-colors"
             >
-              Shop
+              {t("shop")}
             </button>
             <button
               onClick={() => navigate('/getting-started')}
               className="text-foreground/70 hover:text-foreground transition-colors"
             >
-              Getting Started
+              {t("gettingStarted")}
             </button>
             <button
               onClick={() => navigate('/stake')}
               className="text-foreground/70 hover:text-foreground transition-colors"
             >
-              Stake
+              {t("stake")}
             </button>
             <button
               onClick={() => navigate('/roadmap')}
               className="text-foreground/70 hover:text-foreground transition-colors"
             >
-              Roadmap
+              {t("roadmap")}
             </button>
             <button
               onClick={() => navigate('/affiliate')}
               className="text-foreground/70 hover:text-foreground transition-colors"
             >
-              Affiliate
+              {t("affiliate")}
             </button>
             {user && (
               <button
                 onClick={() => navigate('/orders')}
                 className="text-foreground/70 hover:text-foreground transition-colors"
               >
-                My Orders
+                {t("myOrders")}
               </button>
             )}
           </div>
@@ -135,38 +135,38 @@ export const Navbar = () => {
                     onClick={() => handleNavClick('/shop')}
                     className="text-left text-foreground/70 hover:text-foreground transition-colors py-2 px-4 rounded hover:bg-muted"
                   >
-                    Shop
+                    {t("shop")}
                   </button>
                   <button
                     onClick={() => handleNavClick('/getting-started')}
                     className="text-left text-foreground/70 hover:text-foreground transition-colors py-2 px-4 rounded hover:bg-muted"
                   >
-                    Getting Started
+                    {t("gettingStarted")}
                   </button>
                   <button
                     onClick={() => handleNavClick('/stake')}
                     className="text-left text-foreground/70 hover:text-foreground transition-colors py-2 px-4 rounded hover:bg-muted"
                   >
-                    Stake
+                    {t("stake")}
                   </button>
                   <button
                     onClick={() => handleNavClick('/roadmap')}
                     className="text-left text-foreground/70 hover:text-foreground transition-colors py-2 px-4 rounded hover:bg-muted"
                   >
-                    Roadmap
+                    {t("roadmap")}
                   </button>
                   <button
                     onClick={() => handleNavClick('/affiliate')}
                     className="text-left text-foreground/70 hover:text-foreground transition-colors py-2 px-4 rounded hover:bg-muted"
                   >
-                    Affiliate
+                    {t("affiliate")}
                   </button>
                   {user && (
                     <button
                       onClick={() => handleNavClick('/orders')}
                       className="text-left text-foreground/70 hover:text-foreground transition-colors py-2 px-4 rounded hover:bg-muted"
                     >
-                      My Orders
+                      {t("myOrders")}
                     </button>
                   )}
                   
@@ -178,7 +178,7 @@ export const Navbar = () => {
                         onClick={handleSignOut}
                       >
                         <LogOut className="w-4 h-4 mr-2" />
-                        Sign Out
+                        {t("signOut")}
                       </Button>
                     ) : (
                       <>
@@ -188,14 +188,14 @@ export const Navbar = () => {
                           onClick={() => handleNavClick('/auth')}
                         >
                           <LogIn className="w-4 h-4 mr-2" />
-                          Sign In
+                          {t("signIn")}
                         </Button>
                         <Button
                           variant="outline"
                           className="w-full"
                           onClick={() => handleNavClick('/auth')}
                         >
-                          Sign Up
+                          {t("signUp")}
                         </Button>
                       </>
                     )}
@@ -239,7 +239,7 @@ export const Navbar = () => {
                   onClick={handleSignOut}
                 >
                   <LogOut className="w-4 h-4 mr-2" />
-                  Sign Out
+                  {t("signOut")}
                 </Button>
               ) : (
                 <Button
@@ -248,7 +248,7 @@ export const Navbar = () => {
                   onClick={() => navigate('/auth')}
                 >
                   <LogIn className="w-4 h-4 mr-2" />
-                  Sign In
+                  {t("signIn")}
                 </Button>
               )}
             </div>

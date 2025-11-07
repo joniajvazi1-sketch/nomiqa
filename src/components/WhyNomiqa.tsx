@@ -1,6 +1,9 @@
 import celebratingPerson from "@/assets/celebrating-person.jpg";
+import { useTranslation } from "@/contexts/TranslationContext";
 
 export const WhyNomiqa = () => {
+  const { t } = useTranslation();
+  
   return (
     <section className="py-20 bg-gradient-to-br from-nomiqa-peach/20 via-background to-nomiqa-cream relative overflow-hidden">
       {/* Decorative shapes */}
@@ -10,8 +13,7 @@ export const WhyNomiqa = () => {
         <div className="grid lg:grid-cols-2 gap-12 items-center max-w-7xl mx-auto">
           <div className="text-center lg:text-left animate-fade-in-up">
             <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-primary bg-clip-text text-transparent">
-              Why<em className="italic">Nomiqa</em> : Privacy, Simplicity, and{" "}
-              <em className="italic">Crypto Freedom</em> for Web3 Travelers
+              Why Nomiqa: {t("whyNomiqaTitle")}
             </h2>
             
             <div className="flex justify-center lg:justify-start mt-8">
@@ -25,16 +27,7 @@ export const WhyNomiqa = () => {
           
           <div className="space-y-6 text-center lg:text-left animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
             <p className="text-lg">
-              At <strong>Nomiqa</strong>, we're redefining connectivity for the new era of{" "}
-              <strong>Web3 travelers</strong>. Guided by our three core pillars{" "}
-              <strong>Privacy, Simplicity, and Crypto Freedom</strong> we ensure that every
-              connection you make is secure, effortless, and truly yours.
-            </p>
-            
-            <p className="text-lg">
-              Whether you're exploring new destinations or building in the digital world,{" "}
-              <strong>Nomiqa</strong> empowers you to <strong>own your connection</strong> and{" "}
-              <strong>protect your data</strong> with confidence.
+              {t("whyNomiqaDesc1")}
             </p>
           </div>
         </div>
