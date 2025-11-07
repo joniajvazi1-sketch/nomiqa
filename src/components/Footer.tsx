@@ -16,14 +16,14 @@ export const Footer = () => {
       </div>
       
       <div className="container px-4 relative z-10">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 mb-8 text-left">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 mb-8 text-center md:text-left">
           <div className="col-span-2 md:col-span-1">
             <h3 className="text-xl font-bold mb-4 bg-gradient-neon bg-clip-text text-transparent">nomiqa</h3>
             <p className="text-foreground/70 text-sm md:text-base mb-4">
               {t("footerTagline")}
             </p>
             <p className="text-xs text-foreground/50">
-              Powered by Business Unlimited Worldwide Ltd.
+              Powered by Nomiqa.
             </p>
           </div>
           
@@ -86,9 +86,9 @@ export const Footer = () => {
             </a>
           </div>
           
-          <div className="text-center md:text-left">
+          <div className="text-center">
             <p className="text-foreground/50 text-xs md:text-sm">
-              © 2024 Business Unlimited Worldwide Ltd. All rights reserved.
+              © 2024 Nomiqa. All rights reserved.
             </p>
           </div>
         </div>

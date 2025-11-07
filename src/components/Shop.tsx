@@ -35,7 +35,7 @@ export const Shop = () => {
   const [coverageFilter, setCoverageFilter] = useState<CoverageType>("all");
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
-  const [displayCount, setDisplayCount] = useState(10);
+  const [displayCount, setDisplayCount] = useState(9);
   const [showConfetti, setShowConfetti] = useState(false);
 
   // Classify products by coverage type
@@ -198,7 +198,7 @@ export const Shop = () => {
             {hasMore && (
               <div className="flex justify-center mt-8">
                 <Button 
-                  onClick={() => setDisplayCount(prev => prev + 10)}
+                  onClick={() => setDisplayCount(prev => prev + 9)}
                   variant="outline"
                   size="lg"
                 >

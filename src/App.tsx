@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useAffiliateTracking } from "@/hooks/useAffiliateTracking";
+import { useScrollToTop } from "@/hooks/useScrollToTop";
 import { supabase } from "@/integrations/supabase/client";
 import { TranslationProvider } from "@/contexts/TranslationContext";
 import Index from "./pages/Index";
@@ -26,6 +27,7 @@ const queryClient = new QueryClient();
 function AffiliateTracker() {
   const location = useLocation();
   const { setReferralCode } = useAffiliateTracking();
+  useScrollToTop();
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
