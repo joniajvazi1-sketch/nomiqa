@@ -71,7 +71,7 @@ export const WhyNomiqa = () => {
             <h3 className="text-2xl md:text-3xl font-bold mb-4 font-display bg-gradient-digital bg-clip-text text-transparent">
               Get connected in minutes
             </h3>
-            <p className="text-foreground/60 font-quote italic">
+            <p className="text-foreground/70">
               No passport check. No SIM swap.
             </p>
           </div>
