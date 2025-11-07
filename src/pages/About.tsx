@@ -43,19 +43,12 @@ export default function About() {
           <div className="text-center mb-16 animate-fade-in-up">
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 font-display">
               <span className="block bg-gradient-warmth bg-clip-text text-transparent">
-                Built for humans,
-              </span>
-              <span className="block bg-gradient-sunrise bg-clip-text text-transparent mt-2">
-                not systems.
+                Our Story
               </span>
             </h1>
             
             <p className="text-xl md:text-2xl text-foreground/80 max-w-3xl mx-auto mb-6">
-              We believe freedom is connection without borders.
-            </p>
-            
-            <p className="text-lg text-warm-sand/90">
-              Built for the borderless generation.
+              How Nomiqa became the world's first privacy-first eSIM platform
             </p>
           </div>
 
@@ -84,11 +77,10 @@ export default function About() {
             </div>
           </div>
 
-          {/* Story Section */}
           <div className="max-w-4xl mx-auto mb-16">
             <div className="p-8 md:p-12 rounded-3xl bg-card/40 backdrop-blur-sm border border-warm-sand/20 animate-fade-in-up">
-              <h2 className="text-3xl md:text-4xl font-bold mb-6 bg-gradient-sunrise bg-clip-text text-transparent">
-                Our Story
+              <h2 className="text-3xl md:text-4xl font-bold mb-8 bg-gradient-sunrise bg-clip-text text-transparent">
+                The Beginning
               </h2>
               <div className="space-y-4 text-foreground/80 leading-relaxed">
                 <p className="text-lg">

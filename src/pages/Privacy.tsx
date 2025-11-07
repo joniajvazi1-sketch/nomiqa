@@ -56,20 +56,16 @@ export default function Privacy() {
             
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 font-display">
               <span className="block bg-gradient-freedom bg-clip-text text-transparent">
-                Connection without
+                How We Protect
               </span>
               <span className="block bg-gradient-sunset bg-clip-text text-transparent mt-2">
-                compromise.
+                Your Privacy
               </span>
             </h1>
             
             <p className="text-xl md:text-2xl text-foreground/80 max-w-3xl mx-auto mb-6">
-              No tracking. No personal data. No compromises. Just connection.
+              Your data belongs to you. Here's how we keep it that way.
             </p>
-            
-            <blockquote className="text-lg md:text-xl text-warm-sand/90 max-w-2xl mx-auto border-l-4 border-neon-coral pl-6">
-              Privacy isn't isolation. It's ownership of your connection.
-            </blockquote>
           </div>
 
           {/* Privacy Principles */}
@@ -95,40 +91,51 @@ export default function Privacy() {
             ))}
           </div>
 
-          {/* Philosophy Section */}
+          {/* How We Protect Section */}
           <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in-up">
             <h2 className="text-3xl md:text-4xl font-bold mb-6 bg-gradient-digital bg-clip-text text-transparent">
-              Our Philosophy
+              Our Protection Methods
             </h2>
             <div className="space-y-4 text-left text-foreground/80 leading-relaxed">
               <p>
-                In a world where every click is tracked and every connection is monitored, 
-                Nomiqa stands for a different vision: <span className="text-neon-cyan font-semibold">digital freedom without surveillance</span>.
+                At Nomiqa, protecting customer privacy isn't just a feature — it's the foundation of everything we build. 
+                Here's exactly how we keep your data secure and private:
               </p>
-              <p>
-                We believe that privacy is a fundamental human right, not a luxury. 
-                Your travel data, your location history, your communication patterns — 
-                <span className="text-neon-coral font-semibold"> they belong to you and you alone</span>.
-              </p>
-              <p>
-                That's why we built Nomiqa on three uncompromising principles:
-              </p>
-              <ul className="space-y-2 ml-6">
-                <li className="flex items-start gap-3">
-                  <span className="text-neon-cyan mt-1">•</span>
-                  <span><strong className="text-neon-cyan">No personal data collection</strong> — We can't lose what we never had</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-neon-violet mt-1">•</span>
-                  <span><strong className="text-neon-violet">Crypto-only payments</strong> — No banks, no financial tracking</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-neon-coral mt-1">•</span>
-                  <span><strong className="text-neon-coral">Decentralized by design</strong> — Powered by Web3, owned by you</span>
-                </li>
-              </ul>
-              <p className="pt-4 text-lg">
-                Freedom is no longer physical — it's digital. And with Nomiqa, it's finally yours.
+              
+              <div className="mt-8 space-y-6">
+                <div className="p-6 rounded-2xl bg-card/60 border border-neon-cyan/20">
+                  <h3 className="text-xl font-bold text-neon-cyan mb-3">Zero-Knowledge Architecture</h3>
+                  <p>We operate on a zero-knowledge basis. No passport scans, no ID verification, no personal information collected. 
+                  We don't know who you are, where you're going, or what you're doing online — and that's by design.</p>
+                </div>
+
+                <div className="p-6 rounded-2xl bg-card/60 border border-neon-violet/20">
+                  <h3 className="text-xl font-bold text-neon-violet mb-3">Crypto-Only Payments</h3>
+                  <p>All transactions are conducted exclusively in cryptocurrency (Solana, USDC). This means no credit card companies, 
+                  no banks, no payment processors with access to your purchase history. Your financial privacy is absolute.</p>
+                </div>
+
+                <div className="p-6 rounded-2xl bg-card/60 border border-neon-coral/20">
+                  <h3 className="text-xl font-bold text-neon-coral mb-3">No Usage Tracking</h3>
+                  <p>Unlike traditional carriers, we don't monitor your browsing history, track your location, or log your data usage patterns. 
+                  Once your eSIM is activated, your connection is yours alone.</p>
+                </div>
+
+                <div className="p-6 rounded-2xl bg-card/60 border border-warm-sand/20">
+                  <h3 className="text-xl font-bold text-warm-sand mb-3">Decentralized Infrastructure</h3>
+                  <p>Built on Web3 principles with decentralized systems. No single point of failure, no central database of customer information 
+                  that can be hacked or subpoenaed. Your privacy is protected by design, not just by policy.</p>
+                </div>
+
+                <div className="p-6 rounded-2xl bg-card/60 border border-neon-cyan/20">
+                  <h3 className="text-xl font-bold text-neon-cyan mb-3">Minimal Data Retention</h3>
+                  <p>We only collect the absolute minimum data required to deliver your eSIM — typically just a delivery email address (which can be 
+                  anonymous). No storage of browsing data, no retention of connection logs, no permanent records.</p>
+                </div>
+              </div>
+              
+              <p className="pt-6 text-lg font-semibold text-neon-coral">
+                Bottom line: We can't compromise what we never collect. Your privacy is mathematically guaranteed.
               </p>
             </div>
           </div>
