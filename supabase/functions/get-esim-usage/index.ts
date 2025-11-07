@@ -1,10 +1,15 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+const usageRequestSchema = z.object({
+  iccid: z.string().min(18).max(22)
+});
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -12,10 +17,67 @@ serve(async (req) => {
   }
 
   try {
-    const { iccid } = await req.json();
+    // Get authorization header
+    const authHeader = req.headers.get('authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized - missing authorization header' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
-    if (!iccid) {
-      throw new Error('ICCID is required');
+    // Validate JWT and get user
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+
+    const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
+    if (authError || !user) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized - invalid token' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Validate input
+    const rawBody = await req.json();
+    const validationResult = usageRequestSchema.safeParse(rawBody);
+    
+    if (!validationResult.success) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid input', details: validationResult.error.issues }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { iccid } = validationResult.data;
+
+    // Verify user owns this eSIM
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    const { data: esimUsage, error: esimError } = await supabase
+      .from('esim_usage')
+      .select('order_id, orders!inner(user_id, email)')
+      .eq('iccid', iccid)
+      .single();
+
+    if (esimError || !esimUsage) {
+      return new Response(
+        JSON.stringify({ error: 'eSIM not found' }),
+        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Check ownership
+    const order = esimUsage.orders as any;
+    if (order.user_id !== user.id && order.email !== user.email) {
+      return new Response(
+        JSON.stringify({ error: 'Forbidden - not your eSIM' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     const airloClientId = Deno.env.get('AIRLO_CLIENT_ID');
@@ -53,11 +115,7 @@ serve(async (req) => {
 
     const { data: usageData } = await usageResponse.json();
 
-    // Update local database
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
+    // Update local database using the service client already initialized
     await supabase
       .from('esim_usage')
       .update({

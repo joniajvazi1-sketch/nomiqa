@@ -5,3 +5,9 @@ verify_jwt = false
 
 [functions.update-prices-from-csv]
 verify_jwt = false
+
+[functions.webhook-async-order]
+verify_jwt = false
+
+[functions.track-affiliate-click]
+verify_jwt = false

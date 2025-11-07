@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { createHmac } from "https://deno.land/std@0.168.0/node/crypto.ts";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -31,6 +32,32 @@ serve(async (req) => {
     }
 
     const data = JSON.parse(payload);
+
+    // Validate webhook payload structure
+    const webhookSchema = z.object({
+      request_id: z.string(),
+      reason: z.string().optional(),
+      sims: z.array(z.object({
+        iccid: z.string(),
+        lpa: z.string().optional(),
+        matching_id: z.string().optional(),
+        qrcode: z.string().optional(),
+        qrcode_url: z.string().optional()
+      })).optional(),
+      manual_installation: z.string().optional(),
+      qrcode_installation: z.string().optional(),
+      id: z.union([z.string(), z.number()]).optional()
+    });
+
+    const validationResult = webhookSchema.safeParse(data);
+    if (!validationResult.success) {
+      console.error('Invalid webhook payload:', validationResult.error);
+      return new Response(
+        JSON.stringify({ error: 'Invalid payload structure' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);

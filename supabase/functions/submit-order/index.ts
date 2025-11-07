@@ -1,10 +1,17 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+const submitOrderSchema = z.object({
+  packageId: z.string().max(100),
+  email: z.string().email().max(255),
+  userId: z.string().uuid().nullable().optional()
+});
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -12,11 +19,18 @@ serve(async (req) => {
   }
 
   try {
-    const { packageId, email, userId } = await req.json();
-
-    if (!packageId || !email) {
-      throw new Error('Package ID and email are required');
+    // Validate input
+    const rawBody = await req.json();
+    const validationResult = submitOrderSchema.safeParse(rawBody);
+    
+    if (!validationResult.success) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid input', details: validationResult.error.issues }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
+
+    const { packageId, email, userId } = validationResult.data;
 
     const airloClientId = Deno.env.get('AIRLO_CLIENT_ID');
     const airloClientSecret = Deno.env.get('AIRLO_CLIENT_SECRET');

@@ -32,30 +32,18 @@ function AffiliateTracker() {
     if (ref) {
       setReferralCode(ref);
       
-      // Track the click
-      supabase
-        .from('affiliates')
-        .select('id, total_clicks')
-        .eq('affiliate_code', ref)
-        .single()
-        .then(({ data }) => {
-          if (data) {
-            // Update click count
-            supabase
-              .from('affiliates')
-              .update({ total_clicks: (data.total_clicks || 0) + 1 })
-              .eq('id', data.id)
-              .then(() => {
-                // Record the referral
-                supabase
-                  .from('affiliate_referrals')
-                  .insert({
-                    affiliate_id: data.id,
-                    visitor_id: `visitor_${Date.now()}_${Math.random()}`
-                  });
-              });
-          }
-        });
+      // Track click via secure edge function
+      const trackClick = async () => {
+        try {
+          await supabase.functions.invoke('track-affiliate-click', {
+            body: { referralCode: ref }
+          });
+        } catch (error) {
+          console.error('Error tracking affiliate click:', error);
+        }
+      };
+
+      trackClick();
     }
   }, [location, setReferralCode]);
 
