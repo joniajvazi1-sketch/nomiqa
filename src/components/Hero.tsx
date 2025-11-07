@@ -18,7 +18,7 @@ export const Hero = () => {
       <div className="container relative z-10 px-4 py-20">
         <div className="grid lg:grid-cols-2 gap-12 items-center max-w-7xl mx-auto">
           {/* Left side - Text */}
-          <div className="text-left animate-fade-in-up">
+          <div className="text-center lg:text-left animate-fade-in-up">
             <p className="text-sm uppercase tracking-[0.3em] mb-4 text-cyan font-semibold">
               {t("heroTagline")}
             </p>
@@ -30,7 +30,7 @@ export const Hero = () => {
               {t("heroSubtitle")}
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4 mb-12">
+            <div className="flex flex-col sm:flex-row gap-4 mb-12 justify-center lg:justify-start">
               <Button 
                 size="lg"
                 className="bg-cyan hover:bg-cyan/90 text-midnight shadow-shadow-signal uppercase tracking-wide font-semibold"
@@ -48,7 +48,7 @@ export const Hero = () => {
               </Button>
             </div>
             
-            <div className="flex flex-col gap-3 text-muted-foreground">
+            <div className="flex flex-col gap-3 text-muted-foreground items-center lg:items-start">
               <div className="flex items-center gap-3">
                 <div className="w-1.5 h-1.5 bg-cyan rounded-full"></div>
                 <span className="text-sm tracking-wide">{t("heroValueFreedom")}</span>

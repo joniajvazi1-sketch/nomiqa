@@ -14,7 +14,7 @@ export const EasyCheckout = () => {
       <div className="absolute bottom-10 right-10 w-24 h-24 bg-nomiqa-blue/20 rounded-full blur-2xl"></div>
       <div className="container px-4 relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
-          <div className="text-center lg:text-left">
+          <div className="text-center">
             <p className="text-sm font-semibold mb-4 text-accent uppercase tracking-wide">
               {t("checkoutTitle")}
             </p>
@@ -23,7 +23,7 @@ export const EasyCheckout = () => {
             </h2>
           </div>
           
-          <div className="text-center lg:text-left">
+          <div className="text-center">
             <p className="text-lg mb-8 text-muted-foreground">
               {t("checkoutSubtitle")}
             </p>
@@ -31,10 +31,10 @@ export const EasyCheckout = () => {
             <img 
               src={happyTravelers} 
               alt="Happy travelers celebrating"
-              className="w-full max-w-2xl mx-auto lg:mx-0 mb-8 rounded-3xl shadow-lg"
+              className="w-full max-w-2xl mx-auto mb-8 rounded-3xl shadow-lg"
             />
             
-            <div className="flex justify-center lg:justify-start">
+            <div className="flex justify-center">
               <Button 
                 variant="hero" 
                 size="lg"

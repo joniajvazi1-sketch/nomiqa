@@ -40,9 +40,9 @@ export const WhyNomiqa = () => {
           </div>
         </div>
         
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto text-left">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto text-center md:text-left">
           <div className="group border border-border/50 bg-card/50 backdrop-blur-sm p-8 rounded-2xl hover:shadow-shadow-signal hover:border-cyan/50 transition-all duration-500 hover:-translate-y-1 animate-fade-in" style={{ animationDelay: "0.3s" }}>
-            <div className="w-12 h-12 rounded-full bg-cyan/10 flex items-center justify-center mb-4 group-hover:bg-cyan/20 transition-colors">
+            <div className="w-12 h-12 rounded-full bg-cyan/10 flex items-center justify-center mb-4 group-hover:bg-cyan/20 transition-colors mx-auto md:mx-0">
               <div className="w-6 h-6 rounded-full bg-cyan/50 group-hover:bg-cyan transition-colors"></div>
             </div>
             <h3 className="text-xl font-bold mb-3 text-foreground uppercase tracking-wide">{t("valueFreedom")}</h3>
@@ -52,7 +52,7 @@ export const WhyNomiqa = () => {
           </div>
           
           <div className="group border border-border/50 bg-card/50 backdrop-blur-sm p-8 rounded-2xl hover:shadow-shadow-signal hover:border-cyan/50 transition-all duration-500 hover:-translate-y-1 animate-fade-in" style={{ animationDelay: "0.4s" }}>
-            <div className="w-12 h-12 rounded-full bg-cyan/10 flex items-center justify-center mb-4 group-hover:bg-cyan/20 transition-colors">
+            <div className="w-12 h-12 rounded-full bg-cyan/10 flex items-center justify-center mb-4 group-hover:bg-cyan/20 transition-colors mx-auto md:mx-0">
               <div className="w-6 h-6 rounded-full bg-cyan/50 group-hover:bg-cyan transition-colors"></div>
             </div>
             <h3 className="text-xl font-bold mb-3 text-foreground uppercase tracking-wide">{t("valueBelonging")}</h3>
@@ -62,7 +62,7 @@ export const WhyNomiqa = () => {
           </div>
           
           <div className="group border border-border/50 bg-card/50 backdrop-blur-sm p-8 rounded-2xl hover:shadow-shadow-signal hover:border-cyan/50 transition-all duration-500 hover:-translate-y-1 animate-fade-in" style={{ animationDelay: "0.5s" }}>
-            <div className="w-12 h-12 rounded-full bg-cyan/10 flex items-center justify-center mb-4 group-hover:bg-cyan/20 transition-colors">
+            <div className="w-12 h-12 rounded-full bg-cyan/10 flex items-center justify-center mb-4 group-hover:bg-cyan/20 transition-colors mx-auto md:mx-0">
               <div className="w-6 h-6 rounded-full bg-cyan/50 group-hover:bg-cyan transition-colors"></div>
             </div>
             <h3 className="text-xl font-bold mb-3 text-foreground uppercase tracking-wide">{t("valueSovereignty")}</h3>
@@ -72,7 +72,7 @@ export const WhyNomiqa = () => {
           </div>
           
           <div className="group border border-border/50 bg-card/50 backdrop-blur-sm p-8 rounded-2xl hover:shadow-shadow-signal hover:border-cyan/50 transition-all duration-500 hover:-translate-y-1 animate-fade-in" style={{ animationDelay: "0.6s" }}>
-            <div className="w-12 h-12 rounded-full bg-cyan/10 flex items-center justify-center mb-4 group-hover:bg-cyan/20 transition-colors">
+            <div className="w-12 h-12 rounded-full bg-cyan/10 flex items-center justify-center mb-4 group-hover:bg-cyan/20 transition-colors mx-auto md:mx-0">
               <div className="w-6 h-6 rounded-full bg-cyan/50 group-hover:bg-cyan transition-colors"></div>
             </div>
             <h3 className="text-xl font-bold mb-3 text-foreground uppercase tracking-wide">{t("valueMovement")}</h3>
