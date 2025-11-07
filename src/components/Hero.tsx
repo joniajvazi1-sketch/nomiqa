@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import nomiqaLogo from "@/assets/nomiqa-logo.jpg";
+import nomiqaAnimatedLogo from "@/assets/nomiqa-animated-logo.gif";
 import { useTranslation } from "@/contexts/TranslationContext";
 
 export const Hero = () => {
@@ -31,7 +31,7 @@ export const Hero = () => {
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-neon opacity-30 blur-2xl rounded-full"></div>
               <img 
-                src={nomiqaLogo} 
+                src={nomiqaAnimatedLogo} 
                 alt="nomiqa - The world's first crypto eSIM"
                 className="relative w-32 h-32 md:w-48 md:h-48 lg:w-64 lg:h-64 rounded-3xl shadow-glow-neon neon-glow"
               />
