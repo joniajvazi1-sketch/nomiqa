@@ -1,4 +1,5 @@
 import coverageImage from "@/assets/global-coverage.jpg";
+import rotatingGlobe from "@/assets/rotating-globe.png";
 
 export const CoverageSection = () => {
   return (
@@ -19,7 +20,19 @@ export const CoverageSection = () => {
           </p>
         </div>
         
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-8 items-center">
+          {/* Rotating Globe */}
+          <div className="flex justify-center">
+            <div className="relative">
+              <img 
+                src={rotatingGlobe} 
+                alt="Global Coverage - Rotating Globe" 
+                className="w-full max-w-md h-auto animate-[spin_20s_linear_infinite]"
+              />
+            </div>
+          </div>
+
+          {/* Coverage Map */}
           <div className="relative rounded-2xl overflow-hidden shadow-glow-neon border border-neon-cyan/20">
             <img 
               src={coverageImage} 
