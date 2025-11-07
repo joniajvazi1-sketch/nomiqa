@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "@/hooks/useCart";
-import { ShoppingCart, LogOut, LogIn, Menu, X } from "lucide-react";
+import { ShoppingCart, LogOut, LogIn, Menu, Languages } from "lucide-react";
 import { Badge } from "./ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { User as SupabaseUser } from "@supabase/supabase-js";
@@ -14,12 +14,32 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export const Navbar = () => {
   const navigate = useNavigate();
   const { items } = useCart();
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [currentLanguage, setCurrentLanguage] = useState("EN");
+
+  const languages = [
+    { code: "EN", name: "English" },
+    { code: "ES", name: "Español" },
+    { code: "FR", name: "Français" },
+    { code: "DE", name: "Deutsch" },
+    { code: "RU", name: "Русский" },
+    { code: "ZH", name: "中文" },
+    { code: "JA", name: "日本語" },
+    { code: "PT", name: "Português" },
+    { code: "AR", name: "العربية" },
+    { code: "HI", name: "हिन्दी" },
+  ];
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -149,7 +169,7 @@ export const Navbar = () => {
                     </button>
                   )}
                   
-                  <div className="border-t border-border pt-4 mt-4">
+                  <div className="border-t border-border pt-4 mt-4 space-y-2">
                     {user ? (
                       <Button
                         variant="cyber"
@@ -160,14 +180,23 @@ export const Navbar = () => {
                         Sign Out
                       </Button>
                     ) : (
-                      <Button
-                        variant="cyber"
-                        className="w-full"
-                        onClick={() => handleNavClick('/auth')}
-                      >
-                        <LogIn className="w-4 h-4 mr-2" />
-                        Sign In
-                      </Button>
+                      <>
+                        <Button
+                          variant="cyber"
+                          className="w-full"
+                          onClick={() => handleNavClick('/auth')}
+                        >
+                          <LogIn className="w-4 h-4 mr-2" />
+                          Sign In
+                        </Button>
+                        <Button
+                          variant="outline"
+                          className="w-full"
+                          onClick={() => handleNavClick('/auth')}
+                        >
+                          Sign Up
+                        </Button>
+                      </>
                     )}
                   </div>
                 </div>
@@ -176,25 +205,52 @@ export const Navbar = () => {
           </div>
           
           <div className="flex items-center gap-4">
-            {user ? (
-              <Button
-                variant="cyber"
-                size="sm"
-                onClick={handleSignOut}
-              >
-                <LogOut className="w-4 h-4 mr-2" />
-                Sign Out
-              </Button>
-            ) : (
-              <Button
-                variant="cyber"
-                size="sm"
-                onClick={() => navigate('/auth')}
-              >
-                <LogIn className="w-4 h-4 mr-2" />
-                Sign In
-              </Button>
-            )}
+            {/* Language Selector */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="gap-2">
+                  <Languages className="w-4 h-4" />
+                  <span className="hidden sm:inline">{currentLanguage}</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="bg-white z-50">
+                {languages.map((lang) => (
+                  <DropdownMenuItem
+                    key={lang.code}
+                    onClick={() => {
+                      setCurrentLanguage(lang.code);
+                      toast.success(`Language changed to ${lang.name}`);
+                    }}
+                    className="cursor-pointer"
+                  >
+                    {lang.name}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Desktop Auth Buttons */}
+            <div className="hidden md:flex items-center gap-4">
+              {user ? (
+                <Button
+                  variant="cyber"
+                  size="sm"
+                  onClick={handleSignOut}
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sign Out
+                </Button>
+              ) : (
+                <Button
+                  variant="cyber"
+                  size="sm"
+                  onClick={() => navigate('/auth')}
+                >
+                  <LogIn className="w-4 h-4 mr-2" />
+                  Sign In
+                </Button>
+              )}
+            </div>
             
             {items.length > 0 && (
               <Button
