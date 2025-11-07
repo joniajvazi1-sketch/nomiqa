@@ -50,7 +50,7 @@ export const Hero = () => {
               Anonymous eSIMs. Crypto payments. Instant access in 190+ countries.
             </p>
             <p className="text-sm md:text-base lg:text-lg text-foreground/60 max-w-2xl mx-auto px-4">
-              Freedom that respects privacy
+              Get connected in under 60 seconds. No paperwork, no waiting.
             </p>
           </div>
           

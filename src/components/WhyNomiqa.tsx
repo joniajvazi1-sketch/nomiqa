@@ -65,49 +65,6 @@ export const WhyNomiqa = () => {
           ))}
         </div>
 
-        {/* How it works - 3 steps */}
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
-            <h3 className="text-2xl md:text-3xl font-bold mb-4 font-display bg-gradient-digital bg-clip-text text-transparent">
-              Get connected in minutes
-            </h3>
-            <p className="text-foreground/70">
-              No passport check. No SIM swap.
-            </p>
-          </div>
-          
-          <div className="grid md:grid-cols-3 gap-6">
-            <div className="relative text-center p-6">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-neon-cyan to-neon-violet flex items-center justify-center text-2xl font-bold text-white">
-                1
-              </div>
-              <h4 className="text-lg font-semibold mb-2 text-neon-cyan">Choose Plan</h4>
-              <p className="text-sm text-foreground/60">Select your destination and data amount</p>
-            </div>
-
-            <div className="relative text-center p-6">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-neon-violet to-neon-coral flex items-center justify-center text-2xl font-bold text-white">
-                2
-              </div>
-              <h4 className="text-lg font-semibold mb-2 text-neon-violet">Scan QR</h4>
-              <p className="text-sm text-foreground/60">Activate your eSIM with one scan</p>
-            </div>
-
-            <div className="relative text-center p-6">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-neon-coral to-warm-sand flex items-center justify-center text-2xl font-bold text-white">
-                3
-              </div>
-              <h4 className="text-lg font-semibold mb-2 text-neon-coral">Connect Instantly 🌐</h4>
-              <p className="text-sm text-foreground/60">You're online, anywhere in the world</p>
-            </div>
-          </div>
-
-          <div className="text-center mt-12">
-            <p className="text-lg text-warm-sand/80">
-              Freedom that respects your privacy
-            </p>
-          </div>
-        </div>
       </div>
     </section>
   );
