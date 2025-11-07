@@ -121,7 +121,7 @@ export const Navbar = () => {
                 onClick={() => navigate('/orders')}
                 className="text-foreground/80 hover:text-neon-cyan transition-colors font-medium"
               >
-                {t("myOrders")}
+                My eSIMs
               </button>
             )}
           </div>
@@ -181,7 +181,7 @@ export const Navbar = () => {
                       onClick={() => handleNavClick('/orders')}
                       className="text-left text-foreground/70 hover:text-foreground transition-colors py-2 px-4 rounded hover:bg-muted"
                     >
-                      {t("myOrders")}
+                      My eSIMs
                     </button>
                   )}
                   
