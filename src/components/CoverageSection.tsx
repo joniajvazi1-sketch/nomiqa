@@ -1,5 +1,4 @@
-import coverageImage from "@/assets/global-coverage.jpg";
-import rotatingGlobe from "@/assets/rotating-globe.png";
+import InteractiveGlobe from './InteractiveGlobe';
 
 export const CoverageSection = () => {
   return (
@@ -20,26 +19,8 @@ export const CoverageSection = () => {
           </p>
         </div>
         
-        <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-8 items-center">
-          {/* Rotating Globe */}
-          <div className="flex justify-center">
-            <div className="relative">
-              <img 
-                src={rotatingGlobe} 
-                alt="Global Coverage - Rotating Globe" 
-                className="w-full max-w-md h-auto animate-[spin_20s_linear_infinite]"
-              />
-            </div>
-          </div>
-
-          {/* Coverage Map */}
-          <div className="relative rounded-2xl overflow-hidden shadow-glow-neon border border-neon-cyan/20">
-            <img 
-              src={coverageImage} 
-              alt="Global eSIM Coverage Map" 
-              className="w-full h-auto"
-            />
-          </div>
+        <div className="max-w-4xl mx-auto">
+          <InteractiveGlobe />
         </div>
         
         <div className="grid grid-cols-3 gap-4 md:gap-8 max-w-4xl mx-auto mt-8 md:mt-12 text-center">
