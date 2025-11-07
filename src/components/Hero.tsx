@@ -1,7 +1,7 @@
 import { ShoppingCart, Globe, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import happyTravelers from "@/assets/happy-travelers.jpg";
+import explorerHero from "@/assets/explorer-hero.jpg";
 import { useTranslation } from "@/contexts/TranslationContext";
 
 export const Hero = () => {
@@ -72,7 +72,7 @@ export const Hero = () => {
           <div className="relative animate-fade-in" style={{ animationDelay: "0.3s" }}>
             <div className="absolute -inset-4 bg-gradient-explorer opacity-20 blur-2xl rounded-3xl"></div>
             <img 
-              src={happyTravelers} 
+              src={explorerHero} 
               alt="The Explorer - Global citizens who navigate the world by their own rules"
               className="relative w-full h-auto rounded-3xl shadow-shadow-warm border border-border/50"
             />

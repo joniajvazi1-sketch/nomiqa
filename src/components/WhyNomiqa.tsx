@@ -1,4 +1,4 @@
-import celebratingPerson from "@/assets/celebrating-person.jpg";
+import explorerCelebration from "@/assets/explorer-celebration.jpg";
 import { useTranslation } from "@/contexts/TranslationContext";
 
 export const WhyNomiqa = () => {
@@ -25,11 +25,14 @@ export const WhyNomiqa = () => {
             </p>
             
             <div className="flex justify-center lg:justify-start mt-8">
-              <img 
-                src={celebratingPerson} 
-                alt="Happy person celebrating"
-                className="w-48 h-48 object-contain rounded-2xl"
-              />
+              <div className="relative">
+                <div className="absolute -inset-2 bg-gradient-signal blur-xl rounded-2xl"></div>
+                <img 
+                  src={explorerCelebration} 
+                  alt="Explorer celebrating freedom and movement"
+                  className="relative w-48 h-48 object-cover rounded-2xl shadow-shadow-signal border border-cyan/30"
+                />
+              </div>
             </div>
           </div>
           
