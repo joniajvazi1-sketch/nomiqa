@@ -76,15 +76,15 @@ export default function Privacy() {
                 className="group p-8 rounded-3xl bg-card/40 backdrop-blur-sm border border-border/50 hover:border-neon-cyan/50 transition-all duration-500 hover:shadow-lg hover:shadow-neon-cyan/20 animate-fade-in-up"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-neon-cyan to-neon-violet p-0.5 mb-6">
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-neon-cyan to-neon-violet p-0.5 mb-6 mx-auto md:mx-0">
                   <div className="w-full h-full bg-card rounded-2xl flex items-center justify-center">
-                    <principle.icon className="w-8 h-8 text-neon-cyan" />
+                    <principle.icon className="w-8 h-8 text-neon-cyan mx-auto" />
                   </div>
                 </div>
-                <h3 className="text-2xl font-bold mb-3 text-foreground">
+                <h3 className="text-2xl font-bold mb-3 text-foreground text-center md:text-left">
                   {principle.title}
                 </h3>
-                <p className="text-foreground/70 leading-relaxed">
+                <p className="text-foreground/70 leading-relaxed text-center md:text-left">
                   {principle.description}
                 </p>
               </div>
