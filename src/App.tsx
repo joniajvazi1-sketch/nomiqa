@@ -12,7 +12,7 @@ import NotFound from "./pages/NotFound";
 import Checkout from "./pages/Checkout";
 import Orders from "./pages/Orders";
 import Auth from "./pages/Auth";
-import LearnCrypto from "./pages/LearnCrypto";
+import GettingStarted from "./pages/GettingStarted";
 import Stake from "./pages/Stake";
 import Roadmap from "./pages/Roadmap";
 import Affiliate from "./pages/Affiliate";
@@ -74,7 +74,7 @@ const App = () => (
           <Route path="/auth" element={<Auth />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/orders" element={<Orders />} />
-          <Route path="/learn-crypto" element={<LearnCrypto />} />
+          <Route path="/getting-started" element={<GettingStarted />} />
           <Route path="/stake" element={<Stake />} />
           <Route path="/roadmap" element={<Roadmap />} />
           <Route path="/affiliate" element={<Affiliate />} />

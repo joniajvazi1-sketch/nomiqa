@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Wallet, Shield, Coins, ArrowRight, ExternalLink, Download, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export default function LearnCrypto() {
+export default function GettingStarted() {
   const guides = [
     {
       title: "Setting Up Phantom Wallet",
@@ -109,7 +109,7 @@ export default function LearnCrypto() {
       <div className="container mx-auto px-4 py-20">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">Learn How to Use Phantom & Buy Solana</h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">Getting Started with Nomiqa</h1>
             <p className="text-xl text-muted-foreground">
               Everything you need to know to buy eSIMs with Solana or USDC on Solana
             </p>
