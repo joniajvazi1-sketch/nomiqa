@@ -136,6 +136,10 @@ export default {
           "0%": { backgroundPosition: "-1000px 0" },
           "100%": { backgroundPosition: "1000px 0" },
         },
+        "shimmer-soft": {
+          "0%": { backgroundPosition: "-800px 0", opacity: "0.3" },
+          "100%": { backgroundPosition: "800px 0", opacity: "0.3" },
+        },
         "float": {
           "0%, 100%": { transform: "translateY(0px)" },
           "50%": { transform: "translateY(-10px)" },
@@ -158,6 +162,7 @@ export default {
         "scale-in": "scale-in 0.4s ease-out",
         "bounce-in": "bounce-in 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55)",
         "shimmer": "shimmer 3s linear infinite",
+        "shimmer-soft": "shimmer-soft 8s linear infinite",
         "float": "float 3s ease-in-out infinite",
         "confetti": "confetti 2s ease-out forwards",
         "wave-up": "wave-up 4s ease-out forwards",

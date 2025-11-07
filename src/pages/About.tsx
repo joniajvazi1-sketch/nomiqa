@@ -134,7 +134,7 @@ export default function About() {
           {/* Vision Statement with moving gradients */}
           <div className="relative p-12 rounded-3xl bg-gradient-to-br from-neon-violet/10 via-neon-coral/10 to-warm-sand/10 border border-neon-violet/30 backdrop-blur-sm text-center overflow-hidden">
             {/* Subtle moving gradient effect */}
-            <div className="absolute inset-0 bg-gradient-to-r from-neon-cyan/10 via-neon-coral/10 to-warm-sand/10 animate-shimmer"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-neon-cyan/5 via-neon-coral/5 to-warm-sand/5 animate-shimmer-soft" style={{ backgroundSize: '200% 100%' }}></div>
             
             <div className="relative z-10">
               <h2 className="text-3xl md:text-4xl font-bold mb-6 bg-gradient-sunset bg-clip-text text-transparent">
