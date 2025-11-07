@@ -36,7 +36,6 @@ export const Footer = () => {
           <div>
             <h4 className="font-semibold mb-4 text-neon-cyan text-sm md:text-base">{t("company")}</h4>
             <ul className="space-y-2 text-foreground/70 text-sm">
-              <li><a href="/roadmap" className="hover:text-neon-cyan transition-colors">Roadmap</a></li>
               <li><a href="/affiliate" className="hover:text-neon-cyan transition-colors">{t("affiliate")}</a></li>
               <li><a href="#" className="hover:text-neon-cyan transition-colors">NMQ Token</a></li>
             </ul>
