@@ -10,12 +10,14 @@ import { EarnSection } from "@/components/EarnSection";
 import { FAQ } from "@/components/FAQ";
 import { Footer } from "@/components/Footer";
 import { StickyCTA } from "@/components/StickyCTA";
+import { TrustPartners } from "@/components/TrustPartners";
 
 const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
       <Hero />
+      <TrustPartners />
       <ValuePropositions />
       <HowItWorksSteps />
       <WhyNomiqa />
