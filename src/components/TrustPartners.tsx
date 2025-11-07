@@ -1,7 +1,7 @@
 import { Zap, TrendingUp } from "lucide-react";
 import solanaLogo from "@/assets/solana-logo.svg";
-import phantomLogo from "@/assets/phantom-logo.svg";
-import meteoraLogo from "@/assets/meteora-logo.svg";
+import phantomLogo from "@/assets/phantom-logo.png";
+import meteoraLogo from "@/assets/meteora-logo.jpg";
 import { useSolanaPrice } from "@/hooks/useSolanaPrice";
 
 
