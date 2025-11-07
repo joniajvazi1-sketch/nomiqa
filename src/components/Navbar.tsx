@@ -79,7 +79,7 @@ export const Navbar = () => {
             </button>
           </div>
           
-          <div className="hidden md:flex items-center gap-6">
+          <div className="hidden md:flex items-center gap-6 ml-8">
             <button
               onClick={() => navigate('/shop')}
               className="text-foreground/80 hover:text-neon-cyan transition-colors font-medium"
@@ -108,7 +108,7 @@ export const Navbar = () => {
               onClick={() => navigate('/about')}
               className="text-foreground/80 hover:text-neon-cyan transition-colors font-medium"
             >
-              About
+              About Us
             </button>
             <button
               onClick={() => navigate('/privacy')}
@@ -168,7 +168,7 @@ export const Navbar = () => {
                     onClick={() => handleNavClick('/about')}
                     className="text-left text-foreground/70 hover:text-foreground transition-colors py-2 px-4 rounded hover:bg-muted"
                   >
-                    About
+                    About Us
                   </button>
                   <button
                     onClick={() => handleNavClick('/privacy')}
