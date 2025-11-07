@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import nomiqaAnimatedLogo from "@/assets/nomiqa-animated-logo.mp4";
+import nomiqaAnimatedLogo from "@/assets/nomiqa-animated-logo.gif";
 import { useTranslation } from "@/contexts/TranslationContext";
 
 export const Hero = () => {
@@ -28,12 +28,9 @@ export const Hero = () => {
         <div className="max-w-5xl mx-auto text-center">
           {/* Logo */}
           <div className="mb-6 md:mb-8 flex justify-center animate-scale-in">
-            <video 
+            <img 
               src={nomiqaAnimatedLogo} 
-              autoPlay
-              loop
-              muted
-              playsInline
+              alt="nomiqa - The world's first crypto eSIM"
               className="w-48 h-48 md:w-64 md:h-64 lg:w-80 lg:h-80 object-contain"
               style={{ filter: 'drop-shadow(0 0 40px rgba(71, 201, 229, 0.3))' }}
             />
