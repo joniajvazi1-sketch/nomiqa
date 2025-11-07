@@ -42,9 +42,12 @@ export const Navbar = () => {
           </div>
           
           <div className="hidden md:flex items-center gap-8">
-            <a href="/#shop" className="text-white/80 hover:text-white transition-colors">
+            <button
+              onClick={() => navigate('/shop')}
+              className="text-white/80 hover:text-white transition-colors"
+            >
               Shop
-            </a>
+            </button>
             <button
               onClick={() => navigate('/learn-crypto')}
               className="text-white/80 hover:text-white transition-colors"

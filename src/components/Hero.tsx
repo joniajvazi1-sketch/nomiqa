@@ -19,7 +19,7 @@ export const Hero = () => {
             Freedom has a new signal.
           </h1>
           
-          <p className="text-xl md:text-2xl mb-8 text-white/90 max-w-2xl mx-auto">
+          <p className="text-xl md:text-2xl mb-12 text-white/90 max-w-2xl mx-auto">
             The first crypto-native eSIM with anonymous activation, wallet payments, and token rewards.
           </p>
           

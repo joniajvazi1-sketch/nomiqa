@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useAffiliateTracking } from "@/hooks/useAffiliateTracking";
 import { supabase } from "@/integrations/supabase/client";
 import Index from "./pages/Index";
+import ShopPage from "./pages/ShopPage";
 import NotFound from "./pages/NotFound";
 import Checkout from "./pages/Checkout";
 import Orders from "./pages/Orders";
@@ -69,6 +70,7 @@ const App = () => (
         <AffiliateTracker />
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/shop" element={<ShopPage />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/orders" element={<Orders />} />
