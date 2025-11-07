@@ -55,7 +55,7 @@ const InteractiveGlobe: React.FC = () => {
       emissiveIntensity: 0.4,
       wireframe: true,
       transparent: true,
-      opacity: 0.8,
+      opacity: 0.6,
     });
     const globe = new THREE.Mesh(geometry, material);
     scene.add(globe);
@@ -72,64 +72,122 @@ const InteractiveGlobe: React.FC = () => {
     const atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
     scene.add(atmosphere);
 
-    // Create connection lines between random points
-    const connectionLines: THREE.Line[] = [];
-    const numConnections = 20;
-    
-    for (let i = 0; i < numConnections; i++) {
+    // Add latitude lines (parallels)
+    const latLines: THREE.Line[] = [];
+    for (let lat = -80; lat <= 80; lat += 20) {
+      const phi = (90 - lat) * (Math.PI / 180);
       const points = [];
       
-      // Random start point on sphere
-      const theta1 = Math.random() * Math.PI * 2;
-      const phi1 = Math.acos(2 * Math.random() - 1);
-      const x1 = 1.5 * Math.sin(phi1) * Math.cos(theta1);
-      const y1 = 1.5 * Math.sin(phi1) * Math.sin(theta1);
-      const z1 = 1.5 * Math.cos(phi1);
+      for (let lon = 0; lon <= 360; lon += 5) {
+        const theta = lon * (Math.PI / 180);
+        const x = 1.52 * Math.sin(phi) * Math.cos(theta);
+        const y = 1.52 * Math.cos(phi);
+        const z = 1.52 * Math.sin(phi) * Math.sin(theta);
+        points.push(new THREE.Vector3(x, y, z));
+      }
       
-      // Random end point on sphere
-      const theta2 = Math.random() * Math.PI * 2;
-      const phi2 = Math.acos(2 * Math.random() - 1);
-      const x2 = 1.5 * Math.sin(phi2) * Math.cos(theta2);
-      const y2 = 1.5 * Math.sin(phi2) * Math.sin(theta2);
-      const z2 = 1.5 * Math.cos(phi2);
+      const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
+      const lineMaterial = new THREE.LineBasicMaterial({
+        color: new THREE.Color('#06b6d4'),
+        transparent: true,
+        opacity: 0.3,
+      });
+      const line = new THREE.Line(lineGeometry, lineMaterial);
+      scene.add(line);
+      latLines.push(line);
+    }
+
+    // Add longitude lines (meridians)
+    const lonLines: THREE.Line[] = [];
+    for (let lon = 0; lon < 360; lon += 20) {
+      const theta = lon * (Math.PI / 180);
+      const points = [];
       
-      // Create curved line (arc through space)
-      const start = new THREE.Vector3(x1, y1, z1);
-      const end = new THREE.Vector3(x2, y2, z2);
+      for (let lat = -90; lat <= 90; lat += 5) {
+        const phi = (90 - lat) * (Math.PI / 180);
+        const x = 1.52 * Math.sin(phi) * Math.cos(theta);
+        const y = 1.52 * Math.cos(phi);
+        const z = 1.52 * Math.sin(phi) * Math.sin(theta);
+        points.push(new THREE.Vector3(x, y, z));
+      }
+      
+      const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
+      const lineMaterial = new THREE.LineBasicMaterial({
+        color: new THREE.Color('#06b6d4'),
+        transparent: true,
+        opacity: 0.3,
+      });
+      const line = new THREE.Line(lineGeometry, lineMaterial);
+      scene.add(line);
+      lonLines.push(line);
+    }
+
+    // Major continent/city positions (approximate lat/long)
+    const locations = [
+      { lat: 40.7, lon: -74.0, name: 'North America' },    // New York
+      { lat: 51.5, lon: -0.1, name: 'Europe' },            // London
+      { lat: 35.7, lon: 139.7, name: 'Asia East' },        // Tokyo
+      { lat: -33.9, lon: 18.4, name: 'Africa' },           // Cape Town
+      { lat: -33.9, lon: 151.2, name: 'Australia' },       // Sydney
+      { lat: -23.5, lon: -46.6, name: 'South America' },   // Sao Paulo
+      { lat: 55.8, lon: 37.6, name: 'Russia' },            // Moscow
+      { lat: 1.3, lon: 103.8, name: 'Asia Southeast' },    // Singapore
+      { lat: 19.4, lon: -99.1, name: 'Central America' },  // Mexico City
+      { lat: 28.6, lon: 77.2, name: 'India' },             // Delhi
+    ];
+
+    // Convert to 3D positions
+    const locationPoints = locations.map(loc => {
+      const phi = (90 - loc.lat) * (Math.PI / 180);
+      const theta = (loc.lon + 180) * (Math.PI / 180);
+      return new THREE.Vector3(
+        1.5 * Math.sin(phi) * Math.cos(theta),
+        1.5 * Math.cos(phi),
+        1.5 * Math.sin(phi) * Math.sin(theta)
+      );
+    });
+
+    // Create connection lines between continents
+    const connectionLines: THREE.Line[] = [];
+    const connections = [
+      [0, 1], [1, 2], [1, 6], [2, 7], [3, 5], 
+      [4, 7], [0, 8], [8, 5], [6, 9], [7, 9],
+      [0, 6], [1, 3], [2, 9], [5, 3], [4, 2]
+    ];
+    
+    connections.forEach(([i, j]) => {
+      const start = locationPoints[i];
+      const end = locationPoints[j];
       const mid = new THREE.Vector3().addVectors(start, end).multiplyScalar(0.5);
-      mid.normalize().multiplyScalar(1.8); // Arc outward
+      mid.normalize().multiplyScalar(1.85); // Arc outward
       
       const curve = new THREE.QuadraticBezierCurve3(start, mid, end);
-      const curvePoints = curve.getPoints(30);
+      const curvePoints = curve.getPoints(40);
       
       const lineGeometry = new THREE.BufferGeometry().setFromPoints(curvePoints);
       const lineMaterial = new THREE.LineBasicMaterial({
         color: new THREE.Color('#a855f7'),
         transparent: true,
-        opacity: 0.6,
+        opacity: 0.5,
       });
       
       const line = new THREE.Line(lineGeometry, lineMaterial);
       scene.add(line);
       connectionLines.push(line);
-    }
+    });
 
-    // Add glowing dots at connection points
-    const dotGeometry = new THREE.SphereGeometry(0.02, 16, 16);
-    for (let i = 0; i < 30; i++) {
-      const theta = Math.random() * Math.PI * 2;
-      const phi = Math.acos(2 * Math.random() - 1);
-      const x = 1.5 * Math.sin(phi) * Math.cos(theta);
-      const y = 1.5 * Math.sin(phi) * Math.sin(theta);
-      const z = 1.5 * Math.cos(phi);
-      
+    // Add glowing dots at major locations
+    const dotGeometry = new THREE.SphereGeometry(0.025, 16, 16);
+    const dots: THREE.Mesh[] = [];
+    locationPoints.forEach((point, i) => {
       const dotMaterial = new THREE.MeshBasicMaterial({
-        color: Math.random() > 0.5 ? new THREE.Color('#06b6d4') : new THREE.Color('#a855f7'),
+        color: new THREE.Color('#06b6d4'),
       });
       const dot = new THREE.Mesh(dotGeometry, dotMaterial);
-      dot.position.set(x, y, z);
+      dot.position.copy(point);
       scene.add(dot);
-    }
+      dots.push(dot);
+    });
 
     // Drag controls (simple custom)
     const onPointerDown = (e: PointerEvent) => {
@@ -190,9 +248,13 @@ const InteractiveGlobe: React.FC = () => {
       dotGeometry.dispose();
       material.dispose();
       atmosphereMaterial.dispose();
-      connectionLines.forEach(line => {
+      [...latLines, ...lonLines, ...connectionLines].forEach(line => {
         line.geometry.dispose();
         (line.material as THREE.Material).dispose();
+      });
+      dots.forEach(dot => {
+        dot.geometry.dispose();
+        (dot.material as THREE.Material).dispose();
       });
       renderer.dispose();
       container.removeChild(renderer.domElement);
