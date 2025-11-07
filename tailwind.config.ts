@@ -48,11 +48,12 @@ export default {
           foreground: "hsl(var(--card-foreground))",
         },
         nomiqa: {
-          dark: "hsl(var(--nomiqa-dark))",
-          purple: "hsl(var(--nomiqa-purple))",
-          pink: "hsl(var(--nomiqa-pink))",
-          light: "hsl(var(--nomiqa-light))",
-          warm: "hsl(var(--nomiqa-warm))",
+          orange: "hsl(var(--nomiqa-orange))",
+          teal: "hsl(var(--nomiqa-teal))",
+          green: "hsl(var(--nomiqa-green))",
+          cream: "hsl(var(--nomiqa-cream))",
+          peach: "hsl(var(--nomiqa-peach))",
+          blue: "hsl(var(--nomiqa-blue))",
         },
       },
       backgroundImage: {
@@ -60,10 +61,12 @@ export default {
         'gradient-hero': 'var(--gradient-hero)',
         'gradient-warm': 'var(--gradient-warm)',
         'gradient-card': 'var(--gradient-card)',
+        'gradient-teal': 'var(--gradient-teal)',
+        'gradient-green': 'var(--gradient-green)',
       },
       boxShadow: {
-        'glow-purple': 'var(--glow-purple)',
-        'glow-pink': 'var(--glow-pink)',
+        'glow-orange': 'var(--glow-orange)',
+        'glow-teal': 'var(--glow-teal)',
         'shadow-warm': 'var(--shadow-warm)',
       },
       borderRadius: {

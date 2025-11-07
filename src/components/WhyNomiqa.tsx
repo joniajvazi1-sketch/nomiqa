@@ -1,13 +1,27 @@
+import celebratingPerson from "@/assets/celebrating-person.jpg";
+
 export const WhyNomiqa = () => {
   return (
-    <section className="py-20 bg-gradient-to-br from-secondary via-background to-secondary/50">
-      <div className="container px-4">
+    <section className="py-20 bg-gradient-to-br from-secondary via-background to-secondary/50 relative overflow-hidden">
+      {/* Decorative shapes */}
+      <div className="absolute top-20 right-10 w-32 h-32 bg-nomiqa-peach/20 rounded-full blur-3xl animate-float"></div>
+      <div className="absolute bottom-20 left-10 w-40 h-40 bg-nomiqa-teal/20 rounded-full blur-3xl animate-float" style={{ animationDelay: "1s" }}></div>
+      <div className="container px-4 relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 items-center max-w-7xl mx-auto">
           <div className="text-center lg:text-left animate-fade-in-up">
             <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-primary bg-clip-text text-transparent">
               Why<em className="italic">Nomiqa</em> : Privacy, Simplicity, and{" "}
               <em className="italic">Crypto Freedom</em> for Web3 Travelers
             </h2>
+            
+            <div className="flex justify-center lg:justify-start mt-8">
+              <img 
+                src={celebratingPerson} 
+                alt="Happy person celebrating"
+                className="w-48 h-48 object-contain animate-bounce-in"
+                style={{ animationDelay: "0.5s" }}
+              />
+            </div>
           </div>
           
           <div className="space-y-6 text-center lg:text-left animate-fade-in-up" style={{ animationDelay: "0.2s" }}>

@@ -1,15 +1,26 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import worldTravelers from "@/assets/world-travelers.jpg";
 
 export const EarnSection = () => {
   const navigate = useNavigate();
   
   return (
-    <section className="py-20 bg-gradient-primary relative overflow-hidden">
+    <section className="py-20 bg-gradient-teal relative overflow-hidden">
       {/* Animated background shapes */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-10 left-10 w-72 h-72 bg-white rounded-full blur-3xl animate-float"></div>
-        <div className="absolute bottom-10 right-10 w-96 h-96 bg-white rounded-full blur-3xl animate-float" style={{ animationDelay: "1s" }}></div>
+        <div className="absolute bottom-10 right-10 w-96 h-96 bg-nomiqa-orange rounded-full blur-3xl animate-float" style={{ animationDelay: "1s" }}></div>
+      </div>
+      
+      {/* Happy illustration */}
+      <div className="absolute right-10 top-1/2 -translate-y-1/2 hidden xl:block">
+        <img 
+          src={worldTravelers} 
+          alt="People around the world" 
+          className="w-64 h-64 object-contain animate-float opacity-80"
+          style={{ animationDelay: "0.5s" }}
+        />
       </div>
       
       <div className="container px-4 relative z-10">
