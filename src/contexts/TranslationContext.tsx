@@ -1,221 +1,6 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 
 type Language = "EN" | "ES" | "FR" | "DE" | "RU" | "ZH" | "JA" | "PT" | "AR" | "HI";
-
-interface Translations {
-  [key: string]: {
-    [lang in Language]: string;
-  };
-}
-
-const translations: Translations = {
-  // Navigation
-  shop: {
-    EN: "Shop", ES: "Tienda", FR: "Boutique", DE: "Shop", RU: "Магазин", 
-    ZH: "商店", JA: "ショップ", PT: "Loja", AR: "متجر", HI: "दुकान"
-  },
-  gettingStarted: {
-    EN: "Getting Started", ES: "Comenzar", FR: "Commencer", DE: "Erste Schritte", RU: "Начало работы",
-    ZH: "开始使用", JA: "はじめに", PT: "Começar", AR: "البدء", HI: "शुरू करना"
-  },
-  stake: {
-    EN: "Stake", ES: "Staking", FR: "Staking", DE: "Staking", RU: "Стейкинг",
-    ZH: "质押", JA: "ステーキング", PT: "Staking", AR: "التوقيع", HI: "स्टेकिंग"
-  },
-  roadmap: {
-    EN: "Roadmap", ES: "Hoja de ruta", FR: "Feuille de route", DE: "Roadmap", RU: "Дорожная карта",
-    ZH: "路线图", JA: "ロードマップ", PT: "Roteiro", AR: "خارطة الطريق", HI: "रोडमैप"
-  },
-  affiliate: {
-    EN: "Affiliate", ES: "Afiliados", FR: "Affilié", DE: "Partner", RU: "Партнерская программа",
-    ZH: "联盟", JA: "アフィリエイト", PT: "Afiliado", AR: "الشركاء", HI: "संबद्ध"
-  },
-  myOrders: {
-    EN: "My Orders", ES: "Mis pedidos", FR: "Mes commandes", DE: "Meine Bestellungen", RU: "Мои заказы",
-    ZH: "我的订单", JA: "注文履歴", PT: "Meus pedidos", AR: "طلباتي", HI: "मेरे ऑर्डर"
-  },
-  signIn: {
-    EN: "Sign In", ES: "Iniciar sesión", FR: "Se connecter", DE: "Anmelden", RU: "Войти",
-    ZH: "登录", JA: "サインイン", PT: "Entrar", AR: "تسجيل الدخول", HI: "साइन इन करें"
-  },
-  signOut: {
-    EN: "Sign Out", ES: "Cerrar sesión", FR: "Se déconnecter", DE: "Abmelden", RU: "Выйти",
-    ZH: "登出", JA: "サインアウト", PT: "Sair", AR: "تسجيل الخروج", HI: "साइन आउट करें"
-  },
-  signUp: {
-    EN: "Sign Up", ES: "Registrarse", FR: "S'inscrire", DE: "Registrieren", RU: "Регистрация",
-    ZH: "注册", JA: "登録", PT: "Registrar", AR: "التسجيل", HI: "साइन अप करें"
-  },
-  
-  // Hero Section
-  heroTitle: {
-    EN: "Freedom has a new signal.", ES: "La libertad tiene una nueva señal.", FR: "La liberté a un nouveau signal.",
-    DE: "Freiheit hat ein neues Signal.", RU: "У свободы новый сигнал.", ZH: "自由有了新信号。",
-    JA: "自由に新しい信号が。", PT: "A liberdade tem um novo sinal.", AR: "الحرية لديها إشارة جديدة.", HI: "स्वतंत्रता का एक नया संकेत है।"
-  },
-  heroSubtitle: {
-    EN: "The first crypto-native eSIM with anonymous activation, wallet payments, and token rewards.",
-    ES: "La primera eSIM nativa de criptomonedas con activación anónima, pagos con billetera y recompensas de tokens.",
-    FR: "La première eSIM crypto native avec activation anonyme, paiements par portefeuille et récompenses en tokens.",
-    DE: "Die erste Krypto-native eSIM mit anonymer Aktivierung, Wallet-Zahlungen und Token-Belohnungen.",
-    RU: "Первая криптовалютная eSIM с анонимной активацией, платежами через кошелек и наградами в токенах.",
-    ZH: "首个加密原生 eSIM，支持匿名激活、钱包支付和代币奖励。",
-    JA: "匿名アクティベーション、ウォレット決済、トークン報酬を備えた初の暗号ネイティブeSIM。",
-    PT: "O primeiro eSIM nativo de criptomoedas com ativação anônima, pagamentos por carteira e recompensas em tokens.",
-    AR: "أول eSIM أصلي للعملات المشفرة مع التفعيل المجهول والدفع بالمحفظة ومكافآت الرموز.",
-    HI: "गुमनाम सक्रियण, वॉलेट भुगतान और टोकन पुरस्कारों के साथ पहला क्रिप्टो-नेटिव eSIM।"
-  },
-  browseEsims: {
-    EN: "Browse eSIMs", ES: "Ver eSIMs", FR: "Parcourir les eSIM", DE: "eSIMs durchsuchen", RU: "Просмотреть eSIM",
-    ZH: "浏览 eSIM", JA: "eSIMを閲覧", PT: "Navegar eSIMs", AR: "تصفح eSIMs", HI: "eSIM ब्राउज़ करें"
-  },
-  getStarted: {
-    EN: "Get Started", ES: "Comenzar", FR: "Commencer", DE: "Loslegen", RU: "Начать",
-    ZH: "开始使用", JA: "始める", PT: "Começar", AR: "البدء", HI: "शुरू करें"
-  },
-  countries: {
-    EN: "200+ Countries", ES: "Más de 200 países", FR: "Plus de 200 pays", DE: "200+ Länder", RU: "200+ стран",
-    ZH: "200多个国家", JA: "200以上の国", PT: "Mais de 200 países", AR: "أكثر من 200 دولة", HI: "200+ देश"
-  },
-  noKyc: {
-    EN: "No KYC Required", ES: "Sin KYC requerido", FR: "Aucun KYC requis", DE: "Kein KYC erforderlich", RU: "KYC не требуется",
-    ZH: "无需KYC", JA: "KYC不要", PT: "Sem KYC necessário", AR: "لا يتطلب KYC", HI: "KYC की आवश्यकता नहीं"
-  },
-  cryptoPayments: {
-    EN: "Crypto Payments", ES: "Pagos en criptomonedas", FR: "Paiements crypto", DE: "Krypto-Zahlungen", RU: "Криптовалютные платежи",
-    ZH: "加密支付", JA: "暗号通貨決済", PT: "Pagamentos em cripto", AR: "المدفوعات المشفرة", HI: "क्रिप्टो भुगतान"
-  },
-
-  // WhyNomiqa Section
-  whyNomiqaTitle: {
-    EN: "Privacy, Simplicity, and Crypto Freedom for Web3 Travelers",
-    ES: "Privacidad, simplicidad y libertad cripto para viajeros Web3",
-    FR: "Confidentialité, simplicité et liberté crypto pour les voyageurs Web3",
-    DE: "Datenschutz, Einfachheit und Krypto-Freiheit für Web3-Reisende",
-    RU: "Конфиденциальность, простота и криптосвобода для Web3-путешественников",
-    ZH: "为Web3旅行者提供隐私、简单和加密自由",
-    JA: "Web3トラベラーのためのプライバシー、シンプルさ、暗号の自由",
-    PT: "Privacidade, simplicidade e liberdade cripto para viajantes Web3",
-    AR: "الخصوصية والبساطة وحرية التشفير لمسافري الويب3",
-    HI: "Web3 यात्रियों के लिए गोपनीयता, सरलता और क्रिप्टो स्वतंत्रता"
-  },
-  whyNomiqaDesc1: {
-    EN: "At Nomiqa, we're redefining connectivity for the new era of Web3 travelers. Guided by our three core pillars Privacy, Simplicity, and Crypto Freedom we ensure that every connection you make is secure, effortless, and truly yours.",
-    ES: "En Nomiqa, redefinimos la conectividad para la nueva era de viajeros Web3. Guiados por nuestros tres pilares fundamentales: privacidad, simplicidad y libertad cripto, aseguramos que cada conexión sea segura, sin esfuerzo y verdaderamente tuya.",
-    FR: "Chez Nomiqa, nous redéfinissons la connectivité pour la nouvelle ère des voyageurs Web3. Guidés par nos trois piliers fondamentaux : confidentialité, simplicité et liberté crypto, nous veillons à ce que chaque connexion soit sécurisée, sans effort et vraiment vôtre.",
-    DE: "Bei Nomiqa definieren wir Konnektivität für die neue Ära der Web3-Reisenden neu. Geleitet von unseren drei Kernpfeilern - Datenschutz, Einfachheit und Krypto-Freiheit - stellen wir sicher, dass jede Verbindung sicher, mühelos und wirklich Ihre ist.",
-    RU: "В Nomiqa мы переосмысливаем связь для новой эры путешественников Web3. Руководствуясь тремя основными принципами - конфиденциальность, простота и криптосвобода - мы гарантируем, что каждое подключение будет безопасным, легким и по-настоящему вашим.",
-    ZH: "在Nomiqa，我们正在为Web3旅行者的新时代重新定义连接。在隐私、简单和加密自由三大核心支柱的指导下，我们确保您建立的每个连接都是安全、轻松且真正属于您的。",
-    JA: "Nomiqaでは、Web3トラベラーの新時代のための接続性を再定義しています。プライバシー、シンプルさ、暗号の自由という3つの中核的な柱に導かれ、すべての接続が安全で、簡単で、真にあなたのものであることを保証します。",
-    PT: "Na Nomiqa, estamos redefinindo a conectividade para a nova era dos viajantes Web3. Guiados por nossos três pilares fundamentais - privacidade, simplicidade e liberdade cripto - garantimos que cada conexão seja segura, sem esforço e verdadeiramente sua.",
-    AR: "في Nomiqa، نعيد تعريف الاتصال لعصر جديد من مسافري الويب3. بتوجيه من أعمدتنا الثلاثة الأساسية - الخصوصية والبساطة وحرية التشفير - نضمن أن كل اتصال تقوم به آمن وسهل وخاص بك حقًا.",
-    HI: "Nomiqa में, हम Web3 यात्रियों के नए युग के लिए कनेक्टिविटी को फिर से परिभाषित कर रहे हैं। हमारे तीन मुख्य स्तंभों - गोपनीयता, सरलता और क्रिप्टो स्वतंत्रता द्वारा निर्देशित, हम सुनिश्चित करते हैं कि आपका प्रत्येक कनेक्शन सुरक्षित, आसान और वास्तव में आपका है।"
-  },
-
-  // Easy Checkout Section  
-  easyCheckoutTitle: {
-    EN: "Pay with Solana & Nomiqa token",
-    ES: "Paga con Solana y token Nomiqa",
-    FR: "Payez avec Solana et le token Nomiqa",
-    DE: "Bezahlen Sie mit Solana & Nomiqa Token",
-    RU: "Оплата Solana и токеном Nomiqa",
-    ZH: "使用Solana和Nomiqa代币支付",
-    JA: "SolanaとNomiqaトークンで支払う",
-    PT: "Pague com Solana e token Nomiqa",
-    AR: "الدفع بواسطة Solana ورمز Nomiqa",
-    HI: "Solana और Nomiqa टोकन से भुगतान करें"
-  },
-  easyCheckoutDesc: {
-    EN: "Buy eSIMs with Solana in 3 simple steps: 1. Copy the provided Solana address. 2. Pay securely with your Phantom Wallet. 3. Receive your eSIM instantly after confirmation.",
-    ES: "Compra eSIMs con Solana en 3 simples pasos: 1. Copia la dirección Solana proporcionada. 2. Paga de forma segura con tu Phantom Wallet. 3. Recibe tu eSIM instantáneamente después de la confirmación.",
-    FR: "Achetez des eSIM avec Solana en 3 étapes simples : 1. Copiez l'adresse Solana fournie. 2. Payez en toute sécurité avec votre Phantom Wallet. 3. Recevez votre eSIM instantanément après confirmation.",
-    DE: "Kaufen Sie eSIMs mit Solana in 3 einfachen Schritten: 1. Kopieren Sie die bereitgestellte Solana-Adresse. 2. Zahlen Sie sicher mit Ihrer Phantom Wallet. 3. Erhalten Sie Ihre eSIM sofort nach Bestätigung.",
-    RU: "Покупайте eSIM за Solana в 3 простых шага: 1. Скопируйте предоставленный адрес Solana. 2. Оплатите безопасно через Phantom Wallet. 3. Получите свою eSIM мгновенно после подтверждения.",
-    ZH: "通过Solana购买eSIM，只需3个简单步骤：1. 复制提供的Solana地址。2. 使用Phantom钱包安全支付。3. 确认后立即收到您的eSIM。",
-    JA: "Solanaで3つの簡単なステップでeSIMを購入：1. 提供されたSolanaアドレスをコピー。2. Phantom Walletで安全に支払い。3. 確認後すぐにeSIMを受け取る。",
-    PT: "Compre eSIMs com Solana em 3 passos simples: 1. Copie o endereço Solana fornecido. 2. Pague com segurança com sua Phantom Wallet. 3. Receba seu eSIM instantaneamente após confirmação.",
-    AR: "اشترِ eSIMs باستخدام Solana في 3 خطوات بسيطة: 1. انسخ عنوان Solana المقدم. 2. ادفع بأمان باستخدام محفظة Phantom الخاصة بك. 3. استلم eSIM الخاص بك على الفور بعد التأكيد.",
-    HI: "3 सरल चरणों में Solana से eSIM खरीदें: 1. प्रदान किए गए Solana पते की प्रतिलिपि बनाएं। 2. अपने Phantom Wallet से सुरक्षित रूप से भुगतान करें। 3. पुष्टि के बाद तुरंत अपना eSIM प्राप्त करें।"
-  },
-
-  // Earn Section
-  earnTitle: {
-    EN: "Earn with Staking & Affiliates",
-    ES: "Gana con Staking y Afiliados",
-    FR: "Gagnez avec le staking et les affiliés",
-    DE: "Verdienen Sie mit Staking & Affiliates",
-    RU: "Зарабатывайте со стейкингом и партнерством",
-    ZH: "通过质押和推荐赚取",
-    JA: "ステーキングとアフィリエイトで稼ぐ",
-    PT: "Ganhe com Staking e Afiliados",
-    AR: "اكسب مع التوقيع والشركاء",
-    HI: "स्टेकिंग और संबद्धों के साथ कमाएं"
-  },
-  earnDesc: {
-    EN: "Unlock rewards by staking your Nomiqa tokens or sharing our platform through our affiliate program. Start earning today with secure, fast crypto transactions.",
-    ES: "Desbloquea recompensas haciendo staking de tus tokens Nomiqa o compartiendo nuestra plataforma a través de nuestro programa de afiliados. Comienza a ganar hoy con transacciones cripto seguras y rápidas.",
-    FR: "Débloquez des récompenses en stakant vos tokens Nomiqa ou en partageant notre plateforme via notre programme d'affiliation. Commencez à gagner dès aujourd'hui avec des transactions crypto sécurisées et rapides.",
-    DE: "Schalten Sie Belohnungen frei, indem Sie Ihre Nomiqa-Token staken oder unsere Plattform über unser Partnerprogramm teilen. Beginnen Sie noch heute mit sicheren, schnellen Krypto-Transaktionen zu verdienen.",
-    RU: "Получайте вознаграждения, делая стейкинг токенов Nomiqa или делясь нашей платформой через партнерскую программу. Начните зарабатывать сегодня с безопасными и быстрыми криптотранзакциями.",
-    ZH: "通过质押您的Nomiqa代币或通过我们的联盟计划分享我们的平台来解锁奖励。今天就开始通过安全、快速的加密交易赚钱。",
-    JA: "Nomiqaトークンをステーキングするか、アフィリエイトプログラムを通じてプラットフォームを共有することで報酬を獲得できます。安全で高速な暗号取引で今日から稼ぎ始めましょう。",
-    PT: "Desbloqueie recompensas fazendo staking de seus tokens Nomiqa ou compartilhando nossa plataforma através do nosso programa de afiliados. Comece a ganhar hoje com transações cripto seguras e rápidas.",
-    AR: "افتح المكافآت من خلال توقيع رموز Nomiqa الخاصة بك أو مشاركة منصتنا من خلال برنامج الشركاء الخاص بنا. ابدأ في الكسب اليوم مع معاملات التشفير الآمنة والسريعة.",
-    HI: "अपने Nomiqa टोकन को स्टेक करके या हमारे सहबद्ध कार्यक्रम के माध्यम से हमारे प्लेटफॉर्म को साझा करके पुरस्कार अनलॉक करें। सुरक्षित, तेज़ क्रिप्टो लेनदेन के साथ आज ही कमाई शुरू करें।"
-  },
-
-  // FAQ Section
-  faqTitle: {
-    EN: "Frequently Asked Questions",
-    ES: "Preguntas frecuentes",
-    FR: "Questions fréquemment posées",
-    DE: "Häufig gestellte Fragen",
-    RU: "Часто задаваемые вопросы",
-    ZH: "常见问题",
-    JA: "よくある質問",
-    PT: "Perguntas frequentes",
-    AR: "الأسئلة الشائعة",
-    HI: "अक्सर पूछे जाने वाले प्रश्न"
-  },
-  faqSubtitle: {
-    EN: "Everything you need to know about Nomiqa eSIMs",
-    ES: "Todo lo que necesitas saber sobre eSIMs de Nomiqa",
-    FR: "Tout ce que vous devez savoir sur les eSIM Nomiqa",
-    DE: "Alles, was Sie über Nomiqa eSIMs wissen müssen",
-    RU: "Все, что вам нужно знать о eSIM Nomiqa",
-    ZH: "关于Nomiqa eSIM您需要了解的一切",
-    JA: "Nomiqa eSIMについて知っておくべきすべて",
-    PT: "Tudo o que você precisa saber sobre eSIMs Nomiqa",
-    AR: "كل ما تحتاج لمعرفته حول eSIMs Nomiqa",
-    HI: "Nomiqa eSIMs के बारे में आपको जो कुछ जानने की आवश्यकता है"
-  },
-
-  // Footer
-  footerTagline: {
-    EN: "Freedom has a new signal. Privacy-first eSIMs on blockchain.",
-    ES: "La libertad tiene una nueva señal. eSIMs con privacidad primero en blockchain.",
-    FR: "La liberté a un nouveau signal. eSIMs axées sur la confidentialité sur la blockchain.",
-    DE: "Freiheit hat ein neues Signal. Datenschutzorientierte eSIMs auf Blockchain.",
-    RU: "У свободы новый сигнал. eSIM с приоритетом конфиденциальности на блокчейне.",
-    ZH: "自由有了新信号。基于区块链的隐私优先eSIM。",
-    JA: "自由に新しい信号が。ブロックチェーン上のプライバシー優先eSIM。",
-    PT: "A liberdade tem um novo sinal. eSIMs com prioridade de privacidade em blockchain.",
-    AR: "الحرية لديها إشارة جديدة. eSIMs تعتمد على الخصوصية أولاً على البلوكشين.",
-    HI: "स्वतंत्रता का एक नया संकेत है। ब्लॉकचेन पर गोपनीयता-प्रथम eSIM।"
-  },
-  products: {
-    EN: "Products", ES: "Productos", FR: "Produits", DE: "Produkte", RU: "Продукты",
-    ZH: "产品", JA: "製品", PT: "Produtos", AR: "المنتجات", HI: "उत्पाद"
-  },
-  company: {
-    EN: "Company", ES: "Empresa", FR: "Entreprise", DE: "Unternehmen", RU: "Компания",
-    ZH: "公司", JA: "会社", PT: "Empresa", AR: "الشركة", HI: "कंपनी"
-  },
-  support: {
-    EN: "Support", ES: "Soporte", FR: "Support", DE: "Support", RU: "Поддержка",
-    ZH: "支持", JA: "サポート", PT: "Suporte", AR: "الدعم", HI: "समर्थन"
-  }
-};
 
 interface TranslationContextType {
   language: Language;
@@ -225,8 +10,157 @@ interface TranslationContextType {
 
 const TranslationContext = createContext<TranslationContextType | undefined>(undefined);
 
+const translations: Record<string, Record<Language, string>> = {
+  // Navigation
+  shop: { EN: "Shop", ES: "Tienda", FR: "Boutique", DE: "Shop", RU: "Магазин", ZH: "商店", JA: "ショップ", PT: "Loja", AR: "متجر", HI: "दुकान" },
+  gettingStarted: { EN: "Getting Started", ES: "Comenzar", FR: "Commencer", DE: "Erste Schritte", RU: "Начало работы", ZH: "开始使用", JA: "はじめに", PT: "Começar", AR: "البدء", HI: "शुरू करना" },
+  stake: { EN: "Stake", ES: "Staking", FR: "Staking", DE: "Staking", RU: "Стейкинг", ZH: "质押", JA: "ステーキング", PT: "Staking", AR: "التوقيع", HI: "स्टेकिंग" },
+  roadmap: { EN: "Roadmap", ES: "Hoja de ruta", FR: "Feuille de route", DE: "Roadmap", RU: "Дорожная карта", ZH: "路线图", JA: "ロードマップ", PT: "Roteiro", AR: "خارطة الطريق", HI: "रोडमैप" },
+  affiliate: { EN: "Affiliate", ES: "Afiliados", FR: "Affilié", DE: "Partner", RU: "Партнёры", ZH: "联盟", JA: "アフィリエイト", PT: "Afiliado", AR: "الشركاء", HI: "संबद्ध" },
+  myOrders: { EN: "My Orders", ES: "Mis pedidos", FR: "Mes commandes", DE: "Meine Bestellungen", RU: "Мои заказы", ZH: "我的订单", JA: "注文履歴", PT: "Meus pedidos", AR: "طلباتي", HI: "मेरे ऑर्डर" },
+  signIn: { EN: "Sign In", ES: "Iniciar sesión", FR: "Se connecter", DE: "Anmelden", RU: "Войти", ZH: "登录", JA: "サインイン", PT: "Entrar", AR: "تسجيل الدخول", HI: "साइन इन करें" },
+  signOut: { EN: "Sign Out", ES: "Cerrar sesión", FR: "Se déconnecter", DE: "Abmelden", RU: "Выйти", ZH: "登出", JA: "サインアウト", PT: "Sair", AR: "تسجيل الخروج", HI: "साइन आउट करें" },
+  signUp: { EN: "Sign Up", ES: "Registrarse", FR: "S'inscrire", DE: "Registrieren", RU: "Регистрация", ZH: "注册", JA: "登録", PT: "Registrar", AR: "التسجيل", HI: "साइन अप करें" },
+
+  // Hero
+  heroTitle: { EN: "Travel the World, Stay Connected with Crypto", ES: "Viaja por el Mundo, Mantente Conectado con Crypto", FR: "Voyagez dans le monde, restez connecté avec Crypto", DE: "Reise um die Welt, bleibe mit Krypto verbunden", RU: "Путешествуйте по миру, оставайтесь на связи с криптовалютой", ZH: "环游世界，通过加密货币保持连接", JA: "世界を旅し、暗号通貨でつながる", PT: "Viaje pelo mundo, fique conectado com Crypto", AR: "سافر حول العالم، ابق متصلاً بالعملات المشفرة", HI: "दुनिया भर में यात्रा करें, क्रिप्टो से जुड़े रहें" },
+  heroSubtitle: { EN: "Anonymous eSIMs powered by blockchain. No KYC, instant activation.", ES: "eSIMs anónimas impulsadas por blockchain. Sin KYC, activación instantánea.", FR: "eSIMs anonymes propulsées par blockchain. Pas de KYC, activation instantanée.", DE: "Anonyme eSIMs auf Blockchain-Basis. Kein KYC, sofortige Aktivierung.", RU: "Анонимные eSIM на блокчейне. Без KYC, мгновенная активация.", ZH: "由区块链驱动的匿名eSIM。无需KYC，即时激活。", JA: "ブロックチェーン駆動の匿名eSIM。KYC不要、即時アクティベーション。", PT: "eSIMs anônimos alimentados por blockchain. Sem KYC, ativação instantânea.", AR: "eSIMs مجهولة مدعومة بالبلوكشين. بدون KYC، تفعيل فوري.", HI: "ब्लॉकचेन द्वारा संचालित गुमनाम eSIM। KYC नहीं, तत्काल सक्रियण।" },
+  browseEsims: { EN: "Browse eSIMs", ES: "Ver eSIMs", FR: "Parcourir les eSIM", DE: "eSIMs durchsuchen", RU: "Просмотреть eSIM", ZH: "浏览 eSIM", JA: "eSIMを閲覧", PT: "Navegar eSIMs", AR: "تصفح eSIMs", HI: "eSIM ब्राउज़ करें" },
+  getStarted: { EN: "Get Started", ES: "Comenzar", FR: "Commencer", DE: "Loslegen", RU: "Начать", ZH: "开始使用", JA: "始める", PT: "Começar", AR: "البدء", HI: "शुरू करें" },
+  countries: { EN: "200+ Countries", ES: "Más de 200 países", FR: "Plus de 200 pays", DE: "200+ Länder", RU: "200+ стран", ZH: "200多个国家", JA: "200以上の国", PT: "Mais de 200 países", AR: "أكثر من 200 دولة", HI: "200+ देश" },
+  noKyc: { EN: "No KYC Required", ES: "Sin KYC requerido", FR: "Aucun KYC requis", DE: "Kein KYC erforderlich", RU: "KYC не требуется", ZH: "无需KYC", JA: "KYC不要", PT: "Sem KYC necessário", AR: "لا يتطلب KYC", HI: "KYC की आवश्यकता नहीं" },
+  cryptoPayments: { EN: "Crypto Payments Only", ES: "Solo Pagos Crypto", FR: "Paiements crypto uniquement", DE: "Nur Krypto-Zahlungen", RU: "Только криптовалютные платежи", ZH: "仅加密支付", JA: "暗号通貨決済のみ", PT: "Apenas Pagamentos em Cripto", AR: "المدفوعات المشفرة فقط", HI: "केवल क्रिप्टो भुगतान" },
+
+  // Why Nomiqa
+  whyNomiqaTitle: { EN: "Why Choose Nomiqa?", ES: "¿Por Qué Elegir Nomiqa?", FR: "Pourquoi choisir Nomiqa?", DE: "Warum Nomiqa wählen?", RU: "Почему выбирают Nomiqa?", ZH: "为什么选择Nomiqa？", JA: "なぜNomiqaを選ぶのか？", PT: "Por que escolher Nomiqa?", AR: "لماذا تختار Nomiqa؟", HI: "Nomiqa क्यों चुनें?" },
+  whyNomiqaSubtitle: { EN: "Experience the future of global connectivity with our decentralized eSIM platform", ES: "Experimenta el futuro de la conectividad global con nuestra plataforma eSIM descentralizada", FR: "Découvrez l'avenir de la connectivité mondiale avec notre plateforme eSIM décentralisée", DE: "Erleben Sie die Zukunft der globalen Konnektivität mit unserer dezentralen eSIM-Plattform", RU: "Испытайте будущее глобальной связи с нашей децентрализованной платформой eSIM", ZH: "通过我们的去中心化eSIM平台体验全球连接的未来", JA: "分散型eSIMプラットフォームでグローバル接続の未来を体験", PT: "Experimente o futuro da conectividade global com nossa plataforma eSIM descentralizada", AR: "اختبر مستقبل الاتصال العالمي مع منصة eSIM اللامركزية", HI: "हमारे विकेंद्रीकृत eSIM प्लेटफॉर्म के साथ वैश्विक कनेक्टिविटी के भविष्य का अनुभव करें" },
+  privacyTitle: { EN: "Unwavering Privacy", ES: "Privacidad Inquebrantable", FR: "Confidentialité Inébranlable", DE: "Unerschütterliche Privatsphäre", RU: "Непоколебимая Конфиденциальность", ZH: "坚定的隐私", JA: "揺るぎないプライバシー", PT: "Privacidade Inabalável", AR: "الخصوصية الثابتة", HI: "अटूट गोपनीयता" },
+  privacyDesc: { EN: "Nomiqa protects your data with advanced encryption and decentralized technologies. Enjoy eSIM activation and secure browsing, ensuring your personal information remains private and safe.", ES: "Nomiqa protege tus datos con encriptación avanzada y tecnologías descentralizadas. Disfruta de activación eSIM y navegación segura, asegurando que tu información personal permanezca privada y segura.", FR: "Nomiqa protège vos données avec un cryptage avancé et des technologies décentralisées. Profitez de l'activation eSIM et de la navigation sécurisée, garantissant que vos informations personnelles restent privées et sûres.", DE: "Nomiqa schützt Ihre Daten mit fortschrittlicher Verschlüsselung und dezentralen Technologien. Genießen Sie eSIM-Aktivierung und sicheres Surfen, um sicherzustellen, dass Ihre persönlichen Daten privat und sicher bleiben.", RU: "Nomiqa защищает ваши данные с помощью передового шифрования и децентрализованных технологий. Наслаждайтесь активацией eSIM и безопасным просмотром, гарантируя конфиденциальность и безопасность вашей личной информации.", ZH: "Nomiqa通过先进的加密和去中心化技术保护您的数据。享受eSIM激活和安全浏览，确保您的个人信息保持私密和安全。", JA: "Nomiqaは高度な暗号化と分散型技術でデータを保護します。eSIMアクティベーションと安全なブラウジングを楽しみ、個人情報のプライバシーと安全性を確保します。", PT: "Nomiqa protege seus dados com criptografia avançada e tecnologias descentralizadas. Desfrute de ativação eSIM e navegação segura, garantindo que suas informações pessoais permaneçam privadas e seguras.", AR: "تحمي Nomiqa بياناتك بالتشفير المتقدم والتقنيات اللامركزية. استمتع بتفعيل eSIM والتصفح الآمن، مما يضمن بقاء معلوماتك الشخصية خاصة وآمنة.", HI: "Nomiqa उन्नत एन्क्रिप्शन और विकेंद्रीकृत तकनीकों से आपके डेटा की रक्षा करता है। eSIM सक्रियण और सुरक्षित ब्राउज़िंग का आनंद लें, यह सुनिश्चित करते हुए कि आपकी व्यक्तिगत जानकारी निजी और सुरक्षित रहे।" },
+  simplicityTitle: { EN: "Effortless Simplicity", ES: "Simplicidad Sin Esfuerzo", FR: "Simplicité Sans Effort", DE: "Mühelose Einfachheit", RU: "Легкая Простота", ZH: "轻松简单", JA: "楽々シンプル", PT: "Simplicidade Sem Esforço", AR: "البساطة السهلة", HI: "सहज सरलता" },
+  simplicityDesc: { EN: "Our platform offers a user-friendly interface for purchasing and managing eSIMs with crypto. Buy Solana, use Solana Wallet, and purchase Nomiqa Tokens with ease, making Web3 accessible to everyone.", ES: "Nuestra plataforma ofrece una interfaz fácil de usar para comprar y gestionar eSIMs con crypto. Compra Solana, usa Solana Wallet y compra Tokens Nomiqa con facilidad, haciendo Web3 accesible para todos.", FR: "Notre plateforme offre une interface conviviale pour acheter et gérer des eSIM avec crypto. Achetez Solana, utilisez Solana Wallet et achetez des tokens Nomiqa facilement, rendant Web3 accessible à tous.", DE: "Unsere Plattform bietet eine benutzerfreundliche Oberfläche zum Kauf und zur Verwaltung von eSIMs mit Krypto. Kaufen Sie Solana, verwenden Sie Solana Wallet und kaufen Sie Nomiqa-Token ganz einfach, um Web3 für jeden zugänglich zu machen.", RU: "Наша платформа предлагает удобный интерфейс для покупки и управления eSIM с криптовалютой. Покупайте Solana, используйте Solana Wallet и покупайте токены Nomiqa с легкостью, делая Web3 доступным для всех.", ZH: "我们的平台提供了一个用户友好的界面，用于使用加密货币购买和管理eSIM。轻松购买Solana，使用Solana钱包，购买Nomiqa代币，让所有人都能使用Web3。", JA: "私たちのプラットフォームは、暗号通貨でeSIMを購入・管理するためのユーザーフレンドリーなインターフェースを提供します。Solanaを購入し、Solana Walletを使用し、Nomiqaトークンを簡単に購入して、Web3を誰でも利用できるようにします。", PT: "Nossa plataforma oferece uma interface amigável para comprar e gerenciar eSIMs com cripto. Compre Solana, use Solana Wallet e compre tokens Nomiqa com facilidade, tornando Web3 acessível a todos.", AR: "توفر منصتنا واجهة سهلة الاستخدام لشراء وإدارة eSIMs بالعملات المشفرة. اشترِ Solana، استخدم محفظة Solana، واشترِ رموز Nomiqa بسهولة، مما يجعل Web3 متاحًا للجميع.", HI: "हमारा प्लेटफ़ॉर्म क्रिप्टो के साथ eSIM खरीदने और प्रबंधित करने के लिए एक उपयोगकर्ता-अनुकूल इंटरफ़ेस प्रदान करता है। Solana खरीदें, Solana Wallet का उपयोग करें, और Nomiqa टोकन को आसानी से खरीदें, Web3 को सभी के लिए सुलभ बनाते हुए।" },
+  earnTitle: { EN: "Earn with Nomiqa", ES: "Gana con Nomiqa", FR: "Gagnez avec Nomiqa", DE: "Verdienen mit Nomiqa", RU: "Зарабатывайте с Nomiqa", ZH: "与Nomiqa一起赚钱", JA: "Nomiqaで稼ぐ", PT: "Ganhe com Nomiqa", AR: "اكسب مع Nomiqa", HI: "Nomiqa के साथ कमाएं" },
+  earnDesc: { EN: "Nomiqa empowers global Web3 travelers with seamless crypto checkout and staking rewards. Earn by locking tokens and enjoy a 3-level affiliate system, making your journey both rewarding and free.", ES: "Nomiqa empodera a viajeros Web3 globales con pago crypto sin fricciones y recompensas de staking. Gana bloqueando tokens y disfruta de un sistema de afiliados de 3 niveles, haciendo tu viaje gratificante y gratuito.", FR: "Nomiqa donne aux voyageurs Web3 du monde entier un paiement crypto transparent et des récompenses de staking. Gagnez en verrouillant des tokens et profitez d'un système d'affiliation à 3 niveaux, rendant votre voyage à la fois gratifiant et gratuit.", DE: "Nomiqa befähigt globale Web3-Reisende mit nahtlosem Krypto-Checkout und Staking-Belohnungen. Verdienen Sie durch das Sperren von Token und genießen Sie ein 3-stufiges Partnerprogramm, das Ihre Reise sowohl lohnend als auch kostenlos macht.", RU: "Nomiqa предоставляет глобальным путешественникам Web3 беспрепятственный криптоплатеж и награды за стейкинг. Зарабатывайте, блокируя токены, и пользуйтесь 3-уровневой партнерской системой, делая ваше путешествие выгодным и бесплатным.", ZH: "Nomiqa通过无缝加密结账和质押奖励赋能全球Web3旅行者。通过锁定代币赚钱，享受3级联盟系统，让您的旅程既有回报又免费。", JA: "Nomiqaは、シームレスな暗号チェックアウトとステーキング報酬でグローバルWeb3トラベラーをエンパワーします。トークンをロックして稼ぎ、3レベルのアフィリエイトシステムを楽しんで、旅を報酬と自由の両方にします。", PT: "Nomiqa capacita viajantes Web3 globais com checkout cripto sem costura e recompensas de staking. Ganhe bloqueando tokens e desfrute de um sistema de afiliados de 3 níveis, tornando sua jornada gratificante e gratuita.", AR: "تمكّن Nomiqa المسافرين العالميين في Web3 من الدفع السلس بالعملات المشفرة ومكافآت التوقيع. اكسب من خلال قفل الرموز واستمتع بنظام شركاء من 3 مستويات، مما يجعل رحلتك مجزية ومجانية.", HI: "Nomiqa वैश्विक Web3 यात्रियों को निर्बाध क्रिप्टो चेकआउट और स्टेकिंग पुरस्कारों के साथ सशक्त बनाता है। टोकन लॉक करके कमाएं और 3-स्तरीय संबद्ध प्रणाली का आनंद लें, जो आपकी यात्रा को पुरस्कृत और मुफ्त दोनों बनाता है।" },
+
+  // Easy Checkout
+  checkoutTitle: { EN: "Simple Checkout Process", ES: "Proceso de Pago Simple", FR: "Processus de paiement simple", DE: "Einfacher Checkout-Prozess", RU: "Простой процесс оплаты", ZH: "简单的结账流程", JA: "シンプルなチェックアウトプロセス", PT: "Processo de checkout simples", AR: "عملية دفع بسيطة", HI: "सरल चेकआउट प्रक्रिया" },
+  checkoutSubtitle: { EN: "Get your eSIM in minutes with our streamlined crypto payment system", ES: "Obtén tu eSIM en minutos con nuestro sistema de pago crypto optimizado", FR: "Obtenez votre eSIM en quelques minutes avec notre système de paiement crypto simplifié", DE: "Holen Sie sich Ihre eSIM in Minuten mit unserem optimierten Krypto-Zahlungssystem", RU: "Получите свою eSIM за минуты с нашей упрощенной системой криптоплатежей", ZH: "通过我们简化的加密支付系统在几分钟内获得您的eSIM", JA: "合理化された暗号支払いシステムで数分でeSIMを取得", PT: "Obtenha seu eSIM em minutos com nosso sistema de pagamento cripto simplificado", AR: "احصل على eSIM الخاص بك في دقائق مع نظام الدفع المشفر المبسط", HI: "हमारी सुव्यवस्थित क्रिप्टो भुगतान प्रणाली के साथ मिनटों में अपना eSIM प्राप्त करें" },
+  selectPlanTitle: { EN: "Select Your Plan", ES: "Selecciona Tu Plan", FR: "Sélectionnez votre plan", DE: "Wählen Sie Ihren Plan", RU: "Выберите свой план", ZH: "选择您的计划", JA: "プランを選択", PT: "Selecione seu plano", AR: "اختر خطتك", HI: "अपनी योजना चुनें" },
+  selectPlanDesc: { EN: "Choose from our wide range of eSIM plans covering 200+ countries", ES: "Elige de nuestra amplia gama de planes eSIM que cubren 200+ países", FR: "Choisissez parmi notre large gamme de forfaits eSIM couvrant plus de 200 pays", DE: "Wählen Sie aus unserer breiten Palette von eSIM-Plänen für über 200 Länder", RU: "Выберите из нашего широкого спектра планов eSIM, охватывающих более 200 стран", ZH: "从我们覆盖200多个国家的广泛eSIM计划中选择", JA: "200以上の国をカバーする幅広いeSIMプランから選択", PT: "Escolha entre nossa ampla gama de planos eSIM cobrindo mais de 200 países", AR: "اختر من بين مجموعة واسعة من خطط eSIM التي تغطي أكثر من 200 دولة", HI: "200+ देशों को कवर करने वाली हमारी व्यापक eSIM योजनाओं में से चुनें" },
+  cryptoPayTitle: { EN: "Pay with Crypto", ES: "Paga con Crypto", FR: "Payez avec Crypto", DE: "Mit Krypto bezahlen", RU: "Оплата криптовалютой", ZH: "使用加密货币支付", JA: "暗号通貨で支払う", PT: "Pague com cripto", AR: "ادفع بالعملات المشفرة", HI: "क्रिप्टो से भुगतान करें" },
+  cryptoPayDesc: { EN: "Complete your purchase using Solana or USDC via NowPayments", ES: "Completa tu compra usando Solana o USDC vía NowPayments", FR: "Finalisez votre achat en utilisant Solana ou USDC via NowPayments", DE: "Schließen Sie Ihren Kauf mit Solana oder USDC über NowPayments ab", RU: "Завершите покупку, используя Solana или USDC через NowPayments", ZH: "通过NowPayments使用Solana或USDC完成购买", JA: "NowPayments経由でSolanaまたはUSDCを使用して購入を完了", PT: "Complete sua compra usando Solana ou USDC via NowPayments", AR: "أكمل عملية الشراء باستخدام Solana أو USDC عبر NowPayments", HI: "NowPayments के माध्यम से Solana या USDC का उपयोग करके अपनी खरीदारी पूरी करें" },
+  instantActivationTitle: { EN: "Instant Activation", ES: "Activación Instantánea", FR: "Activation instantanée", DE: "Sofortige Aktivierung", RU: "Мгновенная активация", ZH: "即时激活", JA: "即時アクティベーション", PT: "Ativação instantânea", AR: "التفعيل الفوري", HI: "तत्काल सक्रियण" },
+  instantActivationDesc: { EN: "Receive your QR code immediately and activate your eSIM in seconds", ES: "Recibe tu código QR inmediatamente y activa tu eSIM en segundos", FR: "Recevez votre code QR immédiatement et activez votre eSIM en quelques secondes", DE: "Erhalten Sie Ihren QR-Code sofort und aktivieren Sie Ihre eSIM in Sekunden", RU: "Получите свой QR-код мгновенно и активируйте eSIM за секунды", ZH: "立即收到您的二维码并在几秒钟内激活您的eSIM", JA: "QRコードをすぐに受け取り、数秒でeSIMをアクティベート", PT: "Receba seu código QR imediatamente e ative seu eSIM em segundos", AR: "استلم رمز QR الخاص بك على الفور وقم بتنشيط eSIM الخاص بك في ثوانٍ", HI: "तुरंत अपना QR कोड प्राप्त करें और सेकंड में अपना eSIM सक्रिय करें" },
+
+  // Earn Section
+  earnSectionTitle: { EN: "Earn While You Travel", ES: "Gana Mientras Viajas", FR: "Gagnez en voyageant", DE: "Verdienen Sie auf Reisen", RU: "Зарабатывайте в путешествии", ZH: "旅行时赚钱", JA: "旅行中に稼ぐ", PT: "Ganhe enquanto viaja", AR: "اكسب أثناء السفر", HI: "यात्रा करते समय कमाएं" },
+  earnSectionSubtitle: { EN: "Maximize your rewards with staking and our multi-tier affiliate program", ES: "Maximiza tus recompensas con staking y nuestro programa de afiliados multinivel", FR: "Maximisez vos récompenses avec le staking et notre programme d'affiliation à plusieurs niveaux", DE: "Maximieren Sie Ihre Belohnungen mit Staking und unserem mehrstufigen Partnerprogramm", RU: "Максимизируйте свои награды со стейкингом и нашей многоуровневой партнерской программой", ZH: "通过质押和我们的多层联盟计划最大化您的奖励", JA: "ステーキングと多層アフィリエイトプログラムで報酬を最大化", PT: "Maximize suas recompensas com staking e nosso programa de afiliados de vários níveis", AR: "عظّم مكافآتك مع التوقيع وبرنامج الشركاء متعدد المستويات", HI: "स्टेकिंग और हमारे बहु-स्तरीय संबद्ध कार्यक्रम के साथ अपने पुरस्कारों को अधिकतम करें" },
+  stakingRewardsTitle: { EN: "Staking Rewards", ES: "Recompensas de Staking", FR: "Récompenses de staking", DE: "Staking-Belohnungen", RU: "Награды за стейкинг", ZH: "质押奖励", JA: "ステーキング報酬", PT: "Recompensas de staking", AR: "مكافآت التوقيع", HI: "स्टेकिंग पुरस्कार" },
+  stakingRewardsDesc: { EN: "Lock your NMQ tokens and earn passive income while you explore the world", ES: "Bloquea tus tokens NMQ y gana ingresos pasivos mientras exploras el mundo", FR: "Verrouillez vos tokens NMQ et gagnez un revenu passif pendant que vous explorez le monde", DE: "Sperren Sie Ihre NMQ-Token und verdienen Sie passives Einkommen, während Sie die Welt erkunden", RU: "Заблокируйте свои токены NMQ и зарабатывайте пассивный доход, исследуя мир", ZH: "锁定您的NMQ代币，在探索世界的同时赚取被动收入", JA: "NMQトークンをロックして、世界を探索しながら受動的収入を得る", PT: "Bloqueie seus tokens NMQ e ganhe renda passiva enquanto explora o mundo", AR: "قفل رموز NMQ الخاصة بك واكسب دخلاً سلبيًا أثناء استكشاف العالم", HI: "अपने NMQ टोकन लॉक करें और दुनिया का अन्वेषण करते समय निष्क्रिय आय अर्जित करें" },
+  startStaking: { EN: "Start Staking", ES: "Comenzar Staking", FR: "Commencer le staking", DE: "Staking starten", RU: "Начать стейкинг", ZH: "开始质押", JA: "ステーキングを開始", PT: "Começar staking", AR: "ابدأ التوقيع", HI: "स्टेकिंग शुरू करें" },
+  affiliateProgramTitle: { EN: "Affiliate Program", ES: "Programa de Afiliados", FR: "Programme d'affiliation", DE: "Partnerprogramm", RU: "Партнерская программа", ZH: "联盟计划", JA: "アフィリエイトプログラム", PT: "Programa de afiliados", AR: "برنامج الشركاء", HI: "संबद्ध कार्यक्रम" },
+  affiliateProgramDesc: { EN: "Earn up to 9% commission on sales through our 3-level referral system", ES: "Gana hasta 9% de comisión en ventas a través de nuestro sistema de referidos de 3 niveles", FR: "Gagnez jusqu'à 9% de commission sur les ventes grâce à notre système de parrainage à 3 niveaux", DE: "Verdienen Sie bis zu 9% Provision auf Verkäufe über unser 3-stufiges Empfehlungssystem", RU: "Зарабатывайте до 9% комиссии с продаж через нашу 3-уровневую систему рефералов", ZH: "通过我们的3级推荐系统赚取高达9%的销售佣金", JA: "3レベルの紹介システムで販売の最大9%のコミッションを獲得", PT: "Ganhe até 9% de comissão em vendas através do nosso sistema de referência de 3 níveis", AR: "اكسب ما يصل إلى 9٪ عمولة على المبيعات من خلال نظام الإحالة من 3 مستويات", HI: "हमारी 3-स्तरीय रेफरल प्रणाली के माध्यम से बिक्री पर 9% तक कमीशन कमाएं" },
+  joinAffiliate: { EN: "Join Affiliate Program", ES: "Unirse al Programa de Afiliados", FR: "Rejoindre le programme d'affiliation", DE: "Partnerprogramm beitreten", RU: "Присоединиться к партнерской программе", ZH: "加入联盟计划", JA: "アフィリエイトプログラムに参加", PT: "Participar do programa de afiliados", AR: "انضم إلى برنامج الشركاء", HI: "संबद्ध कार्यक्रम में शामिल हों" },
+
+  // FAQ
+  faqTitle: { EN: "Frequently Asked Questions", ES: "Preguntas Frecuentes", FR: "Questions fréquemment posées", DE: "Häufig gestellte Fragen", RU: "Часто задаваемые вопросы", ZH: "常见问题", JA: "よくある質問", PT: "Perguntas frequentes", AR: "الأسئلة الشائعة", HI: "अक्सर पूछे जाने वाले प्रश्न" },
+  faqSubtitle: { EN: "Everything you need to know about Nomiqa eSIMs", ES: "Todo lo que necesitas saber sobre Nomiqa eSIMs", FR: "Tout ce que vous devez savoir sur les eSIM Nomiqa", DE: "Alles, was Sie über Nomiqa eSIMs wissen müssen", RU: "Все, что вам нужно знать о eSIM Nomiqa", ZH: "关于Nomiqa eSIM您需要了解的一切", JA: "Nomiqa eSIMについて知っておくべきすべて", PT: "Tudo o que você precisa saber sobre eSIMs Nomiqa", AR: "كل ما تحتاج لمعرفته حول eSIMs Nomiqa", HI: "Nomiqa eSIMs के बारे में आपको जो कुछ जानने की आवश्यकता है" },
+
+  // Footer
+  footerTagline: { EN: "Anonymous eSIMs for global travelers", ES: "eSIMs anónimas para viajeros globales", FR: "eSIMs anonymes pour les voyageurs du monde", DE: "Anonyme eSIMs für Weltreisende", RU: "Анонимные eSIM для путешественников", ZH: "为全球旅行者提供的匿名eSIM", JA: "グローバル旅行者向けの匿名eSIM", PT: "eSIMs anônimos para viajantes globais", AR: "eSIMs مجهولة للمسافرين العالميين", HI: "वैश्विक यात्रियों के लिए गुमनाम eSIM" },
+  footerQuickLinks: { EN: "Quick Links", ES: "Enlaces Rápidos", FR: "Liens rapides", DE: "Schnellzugriff", RU: "Быстрые ссылки", ZH: "快速链接", JA: "クイックリンク", PT: "Links rápidos", AR: "روابط سريعة", HI: "त्वरित लिंक" },
+  footerCompany: { EN: "Company", ES: "Empresa", FR: "Entreprise", DE: "Unternehmen", RU: "Компания", ZH: "公司", JA: "会社", PT: "Empresa", AR: "الشركة", HI: "कंपनी" },
+  footerCommunity: { EN: "Community", ES: "Comunidad", FR: "Communauté", DE: "Gemeinschaft", RU: "Сообщество", ZH: "社区", JA: "コミュニティ", PT: "Comunidade", AR: "المجتمع", HI: "समुदाय" },
+  footerSupport: { EN: "Support", ES: "Soporte", FR: "Assistance", DE: "Unterstützung", RU: "Поддержка", ZH: "支持", JA: "サポート", PT: "Suporte", AR: "الدعم", HI: "समर्थन" },
+  footerTerms: { EN: "Terms of Service", ES: "Términos de Servicio", FR: "Conditions d'utilisation", DE: "Nutzungsbedingungen", RU: "Условия использования", ZH: "服务条款", JA: "利用規約", PT: "Termos de serviço", AR: "شروط الخدمة", HI: "सेवा की शर्तें" },
+  footerPrivacy: { EN: "Privacy Policy", ES: "Política de Privacidad", FR: "Politique de confidentialité", DE: "Datenschutzrichtlinie", RU: "Политика конфиденциальности", ZH: "隐私政策", JA: "プライバシーポリシー", PT: "Política de privacidade", AR: "سياسة الخصوصية", HI: "गोपनीयता नीति" },
+  footerRights: { EN: "All rights reserved.", ES: "Todos los derechos reservados.", FR: "Tous droits réservés.", DE: "Alle Rechte vorbehalten.", RU: "Все права защищены.", ZH: "保留所有权利。", JA: "全著作権所有。", PT: "Todos os direitos reservados.", AR: "جميع الحقوق محفوظة.", HI: "सर्वाधिकार सुरक्षित।" },
+
+  // Plan Card
+  planGb: { EN: "GB", ES: "GB", FR: "Go", DE: "GB", RU: "ГБ", ZH: "GB", JA: "GB", PT: "GB", AR: "جيجا", HI: "जीबी" },
+  planDays: { EN: "days validity", ES: "días de validez", FR: "jours de validité", DE: "Tage Gültigkeit", RU: "дней действия", ZH: "天有效期", JA: "日間有効", PT: "dias de validade", AR: "أيام الصلاحية", HI: "दिनों की वैधता" },
+  planOneTime: { EN: "One-time payment", ES: "Pago único", FR: "Paiement unique", DE: "Einmalige Zahlung", RU: "Единоразовый платеж", ZH: "一次性付款", JA: "一回限りの支払い", PT: "Pagamento único", AR: "دفعة واحدة", HI: "एकमुश्त भुगतान" },
+  planAddToCart: { EN: "Add to Cart", ES: "Agregar al Carrito", FR: "Ajouter au panier", DE: "In den Warenkorb", RU: "В корзину", ZH: "添加到购物车", JA: "カートに追加", PT: "Adicionar ao carrinho", AR: "أضف إلى السلة", HI: "कार्ट में जोड़ें" },
+  planMostPopular: { EN: "Most Popular", ES: "Más Popular", FR: "Le plus populaire", DE: "Am beliebtesten", RU: "Самый популярный", ZH: "最受欢迎", JA: "最も人気", PT: "Mais popular", AR: "الأكثر شعبية", HI: "सबसे लोकप्रिय" },
+
+  // Getting Started Page
+  gettingStartedTitle: { EN: "Getting Started with Nomiqa", ES: "Comenzando con Nomiqa", FR: "Démarrer avec Nomiqa", DE: "Erste Schritte mit Nomiqa", RU: "Начало работы с Nomiqa", ZH: "开始使用Nomiqa", JA: "Nomiqaを始める", PT: "Começando com Nomiqa", AR: "البدء مع Nomiqa", HI: "Nomiqa के साथ शुरुआत" },
+  gettingStartedSubtitle: { EN: "Everything you need to know to buy eSIMs with Solana or USDC on Solana", ES: "Todo lo que necesitas saber para comprar eSIMs con Solana o USDC en Solana", FR: "Tout ce que vous devez savoir pour acheter des eSIM avec Solana ou USDC sur Solana", DE: "Alles, was Sie wissen müssen, um eSIMs mit Solana oder USDC auf Solana zu kaufen", RU: "Все, что вам нужно знать для покупки eSIM с Solana или USDC на Solana", ZH: "购买eSIM所需了解的一切，使用Solana或USDC在Solana上", JA: "SolanaまたはUSDC on SolanaでeSIMを購入するために知っておくべきすべて", PT: "Tudo o que você precisa saber para comprar eSIMs com Solana ou USDC no Solana", AR: "كل ما تحتاج لمعرفته لشراء eSIMs باستخدام Solana أو USDC على Solana", HI: "Solana या USDC on Solana के साथ eSIM खरीदने के लिए आपको जो कुछ जानने की आवश्यकता है" },
+  helpfulResources: { EN: "Helpful Resources", ES: "Recursos Útiles", FR: "Ressources utiles", DE: "Hilfreiche Ressourcen", RU: "Полезные ресурсы", ZH: "有用的资源", JA: "役立つリソース", PT: "Recursos úteis", AR: "موارد مفيدة", HI: "उपयोगी संसाधन" },
+  visit: { EN: "Visit", ES: "Visitar", FR: "Visiter", DE: "Besuchen", RU: "Посетить", ZH: "访问", JA: "訪問", PT: "Visitar", AR: "زيارة", HI: "यात्रा करें" },
+  readyToGetEsim: { EN: "Ready to get your eSIM?", ES: "¿Listo para obtener tu eSIM?", FR: "Prêt à obtenir votre eSIM?", DE: "Bereit für Ihre eSIM?", RU: "Готовы получить свою eSIM?", ZH: "准备好获取您的eSIM了吗？", JA: "eSIMを入手する準備はできましたか？", PT: "Pronto para obter seu eSIM?", AR: "هل أنت مستعد للحصول على eSIM الخاص بك؟", HI: "अपना eSIM प्राप्त करने के लिए तैयार हैं?" },
+  readyToGetEsimDesc: { EN: "Now that you know how to use Phantom and Solana, browse our plans", ES: "Ahora que sabes cómo usar Phantom y Solana, explora nuestros planes", FR: "Maintenant que vous savez comment utiliser Phantom et Solana, parcourez nos forfaits", DE: "Jetzt, da Sie wissen, wie man Phantom und Solana verwendet, durchsuchen Sie unsere Pläne", RU: "Теперь, когда вы знаете, как использовать Phantom и Solana, просмотрите наши планы", ZH: "现在您知道如何使用Phantom和Solana，浏览我们的计划", JA: "PhantomとSolanaの使い方がわかったので、プランをご覧ください", PT: "Agora que você sabe como usar Phantom e Solana, navegue pelos nossos planos", AR: "الآن بعد أن عرفت كيفية استخدام Phantom و Solana، تصفح خططنا", HI: "अब जब आप Phantom और Solana का उपयोग करना जानते हैं, तो हमारी योजनाओं को ब्राउज़ करें" },
+  browsePlans: { EN: "Browse Plans", ES: "Explorar Planes", FR: "Parcourir les forfaits", DE: "Pläne durchsuchen", RU: "Просмотреть планы", ZH: "浏览计划", JA: "プランを閲覧", PT: "Navegar planos", AR: "تصفح الخطط", HI: "योजनाएं ब्राउज़ करें" },
+
+  // Stake Page
+  stakeTitle: { EN: "Stake & Earn", ES: "Apostar y Ganar", FR: "Staker et gagner", DE: "Staken & Verdienen", RU: "Стейкинг и заработок", ZH: "质押并赚取", JA: "ステーク＆アーン", PT: "Stake e ganhe", AR: "التوقيع والكسب", HI: "स्टेक और कमाएं" },
+  stakeSubtitle: { EN: "Earn rewards by staking your crypto tokens", ES: "Gana recompensas apostando tus tokens crypto", FR: "Gagnez des récompenses en stakant vos tokens crypto", DE: "Verdienen Sie Belohnungen durch Staking Ihrer Krypto-Token", RU: "Зарабатывайте награды, делая стейкинг своих криптотокенов", ZH: "通过质押您的加密代币赚取奖励", JA: "暗号トークンをステーキングして報酬を獲得", PT: "Ganhe recompensas fazendo staking de seus tokens cripto", AR: "اكسب المكافآت من خلال توقيع رموز التشفير الخاصة بك", HI: "अपने क्रिप्टो टोकन को स्टेक करके पुरस्कार अर्जित करें" },
+  comingSoon: { EN: "Coming Soon", ES: "Próximamente", FR: "Bientôt disponible", DE: "Demnächst", RU: "Скоро", ZH: "即将推出", JA: "近日公開", PT: "Em breve", AR: "قريباً", HI: "जल्द आ रहा है" },
+  stakingUnderDev: { EN: "Staking Platform Under Development", ES: "Plataforma de Staking en Desarrollo", FR: "Plateforme de staking en développement", DE: "Staking-Plattform in Entwicklung", RU: "Платформа стейкинга в разработке", ZH: "质押平台开发中", JA: "ステーキングプラットフォーム開発中", PT: "Plataforma de staking em desenvolvimento", AR: "منصة التوقيع قيد التطوير", HI: "स्टेकिंग प्लेटफ़ॉर्म विकास के अधीन" },
+  stakingUnderDevDesc: { EN: "We are building a secure and user-friendly staking platform", ES: "Estamos construyendo una plataforma de staking segura y fácil de usar", FR: "Nous construisons une plateforme de staking sécurisée et conviviale", DE: "Wir bauen eine sichere und benutzerfreundliche Staking-Plattform", RU: "Мы создаем безопасную и удобную платформу для стейкинга", ZH: "我们正在构建一个安全且用户友好的质押平台", JA: "安全でユーザーフレンドリーなステーキングプラットフォームを構築中", PT: "Estamos construindo uma plataforma de staking segura e amigável", AR: "نحن نبني منصة توقيع آمنة وسهلة الاستخدام", HI: "हम एक सुरक्षित और उपयोगकर्ता-अनुकूल स्टेकिंग प्लेटफ़ॉर्म बना रहे हैं" },
+  stakingPlatformDesc: { EN: "Our staking platform will allow you to earn passive income on your crypto holdings. Stake your tokens, earn rewards, and support the network - all in one place.", ES: "Nuestra plataforma de staking te permitirá ganar ingresos pasivos con tus tenencias crypto. Apuesta tus tokens, gana recompensas y apoya la red - todo en un solo lugar.", FR: "Notre plateforme de staking vous permettra de gagner un revenu passif sur vos avoirs crypto. Stakez vos tokens, gagnez des récompenses et soutenez le réseau - tout en un seul endroit.", DE: "Unsere Staking-Plattform ermöglicht es Ihnen, passives Einkommen mit Ihren Krypto-Beständen zu verdienen. Staken Sie Ihre Token, verdienen Sie Belohnungen und unterstützen Sie das Netzwerk - alles an einem Ort.", RU: "Наша платформа стейкинга позволит вам зарабатывать пассивный доход на ваших криптоактивах. Делайте стейкинг токенов, зарабатывайте награды и поддерживайте сеть - все в одном месте.", ZH: "我们的质押平台将允许您从您的加密持有中赚取被动收入。质押您的代币，赚取奖励，并支持网络 - 一切尽在一处。", JA: "私たちのステーキングプラットフォームは、暗号資産保有で受動的収入を得ることを可能にします。トークンをステーク、報酬を獲得、ネットワークをサポート - すべて一か所で。", PT: "Nossa plataforma de staking permitirá que você ganhe renda passiva em suas participações cripto. Faça staking de seus tokens, ganhe recompensas e apoie a rede - tudo em um só lugar.", AR: "ستسمح لك منصة التوقيع الخاصة بنا بكسب دخل سلبي من ممتلكاتك من العملات المشفرة. وقّع على رموزك، اكسب المكافآت، وادعم الشبكة - كل ذلك في مكان واحد.", HI: "हमारा स्टेकिंग प्लेटफ़ॉर्म आपको अपनी क्रिप्टो होल्डिंग्स पर निष्क्रिय आय अर्जित करने की अनुमति देगा। अपने टोकन को स्टेक करें, पुरस्कार अर्जित करें, और नेटवर्क का समर्थन करें - सब एक ही स्थान पर।" },
+  whatToExpect: { EN: "What to Expect", ES: "Qué Esperar", FR: "À quoi s'attendre", DE: "Was zu erwarten ist", RU: "Что ожидать", ZH: "期待什么", JA: "何が期待できるか", PT: "O que esperar", AR: "ما يمكن توقعه", HI: "क्या उम्मीद करें" },
+  earnRewardsTitle: { EN: "Earn Rewards", ES: "Gana Recompensas", FR: "Gagnez des récompenses", DE: "Belohnungen verdienen", RU: "Зарабатывайте награды", ZH: "赚取奖励", JA: "報酬を獲得", PT: "Ganhe recompensas", AR: "اكسب المكافآت", HI: "पुरस्कार अर्जित करें" },
+  earnRewardsDesc: { EN: "Stake your tokens and earn passive income while holding", ES: "Apuesta tus tokens y gana ingresos pasivos mientras los mantienes", FR: "Stakez vos tokens et gagnez un revenu passif en les conservant", DE: "Staken Sie Ihre Token und verdienen Sie passives Einkommen beim Halten", RU: "Делайте стейкинг токенов и зарабатывайте пассивный доход при хранении", ZH: "质押您的代币并在持有时赚取被动收入", JA: "トークンをステークして保有中に受動的収入を得る", PT: "Faça staking de seus tokens e ganhe renda passiva enquanto mantém", AR: "وقّع على رموزك واكسب دخلاً سلبيًا أثناء الاحتفاظ بها", HI: "अपने टोकन को स्टेक करें और धारण करते समय निष्क्रिय आय अर्जित करें" },
+  highApyTitle: { EN: "High APY", ES: "Alto APY", FR: "APY élevé", DE: "Hoher APY", RU: "Высокий APY", ZH: "高APY", JA: "高APY", PT: "APY alto", AR: "APY عالي", HI: "उच्च APY" },
+  highApyDesc: { EN: "Competitive annual percentage yields on your staked assets", ES: "Rendimientos porcentuales anuales competitivos en tus activos apostados", FR: "Rendements annuels en pourcentage compétitifs sur vos actifs stakés", DE: "Wettbewerbsfähige jährliche prozentuale Erträge auf Ihre gestakten Vermögenswerte", RU: "Конкурентоспособная годовая процентная доходность на ваши активы в стейкинге", ZH: "您质押资产的具有竞争力的年收益率", JA: "ステークされた資産に対する競争力のある年間利回り", PT: "Rendimentos percentuais anuais competitivos em seus ativos em staking", AR: "عوائد نسبية سنوية تنافسية على أصولك الموقّعة", HI: "आपकी स्टेक की गई संपत्तियों पर प्रतिस्पर्धी वार्षिक प्रतिशत उपज" },
+  secureStakingTitle: { EN: "Secure Staking", ES: "Staking Seguro", FR: "Staking sécurisé", DE: "Sicheres Staking", RU: "Безопасный стейкинग", ZH: "安全质押", JA: "安全なステーキング", PT: "Staking seguro", AR: "التوقيع الآمن", HI: "सुरक्षित स्टेकिंग" },
+  secureStakingDesc: { EN: "Your assets are secured by smart contracts and blockchain technology", ES: "Tus activos están asegurados por contratos inteligentes y tecnología blockchain", FR: "Vos actifs sont sécurisés par des contrats intelligents et la technologie blockchain", DE: "Ihre Vermögenswerte sind durch Smart Contracts und Blockchain-Technologie gesichert", RU: "Ваши активы защищены смарт-контрактами и технологией блокчейн", ZH: "您的资产由智能合约和区块链技术保护", JA: "あなたの資産はスマートコントラクトとブロックチェーン技術で保護されています", PT: "Seus ativos são protegidos por contratos inteligentes e tecnologia blockchain", AR: "أصولك مؤمنة بواسطة العقود الذكية وتقنية البلوكشين", HI: "आपकी संपत्तियां स्मार्ट कॉन्ट्रैक्ट्स और ब्लॉकचेन तकनीक द्वारा सुरक्षित हैं" },
+  instantRewardsTitle: { EN: "Instant Rewards", ES: "Recompensas Instantáneas", FR: "Récompenses instantanées", DE: "Sofortige Belohnungen", RU: "Мгновенные награды", ZH: "即时奖励", JA: "即時報酬", PT: "Recompensas instantâneas", AR: "مكافآت فورية", HI: "त्वरित पुरस्कार" },
+  instantRewardsDesc: { EN: "Claim your staking rewards at any time", ES: "Reclama tus recompensas de staking en cualquier momento", FR: "Réclamez vos récompenses de staking à tout moment", DE: "Fordern Sie Ihre Staking-Belohnungen jederzeit an", RU: "Запрашивайте свои награды за стейкинг в любое время", ZH: "随时领取您的质押奖励", JA: "いつでもステーキング報酬を請求", PT: "Reivindique suas recompensas de staking a qualquer momento", AR: "اطلب مكافآت التوقيع الخاصة بك في أي وقت", HI: "किसी भी समय अपने स्टेकिंग पुरस्कार का दावा करें" },
+  wantNotified: { EN: "Want to be notified?", ES: "¿Quieres ser notificado?", FR: "Vous voulez être informé?", DE: "Möchten Sie benachrichtigt werden?", RU: "Хотите получать уведомления?", ZH: "想要收到通知吗？", JA: "通知を受け取りたいですか？", PT: "Quer ser notificado?", AR: "هل تريد أن يتم إخطارك؟", HI: "सूचित होना चाहते हैं?" },
+  wantNotifiedDesc: { EN: "Sign up to get early access when staking launches", ES: "Regístrate para obtener acceso anticipado cuando se lance el staking", FR: "Inscrivez-vous pour obtenir un accès anticipé au lancement du staking", DE: "Melden Sie sich an, um frühzeitigen Zugang zu erhalten, wenn Staking startet", RU: "Зарегистрируйтесь, чтобы получить ранний доступ к запуску стейкинга", ZH: "注册以在质押启动时获得早期访问", JA: "ステーキング開始時に早期アクセスを取得するためにサインアップ", PT: "Inscreva-se para obter acesso antecipado quando o staking for lançado", AR: "سجل للحصول على وصول مبكر عند إطلاق التوقيع", HI: "स्टेकिंग लॉन्च होने पर प्रारंभिक पहुंच प्राप्त करने के लिए साइन अप करें" },
+  stayTuned: { EN: "Stay tuned for updates on our roadmap!", ES: "¡Mantente atento a las actualizaciones en nuestra hoja de ruta!", FR: "Restez à l'écoute des mises à jour sur notre feuille de route!", DE: "Bleiben Sie dran für Updates zu unserer Roadmap!", RU: "Следите за обновлениями нашей дорожной карты!", ZH: "请继续关注我们路线图的更新！", JA: "ロードマップの更新をお待ちください！", PT: "Fique atento às atualizações em nosso roteiro!", AR: "ابق على اطلاع للحصول على التحديثات على خارطة الطريق الخاصة بنا!", HI: "हमारे रोडमैप पर अपडेट के लिए बने रहें!" },
+
+  // Roadmap Page
+  roadmapTitle: { EN: "Roadmap", ES: "Hoja de Ruta", FR: "Feuille de route", DE: "Roadmap", RU: "Дорожная карта", ZH: "路线图", JA: "ロードマップ", PT: "Roteiro", AR: "خارطة الطريق", HI: "रोडमैप" },
+  roadmapSubtitle: { EN: "Our journey to revolutionize global connectivity with crypto", ES: "Nuestro viaje para revolucionar la conectividad global con crypto", FR: "Notre voyage pour révolutionner la connectivité mondiale avec crypto", DE: "Unsere Reise zur Revolution der globalen Konnektivität mit Krypto", RU: "Наше путешествие к революции глобальной связи с криптовалютой", ZH: "我们用加密货币革新全球连接的旅程", JA: "暗号通貨でグローバル接続に革命を起こす旅", PT: "Nossa jornada para revolucionar a conectividade global com cripto", AR: "رحلتنا لإحداث ثورة في الاتصال العالمي بالعملات المشفرة", HI: "क्रिप्टो के साथ वैश्विक कनेक्टिविटी में क्रांति लाने की हमारी यात्रा" },
+  roadmapEvolving: { EN: "This roadmap is evolving", ES: "Esta hoja de ruta está evolucionando", FR: "Cette feuille de route évolue", DE: "Diese Roadmap entwickelt sich", RU: "Эта дорожная карта развивается", ZH: "此路线图正在演变", JA: "このロードマップは進化しています", PT: "Este roteiro está evoluindo", AR: "خارطة الطريق هذه تتطور", HI: "यह रोडमैप विकसित हो रहा है" },
+  roadmapEvolvingDesc: { EN: "We are constantly listening to our community and adapting our plans. Follow our progress and share your feedback!", ES: "Constantemente escuchamos a nuestra comunidad y adaptamos nuestros planes. ¡Sigue nuestro progreso y comparte tus comentarios!", FR: "Nous écoutons constamment notre communauté et adaptons nos plans. Suivez nos progrès et partagez vos commentaires!", DE: "Wir hören ständig auf unsere Community und passen unsere Pläne an. Verfolgen Sie unseren Fortschritt und teilen Sie Ihr Feedback!", RU: "Мы постоянно слушаем наше сообщество и адаптируем наши планы. Следите за нашим прогрессом и делитесь своими отзывами!", ZH: "我们不断倾听我们的社区并调整我们的计划。跟踪我们的进展并分享您的反馈！", JA: "私たちは常にコミュニティの声に耳を傾け、計画を適応させています。私たちの進歩を追い、フィードバックを共有してください！", PT: "Estamos constantemente ouvindo nossa comunidade e adaptando nossos planos. Acompanhe nosso progresso e compartilhe seu feedback!", AR: "نحن نستمع باستمرار إلى مجتمعنا ونكيف خططنا. تابع تقدمنا وشارك ملاحظاتك!", HI: "हम लगातार अपने समुदाय को सुन रहे हैं और अपनी योजनाओं को अनुकूलित कर रहे हैं। हमारी प्रगति का पालन करें और अपनी प्रतिक्रिया साझा करें!" },
+  completed: { EN: "Completed", ES: "Completado", FR: "Terminé", DE: "Abgeschlossen", RU: "Завершено", ZH: "已完成", JA: "完了", PT: "Concluído", AR: "مكتمل", HI: "पूर्ण" },
+  inProgress: { EN: "In Progress", ES: "En Progreso", FR: "En cours", DE: "In Bearbeitung", RU: "В процессе", ZH: "进行中", JA: "進行中", PT: "Em andamento", AR: "قيد التنفيذ", HI: "प्रगति में" },
+  upcoming: { EN: "Upcoming", ES: "Próximo", FR: "À venir", DE: "Bevorstehend", RU: "Предстоящее", ZH: "即将推出", JA: "今後", PT: "Próximo", AR: "قادم", HI: "आगामी" },
+  future: { EN: "Future", ES: "Futuro", FR: "Futur", DE: "Zukunft", RU: "Будущее", ZH: "未来", JA: "未来", PT: "Futuro", AR: "المستقبل", HI: "भविष्य" },
+
+  // Affiliate Page
+  affiliateTitle: { EN: "Affiliate Program", ES: "Programa de Afiliados", FR: "Programme d'affiliation", DE: "Partnerprogramm", RU: "Партнерская программа", ZH: "联盟计划", JA: "アフィリエイトプログラム", PT: "Programa de afiliados", AR: "برنامج الشركاء", HI: "संबद्ध कार्यक्रम" },
+  affiliateSubtitle: { EN: "Earn rewards by referring new customers", ES: "Gana recompensas refiriendo nuevos clientes", FR: "Gagnez des récompenses en recommandant de nouveaux clients", DE: "Verdienen Sie Belohnungen durch Empfehlungen neuer Kunden", RU: "Зарабатывайте награды, привлекая новых клиентов", ZH: "通过推荐新客户赚取奖励", JA: "新規顧客を紹介して報酬を獲得", PT: "Ganhe recompensas indicando novos clientes", AR: "اكسب المكافآت من خلال إحالة عملاء جدد", HI: "नए ग्राहकों को संदर्भित करके पुरस्कार अर्जित करें" },
+  totalClicks: { EN: "Total Clicks", ES: "Clics Totales", FR: "Clics totaux", DE: "Gesamtklicks", RU: "Всего кликов", ZH: "总点击数", JA: "総クリック数", PT: "Cliques totais", AR: "إجمالي النقرات", HI: "कुल क्लिक" },
+  conversions: { EN: "Conversions", ES: "Conversiones", FR: "Conversions", DE: "Konversionen", RU: "Конверсии", ZH: "转化", JA: "コンバージョン", PT: "Conversões", AR: "التحويلات", HI: "रूपांतरण" },
+  totalEarnings: { EN: "Total Earnings", ES: "Ganancias Totales", FR: "Gains totaux", DE: "Gesamteinnahmen", RU: "Общий заработок", ZH: "总收入", JA: "総収入", PT: "Ganhos totais", AR: "الأرباح الإجمالية", HI: "कुल कमाई" },
+  commissionRates: { EN: "Commission Rates", ES: "Tasas de Comisión", FR: "Taux de commission", DE: "Provisionssätze", RU: "Ставки комиссии", ZH: "佣金率", JA: "コミッション率", PT: "Taxas de comissão", AR: "معدلات العمولة", HI: "कमीशन दरें" },
+  yourAffiliateLink: { EN: "Your Affiliate Link", ES: "Tu Enlace de Afiliado", FR: "Votre lien d'affiliation", DE: "Ihr Partner-Link", RU: "Ваша партнерская ссылка", ZH: "您的联盟链接", JA: "あなたのアフィリエイトリンク", PT: "Seu link de afiliado", AR: "رابط الشريك الخاص بك", HI: "आपका संबद्ध लिंक" },
+  shareLink: { EN: "Share this link to earn commissions on every sale", ES: "Comparte este enlace para ganar comisiones en cada venta", FR: "Partagez ce lien pour gagner des commissions sur chaque vente", DE: "Teilen Sie diesen Link, um Provisionen bei jedem Verkauf zu verdienen", RU: "Поделитесь этой ссылкой, чтобы зарабатывать комиссию с каждой продажи", ZH: "分享此链接以从每次销售中赚取佣金", JA: "このリンクを共有して各販売でコミッションを獲得", PT: "Compartilhe este link para ganhar comissões em cada venda", AR: "شارك هذا الرابط لكسب عمولات على كل عملية بيع", HI: "हर बिक्री पर कमीशन कमाने के लिए इस लिंक को साझा करें" },
+  copy: { EN: "Copy", ES: "Copiar", FR: "Copier", DE: "Kopieren", RU: "Копировать", ZH: "复制", JA: "コピー", PT: "Copiar", AR: "نسخ", HI: "कॉपी करें" },
+  status: { EN: "Status", ES: "Estado", FR: "Statut", DE: "Status", RU: "Статус", ZH: "状态", JA: "ステータス", PT: "Status", AR: "الحالة", HI: "स्थिति" },
+  active: { EN: "active", ES: "activo", FR: "actif", DE: "aktiv", RU: "активный", ZH: "活跃", JA: "アクティブ", PT: "ativo", AR: "نشط", HI: "सक्रिय" },
+  howItWorks: { EN: "How It Works", ES: "Cómo Funciona", FR: "Comment ça marche", DE: "So funktioniert's", RU: "Как это работает", ZH: "如何运作", JA: "仕組み", PT: "Como funciona", AR: "كيف يعمل", HI: "यह कैसे काम करता है" },
+  shareYourLink: { EN: "Share Your Link", ES: "Comparte Tu Enlace", FR: "Partagez votre lien", DE: "Teilen Sie Ihren Link", RU: "Поделитесь ссылкой", ZH: "分享您的链接", JA: "リンクを共有", PT: "Compartilhe seu link", AR: "شارك رابطك", HI: "अपना लिंक साझा करें" },
+  shareYourLinkDesc: { EN: "Copy your unique affiliate link and share it on social media, blogs, or with friends", ES: "Copia tu enlace de afiliado único y compártelo en redes sociales, blogs o con amigos", FR: "Copiez votre lien d'affiliation unique et partagez-le sur les réseaux sociaux, les blogs ou avec des amis", DE: "Kopieren Sie Ihren einzigartigen Partner-Link und teilen Sie ihn in sozialen Medien, Blogs oder mit Freunden", RU: "Скопируйте свою уникальную партнерскую ссылку и поделитесь ею в социальных сетях, блогах или с друзьями", ZH: "复制您独特的联盟链接并在社交媒体、博客或与朋友分享", JA: "ユニークなアフィリエイトリンクをコピーして、ソーシャルメディア、ブログ、または友人と共有", PT: "Copie seu link de afiliado exclusivo e compartilhe em redes sociais, blogs ou com amigos", AR: "انسخ رابط الشريك الفريد الخاص بك وشاركه على وسائل التواصل الاجتماعي أو المدونات أو مع الأصدقاء", HI: "अपना अनूठा संबद्ध लिंक कॉपी करें और इसे सोशल मीडिया, ब्लॉग, या दोस्तों के साथ साझा करें" },
+  theyPurchase: { EN: "They Purchase", ES: "Ellos Compran", FR: "Ils achètent", DE: "Sie kaufen", RU: "Они покупают", ZH: "他们购买", JA: "彼らが購入", PT: "Eles compram", AR: "يقومون بالشراء", HI: "वे खरीदते हैं" },
+  theyPurchaseDesc: { EN: "When someone clicks your link and makes a purchase, it is tracked to your account", ES: "Cuando alguien hace clic en tu enlace y realiza una compra, se rastrea en tu cuenta", FR: "Lorsque quelqu'un clique sur votre lien et effectue un achat, il est suivi sur votre compte", DE: "Wenn jemand auf Ihren Link klickt und einen Kauf tätigt, wird dies Ihrem Konto zugeordnet", RU: "Когда кто-то кликает на вашу ссылку и совершает покупку, это отслеживается на вашем аккаунте", ZH: "当有人点击您的链接并进行购买时，它会被跟踪到您的账户", JA: "誰かがあなたのリンクをクリックして購入すると、あなたのアカウントに追跡されます", PT: "Quando alguém clica no seu link e faz uma compra, é rastreado para sua conta", AR: "عندما ينقر شخص ما على رابطك ويقوم بعملية شراء، يتم تتبعه في حسابك", HI: "जब कोई आपके लिंक पर क्लिक करता है और खरीदारी करता है, तो यह आपके खाते में ट्रैक किया जाता है" },
+  earnCommission: { EN: "Earn Commission", ES: "Gana Comisión", FR: "Gagner une commission", DE: "Provision verdienen", RU: "Заработайте комиссию", ZH: "赚取佣金", JA: "コミッションを獲得", PT: "Ganhe comissão", AR: "اكسب عمولة", HI: "कमीशन कमाएं" },
+  earnCommissionDesc: { EN: "Earn 9% on direct referrals, 6% on level 2, and 3% on level 3", ES: "Gana 9% en referidos directos, 6% en nivel 2 y 3% en nivel 3", FR: "Gagnez 9% sur les parrainages directs, 6% au niveau 2 et 3% au niveau 3", DE: "Verdienen Sie 9% bei direkten Empfehlungen, 6% auf Ebene 2 und 3% auf Ebene 3", RU: "Зарабатывайте 9% на прямых рефералах, 6% на уровне 2 и 3% на уровне 3", ZH: "直接推荐赚取9%，第2级6%，第3级3%", JA: "直接紹介で9%、レベル2で6%、レベル3で3%を獲得", PT: "Ganhe 9% em referências diretas, 6% no nível 2 e 3% no nível 3", AR: "اكسب 9٪ على الإحالات المباشرة، و6٪ على المستوى 2، و3٪ على المستوى 3", HI: "प्रत्यक्ष रेफरल पर 9%, स्तर 2 पर 6%, और स्तर 3 पर 3% कमाएं" },
+
+  // Orders Page
+  myOrdersTitle: { EN: "My Orders", ES: "Mis Pedidos", FR: "Mes commandes", DE: "Meine Bestellungen", RU: "Мои заказы", ZH: "我的订单", JA: "注文履歴", PT: "Meus pedidos", AR: "طلباتي", HI: "मेरे ऑर्डर" },
+  noOrders: { EN: "No orders found", ES: "No se encontraron pedidos", FR: "Aucune commande trouvée", DE: "Keine Bestellungen gefunden", RU: "Заказы не найдены", ZH: "未找到订单", JA: "注文が見つかりません", PT: "Nenhum pedido encontrado", AR: "لم يتم العثور على طلبات", HI: "कोई ऑर्डर नहीं मिला" },
+  browsePackages: { EN: "Browse Packages", ES: "Explorar Paquetes", FR: "Parcourir les forfaits", DE: "Pakete durchsuchen", RU: "Просмотреть пакеты", ZH: "浏览套餐", JA: "パッケージを閲覧", PT: "Navegar pacotes", AR: "تصفح الباقات", HI: "पैकेज ब्राउज़ करें" },
+  backToHome: { EN: "Back to Home", ES: "Volver al Inicio", FR: "Retour à l'accueil", DE: "Zurück zur Startseite", RU: "Вернуться на главную", ZH: "返回首页", JA: "ホームに戻る", PT: "Voltar para o início", AR: "العودة إلى الصفحة الرئيسية", HI: "होम पर वापस जाएं" },
+};
+
 export const TranslationProvider = ({ children }: { children: ReactNode }) => {
-  const [language, setLanguage] = useState<Language>("EN");
+  const [language, setLanguageState] = useState<Language>(() => {
+    const saved = localStorage.getItem("language");
+    return (saved as Language) || "EN";
+  });
+
+  useEffect(() => {
+    localStorage.setItem("language", language);
+  }, [language]);
+
+  const setLanguage = (lang: Language) => {
+    setLanguageState(lang);
+  };
 
   const t = (key: string): string => {
     return translations[key]?.[language] || key;
