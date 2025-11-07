@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
+import earthTexture from '@/assets/earth-texture.jpg';
 
 const InteractiveGlobe: React.FC = () => {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -47,18 +48,31 @@ const InteractiveGlobe: React.FC = () => {
     rimLight.position.set(-6, -6, -6);
     scene.add(rimLight);
 
-    // Globe (wireframe sphere with emissive glow)
+    // Load Earth texture
+    const textureLoader = new THREE.TextureLoader();
+    const texture = textureLoader.load(earthTexture);
+
+    // Globe with Earth texture
     const geometry = new THREE.SphereGeometry(2, 64, 64);
     const material = new THREE.MeshPhongMaterial({
-      color: new THREE.Color('#0ea5e9'), // cyan-ish
-      emissive: new THREE.Color('#06b6d4'),
-      emissiveIntensity: 0.35,
-      shininess: 80,
-      wireframe: true,
+      map: texture,
+      shininess: 15,
+      specular: new THREE.Color('#333333'),
     });
     const globe = new THREE.Mesh(geometry, material);
     scene.add(globe);
     globeRef.current = globe;
+
+    // Atmosphere glow (slightly larger transparent sphere)
+    const atmosphereGeometry = new THREE.SphereGeometry(2.15, 64, 64);
+    const atmosphereMaterial = new THREE.MeshBasicMaterial({
+      color: new THREE.Color('#06b6d4'),
+      transparent: true,
+      opacity: 0.15,
+      side: THREE.BackSide,
+    });
+    const atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
+    scene.add(atmosphere);
 
     // Drag controls (simple custom)
     const onPointerDown = (e: PointerEvent) => {
@@ -80,17 +94,11 @@ const InteractiveGlobe: React.FC = () => {
       setTimeout(() => (autoRotateRef.current = true), 800);
     };
 
-    const onWheel = (e: WheelEvent) => {
-      if (!cameraRef.current) return;
-      cameraRef.current.position.z += e.deltaY * 0.0025;
-      cameraRef.current.position.z = Math.max(3, Math.min(8, cameraRef.current.position.z));
-    };
 
     const container = containerRef.current;
     container.addEventListener('pointerdown', onPointerDown);
     window.addEventListener('pointermove', onPointerMove);
     window.addEventListener('pointerup', onPointerUp);
-    container.addEventListener('wheel', onWheel, { passive: true });
 
     // Resize handling
     const onResize = () => {
@@ -120,9 +128,11 @@ const InteractiveGlobe: React.FC = () => {
       container.removeEventListener('pointerdown', onPointerDown);
       window.removeEventListener('pointermove', onPointerMove);
       window.removeEventListener('pointerup', onPointerUp);
-      container.removeEventListener('wheel', onWheel);
       geometry.dispose();
+      atmosphereGeometry.dispose();
       material.dispose();
+      atmosphereMaterial.dispose();
+      texture.dispose();
       renderer.dispose();
       container.removeChild(renderer.domElement);
     };
