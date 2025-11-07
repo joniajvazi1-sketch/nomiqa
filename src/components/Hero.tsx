@@ -1,42 +1,71 @@
 import { ShoppingCart, Globe, Shield } from "lucide-react";
-import heroImage from "@/assets/hero-happy.jpg";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
+import happyTravelers from "@/assets/happy-travelers.jpg";
 
 export const Hero = () => {
+  const navigate = useNavigate();
+  
   return (
-    <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-background">
-      <div 
-        className="absolute inset-0 opacity-50"
-        style={{
-          backgroundImage: `url(${heroImage})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-        }}
-      />
-      <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background/90" />
+    <section className="relative min-h-[90vh] flex items-center bg-gradient-to-br from-nomiqa-cream via-nomiqa-peach/30 to-nomiqa-cream overflow-hidden">
+      {/* Decorative shapes */}
+      <div className="absolute top-20 left-20 w-64 h-64 bg-nomiqa-orange/20 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-20 right-20 w-80 h-80 bg-nomiqa-teal/20 rounded-full blur-3xl"></div>
       
       <div className="container relative z-10 px-4 py-20">
-        <div className="max-w-4xl mx-auto text-center animate-fade-in-up">
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 text-foreground drop-shadow-sm animate-scale-in">
-            Freedom has a new signal.
-          </h1>
+        <div className="grid lg:grid-cols-2 gap-12 items-center max-w-7xl mx-auto">
+          {/* Left side - Text */}
+          <div className="text-left animate-fade-in-up">
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 text-foreground">
+              Freedom has a new signal.
+            </h1>
+            
+            <p className="text-xl md:text-2xl mb-8 text-foreground/80">
+              The first crypto-native eSIM with anonymous activation, wallet payments, and token rewards.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 mb-8">
+              <Button 
+                size="lg"
+                className="bg-nomiqa-orange hover:bg-nomiqa-orange/90 text-white shadow-lg"
+                onClick={() => navigate('/shop')}
+              >
+                <ShoppingCart className="w-5 h-5 mr-2" />
+                Browse eSIMs
+              </Button>
+              <Button 
+                variant="outline"
+                size="lg"
+                className="border-2 border-nomiqa-orange text-nomiqa-orange hover:bg-nomiqa-orange/10"
+                onClick={() => navigate('/getting-started')}
+              >
+                Get Started
+              </Button>
+            </div>
+            
+            <div className="flex flex-col gap-4 text-foreground/70">
+              <div className="flex items-center gap-2">
+                <Globe className="w-5 h-5 text-nomiqa-orange" />
+                <span className="font-medium">200+ Countries</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Shield className="w-5 h-5 text-nomiqa-orange" />
+                <span className="font-medium">No KYC Required</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <ShoppingCart className="w-5 h-5 text-nomiqa-orange" />
+                <span className="font-medium">Crypto Payments</span>
+              </div>
+            </div>
+          </div>
           
-          <p className="text-xl md:text-2xl mb-12 text-foreground/80 max-w-2xl mx-auto">
-            The first crypto-native eSIM with anonymous activation, wallet payments, and token rewards.
-          </p>
-          
-          <div className="flex flex-wrap gap-8 justify-center items-center text-foreground/70 mb-12 text-center animate-fade-in" style={{ animationDelay: "0.3s" }}>
-            <div className="flex items-center gap-2">
-              <Globe className="w-5 h-5 text-primary" />
-              <span>200+ Countries</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Shield className="w-5 h-5 text-primary" />
-              <span>No KYC Required</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <ShoppingCart className="w-5 h-5 text-primary" />
-              <span>Crypto Payments</span>
-            </div>
+          {/* Right side - Visual */}
+          <div className="relative animate-fade-in" style={{ animationDelay: "0.3s" }}>
+            <img 
+              src={happyTravelers} 
+              alt="Happy travelers celebrating their connectivity"
+              className="w-full h-auto rounded-3xl shadow-2xl"
+            />
           </div>
         </div>
       </div>

@@ -25,11 +25,11 @@ export const HowItWorks = () => {
   ];
 
   return (
-    <section id="how-it-works" className="py-20 bg-gradient-to-br from-background via-secondary/30 to-background">
+    <section id="how-it-works" className="py-20 bg-nomiqa-teal">
       <div className="container px-4">
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold mb-4">How It Works</h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          <h2 className="text-4xl font-bold mb-4 text-white">How It Works</h2>
+          <p className="text-xl text-white/90 max-w-2xl mx-auto">
             Get connected in 4 simple steps. No paperwork, no waiting.
           </p>
         </div>
@@ -39,11 +39,11 @@ export const HowItWorks = () => {
             const Icon = step.icon;
             return (
               <div key={index} className="text-center animate-fade-in-up" style={{ animationDelay: `${index * 0.15}s` }}>
-                <div className="mb-4 mx-auto w-16 h-16 rounded-full bg-gradient-primary flex items-center justify-center shadow-glow-purple hover:scale-110 transition-transform duration-300 animate-float" style={{ animationDelay: `${index * 0.3}s` }}>
-                  <Icon className="w-8 h-8 text-white" />
+                <div className="mb-4 mx-auto w-16 h-16 rounded-full bg-white flex items-center justify-center shadow-lg">
+                  <Icon className="w-8 h-8 text-nomiqa-teal" />
                 </div>
-                <h3 className="text-xl font-bold mb-2 text-primary">{step.title}</h3>
-                <p className="text-muted-foreground">{step.description}</p>
+                <h3 className="text-xl font-bold mb-2 text-white">{step.title}</h3>
+                <p className="text-white/80">{step.description}</p>
               </div>
             );
           })}
