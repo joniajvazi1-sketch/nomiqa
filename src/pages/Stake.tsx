@@ -36,133 +36,80 @@ export default function Stake() {
     <div className="min-h-screen bg-gradient-to-br from-background via-deep-space to-background">
       <Navbar />
       
-      {/* Hero Section */}
-      <section className="relative pt-32 pb-20 px-4 overflow-hidden">
+      {/* Hero Section - Coming Soon */}
+      <section className="relative pt-32 pb-20 px-4 overflow-hidden min-h-[80vh] flex items-center">
         {/* Animated gradient orbs */}
         <div className="absolute top-20 left-10 w-96 h-96 bg-neon-violet/20 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-20 right-10 w-[500px] h-[500px] bg-neon-coral/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "1s" }}></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-neon-cyan/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "2s" }}></div>
         
         <div className="container max-w-6xl mx-auto relative z-10">
-          <div className="text-center mb-16 animate-fade-in-up">
-            <div className="inline-block mb-6">
+          <div className="text-center animate-fade-in-up">
+            <div className="inline-block mb-8">
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-sunset opacity-30 blur-xl rounded-full"></div>
-                <div className="relative bg-card/40 backdrop-blur-sm border border-neon-violet/30 px-6 py-3 rounded-full">
-                  <span className="text-sm font-semibold bg-gradient-sunset bg-clip-text text-transparent">
-                    Staking Platform Coming Soon
+                <div className="relative bg-card/40 backdrop-blur-sm border border-neon-violet/30 px-8 py-4 rounded-full">
+                  <span className="text-lg font-semibold bg-gradient-sunset bg-clip-text text-transparent">
+                    🚀 Coming Soon
                   </span>
                 </div>
               </div>
             </div>
             
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 font-display">
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-8 font-display">
               <span className="block bg-gradient-sunset bg-clip-text text-transparent">
-                Stake NMQ.
+                Stake $NOMIQA
               </span>
               <span className="block bg-gradient-digital bg-clip-text text-transparent mt-2">
-                Earn Data. Own Your Connection.
+                Earn Rewards
               </span>
             </h1>
             
-            <p className="text-xl md:text-2xl text-foreground/80 max-w-3xl mx-auto mb-4">
-              Lock tokens to earn free data credits and affiliate rewards.
+            <p className="text-xl md:text-2xl text-foreground/80 max-w-3xl mx-auto mb-8">
+              Our staking platform is currently under development. 
+              Lock tokens to earn rewards and exclusive benefits.
             </p>
-            <p className="text-lg text-warm-sand/90">
-              Your travel, powered by Web3.
-            </p>
-          </div>
 
-          {/* Staking Diagram */}
-          <div className="mb-16 animate-scale-in">
-            <Card className="bg-card/40 backdrop-blur-sm border-neon-violet/30">
-              <CardHeader>
-                <CardTitle className="text-2xl text-center bg-gradient-sunset bg-clip-text text-transparent">
-                  3-Level Affiliate System
-                </CardTitle>
-                <CardDescription className="text-center">
-                  Earn commissions on multiple levels
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-col md:flex-row items-center justify-center gap-8 py-8">
-                  {/* Level 1 */}
-                  <div className="text-center relative">
-                    <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-neon-cyan to-neon-violet flex items-center justify-center shadow-glow-cyan">
-                      <Network className="w-12 h-12 text-white" />
-                    </div>
-                    <div className="text-3xl font-bold bg-gradient-digital bg-clip-text text-transparent mb-2">9%</div>
-                    <p className="text-sm text-foreground/70">Level 1 Direct</p>
-                  </div>
-                  
-                  {/* Arrow */}
-                  <div className="hidden md:block text-neon-cyan/50 text-4xl">→</div>
-                  
-                  {/* Level 2 */}
-                  <div className="text-center relative">
-                    <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-neon-violet to-neon-coral flex items-center justify-center shadow-glow-violet">
-                      <Network className="w-12 h-12 text-white" />
-                    </div>
-                    <div className="text-3xl font-bold bg-gradient-freedom bg-clip-text text-transparent mb-2">6%</div>
-                    <p className="text-sm text-foreground/70">Level 2 Indirect</p>
-                  </div>
-                  
-                  {/* Arrow */}
-                  <div className="hidden md:block text-neon-coral/50 text-4xl">→</div>
-                  
-                  {/* Level 3 */}
-                  <div className="text-center relative">
-                    <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-neon-coral to-warm-sand flex items-center justify-center shadow-glow-coral">
-                      <Network className="w-12 h-12 text-white" />
-                    </div>
-                    <div className="text-3xl font-bold bg-gradient-warmth bg-clip-text text-transparent mb-2">3%</div>
-                    <p className="text-sm text-foreground/70">Level 3 Extended</p>
-                  </div>
-                </div>
+            {/* Features Preview */}
+            <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto mt-16 mb-12">
+              <div className="p-6 rounded-2xl bg-card/40 backdrop-blur-sm border border-neon-cyan/30">
+                <TrendingUp className="w-12 h-12 text-neon-cyan mx-auto mb-4" />
+                <h3 className="text-lg font-bold mb-2 text-neon-cyan">High APY</h3>
+                <p className="text-sm text-foreground/70">Competitive staking rewards</p>
+              </div>
+              
+              <div className="p-6 rounded-2xl bg-card/40 backdrop-blur-sm border border-neon-violet/30">
+                <Zap className="w-12 h-12 text-neon-violet mx-auto mb-4" />
+                <h3 className="text-lg font-bold mb-2 text-neon-violet">Free Data Credits</h3>
+                <p className="text-sm text-foreground/70">Earn eSIM data as you stake</p>
+              </div>
+              
+              <div className="p-6 rounded-2xl bg-card/40 backdrop-blur-sm border border-neon-coral/30">
+                <Users className="w-12 h-12 text-neon-coral mx-auto mb-4" />
+                <h3 className="text-lg font-bold mb-2 text-neon-coral">Affiliate Boost</h3>
+                <p className="text-sm text-foreground/70">Higher referral commissions</p>
+              </div>
+            </div>
+
+            {/* CTA */}
+            <Card className="bg-gradient-to-br from-neon-violet/10 via-neon-coral/10 to-neon-cyan/10 border-neon-violet/30 backdrop-blur-sm max-w-2xl mx-auto">
+              <CardContent className="pt-8 pb-8 text-center">
+                <Coins className="w-16 h-16 text-neon-coral mx-auto mb-6 animate-float" />
+                <h3 className="text-2xl md:text-3xl font-bold mb-4 bg-gradient-sunset bg-clip-text text-transparent">
+                  Be the First to Know
+                </h3>
+                <p className="text-foreground/70 mb-6">
+                  Sign up to be notified when staking goes live. Early stakers get bonus rewards.
+                </p>
+                <Button 
+                  size="lg"
+                  className="bg-gradient-to-r from-neon-coral to-neon-violet hover:opacity-90 text-white shadow-glow-coral"
+                >
+                  Notify Me at Launch
+                </Button>
               </CardContent>
             </Card>
           </div>
-
-          {/* Benefits Grid */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-            {benefits.map((benefit, index) => (
-              <div
-                key={index}
-                className="group p-6 rounded-2xl bg-card/40 backdrop-blur-sm border border-border/50 hover:border-neon-cyan/50 transition-all duration-500 hover:shadow-lg hover:shadow-neon-cyan/20 animate-fade-in-up"
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${benefit.gradient} p-0.5 mb-4`}>
-                  <div className="w-full h-full bg-card rounded-xl flex items-center justify-center">
-                    <benefit.icon className="w-7 h-7 text-neon-cyan" />
-                  </div>
-                </div>
-                <h3 className="text-lg font-bold mb-2 text-foreground">
-                  {benefit.title}
-                </h3>
-                <p className="text-sm text-foreground/60">
-                  {benefit.description}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          {/* CTA Card */}
-          <Card className="bg-gradient-to-br from-neon-violet/10 via-neon-coral/10 to-neon-cyan/10 border-neon-violet/30 backdrop-blur-sm">
-            <CardContent className="pt-8 pb-8 text-center">
-              <Coins className="w-16 h-16 text-neon-coral mx-auto mb-6 animate-float" />
-              <h3 className="text-2xl md:text-3xl font-bold mb-4 bg-gradient-sunset bg-clip-text text-transparent">
-                Be the First to Stake
-              </h3>
-              <p className="text-foreground/70 mb-6 max-w-2xl mx-auto">
-                Sign up to be notified when our staking platform launches. Early stakers get bonus rewards.
-              </p>
-              <Button 
-                size="lg"
-                className="bg-neon-coral hover:bg-neon-coral/90 text-white shadow-glow-coral"
-              >
-                Notify Me at Launch
-              </Button>
-            </CardContent>
-          </Card>
         </div>
       </section>
       
