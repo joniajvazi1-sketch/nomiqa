@@ -1,0 +1,14 @@
+<svg viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="128" height="128" rx="24" fill="#1C1E24"/>
+<circle cx="64" cy="64" r="36" fill="url(#meteora_gradient)"/>
+<path d="M64 34L80 54L64 64L48 54L64 34Z" fill="white" opacity="0.9"/>
+<path d="M64 64L80 54L80 74L64 84L64 64Z" fill="white" opacity="0.7"/>
+<path d="M64 64L48 54L48 74L64 84L64 64Z" fill="white" opacity="0.5"/>
+<defs>
+<linearGradient id="meteora_gradient" x1="28" y1="28" x2="100" y2="100" gradientUnits="userSpaceOnUse">
+<stop stop-color="#FF6B9D"/>
+<stop offset="0.5" stop-color="#C94B9F"/>
+<stop offset="1" stop-color="#9945FF"/>
+</linearGradient>
+</defs>
+</svg>
