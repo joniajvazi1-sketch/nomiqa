@@ -93,16 +93,22 @@ export const Navbar = () => {
               {t("gettingStarted")}
             </button>
             <button
-              onClick={() => navigate('/stake')}
-              className="text-foreground/80 hover:text-neon-cyan transition-colors font-medium"
-            >
-              {t("stake")}
-            </button>
-            <button
               onClick={() => navigate('/affiliate')}
               className="text-foreground/80 hover:text-neon-cyan transition-colors font-medium"
             >
               {t("affiliate")}
+            </button>
+            <button
+              onClick={() => navigate('/about')}
+              className="text-foreground/80 hover:text-neon-cyan transition-colors font-medium"
+            >
+              About
+            </button>
+            <button
+              onClick={() => navigate('/privacy')}
+              className="text-foreground/80 hover:text-neon-cyan transition-colors font-medium"
+            >
+              Privacy
             </button>
             {user && (
               <button
@@ -141,16 +147,22 @@ export const Navbar = () => {
                     {t("gettingStarted")}
                   </button>
                   <button
-                    onClick={() => handleNavClick('/stake')}
-                    className="text-left text-foreground/70 hover:text-foreground transition-colors py-2 px-4 rounded hover:bg-muted"
-                  >
-                    {t("stake")}
-                  </button>
-                  <button
                     onClick={() => handleNavClick('/affiliate')}
                     className="text-left text-foreground/70 hover:text-foreground transition-colors py-2 px-4 rounded hover:bg-muted"
                   >
                     {t("affiliate")}
+                  </button>
+                  <button
+                    onClick={() => handleNavClick('/about')}
+                    className="text-left text-foreground/70 hover:text-foreground transition-colors py-2 px-4 rounded hover:bg-muted"
+                  >
+                    About
+                  </button>
+                  <button
+                    onClick={() => handleNavClick('/privacy')}
+                    className="text-left text-foreground/70 hover:text-foreground transition-colors py-2 px-4 rounded hover:bg-muted"
+                  >
+                    Privacy
                   </button>
                   {user && (
                     <button

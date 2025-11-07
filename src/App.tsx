@@ -18,6 +18,8 @@ import Stake from "./pages/Stake";
 import Roadmap from "./pages/Roadmap";
 import Affiliate from "./pages/Affiliate";
 import AffiliateRedirect from "./pages/AffiliateRedirect";
+import Privacy from "./pages/Privacy";
+import About from "./pages/About";
 
 const queryClient = new QueryClient();
 
@@ -69,6 +71,8 @@ const App = () => (
             <Route path="/roadmap" element={<Roadmap />} />
             <Route path="/affiliate" element={<Affiliate />} />
             <Route path="/r/:code" element={<AffiliateRedirect />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/about" element={<About />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

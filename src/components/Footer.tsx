@@ -5,9 +5,12 @@ export const Footer = () => {
   const { t } = useTranslation();
   
   return (
-    <footer className="bg-gradient-to-br from-midnight-blue via-deep-space to-midnight-blue text-foreground py-12 border-t border-neon-cyan/20 relative overflow-hidden">
-      {/* Decorative glow */}
-      <div className="absolute inset-0 opacity-10">
+    <footer className="relative bg-gradient-to-b from-deep-space to-midnight-blue text-foreground overflow-hidden">
+      {/* Thin coral-cyan gradient line at top for closure */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-neon-coral via-neon-violet to-neon-cyan opacity-60"></div>
+      
+      {/* Decorative glows */}
+      <div className="absolute inset-0 opacity-10 py-12">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-neon-cyan rounded-full blur-3xl"></div>
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-neon-violet rounded-full blur-3xl"></div>
       </div>

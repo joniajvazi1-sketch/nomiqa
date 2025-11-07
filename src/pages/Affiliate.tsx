@@ -155,15 +155,26 @@ export default function Affiliate() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-background via-deep-space to-background relative overflow-hidden">
+      {/* Background decorations */}
+      <div className="absolute top-20 left-10 w-96 h-96 bg-neon-cyan/10 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-20 right-10 w-96 h-96 bg-neon-coral/10 rounded-full blur-3xl"></div>
+      
       <Navbar />
       
-      <div className="container mx-auto px-4 py-20">
+      <div className="container mx-auto px-4 py-20 relative z-10">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">Affiliate Program</h1>
-            <p className="text-xl text-muted-foreground">
-              Earn rewards by referring new customers
+          <div className="text-center mb-12 animate-fade-in-up">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 font-display">
+              <span className="bg-gradient-sunset bg-clip-text text-transparent">
+                Invite. Earn. Travel Together.
+              </span>
+            </h1>
+            <p className="text-xl md:text-2xl text-foreground/80 mb-2">
+              Join the borderless generation
+            </p>
+            <p className="text-lg text-warm-sand/80 font-quote italic">
+              Freedom is no longer physical — it's digital.
             </p>
           </div>
 

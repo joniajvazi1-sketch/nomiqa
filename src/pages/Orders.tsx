@@ -127,14 +127,21 @@ export default function Orders() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5">
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
+    <div className="min-h-screen bg-gradient-to-br from-background via-deep-space to-background relative overflow-hidden">
+      {/* Faint globe wireframe background */}
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute top-1/4 left-0 right-0 h-px bg-gradient-to-r from-transparent via-neon-cyan to-transparent"></div>
+        <div className="absolute top-1/2 left-0 right-0 h-px bg-gradient-to-r from-transparent via-neon-violet to-transparent"></div>
+        <div className="absolute top-3/4 left-0 right-0 h-px bg-gradient-to-r from-transparent via-neon-coral to-transparent"></div>
+      </div>
+      
+      <div className="container mx-auto px-4 py-8 max-w-6xl relative z-10">
         <Button variant="ghost" className="mb-6" onClick={() => navigate('/')}>
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Home
         </Button>
 
-        <h1 className="text-3xl font-bold mb-8">My Orders</h1>
+        <h1 className="text-3xl md:text-4xl font-bold mb-8 bg-gradient-digital bg-clip-text text-transparent">My Orders</h1>
 
         {orders.length === 0 ? (
           <Card>
@@ -148,7 +155,7 @@ export default function Orders() {
         ) : (
           <div className="space-y-4">
             {orders.map((order) => (
-              <Card key={order.id}>
+              <Card key={order.id} className={`${order.status === 'completed' ? 'border-neon-cyan/50 shadow-lg shadow-neon-cyan/20 bg-card/60' : 'bg-card/40'} backdrop-blur-sm transition-all hover:shadow-xl`}>
                 <CardHeader>
                   <div className="flex justify-between items-start">
                     <div>
