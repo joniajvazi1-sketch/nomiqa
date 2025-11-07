@@ -56,10 +56,7 @@ export default function Privacy() {
             
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 font-display">
               <span className="block bg-gradient-freedom bg-clip-text text-transparent">
-                How We Protect
-              </span>
-              <span className="block bg-gradient-sunset bg-clip-text text-transparent mt-2">
-                Your Privacy
+                Privacy First
               </span>
             </h1>
             

@@ -110,7 +110,7 @@ export default function GettingStarted() {
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
             <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-neon bg-clip-text text-transparent">
-              Learn How to Buy $NOMIQA on Solana
+              Get Started with $NOMIQA
             </h1>
             <p className="text-xl text-muted-foreground">
               Step-by-step guide to buying our token and using it for eSIM purchases

@@ -43,7 +43,7 @@ export default function About() {
           <div className="text-center mb-16 animate-fade-in-up">
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 font-display">
               <span className="block bg-gradient-warmth bg-clip-text text-transparent">
-                Our Story
+                About Us
               </span>
             </h1>
             
