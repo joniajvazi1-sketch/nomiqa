@@ -1,6 +1,5 @@
 import { Navbar } from "@/components/Navbar";
 import { Hero } from "@/components/Hero";
-import { ValuePropositions } from "@/components/ValuePropositions";
 import { WhyNomiqa } from "@/components/WhyNomiqa";
 import { HowItWorksSteps } from "@/components/HowItWorksSteps";
 import { CoverageSection } from "@/components/CoverageSection";
@@ -17,7 +16,6 @@ const Index = () => {
       <Navbar />
       <Hero />
       <TrustPartners />
-      <ValuePropositions />
       <HowItWorksSteps />
       <WhyNomiqa />
       <CoverageSection />
