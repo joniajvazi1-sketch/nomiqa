@@ -5,10 +5,16 @@ export const EarnSection = () => {
   const navigate = useNavigate();
   
   return (
-    <section className="py-20 bg-gradient-to-br from-primary/20 via-accent/20 to-primary/20">
-      <div className="container px-4">
-        <div className="text-center max-w-4xl mx-auto">
-          <h2 className="text-4xl md:text-5xl font-bold mb-6 text-white">
+    <section className="py-20 bg-gradient-primary relative overflow-hidden">
+      {/* Animated background shapes */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute top-10 left-10 w-72 h-72 bg-white rounded-full blur-3xl animate-float"></div>
+        <div className="absolute bottom-10 right-10 w-96 h-96 bg-white rounded-full blur-3xl animate-float" style={{ animationDelay: "1s" }}></div>
+      </div>
+      
+      <div className="container px-4 relative z-10">
+        <div className="text-center max-w-4xl mx-auto animate-fade-in-up">
+          <h2 className="text-4xl md:text-5xl font-bold mb-6 text-white drop-shadow-lg">
             Earn with Staking & Affiliates
           </h2>
           
@@ -17,10 +23,11 @@ export const EarnSection = () => {
             affiliate program. Start earning today with secure, fast crypto transactions.
           </p>
           
-          <div className="flex flex-wrap gap-4 justify-center">
+          <div className="flex flex-wrap gap-4 justify-center animate-bounce-in" style={{ animationDelay: "0.3s" }}>
             <Button 
               variant="hero" 
               size="xl"
+              className="hover:scale-110 transition-transform duration-300 shadow-lg hover:shadow-glow-pink"
               onClick={() => navigate('/stake')}
             >
               Start Staking
@@ -28,7 +35,7 @@ export const EarnSection = () => {
             <Button 
               variant="outline" 
               size="xl"
-              className="bg-white hover:bg-white/90 text-primary border-white"
+              className="bg-white hover:bg-white/90 text-primary border-white hover:scale-110 transition-transform duration-300 shadow-lg"
               onClick={() => navigate('/affiliate')}
             >
               Join Affiliate Program

@@ -25,7 +25,7 @@ export const HowItWorks = () => {
   ];
 
   return (
-    <section id="how-it-works" className="py-20 bg-secondary">
+    <section id="how-it-works" className="py-20 bg-gradient-to-br from-background via-secondary/30 to-background">
       <div className="container px-4">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold mb-4">How It Works</h2>
@@ -38,11 +38,11 @@ export const HowItWorks = () => {
           {steps.map((step, index) => {
             const Icon = step.icon;
             return (
-              <div key={index} className="text-center">
-                <div className="mb-4 mx-auto w-16 h-16 rounded-full bg-gradient-primary flex items-center justify-center">
+              <div key={index} className="text-center animate-fade-in-up" style={{ animationDelay: `${index * 0.15}s` }}>
+                <div className="mb-4 mx-auto w-16 h-16 rounded-full bg-gradient-primary flex items-center justify-center shadow-glow-purple hover:scale-110 transition-transform duration-300 animate-float" style={{ animationDelay: `${index * 0.3}s` }}>
                   <Icon className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-xl font-bold mb-2">{step.title}</h3>
+                <h3 className="text-xl font-bold mb-2 text-primary">{step.title}</h3>
                 <p className="text-muted-foreground">{step.description}</p>
               </div>
             );

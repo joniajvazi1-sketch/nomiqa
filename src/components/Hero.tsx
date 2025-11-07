@@ -14,8 +14,8 @@ export const Hero = () => {
       />
       
       <div className="container relative z-10 px-4 py-20">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 text-white">
+        <div className="max-w-4xl mx-auto text-center animate-fade-in-up">
+          <h1 className="text-5xl md:text-7xl font-bold mb-6 text-white drop-shadow-2xl animate-scale-in">
             Freedom has a new signal.
           </h1>
           
@@ -23,17 +23,17 @@ export const Hero = () => {
             The first crypto-native eSIM with anonymous activation, wallet payments, and token rewards.
           </p>
           
-          <div className="flex flex-wrap gap-8 justify-center items-center text-white/80 mb-12 text-center">
+          <div className="flex flex-wrap gap-8 justify-center items-center text-white/80 mb-12 text-center animate-fade-in" style={{ animationDelay: "0.3s" }}>
             <div className="flex items-center gap-2">
-              <Globe className="w-5 h-5 text-accent" />
+              <Globe className="w-5 h-5 text-accent animate-float" />
               <span>200+ Countries</span>
             </div>
             <div className="flex items-center gap-2">
-              <Shield className="w-5 h-5 text-accent" />
+              <Shield className="w-5 h-5 text-accent animate-float" style={{ animationDelay: "0.5s" }} />
               <span>No KYC Required</span>
             </div>
             <div className="flex items-center gap-2">
-              <ShoppingCart className="w-5 h-5 text-accent" />
+              <ShoppingCart className="w-5 h-5 text-accent animate-float" style={{ animationDelay: "1s" }} />
               <span>Crypto Payments</span>
             </div>
           </div>

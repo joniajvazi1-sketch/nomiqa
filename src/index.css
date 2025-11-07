@@ -8,79 +8,85 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222 45% 12%;
+    --background: 40 20% 99%;
+    --foreground: 240 20% 20%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222 45% 12%;
+    --card-foreground: 240 20% 20%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222 45% 12%;
+    --popover-foreground: 240 20% 20%;
 
-    --primary: 222 45% 12%;
+    --primary: 262 83% 58%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 20% 96%;
-    --secondary-foreground: 222 45% 12%;
+    --secondary: 280 30% 96%;
+    --secondary-foreground: 240 20% 20%;
 
-    --muted: 210 20% 96%;
-    --muted-foreground: 215 16% 47%;
+    --muted: 280 20% 95%;
+    --muted-foreground: 240 10% 50%;
 
-    --accent: 195 100% 50%;
+    --accent: 330 81% 60%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 195 100% 50%;
+    --border: 280 15% 90%;
+    --input: 280 15% 90%;
+    --ring: 262 83% 58%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
-    /* Nomiqa Brand Colors */
-    --nomiqa-dark: 222 45% 12%;
-    --nomiqa-cyan: 195 100% 50%;
-    --nomiqa-blue: 207 90% 54%;
-    --nomiqa-light: 210 20% 98%;
+    /* Nomiqa Warm Brand Colors */
+    --nomiqa-dark: 262 50% 30%;
+    --nomiqa-purple: 262 83% 58%;
+    --nomiqa-pink: 330 81% 60%;
+    --nomiqa-light: 280 30% 98%;
+    --nomiqa-warm: 25 95% 65%;
     
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(195 100% 50%) 0%, hsl(207 90% 54%) 100%);
-    --gradient-hero: linear-gradient(180deg, hsl(222 45% 12%) 0%, hsl(222 35% 18%) 100%);
+    /* Warm Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(262 83% 58%) 0%, hsl(330 81% 60%) 100%);
+    --gradient-hero: linear-gradient(180deg, hsl(262 50% 30%) 0%, hsl(262 40% 40%) 100%);
+    --gradient-warm: linear-gradient(135deg, hsl(25 95% 65%) 0%, hsl(330 81% 60%) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(280 30% 99%) 0%, hsl(330 40% 98%) 100%);
     
-    /* Effects */
-    --glow-cyan: 0 0 40px hsl(195 100% 50% / 0.3);
+    /* Glows & Effects */
+    --glow-purple: 0 0 40px hsl(262 83% 58% / 0.3);
+    --glow-pink: 0 0 30px hsl(330 81% 60% / 0.25);
+    --shadow-warm: 0 10px 30px -10px hsl(262 83% 58% / 0.2);
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   }
 
   .dark {
-    --background: 222 45% 8%;
+    --background: 262 40% 10%;
     --foreground: 0 0% 98%;
 
-    --card: 222 40% 12%;
+    --card: 262 35% 15%;
     --card-foreground: 0 0% 98%;
 
-    --popover: 222 40% 12%;
+    --popover: 262 35% 15%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 195 100% 50%;
-    --primary-foreground: 222 45% 12%;
+    --primary: 262 83% 58%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 222 35% 18%;
+    --secondary: 262 30% 20%;
     --secondary-foreground: 0 0% 98%;
 
-    --muted: 222 35% 18%;
-    --muted-foreground: 215 20% 65%;
+    --muted: 262 25% 22%;
+    --muted-foreground: 240 10% 65%;
 
-    --accent: 195 100% 50%;
-    --accent-foreground: 222 45% 12%;
+    --accent: 330 81% 60%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 63% 31%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 222 35% 18%;
-    --input: 222 35% 18%;
-    --ring: 195 100% 50%;
+    --border: 262 30% 20%;
+    --input: 262 30% 20%;
+    --ring: 262 83% 58%;
   }
 }
 
