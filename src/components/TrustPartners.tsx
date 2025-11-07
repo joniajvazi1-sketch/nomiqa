@@ -1,4 +1,5 @@
 import { Wallet, Coins, Shield, Zap } from "lucide-react";
+import solanaLogo from "@/assets/solana-logo.svg";
 
 export const TrustPartners = () => {
   return (
@@ -15,8 +16,8 @@ export const TrustPartners = () => {
         
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 max-w-4xl mx-auto">
           <div className="group flex flex-col items-center justify-center p-6 md:p-8 rounded-2xl bg-card/30 backdrop-blur-sm border border-neon-cyan/10 hover:border-neon-cyan/30 transition-all">
-            <div className="w-12 h-12 md:w-16 md:h-16 rounded-xl bg-gradient-to-br from-neon-violet/20 to-neon-violet/5 flex items-center justify-center mb-3 md:mb-4 group-hover:scale-110 transition-transform">
-              <Coins className="w-6 h-6 md:w-8 md:h-8 text-neon-violet" />
+            <div className="w-12 h-12 md:w-16 md:h-16 rounded-xl flex items-center justify-center mb-3 md:mb-4 group-hover:scale-110 transition-transform">
+              <img src={solanaLogo} alt="Solana" className="w-8 h-8 md:w-12 md:h-12" />
             </div>
             <span className="text-foreground/70 font-semibold text-sm md:text-base">Solana</span>
             <span className="text-foreground/50 text-xs mt-1">Fast Payments</span>
