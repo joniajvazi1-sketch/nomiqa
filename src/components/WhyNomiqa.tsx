@@ -1,97 +1,111 @@
+import { Shield, Zap, Globe } from "lucide-react";
 import { useTranslation } from "@/contexts/TranslationContext";
 
 export const WhyNomiqa = () => {
   const { t } = useTranslation();
   
+  const values = [
+    {
+      icon: Shield,
+      title: "Anonymous eSIMs",
+      description: "No KYC, no tracking",
+      gradient: "from-neon-cyan to-neon-violet",
+    },
+    {
+      icon: Zap,
+      title: "Crypto checkout in seconds",
+      description: "Pay with crypto, activate instantly",
+      gradient: "from-neon-violet to-neon-coral",
+    },
+    {
+      icon: Globe,
+      title: "Instant activation in 190+ countries",
+      description: "Global coverage, local freedom",
+      gradient: "from-neon-coral to-warm-sand",
+    },
+  ];
+
   return (
-    <section className="py-12 md:py-24 bg-gradient-to-b from-background to-midnight-blue relative overflow-hidden">
-      {/* Decorative elements */}
-      <div className="absolute top-20 right-10 w-64 md:w-80 h-64 md:h-80 bg-gradient-glow blur-3xl opacity-50"></div>
-      <div className="absolute bottom-20 left-10 w-80 md:w-96 h-80 md:h-96 bg-gradient-glow blur-3xl opacity-50"></div>
+    <section className="relative py-24 md:py-32 bg-gradient-to-b from-background via-deep-space to-background overflow-hidden">
+      {/* Decorative glows */}
+      <div className="absolute top-20 left-10 w-96 h-96 bg-neon-cyan/10 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-20 right-10 w-96 h-96 bg-neon-coral/10 rounded-full blur-3xl"></div>
       
-      <div className="container px-4 relative z-10">
-        <div className="text-center mb-10 md:mb-16 max-w-4xl mx-auto animate-fade-in-up">
-          <p className="text-neon-cyan uppercase tracking-[0.3em] text-xs md:text-sm font-semibold mb-3 md:mb-4">
-            The Signal of The Moving Class
-          </p>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 md:mb-6 font-display">
-            <span className="bg-gradient-neon bg-clip-text text-transparent">
-              Why Nomiqa?
+      <div className="container relative z-10 px-4">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 font-display">
+            <span className="bg-gradient-freedom bg-clip-text text-transparent">
+              Why Nomiqa
             </span>
           </h2>
-          <p className="text-base md:text-xl text-muted-foreground italic font-light px-4">
-            {t("whyNomiqaSubtitle")}
+          <p className="text-lg md:text-xl text-foreground/70 max-w-2xl mx-auto">
+            Connection without compromise
           </p>
         </div>
-        
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
-          <div className="group relative bg-gradient-to-br from-card/50 to-card/30 backdrop-blur-sm border border-neon-cyan/20 p-6 md:p-8 rounded-3xl hover:border-neon-cyan/50 hover:shadow-glow-cyan transition-all duration-500 hover:-translate-y-2 animate-fade-in" style={{ animationDelay: "0.1s" }}>
-            <div className="absolute inset-0 bg-gradient-to-br from-neon-cyan/10 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-            <div className="relative">
-              <div className="w-12 md:w-16 h-12 md:h-16 rounded-2xl bg-gradient-to-br from-neon-cyan to-neon-blue flex items-center justify-center mb-4 md:mb-6 shadow-glow-cyan group-hover:scale-110 transition-transform duration-300">
-                <div className="w-6 md:w-8 h-6 md:h-8 rounded-full bg-white/90"></div>
+
+        {/* Value cards */}
+        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto mb-16">
+          {values.map((value, index) => (
+            <div
+              key={index}
+              className="group relative p-8 rounded-3xl bg-card/40 backdrop-blur-sm border border-border/50 hover:border-neon-cyan/50 transition-all duration-500 hover:shadow-lg hover:shadow-neon-cyan/20"
+            >
+              <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${value.gradient} p-0.5 mb-6`}>
+                <div className="w-full h-full bg-card rounded-2xl flex items-center justify-center">
+                  <value.icon className="w-8 h-8 text-neon-cyan" />
+                </div>
               </div>
-              <h3 className="text-xl md:text-2xl font-bold mb-2 md:mb-3 bg-gradient-to-br from-neon-cyan to-neon-blue bg-clip-text text-transparent font-display uppercase tracking-wide">
-                {t("valueFreedom")}
+              <h3 className="text-xl md:text-2xl font-bold mb-3 text-foreground">
+                {value.title}
               </h3>
-              <p className="text-foreground/80 text-sm leading-relaxed mb-3">
-                {t("valueFreedomDesc")}
-              </p>
-              <p className="text-neon-cyan/80 italic text-xs md:text-sm font-medium">
-                "Travel isn't escape. It's expansion."
+              <p className="text-foreground/60">
+                {value.description}
               </p>
             </div>
+          ))}
+        </div>
+
+        {/* How it works - 3 steps */}
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-12">
+            <h3 className="text-2xl md:text-3xl font-bold mb-4 font-display bg-gradient-digital bg-clip-text text-transparent">
+              Get connected in minutes
+            </h3>
+            <p className="text-foreground/60 font-quote italic">
+              No passport check. No SIM swap.
+            </p>
           </div>
           
-          <div className="group relative bg-gradient-to-br from-card/50 to-card/30 backdrop-blur-sm border border-neon-violet/20 p-6 md:p-8 rounded-3xl hover:border-neon-violet/50 hover:shadow-glow-violet transition-all duration-500 hover:-translate-y-2 animate-fade-in" style={{ animationDelay: "0.2s" }}>
-            <div className="absolute inset-0 bg-gradient-to-br from-neon-violet/10 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-            <div className="relative">
-              <div className="w-12 md:w-16 h-12 md:h-16 rounded-2xl bg-gradient-to-br from-neon-violet to-neon-pink flex items-center justify-center mb-4 md:mb-6 shadow-glow-violet group-hover:scale-110 transition-transform duration-300">
-                <div className="w-6 md:w-8 h-6 md:h-8 rounded-full bg-white/90"></div>
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="relative text-center p-6">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-neon-cyan to-neon-violet flex items-center justify-center text-2xl font-bold text-white">
+                1
               </div>
-              <h3 className="text-xl md:text-2xl font-bold mb-2 md:mb-3 bg-gradient-to-br from-neon-violet to-neon-pink bg-clip-text text-transparent font-display uppercase tracking-wide">
-                {t("valueBelonging")}
-              </h3>
-              <p className="text-foreground/80 text-sm leading-relaxed">
-                {t("valueBelongingDesc")}
-              </p>
+              <h4 className="text-lg font-semibold mb-2 text-neon-cyan">Choose Plan</h4>
+              <p className="text-sm text-foreground/60">Select your destination and data amount</p>
+            </div>
+
+            <div className="relative text-center p-6">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-neon-violet to-neon-coral flex items-center justify-center text-2xl font-bold text-white">
+                2
+              </div>
+              <h4 className="text-lg font-semibold mb-2 text-neon-violet">Scan QR</h4>
+              <p className="text-sm text-foreground/60">Activate your eSIM with one scan</p>
+            </div>
+
+            <div className="relative text-center p-6">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-neon-coral to-warm-sand flex items-center justify-center text-2xl font-bold text-white">
+                3
+              </div>
+              <h4 className="text-lg font-semibold mb-2 text-neon-coral">Connect Instantly 🌐</h4>
+              <p className="text-sm text-foreground/60">You're online, anywhere in the world</p>
             </div>
           </div>
-          
-          <div className="group relative bg-gradient-to-br from-card/50 to-card/30 backdrop-blur-sm border border-neon-coral/20 p-6 md:p-8 rounded-3xl hover:border-neon-coral/50 hover:shadow-glow-coral transition-all duration-500 hover:-translate-y-2 animate-fade-in" style={{ animationDelay: "0.3s" }}>
-            <div className="absolute inset-0 bg-gradient-to-br from-neon-coral/10 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-            <div className="relative">
-              <div className="w-12 md:w-16 h-12 md:h-16 rounded-2xl bg-gradient-to-br from-neon-coral to-neon-orange flex items-center justify-center mb-4 md:mb-6 shadow-glow-coral group-hover:scale-110 transition-transform duration-300">
-                <div className="w-6 md:w-8 h-6 md:h-8 rounded-full bg-white/90"></div>
-              </div>
-              <h3 className="text-xl md:text-2xl font-bold mb-2 md:mb-3 bg-gradient-to-br from-neon-coral to-neon-orange bg-clip-text text-transparent font-display uppercase tracking-wide">
-                {t("valueSovereignty")}
-              </h3>
-              <p className="text-foreground/80 text-sm leading-relaxed mb-3">
-                {t("valueSovereigntyDesc")}
-              </p>
-              <p className="text-neon-coral/80 italic text-xs md:text-sm font-medium">
-                "Own your connection. Own your identity."
-              </p>
-            </div>
-          </div>
-          
-          <div className="group relative bg-gradient-to-br from-card/50 to-card/30 backdrop-blur-sm border border-neon-orange/20 p-6 md:p-8 rounded-3xl hover:border-neon-orange/50 hover:shadow-glow-orange transition-all duration-500 hover:-translate-y-2 animate-fade-in" style={{ animationDelay: "0.4s" }}>
-            <div className="absolute inset-0 bg-gradient-to-br from-neon-orange/10 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-            <div className="relative">
-              <div className="w-12 md:w-16 h-12 md:h-16 rounded-2xl bg-gradient-to-br from-neon-orange to-neon-yellow flex items-center justify-center mb-4 md:mb-6 shadow-glow-orange group-hover:scale-110 transition-transform duration-300">
-                <div className="w-6 md:w-8 h-6 md:h-8 rounded-full bg-white/90"></div>
-              </div>
-              <h3 className="text-xl md:text-2xl font-bold mb-2 md:mb-3 bg-gradient-to-br from-neon-orange to-neon-yellow bg-clip-text text-transparent font-display uppercase tracking-wide">
-                {t("valueMovement")}
-              </h3>
-              <p className="text-foreground/80 text-sm leading-relaxed mb-3">
-                {t("valueMovementDesc")}
-              </p>
-              <p className="text-neon-orange/80 italic text-xs md:text-sm font-medium">
-                "You don't follow trends. You move worlds."
-              </p>
-            </div>
+
+          <div className="text-center mt-12">
+            <p className="text-lg font-quote italic text-warm-sand/80">
+              Freedom that respects your privacy
+            </p>
           </div>
         </div>
       </div>
