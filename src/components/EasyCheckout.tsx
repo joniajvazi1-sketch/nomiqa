@@ -16,16 +16,16 @@ export const EasyCheckout = () => {
         <div className="grid lg:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
           <div className="text-center lg:text-left">
             <p className="text-sm font-semibold mb-4 text-accent uppercase tracking-wide">
-              EASY CHECKOUT
+              {t("checkoutTitle")}
             </p>
             <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              {t("easyCheckoutTitle")}
+              {t("selectPlanTitle")}
             </h2>
           </div>
           
           <div className="text-center lg:text-left">
-            <p className="text-lg mb-8">
-              {t("easyCheckoutDesc")}
+            <p className="text-lg mb-8 text-muted-foreground">
+              {t("checkoutSubtitle")}
             </p>
             
             <img 
