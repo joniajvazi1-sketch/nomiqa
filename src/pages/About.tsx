@@ -82,7 +82,7 @@ export default function About() {
               <h2 className="text-3xl md:text-4xl font-bold mb-8 bg-gradient-sunrise bg-clip-text text-transparent">
                 The Beginning
               </h2>
-              <div className="space-y-4 text-foreground/80 leading-relaxed">
+              <div className="space-y-4 text-foreground/80 leading-relaxed text-center md:text-left">
                 <p className="text-lg">
                   Nomiqa was born from a simple frustration: <span className="text-neon-coral font-semibold">why should staying connected 
                   while traveling mean surrendering your privacy?</span>

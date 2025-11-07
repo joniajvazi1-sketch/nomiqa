@@ -96,45 +96,45 @@ export default function Privacy() {
             <h2 className="text-3xl md:text-4xl font-bold mb-6 bg-gradient-digital bg-clip-text text-transparent">
               Our Protection Methods
             </h2>
-            <div className="space-y-4 text-left text-foreground/80 leading-relaxed">
+            <div className="space-y-4 text-foreground/80 leading-relaxed text-center md:text-left">
               <p>
                 At Nomiqa, protecting customer privacy isn't just a feature — it's the foundation of everything we build. 
                 Here's exactly how we keep your data secure and private:
               </p>
               
               <div className="mt-8 space-y-6">
-                <div className="p-6 rounded-2xl bg-card/60 border border-neon-cyan/20">
+                <div className="p-6 rounded-2xl bg-card/60 border border-neon-cyan/20 text-center">
                   <h3 className="text-xl font-bold text-neon-cyan mb-3">Zero-Knowledge Architecture</h3>
-                  <p>We operate on a zero-knowledge basis. No passport scans, no ID verification, no personal information collected. 
+                  <p className="text-left">We operate on a zero-knowledge basis. No passport scans, no ID verification, no personal information collected. 
                   We don't know who you are, where you're going, or what you're doing online — and that's by design.</p>
                 </div>
 
-                <div className="p-6 rounded-2xl bg-card/60 border border-neon-violet/20">
+                <div className="p-6 rounded-2xl bg-card/60 border border-neon-violet/20 text-center">
                   <h3 className="text-xl font-bold text-neon-violet mb-3">Crypto-Only Payments</h3>
-                  <p>All transactions are conducted exclusively in cryptocurrency (Solana, USDC). This means no credit card companies, 
+                  <p className="text-left">All transactions are conducted exclusively in cryptocurrency (Solana, USDC). This means no credit card companies, 
                   no banks, no payment processors with access to your purchase history. Your financial privacy is absolute.</p>
                 </div>
 
-                <div className="p-6 rounded-2xl bg-card/60 border border-neon-coral/20">
+                <div className="p-6 rounded-2xl bg-card/60 border border-neon-coral/20 text-center">
                   <h3 className="text-xl font-bold text-neon-coral mb-3">No Usage Tracking</h3>
-                  <p>Unlike traditional carriers, we don't monitor your browsing history, track your location, or log your data usage patterns. 
+                  <p className="text-left">Unlike traditional carriers, we don't monitor your browsing history, track your location, or log your data usage patterns. 
                   Once your eSIM is activated, your connection is yours alone.</p>
                 </div>
 
-                <div className="p-6 rounded-2xl bg-card/60 border border-warm-sand/20">
+                <div className="p-6 rounded-2xl bg-card/60 border border-warm-sand/20 text-center">
                   <h3 className="text-xl font-bold text-warm-sand mb-3">Decentralized Infrastructure</h3>
-                  <p>Built on Web3 principles with decentralized systems. No single point of failure, no central database of customer information 
+                  <p className="text-left">Built on Web3 principles with decentralized systems. No single point of failure, no central database of customer information 
                   that can be hacked or subpoenaed. Your privacy is protected by design, not just by policy.</p>
                 </div>
 
-                <div className="p-6 rounded-2xl bg-card/60 border border-neon-cyan/20">
+                <div className="p-6 rounded-2xl bg-card/60 border border-neon-cyan/20 text-center">
                   <h3 className="text-xl font-bold text-neon-cyan mb-3">Minimal Data Retention</h3>
-                  <p>We only collect the absolute minimum data required to deliver your eSIM — typically just a delivery email address (which can be 
+                  <p className="text-left">We only collect the absolute minimum data required to deliver your eSIM — typically just a delivery email address (which can be 
                   anonymous). No storage of browsing data, no retention of connection logs, no permanent records.</p>
                 </div>
               </div>
               
-              <p className="pt-6 text-lg font-semibold text-neon-coral">
+              <p className="pt-6 text-lg font-semibold text-neon-coral text-center">
                 Bottom line: We can't compromise what we never collect. Your privacy is mathematically guaranteed.
               </p>
             </div>

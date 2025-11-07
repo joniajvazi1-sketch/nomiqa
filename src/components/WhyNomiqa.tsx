@@ -48,9 +48,9 @@ export const WhyNomiqa = () => {
           {values.map((value, index) => (
             <div
               key={index}
-              className="group relative p-8 rounded-3xl bg-card/40 backdrop-blur-sm border border-border/50 hover:border-neon-cyan/50 transition-all duration-500 hover:shadow-lg hover:shadow-neon-cyan/20"
+              className="group relative p-8 rounded-3xl bg-card/40 backdrop-blur-sm border border-border/50 hover:border-neon-cyan/50 transition-all duration-500 hover:shadow-lg hover:shadow-neon-cyan/20 text-center"
             >
-              <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${value.gradient} p-0.5 mb-6`}>
+              <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${value.gradient} p-0.5 mb-6 mx-auto`}>
                 <div className="w-full h-full bg-card rounded-2xl flex items-center justify-center">
                   <value.icon className="w-8 h-8 text-neon-cyan" />
                 </div>
