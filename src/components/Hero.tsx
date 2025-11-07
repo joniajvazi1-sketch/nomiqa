@@ -28,14 +28,11 @@ export const Hero = () => {
         <div className="max-w-5xl mx-auto text-center">
           {/* Logo */}
           <div className="mb-6 md:mb-8 flex justify-center animate-scale-in">
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-neon opacity-30 blur-2xl rounded-full"></div>
-              <img 
-                src={nomiqaAnimatedLogo} 
-                alt="nomiqa - The world's first crypto eSIM"
-                className="relative w-32 h-32 md:w-48 md:h-48 lg:w-64 lg:h-64 rounded-3xl shadow-glow-neon neon-glow"
-              />
-            </div>
+            <img 
+              src={nomiqaAnimatedLogo} 
+              alt="nomiqa - The world's first crypto eSIM"
+              className="w-48 h-48 md:w-64 md:h-64 lg:w-80 lg:h-80 object-contain"
+            />
           </div>
           
           {/* Main heading */}
