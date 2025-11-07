@@ -47,6 +47,14 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        // New Nomiqa Brand Identity
+        midnight: "hsl(var(--midnight))",
+        "midnight-foreground": "hsl(var(--midnight-foreground))",
+        cyan: "hsl(var(--cyan))",
+        "cyan-foreground": "hsl(var(--cyan-foreground))",
+        sand: "hsl(var(--sand))",
+        "sand-foreground": "hsl(var(--sand-foreground))",
+        // Legacy Nomiqa colors
         nomiqa: {
           orange: "hsl(var(--nomiqa-orange))",
           teal: "hsl(var(--nomiqa-teal))",
@@ -64,11 +72,15 @@ export default {
         'gradient-card': 'var(--gradient-card)',
         'gradient-teal': 'var(--gradient-teal)',
         'gradient-green': 'var(--gradient-green)',
+        'gradient-explorer': 'var(--gradient-explorer)',
+        'gradient-horizon': 'var(--gradient-horizon)',
+        'gradient-signal': 'var(--gradient-signal)',
       },
       boxShadow: {
         'glow-orange': 'var(--glow-orange)',
         'glow-teal': 'var(--glow-teal)',
         'shadow-warm': 'var(--shadow-warm)',
+        'shadow-signal': 'var(--shadow-signal)',
       },
       borderRadius: {
         lg: "var(--radius)",

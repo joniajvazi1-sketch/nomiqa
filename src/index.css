@@ -8,37 +8,45 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 41 38% 96%;
-    --foreground: 0 0% 13%;
+    --background: 0 0% 100%;
+    --foreground: 220 40% 15%;
 
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 13%;
+    --card-foreground: 220 40% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 13%;
+    --popover-foreground: 220 40% 15%;
 
-    --primary: 25 95% 58%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 185 85% 55%;
+    --primary-foreground: 220 40% 15%;
 
-    --secondary: 41 38% 96%;
-    --secondary-foreground: 0 0% 13%;
+    --secondary: 40 35% 90%;
+    --secondary-foreground: 220 40% 15%;
 
-    --muted: 41 30% 92%;
-    --muted-foreground: 0 0% 40%;
+    --muted: 40 30% 92%;
+    --muted-foreground: 220 20% 50%;
 
-    --accent: 178 65% 52%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 185 85% 55%;
+    --accent-foreground: 220 40% 15%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 41 25% 88%;
-    --input: 41 25% 88%;
-    --ring: 25 95% 58%;
+    --border: 220 20% 85%;
+    --input: 220 20% 85%;
+    --ring: 185 85% 55%;
 
     --radius: 1rem;
 
-    /* Nomiqa Happy Colors - Exact Airalo Style */
+    /* New Nomiqa Brand Identity - The Explorer */
+    --midnight: 220 40% 15%;
+    --midnight-foreground: 210 40% 98%;
+    --cyan: 185 85% 55%;
+    --cyan-foreground: 220 40% 15%;
+    --sand: 40 35% 85%;
+    --sand-foreground: 220 40% 15%;
+
+    /* Legacy Nomiqa Colors */
     --nomiqa-orange: 25 95% 58%;
     --nomiqa-teal: 178 65% 52%;
     --nomiqa-green: 145 70% 45%;
@@ -47,50 +55,66 @@ All colors MUST be HSL.
     --nomiqa-blue: 198 93% 60%;
     --nomiqa-dark: 220 18% 20%;
     
-    /* Happy Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(25 95% 58%) 0%, hsl(35 100% 70%) 100%);
-    --gradient-hero: linear-gradient(180deg, hsl(41 38% 96%) 0%, hsl(41 50% 98%) 100%);
+    /* Explorer Brand Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(185 85% 55%) 0%, hsl(195 85% 65%) 100%);
+    --gradient-hero: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(40 35% 97%) 100%);
     --gradient-warm: linear-gradient(135deg, hsl(25 95% 58%) 0%, hsl(35 100% 70%) 100%);
-    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%) 0%, hsl(41 50% 98%) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%) 0%, hsl(40 30% 98%) 100%);
     --gradient-teal: linear-gradient(135deg, hsl(178 65% 52%) 0%, hsl(188 70% 60%) 100%);
     --gradient-green: linear-gradient(135deg, hsl(145 63% 49%) 0%, hsl(155 70% 55%) 100%);
+    --gradient-explorer: linear-gradient(135deg, hsl(220 40% 15%) 0%, hsl(185 85% 55%) 100%);
+    --gradient-horizon: linear-gradient(180deg, hsl(220 40% 15%) 0%, hsl(40 35% 85%) 100%);
+    --gradient-signal: radial-gradient(circle, hsl(185 85% 55% / 0.15), transparent 70%);
     
-    /* Glows & Effects */
+    /* Signal & Movement Effects */
     --glow-orange: 0 0 40px hsl(25 95% 58% / 0.3);
     --glow-teal: 0 0 30px hsl(178 65% 52% / 0.25);
-    --shadow-warm: 0 10px 30px -10px hsl(25 95% 58% / 0.2);
+    --shadow-warm: 0 10px 30px -10px hsl(220 40% 15% / 0.15);
+    --shadow-signal: 0 0 60px hsl(185 85% 55% / 0.25);
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   }
 
   .dark {
-    --background: 220 30% 10%;
-    --foreground: 0 0% 98%;
+    --background: 220 40% 8%;
+    --foreground: 210 40% 98%;
 
-    --card: 220 25% 15%;
-    --card-foreground: 0 0% 98%;
+    --card: 220 40% 10%;
+    --card-foreground: 210 40% 98%;
 
-    --popover: 220 25% 15%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 220 40% 10%;
+    --popover-foreground: 210 40% 98%;
 
-    --primary: 18 91% 56%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 185 85% 55%;
+    --primary-foreground: 220 40% 15%;
 
-    --secondary: 220 20% 20%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 220 30% 18%;
+    --secondary-foreground: 210 40% 98%;
 
-    --muted: 220 20% 22%;
-    --muted-foreground: 220 10% 65%;
+    --muted: 220 30% 18%;
+    --muted-foreground: 215 20% 65%;
 
-    --accent: 178 78% 57%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 185 85% 55%;
+    --accent-foreground: 220 40% 15%;
 
     --destructive: 0 63% 31%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive-foreground: 210 40% 98%;
 
-    --border: 220 20% 20%;
-    --input: 220 20% 20%;
-    --ring: 18 91% 56%;
+    --border: 220 30% 18%;
+    --input: 220 30% 18%;
+    --ring: 185 85% 55%;
+
+    /* Dark mode brand adjustments */
+    --midnight: 220 40% 15%;
+    --midnight-foreground: 210 40% 98%;
+    --cyan: 185 85% 55%;
+    --cyan-foreground: 220 40% 15%;
+    --sand: 40 25% 75%;
+    --sand-foreground: 220 40% 15%;
+
+    /* Dark mode effects */
+    --shadow-warm: 0 10px 40px -10px hsl(185 85% 55% / 0.3);
+    --shadow-signal: 0 0 80px hsl(185 85% 55% / 0.35);
   }
 }
 

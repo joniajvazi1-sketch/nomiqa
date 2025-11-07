@@ -5,17 +5,22 @@ export const WhyNomiqa = () => {
   const { t } = useTranslation();
   
   return (
-    <section className="py-20 bg-gradient-to-br from-nomiqa-peach/20 via-background to-nomiqa-cream relative overflow-hidden">
-      {/* Decorative shapes */}
-      <div className="absolute top-20 right-10 w-32 h-32 bg-nomiqa-peach/20 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-20 left-10 w-40 h-40 bg-nomiqa-teal/20 rounded-full blur-3xl"></div>
+    <section className="py-20 bg-gradient-to-br from-midnight/5 via-background to-sand/20 relative overflow-hidden">
+      {/* Signal orbit decorations */}
+      <div className="absolute top-20 right-10 w-64 h-64 bg-gradient-signal blur-3xl"></div>
+      <div className="absolute bottom-20 left-10 w-80 h-80 bg-gradient-signal blur-3xl"></div>
+      <div className="absolute top-1/2 right-1/4 w-2 h-2 bg-cyan rounded-full animate-pulse"></div>
+      <div className="absolute top-1/3 left-1/4 w-2 h-2 bg-cyan rounded-full animate-pulse" style={{ animationDelay: "0.5s" }}></div>
       <div className="container px-4 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-12 items-center max-w-7xl mx-auto">
+        <div className="grid lg:grid-cols-2 gap-12 items-center max-w-7xl mx-auto mb-20">
           <div className="text-center lg:text-left animate-fade-in-up">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-primary bg-clip-text text-transparent">
-              {t("whyNomiqaTitle")}
+            <p className="text-sm uppercase tracking-[0.3em] mb-4 text-cyan font-semibold">
+              {t("archetypeLabel")}
+            </p>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 uppercase tracking-tight leading-tight">
+              <span className="bg-gradient-explorer bg-clip-text text-transparent">{t("whyNomiqaTitle")}</span>
             </h2>
-            <p className="text-lg text-muted-foreground mb-6">
+            <p className="text-xl text-muted-foreground mb-6 italic font-light">
               {t("whyNomiqaSubtitle")}
             </p>
             
@@ -32,25 +37,44 @@ export const WhyNomiqa = () => {
           </div>
         </div>
         
-        <div className="grid md:grid-cols-3 gap-8 max-w-7xl mx-auto mt-16 text-center">
-          <div className="border border-border bg-gradient-card p-8 rounded-2xl hover:shadow-shadow-warm transition-all duration-300 hover:scale-105 animate-fade-in" style={{ animationDelay: "0.3s" }}>
-            <h3 className="text-2xl font-bold mb-4 text-primary">{t("privacyTitle")}</h3>
-            <p className="text-muted-foreground">
-              {t("privacyDesc")}
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto text-left">
+          <div className="group border border-border/50 bg-card/50 backdrop-blur-sm p-8 rounded-2xl hover:shadow-shadow-signal hover:border-cyan/50 transition-all duration-500 hover:-translate-y-1 animate-fade-in" style={{ animationDelay: "0.3s" }}>
+            <div className="w-12 h-12 rounded-full bg-cyan/10 flex items-center justify-center mb-4 group-hover:bg-cyan/20 transition-colors">
+              <div className="w-6 h-6 rounded-full bg-cyan/50 group-hover:bg-cyan transition-colors"></div>
+            </div>
+            <h3 className="text-xl font-bold mb-3 text-foreground uppercase tracking-wide">{t("valueFreedom")}</h3>
+            <p className="text-muted-foreground text-sm leading-relaxed">
+              {t("valueFreedomDesc")}
             </p>
           </div>
           
-          <div className="border border-border bg-gradient-card p-8 rounded-2xl hover:shadow-shadow-warm transition-all duration-300 hover:scale-105 animate-fade-in" style={{ animationDelay: "0.4s" }}>
-            <h3 className="text-2xl font-bold mb-4 text-primary">{t("simplicityTitle")}</h3>
-            <p className="text-muted-foreground">
-              {t("simplicityDesc")}
+          <div className="group border border-border/50 bg-card/50 backdrop-blur-sm p-8 rounded-2xl hover:shadow-shadow-signal hover:border-cyan/50 transition-all duration-500 hover:-translate-y-1 animate-fade-in" style={{ animationDelay: "0.4s" }}>
+            <div className="w-12 h-12 rounded-full bg-cyan/10 flex items-center justify-center mb-4 group-hover:bg-cyan/20 transition-colors">
+              <div className="w-6 h-6 rounded-full bg-cyan/50 group-hover:bg-cyan transition-colors"></div>
+            </div>
+            <h3 className="text-xl font-bold mb-3 text-foreground uppercase tracking-wide">{t("valueBelonging")}</h3>
+            <p className="text-muted-foreground text-sm leading-relaxed">
+              {t("valueBelongingDesc")}
             </p>
           </div>
           
-          <div className="border border-border bg-gradient-card p-8 rounded-2xl hover:shadow-shadow-warm transition-all duration-300 hover:scale-105 animate-fade-in" style={{ animationDelay: "0.5s" }}>
-            <h3 className="text-2xl font-bold mb-4 text-primary">{t("earnTitle")}</h3>
-            <p className="text-muted-foreground">
-              {t("earnDesc")}
+          <div className="group border border-border/50 bg-card/50 backdrop-blur-sm p-8 rounded-2xl hover:shadow-shadow-signal hover:border-cyan/50 transition-all duration-500 hover:-translate-y-1 animate-fade-in" style={{ animationDelay: "0.5s" }}>
+            <div className="w-12 h-12 rounded-full bg-cyan/10 flex items-center justify-center mb-4 group-hover:bg-cyan/20 transition-colors">
+              <div className="w-6 h-6 rounded-full bg-cyan/50 group-hover:bg-cyan transition-colors"></div>
+            </div>
+            <h3 className="text-xl font-bold mb-3 text-foreground uppercase tracking-wide">{t("valueSovereignty")}</h3>
+            <p className="text-muted-foreground text-sm leading-relaxed">
+              {t("valueSovereigntyDesc")}
+            </p>
+          </div>
+          
+          <div className="group border border-border/50 bg-card/50 backdrop-blur-sm p-8 rounded-2xl hover:shadow-shadow-signal hover:border-cyan/50 transition-all duration-500 hover:-translate-y-1 animate-fade-in" style={{ animationDelay: "0.6s" }}>
+            <div className="w-12 h-12 rounded-full bg-cyan/10 flex items-center justify-center mb-4 group-hover:bg-cyan/20 transition-colors">
+              <div className="w-6 h-6 rounded-full bg-cyan/50 group-hover:bg-cyan transition-colors"></div>
+            </div>
+            <h3 className="text-xl font-bold mb-3 text-foreground uppercase tracking-wide">{t("valueMovement")}</h3>
+            <p className="text-muted-foreground text-sm leading-relaxed">
+              {t("valueMovementDesc")}
             </p>
           </div>
         </div>
