@@ -31,7 +31,8 @@ export const Hero = () => {
             <img 
               src={nomiqaAnimatedLogo} 
               alt="nomiqa - The world's first crypto eSIM"
-              className="w-48 h-48 md:w-64 md:h-64 lg:w-80 lg:h-80 object-contain"
+              className="w-48 h-48 md:w-64 md:h-64 lg:w-80 lg:h-80 object-contain mix-blend-lighten"
+              style={{ filter: 'drop-shadow(0 0 40px rgba(71, 201, 229, 0.3))' }}
             />
           </div>
           
