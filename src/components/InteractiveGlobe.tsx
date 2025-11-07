@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
-import earthTexture from '@/assets/earth-texture.jpg';
 
 const InteractiveGlobe: React.FC = () => {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -23,9 +22,9 @@ const InteractiveGlobe: React.FC = () => {
     const scene = new THREE.Scene();
     sceneRef.current = scene;
 
-    // Camera
+    // Camera - moved further back to show full globe
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
-    camera.position.set(0, 0, 5);
+    camera.position.set(0, 0, 7);
     cameraRef.current = camera;
 
     // Renderer (transparent background)
@@ -48,31 +47,89 @@ const InteractiveGlobe: React.FC = () => {
     rimLight.position.set(-6, -6, -6);
     scene.add(rimLight);
 
-    // Load Earth texture
-    const textureLoader = new THREE.TextureLoader();
-    const texture = textureLoader.load(earthTexture);
-
-    // Globe with Earth texture
-    const geometry = new THREE.SphereGeometry(2, 64, 64);
+    // Glowy wireframe globe (smaller)
+    const geometry = new THREE.SphereGeometry(1.5, 48, 48);
     const material = new THREE.MeshPhongMaterial({
-      map: texture,
-      shininess: 15,
-      specular: new THREE.Color('#333333'),
+      color: new THREE.Color('#0ea5e9'),
+      emissive: new THREE.Color('#06b6d4'),
+      emissiveIntensity: 0.4,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.8,
     });
     const globe = new THREE.Mesh(geometry, material);
     scene.add(globe);
     globeRef.current = globe;
 
-    // Atmosphere glow (slightly larger transparent sphere)
-    const atmosphereGeometry = new THREE.SphereGeometry(2.15, 64, 64);
+    // Atmosphere glow
+    const atmosphereGeometry = new THREE.SphereGeometry(1.65, 48, 48);
     const atmosphereMaterial = new THREE.MeshBasicMaterial({
       color: new THREE.Color('#06b6d4'),
       transparent: true,
-      opacity: 0.15,
+      opacity: 0.1,
       side: THREE.BackSide,
     });
     const atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
     scene.add(atmosphere);
+
+    // Create connection lines between random points
+    const connectionLines: THREE.Line[] = [];
+    const numConnections = 20;
+    
+    for (let i = 0; i < numConnections; i++) {
+      const points = [];
+      
+      // Random start point on sphere
+      const theta1 = Math.random() * Math.PI * 2;
+      const phi1 = Math.acos(2 * Math.random() - 1);
+      const x1 = 1.5 * Math.sin(phi1) * Math.cos(theta1);
+      const y1 = 1.5 * Math.sin(phi1) * Math.sin(theta1);
+      const z1 = 1.5 * Math.cos(phi1);
+      
+      // Random end point on sphere
+      const theta2 = Math.random() * Math.PI * 2;
+      const phi2 = Math.acos(2 * Math.random() - 1);
+      const x2 = 1.5 * Math.sin(phi2) * Math.cos(theta2);
+      const y2 = 1.5 * Math.sin(phi2) * Math.sin(theta2);
+      const z2 = 1.5 * Math.cos(phi2);
+      
+      // Create curved line (arc through space)
+      const start = new THREE.Vector3(x1, y1, z1);
+      const end = new THREE.Vector3(x2, y2, z2);
+      const mid = new THREE.Vector3().addVectors(start, end).multiplyScalar(0.5);
+      mid.normalize().multiplyScalar(1.8); // Arc outward
+      
+      const curve = new THREE.QuadraticBezierCurve3(start, mid, end);
+      const curvePoints = curve.getPoints(30);
+      
+      const lineGeometry = new THREE.BufferGeometry().setFromPoints(curvePoints);
+      const lineMaterial = new THREE.LineBasicMaterial({
+        color: new THREE.Color('#a855f7'),
+        transparent: true,
+        opacity: 0.6,
+      });
+      
+      const line = new THREE.Line(lineGeometry, lineMaterial);
+      scene.add(line);
+      connectionLines.push(line);
+    }
+
+    // Add glowing dots at connection points
+    const dotGeometry = new THREE.SphereGeometry(0.02, 16, 16);
+    for (let i = 0; i < 30; i++) {
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos(2 * Math.random() - 1);
+      const x = 1.5 * Math.sin(phi) * Math.cos(theta);
+      const y = 1.5 * Math.sin(phi) * Math.sin(theta);
+      const z = 1.5 * Math.cos(phi);
+      
+      const dotMaterial = new THREE.MeshBasicMaterial({
+        color: Math.random() > 0.5 ? new THREE.Color('#06b6d4') : new THREE.Color('#a855f7'),
+      });
+      const dot = new THREE.Mesh(dotGeometry, dotMaterial);
+      dot.position.set(x, y, z);
+      scene.add(dot);
+    }
 
     // Drag controls (simple custom)
     const onPointerDown = (e: PointerEvent) => {
@@ -130,9 +187,13 @@ const InteractiveGlobe: React.FC = () => {
       window.removeEventListener('pointerup', onPointerUp);
       geometry.dispose();
       atmosphereGeometry.dispose();
+      dotGeometry.dispose();
       material.dispose();
       atmosphereMaterial.dispose();
-      texture.dispose();
+      connectionLines.forEach(line => {
+        line.geometry.dispose();
+        (line.material as THREE.Material).dispose();
+      });
       renderer.dispose();
       container.removeChild(renderer.domElement);
     };
