@@ -4,6 +4,7 @@ import { WhyNomiqa } from "@/components/WhyNomiqa";
 import { EasyCheckout } from "@/components/EasyCheckout";
 import { HowItWorks } from "@/components/HowItWorks";
 import { EarnSection } from "@/components/EarnSection";
+import { FAQ } from "@/components/FAQ";
 import { Footer } from "@/components/Footer";
 
 const Index = () => {
@@ -15,6 +16,7 @@ const Index = () => {
       <EasyCheckout />
       <HowItWorks />
       <EarnSection />
+      <FAQ />
       <Footer />
     </div>
   );
