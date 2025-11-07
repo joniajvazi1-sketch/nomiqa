@@ -112,9 +112,9 @@ export const Navbar = () => {
             </button>
             <button
               onClick={() => navigate('/privacy')}
-              className="text-foreground/80 hover:text-neon-cyan transition-colors font-medium"
+              className="text-foreground/80 hover:text-neon-cyan transition-colors font-medium text-sm"
             >
-              Privacy
+              How We Protect Customer Privacy
             </button>
             {user && (
               <button
@@ -174,7 +174,7 @@ export const Navbar = () => {
                     onClick={() => handleNavClick('/privacy')}
                     className="text-left text-foreground/70 hover:text-foreground transition-colors py-2 px-4 rounded hover:bg-muted"
                   >
-                    Privacy
+                    How We Protect Customer Privacy
                   </button>
                   {user && (
                     <button
