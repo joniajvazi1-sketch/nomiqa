@@ -47,11 +47,11 @@ export default function GettingStarted() {
     },
     {
       title: "Paying for Your eSIM",
-      description: "How to complete your purchase with Solana or USDC",
+      description: "How to complete your purchase with crypto",
       icon: Download,
       steps: [
         "Select your eSIM plan on Nomiqa",
-        "At checkout, choose to pay with SOL or USDC",
+        "At checkout, choose to pay with SOL, USDC, or $NOMIQA token for discount",
         "Copy the payment address shown",
         "Open Phantom wallet and click 'Send'",
         "Paste the address, enter the exact amount, and confirm",
