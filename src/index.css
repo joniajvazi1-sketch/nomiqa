@@ -8,113 +8,98 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 220 40% 15%;
+    /* Dark Web3 Theme - Deep Space */
+    --background: 220 45% 4%;
+    --foreground: 40 40% 96%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 220 40% 15%;
+    --card: 220 40% 8%;
+    --card-foreground: 40 40% 96%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 40% 15%;
+    --popover: 220 40% 8%;
+    --popover-foreground: 40 40% 96%;
 
-    --primary: 185 85% 55%;
-    --primary-foreground: 220 40% 15%;
+    --primary: 190 100% 60%;
+    --primary-foreground: 220 45% 4%;
 
-    --secondary: 40 35% 90%;
-    --secondary-foreground: 220 40% 15%;
+    --secondary: 220 30% 12%;
+    --secondary-foreground: 40 40% 96%;
 
-    --muted: 40 30% 92%;
-    --muted-foreground: 220 20% 50%;
+    --muted: 220 30% 15%;
+    --muted-foreground: 215 15% 65%;
 
-    --accent: 185 85% 55%;
-    --accent-foreground: 220 40% 15%;
+    --accent: 270 70% 65%;
+    --accent-foreground: 40 40% 96%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 20% 85%;
-    --input: 220 20% 85%;
-    --ring: 185 85% 55%;
+    --border: 220 30% 15%;
+    --input: 220 30% 15%;
+    --ring: 190 100% 60%;
 
-    --radius: 1rem;
+    --radius: 1.2rem;
 
-    /* New Nomiqa Brand Identity - The Explorer */
-    --midnight: 220 40% 15%;
-    --midnight-foreground: 210 40% 98%;
-    --cyan: 185 85% 55%;
-    --cyan-foreground: 220 40% 15%;
-    --sand: 40 35% 85%;
-    --sand-foreground: 220 40% 15%;
-
-    /* Legacy Nomiqa Colors */
-    --nomiqa-orange: 25 95% 58%;
-    --nomiqa-teal: 178 65% 52%;
-    --nomiqa-green: 145 70% 45%;
-    --nomiqa-cream: 41 38% 96%;
-    --nomiqa-peach: 40 100% 93%;
-    --nomiqa-blue: 198 93% 60%;
-    --nomiqa-dark: 220 18% 20%;
+    /* Neon Gradient Color Palette from Logo */
+    --neon-blue: 190 100% 60%;
+    --neon-cyan: 180 100% 50%;
+    --neon-violet: 270 70% 65%;
+    --neon-pink: 330 80% 65%;
+    --neon-coral: 10 90% 65%;
+    --neon-orange: 25 95% 60%;
+    --neon-yellow: 45 100% 65%;
+    --deep-space: 220 45% 4%;
+    --midnight-blue: 220 40% 10%;
+    --warm-sand: 40 30% 82%;
+    --soft-cream: 40 40% 96%;
     
-    /* Explorer Brand Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(185 85% 55%) 0%, hsl(195 85% 65%) 100%);
-    --gradient-hero: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(40 35% 97%) 100%);
-    --gradient-warm: linear-gradient(135deg, hsl(25 95% 58%) 0%, hsl(35 100% 70%) 100%);
-    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%) 0%, hsl(40 30% 98%) 100%);
-    --gradient-teal: linear-gradient(135deg, hsl(178 65% 52%) 0%, hsl(188 70% 60%) 100%);
-    --gradient-green: linear-gradient(135deg, hsl(145 63% 49%) 0%, hsl(155 70% 55%) 100%);
-    --gradient-explorer: linear-gradient(135deg, hsl(220 40% 15%) 0%, hsl(185 85% 55%) 100%);
-    --gradient-horizon: linear-gradient(180deg, hsl(220 40% 15%) 0%, hsl(40 35% 85%) 100%);
-    --gradient-signal: radial-gradient(circle, hsl(185 85% 55% / 0.15), transparent 70%);
+    /* Web3 Neon Gradients */
+    --gradient-neon: linear-gradient(135deg, hsl(190 100% 60%) 0%, hsl(270 70% 65%) 50%, hsl(330 80% 65%) 75%, hsl(25 95% 60%) 100%);
+    --gradient-cyber: linear-gradient(90deg, hsl(190 100% 60%) 0%, hsl(270 70% 65%) 100%);
+    --gradient-sunset: linear-gradient(135deg, hsl(330 80% 65%) 0%, hsl(10 90% 65%) 50%, hsl(25 95% 60%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(190 100% 60%) 0%, hsl(180 100% 50%) 100%);
+    --gradient-hero: linear-gradient(180deg, hsl(220 45% 4%) 0%, hsl(220 40% 8%) 100%);
+    --gradient-warm: linear-gradient(135deg, hsl(25 95% 60%) 0%, hsl(45 100% 65%) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(220 40% 8%) 0%, hsl(220 35% 10%) 100%);
+    --gradient-explorer: linear-gradient(135deg, hsl(220 45% 4%) 0%, hsl(190 100% 60%) 100%);
+    --gradient-horizon: linear-gradient(180deg, hsl(220 45% 4%) 0%, hsl(40 30% 25%) 100%);
+    --gradient-signal: radial-gradient(circle, hsl(190 100% 60% / 0.15), transparent 70%);
+    --gradient-glow: radial-gradient(circle at center, hsl(190 100% 60% / 0.3), hsl(270 70% 65% / 0.2), transparent);
     
-    /* Signal & Movement Effects */
-    --glow-orange: 0 0 40px hsl(25 95% 58% / 0.3);
-    --glow-teal: 0 0 30px hsl(178 65% 52% / 0.25);
-    --shadow-warm: 0 10px 30px -10px hsl(220 40% 15% / 0.15);
-    --shadow-signal: 0 0 60px hsl(185 85% 55% / 0.25);
+    /* Neon Glow Effects */
+    --glow-neon: 0 0 40px hsl(190 100% 60% / 0.6), 0 0 80px hsl(270 70% 65% / 0.4);
+    --glow-cyan: 0 0 30px hsl(190 100% 60% / 0.5);
+    --glow-violet: 0 0 30px hsl(270 70% 65% / 0.5);
+    --glow-coral: 0 0 30px hsl(10 90% 65% / 0.5);
+    --glow-orange: 0 0 40px hsl(25 95% 60% / 0.4);
+    --shadow-warm: 0 10px 40px -10px hsl(190 100% 60% / 0.3);
+    --shadow-signal: 0 0 80px hsl(190 100% 60% / 0.35);
+    --shadow-neon: 0 0 60px hsl(190 100% 60% / 0.4), 0 0 100px hsl(270 70% 65% / 0.3);
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    --transition-glow: all 0.4s ease-in-out;
+
+    /* Brand Colors (kept for compatibility) */
+    --midnight: 220 40% 10%;
+    --midnight-foreground: 40 40% 96%;
+    --cyan: 190 100% 60%;
+    --cyan-foreground: 220 45% 4%;
+    --sand: 40 30% 82%;
+    --sand-foreground: 220 45% 4%;
+    
+    /* Legacy Colors */
+    --nomiqa-orange: 25 95% 60%;
+    --nomiqa-teal: 190 100% 60%;
+    --nomiqa-green: 145 70% 45%;
+    --nomiqa-cream: 40 40% 96%;
+    --nomiqa-peach: 40 100% 93%;
+    --nomiqa-blue: 190 100% 60%;
+    --nomiqa-dark: 220 45% 4%;
   }
 
   .dark {
-    --background: 220 40% 8%;
-    --foreground: 210 40% 98%;
-
-    --card: 220 40% 10%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 220 40% 10%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 185 85% 55%;
-    --primary-foreground: 220 40% 15%;
-
-    --secondary: 220 30% 18%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 220 30% 18%;
-    --muted-foreground: 215 20% 65%;
-
-    --accent: 185 85% 55%;
-    --accent-foreground: 220 40% 15%;
-
-    --destructive: 0 63% 31%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 220 30% 18%;
-    --input: 220 30% 18%;
-    --ring: 185 85% 55%;
-
-    /* Dark mode brand adjustments */
-    --midnight: 220 40% 15%;
-    --midnight-foreground: 210 40% 98%;
-    --cyan: 185 85% 55%;
-    --cyan-foreground: 220 40% 15%;
-    --sand: 40 25% 75%;
-    --sand-foreground: 220 40% 15%;
-
-    /* Dark mode effects */
-    --shadow-warm: 0 10px 40px -10px hsl(185 85% 55% / 0.3);
-    --shadow-signal: 0 0 80px hsl(185 85% 55% / 0.35);
+    /* Already dark by default, but keeping for compatibility */
+    --background: 220 45% 4%;
+    --foreground: 40 40% 96%;
   }
 }
 
@@ -124,6 +109,26 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-weight: 600;
+  }
+
+  /* Neon glow animation */
+  @keyframes neon-pulse {
+    0%, 100% {
+      filter: drop-shadow(0 0 5px currentColor) drop-shadow(0 0 15px currentColor);
+    }
+    50% {
+      filter: drop-shadow(0 0 10px currentColor) drop-shadow(0 0 25px currentColor);
+    }
+  }
+
+  .neon-glow {
+    animation: neon-pulse 3s ease-in-out infinite;
   }
 }

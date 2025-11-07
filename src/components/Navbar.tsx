@@ -67,50 +67,53 @@ export const Navbar = () => {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/98 backdrop-blur-md border-b border-border shadow-sm">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-xl border-b border-neon-cyan/20 shadow-lg shadow-neon-cyan/5">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          <div className="flex items-center gap-2">
-            <button onClick={() => navigate('/')} className="text-2xl font-bold text-primary hover:opacity-80 transition">
-              nomiqa
+          <div className="flex items-center gap-3">
+            <button onClick={() => navigate('/')} className="flex items-center gap-3 group">
+              <img src="/src/assets/nomiqa-logo.jpg" alt="nomiqa" className="w-10 h-10 rounded-lg neon-glow" />
+              <span className="text-2xl font-bold bg-gradient-neon bg-clip-text text-transparent hover:opacity-80 transition font-display">
+                nomiqa
+              </span>
             </button>
           </div>
           
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden md:flex items-center gap-6">
             <button
               onClick={() => navigate('/shop')}
-              className="text-foreground/70 hover:text-foreground transition-colors"
+              className="text-foreground/80 hover:text-neon-cyan transition-colors font-medium"
             >
               {t("shop")}
             </button>
             <button
               onClick={() => navigate('/getting-started')}
-              className="text-foreground/70 hover:text-foreground transition-colors"
+              className="text-foreground/80 hover:text-neon-cyan transition-colors font-medium"
             >
               {t("gettingStarted")}
             </button>
             <button
               onClick={() => navigate('/stake')}
-              className="text-foreground/70 hover:text-foreground transition-colors"
+              className="text-foreground/80 hover:text-neon-cyan transition-colors font-medium"
             >
               {t("stake")}
             </button>
             <button
               onClick={() => navigate('/roadmap')}
-              className="text-foreground/70 hover:text-foreground transition-colors"
+              className="text-foreground/80 hover:text-neon-cyan transition-colors font-medium"
             >
               {t("roadmap")}
             </button>
             <button
               onClick={() => navigate('/affiliate')}
-              className="text-foreground/70 hover:text-foreground transition-colors"
+              className="text-foreground/80 hover:text-neon-cyan transition-colors font-medium"
             >
               {t("affiliate")}
             </button>
             {user && (
               <button
                 onClick={() => navigate('/orders')}
-                className="text-foreground/70 hover:text-foreground transition-colors"
+                className="text-foreground/80 hover:text-neon-cyan transition-colors font-medium"
               >
                 {t("myOrders")}
               </button>

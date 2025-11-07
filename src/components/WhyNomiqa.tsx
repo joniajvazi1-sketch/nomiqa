@@ -1,84 +1,88 @@
-import explorerCelebration from "@/assets/explorer-celebration.jpg";
 import { useTranslation } from "@/contexts/TranslationContext";
 
 export const WhyNomiqa = () => {
   const { t } = useTranslation();
   
   return (
-    <section className="py-20 bg-gradient-to-br from-midnight/5 via-background to-sand/20 relative overflow-hidden">
-      {/* Signal orbit decorations */}
-      <div className="absolute top-20 right-10 w-64 h-64 bg-gradient-signal blur-3xl"></div>
-      <div className="absolute bottom-20 left-10 w-80 h-80 bg-gradient-signal blur-3xl"></div>
-      <div className="absolute top-1/2 right-1/4 w-2 h-2 bg-cyan rounded-full animate-pulse"></div>
-      <div className="absolute top-1/3 left-1/4 w-2 h-2 bg-cyan rounded-full animate-pulse" style={{ animationDelay: "0.5s" }}></div>
+    <section className="py-24 bg-gradient-to-b from-background to-midnight-blue relative overflow-hidden">
+      {/* Decorative elements */}
+      <div className="absolute top-20 right-10 w-80 h-80 bg-gradient-glow blur-3xl opacity-50"></div>
+      <div className="absolute bottom-20 left-10 w-96 h-96 bg-gradient-glow blur-3xl opacity-50"></div>
+      
       <div className="container px-4 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-12 items-center max-w-7xl mx-auto mb-20">
-          <div className="text-center lg:text-left animate-fade-in-up">
-            <p className="text-sm uppercase tracking-[0.3em] mb-4 text-cyan font-semibold">
-              {t("archetypeLabel")}
-            </p>
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 uppercase tracking-tight leading-tight">
-              <span className="bg-gradient-explorer bg-clip-text text-transparent">{t("whyNomiqaTitle")}</span>
-            </h2>
-            <p className="text-xl text-muted-foreground mb-6 italic font-light">
-              {t("whyNomiqaSubtitle")}
-            </p>
-            
-            <div className="flex justify-center lg:justify-start mt-8">
-              <div className="relative">
-                <div className="absolute -inset-2 bg-gradient-signal blur-xl rounded-2xl"></div>
-                <img 
-                  src={explorerCelebration} 
-                  alt="Explorer celebrating freedom and movement"
-                  className="relative w-48 h-48 object-cover rounded-2xl shadow-shadow-signal border border-cyan/30"
-                />
-              </div>
-            </div>
-          </div>
-          
-          <div className="space-y-6 text-center lg:text-left animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
-          </div>
+        <div className="text-center mb-16 max-w-4xl mx-auto animate-fade-in-up">
+          <p className="text-neon-cyan uppercase tracking-[0.3em] text-sm font-semibold mb-4">
+            The Signal of The Moving Class
+          </p>
+          <h2 className="text-5xl md:text-6xl font-bold mb-6 font-display">
+            <span className="bg-gradient-neon bg-clip-text text-transparent">
+              Why Nomiqa?
+            </span>
+          </h2>
+          <p className="text-xl text-muted-foreground italic font-light">
+            {t("whyNomiqaSubtitle")}
+          </p>
         </div>
         
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto text-center md:text-left">
-          <div className="group border border-border/50 bg-card/50 backdrop-blur-sm p-8 rounded-2xl hover:shadow-shadow-signal hover:border-cyan/50 transition-all duration-500 hover:-translate-y-1 animate-fade-in" style={{ animationDelay: "0.3s" }}>
-            <div className="w-12 h-12 rounded-full bg-cyan/10 flex items-center justify-center mb-4 group-hover:bg-cyan/20 transition-colors mx-auto md:mx-0">
-              <div className="w-6 h-6 rounded-full bg-cyan/50 group-hover:bg-cyan transition-colors"></div>
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
+          <div className="group relative bg-gradient-to-br from-card/50 to-card/30 backdrop-blur-sm border border-neon-cyan/20 p-8 rounded-3xl hover:border-neon-cyan/50 hover:shadow-glow-cyan transition-all duration-500 hover:-translate-y-2 animate-fade-in" style={{ animationDelay: "0.1s" }}>
+            <div className="absolute inset-0 bg-gradient-to-br from-neon-cyan/10 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div className="relative">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-neon-cyan to-neon-blue flex items-center justify-center mb-6 shadow-glow-cyan group-hover:scale-110 transition-transform duration-300">
+                <div className="w-8 h-8 rounded-full bg-white/90"></div>
+              </div>
+              <h3 className="text-2xl font-bold mb-3 bg-gradient-to-br from-neon-cyan to-neon-blue bg-clip-text text-transparent font-display uppercase tracking-wide">
+                {t("valueFreedom")}
+              </h3>
+              <p className="text-foreground/80 text-sm leading-relaxed">
+                {t("valueFreedomDesc")}
+              </p>
             </div>
-            <h3 className="text-xl font-bold mb-3 text-foreground uppercase tracking-wide">{t("valueFreedom")}</h3>
-            <p className="text-muted-foreground text-sm leading-relaxed">
-              {t("valueFreedomDesc")}
-            </p>
           </div>
           
-          <div className="group border border-border/50 bg-card/50 backdrop-blur-sm p-8 rounded-2xl hover:shadow-shadow-signal hover:border-cyan/50 transition-all duration-500 hover:-translate-y-1 animate-fade-in" style={{ animationDelay: "0.4s" }}>
-            <div className="w-12 h-12 rounded-full bg-cyan/10 flex items-center justify-center mb-4 group-hover:bg-cyan/20 transition-colors mx-auto md:mx-0">
-              <div className="w-6 h-6 rounded-full bg-cyan/50 group-hover:bg-cyan transition-colors"></div>
+          <div className="group relative bg-gradient-to-br from-card/50 to-card/30 backdrop-blur-sm border border-neon-violet/20 p-8 rounded-3xl hover:border-neon-violet/50 hover:shadow-glow-violet transition-all duration-500 hover:-translate-y-2 animate-fade-in" style={{ animationDelay: "0.2s" }}>
+            <div className="absolute inset-0 bg-gradient-to-br from-neon-violet/10 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div className="relative">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-neon-violet to-neon-pink flex items-center justify-center mb-6 shadow-glow-violet group-hover:scale-110 transition-transform duration-300">
+                <div className="w-8 h-8 rounded-full bg-white/90"></div>
+              </div>
+              <h3 className="text-2xl font-bold mb-3 bg-gradient-to-br from-neon-violet to-neon-pink bg-clip-text text-transparent font-display uppercase tracking-wide">
+                {t("valueBelonging")}
+              </h3>
+              <p className="text-foreground/80 text-sm leading-relaxed">
+                {t("valueBelongingDesc")}
+              </p>
             </div>
-            <h3 className="text-xl font-bold mb-3 text-foreground uppercase tracking-wide">{t("valueBelonging")}</h3>
-            <p className="text-muted-foreground text-sm leading-relaxed">
-              {t("valueBelongingDesc")}
-            </p>
           </div>
           
-          <div className="group border border-border/50 bg-card/50 backdrop-blur-sm p-8 rounded-2xl hover:shadow-shadow-signal hover:border-cyan/50 transition-all duration-500 hover:-translate-y-1 animate-fade-in" style={{ animationDelay: "0.5s" }}>
-            <div className="w-12 h-12 rounded-full bg-cyan/10 flex items-center justify-center mb-4 group-hover:bg-cyan/20 transition-colors mx-auto md:mx-0">
-              <div className="w-6 h-6 rounded-full bg-cyan/50 group-hover:bg-cyan transition-colors"></div>
+          <div className="group relative bg-gradient-to-br from-card/50 to-card/30 backdrop-blur-sm border border-neon-coral/20 p-8 rounded-3xl hover:border-neon-coral/50 hover:shadow-glow-coral transition-all duration-500 hover:-translate-y-2 animate-fade-in" style={{ animationDelay: "0.3s" }}>
+            <div className="absolute inset-0 bg-gradient-to-br from-neon-coral/10 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div className="relative">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-neon-coral to-neon-orange flex items-center justify-center mb-6 shadow-glow-coral group-hover:scale-110 transition-transform duration-300">
+                <div className="w-8 h-8 rounded-full bg-white/90"></div>
+              </div>
+              <h3 className="text-2xl font-bold mb-3 bg-gradient-to-br from-neon-coral to-neon-orange bg-clip-text text-transparent font-display uppercase tracking-wide">
+                {t("valueSovereignty")}
+              </h3>
+              <p className="text-foreground/80 text-sm leading-relaxed">
+                {t("valueSovereigntyDesc")}
+              </p>
             </div>
-            <h3 className="text-xl font-bold mb-3 text-foreground uppercase tracking-wide">{t("valueSovereignty")}</h3>
-            <p className="text-muted-foreground text-sm leading-relaxed">
-              {t("valueSovereigntyDesc")}
-            </p>
           </div>
           
-          <div className="group border border-border/50 bg-card/50 backdrop-blur-sm p-8 rounded-2xl hover:shadow-shadow-signal hover:border-cyan/50 transition-all duration-500 hover:-translate-y-1 animate-fade-in" style={{ animationDelay: "0.6s" }}>
-            <div className="w-12 h-12 rounded-full bg-cyan/10 flex items-center justify-center mb-4 group-hover:bg-cyan/20 transition-colors mx-auto md:mx-0">
-              <div className="w-6 h-6 rounded-full bg-cyan/50 group-hover:bg-cyan transition-colors"></div>
+          <div className="group relative bg-gradient-to-br from-card/50 to-card/30 backdrop-blur-sm border border-neon-orange/20 p-8 rounded-3xl hover:border-neon-orange/50 hover:shadow-glow-orange transition-all duration-500 hover:-translate-y-2 animate-fade-in" style={{ animationDelay: "0.4s" }}>
+            <div className="absolute inset-0 bg-gradient-to-br from-neon-orange/10 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div className="relative">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-neon-orange to-neon-yellow flex items-center justify-center mb-6 shadow-glow-orange group-hover:scale-110 transition-transform duration-300">
+                <div className="w-8 h-8 rounded-full bg-white/90"></div>
+              </div>
+              <h3 className="text-2xl font-bold mb-3 bg-gradient-to-br from-neon-orange to-neon-yellow bg-clip-text text-transparent font-display uppercase tracking-wide">
+                {t("valueMovement")}
+              </h3>
+              <p className="text-foreground/80 text-sm leading-relaxed">
+                {t("valueMovementDesc")}
+              </p>
             </div>
-            <h3 className="text-xl font-bold mb-3 text-foreground uppercase tracking-wide">{t("valueMovement")}</h3>
-            <p className="text-muted-foreground text-sm leading-relaxed">
-              {t("valueMovementDesc")}
-            </p>
           </div>
         </div>
       </div>

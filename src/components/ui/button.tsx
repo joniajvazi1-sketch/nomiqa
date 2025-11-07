@@ -9,14 +9,15 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
+        default: "bg-neon-cyan text-deep-space hover:bg-neon-blue hover:shadow-glow-cyan font-semibold transition-all duration-300",
         destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-        outline: "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+        outline: "border-2 border-neon-cyan bg-transparent text-neon-cyan hover:bg-neon-cyan/10 hover:shadow-glow-cyan transition-all duration-300",
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
-        link: "text-primary underline-offset-4 hover:underline",
-        hero: "bg-gradient-primary text-white hover:shadow-glow-orange font-semibold hover:scale-105 transition-all duration-300",
-        cyber: "bg-accent text-accent-foreground hover:bg-accent/90 shadow-lg hover:shadow-glow-teal hover:scale-105 transition-all duration-300",
+        ghost: "hover:bg-muted hover:text-foreground transition-colors",
+        link: "text-neon-cyan underline-offset-4 hover:underline hover:text-neon-blue",
+        hero: "bg-gradient-sunset text-white font-bold hover:shadow-glow-coral hover:scale-105 transition-all duration-300",
+        cyber: "bg-gradient-cyber text-white font-semibold shadow-glow-cyan hover:shadow-glow-neon hover:scale-105 transition-all duration-300",
+        neon: "bg-gradient-neon text-white font-bold shadow-glow-neon hover:shadow-[0_0_100px_hsl(190_100%_60%/0.5)] hover:scale-105 transition-all duration-300",
       },
       size: {
         default: "h-10 px-4 py-2",
