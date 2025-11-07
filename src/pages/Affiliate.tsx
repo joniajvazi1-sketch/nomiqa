@@ -173,7 +173,7 @@ export default function Affiliate() {
             <p className="text-xl md:text-2xl text-foreground/80 mb-2">
               Join the borderless generation
             </p>
-            <p className="text-lg text-warm-sand/80 font-quote italic">
+            <p className="text-lg text-warm-sand/80">
               Freedom is no longer physical — it's digital.
             </p>
           </div>

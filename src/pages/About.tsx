@@ -54,7 +54,7 @@ export default function About() {
               We believe freedom is connection without borders.
             </p>
             
-            <p className="text-lg text-warm-sand/90 font-quote italic">
+            <p className="text-lg text-warm-sand/90">
               Built for the borderless generation.
             </p>
           </div>
@@ -156,8 +156,8 @@ export default function About() {
                 and everyone can access the internet without surveillance. 
                 That's the world Nomiqa is building — one anonymous eSIM at a time.
               </p>
-              <p className="text-2xl font-quote italic text-warm-sand">
-                "Your journey is global. Your data should be too."
+              <p className="text-2xl text-warm-sand">
+                Your journey is global. Your data should be too.
               </p>
             </div>
           </div>

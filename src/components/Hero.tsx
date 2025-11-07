@@ -51,8 +51,8 @@ export const Hero = () => {
             <p className="text-lg md:text-xl lg:text-2xl text-foreground/90 mb-3 max-w-3xl mx-auto px-4 leading-relaxed">
               Anonymous eSIMs. Crypto payments. Instant access in 190+ countries.
             </p>
-            <p className="text-sm md:text-base lg:text-lg text-foreground/60 max-w-2xl mx-auto px-4 font-quote italic">
-              "Freedom that respects privacy"
+            <p className="text-sm md:text-base lg:text-lg text-foreground/60 max-w-2xl mx-auto px-4">
+              Freedom that respects privacy
             </p>
           </div>
           
@@ -78,8 +78,8 @@ export const Hero = () => {
           </div>
           
           <div className="text-center mb-8 animate-fade-in-up px-4" style={{ animationDelay: "0.4s" }}>
-            <p className="text-base md:text-lg text-warm-sand/80 font-quote italic">
-              "Wherever you go, your signal follows."
+            <p className="text-base md:text-lg text-warm-sand/80">
+              Wherever you go, your signal follows.
             </p>
           </div>
         </div>

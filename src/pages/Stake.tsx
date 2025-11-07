@@ -67,7 +67,7 @@ export default function Stake() {
             <p className="text-xl md:text-2xl text-foreground/80 max-w-3xl mx-auto mb-4">
               Lock tokens to earn free data credits and affiliate rewards.
             </p>
-            <p className="text-lg text-warm-sand/90 font-quote italic">
+            <p className="text-lg text-warm-sand/90">
               Your travel, powered by Web3.
             </p>
           </div>

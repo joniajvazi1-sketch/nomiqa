@@ -67,8 +67,8 @@ export default function Privacy() {
               No tracking. No personal data. No compromises. Just connection.
             </p>
             
-            <blockquote className="text-lg md:text-xl text-warm-sand/90 font-quote italic max-w-2xl mx-auto border-l-4 border-neon-coral pl-6">
-              "Privacy isn't isolation. It's ownership of your connection."
+            <blockquote className="text-lg md:text-xl text-warm-sand/90 max-w-2xl mx-auto border-l-4 border-neon-coral pl-6">
+              Privacy isn't isolation. It's ownership of your connection.
             </blockquote>
           </div>
 
@@ -135,8 +135,8 @@ export default function Privacy() {
 
           {/* Quote Card */}
           <div className="p-8 rounded-3xl bg-gradient-to-br from-neon-violet/10 via-neon-coral/10 to-neon-cyan/10 border border-neon-violet/30 backdrop-blur-sm text-center">
-            <p className="text-xl md:text-2xl font-quote italic text-warm-sand mb-4">
-              "Your signal. Your rules. Your freedom."
+            <p className="text-xl md:text-2xl text-warm-sand mb-4">
+              Your signal. Your rules. Your freedom.
             </p>
             <p className="text-foreground/60">
               — The Nomiqa Promise

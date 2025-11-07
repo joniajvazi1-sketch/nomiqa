@@ -103,7 +103,7 @@ export const WhyNomiqa = () => {
           </div>
 
           <div className="text-center mt-12">
-            <p className="text-lg font-quote italic text-warm-sand/80">
+            <p className="text-lg text-warm-sand/80">
               Freedom that respects your privacy
             </p>
           </div>
