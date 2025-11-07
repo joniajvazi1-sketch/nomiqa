@@ -22,9 +22,9 @@ const InteractiveGlobe: React.FC = () => {
     const scene = new THREE.Scene();
     sceneRef.current = scene;
 
-    // Camera - moved further back to show full globe
+    // Camera - positioned to show bigger globe
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
-    camera.position.set(0, 0, 7);
+    camera.position.set(0, 0, 6.5);
     cameraRef.current = camera;
 
     // Renderer (transparent background)
@@ -47,8 +47,9 @@ const InteractiveGlobe: React.FC = () => {
     rimLight.position.set(-6, -6, -6);
     scene.add(rimLight);
 
-    // Glowy wireframe globe (smaller)
-    const geometry = new THREE.SphereGeometry(1.5, 48, 48);
+    // Glowy wireframe globe (bigger)
+    const globeRadius = 2.0;
+    const geometry = new THREE.SphereGeometry(globeRadius, 48, 48);
     const material = new THREE.MeshPhongMaterial({
       color: new THREE.Color('#0ea5e9'),
       emissive: new THREE.Color('#06b6d4'),
@@ -62,7 +63,7 @@ const InteractiveGlobe: React.FC = () => {
     globeRef.current = globe;
 
     // Atmosphere glow
-    const atmosphereGeometry = new THREE.SphereGeometry(1.65, 48, 48);
+    const atmosphereGeometry = new THREE.SphereGeometry(globeRadius + 0.15, 48, 48);
     const atmosphereMaterial = new THREE.MeshBasicMaterial({
       color: new THREE.Color('#06b6d4'),
       transparent: true,
@@ -80,9 +81,9 @@ const InteractiveGlobe: React.FC = () => {
       
       for (let lon = 0; lon <= 360; lon += 5) {
         const theta = lon * (Math.PI / 180);
-        const x = 1.52 * Math.sin(phi) * Math.cos(theta);
-        const y = 1.52 * Math.cos(phi);
-        const z = 1.52 * Math.sin(phi) * Math.sin(theta);
+        const x = (globeRadius + 0.02) * Math.sin(phi) * Math.cos(theta);
+        const y = (globeRadius + 0.02) * Math.cos(phi);
+        const z = (globeRadius + 0.02) * Math.sin(phi) * Math.sin(theta);
         points.push(new THREE.Vector3(x, y, z));
       }
       
@@ -105,9 +106,9 @@ const InteractiveGlobe: React.FC = () => {
       
       for (let lat = -90; lat <= 90; lat += 5) {
         const phi = (90 - lat) * (Math.PI / 180);
-        const x = 1.52 * Math.sin(phi) * Math.cos(theta);
-        const y = 1.52 * Math.cos(phi);
-        const z = 1.52 * Math.sin(phi) * Math.sin(theta);
+        const x = (globeRadius + 0.02) * Math.sin(phi) * Math.cos(theta);
+        const y = (globeRadius + 0.02) * Math.cos(phi);
+        const z = (globeRadius + 0.02) * Math.sin(phi) * Math.sin(theta);
         points.push(new THREE.Vector3(x, y, z));
       }
       
@@ -141,14 +142,15 @@ const InteractiveGlobe: React.FC = () => {
       const phi = (90 - loc.lat) * (Math.PI / 180);
       const theta = (loc.lon + 180) * (Math.PI / 180);
       return new THREE.Vector3(
-        1.5 * Math.sin(phi) * Math.cos(theta),
-        1.5 * Math.cos(phi),
-        1.5 * Math.sin(phi) * Math.sin(theta)
+        globeRadius * Math.sin(phi) * Math.cos(theta),
+        globeRadius * Math.cos(phi),
+        globeRadius * Math.sin(phi) * Math.sin(theta)
       );
     });
 
-    // Create connection lines between continents
+    // Create connection lines between continents with particles
     const connectionLines: THREE.Line[] = [];
+    const particles: Array<{ mesh: THREE.Mesh; curve: THREE.QuadraticBezierCurve3; progress: number; speed: number }> = [];
     const connections = [
       [0, 1], [1, 2], [1, 6], [2, 7], [3, 5], 
       [4, 7], [0, 8], [8, 5], [6, 9], [7, 9],
@@ -159,7 +161,7 @@ const InteractiveGlobe: React.FC = () => {
       const start = locationPoints[i];
       const end = locationPoints[j];
       const mid = new THREE.Vector3().addVectors(start, end).multiplyScalar(0.5);
-      mid.normalize().multiplyScalar(1.85); // Arc outward
+      mid.normalize().multiplyScalar(globeRadius + 0.45); // Arc outward
       
       const curve = new THREE.QuadraticBezierCurve3(start, mid, end);
       const curvePoints = curve.getPoints(40);
@@ -174,19 +176,42 @@ const InteractiveGlobe: React.FC = () => {
       const line = new THREE.Line(lineGeometry, lineMaterial);
       scene.add(line);
       connectionLines.push(line);
+
+      // Add 2-3 particles per line
+      for (let p = 0; p < 2; p++) {
+        const particleGeometry = new THREE.SphereGeometry(0.02, 16, 16);
+        const particleMaterial = new THREE.MeshBasicMaterial({
+          color: new THREE.Color('#e879f9'),
+          transparent: true,
+          opacity: 0.9,
+        });
+        const particle = new THREE.Mesh(particleGeometry, particleMaterial);
+        scene.add(particle);
+        particles.push({
+          mesh: particle,
+          curve: curve,
+          progress: Math.random(),
+          speed: 0.002 + Math.random() * 0.003,
+        });
+      }
     });
 
-    // Add glowing dots at major locations
-    const dotGeometry = new THREE.SphereGeometry(0.025, 16, 16);
-    const dots: THREE.Mesh[] = [];
+    // Add glowing dots at major locations with pulse speeds
+    const dotGeometry = new THREE.SphereGeometry(0.035, 16, 16);
+    const dots: Array<{ mesh: THREE.Mesh; pulseSpeed: number; baseScale: number }> = [];
     locationPoints.forEach((point, i) => {
       const dotMaterial = new THREE.MeshBasicMaterial({
         color: new THREE.Color('#06b6d4'),
+        transparent: true,
       });
       const dot = new THREE.Mesh(dotGeometry, dotMaterial);
       dot.position.copy(point);
       scene.add(dot);
-      dots.push(dot);
+      dots.push({
+        mesh: dot,
+        pulseSpeed: 0.5 + Math.random() * 1.5,
+        baseScale: 1.0,
+      });
     });
 
     // Drag controls (simple custom)
@@ -229,9 +254,30 @@ const InteractiveGlobe: React.FC = () => {
     // Animate
     const animate = () => {
       frameIdRef.current = requestAnimationFrame(animate);
+      
+      const time = Date.now() * 0.001;
+      
+      // Auto-rotate globe
       if (autoRotateRef.current && globeRef.current) {
         globeRef.current.rotation.y += 0.002;
       }
+
+      // Pulse dots with different speeds
+      dots.forEach(dotData => {
+        const scale = 1.0 + Math.sin(time * dotData.pulseSpeed) * 0.3;
+        dotData.mesh.scale.set(scale, scale, scale);
+        const material = dotData.mesh.material as THREE.MeshBasicMaterial;
+        material.opacity = 0.7 + Math.sin(time * dotData.pulseSpeed) * 0.3;
+      });
+
+      // Move particles along curves
+      particles.forEach(particleData => {
+        particleData.progress += particleData.speed;
+        if (particleData.progress > 1) particleData.progress = 0;
+        const point = particleData.curve.getPoint(particleData.progress);
+        particleData.mesh.position.copy(point);
+      });
+
       renderer.render(scene, camera);
     };
     animate();
@@ -252,9 +298,13 @@ const InteractiveGlobe: React.FC = () => {
         line.geometry.dispose();
         (line.material as THREE.Material).dispose();
       });
-      dots.forEach(dot => {
-        dot.geometry.dispose();
-        (dot.material as THREE.Material).dispose();
+      dots.forEach(dotData => {
+        dotData.mesh.geometry.dispose();
+        (dotData.mesh.material as THREE.Material).dispose();
+      });
+      particles.forEach(particleData => {
+        particleData.mesh.geometry.dispose();
+        (particleData.mesh.material as THREE.Material).dispose();
       });
       renderer.dispose();
       container.removeChild(renderer.domElement);
