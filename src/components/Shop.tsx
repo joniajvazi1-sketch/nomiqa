@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import * as CountryFlags from 'country-flag-icons/react/3x2';
 import { ShareModal } from "./ShareModal";
+import { Confetti } from "./Confetti";
 
 type CoverageType = "all" | "local" | "regional";
 
@@ -35,6 +36,7 @@ export const Shop = () => {
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
   const [displayCount, setDisplayCount] = useState(10);
+  const [showConfetti, setShowConfetti] = useState(false);
 
   // Classify products by coverage type
   const getProductCoverageType = (product: any): CoverageType => {
@@ -74,6 +76,7 @@ export const Shop = () => {
 
   const handleAddToCart = (product: any) => {
     addItem(product);
+    setShowConfetti(true);
     toast.success(`${product.name} added to cart!`);
   };
 
@@ -209,6 +212,8 @@ export const Shop = () => {
           onOpenChange={setShareModalOpen}
           product={selectedProduct}
         />
+        
+        <Confetti trigger={showConfetti} onComplete={() => setShowConfetti(false)} />
       </div>
     </section>
   );

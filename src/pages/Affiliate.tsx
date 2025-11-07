@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { Copy, TrendingUp, Users, DollarSign, CheckCircle2, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAffiliateTracking } from "@/hooks/useAffiliateTracking";
+import { HappyPeople } from "@/components/HappyPeople";
 
 interface AffiliateData {
   id: string;
@@ -337,6 +338,7 @@ export default function Affiliate() {
       </div>
 
       <Footer />
+      <HappyPeople />
     </div>
   );
 }

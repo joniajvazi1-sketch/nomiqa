@@ -110,6 +110,15 @@ export default {
           "0%, 100%": { transform: "translateY(0px)" },
           "50%": { transform: "translateY(-10px)" },
         },
+        "confetti": {
+          "0%": { transform: "translateY(0) rotateZ(0deg)", opacity: "1" },
+          "100%": { transform: "translateY(100vh) rotateZ(720deg)", opacity: "0" },
+        },
+        "wave-up": {
+          "0%": { transform: "translateY(0) scale(0.5)", opacity: "0" },
+          "50%": { opacity: "1" },
+          "100%": { transform: "translateY(-150vh) scale(1)", opacity: "0" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -120,6 +129,8 @@ export default {
         "bounce-in": "bounce-in 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55)",
         "shimmer": "shimmer 3s linear infinite",
         "float": "float 3s ease-in-out infinite",
+        "confetti": "confetti 2s ease-out forwards",
+        "wave-up": "wave-up 4s ease-out forwards",
       },
     },
   },
