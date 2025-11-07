@@ -103,19 +103,45 @@ export default function GettingStarted() {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-background via-deep-space to-background">
       <Navbar />
       
-      <div className="container mx-auto px-4 py-20">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-neon bg-clip-text text-transparent">
-              Get Started with $NOMIQA
+      {/* Hero Section */}
+      <section className="relative pt-32 pb-20 px-4 overflow-hidden">
+        {/* Animated background glows */}
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute top-20 left-10 w-96 h-96 bg-neon-cyan/30 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-20 right-10 w-96 h-96 bg-neon-violet/30 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1.5s' }}></div>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-neon-coral/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '3s' }}></div>
+        </div>
+        
+        <div className="container max-w-5xl mx-auto relative z-10">
+          <div className="text-center mb-16 animate-fade-in-up">
+            <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-neon-cyan via-neon-violet to-neon-coral p-0.5">
+              <div className="w-full h-full bg-card rounded-2xl flex items-center justify-center">
+                <Wallet className="w-10 h-10 text-neon-cyan" />
+              </div>
+            </div>
+            
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 font-display">
+              <span className="block bg-gradient-neon bg-clip-text text-transparent">
+                Get Started with
+              </span>
+              <span className="block bg-gradient-sunset bg-clip-text text-transparent mt-2">
+                $NOMIQA
+              </span>
             </h1>
-            <p className="text-xl text-muted-foreground">
+            
+            <p className="text-xl md:text-2xl text-foreground/80 max-w-3xl mx-auto">
               Step-by-step guide to buying our token and using it for eSIM purchases
             </p>
           </div>
+        </div>
+      </section>
+
+      {/* Content Section */}
+      <section className="relative pb-20 px-4">
+        <div className="container mx-auto max-w-4xl relative z-10">
 
           <div className="grid gap-6 mb-12">
             {guides.map((guide, index) => (
@@ -188,7 +214,7 @@ export default function GettingStarted() {
             </CardContent>
           </Card>
         </div>
-      </div>
+      </section>
 
       <Footer />
     </div>
