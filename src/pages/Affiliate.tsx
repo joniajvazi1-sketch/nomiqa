@@ -224,7 +224,7 @@ export default function Affiliate() {
             </Card>
           ) : (
             <>
-              <div className="grid md:grid-cols-4 gap-4 mb-8">
+              <div className="grid md:grid-cols-4 gap-4 mb-8 text-center">
                 <Card>
                   <CardHeader className="pb-3">
                     <CardDescription>Total Clicks</CardDescription>
@@ -295,7 +295,7 @@ export default function Affiliate() {
                 </CardHeader>
                 <CardContent>
                   <ol className="space-y-4">
-                    <li className="flex gap-4">
+                    <li className="flex flex-col md:flex-row gap-4 text-center md:text-left items-center md:items-start">
                       <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/20 text-primary font-bold flex-shrink-0">
                         1
                       </div>
@@ -306,7 +306,7 @@ export default function Affiliate() {
                         </p>
                       </div>
                     </li>
-                    <li className="flex gap-4">
+                    <li className="flex flex-col md:flex-row gap-4 text-center md:text-left items-center md:items-start">
                       <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/20 text-primary font-bold flex-shrink-0">
                         2
                       </div>
@@ -317,7 +317,7 @@ export default function Affiliate() {
                         </p>
                       </div>
                     </li>
-                    <li className="flex gap-4">
+                    <li className="flex flex-col md:flex-row gap-4 text-center md:text-left items-center md:items-start">
                       <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/20 text-primary font-bold flex-shrink-0">
                         3
                       </div>

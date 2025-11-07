@@ -110,9 +110,9 @@ export default function Roadmap() {
                   </div>
 
                   <CardHeader>
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col md:flex-row items-center md:items-start justify-between text-center md:text-left">
                       <div>
-                        <div className="flex items-center gap-3 mb-2">
+                        <div className="flex flex-col md:flex-row items-center gap-3 mb-2">
                           <CardTitle className="text-2xl">{phase.phase}</CardTitle>
                           {getStatusBadge(phase.status)}
                         </div>
@@ -123,9 +123,9 @@ export default function Roadmap() {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <ul className="space-y-3">
+                    <ul className="space-y-3 text-center md:text-left">
                       {phase.items.map((item, itemIndex) => (
-                        <li key={itemIndex} className="flex items-start gap-3">
+                        <li key={itemIndex} className="flex items-start md:items-center gap-3 justify-center md:justify-start">
                           {item.done ? (
                             <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
                           ) : (

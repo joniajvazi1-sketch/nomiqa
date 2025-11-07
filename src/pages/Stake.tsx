@@ -46,7 +46,7 @@ export default function Stake() {
 
           <Card className="mb-12 bg-gradient-to-br from-primary/5 to-secondary/5 border-primary/20">
             <CardContent className="pt-6">
-              <div className="flex items-center gap-4 mb-6">
+              <div className="flex flex-col md:flex-row items-center gap-4 mb-6 text-center md:text-left">
                 <div className="p-4 bg-primary/10 rounded-lg">
                   <Clock className="w-8 h-8 text-primary" />
                 </div>
@@ -57,7 +57,7 @@ export default function Stake() {
                   </p>
                 </div>
               </div>
-              <p className="text-muted-foreground">
+              <p className="text-muted-foreground text-center md:text-left">
                 Our staking platform will allow you to earn passive income on your crypto holdings. 
                 Stake your tokens, earn rewards, and support the network - all in one place.
               </p>
@@ -70,7 +70,7 @@ export default function Stake() {
               {features.map((feature, index) => (
                 <Card key={index}>
                   <CardHeader>
-                    <div className="flex items-center gap-4">
+                    <div className="flex flex-col md:flex-row items-center gap-4 text-center md:text-left">
                       <div className="p-3 bg-primary/10 rounded-lg">
                         <feature.icon className="w-6 h-6 text-primary" />
                       </div>
@@ -80,7 +80,7 @@ export default function Stake() {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-muted-foreground">{feature.description}</p>
+                    <p className="text-muted-foreground text-center md:text-left">{feature.description}</p>
                   </CardContent>
                 </Card>
               ))}
