@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useAffiliateTracking } from "@/hooks/useAffiliateTracking";
 import { supabase } from "@/integrations/supabase/client";
+import { TranslationProvider } from "@/contexts/TranslationContext";
 import Index from "./pages/Index";
 import ShopPage from "./pages/ShopPage";
 import NotFound from "./pages/NotFound";
@@ -63,27 +64,29 @@ function AffiliateTracker() {
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AffiliateTracker />
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/shop" element={<ShopPage />} />
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/checkout" element={<Checkout />} />
-          <Route path="/orders" element={<Orders />} />
-          <Route path="/getting-started" element={<GettingStarted />} />
-          <Route path="/stake" element={<Stake />} />
-          <Route path="/roadmap" element={<Roadmap />} />
-          <Route path="/affiliate" element={<Affiliate />} />
-          <Route path="/r/:code" element={<AffiliateRedirect />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+    <TranslationProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AffiliateTracker />
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/shop" element={<ShopPage />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/orders" element={<Orders />} />
+            <Route path="/getting-started" element={<GettingStarted />} />
+            <Route path="/stake" element={<Stake />} />
+            <Route path="/roadmap" element={<Roadmap />} />
+            <Route path="/affiliate" element={<Affiliate />} />
+            <Route path="/r/:code" element={<AffiliateRedirect />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </TranslationProvider>
   </QueryClientProvider>
 );
 

@@ -1,9 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import worldTravelers from "@/assets/world-travelers.jpg";
+import { useTranslation } from "@/contexts/TranslationContext";
 
 export const EarnSection = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   
   return (
     <section className="py-20 bg-gradient-to-br from-nomiqa-orange/20 via-nomiqa-peach/30 to-nomiqa-orange/10 relative overflow-hidden">
@@ -25,7 +27,7 @@ export const EarnSection = () => {
       <div className="container px-4 relative z-10">
         <div className="text-center max-w-4xl mx-auto animate-fade-in-up">
           <h2 className="text-4xl md:text-5xl font-bold mb-6 text-foreground">
-            Earn with Staking & Affiliates
+            {t("earnTitle")}
           </h2>
           
           <p className="text-lg md:text-xl mb-12 text-foreground/80">

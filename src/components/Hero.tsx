@@ -2,9 +2,11 @@ import { ShoppingCart, Globe, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import happyTravelers from "@/assets/happy-travelers.jpg";
+import { useTranslation } from "@/contexts/TranslationContext";
 
 export const Hero = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   
   return (
     <section className="relative min-h-[90vh] flex items-center bg-gradient-to-br from-nomiqa-cream via-nomiqa-peach/30 to-nomiqa-cream overflow-hidden">
@@ -17,11 +19,11 @@ export const Hero = () => {
           {/* Left side - Text */}
           <div className="text-left animate-fade-in-up">
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 text-foreground">
-              Freedom has a new signal.
+              {t("heroTitle")}
             </h1>
             
             <p className="text-xl md:text-2xl mb-8 text-foreground/80">
-              The first crypto-native eSIM with anonymous activation, wallet payments, and token rewards.
+              {t("heroSubtitle")}
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 mb-8">
@@ -31,7 +33,7 @@ export const Hero = () => {
                 onClick={() => navigate('/shop')}
               >
                 <ShoppingCart className="w-5 h-5 mr-2" />
-                Browse eSIMs
+                {t("browseEsims")}
               </Button>
               <Button 
                 variant="outline"
@@ -39,22 +41,22 @@ export const Hero = () => {
                 className="border-2 border-nomiqa-orange text-nomiqa-orange hover:bg-nomiqa-orange/10"
                 onClick={() => navigate('/getting-started')}
               >
-                Get Started
+                {t("getStarted")}
               </Button>
             </div>
             
             <div className="flex flex-col gap-4 text-foreground/70">
               <div className="flex items-center gap-2">
                 <Globe className="w-5 h-5 text-nomiqa-orange" />
-                <span className="font-medium">200+ Countries</span>
+                <span className="font-medium">{t("countries")}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Shield className="w-5 h-5 text-nomiqa-orange" />
-                <span className="font-medium">No KYC Required</span>
+                <span className="font-medium">{t("noKyc")}</span>
               </div>
               <div className="flex items-center gap-2">
                 <ShoppingCart className="w-5 h-5 text-nomiqa-orange" />
-                <span className="font-medium">Crypto Payments</span>
+                <span className="font-medium">{t("cryptoPayments")}</span>
               </div>
             </div>
           </div>

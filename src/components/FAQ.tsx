@@ -4,8 +4,11 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { useTranslation } from "@/contexts/TranslationContext";
 
 export const FAQ = () => {
+  const { t } = useTranslation();
+  
   const faqs = [
     {
       question: "What are eSIMs?",
@@ -54,7 +57,7 @@ export const FAQ = () => {
       <div className="container px-4">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-4">Frequently Asked Questions</h2>
+            <h2 className="text-4xl font-bold mb-4">{t("faqTitle")}</h2>
             <p className="text-xl text-muted-foreground">
               Everything you need to know about Nomiqa eSIMs
             </p>

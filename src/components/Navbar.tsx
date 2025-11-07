@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "@/hooks/useCart";
-import { ShoppingCart, LogOut, LogIn, Menu, Languages } from "lucide-react";
+import { ShoppingCart, LogOut, LogIn, Menu, Globe } from "lucide-react";
 import { Badge } from "./ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { User as SupabaseUser } from "@supabase/supabase-js";
@@ -20,25 +20,26 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useTranslation } from "@/contexts/TranslationContext";
 
 export const Navbar = () => {
   const navigate = useNavigate();
   const { items } = useCart();
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [currentLanguage, setCurrentLanguage] = useState("EN");
+  const { language, setLanguage } = useTranslation();
 
   const languages = [
-    { code: "EN", name: "English" },
-    { code: "ES", name: "Español" },
-    { code: "FR", name: "Français" },
-    { code: "DE", name: "Deutsch" },
-    { code: "RU", name: "Русский" },
-    { code: "ZH", name: "中文" },
-    { code: "JA", name: "日本語" },
-    { code: "PT", name: "Português" },
-    { code: "AR", name: "العربية" },
-    { code: "HI", name: "हिन्दी" },
+    { code: "EN" as const, name: "English" },
+    { code: "ES" as const, name: "Español" },
+    { code: "FR" as const, name: "Français" },
+    { code: "DE" as const, name: "Deutsch" },
+    { code: "RU" as const, name: "Русский" },
+    { code: "ZH" as const, name: "中文" },
+    { code: "JA" as const, name: "日本語" },
+    { code: "PT" as const, name: "Português" },
+    { code: "AR" as const, name: "العربية" },
+    { code: "HI" as const, name: "हिन्दी" },
   ];
 
   useEffect(() => {
@@ -209,8 +210,8 @@ export const Navbar = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="gap-2">
-                  <Languages className="w-4 h-4" />
-                  <span className="hidden sm:inline">{currentLanguage}</span>
+                  <Globe className="w-4 h-4" />
+                  <span className="hidden sm:inline">{language}</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="bg-white z-50">
@@ -218,7 +219,7 @@ export const Navbar = () => {
                   <DropdownMenuItem
                     key={lang.code}
                     onClick={() => {
-                      setCurrentLanguage(lang.code);
+                      setLanguage(lang.code);
                       toast.success(`Language changed to ${lang.name}`);
                     }}
                     className="cursor-pointer"
