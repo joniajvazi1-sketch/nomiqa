@@ -1,72 +1,89 @@
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Bitcoin, Wallet, Shield, Coins, ArrowRight, ExternalLink } from "lucide-react";
+import { Wallet, Shield, Coins, ArrowRight, ExternalLink, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function LearnCrypto() {
   const guides = [
     {
-      title: "Getting Started with Crypto Wallets",
-      description: "Learn how to set up and secure your first crypto wallet",
+      title: "Setting Up Phantom Wallet",
+      description: "Your gateway to Solana - the fastest blockchain for payments",
       icon: Wallet,
       steps: [
-        "Choose a reputable wallet (MetaMask, Trust Wallet, etc.)",
-        "Download and install from official sources only",
-        "Secure your seed phrase - never share it with anyone",
-        "Enable 2FA and biometric authentication"
+        "Download Phantom from phantom.app (available as browser extension or mobile app)",
+        "Click 'Create a new wallet' and follow the setup wizard",
+        "Write down your 12-word recovery phrase on paper - NEVER share this with anyone",
+        "Store your recovery phrase in a safe place - this is the only way to recover your wallet",
+        "Set a strong password for quick access to your wallet"
       ]
     },
     {
-      title: "Buying Your First Crypto",
-      description: "Step-by-step guide to purchasing cryptocurrency",
-      icon: Bitcoin,
-      steps: [
-        "Create an account on a crypto exchange",
-        "Complete identity verification (KYC)",
-        "Add payment method (bank account or card)",
-        "Purchase crypto and transfer to your wallet"
-      ]
-    },
-    {
-      title: "Paying with Crypto",
-      description: "How to use crypto for purchases like eSIMs",
+      title: "Buying Solana (SOL)",
+      description: "Get SOL to pay for eSIMs on Nomiqa",
       icon: Coins,
       steps: [
-        "Ensure you have enough crypto + gas fees",
-        "Copy the payment address carefully",
-        "Double-check the network (e.g., Ethereum, BSC)",
-        "Confirm transaction and wait for confirmations"
+        "Open your Phantom wallet and click 'Buy'",
+        "Choose a payment provider (Moonpay, Coinbase, etc.)",
+        "Enter the amount of SOL you want to buy",
+        "Complete the payment with your credit/debit card or bank transfer",
+        "SOL will appear in your Phantom wallet within minutes"
+      ]
+    },
+    {
+      title: "Getting USDC on Solana",
+      description: "USDC is a stablecoin (always $1) - also accepted on Nomiqa",
+      icon: Coins,
+      steps: [
+        "In Phantom wallet, click 'Buy' and select USDC",
+        "Or buy SOL first, then swap it for USDC using Phantom's swap feature",
+        "Make sure you're getting USDC on Solana network (not Ethereum)",
+        "USDC on Solana has very low fees compared to other networks",
+        "Keep some SOL for transaction fees (about $0.01 per transaction)"
+      ]
+    },
+    {
+      title: "Paying for Your eSIM",
+      description: "How to complete your purchase with Solana or USDC",
+      icon: Download,
+      steps: [
+        "Select your eSIM plan on Nomiqa",
+        "At checkout, choose to pay with SOL or USDC",
+        "Copy the payment address shown",
+        "Open Phantom wallet and click 'Send'",
+        "Paste the address, enter the exact amount, and confirm",
+        "Your eSIM will be delivered instantly after payment confirmation"
       ]
     },
     {
       title: "Security Best Practices",
-      description: "Keep your crypto safe from threats",
+      description: "Keep your crypto safe with Phantom",
       icon: Shield,
       steps: [
-        "Never share your private keys or seed phrase",
-        "Use hardware wallets for large amounts",
-        "Beware of phishing sites and scams",
-        "Keep your wallet software updated"
+        "NEVER share your 12-word recovery phrase with anyone - not even Nomiqa support",
+        "Enable biometric authentication (Face ID/fingerprint) in Phantom settings",
+        "Beware of fake Phantom apps - only download from phantom.app",
+        "Double-check wallet addresses before sending - crypto transactions are irreversible",
+        "Start with small amounts until you're comfortable with the process"
       ]
     }
   ];
 
   const resources = [
     {
-      title: "Ethereum.org",
-      description: "Official Ethereum documentation and guides",
-      url: "https://ethereum.org/en/wallets/"
+      title: "Phantom Wallet",
+      description: "Download Phantom - the #1 Solana wallet",
+      url: "https://phantom.app/"
     },
     {
-      title: "MetaMask Learn",
-      description: "Interactive tutorials for MetaMask wallet",
-      url: "https://learn.metamask.io/"
+      title: "What is Solana?",
+      description: "Learn about the Solana blockchain",
+      url: "https://solana.com/learn"
     },
     {
-      title: "CoinGecko",
-      description: "Track crypto prices and learn about tokens",
-      url: "https://www.coingecko.com/learn"
+      title: "USDC on Solana",
+      description: "Learn about USDC stablecoin on Solana",
+      url: "https://www.circle.com/usdc"
     }
   ];
 
@@ -77,9 +94,9 @@ export default function LearnCrypto() {
       <div className="container mx-auto px-4 py-20">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">Learn How to Use Crypto</h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">Learn How to Use Phantom & Buy Solana</h1>
             <p className="text-xl text-muted-foreground">
-              Everything you need to know to get started with cryptocurrency payments
+              Everything you need to know to buy eSIMs with Solana or USDC on Solana
             </p>
           </div>
 
@@ -143,10 +160,10 @@ export default function LearnCrypto() {
                 <div>
                   <h3 className="text-xl font-bold mb-2">Ready to get your eSIM?</h3>
                   <p className="text-muted-foreground">
-                    Now that you know how crypto works, browse our plans
+                    Now that you know how to use Phantom and Solana, browse our plans
                   </p>
                 </div>
-                <Button size="lg" onClick={() => window.location.href = '/#shop'}>
+                <Button size="lg" onClick={() => window.location.href = '/shop'}>
                   Browse Plans
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
