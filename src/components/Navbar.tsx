@@ -67,7 +67,7 @@ export const Navbar = () => {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-xl border-b border-neon-cyan/20 shadow-lg shadow-neon-cyan/5">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-deep-space/95 backdrop-blur-xl border-b border-neon-cyan/20 shadow-lg shadow-neon-cyan/5">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-3">

@@ -91,12 +91,14 @@ export const Shop = () => {
   };
 
   return (
-    <section id="shop" className="py-20 px-4 bg-gradient-to-br from-primary/5 via-background to-secondary/5">
+    <section id="shop" className="py-12 md:py-20 px-4 bg-gradient-to-br from-deep-space via-midnight-blue to-deep-space">
       <div className="container mx-auto max-w-7xl">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h2 className="text-4xl font-bold mb-2">eSIM Plans</h2>
-            <p className="text-muted-foreground">
+        <div className="flex justify-between items-center mb-6 md:mb-8">
+          <div className="w-full">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-2 bg-gradient-neon bg-clip-text text-transparent">
+              eSIM Plans
+            </h2>
+            <p className="text-foreground/70 text-sm md:text-base">
               Global connectivity at your fingertips
             </p>
           </div>
