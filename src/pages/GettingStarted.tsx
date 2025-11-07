@@ -135,8 +135,8 @@ export default function GettingStarted() {
             {guides.map((guide, index) => (
               <Card key={index}>
                 <CardHeader>
-                  <div className="flex items-center gap-4">
-                    <div className="p-3 bg-primary/10 rounded-lg">
+                  <div className="flex flex-col md:flex-row items-center md:items-start gap-4 text-center md:text-left">
+                    <div className="p-3 bg-primary/10 rounded-lg mx-auto md:mx-0">
                       <guide.icon className="w-6 h-6 text-primary" />
                     </div>
                     <div>
@@ -162,7 +162,7 @@ export default function GettingStarted() {
           </div>
 
           <div className="mb-12">
-            <h2 className="text-2xl font-bold mb-6">Helpful Resources</h2>
+            <h2 className="text-2xl font-bold mb-6 text-center">Helpful Resources</h2>
             <div className="grid md:grid-cols-3 gap-4">
               {resources.map((resource, index) => (
                 <Card key={index} className="hover:shadow-lg transition-shadow">

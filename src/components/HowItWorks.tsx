@@ -40,7 +40,7 @@ export const HowItWorks = () => {
             return (
               <div key={index} className="text-center animate-fade-in-up" style={{ animationDelay: `${index * 0.15}s` }}>
                 <div className="mb-4 mx-auto w-16 h-16 rounded-full bg-white flex items-center justify-center shadow-lg">
-                  <Icon className="w-8 h-8 text-nomiqa-teal" />
+                  <Icon className="w-8 h-8 text-nomiqa-teal mx-auto" />
                 </div>
                 <h3 className="text-xl font-bold mb-2 text-white">{step.title}</h3>
                 <p className="text-white/80">{step.description}</p>
