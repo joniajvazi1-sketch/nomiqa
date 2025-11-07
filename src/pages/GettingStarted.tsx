@@ -31,18 +31,6 @@ export default function GettingStarted() {
       ]
     },
     {
-      title: "Getting USDC on Solana",
-      description: "USDC is a stablecoin (always $1) - also accepted on Nomiqa",
-      icon: Coins,
-      steps: [
-        "In Phantom wallet, click 'Buy' and select USDC",
-        "Or buy SOL first, then swap it for USDC using Phantom's swap feature",
-        "Make sure you're getting USDC on Solana network (not Ethereum)",
-        "USDC on Solana has very low fees compared to other networks",
-        "Keep some SOL for transaction fees (about $0.01 per transaction)"
-      ]
-    },
-    {
       title: "Buying $NOMIQA Token",
       description: "Get Nomiqa tokens to earn rewards and access exclusive benefits",
       icon: TrendingUp,
