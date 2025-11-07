@@ -46,11 +46,11 @@ export const Navbar = () => {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-nomiqa-dark/95 backdrop-blur-md border-b border-white/10">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/98 backdrop-blur-md border-b border-border shadow-sm">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-2">
-            <button onClick={() => navigate('/')} className="text-2xl font-bold text-white hover:opacity-80 transition">
+            <button onClick={() => navigate('/')} className="text-2xl font-bold text-primary hover:opacity-80 transition">
               nomiqa
             </button>
           </div>
@@ -58,38 +58,38 @@ export const Navbar = () => {
           <div className="hidden md:flex items-center gap-8">
             <button
               onClick={() => navigate('/shop')}
-              className="text-white/80 hover:text-white transition-colors"
+              className="text-foreground/70 hover:text-foreground transition-colors"
             >
               Shop
             </button>
             <button
               onClick={() => navigate('/getting-started')}
-              className="text-white/80 hover:text-white transition-colors"
+              className="text-foreground/70 hover:text-foreground transition-colors"
             >
               Getting Started
             </button>
             <button
               onClick={() => navigate('/stake')}
-              className="text-white/80 hover:text-white transition-colors"
+              className="text-foreground/70 hover:text-foreground transition-colors"
             >
               Stake
             </button>
             <button
               onClick={() => navigate('/roadmap')}
-              className="text-white/80 hover:text-white transition-colors"
+              className="text-foreground/70 hover:text-foreground transition-colors"
             >
               Roadmap
             </button>
             <button
               onClick={() => navigate('/affiliate')}
-              className="text-white/80 hover:text-white transition-colors"
+              className="text-foreground/70 hover:text-foreground transition-colors"
             >
               Affiliate
             </button>
             {user && (
               <button
                 onClick={() => navigate('/orders')}
-                className="text-white/80 hover:text-white transition-colors"
+                className="text-foreground/70 hover:text-foreground transition-colors"
               >
                 My Orders
               </button>
@@ -100,56 +100,56 @@ export const Navbar = () => {
           <div className="md:hidden">
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="sm" className="text-white">
+                <Button variant="ghost" size="sm" className="text-foreground">
                   <Menu className="w-5 h-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-[300px] bg-nomiqa-dark border-white/10">
+              <SheetContent side="right" className="w-[300px] bg-background border-border">
                 <SheetHeader>
-                  <SheetTitle className="text-white">Menu</SheetTitle>
+                  <SheetTitle className="text-foreground">Menu</SheetTitle>
                 </SheetHeader>
                 
                 <div className="flex flex-col gap-4 mt-8">
                   <button
                     onClick={() => handleNavClick('/shop')}
-                    className="text-left text-white/80 hover:text-white transition-colors py-2 px-4 rounded hover:bg-white/5"
+                    className="text-left text-foreground/70 hover:text-foreground transition-colors py-2 px-4 rounded hover:bg-muted"
                   >
                     Shop
                   </button>
                   <button
                     onClick={() => handleNavClick('/getting-started')}
-                    className="text-left text-white/80 hover:text-white transition-colors py-2 px-4 rounded hover:bg-white/5"
+                    className="text-left text-foreground/70 hover:text-foreground transition-colors py-2 px-4 rounded hover:bg-muted"
                   >
                     Getting Started
                   </button>
                   <button
                     onClick={() => handleNavClick('/stake')}
-                    className="text-left text-white/80 hover:text-white transition-colors py-2 px-4 rounded hover:bg-white/5"
+                    className="text-left text-foreground/70 hover:text-foreground transition-colors py-2 px-4 rounded hover:bg-muted"
                   >
                     Stake
                   </button>
                   <button
                     onClick={() => handleNavClick('/roadmap')}
-                    className="text-left text-white/80 hover:text-white transition-colors py-2 px-4 rounded hover:bg-white/5"
+                    className="text-left text-foreground/70 hover:text-foreground transition-colors py-2 px-4 rounded hover:bg-muted"
                   >
                     Roadmap
                   </button>
                   <button
                     onClick={() => handleNavClick('/affiliate')}
-                    className="text-left text-white/80 hover:text-white transition-colors py-2 px-4 rounded hover:bg-white/5"
+                    className="text-left text-foreground/70 hover:text-foreground transition-colors py-2 px-4 rounded hover:bg-muted"
                   >
                     Affiliate
                   </button>
                   {user && (
                     <button
                       onClick={() => handleNavClick('/orders')}
-                      className="text-left text-white/80 hover:text-white transition-colors py-2 px-4 rounded hover:bg-white/5"
+                      className="text-left text-foreground/70 hover:text-foreground transition-colors py-2 px-4 rounded hover:bg-muted"
                     >
                       My Orders
                     </button>
                   )}
                   
-                  <div className="border-t border-white/10 pt-4 mt-4">
+                  <div className="border-t border-border pt-4 mt-4">
                     {user ? (
                       <Button
                         variant="cyber"

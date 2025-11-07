@@ -54,6 +54,7 @@ export default {
           cream: "hsl(var(--nomiqa-cream))",
           peach: "hsl(var(--nomiqa-peach))",
           blue: "hsl(var(--nomiqa-blue))",
+          dark: "hsl(var(--nomiqa-dark))",
         },
       },
       backgroundImage: {

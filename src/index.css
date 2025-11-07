@@ -8,56 +8,57 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 40 33% 97%;
-    --foreground: 220 20% 15%;
+    --background: 41 38% 96%;
+    --foreground: 0 0% 13%;
 
     --card: 0 0% 100%;
-    --card-foreground: 220 20% 15%;
+    --card-foreground: 0 0% 13%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 20% 15%;
+    --popover-foreground: 0 0% 13%;
 
-    --primary: 18 91% 56%;
+    --primary: 25 95% 58%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 38 90% 95%;
-    --secondary-foreground: 220 20% 15%;
+    --secondary: 41 38% 96%;
+    --secondary-foreground: 0 0% 13%;
 
-    --muted: 38 40% 93%;
-    --muted-foreground: 220 10% 45%;
+    --muted: 41 30% 92%;
+    --muted-foreground: 0 0% 40%;
 
-    --accent: 178 78% 57%;
+    --accent: 178 65% 52%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 38 30% 88%;
-    --input: 38 30% 88%;
-    --ring: 18 91% 56%;
+    --border: 41 25% 88%;
+    --input: 41 25% 88%;
+    --ring: 25 95% 58%;
 
     --radius: 1rem;
 
-    /* Nomiqa Happy Colors - Inspired by Airalo */
-    --nomiqa-orange: 18 91% 56%;
-    --nomiqa-teal: 178 78% 57%;
-    --nomiqa-green: 142 76% 56%;
-    --nomiqa-cream: 40 33% 97%;
-    --nomiqa-peach: 25 100% 70%;
+    /* Nomiqa Happy Colors - Exact Airalo Style */
+    --nomiqa-orange: 25 95% 58%;
+    --nomiqa-teal: 178 65% 52%;
+    --nomiqa-green: 145 63% 49%;
+    --nomiqa-cream: 41 38% 96%;
+    --nomiqa-peach: 40 100% 93%;
     --nomiqa-blue: 198 93% 60%;
+    --nomiqa-dark: 220 18% 20%;
     
     /* Happy Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(18 91% 56%) 0%, hsl(25 100% 70%) 100%);
-    --gradient-hero: linear-gradient(180deg, hsl(220 30% 20%) 0%, hsl(220 25% 30%) 100%);
-    --gradient-warm: linear-gradient(135deg, hsl(25 100% 70%) 0%, hsl(18 91% 56%) 100%);
-    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%) 0%, hsl(40 50% 98%) 100%);
-    --gradient-teal: linear-gradient(135deg, hsl(178 78% 57%) 0%, hsl(198 93% 60%) 100%);
-    --gradient-green: linear-gradient(135deg, hsl(142 76% 56%) 0%, hsl(155 80% 65%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(25 95% 58%) 0%, hsl(35 100% 70%) 100%);
+    --gradient-hero: linear-gradient(180deg, hsl(41 38% 96%) 0%, hsl(41 50% 98%) 100%);
+    --gradient-warm: linear-gradient(135deg, hsl(25 95% 58%) 0%, hsl(35 100% 70%) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%) 0%, hsl(41 50% 98%) 100%);
+    --gradient-teal: linear-gradient(135deg, hsl(178 65% 52%) 0%, hsl(188 70% 60%) 100%);
+    --gradient-green: linear-gradient(135deg, hsl(145 63% 49%) 0%, hsl(155 70% 55%) 100%);
     
     /* Glows & Effects */
-    --glow-orange: 0 0 40px hsl(18 91% 56% / 0.3);
-    --glow-teal: 0 0 30px hsl(178 78% 57% / 0.25);
-    --shadow-warm: 0 10px 30px -10px hsl(18 91% 56% / 0.2);
+    --glow-orange: 0 0 40px hsl(25 95% 58% / 0.3);
+    --glow-teal: 0 0 30px hsl(178 65% 52% / 0.25);
+    --shadow-warm: 0 10px 30px -10px hsl(25 95% 58% / 0.2);
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   }
