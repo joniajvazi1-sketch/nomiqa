@@ -131,6 +131,8 @@ export default {
         "float": "float 3s ease-in-out infinite",
         "confetti": "confetti 2s ease-out forwards",
         "wave-up": "wave-up 4s ease-out forwards",
+        "bounce-slow": "float 2s ease-in-out infinite",
+        "pulse": "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
       },
     },
   },

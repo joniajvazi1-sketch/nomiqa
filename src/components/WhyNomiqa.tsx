@@ -1,11 +1,12 @@
 import celebratingPerson from "@/assets/celebrating-person.jpg";
+import { AnimatedHeroImage } from "./AnimatedHeroImage";
 
 export const WhyNomiqa = () => {
   return (
     <section className="py-20 bg-gradient-to-br from-secondary via-background to-secondary/50 relative overflow-hidden">
       {/* Decorative shapes */}
-      <div className="absolute top-20 right-10 w-32 h-32 bg-nomiqa-peach/20 rounded-full blur-3xl animate-float"></div>
-      <div className="absolute bottom-20 left-10 w-40 h-40 bg-nomiqa-teal/20 rounded-full blur-3xl animate-float" style={{ animationDelay: "1s" }}></div>
+      <div className="absolute top-20 right-10 w-32 h-32 bg-nomiqa-peach/20 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-20 left-10 w-40 h-40 bg-nomiqa-teal/20 rounded-full blur-3xl"></div>
       <div className="container px-4 relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 items-center max-w-7xl mx-auto">
           <div className="text-center lg:text-left animate-fade-in-up">
@@ -15,11 +16,10 @@ export const WhyNomiqa = () => {
             </h2>
             
             <div className="flex justify-center lg:justify-start mt-8">
-              <img 
+              <AnimatedHeroImage 
                 src={celebratingPerson} 
                 alt="Happy person celebrating"
-                className="w-48 h-48 object-contain animate-bounce-in"
-                style={{ animationDelay: "0.5s" }}
+                className="w-48 h-48"
               />
             </div>
           </div>

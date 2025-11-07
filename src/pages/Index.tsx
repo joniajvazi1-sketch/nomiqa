@@ -5,7 +5,6 @@ import { EasyCheckout } from "@/components/EasyCheckout";
 import { HowItWorks } from "@/components/HowItWorks";
 import { EarnSection } from "@/components/EarnSection";
 import { Footer } from "@/components/Footer";
-import { HappyPeople } from "@/components/HappyPeople";
 
 const Index = () => {
   return (
@@ -17,7 +16,6 @@ const Index = () => {
       <HowItWorks />
       <EarnSection />
       <Footer />
-      <HappyPeople />
     </div>
   );
 };

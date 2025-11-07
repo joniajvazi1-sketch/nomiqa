@@ -3,7 +3,6 @@ import { Footer } from "@/components/Footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, Circle, Clock } from "lucide-react";
-import { HappyPeople } from "@/components/HappyPeople";
 
 export default function Roadmap() {
   const phases = [
@@ -157,7 +156,6 @@ export default function Roadmap() {
       </div>
 
       <Footer />
-      <HappyPeople />
     </div>
   );
 }

@@ -1,7 +1,6 @@
 import { Navbar } from "@/components/Navbar";
 import { Shop } from "@/components/Shop";
 import { Footer } from "@/components/Footer";
-import { HappyPeople } from "@/components/HappyPeople";
 
 const ShopPage = () => {
   return (
@@ -11,7 +10,6 @@ const ShopPage = () => {
         <Shop />
       </div>
       <Footer />
-      <HappyPeople />
     </div>
   );
 };

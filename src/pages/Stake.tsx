@@ -3,7 +3,6 @@ import { Footer } from "@/components/Footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Coins, TrendingUp, Lock, Zap, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { HappyPeople } from "@/components/HappyPeople";
 
 export default function Stake() {
   const features = [
@@ -103,7 +102,6 @@ export default function Stake() {
       </div>
 
       <Footer />
-      <HappyPeople />
     </div>
   );
 }
