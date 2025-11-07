@@ -23,7 +23,7 @@ export const Hero = () => {
             The first crypto-native eSIM with anonymous activation, wallet payments, and token rewards.
           </p>
           
-          <div className="flex flex-wrap gap-8 justify-center items-center text-white/80 mb-12">
+          <div className="flex flex-wrap gap-8 justify-center items-center text-white/80 mb-12 text-center">
             <div className="flex items-center gap-2">
               <Globe className="w-5 h-5 text-accent" />
               <span>200+ Countries</span>

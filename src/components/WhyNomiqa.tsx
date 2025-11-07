@@ -3,14 +3,14 @@ export const WhyNomiqa = () => {
     <section className="py-20 bg-secondary">
       <div className="container px-4">
         <div className="grid lg:grid-cols-2 gap-12 items-center max-w-7xl mx-auto">
-          <div>
+          <div className="text-center lg:text-left">
             <h2 className="text-4xl md:text-5xl font-bold mb-6">
               Why<em className="italic">Nomiqa</em> : Privacy, Simplicity, and{" "}
               <em className="italic">Crypto Freedom</em> for Web3 Travelers
             </h2>
           </div>
           
-          <div className="space-y-6">
+          <div className="space-y-6 text-center lg:text-left">
             <p className="text-lg">
               At <strong>Nomiqa</strong>, we're redefining connectivity for the new era of{" "}
               <strong>Web3 travelers</strong>. Guided by our three core pillars{" "}
@@ -26,7 +26,7 @@ export const WhyNomiqa = () => {
           </div>
         </div>
         
-        <div className="grid md:grid-cols-3 gap-8 max-w-7xl mx-auto mt-16">
+        <div className="grid md:grid-cols-3 gap-8 max-w-7xl mx-auto mt-16 text-center">
           <div className="border border-border bg-card p-8 rounded-lg">
             <h3 className="text-2xl font-bold mb-4">Unwavering Privacy</h3>
             <p className="text-muted-foreground">
