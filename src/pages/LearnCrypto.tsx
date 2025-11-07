@@ -1,7 +1,7 @@
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Wallet, Shield, Coins, ArrowRight, ExternalLink, Download } from "lucide-react";
+import { Wallet, Shield, Coins, ArrowRight, ExternalLink, Download, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function LearnCrypto() {
@@ -40,6 +40,21 @@ export default function LearnCrypto() {
         "Make sure you're getting USDC on Solana network (not Ethereum)",
         "USDC on Solana has very low fees compared to other networks",
         "Keep some SOL for transaction fees (about $0.01 per transaction)"
+      ]
+    },
+    {
+      title: "Buying $NOMIQA Token",
+      description: "Get Nomiqa tokens to earn rewards and access exclusive benefits",
+      icon: TrendingUp,
+      steps: [
+        "Make sure you have SOL in your Phantom wallet (you'll need it to swap)",
+        "Open Phantom and click on the 'Swap' button at the bottom",
+        "Select SOL as the token you're swapping from",
+        "Search for 'NOMIQA' or paste the token contract address in the 'To' field",
+        "Enter the amount of SOL you want to swap for $NOMIQA",
+        "Review the exchange rate and click 'Swap'",
+        "Confirm the transaction - your $NOMIQA tokens will appear in your wallet",
+        "Alternative: Use Jupiter (jup.ag) - Solana's most popular DEX for better rates"
       ]
     },
     {
