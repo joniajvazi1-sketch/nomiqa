@@ -229,7 +229,7 @@ export const Navbar = () => {
                   <span className="hidden sm:inline">{language}</span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="bg-white z-50">
+              <DropdownMenuContent align="end" className="bg-background border border-border z-50">
                 {languages.map((lang) => (
                   <DropdownMenuItem
                     key={lang.code}
@@ -237,7 +237,7 @@ export const Navbar = () => {
                       setLanguage(lang.code);
                       toast.success(`Language changed to ${lang.name}`);
                     }}
-                    className="cursor-pointer"
+                    className="cursor-pointer text-foreground hover:bg-muted"
                   >
                     {lang.name}
                   </DropdownMenuItem>
