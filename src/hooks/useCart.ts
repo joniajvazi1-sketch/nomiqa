@@ -13,8 +13,11 @@ interface CartStore {
   removeItem: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
-  total: number;
 }
+
+const calculateTotal = (items: CartItem[]) => {
+  return items.reduce((sum, item) => sum + item.product.price_usd * item.quantity, 0);
+};
 
 export const useCart = create<CartStore>()(
   persist(
@@ -57,16 +60,16 @@ export const useCart = create<CartStore>()(
       },
       
       clearCart: () => set({ items: [] }),
-      
-      get total() {
-        return get().items.reduce(
-          (sum, item) => sum + item.product.price_usd * item.quantity,
-          0
-        );
-      }
     }),
     {
       name: 'esim-cart',
     }
   )
 );
+
+// Export a hook that includes the computed total
+export const useCartWithTotal = () => {
+  const cart = useCart();
+  const total = calculateTotal(cart.items);
+  return { ...cart, total };
+};

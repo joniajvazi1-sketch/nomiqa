@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useCart } from "@/hooks/useCart";
+import { useCartWithTotal } from "@/hooks/useCart";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,7 +15,7 @@ const emailSchema = z.string().email("Please enter a valid email address");
 
 export default function Checkout() {
   const navigate = useNavigate();
-  const { items, removeItem, updateQuantity, clearCart, total } = useCart();
+  const { items, removeItem, updateQuantity, clearCart, total } = useCartWithTotal();
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
