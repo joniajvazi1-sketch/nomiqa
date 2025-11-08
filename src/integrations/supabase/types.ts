@@ -82,6 +82,7 @@ export type Database = {
           total_earnings_usd: number | null
           updated_at: string
           user_id: string | null
+          username: string | null
         }
         Insert: {
           affiliate_code: string
@@ -96,6 +97,7 @@ export type Database = {
           total_earnings_usd?: number | null
           updated_at?: string
           user_id?: string | null
+          username?: string | null
         }
         Update: {
           affiliate_code?: string
@@ -110,6 +112,7 @@ export type Database = {
           total_earnings_usd?: number | null
           updated_at?: string
           user_id?: string | null
+          username?: string | null
         }
         Relationships: [
           {

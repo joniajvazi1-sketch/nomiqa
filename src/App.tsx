@@ -75,6 +75,8 @@ const App = () => (
             <Route path="/r/:code" element={<AffiliateRedirect />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/about" element={<About />} />
+            {/* Username-based affiliate links - must be last before catch-all */}
+            <Route path="/:username" element={<AffiliateRedirect />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

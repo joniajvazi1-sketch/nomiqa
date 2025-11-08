@@ -14,6 +14,7 @@ import { useAffiliateTracking } from "@/hooks/useAffiliateTracking";
 interface AffiliateData {
   id: string;
   affiliate_code: string;
+  username: string | null;
   total_clicks: number;
   total_conversions: number;
   total_earnings_usd: number;
@@ -28,7 +29,10 @@ export default function Affiliate() {
   const [creating, setCreating] = useState(false);
   const [affiliate, setAffiliate] = useState<AffiliateData | null>(null);
   const [affiliateLink, setAffiliateLink] = useState("");
+  const [customLink, setCustomLink] = useState("");
   const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
+  const [updatingUsername, setUpdatingUsername] = useState(false);
   const [isGuest, setIsGuest] = useState(false);
 
   useEffect(() => {
@@ -78,6 +82,50 @@ export default function Affiliate() {
     if (!error && data) {
       setAffiliate(data);
       setAffiliateLink(`${window.location.origin}/r/${data.affiliate_code}`);
+      setUsername(data.username || '');
+      if (data.username) {
+        setCustomLink(`${window.location.origin}/${data.username}`);
+      }
+    }
+  };
+
+  const updateUsername = async () => {
+    if (!username || !affiliate) return;
+    
+    // Validate username (alphanumeric and hyphens only)
+    if (!/^[a-z0-9-]+$/.test(username)) {
+      toast.error("Username can only contain lowercase letters, numbers, and hyphens");
+      return;
+    }
+
+    if (username.length < 3 || username.length > 30) {
+      toast.error("Username must be between 3 and 30 characters");
+      return;
+    }
+
+    setUpdatingUsername(true);
+    try {
+      const { error } = await supabase
+        .from('affiliates')
+        .update({ username: username.toLowerCase() })
+        .eq('id', affiliate.id);
+
+      if (error) {
+        if (error.code === '23505') {
+          toast.error("Username already taken. Please choose another.");
+        } else {
+          throw error;
+        }
+        return;
+      }
+
+      setAffiliate({ ...affiliate, username: username.toLowerCase() });
+      setCustomLink(`${window.location.origin}/${username.toLowerCase()}`);
+      toast.success("Custom link updated!");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to update username");
+    } finally {
+      setUpdatingUsername(false);
     }
   };
 
@@ -279,24 +327,67 @@ export default function Affiliate() {
 
               <Card className="mb-8">
                 <CardHeader>
-                  <CardTitle>Your Affiliate Link</CardTitle>
+                  <CardTitle>Your Affiliate Links</CardTitle>
                   <CardDescription>
-                    Share this link to earn commissions on every sale
+                    Share these links to earn commissions on every sale
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <div className="flex gap-2">
-                    <Input value={affiliateLink} readOnly className="font-mono" />
-                    <Button onClick={copyLink}>
-                      <Copy className="w-4 h-4 mr-2" />
-                      Copy
-                    </Button>
+                <CardContent className="space-y-6">
+                  {/* Custom Username Link */}
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-sm font-semibold">Custom Short Link</h3>
+                      {customLink && <Badge variant="secondary">Active</Badge>}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Create your personalized link: nomiqa-esims.com/yourname
+                    </p>
+                    <div className="flex gap-2">
+                      <div className="flex-1 flex gap-2">
+                        <span className="flex items-center px-3 bg-muted text-muted-foreground rounded-md text-sm">
+                          {window.location.origin}/
+                        </span>
+                        <Input 
+                          value={username} 
+                          onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
+                          placeholder="yourname"
+                          className="font-mono"
+                          disabled={updatingUsername}
+                        />
+                      </div>
+                      <Button 
+                        onClick={updateUsername} 
+                        disabled={!username || updatingUsername || username === affiliate.username}
+                      >
+                        {updatingUsername && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                        {affiliate.username ? 'Update' : 'Set'}
+                      </Button>
+                    </div>
+                    {customLink && (
+                      <div className="flex gap-2">
+                        <Input value={customLink} readOnly className="font-mono text-primary font-semibold" />
+                        <Button onClick={() => {
+                          navigator.clipboard.writeText(customLink);
+                          toast.success("Custom link copied!");
+                        }}>
+                          <Copy className="w-4 h-4 mr-2" />
+                          Copy
+                        </Button>
+                      </div>
+                    )}
                   </div>
-                  <p className="text-sm text-muted-foreground mt-4">
-                    Status: <Badge variant={affiliate.status === 'active' ? 'default' : 'secondary'}>
-                      {affiliate.status}
-                    </Badge>
-                  </p>
+
+                  {/* Default Affiliate Link */}
+                  <div className="space-y-3 pt-4 border-t">
+                    <h3 className="text-sm font-semibold">Default Referral Link</h3>
+                    <div className="flex gap-2">
+                      <Input value={affiliateLink} readOnly className="font-mono" />
+                      <Button onClick={copyLink}>
+                        <Copy className="w-4 h-4 mr-2" />
+                        Copy
+                      </Button>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
 

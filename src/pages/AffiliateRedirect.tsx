@@ -5,29 +5,43 @@ import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
 
 export default function AffiliateRedirect() {
-  const { code } = useParams<{ code: string }>();
+  const { code, username } = useParams<{ code?: string; username?: string }>();
   const navigate = useNavigate();
   const { setReferralCode } = useAffiliateTracking();
 
   useEffect(() => {
     const handleRedirect = async () => {
-      if (!code) {
+      const referralIdentifier = code || username;
+      
+      if (!referralIdentifier) {
         navigate('/');
         return;
       }
 
-      // Set the referral code
-      setReferralCode(code);
-
-      // Track the click
       try {
-        const { data: affiliate } = await supabase
-          .from('affiliates')
-          .select('id, total_clicks')
-          .eq('affiliate_code', code)
-          .single();
+        // Try to find affiliate by username first, then by code
+        let affiliate;
+        
+        if (username) {
+          const { data } = await supabase
+            .from('affiliates')
+            .select('id, affiliate_code, total_clicks')
+            .eq('username', username.toLowerCase())
+            .single();
+          affiliate = data;
+        } else {
+          const { data } = await supabase
+            .from('affiliates')
+            .select('id, affiliate_code, total_clicks')
+            .eq('affiliate_code', code)
+            .single();
+          affiliate = data;
+        }
 
         if (affiliate) {
+          // Set the referral code
+          setReferralCode(affiliate.affiliate_code);
+
           // Update click count
           await supabase
             .from('affiliates')
@@ -52,7 +66,7 @@ export default function AffiliateRedirect() {
     };
 
     handleRedirect();
-  }, [code, navigate, setReferralCode]);
+  }, [code, username, navigate, setReferralCode]);
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center">
