@@ -11,3 +11,9 @@ verify_jwt = false
 
 [functions.track-affiliate-click]
 verify_jwt = false
+
+[functions.nowpayments-webhook]
+verify_jwt = false
+
+[functions.create-nowpayments-invoice]
+verify_jwt = true

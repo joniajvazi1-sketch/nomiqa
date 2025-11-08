@@ -40,28 +40,49 @@ export default function Checkout() {
       // Get current user
       const { data: { user } } = await supabase.auth.getUser();
 
-      // Submit order for each item
+      // Create orders in database (without eSIM provisioning yet)
+      const orderIds = [];
       for (const item of items) {
-        const { data, error } = await supabase.functions.invoke('submit-order', {
-          body: {
-            packageId: item.product.airlo_package_id,
+        const { data: order, error } = await supabase
+          .from('orders')
+          .insert({
+            user_id: user?.id || null,
             email,
-            userId: user?.id || null
-          }
-        });
+            product_id: item.product.id,
+            package_name: item.product.name,
+            data_amount: item.product.data_amount,
+            validity_days: item.product.validity_days,
+            total_amount_usd: item.product.price_usd,
+            status: 'pending_payment',
+          })
+          .select()
+          .single();
 
         if (error) throw error;
-        if (!data.success) throw new Error('Order submission failed');
+        orderIds.push(order.id);
       }
 
-      toast.success("Order submitted successfully! You'll receive your eSIM details via email.");
-      clearCart();
-      navigate('/orders');
+      // Create NowPayments invoice for all items
+      const totalAmount = items.reduce((sum, item) => sum + item.product.price_usd, 0);
+      const { data, error } = await supabase.functions.invoke('create-nowpayments-invoice', {
+        body: {
+          orderId: orderIds[0], // Using first order ID as reference
+          email,
+        }
+      });
+
+      if (error) throw error;
+
+      if (data.invoiceUrl) {
+        // Redirect to NowPayments checkout
+        window.location.href = data.invoiceUrl;
+      } else {
+        throw new Error('Failed to create payment invoice');
+      }
       
     } catch (error: any) {
       console.error('Checkout error:', error);
-      toast.error(error.message || "Failed to submit order. Please try again.");
-    } finally {
+      toast.error(error.message || "Failed to create payment. Please try again.");
       setIsSubmitting(false);
     }
   };
