@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Copy, TrendingUp, Users, DollarSign, CheckCircle2, Loader2, XCircle, AlertCircle } from "lucide-react";
+import { Copy, TrendingUp, Users, DollarSign, CheckCircle2, Loader2, XCircle, AlertCircle, BarChart3, Share2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAffiliateTracking } from "@/hooks/useAffiliateTracking";
 
@@ -20,6 +20,11 @@ interface AffiliateData {
   total_earnings_usd: number;
   commission_rate: number;
   status: string;
+}
+
+interface AnalyticsData {
+  sourceBreakdown: { source: string; clicks: number; conversions: number }[];
+  levelBreakdown: { level: number; conversions: number; earnings: number }[];
 }
 
 export default function Affiliate() {
@@ -35,6 +40,8 @@ export default function Affiliate() {
   const [updatingUsername, setUpdatingUsername] = useState(false);
   const [isGuest, setIsGuest] = useState(false);
   const [usernameAvailability, setUsernameAvailability] = useState<'idle' | 'checking' | 'available' | 'taken' | 'invalid'>('idle');
+  const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
+  const [loadingAnalytics, setLoadingAnalytics] = useState(false);
 
   useEffect(() => {
     checkUser();
@@ -127,6 +134,59 @@ export default function Affiliate() {
       if (data.username) {
         setCustomLink(`${window.location.origin}/${data.username}`);
       }
+      
+      // Fetch analytics
+      fetchAnalytics(data.id);
+    }
+  };
+
+  const fetchAnalytics = async (affiliateId: string) => {
+    setLoadingAnalytics(true);
+    try {
+      // Get source breakdown
+      const { data: referrals } = await supabase
+        .from('affiliate_referrals')
+        .select('source, status, commission_level, commission_amount_usd')
+        .eq('affiliate_id', affiliateId);
+
+      if (referrals) {
+        // Group by source
+        const sourceMap = new Map<string, { clicks: number; conversions: number }>();
+        referrals.forEach(ref => {
+          const current = sourceMap.get(ref.source) || { clicks: 0, conversions: 0 };
+          current.clicks += 1;
+          if (ref.status === 'converted') current.conversions += 1;
+          sourceMap.set(ref.source, current);
+        });
+
+        const sourceBreakdown = Array.from(sourceMap.entries()).map(([source, data]) => ({
+          source,
+          clicks: data.clicks,
+          conversions: data.conversions
+        })).sort((a, b) => b.clicks - a.clicks);
+
+        // Group by level
+        const levelMap = new Map<number, { conversions: number; earnings: number }>();
+        referrals.filter(r => r.status === 'converted').forEach(ref => {
+          const level = ref.commission_level || 1;
+          const current = levelMap.get(level) || { conversions: 0, earnings: 0 };
+          current.conversions += 1;
+          current.earnings += ref.commission_amount_usd || 0;
+          levelMap.set(level, current);
+        });
+
+        const levelBreakdown = Array.from(levelMap.entries()).map(([level, data]) => ({
+          level,
+          conversions: data.conversions,
+          earnings: data.earnings
+        })).sort((a, b) => a.level - b.level);
+
+        setAnalytics({ sourceBreakdown, levelBreakdown });
+      }
+    } catch (error) {
+      console.error('Error fetching analytics:', error);
+    } finally {
+      setLoadingAnalytics(false);
     }
   };
 
@@ -491,6 +551,127 @@ export default function Affiliate() {
                       </Button>
                     </div>
                   </div>
+                </CardContent>
+              </Card>
+
+              {/* Analytics Dashboard */}
+              <Card className="mb-8">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="flex items-center gap-2">
+                        <BarChart3 className="w-5 h-5" />
+                        Analytics Dashboard
+                      </CardTitle>
+                      <CardDescription>Track your performance and traffic sources</CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {loadingAnalytics ? (
+                    <div className="flex items-center justify-center py-8">
+                      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    </div>
+                  ) : analytics ? (
+                    <div className="space-y-8">
+                      {/* Traffic Sources */}
+                      <div>
+                        <h3 className="font-semibold mb-4 flex items-center gap-2">
+                          <Share2 className="w-4 h-4" />
+                          Traffic Sources
+                        </h3>
+                        {analytics.sourceBreakdown.length > 0 ? (
+                          <div className="space-y-3">
+                            {analytics.sourceBreakdown.map((source) => {
+                              const conversionRate = source.clicks > 0 
+                                ? ((source.conversions / source.clicks) * 100).toFixed(1)
+                                : '0.0';
+                              
+                              return (
+                                <div key={source.source} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                                  <div className="flex-1">
+                                    <div className="flex items-center gap-3">
+                                      <Badge variant={source.source === 'direct' ? 'default' : 'secondary'} className="capitalize">
+                                        {source.source}
+                                      </Badge>
+                                      <span className="text-sm text-muted-foreground">
+                                        {source.clicks} clicks • {source.conversions} conversions
+                                      </span>
+                                    </div>
+                                    <div className="mt-2 flex items-center gap-2">
+                                      <div className="flex-1 bg-background rounded-full h-2 overflow-hidden">
+                                        <div 
+                                          className="h-full bg-primary transition-all"
+                                          style={{ width: `${Math.min(parseFloat(conversionRate), 100)}%` }}
+                                        />
+                                      </div>
+                                      <span className="text-xs font-semibold text-primary min-w-12">
+                                        {conversionRate}%
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        ) : (
+                          <p className="text-sm text-muted-foreground text-center py-4">
+                            No traffic data yet. Start sharing your link!
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Commission Levels */}
+                      <div className="pt-6 border-t">
+                        <h3 className="font-semibold mb-4">Multi-Level Conversions</h3>
+                        {analytics.levelBreakdown.length > 0 ? (
+                          <div className="grid md:grid-cols-3 gap-4">
+                            {[1, 2, 3].map(level => {
+                              const levelData = analytics.levelBreakdown.find(l => l.level === level);
+                              const conversions = levelData?.conversions || 0;
+                              const earnings = levelData?.earnings || 0;
+                              const commissionRate = level === 1 ? '9%' : level === 2 ? '6%' : '3%';
+                              
+                              return (
+                                <Card key={level} className={conversions > 0 ? 'border-primary' : ''}>
+                                  <CardHeader className="pb-3">
+                                    <div className="flex items-center justify-between">
+                                      <CardTitle className="text-sm">Level {level}</CardTitle>
+                                      <Badge variant={level === 1 ? 'default' : level === 2 ? 'secondary' : 'outline'}>
+                                        {commissionRate}
+                                      </Badge>
+                                    </div>
+                                  </CardHeader>
+                                  <CardContent>
+                                    <div className="space-y-2">
+                                      <div className="flex justify-between items-baseline">
+                                        <span className="text-sm text-muted-foreground">Conversions</span>
+                                        <span className="text-2xl font-bold">{conversions}</span>
+                                      </div>
+                                      <div className="flex justify-between items-baseline">
+                                        <span className="text-sm text-muted-foreground">Earnings</span>
+                                        <span className="text-lg font-bold text-primary">
+                                          ${earnings.toFixed(2)}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </CardContent>
+                                </Card>
+                              );
+                            })}
+                          </div>
+                        ) : (
+                          <p className="text-sm text-muted-foreground text-center py-4">
+                            No conversions yet. Keep sharing your link!
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground text-center py-4">
+                      Analytics will appear here once you have referral data
+                    </p>
+                  )}
                 </CardContent>
               </Card>
 

@@ -24,6 +24,7 @@ export type Database = {
           created_at: string
           id: string
           order_id: string | null
+          source: string | null
           status: string | null
           visitor_id: string | null
         }
@@ -36,6 +37,7 @@ export type Database = {
           created_at?: string
           id?: string
           order_id?: string | null
+          source?: string | null
           status?: string | null
           visitor_id?: string | null
         }
@@ -48,6 +50,7 @@ export type Database = {
           created_at?: string
           id?: string
           order_id?: string | null
+          source?: string | null
           status?: string | null
           visitor_id?: string | null
         }

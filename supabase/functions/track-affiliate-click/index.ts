@@ -11,9 +11,31 @@ const clickSchema = z.object({
   referralCode: z.string().min(1).max(50).optional(),
   username: z.string().min(1).max(50).optional(),
   userId: z.string().optional(),
+  referrer: z.string().optional(),
 }).refine(data => data.referralCode || data.username, {
   message: "Either referralCode or username must be provided"
 });
+
+// Detect traffic source from referrer
+function detectSource(referrerUrl: string | null): string {
+  if (!referrerUrl) return 'direct';
+  
+  const url = referrerUrl.toLowerCase();
+  
+  if (url.includes('facebook.com') || url.includes('fb.com')) return 'facebook';
+  if (url.includes('twitter.com') || url.includes('t.co')) return 'twitter';
+  if (url.includes('instagram.com')) return 'instagram';
+  if (url.includes('linkedin.com')) return 'linkedin';
+  if (url.includes('tiktok.com')) return 'tiktok';
+  if (url.includes('reddit.com')) return 'reddit';
+  if (url.includes('youtube.com')) return 'youtube';
+  if (url.includes('pinterest.com')) return 'pinterest';
+  if (url.includes('whatsapp.com')) return 'whatsapp';
+  if (url.includes('telegram')) return 'telegram';
+  if (url.includes('discord')) return 'discord';
+  
+  return 'other';
+}
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -32,7 +54,8 @@ serve(async (req) => {
       );
     }
 
-    const { referralCode, username, userId } = validationResult.data;
+    const { referralCode, username, userId, referrer } = validationResult.data;
+    const source = detectSource(referrer || null);
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -102,6 +125,8 @@ serve(async (req) => {
         affiliate_id: affiliate.id,
         visitor_id: visitorId,
         status: 'pending',
+        source: source,
+        commission_level: 1,
         clicked_at: new Date().toISOString()
       });
 

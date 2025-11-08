@@ -27,7 +27,8 @@ export default function AffiliateRedirect() {
           body: {
             referralCode: code,
             username: username,
-            userId: user?.id || user?.email
+            userId: user?.id || user?.email,
+            referrer: document.referrer
           }
         });
 
