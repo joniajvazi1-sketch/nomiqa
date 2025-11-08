@@ -16,4 +16,4 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.create-nowpayments-invoice]
-verify_jwt = false
+verify_jwt = true

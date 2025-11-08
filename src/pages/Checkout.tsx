@@ -10,14 +10,26 @@ import { ArrowLeft, ShoppingCart, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { z } from "zod";
+import { useAffiliateTracking } from "@/hooks/useAffiliateTracking";
 
 const emailSchema = z.string().email("Please enter a valid email address");
 
 export default function Checkout() {
   const navigate = useNavigate();
   const { items, removeItem, updateQuantity, clearCart, total } = useCartWithTotal();
+  const { referralCode } = useAffiliateTracking();
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Generate or retrieve visitor ID for affiliate tracking
+  const getVisitorId = () => {
+    let visitorId = localStorage.getItem('visitor_id');
+    if (!visitorId) {
+      visitorId = crypto.randomUUID();
+      localStorage.setItem('visitor_id', visitorId);
+    }
+    return visitorId;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,6 +51,9 @@ export default function Checkout() {
     try {
       // Get current user
       const { data: { user } } = await supabase.auth.getUser();
+      
+      // Get visitor ID for affiliate tracking
+      const visitorId = getVisitorId();
 
       // Create orders in database (without eSIM provisioning yet)
       const orderIds = [];
@@ -54,6 +69,8 @@ export default function Checkout() {
             validity_days: item.product.validity_days,
             total_amount_usd: item.product.price_usd,
             status: 'pending_payment',
+            visitor_id: visitorId,
+            referral_code: referralCode || null,
           })
           .select()
           .single();

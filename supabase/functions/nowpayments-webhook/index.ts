@@ -1,11 +1,25 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
 import { createHmac } from "https://deno.land/std@0.177.0/node/crypto.ts";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-nowpayments-sig',
 };
+
+const webhookSchema = z.object({
+  order_id: z.string().uuid(),
+  payment_status: z.enum(['finished', 'confirmed', 'failed', 'expired', 'pending', 'waiting', 'sending', 'partially_paid', 'refunded']),
+  payment_id: z.string().optional(),
+  price_amount: z.number().positive().optional(),
+  price_currency: z.string().max(10).optional(),
+  pay_amount: z.number().positive().optional(),
+  actually_paid: z.number().positive().optional(),
+  pay_currency: z.string().max(10).optional(),
+  created_at: z.string().optional(),
+  updated_at: z.string().optional()
+});
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -41,8 +55,18 @@ serve(async (req) => {
     }
 
     const webhookData = JSON.parse(payload);
-    const orderId = webhookData.order_id;
-    const paymentStatus = webhookData.payment_status;
+    
+    // Validate webhook payload structure
+    const validationResult = webhookSchema.safeParse(webhookData);
+    if (!validationResult.success) {
+      console.error('Invalid webhook payload:', validationResult.error);
+      return new Response(
+        JSON.stringify({ error: 'Invalid payload', details: validationResult.error.issues }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { order_id: orderId, payment_status: paymentStatus } = validationResult.data;
 
     console.log('Payment status for order', orderId, ':', paymentStatus);
 
@@ -122,22 +146,23 @@ serve(async (req) => {
           })
           .eq('id', orderId);
 
-        // Track affiliate conversion
-        if (order.user_id || order.email) {
-          // Find if there's a pending referral for this user
-          const { data: referrals } = await supabase
+        // Track affiliate conversion using proper visitor_id matching (fixes SQL injection)
+        if (order.visitor_id) {
+          const { data: referral } = await supabase
             .from('affiliate_referrals')
             .select('id, affiliate_id')
+            .eq('visitor_id', order.visitor_id)
             .eq('status', 'pending')
-            .or(`visitor_id.like.%${order.user_id || order.email}%`)
+            .is('order_id', null)
             .order('clicked_at', { ascending: false })
-            .limit(1);
+            .maybeSingle();
 
-          if (referrals && referrals.length > 0) {
-            const referral = referrals[0];
+          if (referral && order.total_amount_usd) {
+            const totalPrice = order.total_amount_usd;
+            const commissionRates = [0.09, 0.06, 0.03]; // Level 1: 9%, Level 2: 6%, Level 3: 3%
             
             // Calculate commission (9% for level 1)
-            const commissionAmount = order.total_amount_usd * 0.09;
+            const commissionAmount = totalPrice * commissionRates[0];
 
             // Update referral as converted
             await supabase
@@ -150,21 +175,68 @@ serve(async (req) => {
               })
               .eq('id', referral.id);
 
-            // Update affiliate earnings and conversion count
-            const { data: affiliate } = await supabase
+            // Get level 1 affiliate details
+            const { data: level1Aff } = await supabase
               .from('affiliates')
-              .select('total_conversions, total_earnings_usd')
+              .select('id, total_earnings_usd, total_conversions, parent_affiliate_id')
               .eq('id', referral.affiliate_id)
               .single();
 
-            if (affiliate) {
+            if (level1Aff) {
+              // Update level 1 affiliate earnings
               await supabase
                 .from('affiliates')
                 .update({
-                  total_conversions: (affiliate.total_conversions || 0) + 1,
-                  total_earnings_usd: (affiliate.total_earnings_usd || 0) + commissionAmount,
+                  total_conversions: (level1Aff.total_conversions || 0) + 1,
+                  total_earnings_usd: (level1Aff.total_earnings_usd || 0) + commissionAmount,
                 })
                 .eq('id', referral.affiliate_id);
+
+              // Handle level 2 and 3 commissions
+              let currentAffiliateId = level1Aff.parent_affiliate_id;
+              let level = 2;
+
+              while (currentAffiliateId && level <= 3) {
+                const commission = totalPrice * commissionRates[level - 1];
+
+                // Create referral record for this level
+                await supabase
+                  .from('affiliate_referrals')
+                  .insert({
+                    affiliate_id: currentAffiliateId,
+                    visitor_id: order.visitor_id,
+                    order_id: orderId,
+                    status: 'converted',
+                    converted_at: new Date().toISOString(),
+                    commission_amount_usd: commission,
+                    commission_level: level
+                  });
+
+                // Update affiliate earnings
+                const { data: currentAff } = await supabase
+                  .from('affiliates')
+                  .select('total_earnings_usd, total_conversions, parent_affiliate_id')
+                  .eq('id', currentAffiliateId)
+                  .single();
+
+                if (currentAff) {
+                  await supabase
+                    .from('affiliates')
+                    .update({
+                      total_earnings_usd: (currentAff.total_earnings_usd || 0) + commission,
+                      total_conversions: (currentAff.total_conversions || 0) + 1
+                    })
+                    .eq('id', currentAffiliateId);
+
+                  currentAffiliateId = currentAff.parent_affiliate_id;
+                } else {
+                  break;
+                }
+
+                level++;
+              }
+
+              console.log(`Affiliate conversion tracked for order ${orderId}`);
             }
           }
         }
