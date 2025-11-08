@@ -72,7 +72,7 @@ export const Navbar = () => {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-3">
             <button onClick={() => navigate('/')} className="flex items-center gap-3 group">
-              <img src="/src/assets/nomiqa-logo.jpg" alt="nomiqa" className="w-10 h-10 rounded-lg opacity-80 hover:opacity-100 transition-opacity" />
+              <img src="/nomiqa-logo.jpg" alt="nomiqa" className="w-10 h-10 rounded-lg opacity-80 hover:opacity-100 transition-opacity" />
               <span className="text-2xl font-bold bg-gradient-neon bg-clip-text text-transparent hover:opacity-80 transition font-display">
                 nomiqa
               </span>
