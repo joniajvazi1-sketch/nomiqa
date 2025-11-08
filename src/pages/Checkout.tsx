@@ -63,11 +63,12 @@ export default function Checkout() {
       }
 
       // Create NowPayments invoice for all items
-      const totalAmount = items.reduce((sum, item) => sum + item.product.price_usd, 0);
       const { data, error } = await supabase.functions.invoke('create-nowpayments-invoice', {
         body: {
           orderId: orderIds[0], // Using first order ID as reference
           email,
+          successUrl: `${window.location.origin}/orders`,
+          cancelUrl: `${window.location.origin}/checkout`,
         }
       });
 

@@ -17,7 +17,7 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const { orderId, email } = await req.json();
+    const { orderId, email, successUrl, cancelUrl } = await req.json();
     console.log('Creating invoice for order:', orderId);
 
     // Get order details
@@ -50,8 +50,8 @@ serve(async (req) => {
         order_id: orderId,
         order_description: `${order.package_name} - ${order.data_amount}`,
         ipn_callback_url: `${Deno.env.get('SUPABASE_URL')}/functions/v1/nowpayments-webhook`,
-        success_url: `${Deno.env.get('VITE_SUPABASE_URL')}/orders`,
-        cancel_url: `${Deno.env.get('VITE_SUPABASE_URL')}/checkout`,
+        success_url: successUrl,
+        cancel_url: cancelUrl,
       }),
     });
 
