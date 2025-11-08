@@ -24,7 +24,7 @@ export const FAQ = () => {
     },
     {
       question: "What cryptocurrencies do you accept?",
-      answer: "We accept payments in Solana (SOL) and our native Nomiqa (NMQ) token through NowPayments. This ensures fast, secure, and private transactions without the need for traditional payment methods."
+      answer: "We accept payments in Solana (SOL) and USDC. This ensures fast, secure, and private transactions without the need for traditional payment methods."
     },
     {
       question: "Is KYC required to purchase an eSIM?",

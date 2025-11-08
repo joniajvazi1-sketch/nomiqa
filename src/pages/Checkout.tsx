@@ -79,24 +79,19 @@ export default function Checkout() {
         orderIds.push(order.id);
       }
 
-      // Create NowPayments invoice for all items
-      const { data, error } = await supabase.functions.invoke('create-nowpayments-invoice', {
-        body: {
-          orderId: orderIds[0], // Using first order ID as reference
-          email,
-          successUrl: `${window.location.origin}/orders`,
-          cancelUrl: `${window.location.origin}/checkout`,
-        }
-      });
+      const newOrder = await supabase
+        .from('orders')
+        .select()
+        .eq('id', orderIds[0])
+        .single();
 
-      if (error) throw error;
-
-      if (data.invoiceUrl) {
-        // Redirect to NowPayments checkout
-        window.location.href = data.invoiceUrl;
-      } else {
-        throw new Error('Failed to create payment invoice');
-      }
+      // TODO: Integrate MoonPay Commerce payment
+      toast.success('Order created! Payment integration coming soon.');
+      
+      // For now, redirect to orders page
+      setTimeout(() => {
+        window.location.href = '/orders';
+      }, 1500);
       
     } catch (error: any) {
       console.error('Checkout error:', error);

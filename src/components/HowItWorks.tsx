@@ -10,7 +10,7 @@ export const HowItWorks = () => {
     {
       icon: CreditCard,
       title: "Pay with Crypto",
-      description: "Complete your purchase securely using cryptocurrency via NowPayments.",
+      description: "Complete your purchase securely using cryptocurrency.",
     },
     {
       icon: Globe,
