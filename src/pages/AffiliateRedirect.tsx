@@ -19,50 +19,24 @@ export default function AffiliateRedirect() {
       }
 
       try {
-        // Try to find affiliate by username first, then by code
-        let affiliate;
-        
-        if (username) {
-          const { data } = await supabase
-            .from('affiliates')
-            .select('id, affiliate_code, total_clicks')
-            .eq('username', username.toLowerCase())
-            .maybeSingle();
-          affiliate = data;
-        } else {
-          const { data } = await supabase
-            .from('affiliates')
-            .select('id, affiliate_code, total_clicks')
-            .eq('affiliate_code', code)
-            .maybeSingle();
-          affiliate = data;
-        }
+        // Get current user if logged in
+        const { data: { user } } = await supabase.auth.getUser();
 
-        if (affiliate) {
+        // Track the click via edge function (works for everyone - logged in or anonymous)
+        const { data, error } = await supabase.functions.invoke('track-affiliate-click', {
+          body: {
+            referralCode: code,
+            username: username,
+            userId: user?.id || user?.email
+          }
+        });
+
+        if (!error && data?.affiliateCode) {
           // Set the referral code for future purchase tracking
-          setReferralCode(affiliate.affiliate_code);
-
-          // Get current user if logged in
-          const { data: { user } } = await supabase.auth.getUser();
-          const visitorId = user?.id || user?.email || `visitor_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-
-          // Update click count
-          await supabase
-            .from('affiliates')
-            .update({ total_clicks: (affiliate.total_clicks || 0) + 1 })
-            .eq('id', affiliate.id);
-
-          // Record the referral click
-          await supabase
-            .from('affiliate_referrals')
-            .insert({
-              affiliate_id: affiliate.id,
-              visitor_id: visitorId,
-              clicked_at: new Date().toISOString(),
-              status: 'pending'
-            });
-          
-          console.log('Affiliate click tracked:', { affiliate_code: affiliate.affiliate_code, visitor_id: visitorId });
+          setReferralCode(data.affiliateCode);
+          console.log('Affiliate click tracked:', data);
+        } else if (error) {
+          console.error('Error tracking affiliate click:', error);
         }
       } catch (error) {
         console.error('Error tracking affiliate click:', error);

@@ -8,7 +8,11 @@ const corsHeaders = {
 };
 
 const clickSchema = z.object({
-  referralCode: z.string().min(1).max(50)
+  referralCode: z.string().min(1).max(50).optional(),
+  username: z.string().min(1).max(50).optional(),
+  userId: z.string().optional(),
+}).refine(data => data.referralCode || data.username, {
+  message: "Either referralCode or username must be provided"
 });
 
 serve(async (req) => {
@@ -28,38 +32,54 @@ serve(async (req) => {
       );
     }
 
-    const { referralCode } = validationResult.data;
-
-    // Get client IP for rate limiting
-    const clientIP = req.headers.get('x-forwarded-for')?.split(',')[0] || 
-                     req.headers.get('x-real-ip') || 
-                     'unknown';
+    const { referralCode, username, userId } = validationResult.data;
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Find affiliate by code
-    const { data: affiliate, error: affiliateError } = await supabase
-      .from('affiliates')
-      .select('id, total_clicks')
-      .eq('affiliate_code', referralCode)
-      .single();
+    // Find affiliate by code or username
+    let affiliate;
+    if (username) {
+      const { data, error } = await supabase
+        .from('affiliates')
+        .select('id, affiliate_code, total_clicks')
+        .eq('username', username.toLowerCase())
+        .maybeSingle();
+      
+      if (error) throw error;
+      affiliate = data;
+    } else if (referralCode) {
+      const { data, error } = await supabase
+        .from('affiliates')
+        .select('id, affiliate_code, total_clicks')
+        .eq('affiliate_code', referralCode)
+        .maybeSingle();
+      
+      if (error) throw error;
+      affiliate = data;
+    }
 
-    if (affiliateError || !affiliate) {
+    if (!affiliate) {
       return new Response(
-        JSON.stringify({ error: 'Invalid referral code' }),
+        JSON.stringify({ error: 'Invalid referral code or username' }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Rate limiting: Check if this IP clicked this code in the last hour
+    // Get visitor identifier (user ID if available, otherwise IP)
+    const clientIP = req.headers.get('x-forwarded-for')?.split(',')[0] || 
+                     req.headers.get('x-real-ip') || 
+                     'unknown';
+    const visitorId = userId || clientIP;
+
+    // Rate limiting: Check if this visitor clicked this affiliate in the last hour
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
     const { data: recentClicks } = await supabase
       .from('affiliate_referrals')
       .select('id')
       .eq('affiliate_id', affiliate.id)
-      .eq('visitor_id', clientIP)
+      .eq('visitor_id', visitorId)
       .gte('clicked_at', oneHourAgo)
       .limit(1);
 
@@ -68,7 +88,8 @@ serve(async (req) => {
         JSON.stringify({ 
           success: true, 
           message: 'Click already recorded recently',
-          rateLimited: true 
+          rateLimited: true,
+          affiliateCode: affiliate.affiliate_code 
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
@@ -79,7 +100,7 @@ serve(async (req) => {
       .from('affiliate_referrals')
       .insert({
         affiliate_id: affiliate.id,
-        visitor_id: clientIP,
+        visitor_id: visitorId,
         status: 'pending',
         clicked_at: new Date().toISOString()
       });
@@ -105,7 +126,8 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         success: true,
-        message: 'Click tracked successfully'
+        message: 'Click tracked successfully',
+        affiliateCode: affiliate.affiliate_code
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
