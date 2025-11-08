@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Copy, TrendingUp, Users, DollarSign, CheckCircle2, Loader2 } from "lucide-react";
+import { Copy, TrendingUp, Users, DollarSign, CheckCircle2, Loader2, XCircle, AlertCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAffiliateTracking } from "@/hooks/useAffiliateTracking";
 
@@ -34,10 +34,51 @@ export default function Affiliate() {
   const [username, setUsername] = useState("");
   const [updatingUsername, setUpdatingUsername] = useState(false);
   const [isGuest, setIsGuest] = useState(false);
+  const [usernameAvailability, setUsernameAvailability] = useState<'idle' | 'checking' | 'available' | 'taken' | 'invalid'>('idle');
 
   useEffect(() => {
     checkUser();
   }, []);
+
+  // Debounced username availability check
+  useEffect(() => {
+    if (!username || username === affiliate?.username) {
+      setUsernameAvailability('idle');
+      return;
+    }
+
+    // Validate username format
+    if (username.length < 3 || username.length > 30) {
+      setUsernameAvailability('invalid');
+      return;
+    }
+
+    if (!/^[a-z0-9-]+$/.test(username)) {
+      setUsernameAvailability('invalid');
+      return;
+    }
+
+    setUsernameAvailability('checking');
+
+    const timeoutId = setTimeout(async () => {
+      try {
+        const { data, error } = await supabase
+          .from('affiliates')
+          .select('id')
+          .eq('username', username.toLowerCase())
+          .maybeSingle();
+
+        if (error) throw error;
+
+        setUsernameAvailability(data ? 'taken' : 'available');
+      } catch (error) {
+        console.error('Error checking username:', error);
+        setUsernameAvailability('idle');
+      }
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [username, affiliate?.username]);
 
   const checkUser = async () => {
     try {
@@ -398,21 +439,52 @@ export default function Affiliate() {
                       Change your username to create a memorable link
                     </p>
                     <div className="flex gap-2">
-                      <div className="flex-1 flex gap-2">
-                        <span className="flex items-center px-3 bg-muted text-muted-foreground rounded-md text-sm">
-                          {window.location.origin}/
-                        </span>
-                        <Input 
-                          value={username} 
-                          onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
-                          placeholder="yourname"
-                          className="font-mono"
-                          disabled={updatingUsername}
-                        />
+                      <div className="flex-1">
+                        <div className="flex gap-2">
+                          <span className="flex items-center px-3 bg-muted text-muted-foreground rounded-md text-sm">
+                            {window.location.origin}/
+                          </span>
+                          <div className="flex-1 relative">
+                            <Input 
+                              value={username} 
+                              onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
+                              placeholder="yourname"
+                              className={`font-mono pr-10 ${
+                                usernameAvailability === 'available' ? 'border-green-500 focus-visible:ring-green-500' :
+                                usernameAvailability === 'taken' || usernameAvailability === 'invalid' ? 'border-red-500 focus-visible:ring-red-500' :
+                                ''
+                              }`}
+                              disabled={updatingUsername}
+                            />
+                            <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                              {usernameAvailability === 'checking' && (
+                                <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+                              )}
+                              {usernameAvailability === 'available' && (
+                                <CheckCircle2 className="w-4 h-4 text-green-500" />
+                              )}
+                              {usernameAvailability === 'taken' && (
+                                <XCircle className="w-4 h-4 text-red-500" />
+                              )}
+                              {usernameAvailability === 'invalid' && (
+                                <AlertCircle className="w-4 h-4 text-red-500" />
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        {usernameAvailability === 'taken' && (
+                          <p className="text-xs text-red-500 mt-1 ml-2">Username already taken</p>
+                        )}
+                        {usernameAvailability === 'invalid' && (
+                          <p className="text-xs text-red-500 mt-1 ml-2">3-30 characters, lowercase letters, numbers, and hyphens only</p>
+                        )}
+                        {usernameAvailability === 'available' && (
+                          <p className="text-xs text-green-500 mt-1 ml-2">Username available!</p>
+                        )}
                       </div>
                       <Button 
                         onClick={updateUsername} 
-                        disabled={!username || updatingUsername || username === affiliate.username}
+                        disabled={!username || updatingUsername || username === affiliate.username || usernameAvailability !== 'available'}
                       >
                         {updatingUsername && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                         Update
