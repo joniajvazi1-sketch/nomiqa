@@ -143,6 +143,9 @@ export default function Affiliate() {
     try {
       const code = generateCode();
       const affiliateEmail = user?.email || email;
+      
+      // Auto-generate username from email
+      const autoUsername = affiliateEmail.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '');
 
       // Get referrer's affiliate ID if user signed up with a ref code
       const { referralCode } = useAffiliateTracking.getState();
@@ -166,6 +169,7 @@ export default function Affiliate() {
           user_id: user?.id || null,
           email: affiliateEmail,
           affiliate_code: code,
+          username: autoUsername,
           parent_affiliate_id: parentAffiliateId,
         })
         .select()
@@ -174,6 +178,8 @@ export default function Affiliate() {
       if (error) throw error;
 
       setAffiliate(data);
+      setUsername(data.username || '');
+      setCustomLink(`${window.location.origin}/${data.username}`);
       setAffiliateLink(`${window.location.origin}/r/${data.affiliate_code}`);
       
       // Store in localStorage for guest users
@@ -183,7 +189,42 @@ export default function Affiliate() {
       
       toast.success("Affiliate account created!");
     } catch (error: any) {
-      toast.error(error.message || "Failed to create affiliate account");
+      // If username is taken, add random number
+      if (error.code === '23505') {
+        try {
+          const code = generateCode();
+          const affiliateEmail = user?.email || email;
+          const autoUsername = affiliateEmail.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '') + Math.floor(Math.random() * 999);
+
+          const { data, error: retryError } = await supabase
+            .from('affiliates')
+            .insert({
+              user_id: user?.id || null,
+              email: affiliateEmail,
+              affiliate_code: code,
+              username: autoUsername,
+            })
+            .select()
+            .single();
+
+          if (retryError) throw retryError;
+
+          setAffiliate(data);
+          setUsername(data.username || '');
+          setCustomLink(`${window.location.origin}/${data.username}`);
+          setAffiliateLink(`${window.location.origin}/r/${data.affiliate_code}`);
+          
+          if (!user) {
+            localStorage.setItem('guest_affiliate_code', data.affiliate_code);
+          }
+          
+          toast.success("Affiliate account created!");
+        } catch (retryError: any) {
+          toast.error(retryError.message || "Failed to create affiliate account");
+        }
+      } else {
+        toast.error(error.message || "Failed to create affiliate account");
+      }
     } finally {
       setCreating(false);
     }
@@ -327,20 +368,34 @@ export default function Affiliate() {
 
               <Card className="mb-8">
                 <CardHeader>
-                  <CardTitle>Your Affiliate Links</CardTitle>
+                  <CardTitle>Your Affiliate Link</CardTitle>
                   <CardDescription>
-                    Share these links to earn commissions on every sale
+                    Share this link to earn commissions on every sale
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-6">
-                  {/* Custom Username Link */}
+                <CardContent className="space-y-4">
                   <div className="space-y-3">
                     <div className="flex items-center gap-2">
-                      <h3 className="text-sm font-semibold">Custom Short Link</h3>
-                      {customLink && <Badge variant="secondary">Active</Badge>}
+                      <h3 className="text-sm font-semibold">Your Personalized Link</h3>
+                      <Badge variant="secondary">Ready to Share</Badge>
                     </div>
+                    <div className="flex gap-2">
+                      <Input value={customLink || affiliateLink} readOnly className="font-mono text-primary font-semibold text-lg" />
+                      <Button onClick={() => {
+                        navigator.clipboard.writeText(customLink || affiliateLink);
+                        toast.success("Link copied!");
+                      }}>
+                        <Copy className="w-4 h-4 mr-2" />
+                        Copy
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Username customization */}
+                  <div className="space-y-3 pt-4 border-t">
+                    <h3 className="text-sm font-semibold">Customize Your Link</h3>
                     <p className="text-xs text-muted-foreground">
-                      Create your personalized link: nomiqa-esims.com/yourname
+                      Change your username to create a memorable link
                     </p>
                     <div className="flex gap-2">
                       <div className="flex-1 flex gap-2">
@@ -360,31 +415,7 @@ export default function Affiliate() {
                         disabled={!username || updatingUsername || username === affiliate.username}
                       >
                         {updatingUsername && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                        {affiliate.username ? 'Update' : 'Set'}
-                      </Button>
-                    </div>
-                    {customLink && (
-                      <div className="flex gap-2">
-                        <Input value={customLink} readOnly className="font-mono text-primary font-semibold" />
-                        <Button onClick={() => {
-                          navigator.clipboard.writeText(customLink);
-                          toast.success("Custom link copied!");
-                        }}>
-                          <Copy className="w-4 h-4 mr-2" />
-                          Copy
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Default Affiliate Link */}
-                  <div className="space-y-3 pt-4 border-t">
-                    <h3 className="text-sm font-semibold">Default Referral Link</h3>
-                    <div className="flex gap-2">
-                      <Input value={affiliateLink} readOnly className="font-mono" />
-                      <Button onClick={copyLink}>
-                        <Copy className="w-4 h-4 mr-2" />
-                        Copy
+                        Update
                       </Button>
                     </div>
                   </div>
