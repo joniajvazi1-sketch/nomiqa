@@ -27,20 +27,24 @@ export default function AffiliateRedirect() {
             .from('affiliates')
             .select('id, affiliate_code, total_clicks')
             .eq('username', username.toLowerCase())
-            .single();
+            .maybeSingle();
           affiliate = data;
         } else {
           const { data } = await supabase
             .from('affiliates')
             .select('id, affiliate_code, total_clicks')
             .eq('affiliate_code', code)
-            .single();
+            .maybeSingle();
           affiliate = data;
         }
 
         if (affiliate) {
-          // Set the referral code
+          // Set the referral code for future purchase tracking
           setReferralCode(affiliate.affiliate_code);
+
+          // Get current user if logged in
+          const { data: { user } } = await supabase.auth.getUser();
+          const visitorId = user?.id || user?.email || `visitor_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
           // Update click count
           await supabase
@@ -53,9 +57,12 @@ export default function AffiliateRedirect() {
             .from('affiliate_referrals')
             .insert({
               affiliate_id: affiliate.id,
-              visitor_id: `visitor_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-              clicked_at: new Date().toISOString()
+              visitor_id: visitorId,
+              clicked_at: new Date().toISOString(),
+              status: 'pending'
             });
+          
+          console.log('Affiliate click tracked:', { affiliate_code: affiliate.affiliate_code, visitor_id: visitorId });
         }
       } catch (error) {
         console.error('Error tracking affiliate click:', error);

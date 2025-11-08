@@ -122,6 +122,53 @@ serve(async (req) => {
           })
           .eq('id', orderId);
 
+        // Track affiliate conversion
+        if (order.user_id || order.email) {
+          // Find if there's a pending referral for this user
+          const { data: referrals } = await supabase
+            .from('affiliate_referrals')
+            .select('id, affiliate_id')
+            .eq('status', 'pending')
+            .or(`visitor_id.like.%${order.user_id || order.email}%`)
+            .order('clicked_at', { ascending: false })
+            .limit(1);
+
+          if (referrals && referrals.length > 0) {
+            const referral = referrals[0];
+            
+            // Calculate commission (9% for level 1)
+            const commissionAmount = order.total_amount_usd * 0.09;
+
+            // Update referral as converted
+            await supabase
+              .from('affiliate_referrals')
+              .update({
+                status: 'converted',
+                order_id: orderId,
+                commission_amount_usd: commissionAmount,
+                converted_at: new Date().toISOString(),
+              })
+              .eq('id', referral.id);
+
+            // Update affiliate earnings and conversion count
+            const { data: affiliate } = await supabase
+              .from('affiliates')
+              .select('total_conversions, total_earnings_usd')
+              .eq('id', referral.affiliate_id)
+              .single();
+
+            if (affiliate) {
+              await supabase
+                .from('affiliates')
+                .update({
+                  total_conversions: (affiliate.total_conversions || 0) + 1,
+                  total_earnings_usd: (affiliate.total_earnings_usd || 0) + commissionAmount,
+                })
+                .eq('id', referral.affiliate_id);
+            }
+          }
+        }
+
         console.log('Order completed successfully:', orderId);
       } else {
         console.error('Failed to provision eSIM:', orderData);
