@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import { ArrowLeft, Download, QrCode, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -46,6 +47,7 @@ export default function Orders() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [showQR, setShowQR] = useState(false);
   const [usageData, setUsageData] = useState<Record<string, UsageData>>({});
+  const [refreshingUsage, setRefreshingUsage] = useState<Record<string, boolean>>({});
 
   const fetchOrders = async () => {
     try {
@@ -95,9 +97,40 @@ export default function Orders() {
     fetchOrders();
   }, []);
 
+  const refreshUsage = async (orderId: string, iccid: string) => {
+    setRefreshingUsage(prev => ({ ...prev, [orderId]: true }));
+    try {
+      const { data, error } = await supabase.functions.invoke('get-esim-usage', {
+        body: { iccid }
+      });
+
+      if (error) throw error;
+
+      // Refresh the order to get updated usage
+      const { data: usage } = await supabase
+        .from('esim_usage')
+        .select('remaining_mb, total_mb, status, expired_at')
+        .eq('order_id', orderId)
+        .single();
+
+      if (usage) {
+        setUsageData(prev => ({ ...prev, [orderId]: usage }));
+      }
+
+      toast.success("Usage data refreshed");
+    } catch (error: any) {
+      console.error('Error refreshing usage:', error);
+      toast.error("Failed to refresh usage data");
+    } finally {
+      setRefreshingUsage(prev => ({ ...prev, [orderId]: false }));
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'completed':
+        return 'default';
+      case 'paid':
         return 'default';
       case 'pending':
         return 'secondary';
@@ -154,8 +187,14 @@ export default function Orders() {
           </Card>
         ) : (
           <div className="space-y-4">
-            {orders.map((order) => (
-              <Card key={order.id} className={`${order.status === 'completed' ? 'border-neon-cyan/50 shadow-lg shadow-neon-cyan/20 bg-card/60' : 'bg-card/40'} backdrop-blur-sm transition-all hover:shadow-xl`}>
+            {orders.map((order) => {
+              const usage = usageData[order.id];
+              const usagePercentage = usage 
+                ? ((usage.total_mb - usage.remaining_mb) / usage.total_mb) * 100 
+                : 0;
+              
+              return (
+              <Card key={order.id} className={`${order.status === 'completed' || order.status === 'paid' ? 'border-neon-cyan/50 shadow-lg shadow-neon-cyan/20 bg-card/60' : 'bg-card/40'} backdrop-blur-sm transition-all hover:shadow-xl`}>
                 <CardHeader>
                   <div className="flex justify-between items-start">
                     <div>
@@ -176,26 +215,51 @@ export default function Orders() {
                       <p className="font-medium">{order.data_amount} • {order.validity_days} days</p>
                       <p className="text-sm">Total: ${order.total_amount_usd.toFixed(2)}</p>
                       
-                      {usageData[order.id] && (
-                        <div className="mt-3 pt-3 border-t">
-                          <p className="text-sm font-medium mb-1">Usage Data</p>
-                          <p className="text-sm text-muted-foreground">
-                            {(usageData[order.id].remaining_mb / 1024).toFixed(2)} GB remaining 
-                            of {(usageData[order.id].total_mb / 1024).toFixed(2)} GB
-                          </p>
-                          <p className="text-sm text-muted-foreground">
-                            Status: {usageData[order.id].status}
-                          </p>
-                          {usageData[order.id].expired_at && (
-                            <p className="text-sm text-muted-foreground">
-                              Expires: {formatDate(usageData[order.id].expired_at!)}
-                            </p>
-                          )}
+                      {usage && (
+                        <div className="mt-4 pt-4 border-t space-y-3">
+                          <div className="flex items-center justify-between">
+                            <p className="text-sm font-medium">Data Usage</p>
+                            {order.iccid && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => refreshUsage(order.id, order.iccid!)}
+                                disabled={refreshingUsage[order.id]}
+                              >
+                                <RefreshCw className={`h-4 w-4 ${refreshingUsage[order.id] ? 'animate-spin' : ''}`} />
+                              </Button>
+                            )}
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <div className="flex justify-between text-sm">
+                              <span className="text-muted-foreground">
+                                {(usage.remaining_mb / 1024).toFixed(2)} GB remaining
+                              </span>
+                              <span className="text-muted-foreground">
+                                {(usage.total_mb / 1024).toFixed(2)} GB total
+                              </span>
+                            </div>
+                            <Progress value={usagePercentage} className="h-2" />
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-2 text-sm">
+                            <div>
+                              <p className="text-muted-foreground">Status</p>
+                              <p className="font-medium">{usage.status}</p>
+                            </div>
+                            {usage.expired_at && (
+                              <div>
+                                <p className="text-muted-foreground">Expires</p>
+                                <p className="font-medium">{formatDate(usage.expired_at)}</p>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       )}
                     </div>
 
-                    {order.status === 'completed' && order.qrcode && (
+                    {(order.status === 'completed' || order.status === 'paid') && order.qrcode && (
                       <div className="flex gap-2 md:justify-end items-start">
                         <Button
                           variant="outline"
@@ -225,9 +289,15 @@ export default function Orders() {
                       Your eSIM is being processed. You'll receive an email when it's ready.
                     </p>
                   )}
+
+                  {order.status === 'paid' && !order.qrcode && (
+                    <p className="text-sm text-muted-foreground mt-4">
+                      Payment confirmed! Your eSIM is being provisioned and will be ready shortly.
+                    </p>
+                  )}
                 </CardContent>
               </Card>
-            ))}
+            )})}
           </div>
         )}
       </div>
