@@ -116,9 +116,87 @@ serve(async (req) => {
 
     console.log('Order updated successfully');
 
-    // TODO: Trigger eSIM provisioning here
-    // This would involve calling the Airalo API to create the eSIM
-    // Similar to the existing submit-order edge function
+    // Provision eSIM from Airalo
+    try {
+      const airloClientId = Deno.env.get('AIRLO_CLIENT_ID');
+      const airloClientSecret = Deno.env.get('AIRLO_CLIENT_SECRET');
+      const airloEnv = Deno.env.get('AIRLO_ENV') || 'sandbox';
+      
+      const baseUrl = airloEnv === 'production' 
+        ? 'https://partners-api.airalo.com'
+        : 'https://sandbox-partners-api.airalo.com';
+
+      console.log('Getting Airalo access token...');
+      
+      // Get access token
+      const authResponse = await fetch(`${baseUrl}/v2/token`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          client_id: airloClientId,
+          client_secret: airloClientSecret,
+          grant_type: 'client_credentials'
+        })
+      });
+
+      if (!authResponse.ok) {
+        throw new Error('Failed to authenticate with Airalo');
+      }
+
+      const { data: authData } = await authResponse.json();
+      const accessToken = authData.access_token;
+
+      console.log('Submitting eSIM order to Airalo...');
+
+      // Get product details to get the package_id
+      const { data: product } = await supabase
+        .from('products')
+        .select('airlo_package_id')
+        .eq('id', order.product_id)
+        .single();
+
+      if (!product || !product.airlo_package_id) {
+        throw new Error('Product not found or missing Airalo package ID');
+      }
+
+      // Submit async order to Airalo
+      const orderResponse = await fetch(`${baseUrl}/v2/orders-async`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`
+        },
+        body: JSON.stringify({
+          package_id: product.airlo_package_id,
+          quantity: 1,
+          type: 'sim',
+          description: `Order ${order.id} for ${order.email}`
+        })
+      });
+
+      if (!orderResponse.ok) {
+        const errorData = await orderResponse.json();
+        throw new Error(`Airalo order failed: ${JSON.stringify(errorData)}`);
+      }
+
+      const { data: orderData } = await orderResponse.json();
+      
+      console.log('Airalo order submitted:', orderData.request_id);
+
+      // Update order with Airalo request ID
+      await supabase
+        .from('orders')
+        .update({
+          airlo_request_id: orderData.request_id,
+        })
+        .eq('id', order.id);
+
+      console.log('eSIM provisioning initiated successfully');
+    } catch (airloError) {
+      console.error('Error provisioning eSIM from Airalo:', airloError);
+      // Don't fail the webhook, just log the error
+      // The order is already marked as paid
+    }
 
     return new Response(
       JSON.stringify({ 
