@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCartWithTotal } from "@/hooks/useCart";
 import { Button } from "@/components/ui/button";
@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ArrowLeft, ShoppingCart, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -20,6 +21,8 @@ export default function Checkout() {
   const { referralCode } = useAffiliateTracking();
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paylinkId, setPaylinkId] = useState<string | null>(null);
 
   // Generate or retrieve visitor ID for affiliate tracking
   const getVisitorId = () => {
@@ -72,16 +75,17 @@ export default function Checkout() {
         }
       );
 
-      if (paylinkError || !paylinkData?.paylinkUrl) {
+      if (paylinkError || !paylinkData?.paylinkId) {
         console.error('Error creating paylink:', paylinkError);
         throw new Error('Failed to create payment link');
       }
 
-      console.log('Paylink created:', paylinkData.paylinkUrl);
-      clearCart();
+      console.log('Paylink created:', paylinkData.paylinkId);
       
-      // Redirect to Helio payment page
-      window.location.href = paylinkData.paylinkUrl;
+      // Show embedded payment modal instead of redirecting
+      setPaylinkId(paylinkData.paylinkId);
+      setShowPaymentModal(true);
+      setIsSubmitting(false);
       
     } catch (error: any) {
       console.error('Checkout error:', error);
@@ -89,6 +93,44 @@ export default function Checkout() {
       setIsSubmitting(false);
     }
   };
+
+  useEffect(() => {
+    if (showPaymentModal && paylinkId) {
+      // Load Helio Commerce SDK
+      const script = document.createElement('script');
+      script.src = 'https://commerce.hel.io/sdk.js';
+      script.async = true;
+      script.onload = () => {
+        // @ts-ignore - Helio SDK
+        if (window.HelioCommerce) {
+          // @ts-ignore
+          window.HelioCommerce.init({
+            paylinkId: paylinkId,
+            containerSelector: '#helio-commerce-container',
+            onSuccess: () => {
+              console.log('Payment successful!');
+              setShowPaymentModal(false);
+              clearCart();
+              toast.success('Payment successful! Redirecting to orders...');
+              navigate('/orders');
+            },
+            onCancel: () => {
+              console.log('Payment cancelled');
+              setShowPaymentModal(false);
+              toast.info('Payment cancelled');
+            },
+          });
+        }
+      };
+      document.body.appendChild(script);
+
+      return () => {
+        if (document.body.contains(script)) {
+          document.body.removeChild(script);
+        }
+      };
+    }
+  }, [showPaymentModal, paylinkId, navigate, clearCart]);
 
   if (items.length === 0) {
     return (
@@ -229,6 +271,15 @@ export default function Checkout() {
           </div>
         </div>
       </div>
+
+      <Dialog open={showPaymentModal} onOpenChange={setShowPaymentModal}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-auto">
+          <DialogHeader>
+            <DialogTitle>Complete Your Payment</DialogTitle>
+          </DialogHeader>
+          <div id="helio-commerce-container" className="min-h-[600px] w-full" />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
