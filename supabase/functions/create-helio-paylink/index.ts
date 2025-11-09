@@ -102,7 +102,7 @@ serve(async (req) => {
       product: order.products?.name 
     });
 
-    // Get USDC currency ID from Helio
+    // Get USDC and SOL currency IDs from Helio
     const currenciesResponse = await fetch('https://api.hel.io/v1/currency', {
       headers: {
         'Authorization': `Bearer ${helioSecretKey}`,
@@ -117,12 +117,15 @@ serve(async (req) => {
     const usdcCurrency = currencies.find((c: any) => 
       c.symbol === 'USDC' && c.blockchain?.symbol === 'SOL'
     );
+    const solCurrency = currencies.find((c: any) => 
+      c.symbol === 'SOL' && c.blockchain?.symbol === 'SOL'
+    );
 
-    if (!usdcCurrency) {
-      throw new Error('USDC currency not found');
+    if (!usdcCurrency || !solCurrency) {
+      throw new Error('USDC or SOL currency not found');
     }
 
-    console.log('Using USDC currency:', usdcCurrency.id);
+    console.log('Using currencies:', { usdc: usdcCurrency.id, sol: solCurrency.id });
 
     // Convert USD to USDC base units (6 decimals)
     const priceInBaseUnits = Math.floor(parseFloat(order.total_amount_usd) * 1000000).toString();
@@ -134,13 +137,14 @@ serve(async (req) => {
       description: `eSIM purchase for ${order.package_name || order.products?.name}`,
       price: priceInBaseUnits,
       pricingCurrency: usdcCurrency.id,
-      features: {
-        requireEmail: true,
-        disableCreditCard: true,
-      },
+      paymentMethods: ['CRYPTO'],
       recipients: [
         {
           currencyId: usdcCurrency.id,
+          walletId: helioWalletId,
+        },
+        {
+          currencyId: solCurrency.id,
           walletId: helioWalletId,
         }
       ],
