@@ -11,3 +11,9 @@ verify_jwt = false
 
 [functions.track-affiliate-click]
 verify_jwt = false
+
+[functions.create-helio-paylink]
+verify_jwt = false
+
+[functions.helio-webhook]
+verify_jwt = false

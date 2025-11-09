@@ -85,13 +85,26 @@ export default function Checkout() {
         .eq('id', orderIds[0])
         .single();
 
-      // TODO: Integrate MoonPay Commerce payment
-      toast.success('Order created! Payment integration coming soon.');
+      // Create Helio paylink
+      console.log('Creating Helio paylink for order:', orderIds[0]);
       
-      // For now, redirect to orders page
-      setTimeout(() => {
-        window.location.href = '/orders';
-      }, 1500);
+      const { data: paylinkData, error: paylinkError } = await supabase.functions.invoke(
+        'create-helio-paylink',
+        {
+          body: { orderId: orderIds[0] }
+        }
+      );
+
+      if (paylinkError || !paylinkData?.paylinkUrl) {
+        console.error('Error creating paylink:', paylinkError);
+        throw new Error('Failed to create payment link');
+      }
+
+      console.log('Paylink created:', paylinkData.paylinkUrl);
+      clearCart();
+      
+      // Redirect to Helio payment page
+      window.location.href = paylinkData.paylinkUrl;
       
     } catch (error: any) {
       console.error('Checkout error:', error);
