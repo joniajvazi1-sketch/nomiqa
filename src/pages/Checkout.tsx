@@ -22,7 +22,7 @@ export default function Checkout() {
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [paylinkId, setPaylinkId] = useState<string | null>(null);
+  const [paylinkUrl, setPaylinkUrl] = useState<string | null>(null);
 
   // Generate or retrieve visitor ID for affiliate tracking
   const getVisitorId = () => {
@@ -75,15 +75,15 @@ export default function Checkout() {
         }
       );
 
-      if (paylinkError || !paylinkData?.paylinkId) {
+      if (paylinkError || !paylinkData?.paylinkUrl) {
         console.error('Error creating paylink:', paylinkError);
         throw new Error('Failed to create payment link');
       }
 
-      console.log('Paylink created:', paylinkData.paylinkId);
+      console.log('Paylink created:', paylinkData.paylinkUrl);
       
-      // Show embedded payment modal instead of redirecting
-      setPaylinkId(paylinkData.paylinkId);
+      // Show embedded payment modal with iframe
+      setPaylinkUrl(paylinkData.paylinkUrl);
       setShowPaymentModal(true);
       setIsSubmitting(false);
       
@@ -95,42 +95,23 @@ export default function Checkout() {
   };
 
   useEffect(() => {
-    if (showPaymentModal && paylinkId) {
-      // Load Helio Commerce SDK
-      const script = document.createElement('script');
-      script.src = 'https://commerce.hel.io/sdk.js';
-      script.async = true;
-      script.onload = () => {
-        // @ts-ignore - Helio SDK
-        if (window.HelioCommerce) {
-          // @ts-ignore
-          window.HelioCommerce.init({
-            paylinkId: paylinkId,
-            containerSelector: '#helio-commerce-container',
-            onSuccess: () => {
-              console.log('Payment successful!');
-              setShowPaymentModal(false);
-              clearCart();
-              toast.success('Payment successful! Redirecting to orders...');
-              navigate('/orders');
-            },
-            onCancel: () => {
-              console.log('Payment cancelled');
-              setShowPaymentModal(false);
-              toast.info('Payment cancelled');
-            },
-          });
-        }
-      };
-      document.body.appendChild(script);
+    // Listen for payment completion - user can manually close and check orders
+    const handleMessage = (event: MessageEvent) => {
+      // Only accept messages from Helio
+      if (!event.origin.includes('hel.io')) return;
+      
+      if (event.data?.status === 'success' || event.data?.type === 'payment_success') {
+        console.log('Payment successful!');
+        setShowPaymentModal(false);
+        clearCart();
+        toast.success('Payment successful! Redirecting to orders...');
+        setTimeout(() => navigate('/orders'), 1000);
+      }
+    };
 
-      return () => {
-        if (document.body.contains(script)) {
-          document.body.removeChild(script);
-        }
-      };
-    }
-  }, [showPaymentModal, paylinkId, navigate, clearCart]);
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, [navigate, clearCart]);
 
   if (items.length === 0) {
     return (
@@ -272,12 +253,24 @@ export default function Checkout() {
         </div>
       </div>
 
-      <Dialog open={showPaymentModal} onOpenChange={setShowPaymentModal}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-auto">
-          <DialogHeader>
+      <Dialog open={showPaymentModal} onOpenChange={(open) => {
+        setShowPaymentModal(open);
+        if (!open) {
+          toast.info('You can check your order status in Orders page');
+        }
+      }}>
+        <DialogContent className="max-w-4xl max-h-[90vh] p-0 overflow-hidden">
+          <DialogHeader className="p-6 pb-4">
             <DialogTitle>Complete Your Payment</DialogTitle>
           </DialogHeader>
-          <div id="helio-commerce-container" className="min-h-[600px] w-full" />
+          {paylinkUrl && (
+            <iframe
+              src={paylinkUrl}
+              className="w-full h-[650px] border-0"
+              title="Helio Payment"
+              allow="payment"
+            />
+          )}
         </DialogContent>
       </Dialog>
     </div>
