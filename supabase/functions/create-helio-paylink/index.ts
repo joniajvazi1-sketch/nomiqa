@@ -130,11 +130,15 @@ serve(async (req) => {
     // Convert USD to USDC base units (6 decimals)
     const priceInBaseUnits = Math.floor(parseFloat(order.total_amount_usd) * 1000000).toString();
 
-    // Create paylink
+    // Create paylink with country name in title
+    const productName = order.products?.name || order.package_name || 'eSIM';
+    const countryName = order.products?.country_name || '';
+    const paylinkTitle = countryName ? `${countryName} - ${productName}` : productName;
+    
     const paylinkData = {
       template: 'OTHER',
-      name: order.products?.name || order.package_name || 'eSIM',
-      description: `eSIM purchase for ${order.package_name || order.products?.name}`,
+      name: paylinkTitle,
+      description: `eSIM purchase for ${countryName} - ${productName}`,
       price: priceInBaseUnits,
       pricingCurrency: usdcCurrency.id,
       features: {
