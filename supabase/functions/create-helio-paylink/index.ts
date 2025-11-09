@@ -130,12 +130,13 @@ serve(async (req) => {
     // Create paylink
     const paylinkData = {
       template: 'OTHER',
-      name: `${order.products?.name || 'eSIM'} - Order ${order.id.substring(0, 8)}`,
-      description: `eSIM purchase: ${order.package_name || order.products?.name}`,
+      name: order.products?.name || order.package_name || 'eSIM',
+      description: `eSIM purchase for ${order.package_name || order.products?.name}`,
       price: priceInBaseUnits,
       pricingCurrency: usdcCurrency.id,
       features: {
         requireEmail: true,
+        disableCreditCard: true,
       },
       recipients: [
         {
