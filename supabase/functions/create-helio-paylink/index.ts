@@ -137,7 +137,9 @@ serve(async (req) => {
       description: `eSIM purchase for ${order.package_name || order.products?.name}`,
       price: priceInBaseUnits,
       pricingCurrency: usdcCurrency.id,
-      paymentMethods: ['CRYPTO'],
+      features: {
+        requireEmail: true,
+      },
       recipients: [
         {
           currencyId: usdcCurrency.id,
