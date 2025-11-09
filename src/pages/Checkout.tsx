@@ -131,7 +131,9 @@ export default function Checkout() {
                 <CardContent className="p-6">
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
-                      <h3 className="font-semibold text-lg mb-1">{item.product.name}</h3>
+                      <h3 className="font-semibold text-lg mb-1">
+                        {item.product.country_name} - {item.product.data_amount} - {item.product.validity_days} days
+                      </h3>
                       <p className="text-sm text-muted-foreground mb-2">
                         {item.product.country_name} • {item.product.data_amount} • {item.product.validity_days} days
                       </p>
