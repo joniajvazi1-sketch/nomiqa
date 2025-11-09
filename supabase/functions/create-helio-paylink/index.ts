@@ -12,9 +12,10 @@ serve(async (req) => {
   }
 
   try {
-    const { orderId } = await req.json();
+    const body = await req.json();
+    let orderId = body.orderId as string | undefined;
 
-    console.log('Creating Helio paylink for order:', orderId);
+    console.log('Creating Helio paylink. Incoming body:', body);
 
     // Get env variables
     const helioPublicKey = Deno.env.get('HELIO_PUBLIC_API_KEY');
@@ -30,16 +31,68 @@ serve(async (req) => {
     // Initialize Supabase client
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Get order details
-    const { data: order, error: orderError } = await supabase
-      .from('orders')
-      .select('*, products:product_id(*)')
-      .eq('id', orderId)
-      .single();
+    let order: any = null;
 
-    if (orderError || !order) {
-      console.error('Error fetching order:', orderError);
-      throw new Error('Order not found');
+    if (orderId) {
+      console.log('Using existing orderId:', orderId);
+      // Get order details
+      const { data: existingOrder, error: orderError } = await supabase
+        .from('orders')
+        .select('*, products:product_id(*)')
+        .eq('id', orderId)
+        .single();
+
+      if (orderError || !existingOrder) {
+        console.error('Error fetching order:', orderError);
+        throw new Error('Order not found');
+      }
+      order = existingOrder;
+    } else {
+      // Create order on the server (bypasses client RLS)
+      const { email, productId, quantity = 1, referralCode = null, visitorId = null, userId = null } = body;
+      if (!email || !productId) {
+        throw new Error('Missing email or productId');
+      }
+
+      // Fetch product details
+      const { data: product, error: productError } = await supabase
+        .from('products')
+        .select('*')
+        .eq('id', productId)
+        .single();
+
+      if (productError || !product) {
+        console.error('Error fetching product:', productError);
+        throw new Error('Product not found');
+      }
+
+      const totalUsd = Number(product.price_usd) * Number(quantity);
+
+      const { data: createdOrder, error: createError } = await supabase
+        .from('orders')
+        .insert({
+          user_id: userId,
+          email,
+          product_id: product.id,
+          package_name: product.name,
+          data_amount: product.data_amount,
+          validity_days: product.validity_days,
+          total_amount_usd: totalUsd,
+          status: 'pending_payment',
+          visitor_id: visitorId,
+          referral_code: referralCode,
+        })
+        .select('*, products:product_id(*)')
+        .single();
+
+      if (createError || !createdOrder) {
+        console.error('Error creating order:', createError);
+        throw new Error('Failed to create order');
+      }
+
+      order = createdOrder;
+      orderId = createdOrder.id;
+      console.log('Created order on server:', orderId);
     }
 
     console.log('Order details:', { 

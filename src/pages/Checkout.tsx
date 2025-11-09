@@ -55,43 +55,20 @@ export default function Checkout() {
       // Get visitor ID for affiliate tracking
       const visitorId = getVisitorId();
 
-      // Create orders in database (without eSIM provisioning yet)
-      const orderIds = [];
-      for (const item of items) {
-        const { data: order, error } = await supabase
-          .from('orders')
-          .insert({
-            user_id: user?.id || null,
-            email,
-            product_id: item.product.id,
-            package_name: item.product.name,
-            data_amount: item.product.data_amount,
-            validity_days: item.product.validity_days,
-            total_amount_usd: item.product.price_usd,
-            status: 'pending_payment',
-            visitor_id: visitorId,
-            referral_code: referralCode || null,
-          })
-          .select()
-          .single();
+      // Create Helio paylink (server creates order securely)
+      const primaryItem = items[0];
 
-        if (error) throw error;
-        orderIds.push(order.id);
-      }
-
-      const newOrder = await supabase
-        .from('orders')
-        .select()
-        .eq('id', orderIds[0])
-        .single();
-
-      // Create Helio paylink
-      console.log('Creating Helio paylink for order:', orderIds[0]);
-      
       const { data: paylinkData, error: paylinkError } = await supabase.functions.invoke(
         'create-helio-paylink',
         {
-          body: { orderId: orderIds[0] }
+          body: {
+            email,
+            productId: primaryItem.product.id,
+            quantity: primaryItem.quantity,
+            referralCode: referralCode || null,
+            visitorId,
+            userId: user?.id || null,
+          }
         }
       );
 
