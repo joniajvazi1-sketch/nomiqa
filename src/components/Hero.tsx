@@ -3,36 +3,30 @@ import { useNavigate } from "react-router-dom";
 import nomiqaHeroVideo from "@/assets/nomiqa-hero-video.mp4";
 import { useTranslation } from "@/contexts/TranslationContext";
 import { useEffect, useRef } from "react";
-
 export const Hero = () => {
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const {
+    t
+  } = useTranslation();
   const videoRef = useRef<HTMLVideoElement>(null);
-
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            video.play();
-          } else {
-            video.pause();
-          }
-        });
-      },
-      { threshold: 0.5 }
-    );
-
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          video.play();
+        } else {
+          video.pause();
+        }
+      });
+    }, {
+      threshold: 0.5
+    });
     observer.observe(video);
-
     return () => observer.disconnect();
   }, []);
-  
-  return (
-    <section className="relative min-h-screen flex items-center bg-gradient-to-br from-background via-deep-space to-background overflow-hidden pt-20">
+  return <section className="relative min-h-screen flex items-center bg-gradient-to-br from-background via-deep-space to-background overflow-hidden pt-20">
       {/* World map data lines - soft glowing effect */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-1/4 left-0 right-0 h-px bg-gradient-to-r from-transparent via-neon-cyan to-transparent"></div>
@@ -45,8 +39,12 @@ export const Hero = () => {
       
       {/* Sunrise gradient glow */}
       <div className="absolute top-20 left-10 md:left-20 w-64 md:w-96 h-64 md:h-96 bg-neon-cyan/20 rounded-full blur-3xl animate-pulse"></div>
-      <div className="absolute bottom-20 right-10 md:right-20 w-80 md:w-[500px] h-80 md:h-[500px] bg-neon-coral/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "1s" }}></div>
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 md:w-[600px] h-96 md:h-[600px] bg-neon-violet/15 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "2s" }}></div>
+      <div className="absolute bottom-20 right-10 md:right-20 w-80 md:w-[500px] h-80 md:h-[500px] bg-neon-coral/20 rounded-full blur-3xl animate-pulse" style={{
+      animationDelay: "1s"
+    }}></div>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 md:w-[600px] h-96 md:h-[600px] bg-neon-violet/15 rounded-full blur-3xl animate-pulse" style={{
+      animationDelay: "2s"
+    }}></div>
       
       <div className="container relative z-10 px-4 py-16 md:py-32">
         <div className="max-w-5xl mx-auto text-center">
@@ -64,54 +62,40 @@ export const Hero = () => {
           
           {/* Hero Video */}
           <div className="mb-6 md:mb-8 flex justify-center animate-scale-in">
-            <video 
-              ref={videoRef}
-              src={nomiqaHeroVideo}
-              autoPlay
-              loop
-              playsInline
-              className="w-80 h-80 md:w-96 md:h-96 lg:w-[28rem] lg:h-[28rem] object-contain"
-              style={{ filter: 'drop-shadow(0 0 60px rgba(71, 201, 229, 0.6)) drop-shadow(0 0 100px rgba(124, 58, 237, 0.4))' }}
-            >
+            <video ref={videoRef} src={nomiqaHeroVideo} autoPlay loop playsInline className="w-80 h-80 md:w-96 md:h-96 lg:w-[28rem] lg:h-[28rem] object-contain" style={{
+            filter: 'drop-shadow(0 0 60px rgba(71, 201, 229, 0.6)) drop-shadow(0 0 100px rgba(124, 58, 237, 0.4))'
+          }}>
               Your browser does not support the video tag.
             </video>
           </div>
           
           {/* Description text */}
-          <div className="mb-6 md:mb-8 animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
-            <p className="text-lg md:text-xl lg:text-2xl text-foreground/90 mb-3 max-w-3xl mx-auto px-4 leading-relaxed">
-              Your freedom deserves privacy. Anonymous eSIMs that work in 190+ countries—no ID, no tracking, just instant connection.
-            </p>
+          <div className="mb-6 md:mb-8 animate-fade-in-up" style={{
+          animationDelay: "0.2s"
+        }}>
+            <p className="text-lg md:text-xl lg:text-2xl text-foreground/90 mb-3 max-w-3xl mx-auto px-4 leading-relaxed">Your freedom deserves privacy. Anonymous eSIMs that work in 190+ countries no ID, no tracking, just instant connection.</p>
             <p className="text-sm md:text-base lg:text-lg text-foreground/70 max-w-2xl mx-auto px-4">
               Join thousands who've chosen digital freedom. Connected in under 60 seconds.
             </p>
           </div>
           
-          <div className="flex flex-col sm:flex-row gap-4 mb-10 md:mb-16 justify-center animate-fade-in-up px-4" style={{ animationDelay: "0.3s" }}>
-            <Button 
-              size="lg"
-              onClick={() => navigate('/shop')}
-              className="w-full sm:w-auto bg-neon-coral hover:bg-neon-coral/90 text-white font-semibold px-8 py-6 text-lg shadow-lg hover:shadow-neon-coral/50 transition-all"
-            >
-              Claim Your Freedom Now →
-            </Button>
-            <Button 
-              variant="outline"
-              size="lg"
-              onClick={() => navigate('/getting-started')}
-              className="w-full sm:w-auto border-neon-cyan/50 text-neon-cyan hover:bg-neon-cyan/10 px-6"
-            >
+          <div className="flex flex-col sm:flex-row gap-4 mb-10 md:mb-16 justify-center animate-fade-in-up px-4" style={{
+          animationDelay: "0.3s"
+        }}>
+            <Button size="lg" onClick={() => navigate('/shop')} className="w-full sm:w-auto bg-neon-coral hover:bg-neon-coral/90 text-white font-semibold px-8 py-6 text-lg shadow-lg hover:shadow-neon-coral/50 transition-all">Buy Now</Button>
+            <Button variant="outline" size="lg" onClick={() => navigate('/getting-started')} className="w-full sm:w-auto border-neon-cyan/50 text-neon-cyan hover:bg-neon-cyan/10 px-6">
               See How It Works (60 sec setup)
             </Button>
           </div>
           
-          <div className="text-center mb-8 animate-fade-in-up px-4" style={{ animationDelay: "0.4s" }}>
+          <div className="text-center mb-8 animate-fade-in-up px-4" style={{
+          animationDelay: "0.4s"
+        }}>
             <p className="text-base md:text-lg text-warm-sand/80">
               Your journey. Your privacy. Your signal.
             </p>
           </div>
         </div>
       </div>
-    </section>
-  );
+    </section>;
 };
