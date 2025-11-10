@@ -55,9 +55,9 @@ export const TrustPartners = () => {
           
           <div className="group flex flex-col items-center justify-center p-6 md:p-8 rounded-2xl bg-card/30 backdrop-blur-sm border border-neon-cyan/10 hover:border-neon-cyan/30 transition-all">
             <div className="w-12 h-12 md:w-16 md:h-16 rounded-xl flex items-center justify-center mb-3 md:mb-4 group-hover:scale-110 transition-transform">
-              <img src={moonpayLogo} alt="MoonPay Commerce" className="w-8 h-8 md:w-12 md:h-12 rounded-xl" />
+              <img src={moonpayLogo} alt="MoonPay" className="w-8 h-8 md:w-12 md:h-12 rounded-xl" />
             </div>
-            <span className="text-foreground/70 font-semibold text-sm md:text-base">MoonPay Commerce</span>
+            <span className="text-foreground/70 font-semibold text-sm md:text-base">MoonPay</span>
             <span className="text-foreground/50 text-xs mt-1">Crypto Payments</span>
           </div>
         </div>
