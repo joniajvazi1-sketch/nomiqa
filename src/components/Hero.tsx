@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import nomiqaHeroVideo from "@/assets/nomiqa-hero-video.mp4";
-import nomiqaAnimatedLogo from "@/assets/nomiqa-animated-logo.gif";
 import { useTranslation } from "@/contexts/TranslationContext";
 import { useEffect, useRef } from "react";
 
@@ -51,6 +50,18 @@ export const Hero = () => {
       
       <div className="container relative z-10 px-4 py-16 md:py-32">
         <div className="max-w-5xl mx-auto text-center">
+          {/* Main heading - moved above video */}
+          <div className="mb-8 md:mb-12 animate-fade-in-up">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 md:mb-8 font-display leading-tight">
+              <span className="block bg-gradient-freedom bg-clip-text text-transparent">
+                Connect Privately.
+              </span>
+              <span className="block bg-gradient-sunrise bg-clip-text text-transparent mt-2">
+                Travel Freely.
+              </span>
+            </h1>
+          </div>
+          
           {/* Hero Video */}
           <div className="mb-6 md:mb-8 flex justify-center animate-scale-in">
             <video 
@@ -66,16 +77,8 @@ export const Hero = () => {
             </video>
           </div>
           
-          {/* Main heading */}
-          <div className="mb-6 md:mb-8 animate-fade-in-up">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6 font-display leading-tight">
-              <span className="block bg-gradient-freedom bg-clip-text text-transparent">
-                Connect Privately.
-              </span>
-              <span className="block bg-gradient-sunrise bg-clip-text text-transparent mt-2">
-                Travel Freely.
-              </span>
-            </h1>
+          {/* Description text */}
+          <div className="mb-6 md:mb-8 animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
             <p className="text-lg md:text-xl lg:text-2xl text-foreground/90 mb-3 max-w-3xl mx-auto px-4 leading-relaxed">
               Anonymous eSIMs. Crypto payments. Instant access in 190+ countries.
             </p>
@@ -103,19 +106,9 @@ export const Hero = () => {
           </div>
           
           <div className="text-center mb-8 animate-fade-in-up px-4" style={{ animationDelay: "0.4s" }}>
-            <p className="text-base md:text-lg text-warm-sand/80 mb-6">
+            <p className="text-base md:text-lg text-warm-sand/80">
               Wherever you go, your signal follows.
             </p>
-            
-            {/* Animated Logo */}
-            <div className="flex justify-center">
-              <img 
-                src={nomiqaAnimatedLogo}
-                alt="Nomiqa Animated Logo"
-                className="w-48 md:w-64 lg:w-72 object-contain"
-                style={{ filter: 'drop-shadow(0 0 40px rgba(71, 201, 229, 0.4))' }}
-              />
-            </div>
           </div>
         </div>
       </div>
