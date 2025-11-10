@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import nomiqaAnimatedLogo from "@/assets/nomiqa-animated-logo.gif";
+import nomiqaHeroVideo from "@/assets/nomiqa-hero-video.mp4";
 import { useTranslation } from "@/contexts/TranslationContext";
 
 export const Hero = () => {
@@ -26,14 +26,19 @@ export const Hero = () => {
       
       <div className="container relative z-10 px-4 py-16 md:py-32">
         <div className="max-w-5xl mx-auto text-center">
-          {/* Logo */}
+          {/* Hero Video */}
           <div className="mb-6 md:mb-8 flex justify-center animate-scale-in">
-            <img 
-              src={nomiqaAnimatedLogo} 
-              alt="nomiqa - The world's first crypto eSIM"
+            <video 
+              src={nomiqaHeroVideo}
+              autoPlay
+              loop
+              muted
+              playsInline
               className="w-64 h-64 md:w-80 md:h-80 lg:w-96 lg:h-96 object-contain"
               style={{ filter: 'drop-shadow(0 0 60px rgba(71, 201, 229, 0.6)) drop-shadow(0 0 100px rgba(124, 58, 237, 0.4))' }}
-            />
+            >
+              Your browser does not support the video tag.
+            </video>
           </div>
           
           {/* Main heading */}
