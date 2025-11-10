@@ -66,16 +66,6 @@ export const Hero = () => {
             </video>
           </div>
           
-          {/* Animated Logo */}
-          <div className="mb-6 md:mb-8 flex justify-center animate-fade-in-up">
-            <img 
-              src={nomiqaAnimatedLogo}
-              alt="Nomiqa Animated Logo"
-              className="w-48 md:w-64 lg:w-72 object-contain"
-              style={{ filter: 'drop-shadow(0 0 40px rgba(71, 201, 229, 0.4))' }}
-            />
-          </div>
-          
           {/* Main heading */}
           <div className="mb-6 md:mb-8 animate-fade-in-up">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6 font-display leading-tight">
@@ -113,9 +103,19 @@ export const Hero = () => {
           </div>
           
           <div className="text-center mb-8 animate-fade-in-up px-4" style={{ animationDelay: "0.4s" }}>
-            <p className="text-base md:text-lg text-warm-sand/80">
+            <p className="text-base md:text-lg text-warm-sand/80 mb-6">
               Wherever you go, your signal follows.
             </p>
+            
+            {/* Animated Logo */}
+            <div className="flex justify-center">
+              <img 
+                src={nomiqaAnimatedLogo}
+                alt="Nomiqa Animated Logo"
+                className="w-48 md:w-64 lg:w-72 object-contain"
+                style={{ filter: 'drop-shadow(0 0 40px rgba(71, 201, 229, 0.4))' }}
+              />
+            </div>
           </div>
         </div>
       </div>
