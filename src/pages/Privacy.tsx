@@ -1,5 +1,6 @@
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { StickyCTA } from "@/components/StickyCTA";
 import { Shield, Eye, Lock, Globe, Fingerprint, Database } from "lucide-react";
 
 export default function Privacy() {
@@ -64,7 +65,7 @@ export default function Privacy() {
             </h1>
             
             <p className="text-xl md:text-2xl text-foreground/80 max-w-3xl mx-auto mb-6">
-              Your data belongs to you. Here's how we keep it that way.
+              Your data is YOURS. Not ours. Not anyone's. Here's how we guarantee it.
             </p>
           </div>
 
@@ -135,7 +136,8 @@ export default function Privacy() {
               </div>
               
               <p className="pt-6 text-lg font-semibold text-neon-coral text-center">
-                Bottom line: We can't compromise what we never collect. Your privacy is mathematically guaranteed.
+                We can't compromise what we never collect. Your privacy isn't a promise—it's mathematically guaranteed. 
+                <span className="text-neon-cyan"> This is your digital freedom.</span>
               </p>
             </div>
           </div>
@@ -153,6 +155,7 @@ export default function Privacy() {
       </section>
       
       <Footer />
+      <StickyCTA />
     </div>
   );
 }

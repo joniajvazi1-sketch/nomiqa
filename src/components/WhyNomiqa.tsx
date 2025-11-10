@@ -7,20 +7,20 @@ export const WhyNomiqa = () => {
   const values = [
     {
       icon: Shield,
-      title: "Anonymous eSIMs",
-      description: "No KYC, no tracking",
+      title: "True Privacy. Zero Compromise.",
+      description: "Your data is YOURS. No ID checks, no surveillance, no digital footprints.",
       gradient: "from-neon-cyan to-neon-violet",
     },
     {
       icon: Zap,
-      title: "Crypto checkout in seconds",
-      description: "Pay with crypto, activate instantly",
+      title: "Instant Access. Real Freedom.",
+      description: "Pay with crypto. Activate in seconds. No banks watching. No delays.",
       gradient: "from-neon-violet to-neon-coral",
     },
     {
       icon: Globe,
-      title: "Instant activation in 190+ countries",
-      description: "Global coverage, local freedom",
+      title: "Borderless Connection. Limitless Possibilities.",
+      description: "190+ countries. One eSIM. The world is yours to explore freely.",
       gradient: "from-neon-coral to-warm-sand",
     },
   ];
@@ -35,11 +35,11 @@ export const WhyNomiqa = () => {
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 font-display">
             <span className="bg-gradient-freedom bg-clip-text text-transparent">
-              Why Nomiqa
+              This Is Why You Need Nomiqa
             </span>
           </h2>
-          <p className="text-lg md:text-xl text-foreground/70 max-w-2xl mx-auto">
-            Connection without compromise
+          <p className="text-lg md:text-xl text-foreground/80 max-w-2xl mx-auto">
+            Because your freedom shouldn't come with surveillance.
           </p>
         </div>
 

@@ -8,43 +8,43 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Core dark privacy foundation */
-    --background: 222 33% 6%;        /* #0B0E16 */
-    --foreground: 213 31% 91%;
-    --card: 222 33% 8%;
-    --card-foreground: 213 31% 91%;
-    --popover: 222 33% 6%;
-    --popover-foreground: 213 31% 91%;
+    /* Lighter, warmer foundation */
+    --background: 240 25% 12%;       /* Lighter #1A1D2E */
+    --foreground: 213 25% 94%;
+    --card: 240 20% 15%;
+    --card-foreground: 213 25% 94%;
+    --popover: 240 25% 12%;
+    --popover-foreground: 213 25% 94%;
     
-    /* Freedom gradient colors */
-    --primary: 190 67% 58%;          /* Cyan #47C9E5 */
-    --primary-foreground: 222 33% 6%;
-    --secondary: 245 100% 69%;       /* Violet #6C63FF */
-    --secondary-foreground: 213 31% 91%;
-    --accent: 6 94% 67%;             /* Coral #F96B5A */
-    --accent-foreground: 213 31% 91%;
+    /* Brighter freedom gradient colors */
+    --primary: 190 80% 65%;          /* Brighter Cyan #5DD5F0 */
+    --primary-foreground: 240 25% 12%;
+    --secondary: 245 100% 75%;       /* Brighter Violet #8A82FF */
+    --secondary-foreground: 213 25% 94%;
+    --accent: 6 94% 72%;             /* Brighter Coral #FB8276 */
+    --accent-foreground: 213 25% 94%;
     
-    /* Supporting colors */
-    --muted: 223 47% 11%;
-    --muted-foreground: 215.4 16.3% 56.9%;
-    --destructive: 0 63% 31%;
+    /* Supporting colors - lighter */
+    --muted: 240 20% 18%;
+    --muted-foreground: 215.4 16.3% 65%;
+    --destructive: 0 70% 45%;
     --destructive-foreground: 210 40% 98%;
-    --border: 216 34% 17%;
-    --input: 216 34% 17%;
-    --ring: 245 100% 69%;
+    --border: 240 15% 25%;
+    --input: 240 15% 25%;
+    --ring: 245 100% 75%;
     --radius: 0.5rem;
     
-    /* Brand color palette - Freedom gradients */
-    --neon-cyan: 190 67% 58%;        /* #47C9E5 */
-    --neon-blue: 235 100% 65%;
-    --neon-violet: 245 100% 69%;     /* #6C63FF */
-    --neon-pink: 330 82% 70%;
-    --neon-coral: 6 94% 67%;         /* #F96B5A */
-    --neon-orange: 25 95% 65%;
-    --neon-yellow: 48 96% 65%;
-    --warm-sand: 33 65% 84%;         /* #F2D5B8 */
-    --deep-space: 222 33% 8%;
-    --midnight-blue: 222 33% 6%;
+    /* Brighter brand color palette */
+    --neon-cyan: 190 80% 65%;        /* #5DD5F0 */
+    --neon-blue: 235 100% 70%;
+    --neon-violet: 245 100% 75%;     /* #8A82FF */
+    --neon-pink: 330 82% 75%;
+    --neon-coral: 6 94% 72%;         /* #FB8276 */
+    --neon-orange: 25 95% 68%;
+    --neon-yellow: 48 96% 70%;
+    --warm-sand: 33 70% 86%;         /* #F5DBBD */
+    --deep-space: 240 20% 15%;
+    --midnight-blue: 240 25% 12%;
     
     
     /* Freedom gradient definitions */

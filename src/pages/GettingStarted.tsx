@@ -1,5 +1,6 @@
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { StickyCTA } from "@/components/StickyCTA";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Wallet, Shield, Coins, ArrowRight, ExternalLink, Download, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -205,6 +206,7 @@ export default function GettingStarted() {
       </section>
 
       <Footer />
+      <StickyCTA />
     </div>
   );
 }

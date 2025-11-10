@@ -1,5 +1,6 @@
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { StickyCTA } from "@/components/StickyCTA";
 import { Globe, Heart, Users, Zap } from "lucide-react";
 import heroHappy from "@/assets/hero-happy.jpg";
 import worldTravelers from "@/assets/world-travelers.jpg";
@@ -84,20 +85,26 @@ export default function About() {
               </h2>
               <div className="space-y-4 text-foreground/80 leading-relaxed text-center md:text-left">
                 <p className="text-lg">
-                  Nomiqa was born from a simple frustration: <span className="text-neon-coral font-semibold">why should staying connected 
-                  while traveling mean surrendering your privacy?</span>
+                  Imagine this: You land in a new country. Excited. Free. Ready to explore. But first, you need internet. 
+                  <span className="text-neon-coral font-semibold"> Why should getting connected mean giving up your privacy?</span>
                 </p>
                 <p>
-                  Every international SIM required passport scans. Every data plan tracked your location. 
-                  Every payment left a digital trail. The promise of a connected world came with invisible chains.
+                  Every single traditional SIM demanded your passport. Every data plan monitored where you went. 
+                  Every payment left a permanent trail. The promise of global connection came wrapped in invisible chains—
+                  surveillance disguised as convenience.
                 </p>
                 <p>
-                  So we built the alternative: <span className="text-neon-cyan font-semibold">anonymous eSIMs powered by crypto</span>. 
-                  No KYC. No tracking. No compromises. Just instant global connectivity that respects your right to privacy.
+                  We said: <span className="text-neon-cyan font-semibold">NO MORE.</span>
                 </p>
                 <p>
-                  Today, Nomiqa serves the borderless generation — digital nomads, crypto natives, privacy advocates, 
-                  and anyone who believes that <span className="text-warm-sand font-semibold">freedom shouldn't come with surveillance</span>.
+                  Nomiqa was born from this frustration. We built what should have always existed: 
+                  <span className="text-neon-cyan font-semibold"> anonymous eSIMs powered entirely by crypto</span>. 
+                  Zero KYC. Zero tracking. Zero compromises. Just pure, instant, global connectivity that honors your fundamental right to privacy.
+                </p>
+                <p>
+                  Today, we serve the <span className="text-warm-sand font-semibold">borderless generation</span> — digital nomads who refuse borders, 
+                  crypto natives who demand freedom, privacy advocates who won't settle, and anyone who believes that 
+                  <span className="text-warm-sand font-semibold"> staying connected shouldn't mean being watched</span>.
                 </p>
               </div>
             </div>
@@ -141,15 +148,15 @@ export default function About() {
                 Our Vision
               </h2>
               <p className="text-xl md:text-2xl text-foreground/90 mb-6 leading-relaxed">
-                A world where staying connected doesn't mean being tracked.
+                A world where you can stay connected without being tracked. Where every journey begins with freedom, not fear.
               </p>
               <p className="text-lg text-foreground/70 max-w-3xl mx-auto mb-8">
-                Where digital nomads can roam freely, crypto natives can transact privately, 
-                and everyone can access the internet without surveillance. 
-                That's the world Nomiqa is building — one anonymous eSIM at a time.
+                Picture this: Digital nomads roaming freely across continents. Crypto natives transacting privately without banks peering over their shoulders. 
+                Everyone accessing the internet without surrendering their soul to surveillance. 
+                <span className="text-neon-cyan font-semibold"> That's the world Nomiqa is building</span> — one anonymous eSIM at a time.
               </p>
-              <p className="text-2xl text-warm-sand">
-                Your journey is global. Your data should be too.
+              <p className="text-2xl text-warm-sand font-semibold">
+                You deserve to explore the world on YOUR terms. We're here to make that possible.
               </p>
             </div>
           </div>
@@ -157,6 +164,7 @@ export default function About() {
       </section>
       
       <Footer />
+      <StickyCTA />
     </div>
   );
 }

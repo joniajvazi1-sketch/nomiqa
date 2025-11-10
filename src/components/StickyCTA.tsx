@@ -38,8 +38,8 @@ export const StickyCTA = () => {
           className="shadow-glow-neon hover:shadow-glow-cyan transition-all pr-12"
         >
           <ShoppingBag className="w-5 h-5 mr-2" />
-          <span className="hidden sm:inline">Buy eSIM</span>
-          <span className="sm:hidden">Shop</span>
+          <span className="hidden sm:inline">Get Your eSIM Now</span>
+          <span className="sm:hidden">Buy Now</span>
         </Button>
         
         <button

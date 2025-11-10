@@ -50,7 +50,7 @@ export const Hero = () => {
       
       <div className="container relative z-10 px-4 py-16 md:py-32">
         <div className="max-w-5xl mx-auto text-center">
-          {/* Main heading - moved above video */}
+          {/* Main heading */}
           <div className="mb-8 md:mb-12 animate-fade-in-up">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 md:mb-8 font-display leading-tight">
               <span className="block bg-gradient-freedom bg-clip-text text-transparent">
@@ -80,20 +80,20 @@ export const Hero = () => {
           {/* Description text */}
           <div className="mb-6 md:mb-8 animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
             <p className="text-lg md:text-xl lg:text-2xl text-foreground/90 mb-3 max-w-3xl mx-auto px-4 leading-relaxed">
-              Anonymous eSIMs. Crypto payments. Instant access in 190+ countries.
+              Your freedom deserves privacy. Anonymous eSIMs that work in 190+ countries—no ID, no tracking, just instant connection.
             </p>
-            <p className="text-sm md:text-base lg:text-lg text-foreground/60 max-w-2xl mx-auto px-4">
-              Get connected in under 60 seconds. No paperwork, no waiting.
+            <p className="text-sm md:text-base lg:text-lg text-foreground/70 max-w-2xl mx-auto px-4">
+              Join thousands who've chosen digital freedom. Connected in under 60 seconds.
             </p>
           </div>
           
-          <div className="flex flex-col sm:flex-row gap-4 mb-10 md:mb-16 justify-center animate-fade-in-up px-4" style={{ animationDelay: "0.2s" }}>
+          <div className="flex flex-col sm:flex-row gap-4 mb-10 md:mb-16 justify-center animate-fade-in-up px-4" style={{ animationDelay: "0.3s" }}>
             <Button 
               size="lg"
               onClick={() => navigate('/shop')}
               className="w-full sm:w-auto bg-neon-coral hover:bg-neon-coral/90 text-white font-semibold px-8 py-6 text-lg shadow-lg hover:shadow-neon-coral/50 transition-all"
             >
-              Get Your eSIM →
+              Claim Your Freedom Now →
             </Button>
             <Button 
               variant="outline"
@@ -101,13 +101,13 @@ export const Hero = () => {
               onClick={() => navigate('/getting-started')}
               className="w-full sm:w-auto border-neon-cyan/50 text-neon-cyan hover:bg-neon-cyan/10 px-6"
             >
-              How to Buy (SOL & $NOMIQA token)
+              See How It Works (60 sec setup)
             </Button>
           </div>
           
           <div className="text-center mb-8 animate-fade-in-up px-4" style={{ animationDelay: "0.4s" }}>
             <p className="text-base md:text-lg text-warm-sand/80">
-              Wherever you go, your signal follows.
+              Your journey. Your privacy. Your signal.
             </p>
           </div>
         </div>
