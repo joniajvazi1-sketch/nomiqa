@@ -480,12 +480,16 @@ export default function Affiliate() {
                       <h3 className="text-sm font-semibold">Your Personalized Link</h3>
                       <Badge variant="secondary">Ready to Share</Badge>
                     </div>
-                    <div className="flex gap-2">
-                      <Input value={customLink || affiliateLink} readOnly className="font-mono text-primary font-semibold text-lg" />
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <Input 
+                        value={customLink || affiliateLink} 
+                        readOnly 
+                        className="font-mono text-primary font-semibold text-sm sm:text-base break-all"
+                      />
                       <Button onClick={() => {
                         navigator.clipboard.writeText(customLink || affiliateLink);
                         toast.success("Link copied!");
-                      }}>
+                      }} className="w-full sm:w-auto whitespace-nowrap">
                         <Copy className="w-4 h-4 mr-2" />
                         Copy
                       </Button>
@@ -498,10 +502,10 @@ export default function Affiliate() {
                     <p className="text-xs text-muted-foreground">
                       Change your username to create a memorable link
                     </p>
-                    <div className="flex gap-2">
-                      <div className="flex-1">
-                        <div className="flex gap-2">
-                          <span className="flex items-center px-3 bg-muted text-muted-foreground rounded-md text-sm">
+                    <div className="flex flex-col gap-3">
+                      <div className="flex-1 space-y-2">
+                        <div className="flex flex-col sm:flex-row gap-2">
+                          <span className="flex items-center px-3 py-2 bg-muted text-muted-foreground rounded-md text-xs sm:text-sm whitespace-nowrap">
                             {window.location.origin}/
                           </span>
                           <div className="flex-1 relative">
@@ -509,7 +513,7 @@ export default function Affiliate() {
                               value={username} 
                               onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
                               placeholder="yourname"
-                              className={`font-mono pr-10 ${
+                              className={`font-mono pr-10 text-sm sm:text-base ${
                                 usernameAvailability === 'available' ? 'border-green-500 focus-visible:ring-green-500' :
                                 usernameAvailability === 'taken' || usernameAvailability === 'invalid' ? 'border-red-500 focus-visible:ring-red-500' :
                                 ''
@@ -533,18 +537,25 @@ export default function Affiliate() {
                           </div>
                         </div>
                         {usernameAvailability === 'taken' && (
-                          <p className="text-xs text-red-500 mt-1 ml-2">Username already taken</p>
+                          <p className="text-xs text-red-500">Username already taken</p>
                         )}
                         {usernameAvailability === 'invalid' && (
-                          <p className="text-xs text-red-500 mt-1 ml-2">3-30 characters, lowercase letters, numbers, and hyphens only</p>
+                          <p className="text-xs text-red-500">3-30 characters, lowercase letters, numbers, and hyphens only</p>
                         )}
                         {usernameAvailability === 'available' && (
-                          <p className="text-xs text-green-500 mt-1 ml-2">Username available!</p>
+                          <p className="text-xs text-green-500">Username available!</p>
+                        )}
+                        {customLink && (
+                          <div className="p-3 bg-muted/50 rounded-md">
+                            <p className="text-xs font-medium text-muted-foreground mb-1">Your custom link preview:</p>
+                            <p className="text-xs sm:text-sm font-mono text-primary break-all">{customLink}</p>
+                          </div>
                         )}
                       </div>
                       <Button 
                         onClick={updateUsername} 
                         disabled={!username || updatingUsername || username === affiliate.username || usernameAvailability !== 'available'}
+                        className="w-full sm:w-auto"
                       >
                         {updatingUsername && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                         Update

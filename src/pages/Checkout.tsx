@@ -206,8 +206,8 @@ export default function Checkout() {
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-4">
-                  <div>
-                    <Label htmlFor="email">Email Address</Label>
+                  <div className="space-y-2">
+                    <Label htmlFor="email" className="text-base font-semibold">Email Address *</Label>
                     <Input
                       id="email"
                       type="email"
@@ -215,10 +215,16 @@ export default function Checkout() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
+                      className="text-base py-6"
                     />
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Your eSIM details will be sent here
-                    </p>
+                    <div className="bg-primary/10 border border-primary/20 rounded-lg p-4 mt-3">
+                      <p className="text-sm md:text-base font-medium text-foreground">
+                        📧 Your eSIM will be delivered to this email address
+                      </p>
+                      <p className="text-xs md:text-sm text-muted-foreground mt-1">
+                        Double-check it's correct before placing your order
+                      </p>
+                    </div>
                   </div>
 
                   <Separator />

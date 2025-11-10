@@ -65,13 +65,10 @@ export const Hero = () => {
             <Button 
               variant="outline"
               size="lg"
-              onClick={() => {
-                const coverageSection = document.getElementById('coverage');
-                coverageSection?.scrollIntoView({ behavior: 'smooth' });
-              }}
-              className="w-full sm:w-auto border-neon-cyan/50 text-neon-cyan hover:bg-neon-cyan/10"
+              onClick={() => navigate('/getting-started')}
+              className="w-full sm:w-auto border-neon-cyan/50 text-neon-cyan hover:bg-neon-cyan/10 px-6"
             >
-              Explore Coverage
+              How to Buy (SOL & $NOMIQA token)
             </Button>
           </div>
           

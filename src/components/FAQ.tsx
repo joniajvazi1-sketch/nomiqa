@@ -36,7 +36,7 @@ export const FAQ = () => {
     },
     {
       question: "Which countries are supported?",
-      answer: "Nomiqa provides coverage in over 200 countries and regions worldwide. We offer both single-country plans and regional packages for areas like Europe, Asia, North America, and more. Check our shop page to see specific coverage for your destination."
+      answer: "Nomiqa provides coverage in over 190+ countries and regions worldwide. We offer both single-country plans and regional packages for areas like Europe, Asia, North America, and more. Check our shop page to see specific coverage for your destination."
     },
     {
       question: "Can I top up or extend my eSIM plan?",

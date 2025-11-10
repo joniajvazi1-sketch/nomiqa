@@ -23,6 +23,12 @@ export default function Auth() {
         navigate('/');
       }
     });
+
+    // Check if URL has signup parameter
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('signup') === 'true') {
+      setIsSignUp(true);
+    }
   }, [navigate]);
 
   const handleAuth = async (e: React.FormEvent) => {
