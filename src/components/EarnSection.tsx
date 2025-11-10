@@ -31,7 +31,7 @@ export const EarnSection = () => {
             {t("earnDesc")}
           </p>
           
-          <p className="text-sm md:text-base lg:text-lg mb-8 md:mb-12 text-neon-cyan/90 font-medium px-4">Lock $NOMIQA tokens to earn free data credits and affiliate rewards. Your travel, powered by Web3.</p>
+          <p className="text-sm md:text-base lg:text-lg mb-8 md:mb-12 text-neon-cyan/90 font-medium px-4">Lock $NOMIQA tokens to earn rewards. Your travel, powered by Web3.</p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center animate-bounce-in px-4" style={{
           animationDelay: "0.3s"
