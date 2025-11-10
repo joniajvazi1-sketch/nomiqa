@@ -32,9 +32,8 @@ export const Hero = () => {
               src={nomiqaHeroVideo}
               autoPlay
               loop
-              muted
               playsInline
-              className="w-64 h-64 md:w-80 md:h-80 lg:w-96 lg:h-96 object-contain"
+              className="w-80 h-80 md:w-96 md:h-96 lg:w-[28rem] lg:h-[28rem] object-contain"
               style={{ filter: 'drop-shadow(0 0 60px rgba(71, 201, 229, 0.6)) drop-shadow(0 0 100px rgba(124, 58, 237, 0.4))' }}
             >
               Your browser does not support the video tag.
