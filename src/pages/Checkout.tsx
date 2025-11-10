@@ -265,14 +265,14 @@ export default function Checkout() {
           toast.info('You can check your order status in Orders page');
         }
       }}>
-        <DialogContent className="max-w-4xl max-h-[90vh] p-0 overflow-hidden">
-          <DialogHeader className="p-6 pb-4">
+        <DialogContent className="max-w-4xl h-[85vh] md:h-auto md:max-h-[90vh] p-0 overflow-hidden flex flex-col">
+          <DialogHeader className="p-4 md:p-6 pb-2 md:pb-4 flex-shrink-0">
             <DialogTitle>Complete Your Payment</DialogTitle>
           </DialogHeader>
           {paylinkUrl && (
             <iframe
               src={paylinkUrl}
-              className="w-full h-[650px] border-0"
+              className="w-full flex-1 md:h-[650px] border-0"
               title="Helio Payment"
               allow="payment"
             />
