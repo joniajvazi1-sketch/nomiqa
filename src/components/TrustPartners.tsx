@@ -2,6 +2,7 @@ import { TrendingUp } from "lucide-react";
 import solanaLogo from "@/assets/solana-logo.svg";
 import phantomLogo from "@/assets/phantom-logo.png";
 import meteoraLogo from "@/assets/meteora-logo.jpg";
+import moonpayLogo from "@/assets/moonpay-logo.jpg";
 import { useSolanaPrice } from "@/hooks/useSolanaPrice";
 
 
@@ -20,7 +21,7 @@ export const TrustPartners = () => {
           </h3>
         </div>
         
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-6 md:gap-8 max-w-3xl mx-auto">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 max-w-5xl mx-auto">
           <div className="group flex flex-col items-center justify-center p-6 md:p-8 rounded-2xl bg-card/30 backdrop-blur-sm border border-neon-cyan/10 hover:border-neon-cyan/30 transition-all">
             <div className="w-12 h-12 md:w-16 md:h-16 rounded-xl flex items-center justify-center mb-3 md:mb-4 group-hover:scale-110 transition-transform">
               <img src={solanaLogo} alt="Solana" className="w-8 h-8 md:w-12 md:h-12" />
@@ -50,6 +51,14 @@ export const TrustPartners = () => {
             </div>
             <span className="text-foreground/70 font-semibold text-sm md:text-base">Meteora</span>
             <span className="text-foreground/50 text-xs mt-1">Smart Contracts</span>
+          </div>
+          
+          <div className="group flex flex-col items-center justify-center p-6 md:p-8 rounded-2xl bg-card/30 backdrop-blur-sm border border-neon-cyan/10 hover:border-neon-cyan/30 transition-all">
+            <div className="w-12 h-12 md:w-16 md:h-16 rounded-xl flex items-center justify-center mb-3 md:mb-4 group-hover:scale-110 transition-transform">
+              <img src={moonpayLogo} alt="MoonPay Commerce" className="w-8 h-8 md:w-12 md:h-12 rounded-xl" />
+            </div>
+            <span className="text-foreground/70 font-semibold text-sm md:text-base">MoonPay Commerce</span>
+            <span className="text-foreground/50 text-xs mt-1">Crypto Payments</span>
           </div>
         </div>
       </div>
