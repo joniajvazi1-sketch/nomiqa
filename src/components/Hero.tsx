@@ -2,10 +2,34 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import nomiqaHeroVideo from "@/assets/nomiqa-hero-video.mp4";
 import { useTranslation } from "@/contexts/TranslationContext";
+import { useEffect, useRef } from "react";
 
 export const Hero = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            video.play();
+          } else {
+            video.pause();
+          }
+        });
+      },
+      { threshold: 0.5 }
+    );
+
+    observer.observe(video);
+
+    return () => observer.disconnect();
+  }, []);
   
   return (
     <section className="relative min-h-screen flex items-center bg-gradient-to-br from-background via-deep-space to-background overflow-hidden pt-20">
@@ -29,6 +53,7 @@ export const Hero = () => {
           {/* Hero Video */}
           <div className="mb-6 md:mb-8 flex justify-center animate-scale-in">
             <video 
+              ref={videoRef}
               src={nomiqaHeroVideo}
               autoPlay
               loop
