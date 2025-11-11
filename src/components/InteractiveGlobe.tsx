@@ -316,7 +316,7 @@ const InteractiveGlobe: React.FC = () => {
 
   return (
     <div className="relative w-full h-[200px] md:h-[280px] lg:h-[320px]">
-      <div ref={containerRef} className="absolute inset-0 -translate-x-8 translate-y-6 md:translate-x-0 md:translate-y-0" />
+      <div ref={containerRef} className="absolute inset-0 -translate-x-20 translate-y-6 md:translate-x-0 md:translate-y-0" />
       {/* Subtle overlay gradient to match theme */}
       <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent to-background/10" />
     </div>
