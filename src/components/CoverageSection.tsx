@@ -11,7 +11,7 @@ export const CoverageSection = () => {
           alt="Global network coverage" 
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-deep-space/80 via-midnight-blue/70 to-deep-space/80"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-deep-space/50 via-midnight-blue/40 to-deep-space/50"></div>
       </div>
       
       <div className="container px-4 relative z-10">

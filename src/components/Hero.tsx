@@ -14,7 +14,7 @@ export const Hero = () => {
           alt="Sunset cityscape" 
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-background/60 via-deep-space/70 to-background/60"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-background/40 via-deep-space/50 to-background/40"></div>
       </div>
       
       <div className="container relative z-10 px-4 py-16 md:py-32">
