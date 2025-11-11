@@ -11,9 +11,9 @@ export const CoverageSection = () => {
           alt="Global network coverage" 
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-deep-space/50 via-midnight-blue/40 to-deep-space/50"></div>
-        {/* Bottom fade to transparent - blends with background */}
-        <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-transparent via-deep-space/20 to-transparent"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-deep-space/30 via-midnight-blue/25 to-deep-space/30"></div>
+        {/* Bottom fade to transparent - cuts around woman's head */}
+        <div className="absolute bottom-0 left-0 right-0 h-64 md:h-80 bg-gradient-to-t from-deep-space via-deep-space/60 to-transparent"></div>
       </div>
       
       <div className="container px-4 relative z-10">
@@ -26,7 +26,7 @@ export const CoverageSection = () => {
           </p>
         </div>
         
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-4xl mx-auto mb-8 md:mb-12">
           <InteractiveGlobe />
         </div>
         

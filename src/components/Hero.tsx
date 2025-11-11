@@ -14,14 +14,14 @@ export const Hero = () => {
           alt="Sunset cityscape" 
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-background/40 via-deep-space/50 to-background/40"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-background/30 via-deep-space/35 to-background/30"></div>
       </div>
       
       <div className="container relative z-10 px-4 py-16 md:py-32">
         <div className="max-w-5xl text-left md:text-left">
           {/* Main heading */}
-          <div className="mb-8 md:mb-10 animate-fade-in-up">
-            <h1 className="text-4xl md:text-5xl lg:text-7xl font-bold font-display leading-tight">
+          <div className="mb-6 md:mb-8 animate-fade-in-up">
+            <h1 className="text-3xl md:text-4xl lg:text-6xl font-bold font-display leading-tight">
               <span className="text-neon-cyan">Private.</span>{" "}
               <span className="text-neon-blue">Borderless.</span>{" "}
               <span className="bg-gradient-to-r from-neon-pink via-neon-coral to-warm-sand bg-clip-text text-transparent">Human.</span>
@@ -29,20 +29,20 @@ export const Hero = () => {
           </div>
           
           {/* Description text */}
-          <div className="mb-8 md:mb-10 animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
-            <p className="text-xl md:text-2xl lg:text-3xl text-white/95 mb-2 leading-relaxed">
+          <div className="mb-6 md:mb-8 animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
+            <p className="text-lg md:text-xl lg:text-2xl text-white/95 mb-2 leading-relaxed">
               Anonymous eSIMs that work in 190+ countries.
             </p>
-            <p className="text-lg md:text-xl lg:text-2xl text-white/90 leading-relaxed">
+            <p className="text-base md:text-lg lg:text-xl text-white/90 leading-relaxed">
               No ID, no tracking, no limits.
             </p>
           </div>
           
-          <div className="flex flex-col sm:flex-row gap-4 animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
             <Button 
               size="lg" 
               onClick={() => navigate('/shop')} 
-              className="bg-neon-coral hover:bg-neon-coral/90 text-white font-semibold px-10 py-7 text-lg rounded-xl shadow-xl hover:shadow-neon-coral/50 transition-all"
+              className="bg-neon-coral hover:bg-neon-coral/90 text-white font-semibold px-8 py-5 text-base md:text-lg rounded-xl shadow-xl hover:shadow-neon-coral/50 transition-all"
             >
               Buy Now
             </Button>
@@ -50,7 +50,7 @@ export const Hero = () => {
               variant="outline" 
               size="lg" 
               onClick={() => navigate('/getting-started')} 
-              className="border-2 border-neon-cyan/70 text-neon-cyan hover:bg-neon-cyan/10 px-8 py-7 text-lg rounded-xl backdrop-blur-sm"
+              className="border-2 border-neon-cyan/70 text-neon-cyan hover:bg-neon-cyan/10 px-6 py-5 text-base md:text-lg rounded-xl backdrop-blur-sm"
             >
               Watch How It Works
             </Button>
