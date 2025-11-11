@@ -266,6 +266,30 @@ export type Database = {
           },
         ]
       }
+      processed_webhook_requests: {
+        Row: {
+          created_at: string
+          id: string
+          processed_at: string
+          transaction_id: string
+          webhook_type: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          processed_at?: string
+          transaction_id: string
+          webhook_type: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          processed_at?: string
+          transaction_id?: string
+          webhook_type?: string
+        }
+        Relationships: []
+      }
       products: {
         Row: {
           airlo_package_id: string
@@ -388,6 +412,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      cleanup_old_webhook_requests: { Args: never; Returns: undefined }
       get_user_email: { Args: never; Returns: string }
       has_role: {
         Args: {

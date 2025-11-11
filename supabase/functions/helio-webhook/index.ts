@@ -35,6 +35,50 @@ serve(async (req) => {
     const payload = await req.json();
     console.log('Received Helio webhook:', JSON.stringify(payload, null, 2));
 
+    // Initialize Supabase client early for replay protection
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Replay attack protection: Check for timestamp
+    const requestTimestamp = payload.transactionObject?.meta?.timestamp || payload.timestamp;
+    if (requestTimestamp) {
+      const requestTime = new Date(requestTimestamp).getTime();
+      const now = Date.now();
+      const maxAge = 10 * 60 * 1000; // 10 minutes
+
+      if (Math.abs(now - requestTime) > maxAge) {
+        console.error('Request timestamp too old or in future:', {
+          requestTime: new Date(requestTime).toISOString(),
+          now: new Date(now).toISOString(),
+          ageDiff: Math.abs(now - requestTime) / 1000 / 60 + ' minutes'
+        });
+        return new Response('Request expired or timestamp invalid', { status: 401 });
+      }
+    }
+
+    // Replay attack protection: Check if transaction was already processed
+    const transactionId = payload.transactionObject?.id || payload.transactionObject?.meta?.transactionSignature;
+    if (transactionId) {
+      const { data: existingRequest } = await supabase
+        .from('processed_webhook_requests')
+        .select('id')
+        .eq('transaction_id', transactionId)
+        .eq('webhook_type', 'helio')
+        .single();
+
+      if (existingRequest) {
+        console.log('Duplicate request detected, transaction already processed:', transactionId);
+        return new Response(
+          JSON.stringify({ received: true, status: 'already_processed' }),
+          {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 200,
+          }
+        );
+      }
+    }
+
     const { event, transactionObject } = payload;
 
     // Only process CREATED events (successful payments)
@@ -44,11 +88,6 @@ serve(async (req) => {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
-
-    // Initialize Supabase client
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Find order by paylink ID (stored in airlo_request_id)
     const paylinkId = transactionObject.paylinkId;
@@ -98,6 +137,18 @@ serve(async (req) => {
 
     console.log('Payment successful for order:', order.id);
     console.log('Transaction signature:', transactionSignature);
+
+    // Mark transaction as processed to prevent replay attacks
+    if (transactionId) {
+      await supabase
+        .from('processed_webhook_requests')
+        .insert({
+          transaction_id: transactionId,
+          webhook_type: 'helio',
+          processed_at: new Date().toISOString(),
+        });
+      console.log('Marked transaction as processed:', transactionId);
+    }
 
     // Update order with payment details
     const { error: updateError } = await supabase
