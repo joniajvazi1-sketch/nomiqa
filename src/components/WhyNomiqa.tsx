@@ -1,5 +1,7 @@
 import { Shield, Zap, Globe } from "lucide-react";
 import { useTranslation } from "@/contexts/TranslationContext";
+import whyNomiqaDesktop from "@/assets/why-nomiqa-desktop.png";
+import whyNomiqaMobile from "@/assets/why-nomiqa-mobile.png";
 
 export const WhyNomiqa = () => {
   const { t } = useTranslation();
@@ -26,10 +28,19 @@ export const WhyNomiqa = () => {
   ];
 
   return (
-    <section className="relative py-24 md:py-32 bg-gradient-to-b from-background via-deep-space to-background overflow-hidden">
+    <section className="relative py-24 md:py-32 overflow-hidden">
+      {/* Background images with very light overlay */}
+      <div className="absolute inset-0">
+        {/* Desktop background */}
+        <img src={whyNomiqaDesktop} alt="Happy travelers at sunset" className="hidden md:block w-full h-full object-cover object-center" />
+        {/* Mobile background */}
+        <img src={whyNomiqaMobile} alt="Connected travelers at sunset" className="md:hidden w-full h-full object-cover object-center" />
+        <div className="absolute inset-0 bg-gradient-to-br from-deep-space/15 via-background/10 to-deep-space/15"></div>
+      </div>
+      
       {/* Decorative glows */}
-      <div className="absolute top-20 left-10 w-96 h-96 bg-neon-cyan/10 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-20 right-10 w-96 h-96 bg-neon-coral/10 rounded-full blur-3xl"></div>
+      <div className="absolute top-20 left-10 w-96 h-96 bg-neon-cyan/5 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-20 right-10 w-96 h-96 bg-neon-coral/5 rounded-full blur-3xl"></div>
       
       <div className="container relative z-10 px-4">
         <div className="text-center mb-16">
