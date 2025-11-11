@@ -17,10 +17,16 @@ export const CoverageSection = () => {
       <div className="container px-4 relative z-10">
         <div className="text-center mb-6 md:mb-8 mt-12 md:mt-16">
           <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold mb-3 md:mb-4 bg-gradient-neon bg-clip-text text-transparent">
-            Global Coverage
+            Connected. Everywhere.
           </h2>
-          <p className="text-base md:text-xl text-white/95 max-w-2xl mx-auto px-4">
-            Stay connected in over 190+ countries and territories worldwide.
+          <p className="text-base md:text-xl text-white/95 max-w-2xl mx-auto px-4 mb-4">
+            From cities to deserts, your signal follows you.
+          </p>
+          <p className="text-sm md:text-lg text-white/90 max-w-2xl mx-auto px-4">
+            190+ countries, one private connection.
+          </p>
+          <p className="text-xs md:text-base text-neon-cyan/80 italic mt-4 max-w-2xl mx-auto px-4">
+            "Freedom means never losing signal — or yourself."
           </p>
         </div>
         

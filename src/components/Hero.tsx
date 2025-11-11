@@ -39,10 +39,10 @@ export const Hero = () => {
           {/* Description text */}
           <div className="mb-6 md:mb-8 animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
             <p className="text-lg md:text-xl lg:text-2xl text-white/95 mb-2 leading-relaxed">
-              Anonymous eSIMs that work in 190+ countries.
+              Connect anywhere in 60 seconds — no ID, no tracking, no limits.
             </p>
             <p className="text-base md:text-lg lg:text-xl text-white/90 leading-relaxed">
-              No ID, no tracking, no limits.
+              Join the world's first crypto-powered eSIM for freedom on your terms.
             </p>
           </div>
           

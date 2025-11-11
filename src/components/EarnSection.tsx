@@ -24,14 +24,14 @@ export const EarnSection = () => {
       <div className="container px-4 relative z-10">
         <div className="text-center max-w-4xl mx-auto animate-fade-in-up">
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6 bg-gradient-sunset bg-clip-text text-transparent">
-            {t("earnTitle")}
+            Travel the world. Earn as you move.
           </h2>
           
-          <p className="text-base md:text-lg lg:text-xl mb-6 md:mb-8 text-foreground/80 px-4">
-            {t("earnDesc")}
+          <p className="text-base md:text-lg lg:text-xl mb-6 md:mb-8 text-foreground/90 px-4">
+            Stake $NOMIQA and earn data + rewards while connecting others.
           </p>
           
-          <p className="text-sm md:text-base lg:text-lg mb-8 md:mb-12 text-neon-cyan/90 font-medium px-4">Lock $NOMIQA tokens to earn rewards. Your travel, powered by Web3.</p>
+          <p className="text-sm md:text-base lg:text-lg mb-8 md:mb-12 text-neon-cyan/90 font-medium px-4">Build your network of travelers, creators, and Web3 pioneers.</p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center animate-bounce-in px-4" style={{
           animationDelay: "0.3s"
@@ -40,7 +40,7 @@ export const EarnSection = () => {
               Start Staking
             </Button>
             <Button variant="cyber" size="lg" className="w-full sm:w-auto hover:scale-105 transition-transform duration-300" onClick={() => navigate('/affiliate')}>
-              Join as Affiliate
+              Join the Affiliate Network
             </Button>
           </div>
         </div>

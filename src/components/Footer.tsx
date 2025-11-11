@@ -87,6 +87,12 @@ export const Footer = () => {
           </div>
           
           <div className="text-center">
+            <p className="text-neon-cyan/70 text-sm md:text-base mb-2 font-medium">
+              Nomiqa — where privacy meets connection.
+            </p>
+            <p className="text-neon-violet/70 text-xs md:text-sm mb-3 italic">
+              Powered by the people. Built for the borderless.
+            </p>
             <p className="text-foreground/50 text-xs md:text-sm">
               © 2024 Nomiqa. All rights reserved.
             </p>
