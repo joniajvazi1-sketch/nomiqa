@@ -34,8 +34,8 @@ export const WhyNomiqa = () => {
         {/* Desktop background */}
         <img src={whyNomiqaDesktop} alt="Happy travelers at sunset" className="hidden md:block w-full h-full object-cover object-center" />
         {/* Mobile background */}
-        <img src={whyNomiqaMobile} alt="Connected travelers at sunset" className="md:hidden w-full h-full object-cover object-center" />
-        <div className="absolute inset-0 bg-gradient-to-br from-deep-space/15 via-background/10 to-deep-space/15"></div>
+        <img src={whyNomiqaMobile} alt="Connected travelers at sunset" className="md:hidden w-full h-full object-cover object-[center_30%]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-deep-space/20 via-background/15 to-deep-space/20 md:from-deep-space/15 md:via-background/10 md:to-deep-space/15"></div>
       </div>
       
       {/* Decorative glows */}
