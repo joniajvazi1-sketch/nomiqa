@@ -12,6 +12,8 @@ export const CoverageSection = () => {
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-br from-deep-space/50 via-midnight-blue/40 to-deep-space/50"></div>
+        {/* Bottom fade to transparent - blends with background */}
+        <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-transparent via-deep-space/20 to-transparent"></div>
       </div>
       
       <div className="container px-4 relative z-10">
