@@ -1,16 +1,10 @@
 import InteractiveGlobe from './InteractiveGlobe';
 import coverageGroupSunset from '@/assets/coverage-group-sunset.png';
-
 export const CoverageSection = () => {
-  return (
-    <section id="coverage" className="py-12 md:py-20 relative overflow-hidden">
+  return <section id="coverage" className="py-12 md:py-20 relative overflow-hidden">
       {/* Background image with very light overlay for maximum visibility */}
       <div className="absolute inset-0">
-        <img 
-          src={coverageGroupSunset} 
-          alt="People connected at sunset" 
-          className="w-full h-full object-cover object-center"
-        />
+        <img src={coverageGroupSunset} alt="People connected at sunset" className="w-full h-full object-cover object-center" />
         <div className="absolute inset-0 bg-gradient-to-br from-deep-space/10 via-midnight-blue/10 to-deep-space/10"></div>
       </div>
       
@@ -25,9 +19,7 @@ export const CoverageSection = () => {
           <p className="text-sm md:text-lg text-white/90 max-w-2xl mx-auto px-4">
             190+ countries, one private connection.
           </p>
-          <p className="text-xs md:text-base text-neon-cyan/80 italic mt-4 max-w-2xl mx-auto px-4">
-            "Freedom means never losing signal — or yourself."
-          </p>
+          <p className="text-xs md:text-base text-neon-cyan/80 italic mt-4 max-w-2xl mx-auto px-4">"Freedom means never losing signal or yourself."</p>
         </div>
         
         <div className="max-w-4xl mx-auto mb-8 md:mb-12">
@@ -49,6 +41,5 @@ export const CoverageSection = () => {
           </div>
         </div>
       </div>
-    </section>
-  );
+    </section>;
 };
