@@ -5,23 +5,16 @@ import heroMobileSunset from "@/assets/hero-mobile-sunset.png";
 import { useTranslation } from "@/contexts/TranslationContext";
 export const Hero = () => {
   const navigate = useNavigate();
-  const { t } = useTranslation();
-  
+  const {
+    t
+  } = useTranslation();
   return <section className="relative min-h-screen flex items-center overflow-hidden pt-20">
       {/* Background images with very light overlay */}
       <div className="absolute inset-0">
         {/* Desktop background */}
-        <img 
-          src={heroSunsetBg} 
-          alt="Sunset cityscape" 
-          className="hidden md:block w-full h-full object-cover object-center"
-        />
+        <img src={heroSunsetBg} alt="Sunset cityscape" className="hidden md:block w-full h-full object-cover object-center" />
         {/* Mobile background */}
-        <img 
-          src={heroMobileSunset} 
-          alt="Person using phone at sunset" 
-          className="md:hidden w-full h-full object-cover object-center"
-        />
+        <img src={heroMobileSunset} alt="Person using phone at sunset" className="md:hidden w-full h-full object-cover object-center" />
         <div className="absolute inset-0 bg-gradient-to-br from-background/10 via-deep-space/15 to-background/10"></div>
       </div>
       
@@ -37,29 +30,22 @@ export const Hero = () => {
           </div>
           
           {/* Description text */}
-          <div className="mb-6 md:mb-8 animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
-            <p className="text-lg md:text-xl lg:text-2xl text-white/95 mb-2 leading-relaxed">
-              Connect anywhere in 60 seconds — no ID, no tracking, no limits.
-            </p>
+          <div className="mb-6 md:mb-8 animate-fade-in-up" style={{
+          animationDelay: "0.1s"
+        }}>
+            <p className="text-lg md:text-xl lg:text-2xl text-white/95 mb-2 leading-relaxed">Connect anywhere in 60 seconds  no ID, no tracking, no limits.</p>
             <p className="text-base md:text-lg lg:text-xl text-white/90 leading-relaxed">
               Join the world's first crypto-powered eSIM for freedom on your terms.
             </p>
           </div>
           
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
-            <Button 
-              size="lg" 
-              onClick={() => navigate('/shop')} 
-              className="bg-neon-coral hover:bg-neon-coral/90 text-white font-semibold px-8 py-5 text-base md:text-lg rounded-xl shadow-xl hover:shadow-neon-coral/50 transition-all"
-            >
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 animate-fade-in-up" style={{
+          animationDelay: "0.2s"
+        }}>
+            <Button size="lg" onClick={() => navigate('/shop')} className="bg-neon-coral hover:bg-neon-coral/90 text-white font-semibold px-8 py-5 text-base md:text-lg rounded-xl shadow-xl hover:shadow-neon-coral/50 transition-all">
               Buy Now
             </Button>
-            <Button 
-              variant="outline" 
-              size="lg" 
-              onClick={() => navigate('/getting-started')} 
-              className="border-2 border-neon-cyan/70 text-neon-cyan hover:bg-neon-cyan/10 px-6 py-5 text-base md:text-lg rounded-xl backdrop-blur-sm"
-            >
+            <Button variant="outline" size="lg" onClick={() => navigate('/getting-started')} className="border-2 border-neon-cyan/70 text-neon-cyan hover:bg-neon-cyan/10 px-6 py-5 text-base md:text-lg rounded-xl backdrop-blur-sm">
               Watch How It Works
             </Button>
           </div>
