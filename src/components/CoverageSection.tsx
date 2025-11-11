@@ -18,7 +18,7 @@ export const CoverageSection = () => {
       </div>
       
       <div className="container px-4 relative z-10">
-        <div className="text-center mb-8 md:mb-12">
+        <div className="text-center mb-8 md:mb-12 mt-12 md:mt-16">
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-3 md:mb-4 bg-gradient-neon bg-clip-text text-transparent">
             Global Coverage
           </h2>
