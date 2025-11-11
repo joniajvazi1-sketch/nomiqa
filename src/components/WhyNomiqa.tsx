@@ -42,9 +42,9 @@ export const WhyNomiqa = () => {
       <div className="absolute top-20 left-10 w-96 h-96 bg-neon-cyan/5 rounded-full blur-3xl"></div>
       <div className="absolute bottom-20 right-10 w-96 h-96 bg-neon-coral/5 rounded-full blur-3xl"></div>
       
-      <div className="container relative z-10 px-4">
-        <div className="text-center mb-10">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-3 font-display">
+      <div className="container relative z-10 px-4 pt-4">
+        <div className="text-center mb-6">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-2 font-display">
             <span className="bg-gradient-freedom bg-clip-text text-transparent">
               This Is Why You Need Nomiqa
             </span>
