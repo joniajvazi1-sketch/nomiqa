@@ -51,24 +51,47 @@ export default function Orders() {
 
   const fetchOrders = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      let query = supabase
-        .from('orders')
-        .select('*')
-        .order('created_at', { ascending: false });
+      // Check for access token in URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const accessToken = urlParams.get('token');
 
-      if (user) {
-        query = query.or(`user_id.eq.${user.id},email.eq.${user.email}`);
+      let data, error;
+
+      if (accessToken) {
+        // Guest access using token
+        const { data: response, error: funcError } = await supabase.functions.invoke('get-order-by-token', {
+          body: { accessToken }
+        });
+
+        if (funcError) {
+          console.error('Error fetching order by token:', funcError);
+          toast.error("Invalid or expired access token");
+          setLoading(false);
+          return;
+        }
+
+        // Transform single order response to array format
+        data = response.order ? [response.order] : [];
+        error = null;
+
+        // Set usage data if available
+        if (response.usage) {
+          setUsageData({ [response.order.id]: response.usage });
+        }
+      } else {
+        // Authenticated user access - rely on RLS policies
+        const result = await supabase
+          .from('orders')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        data = result.data;
+        error = result.error;
       }
 
-      const { data, error } = await query;
 
-      if (error) throw error;
-      setOrders(data || []);
-
-      // Fetch usage data for each order
-      if (data && data.length > 0) {
+      // Fetch usage data for each order (skip if using token as it's already fetched)
+      if (!accessToken && data && data.length > 0) {
         const usageMap: Record<string, UsageData> = {};
         
         for (const order of data) {
@@ -174,7 +197,14 @@ export default function Orders() {
           Back to Home
         </Button>
 
-        <h1 className="text-3xl md:text-4xl font-bold mb-8 bg-gradient-digital bg-clip-text text-transparent">My Orders</h1>
+        <div className="mb-8">
+          <h1 className="text-3xl md:text-4xl font-bold bg-gradient-digital bg-clip-text text-transparent">My Orders</h1>
+          {new URLSearchParams(window.location.search).get('token') && (
+            <p className="text-sm text-muted-foreground mt-2">
+              Viewing order via secure access link
+            </p>
+          )}
+        </div>
 
         {orders.length === 0 ? (
           <Card>
