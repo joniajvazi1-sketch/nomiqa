@@ -4,18 +4,16 @@ import phantomLogo from "@/assets/phantom-logo.png";
 import meteoraLogo from "@/assets/meteora-logo.jpg";
 import moonpayLogo from "@/assets/moonpay-logo.jpg";
 import { useSolanaPrice } from "@/hooks/useSolanaPrice";
-
-
 export const TrustPartners = () => {
-  const { price, isLoading } = useSolanaPrice();
-  
-  return (
-    <section className="py-12 md:py-16 bg-gradient-to-br from-midnight-blue via-deep-space to-midnight-blue border-y border-neon-cyan/10">
+  const {
+    price,
+    isLoading
+  } = useSolanaPrice();
+  return <section className="py-12 md:py-16 bg-gradient-to-br from-midnight-blue via-deep-space to-midnight-blue border-y border-neon-cyan/10">
       <div className="container px-4">
         <div className="text-center mb-8 md:mb-12">
           <p className="text-neon-cyan/70 text-xs md:text-sm uppercase tracking-wider mb-2">
-            Trusted By The Web3 Community
-          </p>
+        </p>
           <h3 className="text-xl md:text-2xl font-bold bg-gradient-neon bg-clip-text text-transparent">
             Powered By Leading Web3 Infrastructure
           </h3>
@@ -27,14 +25,10 @@ export const TrustPartners = () => {
               <img src={solanaLogo} alt="Solana" className="w-8 h-8 md:w-12 md:h-12" />
             </div>
             <span className="text-foreground/70 font-semibold text-sm md:text-base">Solana</span>
-            {!isLoading && price ? (
-              <div className="flex items-center gap-1 mt-1">
+            {!isLoading && price ? <div className="flex items-center gap-1 mt-1">
                 <span className="text-foreground/50 text-xs">${price.usd.toFixed(2)}</span>
                 <TrendingUp className={`w-3 h-3 ${price.usd_24h_change >= 0 ? 'text-green-500' : 'text-red-500'}`} />
-              </div>
-            ) : (
-              <span className="text-foreground/50 text-xs mt-1">Fast Payments</span>
-            )}
+              </div> : <span className="text-foreground/50 text-xs mt-1">Fast Payments</span>}
           </div>
           
           <div className="group flex flex-col items-center justify-center p-6 md:p-8 rounded-2xl bg-card/30 backdrop-blur-sm border border-neon-violet/10 hover:border-neon-violet/30 transition-all">
@@ -62,6 +56,5 @@ export const TrustPartners = () => {
           </div>
         </div>
       </div>
-    </section>
-  );
+    </section>;
 };
