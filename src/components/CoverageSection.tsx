@@ -1,10 +1,7 @@
-import MiniGlobe from './MiniGlobe';
+import InteractiveGlobe from './InteractiveGlobe';
 import coverageSunsetBg from '@/assets/coverage-sunset-bg.png';
-import { useIsMobile } from '@/hooks/use-mobile';
 
 export const CoverageSection = () => {
-  const isMobile = useIsMobile();
-  
   return (
     <section id="coverage" className="py-12 md:py-20 relative overflow-hidden">
       {/* Background image with much lighter overlay */}
@@ -18,8 +15,8 @@ export const CoverageSection = () => {
       </div>
       
       <div className="container px-4 relative z-10">
-        <div className="text-center mb-8 md:mb-12 mt-12 md:mt-16">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-3 md:mb-4 bg-gradient-neon bg-clip-text text-transparent">
+        <div className="text-center mb-6 md:mb-8 mt-12 md:mt-16">
+          <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold mb-3 md:mb-4 bg-gradient-neon bg-clip-text text-transparent">
             Global Coverage
           </h2>
           <p className="text-base md:text-xl text-white/95 max-w-2xl mx-auto px-4">
@@ -27,27 +24,8 @@ export const CoverageSection = () => {
           </p>
         </div>
         
-        {/* Mini globes positioned over the phones in the background */}
-        <div className="relative h-[300px] md:h-[400px] max-w-6xl mx-auto">
-          {isMobile ? (
-            // Single small globe for mobile - positioned over phone
-            <div className="absolute left-1/2 bottom-[10%] -translate-x-1/2 w-16 h-16">
-              <MiniGlobe />
-            </div>
-          ) : (
-            // Three small globes for desktop - positioned over phones
-            <>
-              <div className="absolute left-[15%] bottom-[15%] w-20 h-20">
-                <MiniGlobe />
-              </div>
-              <div className="absolute left-1/2 bottom-[15%] -translate-x-1/2 w-20 h-20">
-                <MiniGlobe />
-              </div>
-              <div className="absolute right-[15%] bottom-[15%] w-20 h-20">
-                <MiniGlobe />
-              </div>
-            </>
-          )}
+        <div className="max-w-4xl mx-auto mb-8 md:mb-12">
+          <InteractiveGlobe />
         </div>
         
         <div className="grid grid-cols-3 gap-4 md:gap-8 max-w-4xl mx-auto mt-8 md:mt-12 text-center">
