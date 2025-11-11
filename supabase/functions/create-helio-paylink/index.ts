@@ -1,10 +1,22 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Input validation schema
+const paylinkSchema = z.object({
+  orderId: z.string().uuid().optional(),
+  email: z.string().email().max(255).optional(),
+  productId: z.string().uuid().optional(),
+  quantity: z.number().int().min(1).max(10).default(1).optional(),
+  referralCode: z.string().max(50).nullable().optional(),
+  visitorId: z.string().max(100).nullable().optional(),
+  userId: z.string().uuid().nullable().optional()
+});
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -13,7 +25,25 @@ serve(async (req) => {
 
   try {
     const body = await req.json();
-    let orderId = body.orderId as string | undefined;
+    
+    // Validate input
+    const validationResult = paylinkSchema.safeParse(body);
+    if (!validationResult.success) {
+      console.error('Validation failed:', validationResult.error.issues);
+      return new Response(
+        JSON.stringify({ 
+          error: 'Invalid input data', 
+          details: validationResult.error.issues 
+        }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
+
+    const validatedData = validationResult.data;
+    let orderId = validatedData.orderId;
 
     console.log('Creating Helio paylink. Incoming body:', body);
 
@@ -49,7 +79,7 @@ serve(async (req) => {
       order = existingOrder;
     } else {
       // Create order on the server (bypasses client RLS)
-      const { email, productId, quantity = 1, referralCode = null, visitorId = null, userId = null } = body;
+      const { email, productId, quantity = 1, referralCode = null, visitorId = null, userId = null } = validatedData;
       if (!email || !productId) {
         throw new Error('Missing email or productId');
       }

@@ -124,7 +124,12 @@ serve(async (req) => {
     if (referrals && referrals.length > 0 && product?.price_usd) {
       const referral = referrals[0];
       const totalPrice = product.price_usd;
-      const commissionRates = [0.09, 0.06, 0.03]; // Level 1: 9%, Level 2: 6%, Level 3: 3%
+      // Get commission rates from environment variables with fallback defaults
+      const commissionRates = [
+        parseFloat(Deno.env.get('COMMISSION_LEVEL_1') || '0.09'), // Level 1: 9%
+        parseFloat(Deno.env.get('COMMISSION_LEVEL_2') || '0.06'), // Level 2: 6%
+        parseFloat(Deno.env.get('COMMISSION_LEVEL_3') || '0.03')  // Level 3: 3%
+      ];
       
       // Update the referral with order_id and mark as converted
       await supabase

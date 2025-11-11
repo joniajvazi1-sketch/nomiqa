@@ -1,10 +1,10 @@
 project_id = "gzhmbiopiciugriatsdb"
 
 [functions.airlo-products]
-verify_jwt = false
+verify_jwt = true
 
 [functions.update-prices-from-csv]
-verify_jwt = false
+verify_jwt = true
 
 [functions.webhook-async-order]
 verify_jwt = false
@@ -16,4 +16,7 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.helio-webhook]
+verify_jwt = false
+
+[functions.get-order-by-token]
 verify_jwt = false
