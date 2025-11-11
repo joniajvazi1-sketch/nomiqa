@@ -1,12 +1,17 @@
 import InteractiveGlobe from './InteractiveGlobe';
+import globeSunsetBg from '@/assets/globe-sunset-background.png';
 
 export const CoverageSection = () => {
   return (
-    <section id="coverage" className="py-12 md:py-20 bg-gradient-to-br from-deep-space via-midnight-blue to-deep-space relative overflow-hidden">
-      {/* Decorative glow */}
-      <div className="absolute inset-0 opacity-20">
-        <div className="absolute top-20 left-1/4 w-96 h-96 bg-neon-blue rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 right-1/4 w-96 h-96 bg-neon-violet rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1.5s' }}></div>
+    <section id="coverage" className="py-12 md:py-20 relative overflow-hidden">
+      {/* Background image with overlay */}
+      <div className="absolute inset-0">
+        <img 
+          src={globeSunsetBg} 
+          alt="Global network coverage" 
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-deep-space/80 via-midnight-blue/70 to-deep-space/80"></div>
       </div>
       
       <div className="container px-4 relative z-10">

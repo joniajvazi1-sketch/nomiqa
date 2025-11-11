@@ -4,7 +4,7 @@ import { StickyCTA } from "@/components/StickyCTA";
 import { Globe, Heart, Users, Zap } from "lucide-react";
 import heroHappy from "@/assets/hero-happy.jpg";
 import worldTravelers from "@/assets/world-travelers.jpg";
-import happyTravelers from "@/assets/happy-travelers.jpg";
+import teamCollaboration from "@/assets/team-collaboration.png";
 
 export default function About() {
   const values = [
@@ -71,8 +71,8 @@ export default function About() {
             </div>
             <div className="rounded-3xl overflow-hidden shadow-2xl animate-fade-in-up group" style={{ animationDelay: "0.2s" }}>
               <img 
-                src={happyTravelers} 
-                alt="Happy travelers" 
+                src={teamCollaboration} 
+                alt="Team collaboration" 
                 className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-700"
               />
             </div>

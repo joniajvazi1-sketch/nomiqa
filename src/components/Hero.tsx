@@ -1,99 +1,59 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import nomiqaHeroVideo from "@/assets/nomiqa-hero-video.mp4";
+import heroSunsetBg from "@/assets/hero-sunset-background.png";
 import { useTranslation } from "@/contexts/TranslationContext";
-import { useEffect, useRef } from "react";
 export const Hero = () => {
   const navigate = useNavigate();
-  const {
-    t
-  } = useTranslation();
-  const videoRef = useRef<HTMLVideoElement>(null);
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          video.play();
-        } else {
-          video.pause();
-        }
-      });
-    }, {
-      threshold: 0.5
-    });
-    observer.observe(video);
-    return () => observer.disconnect();
-  }, []);
-  return <section className="relative min-h-screen flex items-center bg-gradient-to-br from-background via-deep-space to-background overflow-hidden pt-20">
-      {/* World map data lines - soft glowing effect */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-1/4 left-0 right-0 h-px bg-gradient-to-r from-transparent via-neon-cyan to-transparent"></div>
-        <div className="absolute top-1/2 left-0 right-0 h-px bg-gradient-to-r from-transparent via-neon-violet to-transparent"></div>
-        <div className="absolute top-3/4 left-0 right-0 h-px bg-gradient-to-r from-transparent via-neon-coral to-transparent"></div>
-        <div className="absolute left-1/4 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-neon-cyan/50 to-transparent"></div>
-        <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-neon-violet/50 to-transparent"></div>
-        <div className="absolute left-3/4 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-neon-coral/50 to-transparent"></div>
+  const { t } = useTranslation();
+  
+  return <section className="relative min-h-screen flex items-center overflow-hidden pt-20">
+      {/* Background image with overlay */}
+      <div className="absolute inset-0">
+        <img 
+          src={heroSunsetBg} 
+          alt="Sunset cityscape" 
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-background/60 via-deep-space/70 to-background/60"></div>
       </div>
       
-      {/* Sunrise gradient glow */}
-      <div className="absolute top-20 left-10 md:left-20 w-64 md:w-96 h-64 md:h-96 bg-neon-cyan/20 rounded-full blur-3xl animate-pulse"></div>
-      <div className="absolute bottom-20 right-10 md:right-20 w-80 md:w-[500px] h-80 md:h-[500px] bg-neon-coral/20 rounded-full blur-3xl animate-pulse" style={{
-      animationDelay: "1s"
-    }}></div>
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 md:w-[600px] h-96 md:h-[600px] bg-neon-violet/15 rounded-full blur-3xl animate-pulse" style={{
-      animationDelay: "2s"
-    }}></div>
-      
       <div className="container relative z-10 px-4 py-16 md:py-32">
-        <div className="max-w-5xl mx-auto text-center">
+        <div className="max-w-5xl text-left md:text-left">
           {/* Main heading */}
-          <div className="mb-8 md:mb-12 animate-fade-in-up">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 md:mb-8 font-display leading-tight">
-              <span className="block bg-gradient-freedom bg-clip-text text-transparent">
-                Connect Privately.
-              </span>
-              <span className="block bg-gradient-sunrise bg-clip-text text-transparent mt-2">
-                Travel Freely.
-              </span>
+          <div className="mb-8 md:mb-10 animate-fade-in-up">
+            <h1 className="text-4xl md:text-5xl lg:text-7xl font-bold font-display leading-tight">
+              <span className="text-neon-cyan">Private.</span>{" "}
+              <span className="text-neon-blue">Borderless.</span>{" "}
+              <span className="bg-gradient-to-r from-neon-pink via-neon-coral to-warm-sand bg-clip-text text-transparent">Human.</span>
             </h1>
           </div>
           
-          {/* Hero Video */}
-          <div className="mb-6 md:mb-8 flex justify-center animate-scale-in">
-            <video ref={videoRef} src={nomiqaHeroVideo} autoPlay loop playsInline className="w-80 h-80 md:w-96 md:h-96 lg:w-[28rem] lg:h-[28rem] object-contain" style={{
-            filter: 'drop-shadow(0 0 60px rgba(71, 201, 229, 0.6)) drop-shadow(0 0 100px rgba(124, 58, 237, 0.4))'
-          }}>
-              Your browser does not support the video tag.
-            </video>
-          </div>
-          
           {/* Description text */}
-          <div className="mb-6 md:mb-8 animate-fade-in-up" style={{
-          animationDelay: "0.2s"
-        }}>
-            <p className="text-lg md:text-xl lg:text-2xl text-foreground/90 mb-3 max-w-3xl mx-auto px-4 leading-relaxed">Your freedom deserves privacy. Anonymous eSIMs that work in 190+ countries no ID, no tracking, just instant connection.</p>
-            <p className="text-sm md:text-base lg:text-lg text-foreground/70 max-w-2xl mx-auto px-4">
-              Join thousands who've chosen digital freedom. Connected in under 60 seconds.
+          <div className="mb-8 md:mb-10 animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
+            <p className="text-xl md:text-2xl lg:text-3xl text-white/95 mb-2 leading-relaxed">
+              Anonymous eSIMs that work in 190+ countries.
+            </p>
+            <p className="text-lg md:text-xl lg:text-2xl text-white/90 leading-relaxed">
+              No ID, no tracking, no limits.
             </p>
           </div>
           
-          <div className="flex flex-col sm:flex-row gap-4 mb-10 md:mb-16 justify-center animate-fade-in-up px-4" style={{
-          animationDelay: "0.3s"
-        }}>
-            <Button size="lg" onClick={() => navigate('/shop')} className="w-full sm:w-auto bg-neon-coral hover:bg-neon-coral/90 text-white font-semibold px-8 py-6 text-lg shadow-lg hover:shadow-neon-coral/50 transition-all">Buy Now</Button>
-            <Button variant="outline" size="lg" onClick={() => navigate('/getting-started')} className="w-full sm:w-auto border-neon-cyan/50 text-neon-cyan hover:bg-neon-cyan/10 px-6">
-              See How It Works (60 sec setup)
+          <div className="flex flex-col sm:flex-row gap-4 animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
+            <Button 
+              size="lg" 
+              onClick={() => navigate('/shop')} 
+              className="bg-neon-coral hover:bg-neon-coral/90 text-white font-semibold px-10 py-7 text-lg rounded-xl shadow-xl hover:shadow-neon-coral/50 transition-all"
+            >
+              Buy Now
             </Button>
-          </div>
-          
-          <div className="text-center mb-8 animate-fade-in-up px-4" style={{
-          animationDelay: "0.4s"
-        }}>
-            <p className="text-base md:text-lg text-warm-sand/80">
-              Your journey. Your privacy. Your signal.
-            </p>
+            <Button 
+              variant="outline" 
+              size="lg" 
+              onClick={() => navigate('/getting-started')} 
+              className="border-2 border-neon-cyan/70 text-neon-cyan hover:bg-neon-cyan/10 px-8 py-7 text-lg rounded-xl backdrop-blur-sm"
+            >
+              Watch How It Works
+            </Button>
           </div>
         </div>
       </div>
