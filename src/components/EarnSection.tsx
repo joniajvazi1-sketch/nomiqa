@@ -27,9 +27,7 @@ export const EarnSection = () => {
             Travel the world. Earn as you move.
           </h2>
           
-          <p className="text-base md:text-lg lg:text-xl mb-6 md:mb-8 text-foreground/90 px-4">
-            Stake $NOMIQA and earn data + rewards while connecting others.
-          </p>
+          <p className="text-base md:text-lg lg:text-xl mb-6 md:mb-8 text-foreground/90 px-4">Stake $NOMIQA and earn money + other rewards while connecting others.</p>
           
           <p className="text-sm md:text-base lg:text-lg mb-8 md:mb-12 text-neon-cyan/90 font-medium px-4">Build your network of travelers, creators, and Web3 pioneers.</p>
           
