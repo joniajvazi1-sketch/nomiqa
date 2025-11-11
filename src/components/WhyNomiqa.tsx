@@ -28,7 +28,7 @@ export const WhyNomiqa = () => {
   ];
 
   return (
-    <section className="relative py-12 md:py-20 overflow-hidden">
+    <section className="relative py-16 md:py-24 overflow-hidden">
       {/* Background images with very light overlay */}
       <div className="absolute inset-0">
         {/* Desktop background */}
