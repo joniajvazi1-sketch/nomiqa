@@ -12,7 +12,7 @@ export const Hero = () => {
         <img 
           src={heroSunsetBg} 
           alt="Sunset cityscape" 
-          className="w-full h-full object-cover md:object-center object-[35%_center]"
+          className="w-full h-full object-cover md:object-center object-[70%_center]"
         />
         <div className="absolute inset-0 bg-gradient-to-br from-background/20 via-deep-space/25 to-background/20"></div>
       </div>

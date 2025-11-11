@@ -12,9 +12,9 @@ export const CoverageSection = () => {
         <img 
           src={coverageSunsetBg} 
           alt="Global network coverage" 
-          className="w-full h-full object-cover md:object-center object-[65%_center]"
+          className="w-full h-full md:object-cover object-cover object-center scale-[1.8] md:scale-100"
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-deep-space/10 via-midnight-blue/10 to-deep-space/10"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-deep-space/5 via-midnight-blue/5 to-deep-space/5"></div>
       </div>
       
       <div className="container px-4 relative z-10">
@@ -31,19 +31,19 @@ export const CoverageSection = () => {
         <div className="relative h-[300px] md:h-[400px] max-w-6xl mx-auto">
           {isMobile ? (
             // Single small globe for mobile - positioned over phone
-            <div className="absolute left-1/2 bottom-[20%] -translate-x-1/2 w-24 h-24">
+            <div className="absolute left-1/2 bottom-[10%] -translate-x-1/2 w-16 h-16">
               <MiniGlobe />
             </div>
           ) : (
             // Three small globes for desktop - positioned over phones
             <>
-              <div className="absolute left-[15%] bottom-[25%] w-28 h-28">
+              <div className="absolute left-[15%] bottom-[15%] w-20 h-20">
                 <MiniGlobe />
               </div>
-              <div className="absolute left-1/2 bottom-[25%] -translate-x-1/2 w-28 h-28">
+              <div className="absolute left-1/2 bottom-[15%] -translate-x-1/2 w-20 h-20">
                 <MiniGlobe />
               </div>
-              <div className="absolute right-[15%] bottom-[25%] w-28 h-28">
+              <div className="absolute right-[15%] bottom-[15%] w-20 h-20">
                 <MiniGlobe />
               </div>
             </>
