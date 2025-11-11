@@ -55,23 +55,23 @@ export const WhyNomiqa = () => {
         </div>
 
         {/* Value cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-3 max-w-4xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-6 max-w-4xl md:max-w-6xl mx-auto">
           {values.map((value, index) => (
             <div
               key={index}
-              className="group relative p-3 md:p-3 rounded-lg bg-background/40 backdrop-blur-sm border border-white/10 hover:border-neon-cyan/30 transition-all duration-500 hover:shadow-lg hover:shadow-neon-cyan/10"
+              className="group relative p-3 md:p-6 rounded-lg md:rounded-xl bg-background/40 backdrop-blur-sm border border-white/10 hover:border-neon-cyan/30 transition-all duration-500 hover:shadow-lg hover:shadow-neon-cyan/10"
             >
-              <div className="flex justify-center mb-2">
-                <div className={`w-8 h-8 rounded-md bg-gradient-to-br ${value.gradient} p-0.5`}>
-                  <div className="w-full h-full bg-background/80 rounded-md flex items-center justify-center">
-                    <value.icon className="w-4 h-4 text-neon-cyan" />
+              <div className="flex justify-center mb-2 md:mb-4">
+                <div className={`w-8 h-8 md:w-14 md:h-14 rounded-md md:rounded-xl bg-gradient-to-br ${value.gradient} p-0.5`}>
+                  <div className="w-full h-full bg-background/80 rounded-md md:rounded-xl flex items-center justify-center">
+                    <value.icon className="w-4 h-4 md:w-7 md:h-7 text-neon-cyan" />
                   </div>
                 </div>
               </div>
-              <h3 className="text-sm md:text-base font-bold mb-1.5 text-white text-center leading-tight">
+              <h3 className="text-sm md:text-xl font-bold mb-1.5 md:mb-3 text-white text-center leading-tight">
                 {value.title}
               </h3>
-              <p className="text-white/70 text-center text-xs leading-snug">
+              <p className="text-white/70 text-center text-xs md:text-sm leading-snug md:leading-relaxed">
                 {value.description}
               </p>
             </div>
