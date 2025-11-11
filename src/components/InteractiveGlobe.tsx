@@ -22,9 +22,9 @@ const InteractiveGlobe: React.FC = () => {
     const scene = new THREE.Scene();
     sceneRef.current = scene;
 
-    // Camera - positioned to show bigger globe
+    // Camera - positioned further back for smaller globe
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
-    camera.position.set(0, 0, 6.5);
+    camera.position.set(0, 0, 8.5);
     cameraRef.current = camera;
 
     // Renderer (transparent background)
@@ -53,10 +53,10 @@ const InteractiveGlobe: React.FC = () => {
     const material = new THREE.MeshPhongMaterial({
       color: new THREE.Color('#0ea5e9'),
       emissive: new THREE.Color('#06b6d4'),
-      emissiveIntensity: 0.4,
+      emissiveIntensity: 0.2,
       wireframe: true,
       transparent: true,
-      opacity: 0.6,
+      opacity: 0.3,
     });
     const globe = new THREE.Mesh(geometry, material);
     scene.add(globe);
@@ -67,7 +67,7 @@ const InteractiveGlobe: React.FC = () => {
     const atmosphereMaterial = new THREE.MeshBasicMaterial({
       color: new THREE.Color('#06b6d4'),
       transparent: true,
-      opacity: 0.1,
+      opacity: 0.05,
       side: THREE.BackSide,
     });
     const atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
@@ -91,7 +91,7 @@ const InteractiveGlobe: React.FC = () => {
       const lineMaterial = new THREE.LineBasicMaterial({
         color: new THREE.Color('#06b6d4'),
         transparent: true,
-        opacity: 0.3,
+        opacity: 0.15,
       });
       const line = new THREE.Line(lineGeometry, lineMaterial);
       scene.add(line);
@@ -116,7 +116,7 @@ const InteractiveGlobe: React.FC = () => {
       const lineMaterial = new THREE.LineBasicMaterial({
         color: new THREE.Color('#06b6d4'),
         transparent: true,
-        opacity: 0.3,
+        opacity: 0.15,
       });
       const line = new THREE.Line(lineGeometry, lineMaterial);
       scene.add(line);
@@ -170,7 +170,7 @@ const InteractiveGlobe: React.FC = () => {
       const lineMaterial = new THREE.LineBasicMaterial({
         color: new THREE.Color('#a855f7'),
         transparent: true,
-        opacity: 0.5,
+        opacity: 0.3,
       });
       
       const line = new THREE.Line(lineGeometry, lineMaterial);
@@ -183,7 +183,7 @@ const InteractiveGlobe: React.FC = () => {
         const particleMaterial = new THREE.MeshBasicMaterial({
           color: new THREE.Color('#e879f9'),
           transparent: true,
-          opacity: 0.9,
+          opacity: 0.5,
         });
         const particle = new THREE.Mesh(particleGeometry, particleMaterial);
         scene.add(particle);
@@ -312,7 +312,7 @@ const InteractiveGlobe: React.FC = () => {
   }, []);
 
   return (
-    <div className="relative w-full h-[380px] md:h-[480px] lg:h-[560px]">
+    <div className="relative w-full h-[200px] md:h-[280px] lg:h-[320px]">
       <div ref={containerRef} className="absolute inset-0" />
       {/* Subtle overlay gradient to match theme */}
       <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent to-background/10" />
