@@ -9,50 +9,60 @@ export const TrustPartners = () => {
     price,
     isLoading
   } = useSolanaPrice();
-  return <section className="py-12 md:py-16 bg-gradient-to-br from-midnight-blue via-deep-space to-midnight-blue border-y border-neon-cyan/10">
-      <div className="container px-4">
-        <div className="text-center mb-8 md:mb-12">
-          <p className="text-neon-cyan/70 text-xs md:text-sm uppercase tracking-wider mb-2">
+  return <section className="py-16 md:py-20 bg-gradient-to-br from-midnight-blue via-deep-space to-midnight-blue border-y border-neon-cyan/10 relative overflow-hidden">
+      {/* Decorative glows for richness */}
+      <div className="absolute top-0 left-1/4 w-64 h-64 bg-neon-cyan/5 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-neon-violet/5 rounded-full blur-3xl"></div>
+      
+      <div className="container px-4 relative z-10">
+        <div className="text-center mb-10 md:mb-12">
+          <p className="text-neon-cyan uppercase tracking-[0.3em] text-xs md:text-sm font-semibold mb-3">
+            Trusted Infrastructure
         </p>
-          <h3 className="text-xl md:text-2xl font-bold bg-gradient-neon bg-clip-text text-transparent">
-            Powered By Leading Web3 Infrastructure
+          <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold font-display mb-3">
+            <span className="bg-gradient-neon bg-clip-text text-transparent">
+              Powered By Leading Web3 Infrastructure
+            </span>
           </h3>
+          <p className="text-foreground/70 text-sm md:text-base max-w-2xl mx-auto">
+            Built on the most secure and efficient blockchain technologies
+          </p>
         </div>
         
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 max-w-5xl mx-auto">
-          <div className="group flex flex-col items-center justify-center p-6 md:p-8 rounded-2xl bg-card/30 backdrop-blur-sm border border-neon-cyan/10 hover:border-neon-cyan/30 transition-all">
-            <div className="w-12 h-12 md:w-16 md:h-16 rounded-xl flex items-center justify-center mb-3 md:mb-4 group-hover:scale-110 transition-transform">
-              <img src={solanaLogo} alt="Solana" className="w-8 h-8 md:w-12 md:h-12" />
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 max-w-6xl mx-auto">
+          <div className="group flex flex-col items-center justify-center p-6 md:p-8 rounded-2xl bg-card/40 backdrop-blur-sm border border-neon-cyan/20 hover:border-neon-cyan/50 transition-all duration-300 hover:shadow-[0_0_30px_rgba(6,182,212,0.2)]">
+            <div className="w-14 h-14 md:w-20 md:h-20 rounded-xl bg-neon-cyan/5 flex items-center justify-center mb-3 md:mb-4 group-hover:scale-110 transition-transform duration-300">
+              <img src={solanaLogo} alt="Solana" className="w-10 h-10 md:w-14 md:h-14" />
             </div>
-            <span className="text-foreground/70 font-semibold text-sm md:text-base">Solana</span>
-            {!isLoading && price ? <div className="flex items-center gap-1 mt-1">
-                <span className="text-foreground/50 text-xs">${price.usd.toFixed(2)}</span>
-                <TrendingUp className={`w-3 h-3 ${price.usd_24h_change >= 0 ? 'text-green-500' : 'text-red-500'}`} />
-              </div> : <span className="text-foreground/50 text-xs mt-1">Fast Payments</span>}
+            <span className="text-white font-bold text-base md:text-lg">Solana</span>
+            {!isLoading && price ? <div className="flex items-center gap-1 mt-2">
+                <span className="text-neon-cyan font-semibold text-sm md:text-base">${price.usd.toFixed(2)}</span>
+                <TrendingUp className={`w-4 h-4 ${price.usd_24h_change >= 0 ? 'text-green-400' : 'text-red-400'}`} />
+              </div> : <span className="text-foreground/60 text-xs md:text-sm mt-2">Lightning Fast</span>}
           </div>
           
-          <div className="group flex flex-col items-center justify-center p-6 md:p-8 rounded-2xl bg-card/30 backdrop-blur-sm border border-neon-violet/10 hover:border-neon-violet/30 transition-all">
-            <div className="w-12 h-12 md:w-16 md:h-16 rounded-xl flex items-center justify-center mb-3 md:mb-4 group-hover:scale-110 transition-transform">
-              <img src={phantomLogo} alt="Phantom Wallet" className="w-8 h-8 md:w-12 md:h-12 rounded-xl" />
+          <div className="group flex flex-col items-center justify-center p-6 md:p-8 rounded-2xl bg-card/40 backdrop-blur-sm border border-neon-violet/20 hover:border-neon-violet/50 transition-all duration-300 hover:shadow-[0_0_30px_rgba(168,85,247,0.2)]">
+            <div className="w-14 h-14 md:w-20 md:h-20 rounded-xl bg-neon-violet/5 flex items-center justify-center mb-3 md:mb-4 group-hover:scale-110 transition-transform duration-300">
+              <img src={phantomLogo} alt="Phantom Wallet" className="w-10 h-10 md:w-14 md:h-14 rounded-xl" />
             </div>
-            <span className="text-foreground/70 font-semibold text-sm md:text-base">Phantom</span>
-            <span className="text-foreground/50 text-xs mt-1">Secure Wallet</span>
+            <span className="text-white font-bold text-base md:text-lg">Phantom</span>
+            <span className="text-foreground/60 text-xs md:text-sm mt-2">Trusted Wallet</span>
           </div>
           
-          <div className="group flex flex-col items-center justify-center p-6 md:p-8 rounded-2xl bg-card/30 backdrop-blur-sm border border-neon-pink/10 hover:border-neon-pink/30 transition-all">
-            <div className="w-12 h-12 md:w-16 md:h-16 rounded-xl flex items-center justify-center mb-3 md:mb-4 group-hover:scale-110 transition-transform">
-              <img src={meteoraLogo} alt="Meteora" className="w-8 h-8 md:w-12 md:h-12 rounded-xl" />
+          <div className="group flex flex-col items-center justify-center p-6 md:p-8 rounded-2xl bg-card/40 backdrop-blur-sm border border-neon-pink/20 hover:border-neon-pink/50 transition-all duration-300 hover:shadow-[0_0_30px_rgba(236,72,153,0.2)]">
+            <div className="w-14 h-14 md:w-20 md:h-20 rounded-xl bg-neon-pink/5 flex items-center justify-center mb-3 md:mb-4 group-hover:scale-110 transition-transform duration-300">
+              <img src={meteoraLogo} alt="Meteora" className="w-10 h-10 md:w-14 md:h-14 rounded-xl" />
             </div>
-            <span className="text-foreground/70 font-semibold text-sm md:text-base">Meteora</span>
-            <span className="text-foreground/50 text-xs mt-1">Smart Contracts</span>
+            <span className="text-white font-bold text-base md:text-lg">Meteora</span>
+            <span className="text-foreground/60 text-xs md:text-sm mt-2">DeFi Protocol</span>
           </div>
           
-          <div className="group flex flex-col items-center justify-center p-6 md:p-8 rounded-2xl bg-card/30 backdrop-blur-sm border border-neon-cyan/10 hover:border-neon-cyan/30 transition-all">
-            <div className="w-12 h-12 md:w-16 md:h-16 rounded-xl flex items-center justify-center mb-3 md:mb-4 group-hover:scale-110 transition-transform">
-              <img src={moonpayLogo} alt="MoonPay" className="w-8 h-8 md:w-12 md:h-12 rounded-xl" />
+          <div className="group flex flex-col items-center justify-center p-6 md:p-8 rounded-2xl bg-card/40 backdrop-blur-sm border border-neon-cyan/20 hover:border-neon-cyan/50 transition-all duration-300 hover:shadow-[0_0_30px_rgba(6,182,212,0.2)]">
+            <div className="w-14 h-14 md:w-20 md:h-20 rounded-xl bg-neon-cyan/5 flex items-center justify-center mb-3 md:mb-4 group-hover:scale-110 transition-transform duration-300">
+              <img src={moonpayLogo} alt="MoonPay" className="w-10 h-10 md:w-14 md:h-14 rounded-xl" />
             </div>
-            <span className="text-foreground/70 font-semibold text-sm md:text-base">MoonPay</span>
-            <span className="text-foreground/50 text-xs mt-1">Crypto Payments</span>
+            <span className="text-white font-bold text-base md:text-lg">MoonPay</span>
+            <span className="text-foreground/60 text-xs md:text-sm mt-2">Crypto Gateway</span>
           </div>
         </div>
       </div>

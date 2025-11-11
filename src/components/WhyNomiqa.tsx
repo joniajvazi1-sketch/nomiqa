@@ -28,13 +28,13 @@ export const WhyNomiqa = () => {
   ];
 
   return (
-    <section className="relative py-24 md:py-32 overflow-hidden">
+    <section className="relative py-16 md:py-32 overflow-hidden">
       {/* Background images with very light overlay */}
       <div className="absolute inset-0">
         {/* Desktop background */}
         <img src={whyNomiqaDesktop} alt="Happy travelers at sunset" className="hidden md:block w-full h-full object-cover object-center" />
-        {/* Mobile background */}
-        <img src={whyNomiqaMobile} alt="Connected travelers at sunset" className="md:hidden w-full h-full object-cover object-[center_30%]" />
+        {/* Mobile background - show full image */}
+        <img src={whyNomiqaMobile} alt="Connected travelers at sunset" className="md:hidden w-full h-full object-contain object-center bg-deep-space" />
         <div className="absolute inset-0 bg-gradient-to-br from-deep-space/20 via-background/15 to-deep-space/20 md:from-deep-space/15 md:via-background/10 md:to-deep-space/15"></div>
       </div>
       
