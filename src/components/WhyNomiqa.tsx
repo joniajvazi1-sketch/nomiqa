@@ -44,21 +44,23 @@ export const WhyNomiqa = () => {
         </div>
 
         {/* Value cards */}
-        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 max-w-6xl mx-auto mb-16">
           {values.map((value, index) => (
             <div
               key={index}
-              className="group relative p-8 rounded-3xl bg-card/40 backdrop-blur-sm border border-border/50 hover:border-neon-cyan/50 transition-all duration-500 hover:shadow-lg hover:shadow-neon-cyan/20 text-center"
+              className="group relative p-8 md:p-6 rounded-2xl bg-background/60 backdrop-blur-sm border border-white/10 hover:border-neon-cyan/30 transition-all duration-500 hover:shadow-lg hover:shadow-neon-cyan/10"
             >
-              <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${value.gradient} p-0.5 mb-6 mx-auto`}>
-                <div className="w-full h-full bg-card rounded-2xl flex items-center justify-center">
-                  <value.icon className="w-8 h-8 text-neon-cyan" />
+              <div className="flex justify-center mb-6">
+                <div className={`w-16 h-16 rounded-xl bg-gradient-to-br ${value.gradient} p-0.5`}>
+                  <div className="w-full h-full bg-background/80 rounded-xl flex items-center justify-center">
+                    <value.icon className="w-8 h-8 text-neon-cyan" />
+                  </div>
                 </div>
               </div>
-              <h3 className="text-xl md:text-2xl font-bold mb-3 text-foreground">
+              <h3 className="text-xl md:text-2xl font-bold mb-4 text-white text-center leading-tight">
                 {value.title}
               </h3>
-              <p className="text-foreground/60">
+              <p className="text-white/70 text-center text-sm md:text-base leading-relaxed">
                 {value.description}
               </p>
             </div>
