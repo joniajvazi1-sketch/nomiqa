@@ -39,7 +39,7 @@ export const Hero = () => {
             </p>
           </div>
           
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 animate-fade-in-up" style={{
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center animate-fade-in-up" style={{
           animationDelay: "0.2s"
         }}>
             <Button size="lg" onClick={() => navigate('/shop')} className="bg-neon-coral hover:bg-neon-coral/90 text-white font-semibold px-8 py-5 text-base md:text-lg rounded-xl shadow-xl hover:shadow-neon-coral/50 transition-all">
