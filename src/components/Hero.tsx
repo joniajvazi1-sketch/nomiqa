@@ -12,13 +12,13 @@ export const Hero = () => {
         <img 
           src={heroSunsetBg} 
           alt="Sunset cityscape" 
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover md:object-center object-[35%_center]"
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-background/30 via-deep-space/35 to-background/30"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-background/20 via-deep-space/25 to-background/20"></div>
       </div>
       
-      <div className="container relative z-10 px-4 py-16 md:py-32">
-        <div className="max-w-5xl text-left md:text-left">
+      <div className="container relative z-10 px-4 py-24 md:py-32">
+        <div className="max-w-5xl mx-auto text-center">
           {/* Main heading */}
           <div className="mb-6 md:mb-8 animate-fade-in-up">
             <h1 className="text-3xl md:text-4xl lg:text-6xl font-bold font-display leading-tight">
