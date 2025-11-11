@@ -1,5 +1,5 @@
 import MiniGlobe from './MiniGlobe';
-import globeSunsetBg from '@/assets/globe-sunset-background.png';
+import coverageSunsetBg from '@/assets/coverage-sunset-bg.png';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 export const CoverageSection = () => {
@@ -10,7 +10,7 @@ export const CoverageSection = () => {
       {/* Background image with much lighter overlay */}
       <div className="absolute inset-0">
         <img 
-          src={globeSunsetBg} 
+          src={coverageSunsetBg} 
           alt="Global network coverage" 
           className="w-full h-full object-cover"
         />
