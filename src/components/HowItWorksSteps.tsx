@@ -75,7 +75,7 @@ export const HowItWorksSteps = () => {
           </p>
         </div>
         
-        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+        <div className="grid md:grid-cols-3 gap-12 md:gap-16 max-w-6xl mx-auto">
           {steps.map((step, index) => {
             const Icon = step.icon;
             const isVisible = visibleSteps.includes(index);
