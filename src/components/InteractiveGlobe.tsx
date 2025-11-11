@@ -148,13 +148,16 @@ const InteractiveGlobe: React.FC = () => {
       );
     });
 
-    // Create connection lines between continents with particles
+    // Create connection lines between continents with particles - many more connections
     const connectionLines: THREE.Line[] = [];
     const particles: Array<{ mesh: THREE.Mesh; curve: THREE.QuadraticBezierCurve3; progress: number; speed: number }> = [];
     const connections = [
       [0, 1], [1, 2], [1, 6], [2, 7], [3, 5], 
       [4, 7], [0, 8], [8, 5], [6, 9], [7, 9],
-      [0, 6], [1, 3], [2, 9], [5, 3], [4, 2]
+      [0, 6], [1, 3], [2, 9], [5, 3], [4, 2],
+      [0, 2], [0, 4], [0, 9], [1, 7], [1, 9],
+      [2, 3], [2, 5], [3, 6], [3, 9], [4, 5],
+      [4, 6], [5, 7], [6, 8], [7, 8], [8, 9]
     ];
     
     connections.forEach(([i, j]) => {
@@ -177,7 +180,7 @@ const InteractiveGlobe: React.FC = () => {
       scene.add(line);
       connectionLines.push(line);
 
-      // Add 2-3 particles per line
+      // Add 2-3 particles per line with faster speeds
       for (let p = 0; p < 2; p++) {
         const particleGeometry = new THREE.SphereGeometry(0.02, 16, 16);
         const particleMaterial = new THREE.MeshBasicMaterial({
@@ -191,7 +194,7 @@ const InteractiveGlobe: React.FC = () => {
           mesh: particle,
           curve: curve,
           progress: Math.random(),
-          speed: 0.002 + Math.random() * 0.003,
+          speed: 0.005 + Math.random() * 0.007,
         });
       }
     });
@@ -313,7 +316,7 @@ const InteractiveGlobe: React.FC = () => {
 
   return (
     <div className="relative w-full h-[200px] md:h-[280px] lg:h-[320px]">
-      <div ref={containerRef} className="absolute inset-0" />
+      <div ref={containerRef} className="absolute inset-0 -translate-x-8 translate-y-6 md:translate-x-0 md:translate-y-0" />
       {/* Subtle overlay gradient to match theme */}
       <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent to-background/10" />
     </div>
