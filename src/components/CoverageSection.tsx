@@ -1,17 +1,17 @@
 import InteractiveGlobe from './InteractiveGlobe';
-import coverageSunsetBg from '@/assets/coverage-sunset-bg.png';
+import coverageGroupSunset from '@/assets/coverage-group-sunset.png';
 
 export const CoverageSection = () => {
   return (
     <section id="coverage" className="py-12 md:py-20 relative overflow-hidden">
-      {/* Background image with much lighter overlay */}
+      {/* Background image with very light overlay for maximum visibility */}
       <div className="absolute inset-0">
         <img 
-          src={coverageSunsetBg} 
-          alt="Global network coverage" 
-          className="w-full h-full md:object-cover object-cover object-center scale-[1.8] md:scale-100"
+          src={coverageGroupSunset} 
+          alt="People connected at sunset" 
+          className="w-full h-full object-cover object-center"
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-deep-space/5 via-midnight-blue/5 to-deep-space/5"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-deep-space/10 via-midnight-blue/10 to-deep-space/10"></div>
       </div>
       
       <div className="container px-4 relative z-10">

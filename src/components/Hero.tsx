@@ -1,20 +1,28 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import heroSunsetBg from "@/assets/hero-sunset-background.png";
+import heroMobileSunset from "@/assets/hero-mobile-sunset.png";
 import { useTranslation } from "@/contexts/TranslationContext";
 export const Hero = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   
   return <section className="relative min-h-screen flex items-center overflow-hidden pt-20">
-      {/* Background image with overlay */}
+      {/* Background images with very light overlay */}
       <div className="absolute inset-0">
+        {/* Desktop background */}
         <img 
           src={heroSunsetBg} 
           alt="Sunset cityscape" 
-          className="w-full h-full object-cover md:object-center object-[70%_center]"
+          className="hidden md:block w-full h-full object-cover object-center"
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-background/20 via-deep-space/25 to-background/20"></div>
+        {/* Mobile background */}
+        <img 
+          src={heroMobileSunset} 
+          alt="Person using phone at sunset" 
+          className="md:hidden w-full h-full object-cover object-center"
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-background/10 via-deep-space/15 to-background/10"></div>
       </div>
       
       <div className="container relative z-10 px-4 py-24 md:py-32">
