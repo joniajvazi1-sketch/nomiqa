@@ -1,11 +1,10 @@
 import { useTranslation } from "@/contexts/TranslationContext";
 import { Twitter, Instagram, Send } from "lucide-react";
-
 export const Footer = () => {
-  const { t } = useTranslation();
-  
-  return (
-    <footer className="relative bg-gradient-to-b from-deep-space to-midnight-blue text-foreground overflow-hidden">
+  const {
+    t
+  } = useTranslation();
+  return <footer className="relative bg-gradient-to-b from-deep-space to-midnight-blue text-foreground overflow-hidden">
       {/* Thin coral-cyan gradient line at top for closure */}
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-neon-coral via-neon-violet to-neon-cyan opacity-60"></div>
       
@@ -57,31 +56,13 @@ export const Footer = () => {
         <div className="border-t border-neon-cyan/20 pt-8">
           {/* Social Media Links */}
           <div className="flex justify-center gap-6 mb-6">
-            <a 
-              href="https://twitter.com/nomiqa" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="w-10 h-10 rounded-full bg-card/50 border border-neon-cyan/20 flex items-center justify-center hover:border-neon-cyan/50 hover:shadow-glow-cyan transition-all"
-              aria-label="Twitter"
-            >
+            <a href="https://twitter.com/nomiqa" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-card/50 border border-neon-cyan/20 flex items-center justify-center hover:border-neon-cyan/50 hover:shadow-glow-cyan transition-all" aria-label="Twitter">
               <Twitter className="w-5 h-5 text-neon-cyan" />
             </a>
-            <a 
-              href="https://instagram.com/nomiqa" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="w-10 h-10 rounded-full bg-card/50 border border-neon-pink/20 flex items-center justify-center hover:border-neon-pink/50 hover:shadow-glow-coral transition-all"
-              aria-label="Instagram"
-            >
+            <a href="https://instagram.com/nomiqa" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-card/50 border border-neon-pink/20 flex items-center justify-center hover:border-neon-pink/50 hover:shadow-glow-coral transition-all" aria-label="Instagram">
               <Instagram className="w-5 h-5 text-neon-pink" />
             </a>
-            <a 
-              href="https://t.me/nomiqa" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="w-10 h-10 rounded-full bg-card/50 border border-neon-blue/20 flex items-center justify-center hover:border-neon-blue/50 hover:shadow-glow-cyan transition-all"
-              aria-label="Telegram"
-            >
+            <a href="https://t.me/nomiqa" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-card/50 border border-neon-blue/20 flex items-center justify-center hover:border-neon-blue/50 hover:shadow-glow-cyan transition-all" aria-label="Telegram">
               <Send className="w-5 h-5 text-neon-blue" />
             </a>
           </div>
@@ -94,11 +75,10 @@ export const Footer = () => {
               Powered by the people. Built for the borderless.
             </p>
             <p className="text-foreground/50 text-xs md:text-sm">
-              © 2024 Nomiqa. All rights reserved.
+              © 2025 Nomiqa. All rights reserved.
             </p>
           </div>
         </div>
       </div>
-    </footer>
-  );
+    </footer>;
 };
