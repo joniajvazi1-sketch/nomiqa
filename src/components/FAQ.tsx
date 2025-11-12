@@ -11,44 +11,44 @@ export const FAQ = () => {
   
   const faqs = [
     {
-      question: "What are eSIMs?",
-      answer: "An eSIM (embedded SIM) is a digital SIM card that allows you to activate a cellular plan without using a physical SIM card. It's built directly into your device and can be programmed remotely, making it perfect for travelers who want to switch between carriers or plans instantly."
+      question: t("faq1Q"),
+      answer: t("faq1A")
     },
     {
-      question: "How do eSIMs work with Nomiqa?",
-      answer: "Simply purchase an eSIM plan using cryptocurrency, receive a QR code via email, and scan it with your phone. Your eSIM will be activated instantly without any paperwork or physical SIM card needed. You can keep your existing number and use the eSIM for data while traveling."
+      question: t("faq2Q"),
+      answer: t("faq2A")
     },
     {
-      question: "Do I need to remove my physical SIM card?",
-      answer: "No! Most modern smartphones support dual SIM functionality, allowing you to use both your physical SIM and eSIM simultaneously. You can keep your home number active while using the eSIM for data in other countries."
+      question: t("faq3Q"),
+      answer: t("faq3A")
     },
     {
-      question: "What cryptocurrencies do you accept?",
-      answer: "We accept payments in Solana (SOL) and USDC. This ensures fast, secure, and private transactions without the need for traditional payment methods."
+      question: t("faq4Q"),
+      answer: t("faq4A")
     },
     {
-      question: "Is KYC required to purchase an eSIM?",
-      answer: "No! One of Nomiqa's core principles is privacy. We don't require any KYC (Know Your Customer) verification, personal identification, or lengthy registration processes. Just pay with crypto and activate your eSIM instantly."
+      question: t("faq5Q"),
+      answer: t("faq5A")
     },
     {
-      question: "How long does eSIM activation take?",
-      answer: "Activation is instant! Once your cryptocurrency payment is confirmed (usually within minutes), you'll receive your eSIM QR code via email. Simply scan the code with your device and you're connected. The entire process typically takes less than 5 minutes."
+      question: t("faq6Q"),
+      answer: t("faq6A")
     },
     {
-      question: "Which countries are supported?",
-      answer: "Nomiqa provides coverage in over 190+ countries and regions worldwide. We offer both single-country plans and regional packages for areas like Europe, Asia, North America, and more. Check our shop page to see specific coverage for your destination."
+      question: t("faq7Q"),
+      answer: t("faq7A")
     },
     {
-      question: "Can I top up or extend my eSIM plan?",
-      answer: "Yes! You can purchase additional data packages or extend your plan duration at any time through our platform. Simply visit the shop, select your current destination, and add more data to your existing eSIM."
+      question: t("faq8Q"),
+      answer: t("faq8A")
     },
     {
-      question: "What devices are compatible with eSIM?",
-      answer: "Most modern smartphones support eSIM technology, including iPhone XS and newer, Google Pixel 3 and newer, Samsung Galaxy S20 and newer, and many other devices. Check your device settings to confirm eSIM compatibility before purchasing."
+      question: t("faq9Q"),
+      answer: t("faq9A")
     },
     {
-      question: "How do I earn Nomiqa (NMQ) tokens?",
-      answer: "You earn NMQ tokens with every eSIM purchase. Additionally, you can participate in our affiliate program to earn more tokens by referring friends. In the future, you'll also be able to stake your NMQ tokens to earn passive rewards."
+      question: t("faq10Q"),
+      answer: t("faq10A")
     }
   ];
 
