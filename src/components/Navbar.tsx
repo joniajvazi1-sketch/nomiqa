@@ -200,10 +200,10 @@ export const Navbar = () => {
                         <Button
                           variant="cyber"
                           className="w-full"
-                          onClick={() => handleNavClick('/auth?signup=true')}
+                          onClick={() => handleNavClick('/auth')}
                         >
                           <LogIn className="w-4 h-4 mr-2" />
-                          {t("signIn")}
+                          Log In
                         </Button>
                         <Button
                           variant="outline"
