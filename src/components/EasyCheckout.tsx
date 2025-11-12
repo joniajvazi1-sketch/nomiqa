@@ -1,8 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Heart, Shield, Users } from "lucide-react";
+import { useTranslation } from "@/contexts/TranslationContext";
+
 export const EasyCheckout = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
+  
   return <section className="py-24 bg-gradient-to-b from-midnight-blue to-background relative overflow-hidden">
       {/* Neon decorative elements */}
       <div className="absolute top-10 left-10 w-80 h-80 bg-neon-violet/20 rounded-full blur-3xl animate-pulse"></div>
@@ -14,13 +18,13 @@ export const EasyCheckout = () => {
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-16 animate-fade-in-up">
             <p className="text-neon-violet uppercase tracking-[0.3em] font-semibold mb-4 text-2xl">
-              Our Story
+              {t("ourStoryTag")}
             </p>
             <h2 className="text-5xl md:text-6xl font-bold mb-6 font-display">
               
             </h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
-              We believe freedom is connection without borders. Built for the borderless generation who refuse to choose between connectivity and privacy.
+              {t("ourStorySubtitle")}
             </p>
           </div>
 
@@ -32,9 +36,9 @@ export const EasyCheckout = () => {
                   <Heart className="w-7 h-7 text-neon-cyan" />
                 </div>
               </div>
-              <h3 className="text-xl font-bold mb-3 text-center text-neon-cyan">Privacy First</h3>
+              <h3 className="text-xl font-bold mb-3 text-center text-neon-cyan">{t("privacyFirstTitle")}</h3>
               <p className="text-sm text-foreground/70 text-center">
-                Your data belongs to you. No KYC, no tracking, no surveillance. Just pure connection.
+                {t("privacyFirstDesc")}
               </p>
             </div>
 
@@ -46,9 +50,9 @@ export const EasyCheckout = () => {
                   <Shield className="w-7 h-7 text-neon-violet" />
                 </div>
               </div>
-              <h3 className="text-xl font-bold mb-3 text-center text-neon-violet">Crypto Native</h3>
+              <h3 className="text-xl font-bold mb-3 text-center text-neon-violet">{t("cryptoNativeTitle")}</h3>
               <p className="text-sm text-foreground/70 text-center">
-                Built on Web3 principles. Pay with crypto, own your identity, control your journey.
+                {t("cryptoNativeDesc")}
               </p>
             </div>
 
@@ -60,9 +64,9 @@ export const EasyCheckout = () => {
                   <Users className="w-7 h-7 text-neon-coral" />
                 </div>
               </div>
-              <h3 className="text-xl font-bold mb-3 text-center text-neon-coral">Community Owned</h3>
+              <h3 className="text-xl font-bold mb-3 text-center text-neon-coral">{t("communityOwnedTitle")}</h3>
               <p className="text-sm text-foreground/70 text-center">
-                Powered by the people who use it. Earn rewards, share benefits, build together.
+                {t("communityOwnedDesc")}
               </p>
             </div>
           </div>
@@ -71,7 +75,7 @@ export const EasyCheckout = () => {
           animationDelay: "0.3s"
         }}>
             <Button variant="neon" size="xl" onClick={() => navigate('/about')} className="font-display uppercase tracking-wide">
-              Learn More About Us
+              {t("learnMoreAbout")}
             </Button>
           </div>
         </div>

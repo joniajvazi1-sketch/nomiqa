@@ -11,19 +11,19 @@ export const HowItWorksSteps = () => {
     {
       icon: CheckCircle,
       number: "1",
-      title: "Select your plan",
+      titleKey: "howItWorksStep1",
       color: "neon-cyan"
     },
     {
       icon: QrCode,
       number: "2",
-      title: "Scan QR code",
+      titleKey: "howItWorksStep2",
       color: "neon-violet"
     },
     {
       icon: Wifi,
       number: "3",
-      title: "Connect instantly",
+      titleKey: "howItWorksStep3",
       color: "neon-coral"
     }
   ];
@@ -66,12 +66,12 @@ export const HowItWorksSteps = () => {
       
       <div className="container px-4 relative z-10">
         <div className="text-center mb-16 animate-fade-in-up">
-          <p className="text-neon-cyan uppercase tracking-[0.3em] text-sm font-semibold mb-4">How It Works</p>
+          <p className="text-neon-cyan uppercase tracking-[0.3em] text-sm font-semibold mb-4">{t("howItWorksTag")}</p>
           <h2 className="text-4xl md:text-5xl font-bold font-display mb-4">
-            <span className="bg-gradient-neon bg-clip-text text-transparent">Three Simple Steps</span>
+            <span className="bg-gradient-neon bg-clip-text text-transparent">{t("howItWorksTitle")}</span>
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Get connected in under 60 seconds. No paperwork, no waiting.
+            {t("howItWorksSubtitle")}
           </p>
         </div>
         
@@ -149,7 +149,7 @@ export const HowItWorksSteps = () => {
                   
                   <h3 className={`text-xl font-bold text-center mb-3 font-display transition-all duration-700 ${
                     isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-                  }`}>{step.title}</h3>
+                  }`}>{t(step.titleKey)}</h3>
                 </div>
               </div>
             );

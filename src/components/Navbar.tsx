@@ -90,7 +90,7 @@ export const Navbar = () => {
               onClick={() => navigate('/getting-started')}
               className="text-foreground/80 hover:text-neon-cyan transition-colors font-medium text-sm"
             >
-              How to Buy (SOL & $NOMIQA token)
+              {t("howToBuy")}
             </button>
             <button
               onClick={() => navigate('/affiliate')}
@@ -102,26 +102,26 @@ export const Navbar = () => {
               onClick={() => navigate('/stake')}
               className="text-foreground/80 hover:text-neon-cyan transition-colors font-medium"
             >
-              Stake
+              {t("stake")}
             </button>
             <button
               onClick={() => navigate('/about')}
               className="text-foreground/80 hover:text-neon-cyan transition-colors font-medium"
             >
-              About Us
+              {t("aboutUs")}
             </button>
             <button
               onClick={() => navigate('/privacy')}
               className="text-foreground/80 hover:text-neon-cyan transition-colors font-medium text-sm"
             >
-              How We Protect Customer Privacy
+              {t("howWeProtect")}
             </button>
             {user && (
               <button
                 onClick={() => navigate('/orders')}
                 className="text-foreground/80 hover:text-neon-cyan transition-colors font-medium"
               >
-                My eSIMs
+                {t("myEsims")}
               </button>
             )}
           </div>
@@ -136,7 +136,7 @@ export const Navbar = () => {
               </SheetTrigger>
               <SheetContent side="right" className="w-[300px] bg-background border-border">
                 <SheetHeader>
-                  <SheetTitle className="text-foreground">Menu</SheetTitle>
+                  <SheetTitle className="text-foreground">{t("menu")}</SheetTitle>
                 </SheetHeader>
                 
                 <div className="flex flex-col gap-4 mt-8">
@@ -150,7 +150,7 @@ export const Navbar = () => {
                     onClick={() => handleNavClick('/getting-started')}
                     className="text-left text-foreground/70 hover:text-foreground transition-colors py-2 px-4 rounded hover:bg-muted"
                   >
-                    How to Buy (SOL & $NOMIQA token)
+                    {t("howToBuy")}
                   </button>
                   <button
                     onClick={() => handleNavClick('/affiliate')}
@@ -162,26 +162,26 @@ export const Navbar = () => {
                     onClick={() => handleNavClick('/stake')}
                     className="text-left text-foreground/70 hover:text-foreground transition-colors py-2 px-4 rounded hover:bg-muted"
                   >
-                    Stake
+                    {t("stake")}
                   </button>
                   <button
                     onClick={() => handleNavClick('/about')}
                     className="text-left text-foreground/70 hover:text-foreground transition-colors py-2 px-4 rounded hover:bg-muted"
                   >
-                    About Us
+                    {t("aboutUs")}
                   </button>
                   <button
                     onClick={() => handleNavClick('/privacy')}
                     className="text-left text-foreground/70 hover:text-foreground transition-colors py-2 px-4 rounded hover:bg-muted"
                   >
-                    How We Protect Customer Privacy
+                    {t("howWeProtect")}
                   </button>
                   {user && (
                     <button
                       onClick={() => handleNavClick('/orders')}
                       className="text-left text-foreground/70 hover:text-foreground transition-colors py-2 px-4 rounded hover:bg-muted"
                     >
-                      My eSIMs
+                      {t("myEsims")}
                     </button>
                   )}
                   
