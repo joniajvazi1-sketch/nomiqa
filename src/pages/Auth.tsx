@@ -96,7 +96,7 @@ export default function Auth() {
           <CardDescription>
             {isSignUp
               ? "Sign up to manage your eSIM orders"
-              : "Sign in to view your orders and eSIMs"}
+              : "Log in to view your orders and eSIMs"}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -144,7 +144,7 @@ export default function Auth() {
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {isSignUp ? "Sign Up" : "Sign In"}
+              {isSignUp ? "Sign Up" : "Log In"}
             </Button>
           </form>
 
@@ -155,7 +155,7 @@ export default function Auth() {
               className="text-sm text-muted-foreground hover:text-primary"
             >
               {isSignUp
-                ? "Already have an account? Sign in"
+                ? "Already have an account? Log in"
                 : "Don't have an account? Sign up"}
             </button>
           </div>
