@@ -45,6 +45,39 @@ serve(async (req) => {
     const validatedData = validationResult.data;
     let orderId = validatedData.orderId;
 
+    // Rate limiting: Check for recent paylink creation attempts
+    const { email, visitorId } = validatedData;
+    const identifier = email || visitorId;
+    
+    if (identifier && !orderId) {
+      const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+      const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+      const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+      const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+      
+      const query = email 
+        ? supabase.from('orders').select('id').eq('email', email)
+        : supabase.from('orders').select('id').eq('visitor_id', visitorId);
+      
+      const { data: recentOrders } = await query
+        .gte('created_at', oneHourAgo)
+        .limit(10);
+
+      if (recentOrders && recentOrders.length >= 10) {
+        console.log(`Rate limit exceeded for ${identifier}`);
+        return new Response(
+          JSON.stringify({ 
+            error: 'Too many payment requests. Please try again later.' 
+          }),
+          { 
+            status: 429, 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          }
+        );
+      }
+    }
+
     console.log('Creating Helio paylink. Incoming body:', body);
 
     // Get env variables
@@ -58,7 +91,7 @@ serve(async (req) => {
       throw new Error('Missing Helio API credentials');
     }
 
-    // Initialize Supabase client
+    // Initialize Supabase client (reuse if already initialized for rate limiting)
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     let order: any = null;
