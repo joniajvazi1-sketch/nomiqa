@@ -35,7 +35,7 @@ export const TrustPartners = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 max-w-6xl mx-auto">
           <div className="group flex flex-col items-center justify-center p-6 md:p-8 rounded-2xl bg-card/40 backdrop-blur-sm border border-neon-cyan/20 hover:border-neon-cyan/50 transition-all duration-300 hover:shadow-[0_0_30px_rgba(6,182,212,0.2)]">
             <div className="w-14 h-14 md:w-20 md:h-20 rounded-xl bg-neon-cyan/5 flex items-center justify-center mb-3 md:mb-4 group-hover:scale-110 transition-transform duration-300">
-              <img src={solanaLogo} alt="Solana" className="w-10 h-10 md:w-14 md:h-14" />
+              <img src={solanaLogo} alt="Solana" className="w-10 h-10 md:w-14 md:h-14" loading="lazy" />
             </div>
             <span className="text-white font-bold text-base md:text-lg">Solana</span>
             {!isLoading && price ? <div className="flex items-center gap-1 mt-2">
@@ -46,7 +46,7 @@ export const TrustPartners = () => {
           
           <div className="group flex flex-col items-center justify-center p-6 md:p-8 rounded-2xl bg-card/40 backdrop-blur-sm border border-neon-violet/20 hover:border-neon-violet/50 transition-all duration-300 hover:shadow-[0_0_30px_rgba(168,85,247,0.2)]">
             <div className="w-14 h-14 md:w-20 md:h-20 rounded-xl bg-neon-violet/5 flex items-center justify-center mb-3 md:mb-4 group-hover:scale-110 transition-transform duration-300">
-              <img src={phantomLogo} alt="Phantom Wallet" className="w-10 h-10 md:w-14 md:h-14 rounded-xl" />
+              <img src={phantomLogo} alt="Phantom Wallet" className="w-10 h-10 md:w-14 md:h-14 rounded-xl" loading="lazy" />
             </div>
             <span className="text-white font-bold text-base md:text-lg">Phantom</span>
             <span className="text-foreground/60 text-xs md:text-sm mt-2">{t("trustTrustedWallet")}</span>
@@ -54,7 +54,7 @@ export const TrustPartners = () => {
           
           <div className="group flex flex-col items-center justify-center p-6 md:p-8 rounded-2xl bg-card/40 backdrop-blur-sm border border-neon-pink/20 hover:border-neon-pink/50 transition-all duration-300 hover:shadow-[0_0_30px_rgba(236,72,153,0.2)]">
             <div className="w-14 h-14 md:w-20 md:h-20 rounded-xl bg-neon-pink/5 flex items-center justify-center mb-3 md:mb-4 group-hover:scale-110 transition-transform duration-300">
-              <img src={meteoraLogo} alt="Meteora" className="w-10 h-10 md:w-14 md:h-14 rounded-xl" />
+              <img src={meteoraLogo} alt="Meteora" className="w-10 h-10 md:w-14 md:h-14 rounded-xl" loading="lazy" />
             </div>
             <span className="text-white font-bold text-base md:text-lg">Meteora</span>
             <span className="text-foreground/60 text-xs md:text-sm mt-2">{t("trustDefiProtocol")}</span>
@@ -62,7 +62,7 @@ export const TrustPartners = () => {
           
           <div className="group flex flex-col items-center justify-center p-6 md:p-8 rounded-2xl bg-card/40 backdrop-blur-sm border border-neon-cyan/20 hover:border-neon-cyan/50 transition-all duration-300 hover:shadow-[0_0_30px_rgba(6,182,212,0.2)]">
             <div className="w-14 h-14 md:w-20 md:h-20 rounded-xl bg-neon-cyan/5 flex items-center justify-center mb-3 md:mb-4 group-hover:scale-110 transition-transform duration-300">
-              <img src={moonpayLogo} alt="MoonPay" className="w-10 h-10 md:w-14 md:h-14 rounded-xl" />
+              <img src={moonpayLogo} alt="MoonPay" className="w-10 h-10 md:w-14 md:h-14 rounded-xl" loading="lazy" />
             </div>
             <span className="text-white font-bold text-base md:text-lg">MoonPay</span>
             <span className="text-foreground/60 text-xs md:text-sm mt-2">{t("trustCryptoGateway")}</span>

@@ -41,7 +41,12 @@ export const EarnRewardBlock = () => {
             {/* Headline with Logo */}
             <div className="space-y-4">
               <div className="flex items-center justify-center gap-4 mb-2">
-                <img src={tokenLogo} alt="NOMIQA Token" className="w-auto h-16 md:h-20 object-contain animate-pulse" />
+                <img 
+                  src={tokenLogo} 
+                  alt="NOMIQA Token" 
+                  className="w-auto h-16 md:h-20 object-contain animate-pulse" 
+                  loading="lazy"
+                />
               </div>
               <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-fade-in">
                 Earn as You Connect.

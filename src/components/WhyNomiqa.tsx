@@ -32,9 +32,19 @@ export const WhyNomiqa = () => {
       {/* Background images with very light overlay */}
       <div className="absolute inset-0">
         {/* Desktop background */}
-        <img src={whyNomiqaDesktop} alt="Happy travelers at sunset" className="hidden md:block w-full h-full object-cover object-center" />
+        <img 
+          src={whyNomiqaDesktop} 
+          alt="Happy travelers at sunset" 
+          className="hidden md:block w-full h-full object-cover object-center" 
+          loading="lazy"
+        />
         {/* Mobile background - cover and fill entire area */}
-        <img src={whyNomiqaMobile} alt="Connected travelers at sunset" className="md:hidden w-full h-full object-cover object-center" />
+        <img 
+          src={whyNomiqaMobile} 
+          alt="Connected travelers at sunset" 
+          className="md:hidden w-full h-full object-cover object-center" 
+          loading="lazy"
+        />
         <div className="absolute inset-0 bg-gradient-to-br from-deep-space/10 via-background/5 to-deep-space/10"></div>
       </div>
       
