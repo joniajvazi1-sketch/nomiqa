@@ -21,6 +21,7 @@ import Affiliate from "./pages/Affiliate";
 import AffiliateRedirect from "./pages/AffiliateRedirect";
 import Privacy from "./pages/Privacy";
 import About from "./pages/About";
+import Token from "./pages/Token";
 
 const queryClient = new QueryClient();
 
@@ -75,6 +76,7 @@ const App = () => (
             <Route path="/r/:code" element={<AffiliateRedirect />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/about" element={<About />} />
+            <Route path="/token" element={<Token />} />
             {/* Username-based affiliate links - must be last before catch-all */}
             <Route path="/:username" element={<AffiliateRedirect />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
