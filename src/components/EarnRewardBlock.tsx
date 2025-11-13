@@ -61,7 +61,7 @@ export const EarnRewardBlock = () => {
                 <img 
                   src={tokenLogo} 
                   alt="NOMIQA Token" 
-                  className="w-16 h-16 md:w-20 md:h-20 animate-pulse"
+                  className="w-auto h-16 md:h-20 object-contain animate-pulse"
                 />
               </div>
               <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-fade-in">
