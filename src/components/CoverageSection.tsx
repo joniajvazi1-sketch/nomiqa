@@ -8,7 +8,12 @@ export const CoverageSection = () => {
   return <section id="coverage" className="py-12 md:py-20 relative overflow-hidden">
       {/* Background image with very light overlay for maximum visibility */}
       <div className="absolute inset-0">
-        <img src={coverageGroupSunset} alt="People connected at sunset" className="w-full h-full object-cover object-center" />
+        <img 
+          src={coverageGroupSunset} 
+          alt="People connected at sunset" 
+          className="w-full h-full object-cover object-center" 
+          loading="lazy"
+        />
         <div className="absolute inset-0 bg-gradient-to-br from-deep-space/10 via-midnight-blue/10 to-deep-space/10"></div>
       </div>
       

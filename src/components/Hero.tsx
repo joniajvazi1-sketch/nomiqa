@@ -12,8 +12,20 @@ export const Hero = () => {
     <section className="relative min-h-screen flex items-center overflow-hidden pt-20">
       {/* Background images with very light overlay */}
       <div className="absolute inset-0">
-        <img src={heroSunsetBg} alt="Sunset cityscape" className="hidden md:block w-full h-full object-cover object-center" />
-        <img src={heroMobileSunset} alt="Person using phone at sunset" className="md:hidden w-full h-full object-cover object-center" />
+        <img 
+          src={heroSunsetBg} 
+          alt="Sunset cityscape" 
+          className="hidden md:block w-full h-full object-cover object-center" 
+          fetchPriority="high"
+          loading="eager"
+        />
+        <img 
+          src={heroMobileSunset} 
+          alt="Person using phone at sunset" 
+          className="md:hidden w-full h-full object-cover object-center" 
+          fetchPriority="high"
+          loading="eager"
+        />
         <div className="absolute inset-0 bg-gradient-to-br from-background/10 via-deep-space/15 to-background/10"></div>
       </div>
       

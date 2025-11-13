@@ -18,7 +18,12 @@ export const EarnSection = () => {
       
       {/* Happy illustration */}
       <div className="absolute right-10 top-1/2 -translate-y-1/2 hidden xl:block opacity-30">
-        <img src={worldTravelers} alt="People around the world" className="w-64 h-64 object-contain rounded-2xl" />
+        <img 
+          src={worldTravelers} 
+          alt="People around the world" 
+          className="w-64 h-64 object-contain rounded-2xl" 
+          loading="lazy"
+        />
       </div>
       
       <div className="container px-4 relative z-10">
