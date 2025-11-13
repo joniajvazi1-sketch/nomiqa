@@ -1,9 +1,30 @@
 import { Button } from "@/components/ui/button";
 import { Coins, Gift, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import tokenLogo from "@/assets/nomiqa-token-logo.gif";
+import { useEffect, useRef, useState } from "react";
 
 export const EarnRewardBlock = () => {
   const navigate = useNavigate();
+  const [isVisible, setIsVisible] = useState(false);
+  const sectionRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
 
   const benefits = [
     {
@@ -21,27 +42,35 @@ export const EarnRewardBlock = () => {
   ];
 
   return (
-    <section className="py-12 px-4 bg-gradient-to-b from-background via-background/95 to-background">
+    <section 
+      ref={sectionRef}
+      className="py-12 px-4 bg-gradient-to-b from-background via-background/95 to-background"
+    >
       <div className="max-w-4xl mx-auto">
-        <div className="relative overflow-hidden rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/5 via-background to-accent/5 p-8 md:p-12">
-          {/* Decorative glow */}
-          <div className="absolute -top-24 -right-24 w-48 h-48 bg-primary/20 rounded-full blur-3xl" />
-          <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-accent/20 rounded-full blur-3xl" />
+        <div className="relative overflow-hidden rounded-2xl border border-primary/40 bg-gradient-to-br from-primary/15 via-accent/10 to-primary/15 p-8 md:p-12 shadow-xl shadow-primary/10">
+          {/* Decorative glow - brighter */}
+          <div className="absolute -top-24 -right-24 w-56 h-56 bg-primary/40 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute -bottom-24 -left-24 w-56 h-56 bg-accent/40 rounded-full blur-3xl animate-pulse" />
           
-          <div className="relative z-10 text-center space-y-6">
-            {/* Headline */}
-            <div className="space-y-2">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 mb-4">
-                <span className="text-2xl">🔥</span>
-                <span className="text-sm font-medium text-primary">NEW</span>
+          <div className={`relative z-10 text-center space-y-6 transition-all duration-1000 ${
+            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+          }`}>
+            {/* Headline with Logo */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-center gap-4 mb-2">
+                <img 
+                  src={tokenLogo} 
+                  alt="NOMIQA Token" 
+                  className="w-16 h-16 md:w-20 md:h-20 animate-pulse"
+                />
               </div>
-              <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
+              <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-fade-in">
                 Earn as You Connect.
               </h2>
             </div>
 
             {/* Subline */}
-            <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-base md:text-lg text-foreground/90 max-w-2xl mx-auto font-medium">
               Get rewarded with NOMIQA Tokens every time you activate or share your eSIM — powering the world's first crypto-enabled travel network.
             </p>
 
@@ -50,9 +79,12 @@ export const EarnRewardBlock = () => {
               {benefits.map((benefit, index) => (
                 <div
                   key={index}
-                  className="flex items-center gap-3 p-4 rounded-lg bg-background/50 border border-border/50 hover:border-primary/30 transition-colors"
+                  className={`flex items-center gap-3 p-4 rounded-lg bg-primary/10 border border-primary/30 hover:border-primary/50 hover:bg-primary/15 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-primary/20 ${
+                    isVisible ? 'animate-fade-in' : 'opacity-0'
+                  }`}
+                  style={{ animationDelay: `${index * 150}ms` }}
                 >
-                  <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                  <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary border border-primary/30">
                     {benefit.icon}
                   </div>
                   <p className="text-sm font-medium text-foreground text-left">
@@ -68,7 +100,7 @@ export const EarnRewardBlock = () => {
                 size="lg"
                 variant="cyber"
                 onClick={() => navigate('/token')}
-                className="text-base px-8"
+                className="text-base px-8 hover:scale-105 transition-transform duration-300 shadow-lg shadow-primary/20"
               >
                 👉 Discover $NOMIQA Token
               </Button>
