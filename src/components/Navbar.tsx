@@ -233,7 +233,7 @@ export const Navbar = () => {
                 {languages.map((lang) => (
                   <DropdownMenuItem
                     key={lang.code}
-                    onClick={() => {
+                    onSelect={() => {
                       setLanguage(lang.code);
                       toast.success(`Language changed to ${lang.name}`);
                     }}
