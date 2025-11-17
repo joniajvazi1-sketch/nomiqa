@@ -102,7 +102,7 @@ export const Navbar = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="text-foreground h-9 gap-1">
-                  <Globe className="w-4 h-4" />
+                  <Globe className="w-4 h-4 hidden md:block" />
                   <span className="text-sm">{language} {languages.find(l => l.code === language)?.flag}</span>
                 </Button>
               </DropdownMenuTrigger>
