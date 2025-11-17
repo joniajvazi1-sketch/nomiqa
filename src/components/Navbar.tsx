@@ -19,17 +19,17 @@ export const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { language, setLanguage, t } = useTranslation();
 
-  const languages: { code: Language; name: string }[] = [
-    { code: "EN", name: "English" },
-    { code: "ES", name: "Español" },
-    { code: "FR", name: "Français" },
-    { code: "DE", name: "Deutsch" },
-    { code: "IT", name: "Italiano" },
-    { code: "PT", name: "Português" },
-    { code: "RU", name: "Русский" },
-    { code: "ZH", name: "中文" },
-    { code: "JA", name: "日本語" },
-    { code: "AR", name: "العربية" },
+  const languages: { code: Language; name: string; flag: string }[] = [
+    { code: "EN", name: "English", flag: "🇬🇧" },
+    { code: "ES", name: "Español", flag: "🇪🇸" },
+    { code: "FR", name: "Français", flag: "🇫🇷" },
+    { code: "DE", name: "Deutsch", flag: "🇩🇪" },
+    { code: "IT", name: "Italiano", flag: "🇮🇹" },
+    { code: "PT", name: "Português", flag: "🇵🇹" },
+    { code: "RU", name: "Русский", flag: "🇷🇺" },
+    { code: "ZH", name: "中文", flag: "🇨🇳" },
+    { code: "JA", name: "日本語", flag: "🇯🇵" },
+    { code: "AR", name: "العربية", flag: "🇸🇦" },
   ];
 
   useEffect(() => {
@@ -103,7 +103,7 @@ export const Navbar = () => {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="text-foreground h-9 gap-1">
                   <Globe className="w-4 h-4" />
-                  <span className="text-sm">{language} 🌍</span>
+                  <span className="text-sm">{language} {languages.find(l => l.code === language)?.flag}</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="z-[60] bg-popover border-border">
@@ -128,7 +128,10 @@ export const Navbar = () => {
                     }}
                     className="flex items-center justify-between"
                   >
-                    <span>{l.name}</span>
+                    <span className="flex items-center gap-2">
+                      <span>{l.flag}</span>
+                      <span>{l.name}</span>
+                    </span>
                     {language === l.code && <Check className="w-4 h-4 text-neon-cyan" />}
                   </DropdownMenuItem>
                 ))}
