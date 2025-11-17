@@ -2,28 +2,31 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { StickyCTA } from "@/components/StickyCTA";
 import { Shield, Eye, Lock, Globe, Fingerprint, Database } from "lucide-react";
+import { useTranslation } from "@/contexts/TranslationContext";
 
 export default function Privacy() {
+  const { t } = useTranslation();
+  
   const principles = [
     {
       icon: Eye,
-      title: "No Tracking",
-      description: "We don't track your browsing, location, or usage patterns. Your journey is yours alone.",
+      title: t("privacyPrinciple1Title"),
+      description: t("privacyPrinciple1Desc"),
     },
     {
       icon: Fingerprint,
-      title: "No KYC Required",
-      description: "Anonymous eSIMs mean no passport scans, no ID verification, no personal data collection.",
+      title: t("privacyPrinciple2Title"),
+      description: t("privacyPrinciple2Desc"),
     },
     {
       icon: Database,
-      title: "Minimal Data",
-      description: "We only collect what's technically necessary to deliver your eSIM. Nothing more.",
+      title: t("privacyPrinciple3Title"),
+      description: t("privacyPrinciple3Desc"),
     },
     {
       icon: Lock,
-      title: "Crypto Payments Only",
-      description: "No credit cards, no banks, no financial surveillance. Just pure crypto freedom.",
+      title: t("privacyPrinciple4Title"),
+      description: t("privacyPrinciple4Desc"),
     },
   ];
 
@@ -57,15 +60,15 @@ export default function Privacy() {
             
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 font-display">
               <span className="block bg-gradient-freedom bg-clip-text text-transparent">
-                How We Protect
+                {t("privacyTitle")}
               </span>
               <span className="block bg-gradient-sunset bg-clip-text text-transparent mt-2">
-                Customer Privacy
+                {t("privacySubtitle")}
               </span>
             </h1>
             
             <p className="text-xl md:text-2xl text-foreground/80 max-w-3xl mx-auto mb-6">
-              Your data is YOURS. Not ours. Not anyone's. Here's how we guarantee it.
+              {t("privacyDescription")}
             </p>
           </div>
 
@@ -95,49 +98,42 @@ export default function Privacy() {
           {/* How We Protect Section */}
           <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in-up">
             <h2 className="text-3xl md:text-4xl font-bold mb-6 bg-gradient-digital bg-clip-text text-transparent">
-              Our Protection Methods
+              {t("privacyMethodsTitle")}
             </h2>
             <div className="space-y-4 text-foreground/80 leading-relaxed text-center md:text-left">
               <p>
-                At Nomiqa, protecting customer privacy isn't just a feature — it's the foundation of everything we build. 
-                Here's exactly how we keep your data secure and private:
+                {t("privacyMethodsIntro")}
               </p>
               
               <div className="mt-8 space-y-6">
                 <div className="p-6 rounded-2xl bg-card/60 border border-neon-cyan/20 text-center">
-                  <h3 className="text-xl font-bold text-neon-cyan mb-3">Zero-Knowledge Architecture</h3>
-                  <p className="text-left">We operate on a zero-knowledge basis. No passport scans, no ID verification, no personal information collected. 
-                  We don't know who you are, where you're going, or what you're doing online — and that's by design.</p>
+                  <h3 className="text-xl font-bold text-neon-cyan mb-3">{t("privacyMethod1Title")}</h3>
+                  <p className="text-left">{t("privacyMethod1Desc")}</p>
                 </div>
 
                 <div className="p-6 rounded-2xl bg-card/60 border border-neon-violet/20 text-center">
-                  <h3 className="text-xl font-bold text-neon-violet mb-3">Crypto-Only Payments</h3>
-                  <p className="text-left">All transactions are conducted exclusively in cryptocurrency (Solana, USDC). This means no credit card companies, 
-                  no banks, no payment processors with access to your purchase history. Your financial privacy is absolute.</p>
+                  <h3 className="text-xl font-bold text-neon-violet mb-3">{t("privacyMethod2Title")}</h3>
+                  <p className="text-left">{t("privacyMethod2Desc")}</p>
                 </div>
 
                 <div className="p-6 rounded-2xl bg-card/60 border border-neon-coral/20 text-center">
-                  <h3 className="text-xl font-bold text-neon-coral mb-3">No Usage Tracking</h3>
-                  <p className="text-left">Unlike traditional carriers, we don't monitor your browsing history, track your location, or log your data usage patterns. 
-                  Once your eSIM is activated, your connection is yours alone.</p>
+                  <h3 className="text-xl font-bold text-neon-coral mb-3">{t("privacyMethod3Title")}</h3>
+                  <p className="text-left">{t("privacyMethod3Desc")}</p>
                 </div>
 
                 <div className="p-6 rounded-2xl bg-card/60 border border-warm-sand/20 text-center">
-                  <h3 className="text-xl font-bold text-warm-sand mb-3">Decentralized Infrastructure</h3>
-                  <p className="text-left">Built on Web3 principles with decentralized systems. No single point of failure, no central database of customer information 
-                  that can be hacked or subpoenaed. Your privacy is protected by design, not just by policy.</p>
+                  <h3 className="text-xl font-bold text-warm-sand mb-3">{t("privacyMethod4Title")}</h3>
+                  <p className="text-left">{t("privacyMethod4Desc")}</p>
                 </div>
 
                 <div className="p-6 rounded-2xl bg-card/60 border border-neon-cyan/20 text-center">
-                  <h3 className="text-xl font-bold text-neon-cyan mb-3">Minimal Data Retention</h3>
-                  <p className="text-left">We only collect the absolute minimum data required to deliver your eSIM — typically just a delivery email address (which can be 
-                  anonymous). No storage of browsing data, no retention of connection logs, no permanent records.</p>
+                  <h3 className="text-xl font-bold text-neon-cyan mb-3">{t("privacyMethod5Title")}</h3>
+                  <p className="text-left">{t("privacyMethod5Desc")}</p>
                 </div>
               </div>
               
               <p className="pt-6 text-lg font-semibold text-neon-coral text-center">
-                We can't compromise what we never collect. Your privacy isn't a promise—it's mathematically guaranteed. 
-                <span className="text-neon-cyan"> This is your digital freedom.</span>
+                {t("privacyClosing")}
               </p>
             </div>
           </div>
@@ -145,10 +141,10 @@ export default function Privacy() {
           {/* Quote Card */}
           <div className="p-8 rounded-3xl bg-gradient-to-br from-neon-violet/10 via-neon-coral/10 to-neon-cyan/10 border border-neon-violet/30 backdrop-blur-sm text-center">
             <p className="text-xl md:text-2xl text-warm-sand mb-4">
-              Your signal. Your rules. Your freedom.
+              {t("privacyQuote")}
             </p>
             <p className="text-foreground/60">
-              — The Nomiqa Promise
+              {t("privacyQuoteAttribution")}
             </p>
           </div>
         </div>
