@@ -24,12 +24,12 @@ export const Navbar = () => {
     { code: "ES", name: "Español" },
     { code: "FR", name: "Français" },
     { code: "DE", name: "Deutsch" },
+    { code: "IT", name: "Italiano" },
+    { code: "PT", name: "Português" },
     { code: "RU", name: "Русский" },
     { code: "ZH", name: "中文" },
     { code: "JA", name: "日本語" },
-    { code: "PT", name: "Português" },
     { code: "AR", name: "العربية" },
-    { code: "HI", name: "हिन्दी" },
   ];
 
   useEffect(() => {
@@ -113,7 +113,7 @@ export const Navbar = () => {
                       // Map languages to locale slugs used in routes
                       const slugMap: Record<Language, string> = {
                         EN: 'english', ES: 'espanol', FR: 'francais', DE: 'deutsch',
-                        RU: 'russian', ZH: 'chinese', JA: 'japanese', PT: 'portugues', AR: 'arabic', HI: 'hindi'
+                        RU: 'russian', ZH: 'chinese', JA: 'japanese', PT: 'portugues', AR: 'arabic', IT: 'italiano'
                       };
                       const current = window.location.pathname;
                       const parts = current.split('/').filter(Boolean);
