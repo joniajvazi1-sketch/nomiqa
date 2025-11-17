@@ -1,26 +1,15 @@
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { ShoppingCart, LogOut, LogIn, Menu, Globe, Check } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
-import { ShoppingCart, LogOut, LogIn, Menu, Globe } from "lucide-react";
-import { Badge } from "./ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import { toast } from "sonner";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { useTranslation } from "@/contexts/TranslationContext";
+import { Language, useTranslation } from "@/contexts/TranslationContext";
 
 export const Navbar = () => {
   const navigate = useNavigate();
@@ -29,17 +18,17 @@ export const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { language, setLanguage, t } = useTranslation();
 
-  const languages = [
-    { code: "EN" as const, name: "English" },
-    { code: "ES" as const, name: "Español" },
-    { code: "FR" as const, name: "Français" },
-    { code: "DE" as const, name: "Deutsch" },
-    { code: "RU" as const, name: "Русский" },
-    { code: "ZH" as const, name: "中文" },
-    { code: "JA" as const, name: "日本語" },
-    { code: "PT" as const, name: "Português" },
-    { code: "AR" as const, name: "العربية" },
-    { code: "HI" as const, name: "हिन्दी" },
+  const languages: { code: Language; name: string }[] = [
+    { code: "EN", name: "English" },
+    { code: "ES", name: "Español" },
+    { code: "FR", name: "Français" },
+    { code: "DE", name: "Deutsch" },
+    { code: "RU", name: "Русский" },
+    { code: "ZH", name: "中文" },
+    { code: "JA", name: "日本語" },
+    { code: "PT", name: "Português" },
+    { code: "AR", name: "العربية" },
+    { code: "HI", name: "हिन्दी" },
   ];
 
   useEffect(() => {
@@ -58,7 +47,7 @@ export const Navbar = () => {
     await supabase.auth.signOut();
     toast.success("Signed out successfully");
     setMobileMenuOpen(false);
-    navigate('/');
+    navigate("/");
   };
 
   const handleNavClick = (path: string) => {
@@ -78,209 +67,141 @@ export const Navbar = () => {
               </span>
             </button>
           </div>
-          
+
+          {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-6 ml-8">
-            <button
-              onClick={() => navigate('/shop')}
-              className="text-foreground/80 hover:text-neon-cyan transition-colors font-medium"
-            >
+            <button onClick={() => navigate('/shop')} className="text-foreground/80 hover:text-neon-cyan transition-colors font-medium">
               {t("shop")}
             </button>
-            <button
-              onClick={() => navigate('/getting-started')}
-              className="text-foreground/80 hover:text-neon-cyan transition-colors font-medium text-sm"
-            >
+            <button onClick={() => navigate('/getting-started')} className="text-foreground/80 hover:text-neon-cyan transition-colors font-medium text-sm">
               {t("howToBuy")}
             </button>
-            <button
-              onClick={() => navigate('/affiliate')}
-              className="text-foreground/80 hover:text-neon-cyan transition-colors font-medium"
-            >
+            <button onClick={() => navigate('/affiliate')} className="text-foreground/80 hover:text-neon-cyan transition-colors font-medium">
               {t("affiliate")}
             </button>
-            <button
-              onClick={() => navigate('/stake')}
-              className="text-foreground/80 hover:text-neon-cyan transition-colors font-medium"
-            >
+            <button onClick={() => navigate('/stake')} className="text-foreground/80 hover:text-neon-cyan transition-colors font-medium">
               {t("stake")}
             </button>
-            <button
-              onClick={() => navigate('/about')}
-              className="text-foreground/80 hover:text-neon-cyan transition-colors font-medium"
-            >
+            <button onClick={() => navigate('/about')} className="text-foreground/80 hover:text-neon-cyan transition-colors font-medium">
               {t("aboutUs")}
             </button>
-            <button
-              onClick={() => navigate('/privacy')}
-              className="text-foreground/80 hover:text-neon-cyan transition-colors font-medium text-sm"
-            >
+            <button onClick={() => navigate('/privacy')} className="text-foreground/80 hover:text-neon-cyan transition-colors font-medium text-sm">
               {t("howWeProtect")}
             </button>
             {user && (
-              <button
-                onClick={() => navigate('/orders')}
-                className="text-foreground/80 hover:text-neon-cyan transition-colors font-medium"
-              >
+              <button onClick={() => navigate('/orders')} className="text-foreground/80 hover:text-neon-cyan transition-colors font-medium">
                 {t("myEsims")}
               </button>
             )}
           </div>
-          
-          {/* Mobile Menu */}
-          <div className="md:hidden">
-            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="text-foreground h-10 w-10">
-                  <Menu className="w-6 h-6" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="w-[300px] bg-background border-border">
-                <SheetHeader>
-                  <SheetTitle className="text-foreground">{t("menu")}</SheetTitle>
-                </SheetHeader>
-                
-                <div className="flex flex-col gap-4 mt-8">
-                  <button
-                    onClick={() => handleNavClick('/shop')}
-                    className="text-left text-foreground/70 hover:text-foreground transition-colors py-2 px-4 rounded hover:bg-muted"
-                  >
-                    {t("shop")}
-                  </button>
-                  <button
-                    onClick={() => handleNavClick('/getting-started')}
-                    className="text-left text-foreground/70 hover:text-foreground transition-colors py-2 px-4 rounded hover:bg-muted"
-                  >
-                    {t("howToBuy")}
-                  </button>
-                  <button
-                    onClick={() => handleNavClick('/affiliate')}
-                    className="text-left text-foreground/70 hover:text-foreground transition-colors py-2 px-4 rounded hover:bg-muted"
-                  >
-                    {t("affiliate")}
-                  </button>
-                  <button
-                    onClick={() => handleNavClick('/stake')}
-                    className="text-left text-foreground/70 hover:text-foreground transition-colors py-2 px-4 rounded hover:bg-muted"
-                  >
-                    {t("stake")}
-                  </button>
-                  <button
-                    onClick={() => handleNavClick('/about')}
-                    className="text-left text-foreground/70 hover:text-foreground transition-colors py-2 px-4 rounded hover:bg-muted"
-                  >
-                    {t("aboutUs")}
-                  </button>
-                  <button
-                    onClick={() => handleNavClick('/privacy')}
-                    className="text-left text-foreground/70 hover:text-foreground transition-colors py-2 px-4 rounded hover:bg-muted"
-                  >
-                    {t("howWeProtect")}
-                  </button>
-                  {user && (
-                    <button
-                      onClick={() => handleNavClick('/orders')}
-                      className="text-left text-foreground/70 hover:text-foreground transition-colors py-2 px-4 rounded hover:bg-muted"
-                    >
-                      {t("myEsims")}
-                    </button>
-                  )}
-                  
-                  <div className="border-t border-border pt-4 mt-4 space-y-2">
-                    {user ? (
-                      <Button
-                        variant="cyber"
-                        className="w-full"
-                        onClick={handleSignOut}
-                      >
-                        <LogOut className="w-4 h-4 mr-2" />
-                        {t("signOut")}
-                      </Button>
-                    ) : (
-                      <>
-                        <Button
-                          variant="cyber"
-                          className="w-full"
-                          onClick={() => handleNavClick('/auth')}
-                        >
-                          <LogIn className="w-4 h-4 mr-2" />
-                          Log In
-                        </Button>
-                        <Button
-                          variant="outline"
-                          className="w-full"
-                          onClick={() => handleNavClick('/auth?signup=true')}
-                        >
-                          {t("signUp")} (Create Username)
-                        </Button>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </SheetContent>
-            </Sheet>
-          </div>
-          
-          <div className="flex items-center gap-4">
-            {/* Language Selector */}
+
+          {/* Right controls */}
+          <div className="flex items-center gap-2">
+            {/* Language Switcher */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="gap-2">
-                  <Globe className="w-4 h-4" />
-                  <span className="sm:inline">{language}</span>
+                <Button variant="ghost" size="icon" className="text-foreground h-10 w-10">
+                  <Globe className="w-5 h-5" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="bg-background border border-border z-50">
-                {languages.map((lang) => (
-                  <DropdownMenuItem
-                    key={lang.code}
-                    onSelect={() => {
-                      setLanguage(lang.code);
-                      toast.success(`Language changed to ${lang.name}`);
-                    }}
-                    className="cursor-pointer text-foreground hover:bg-muted"
-                  >
-                    {lang.name}
+              <DropdownMenuContent align="end" className="z-[60] bg-popover border-border">
+                {languages.map((l) => (
+                  <DropdownMenuItem key={l.code} onSelect={() => setLanguage(l.code)} className="flex items-center justify-between">
+                    <span>{l.name}</span>
+                    {language === l.code && <Check className="w-4 h-4 text-neon-cyan" />}
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Desktop Auth Buttons */}
-            <div className="hidden md:flex items-center gap-4">
-              {user ? (
-                <Button
-                  variant="cyber"
-                  size="sm"
-                  onClick={handleSignOut}
-                >
-                  <LogOut className="w-4 h-4 mr-2" />
-                  {t("signOut")}
-                </Button>
-              ) : (
-                <Button
-                  variant="cyber"
-                  size="sm"
-                  onClick={() => navigate('/auth')}
-                >
-                  <LogIn className="w-4 h-4 mr-2" />
-                  {t("signIn")}
-                </Button>
-              )}
-            </div>
-            
-            {items.length > 0 && (
-              <Button
-                variant="cyber"
-                size="sm"
-                onClick={() => navigate('/checkout')}
-                className="relative"
-              >
-                <ShoppingCart className="w-4 h-4" />
-                <Badge className="ml-1 bg-accent text-white">
-                  {items.reduce((sum, item) => sum + item.quantity, 0)}
+            {/* Cart */}
+            <Button variant="ghost" size="icon" className="relative" onClick={() => navigate('/checkout')} aria-label="Open cart">
+              <ShoppingCart className="w-5 h-5 text-foreground" />
+              {items.length > 0 && (
+                <Badge className="absolute -top-1 -right-1 bg-neon-coral text-white border-0 px-1.5 py-0 text-[10px]">
+                  {items.length}
                 </Badge>
+              )}
+            </Button>
+
+            {/* Auth */}
+            {user ? (
+              <Button variant="outline" className="border-neon-cyan/40 text-foreground hover:bg-neon-cyan/10" onClick={handleSignOut}>
+                <LogOut className="w-4 h-4 mr-2" /> {t("signOut")}
+              </Button>
+            ) : (
+              <Button variant="outline" className="border-neon-cyan/40 text-foreground hover:bg-neon-cyan/10" onClick={() => navigate('/auth')}>
+                <LogIn className="w-4 h-4 mr-2" /> {t("signIn")}
               </Button>
             )}
+
+            {/* Mobile Menu */}
+            <div className="md:hidden">
+              <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon" className="text-foreground h-10 w-10">
+                    <Menu className="w-6 h-6" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-[300px] bg-background border-border">
+                  <SheetHeader>
+                    <SheetTitle className="text-foreground">{t("menu")}</SheetTitle>
+                  </SheetHeader>
+                  <div className="flex flex-col gap-4 mt-8">
+                    <button onClick={() => handleNavClick('/shop')} className="text-left text-foreground/70 hover:text-foreground transition-colors py-2 px-4 rounded hover:bg-muted">
+                      {t("shop")}
+                    </button>
+                    <button onClick={() => handleNavClick('/getting-started')} className="text-left text-foreground/70 hover:text-foreground transition-colors py-2 px-4 rounded hover:bg-muted">
+                      {t("howToBuy")}
+                    </button>
+                    <button onClick={() => handleNavClick('/affiliate')} className="text-left text-foreground/70 hover:text-foreground transition-colors py-2 px-4 rounded hover:bg-muted">
+                      {t("affiliate")}
+                    </button>
+                    <button onClick={() => handleNavClick('/stake')} className="text-left text-foreground/70 hover:text-foreground transition-colors py-2 px-4 rounded hover:bg-muted">
+                      {t("stake")}
+                    </button>
+                    <button onClick={() => handleNavClick('/about')} className="text-left text-foreground/70 hover:text-foreground transition-colors py-2 px-4 rounded hover:bg-muted">
+                      {t("aboutUs")}
+                    </button>
+                    <button onClick={() => handleNavClick('/privacy')} className="text-left text-foreground/70 hover:text-foreground transition-colors py-2 px-4 rounded hover:bg-muted">
+                      {t("howWeProtect")}
+                    </button>
+                    {user && (
+                      <button onClick={() => handleNavClick('/orders')} className="text-left text-foreground/70 hover:text-foreground transition-colors py-2 px-4 rounded hover:bg-muted">
+                        {t("myEsims")}
+                      </button>
+                    )}
+
+                    <div className="h-px bg-border my-2" />
+
+                    {/* Language list in mobile */}
+                    <div className="px-2">
+                      <div className="text-sm text-foreground/60 mb-2">Language</div>
+                      <div className="grid grid-cols-2 gap-2">
+                        {languages.map((l) => (
+                          <button key={l.code} onClick={() => setLanguage(l.code)} className={`text-left py-2 px-3 rounded border transition ${language === l.code ? 'border-neon-cyan text-neon-cyan' : 'border-border text-foreground/80 hover:text-foreground'}`}>
+                            {l.name}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="h-px bg-border my-2" />
+
+                    {/* Auth action */}
+                    {user ? (
+                      <button onClick={handleSignOut} className="text-left text-foreground/80 hover:text-foreground transition-colors py-2 px-4 rounded hover:bg-muted">
+                        <span className="inline-flex items-center"><LogOut className="w-4 h-4 mr-2" /> {t('signOut')}</span>
+                      </button>
+                    ) : (
+                      <button onClick={() => handleNavClick('/auth')} className="text-left text-foreground/80 hover:text-foreground transition-colors py-2 px-4 rounded hover:bg-muted">
+                        <span className="inline-flex items-center"><LogIn className="w-4 h-4 mr-2" /> {t('signIn')}</span>
+                      </button>
+                    )}
+                  </div>
+                </SheetContent>
+              </Sheet>
+            </div>
           </div>
         </div>
       </div>
