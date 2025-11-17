@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import { toast } from "sonner";
 import { Language, useTranslation } from "@/contexts/TranslationContext";
+import { localizedPath } from "@/utils/localizedLinks";
 
 export const Navbar = () => {
   const navigate = useNavigate();
@@ -52,7 +53,7 @@ export const Navbar = () => {
 
   const handleNavClick = (path: string) => {
     setMobileMenuOpen(false);
-    navigate(path);
+    navigate(localizedPath(path, language));
   };
 
   return (
@@ -70,26 +71,26 @@ export const Navbar = () => {
 
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-6 ml-8">
-            <button onClick={() => navigate('/shop')} className="text-foreground/80 hover:text-neon-cyan transition-colors font-medium">
+            <button onClick={() => navigate(localizedPath('/shop', language))} className="text-foreground/80 hover:text-neon-cyan transition-colors font-medium">
               {t("shop")}
             </button>
-            <button onClick={() => navigate('/getting-started')} className="text-foreground/80 hover:text-neon-cyan transition-colors font-medium text-sm">
+            <button onClick={() => navigate(localizedPath('/getting-started', language))} className="text-foreground/80 hover:text-neon-cyan transition-colors font-medium text-sm">
               {t("howToBuy")}
             </button>
-            <button onClick={() => navigate('/affiliate')} className="text-foreground/80 hover:text-neon-cyan transition-colors font-medium">
+            <button onClick={() => navigate(localizedPath('/affiliate', language))} className="text-foreground/80 hover:text-neon-cyan transition-colors font-medium">
               {t("affiliate")}
             </button>
-            <button onClick={() => navigate('/stake')} className="text-foreground/80 hover:text-neon-cyan transition-colors font-medium">
+            <button onClick={() => navigate(localizedPath('/stake', language))} className="text-foreground/80 hover:text-neon-cyan transition-colors font-medium">
               {t("stake")}
             </button>
-            <button onClick={() => navigate('/about')} className="text-foreground/80 hover:text-neon-cyan transition-colors font-medium">
+            <button onClick={() => navigate(localizedPath('/about', language))} className="text-foreground/80 hover:text-neon-cyan transition-colors font-medium">
               {t("aboutUs")}
             </button>
-            <button onClick={() => navigate('/privacy')} className="text-foreground/80 hover:text-neon-cyan transition-colors font-medium text-sm">
+            <button onClick={() => navigate(localizedPath('/privacy', language))} className="text-foreground/80 hover:text-neon-cyan transition-colors font-medium text-sm">
               {t("howWeProtect")}
             </button>
             {user && (
-              <button onClick={() => navigate('/orders')} className="text-foreground/80 hover:text-neon-cyan transition-colors font-medium">
+              <button onClick={() => navigate(localizedPath('/orders', language))} className="text-foreground/80 hover:text-neon-cyan transition-colors font-medium">
                 {t("myEsims")}
               </button>
             )}
@@ -134,7 +135,7 @@ export const Navbar = () => {
             </DropdownMenu>
 
             {/* Cart */}
-            <Button variant="ghost" size="icon" className="relative" onClick={() => navigate('/checkout')} aria-label="Open cart">
+            <Button variant="ghost" size="icon" className="relative" onClick={() => navigate(localizedPath('/checkout', language))} aria-label="Open cart">
               <ShoppingCart className="w-5 h-5 text-foreground" />
               {items.length > 0 && (
                 <Badge className="absolute -top-1 -right-1 bg-neon-coral text-white border-0 px-1.5 py-0 text-[10px]">
