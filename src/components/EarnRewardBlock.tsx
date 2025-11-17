@@ -54,13 +54,13 @@ export const EarnRewardBlock = () => {
                 />
               </div>
               <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-fade-in">
-                Earn as You Connect.
+                {t("earnAsConnectTitle")}
               </h2>
             </div>
 
             {/* Subline */}
             <p className="text-base md:text-lg text-foreground/90 max-w-2xl mx-auto font-medium">
-              Get rewarded with NOMIQA Tokens every time you activate or share your eSIM  powering the world's first crypto-enabled travel network.
+              {t("earnAsConnectDesc")}
             </p>
 
             {/* Benefits Grid */}
