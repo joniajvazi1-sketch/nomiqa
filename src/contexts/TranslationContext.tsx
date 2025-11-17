@@ -11,7 +11,7 @@ interface TranslationContextType {
 const TranslationContext = createContext<TranslationContextType | undefined>(undefined);
 
 // Comprehensive translations for all pages and components
-const translations: Record<string, Partial<Record<Language, string>>> = {
+const translations: Record<string, Partial<Record<Language | 'HI', string>>> = {
   // Navigation
   shop: { EN: "Shop", ES: "Tienda", FR: "Boutique", DE: "Shop", RU: "Магазин", ZH: "商店", JA: "ショップ", PT: "Loja", AR: "المتجر", IT: "Negozio" },
   gettingStarted: { EN: "Getting Started", ES: "Cómo empezar", FR: "Commencer", DE: "Erste Schritte", RU: "Начало работы", ZH: "入门指南", JA: "はじめに", PT: "Primeiros passos", AR: "البدء", IT: "Inizia" },
@@ -170,7 +170,7 @@ function detectBrowserLanguage(): Language {
   const langMap: Record<string, Language> = {
     'EN': 'EN', 'ES': 'ES', 'FR': 'FR', 'DE': 'DE', 
     'RU': 'RU', 'ZH': 'ZH', 'JA': 'JA', 'PT': 'PT', 
-    'AR': 'AR', 'HI': 'HI'
+    'AR': 'AR', 'IT': 'IT'
   };
   
   return langMap[langCode] || "EN";
@@ -221,7 +221,7 @@ function getPathLanguage(): Language | null {
   const slug = window.location.pathname.split('/')[1]?.toLowerCase();
   const slugMap: Record<string, Language> = {
     english: 'EN', espanol: 'ES', francais: 'FR', deutsch: 'DE',
-    russian: 'RU', chinese: 'ZH', japanese: 'JA', portugues: 'PT', arabic: 'AR', hindi: 'HI'
+    russian: 'RU', chinese: 'ZH', japanese: 'JA', portugues: 'PT', arabic: 'AR', italiano: 'IT'
   };
   return slug ? slugMap[slug] ?? null : null;
 }
@@ -235,7 +235,7 @@ function getInitialLanguage(): Language {
 
   // 2) From localStorage
   const savedLang = localStorage.getItem("lang") as Language | null;
-  if (savedLang && ['EN','ES','FR','DE','RU','ZH','JA','PT','AR','HI'].includes(savedLang)) {
+  if (savedLang && ['EN','ES','FR','DE','RU','ZH','JA','PT','AR','IT'].includes(savedLang)) {
     return savedLang;
   }
 
