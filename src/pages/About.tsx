@@ -147,18 +147,16 @@ export default function About() {
             
             <div className="relative z-10">
               <h2 className="text-3xl md:text-4xl font-bold mb-6 bg-gradient-sunset bg-clip-text text-transparent">
-                Our Vision
+                {t("aboutVisionTitle")}
               </h2>
               <p className="text-xl md:text-2xl text-foreground/90 mb-6 leading-relaxed">
-                A world where you can stay connected without being tracked. Where every journey begins with freedom, not fear.
+                {t("aboutVision1")}
               </p>
               <p className="text-lg text-foreground/70 max-w-3xl mx-auto mb-8">
-                Picture this: Digital nomads roaming freely across continents. Crypto natives transacting privately without banks peering over their shoulders. 
-                Everyone accessing the internet without surrendering their soul to surveillance. 
-                <span className="text-neon-cyan font-semibold"> That's the world Nomiqa is building</span> — one anonymous eSIM at a time.
+                {t("aboutVision2")}
               </p>
               <p className="text-2xl text-warm-sand font-semibold">
-                You deserve to explore the world on YOUR terms. We're here to make that possible.
+                {t("aboutVision3")}
               </p>
             </div>
           </div>
