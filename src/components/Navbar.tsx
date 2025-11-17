@@ -101,8 +101,9 @@ export const Navbar = () => {
             {/* Language Switcher */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="text-foreground h-10 w-10">
-                  <Globe className="w-5 h-5" />
+                <Button variant="ghost" size="sm" className="text-foreground h-9 gap-1">
+                  <Globe className="w-4 h-4" />
+                  <span className="text-sm">{language} 🌍</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="z-[60] bg-popover border-border">
@@ -144,16 +145,18 @@ export const Navbar = () => {
               )}
             </Button>
 
-            {/* Auth */}
-            {user ? (
-              <Button variant="outline" className="border-neon-cyan/40 text-foreground hover:bg-neon-cyan/10" onClick={handleSignOut}>
-                <LogOut className="w-4 h-4 mr-2" /> {t("signOut")}
-              </Button>
-            ) : (
-              <Button variant="outline" className="border-neon-cyan/40 text-foreground hover:bg-neon-cyan/10" onClick={() => navigate('/auth')}>
-                <LogIn className="w-4 h-4 mr-2" /> {t("signIn")}
-              </Button>
-            )}
+            {/* Desktop Auth - Hidden on mobile */}
+            <div className="hidden md:flex">
+              {user ? (
+                <Button variant="outline" className="border-neon-cyan/40 text-foreground hover:bg-neon-cyan/10" onClick={handleSignOut}>
+                  <LogOut className="w-4 h-4 mr-2" /> {t("signOut")}
+                </Button>
+              ) : (
+                <Button variant="outline" className="border-neon-cyan/40 text-foreground hover:bg-neon-cyan/10" onClick={() => navigate('/auth')}>
+                  <LogIn className="w-4 h-4 mr-2" /> {t("signIn")}
+                </Button>
+              )}
+            </div>
 
             {/* Mobile Menu */}
             <div className="md:hidden">
@@ -194,21 +197,7 @@ export const Navbar = () => {
 
                     <div className="h-px bg-border my-2" />
 
-                    {/* Language list in mobile */}
-                    <div className="px-2">
-                      <div className="text-sm text-foreground/60 mb-2">Language</div>
-                      <div className="grid grid-cols-2 gap-2">
-                        {languages.map((l) => (
-                          <button key={l.code} onClick={() => setLanguage(l.code)} className={`text-left py-2 px-3 rounded border transition ${language === l.code ? 'border-neon-cyan text-neon-cyan' : 'border-border text-foreground/80 hover:text-foreground'}`}>
-                            {l.name}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="h-px bg-border my-2" />
-
-                    {/* Auth action */}
+                    {/* Auth action in mobile menu */}
                     {user ? (
                       <button onClick={handleSignOut} className="text-left text-foreground/80 hover:text-foreground transition-colors py-2 px-4 rounded hover:bg-muted">
                         <span className="inline-flex items-center"><LogOut className="w-4 h-4 mr-2" /> {t('signOut')}</span>
