@@ -3,10 +3,14 @@ import { Coins, Gift, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import tokenLogo from "@/assets/nomiqa-token-logo.gif";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "@/contexts/TranslationContext";
+
 export const EarnRewardBlock = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
+  
   useEffect(() => {
     const observer = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting) {
@@ -20,15 +24,16 @@ export const EarnRewardBlock = () => {
     }
     return () => observer.disconnect();
   }, []);
+  
   const benefits = [{
     icon: <Coins className="w-5 h-5" />,
-    text: "Redeem tokens for extra data"
+    text: t("redeemTokens")
   }, {
     icon: <Gift className="w-5 h-5" />,
-    text: "Earn rewards for referrals"
+    text: t("earnForReferrals")
   }, {
     icon: <Users className="w-5 h-5" />,
-    text: "Grow your private travel network"
+    text: t("growNetwork")
   }];
   return <section ref={sectionRef} className="py-12 px-4 bg-gradient-to-b from-background via-background/95 to-background">
       <div className="max-w-4xl mx-auto">
@@ -75,7 +80,7 @@ export const EarnRewardBlock = () => {
             {/* CTA Button */}
             <div className="pt-6">
               <Button size="lg" variant="cyber" onClick={() => navigate('/token')} className="text-base px-8 hover:scale-105 transition-transform duration-300 shadow-lg shadow-primary/20">
-                👉 Discover $NOMIQA Token
+                {t("discoverToken")}
               </Button>
             </div>
           </div>
