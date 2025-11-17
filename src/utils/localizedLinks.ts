@@ -10,7 +10,7 @@ const LOCALE_SLUGS: Record<Language, string> = {
   JA: 'japanese',
   PT: 'portugues',
   AR: 'arabic',
-  HI: 'hindi',
+  IT: 'italiano',
 };
 
 // Get current locale slug from path
