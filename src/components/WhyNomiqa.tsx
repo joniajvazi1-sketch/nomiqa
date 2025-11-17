@@ -91,10 +91,10 @@ export const WhyNomiqa = () => {
               </div>
             </div>
             <h3 className="text-xl md:text-2xl font-bold mb-3 md:mb-3 text-white text-center leading-tight">
-              {t("whyNomiqaAccessTitle")}
+              {t("whyNomiqaFreedomTitle")}
             </h3>
             <p className="text-white/90 text-center text-base md:text-base leading-relaxed">
-              {t("whyNomiqaAccessDesc")}
+              {t("whyNomiqaFreedomDesc")}
             </p>
           </div>
 
