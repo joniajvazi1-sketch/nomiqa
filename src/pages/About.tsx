@@ -2,31 +2,34 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { StickyCTA } from "@/components/StickyCTA";
 import { Globe, Heart, Users, Zap } from "lucide-react";
+import { useTranslation } from "@/contexts/TranslationContext";
 import heroHappy from "@/assets/hero-happy.jpg";
 import worldTravelers from "@/assets/world-travelers.jpg";
 import teamCollaboration from "@/assets/team-collaboration.png";
 
 export default function About() {
+  const { t } = useTranslation();
+  
   const values = [
     {
       icon: Globe,
-      title: "Borderless",
-      description: "We believe the world is one network, not 195 countries with walls between them.",
+      title: t("aboutValueBorderlessTitle"),
+      description: t("aboutValueBorderlessDesc"),
     },
     {
       icon: Heart,
-      title: "Human-First",
-      description: "Technology should serve people, not track them. Privacy is respect.",
+      title: t("aboutValueHumanTitle"),
+      description: t("aboutValueHumanDesc"),
     },
     {
       icon: Users,
-      title: "Community-Owned",
-      description: "Built on Web3 principles. Powered by the people who use it.",
+      title: t("aboutValueCommunityTitle"),
+      description: t("aboutValueCommunityDesc"),
     },
     {
       icon: Zap,
-      title: "Instant Freedom",
-      description: "No waiting, no verification, no barriers. Just instant global connection.",
+      title: t("aboutValueFreedomTitle"),
+      description: t("aboutValueFreedomDesc"),
     },
   ];
 
@@ -44,12 +47,12 @@ export default function About() {
           <div className="text-center mb-16 animate-fade-in-up">
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 font-display">
               <span className="block bg-gradient-warmth bg-clip-text text-transparent">
-                About Us
+                {t("aboutTitle")}
               </span>
             </h1>
             
             <p className="text-xl md:text-2xl text-foreground/80 max-w-3xl mx-auto mb-6">
-              How Nomiqa became the world's first privacy-first eSIM platform
+              {t("aboutSubtitle")}
             </p>
           </div>
 
@@ -81,30 +84,29 @@ export default function About() {
           <div className="max-w-4xl mx-auto mb-16">
             <div className="p-8 md:p-12 rounded-3xl bg-card/40 backdrop-blur-sm border border-warm-sand/20 animate-fade-in-up">
               <h2 className="text-3xl md:text-4xl font-bold mb-8 bg-gradient-sunrise bg-clip-text text-transparent">
-                The Beginning
+                {t("aboutStoryTitle")}
               </h2>
               <div className="space-y-4 text-foreground/80 leading-relaxed text-center md:text-left">
                 <p className="text-lg">
-                  Imagine this: You land in a new country. Excited. Free. Ready to explore. But first, you need internet. 
-                  <span className="text-neon-coral font-semibold"> Why should getting connected mean giving up your privacy?</span>
+                  {t("aboutStory1")}
                 </p>
-                <p>
-                  Every single traditional SIM demanded your passport. Every data plan monitored where you went. 
-                  Every payment left a permanent trail. The promise of global connection came wrapped in invisible chains—
-                  surveillance disguised as convenience.
+                <p className="text-lg">
+                  {t("aboutStory2")}
                 </p>
-                <p>
-                  We said: <span className="text-neon-cyan font-semibold">NO MORE.</span>
+                <p className="text-lg font-semibold">
+                  {t("aboutStory3")}
                 </p>
-                <p>
-                  Nomiqa was born from this frustration. We built what should have always existed: 
-                  <span className="text-neon-cyan font-semibold"> anonymous eSIMs powered entirely by crypto</span>. 
-                  Zero KYC. Zero tracking. Zero compromises. Just pure, instant, global connectivity that honors your fundamental right to privacy.
+                <p className="text-lg">
+                  {t("aboutStory4")}
                 </p>
-                <p>
-                  Today, we serve the <span className="text-warm-sand font-semibold">borderless generation</span> — digital nomads who refuse borders, 
-                  crypto natives who demand freedom, privacy advocates who won't settle, and anyone who believes that 
-                  <span className="text-warm-sand font-semibold"> staying connected shouldn't mean being watched</span>.
+                <p className="text-lg">
+                  {t("aboutStory5")}
+                </p>
+                <p className="text-lg">
+                  {t("aboutStory6")}
+                </p>
+                <p className="text-lg font-semibold text-neon-coral">
+                  {t("aboutStory7")}
                 </p>
               </div>
             </div>
@@ -113,7 +115,7 @@ export default function About() {
           {/* Values Grid */}
           <div className="mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center bg-gradient-digital bg-clip-text text-transparent">
-              What We Stand For
+              {t("aboutValuesSubtitle")}
             </h2>
             <div className="grid md:grid-cols-2 gap-6">
               {values.map((value, index) => (
