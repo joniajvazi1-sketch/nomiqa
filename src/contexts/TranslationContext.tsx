@@ -83,38 +83,15 @@ function detectBrowserLanguage(): Language {
   return langMap[langCode] || "EN";
 }
 
-function getInitialLanguage(): Language {
-  if (typeof window === 'undefined') return "EN";
-  
-  // 1. Check URL query param
-  const urlParams = new URLSearchParams(window.location.search);
-  const urlLang = urlParams.get('lang')?.toUpperCase() as Language | null;
-  if (urlLang && ['EN', 'ES', 'FR', 'DE', 'RU', 'ZH', 'JA', 'PT', 'AR', 'HI'].includes(urlLang)) {
-    return urlLang;
-  }
-  
-  // 2. Check localStorage
-  const savedLang = localStorage.getItem("lang") as Language | null;
-  if (savedLang && ['EN', 'ES', 'FR', 'DE', 'RU', 'ZH', 'JA', 'PT', 'AR', 'HI'].includes(savedLang)) {
-    return savedLang;
-  }
-  
-  // 3. Detect from browser
-  return detectBrowserLanguage();
-}
+// getInitialLanguage moved below to support path-based locale slugs
 
 export function TranslationProvider({ children }: { children: ReactNode }) {
   const [language, setLang] = useState<Language>(getInitialLanguage);
 
   useEffect(() => {
-    // Update localStorage
+    // Persist to localStorage
     if (typeof window !== 'undefined') {
       localStorage.setItem("lang", language);
-      
-      // Update URL query param
-      const url = new URL(window.location.href);
-      url.searchParams.set('lang', language.toLowerCase());
-      window.history.replaceState({}, '', url.toString());
     }
     
     // Update document attributes
@@ -144,6 +121,33 @@ export function TranslationProvider({ children }: { children: ReactNode }) {
       {children}
     </TranslationContext.Provider>
   );
+}
+
+function getPathLanguage(): Language | null {
+  if (typeof window === 'undefined') return null;
+  const slug = window.location.pathname.split('/')[1]?.toLowerCase();
+  const slugMap: Record<string, Language> = {
+    english: 'EN', espanol: 'ES', francais: 'FR', deutsch: 'DE',
+    russian: 'RU', chinese: 'ZH', japanese: 'JA', portugues: 'PT', arabic: 'AR', hindi: 'HI'
+  };
+  return slug ? slugMap[slug] ?? null : null;
+}
+
+function getInitialLanguage(): Language {
+  if (typeof window === 'undefined') return "EN";
+
+  // 1) From path slug
+  const fromPath = getPathLanguage();
+  if (fromPath) return fromPath;
+
+  // 2) From localStorage
+  const savedLang = localStorage.getItem("lang") as Language | null;
+  if (savedLang && ['EN','ES','FR','DE','RU','ZH','JA','PT','AR','HI'].includes(savedLang)) {
+    return savedLang;
+  }
+
+  // 3) From browser
+  return detectBrowserLanguage();
 }
 
 export function useTranslation() {
