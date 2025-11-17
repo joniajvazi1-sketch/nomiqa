@@ -68,16 +68,56 @@ function isRTL(lang: Language) {
   return lang === "AR"; // Arabic
 }
 
+function detectBrowserLanguage(): Language {
+  if (typeof navigator === 'undefined') return "EN";
+  
+  const browserLang = navigator.language || (navigator as any).userLanguage;
+  const langCode = browserLang.split('-')[0].toUpperCase();
+  
+  const langMap: Record<string, Language> = {
+    'EN': 'EN', 'ES': 'ES', 'FR': 'FR', 'DE': 'DE', 
+    'RU': 'RU', 'ZH': 'ZH', 'JA': 'JA', 'PT': 'PT', 
+    'AR': 'AR', 'HI': 'HI'
+  };
+  
+  return langMap[langCode] || "EN";
+}
+
+function getInitialLanguage(): Language {
+  if (typeof window === 'undefined') return "EN";
+  
+  // 1. Check URL query param
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlLang = urlParams.get('lang')?.toUpperCase() as Language | null;
+  if (urlLang && ['EN', 'ES', 'FR', 'DE', 'RU', 'ZH', 'JA', 'PT', 'AR', 'HI'].includes(urlLang)) {
+    return urlLang;
+  }
+  
+  // 2. Check localStorage
+  const savedLang = localStorage.getItem("lang") as Language | null;
+  if (savedLang && ['EN', 'ES', 'FR', 'DE', 'RU', 'ZH', 'JA', 'PT', 'AR', 'HI'].includes(savedLang)) {
+    return savedLang;
+  }
+  
+  // 3. Detect from browser
+  return detectBrowserLanguage();
+}
+
 export function TranslationProvider({ children }: { children: ReactNode }) {
-  const [language, setLang] = useState<Language>(() => {
-    const saved = (typeof window !== 'undefined' ? localStorage.getItem("lang") : null) as Language | null;
-    return saved ?? "EN";
-  });
+  const [language, setLang] = useState<Language>(getInitialLanguage);
 
   useEffect(() => {
+    // Update localStorage
     if (typeof window !== 'undefined') {
       localStorage.setItem("lang", language);
+      
+      // Update URL query param
+      const url = new URL(window.location.href);
+      url.searchParams.set('lang', language.toLowerCase());
+      window.history.replaceState({}, '', url.toString());
     }
+    
+    // Update document attributes
     const dir = isRTL(language) ? "rtl" : "ltr";
     if (typeof document !== 'undefined' && document.documentElement) {
       document.documentElement.setAttribute("dir", dir);
