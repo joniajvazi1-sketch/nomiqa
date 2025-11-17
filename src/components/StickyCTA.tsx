@@ -2,8 +2,10 @@ import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { ShoppingBag, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "@/contexts/TranslationContext";
 
 export const StickyCTA = () => {
+  const { t } = useTranslation();
   const [isVisible, setIsVisible] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
   const navigate = useNavigate();
@@ -38,14 +40,14 @@ export const StickyCTA = () => {
           className="shadow-glow-neon hover:shadow-glow-cyan transition-all pr-12"
         >
           <ShoppingBag className="w-5 h-5 mr-2" />
-          <span className="hidden sm:inline">Get Your eSIM Now</span>
-          <span className="sm:hidden">Buy Now</span>
+          <span className="hidden sm:inline">{t("getYourEsimNow")}</span>
+          <span className="sm:hidden">{t("buyNow")}</span>
         </Button>
         
         <button
           onClick={() => setIsDismissed(true)}
           className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-muted/90 hover:bg-muted flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-          aria-label="Dismiss"
+          aria-label={t("dismiss")}
         >
           <X className="w-4 h-4" />
         </button>
