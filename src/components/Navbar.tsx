@@ -106,7 +106,26 @@ export const Navbar = () => {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="z-[60] bg-popover border-border">
                 {languages.map((l) => (
-                  <DropdownMenuItem key={l.code} onSelect={() => setLanguage(l.code)} className="flex items-center justify-between">
+                  <DropdownMenuItem
+                    key={l.code}
+                    onSelect={() => {
+                      // Map languages to locale slugs used in routes
+                      const slugMap: Record<Language, string> = {
+                        EN: 'english', ES: 'espanol', FR: 'francais', DE: 'deutsch',
+                        RU: 'russian', ZH: 'chinese', JA: 'japanese', PT: 'portugues', AR: 'arabic', HI: 'hindi'
+                      };
+                      const current = window.location.pathname;
+                      const parts = current.split('/').filter(Boolean);
+                      const knownSlugs = Object.values(slugMap);
+                      if (parts.length && knownSlugs.includes(parts[0])) {
+                        parts.shift();
+                      }
+                      const newPath = '/' + [slugMap[l.code], ...parts].join('/');
+                      setLanguage(l.code);
+                      navigate(newPath || '/');
+                    }}
+                    className="flex items-center justify-between"
+                  >
                     <span>{l.name}</span>
                     {language === l.code && <Check className="w-4 h-4 text-neon-cyan" />}
                   </DropdownMenuItem>

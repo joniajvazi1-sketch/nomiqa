@@ -64,6 +64,7 @@ const App = () => (
         <BrowserRouter>
           <AffiliateTracker />
           <Routes>
+            {/* Base routes (no locale prefix) */}
             <Route path="/" element={<Index />} />
             <Route path="/shop" element={<ShopPage />} />
             <Route path="/auth" element={<Auth />} />
@@ -77,8 +78,161 @@ const App = () => (
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/about" element={<About />} />
             <Route path="/token" element={<Token />} />
+
+            {/* Localized route groups */}
+            {/** German */}
+            <Route path="/deutsch">
+              <Route index element={<Index />} />
+              <Route path="shop" element={<ShopPage />} />
+              <Route path="auth" element={<Auth />} />
+              <Route path="checkout" element={<Checkout />} />
+              <Route path="orders" element={<Orders />} />
+              <Route path="getting-started" element={<GettingStarted />} />
+              <Route path="stake" element={<Stake />} />
+              <Route path="roadmap" element={<Roadmap />} />
+              <Route path="affiliate" element={<Affiliate />} />
+              <Route path="privacy" element={<Privacy />} />
+              <Route path="about" element={<About />} />
+              <Route path="token" element={<Token />} />
+            </Route>
+            {/** English */}
+            <Route path="/english">
+              <Route index element={<Index />} />
+              <Route path="shop" element={<ShopPage />} />
+              <Route path="auth" element={<Auth />} />
+              <Route path="checkout" element={<Checkout />} />
+              <Route path="orders" element={<Orders />} />
+              <Route path="getting-started" element={<GettingStarted />} />
+              <Route path="stake" element={<Stake />} />
+              <Route path="roadmap" element={<Roadmap />} />
+              <Route path="affiliate" element={<Affiliate />} />
+              <Route path="privacy" element={<Privacy />} />
+              <Route path="about" element={<About />} />
+              <Route path="token" element={<Token />} />
+            </Route>
+            {/** French */}
+            <Route path="/francais">
+              <Route index element={<Index />} />
+              <Route path="shop" element={<ShopPage />} />
+              <Route path="auth" element={<Auth />} />
+              <Route path="checkout" element={<Checkout />} />
+              <Route path="orders" element={<Orders />} />
+              <Route path="getting-started" element={<GettingStarted />} />
+              <Route path="stake" element={<Stake />} />
+              <Route path="roadmap" element={<Roadmap />} />
+              <Route path="affiliate" element={<Affiliate />} />
+              <Route path="privacy" element={<Privacy />} />
+              <Route path="about" element={<About />} />
+              <Route path="token" element={<Token />} />
+            </Route>
+            {/** Spanish */}
+            <Route path="/espanol">
+              <Route index element={<Index />} />
+              <Route path="shop" element={<ShopPage />} />
+              <Route path="auth" element={<Auth />} />
+              <Route path="checkout" element={<Checkout />} />
+              <Route path="orders" element={<Orders />} />
+              <Route path="getting-started" element={<GettingStarted />} />
+              <Route path="stake" element={<Stake />} />
+              <Route path="roadmap" element={<Roadmap />} />
+              <Route path="affiliate" element={<Affiliate />} />
+              <Route path="privacy" element={<Privacy />} />
+              <Route path="about" element={<About />} />
+              <Route path="token" element={<Token />} />
+            </Route>
+            {/** Portuguese */}
+            <Route path="/portugues">
+              <Route index element={<Index />} />
+              <Route path="shop" element={<ShopPage />} />
+              <Route path="auth" element={<Auth />} />
+              <Route path="checkout" element={<Checkout />} />
+              <Route path="orders" element={<Orders />} />
+              <Route path="getting-started" element={<GettingStarted />} />
+              <Route path="stake" element={<Stake />} />
+              <Route path="roadmap" element={<Roadmap />} />
+              <Route path="affiliate" element={<Affiliate />} />
+              <Route path="privacy" element={<Privacy />} />
+              <Route path="about" element={<About />} />
+              <Route path="token" element={<Token />} />
+            </Route>
+            {/** Russian */}
+            <Route path="/russian">
+              <Route index element={<Index />} />
+              <Route path="shop" element={<ShopPage />} />
+              <Route path="auth" element={<Auth />} />
+              <Route path="checkout" element={<Checkout />} />
+              <Route path="orders" element={<Orders />} />
+              <Route path="getting-started" element={<GettingStarted />} />
+              <Route path="stake" element={<Stake />} />
+              <Route path="roadmap" element={<Roadmap />} />
+              <Route path="affiliate" element={<Affiliate />} />
+              <Route path="privacy" element={<Privacy />} />
+              <Route path="about" element={<About />} />
+              <Route path="token" element={<Token />} />
+            </Route>
+            {/** Chinese */}
+            <Route path="/chinese">
+              <Route index element={<Index />} />
+              <Route path="shop" element={<ShopPage />} />
+              <Route path="auth" element={<Auth />} />
+              <Route path="checkout" element={<Checkout />} />
+              <Route path="orders" element={<Orders />} />
+              <Route path="getting-started" element={<GettingStarted />} />
+              <Route path="stake" element={<Stake />} />
+              <Route path="roadmap" element={<Roadmap />} />
+              <Route path="affiliate" element={<Affiliate />} />
+              <Route path="privacy" element={<Privacy />} />
+              <Route path="about" element={<About />} />
+              <Route path="token" element={<Token />} />
+            </Route>
+            {/** Japanese */}
+            <Route path="/japanese">
+              <Route index element={<Index />} />
+              <Route path="shop" element={<ShopPage />} />
+              <Route path="auth" element={<Auth />} />
+              <Route path="checkout" element={<Checkout />} />
+              <Route path="orders" element={<Orders />} />
+              <Route path="getting-started" element={<GettingStarted />} />
+              <Route path="stake" element={<Stake />} />
+              <Route path="roadmap" element={<Roadmap />} />
+              <Route path="affiliate" element={<Affiliate />} />
+              <Route path="privacy" element={<Privacy />} />
+              <Route path="about" element={<About />} />
+              <Route path="token" element={<Token />} />
+            </Route>
+            {/** Arabic */}
+            <Route path="/arabic">
+              <Route index element={<Index />} />
+              <Route path="shop" element={<ShopPage />} />
+              <Route path="auth" element={<Auth />} />
+              <Route path="checkout" element={<Checkout />} />
+              <Route path="orders" element={<Orders />} />
+              <Route path="getting-started" element={<GettingStarted />} />
+              <Route path="stake" element={<Stake />} />
+              <Route path="roadmap" element={<Roadmap />} />
+              <Route path="affiliate" element={<Affiliate />} />
+              <Route path="privacy" element={<Privacy />} />
+              <Route path="about" element={<About />} />
+              <Route path="token" element={<Token />} />
+            </Route>
+            {/** Hindi */}
+            <Route path="/hindi">
+              <Route index element={<Index />} />
+              <Route path="shop" element={<ShopPage />} />
+              <Route path="auth" element={<Auth />} />
+              <Route path="checkout" element={<Checkout />} />
+              <Route path="orders" element={<Orders />} />
+              <Route path="getting-started" element={<GettingStarted />} />
+              <Route path="stake" element={<Stake />} />
+              <Route path="roadmap" element={<Roadmap />} />
+              <Route path="affiliate" element={<Affiliate />} />
+              <Route path="privacy" element={<Privacy />} />
+              <Route path="about" element={<About />} />
+              <Route path="token" element={<Token />} />
+            </Route>
+
             {/* Username-based affiliate links - must be last before catch-all */}
-            <Route path="/:username" element={<AffiliateRedirect />} />
+            <Route path= "/:username" element={<AffiliateRedirect />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
