@@ -147,12 +147,16 @@ export default function GettingStarted() {
                       <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-gradient-to-br from-neon-cyan/20 via-neon-violet/20 to-neon-coral/20 flex items-center justify-center border border-neon-cyan/30 group-hover:border-neon-violet/50 transition-colors">
                         <guide.icon className="w-7 h-7 text-neon-cyan group-hover:text-neon-violet transition-colors" />
                       </div>
-                      <div className="flex-1">
+                      <div className="flex-1 min-w-0">
                         <h3 className="text-xl font-bold text-foreground group-hover:text-neon-cyan transition-colors mb-1">
                           {guide.title}
                         </h3>
-                        <p className="text-sm text-foreground/60">
+                        <p className="text-sm text-foreground/60 mb-2">
                           {guide.description}
+                        </p>
+                        <p className="text-xs text-neon-cyan/70 md:hidden flex items-center gap-1">
+                          <span>Tap to expand</span>
+                          <span className="animate-pulse">→</span>
                         </p>
                       </div>
                     </div>
