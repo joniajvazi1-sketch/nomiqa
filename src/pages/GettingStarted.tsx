@@ -141,7 +141,7 @@ export default function GettingStarted() {
                           {t(guide.descKey)}
                         </p>
                         <p className="text-xs text-neon-cyan/70 md:hidden flex items-center gap-1">
-                          <span>Tap to expand</span>
+                          <span>{t("tapToExpand")}</span>
                           <span className="animate-pulse">→</span>
                         </p>
                       </div>
