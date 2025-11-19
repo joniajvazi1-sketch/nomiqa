@@ -11,68 +11,34 @@ export default function GettingStarted() {
   const { t } = useTranslation();
   const guides = [
     {
-      title: "Setting Up Phantom Wallet",
-      description: "Your gateway to Solana - the fastest blockchain for payments",
+      titleKey: "guidePhantomTitle",
+      descKey: "guidePhantomDesc",
       icon: Wallet,
-      steps: [
-        "Download Phantom from phantom.app (available as browser extension or mobile app)",
-        "Click 'Create a new wallet' and follow the setup wizard",
-        "Write down your 12-word recovery phrase on paper - NEVER share this with anyone",
-        "Store your recovery phrase in a safe place - this is the only way to recover your wallet",
-        "Set a strong password for quick access to your wallet"
-      ]
+      stepKeys: ["guidePhantomStep1", "guidePhantomStep2", "guidePhantomStep3", "guidePhantomStep4", "guidePhantomStep5"]
     },
     {
-      title: "Buying Solana (SOL)",
-      description: "Get SOL to pay for eSIMs on Nomiqa",
+      titleKey: "guideSolanaTitle",
+      descKey: "guideSolanaDesc",
       icon: Coins,
-      steps: [
-        "Open your Phantom wallet and click 'Buy'",
-        "Choose a payment provider (Moonpay, Coinbase, etc.)",
-        "Enter the amount of SOL you want to buy",
-        "Complete the payment with your credit/debit card or bank transfer",
-        "SOL will appear in your Phantom wallet within minutes"
-      ]
+      stepKeys: ["guideSolanaStep1", "guideSolanaStep2", "guideSolanaStep3", "guideSolanaStep4", "guideSolanaStep5"]
     },
     {
-      title: "Buying $NOMIQA Token",
-      description: "Get Nomiqa tokens to earn rewards and access exclusive benefits",
+      titleKey: "guideNomiqaTitle",
+      descKey: "guideNomiqaDesc",
       icon: TrendingUp,
-      steps: [
-        "Make sure you have SOL in your Phantom wallet (you'll need it to swap)",
-        "Open Phantom and click on the 'Swap' button at the bottom",
-        "Select SOL as the token you're swapping from",
-        "Search for 'NOMIQA' or paste the token contract address in the 'To' field",
-        "Enter the amount of SOL you want to swap for $NOMIQA",
-        "Review the exchange rate and click 'Swap'",
-        "Confirm the transaction - your $NOMIQA tokens will appear in your wallet",
-        "Alternative: Use Jupiter (jup.ag) - Solana's most popular DEX for better rates"
-      ]
+      stepKeys: ["guideNomiqaStep1", "guideNomiqaStep2", "guideNomiqaStep3", "guideNomiqaStep4", "guideNomiqaStep5", "guideNomiqaStep6", "guideNomiqaStep7", "guideNomiqaStep8"]
     },
     {
-      title: "Paying for Your eSIM",
-      description: "How to complete your purchase with crypto",
+      titleKey: "guidePaymentTitle",
+      descKey: "guidePaymentDesc",
       icon: Download,
-      steps: [
-        "Select your eSIM plan on Nomiqa",
-        "At checkout, choose to pay with SOL, USDC, or $NOMIQA token for discount",
-        "Copy the payment address shown",
-        "Open Phantom wallet and click 'Send'",
-        "Paste the address, enter the exact amount, and confirm",
-        "Your eSIM will be delivered instantly after payment confirmation"
-      ]
+      stepKeys: ["guidePaymentStep1", "guidePaymentStep2", "guidePaymentStep3", "guidePaymentStep4", "guidePaymentStep5", "guidePaymentStep6"]
     },
     {
-      title: "Security Best Practices",
-      description: "Keep your crypto safe with Phantom",
+      titleKey: "guideSecurityTitle",
+      descKey: "guideSecurityDesc",
       icon: Shield,
-      steps: [
-        "NEVER share your 12-word recovery phrase with anyone - not even Nomiqa support",
-        "Enable biometric authentication (Face ID/fingerprint) in Phantom settings",
-        "Beware of fake Phantom apps - only download from phantom.app",
-        "Double-check wallet addresses before sending - crypto transactions are irreversible",
-        "Start with small amounts until you're comfortable with the process"
-      ]
+      stepKeys: ["guideSecurityStep1", "guideSecurityStep2", "guideSecurityStep3", "guideSecurityStep4", "guideSecurityStep5"]
     }
   ];
 
@@ -151,10 +117,10 @@ export default function GettingStarted() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <h3 className="text-xl font-bold text-foreground group-hover:text-neon-cyan transition-colors mb-1">
-                          {guide.title}
+                          {t(guide.titleKey)}
                         </h3>
                         <p className="text-sm text-foreground/60 mb-2">
-                          {guide.description}
+                          {t(guide.descKey)}
                         </p>
                         <p className="text-xs text-neon-cyan/70 md:hidden flex items-center gap-1">
                           <span>Tap to expand</span>
@@ -165,7 +131,7 @@ export default function GettingStarted() {
                   </AccordionTrigger>
                   <AccordionContent className="px-6 pb-6">
                     <div className="pt-4 space-y-4">
-                      {guide.steps.map((step, stepIndex) => (
+                      {guide.stepKeys.map((stepKey, stepIndex) => (
                         <div 
                           key={stepIndex} 
                           className="flex items-start gap-4 p-4 rounded-xl bg-background/50 border border-border/50 hover:border-neon-cyan/30 transition-all group/step"
@@ -174,7 +140,7 @@ export default function GettingStarted() {
                             {stepIndex + 1}
                           </div>
                           <p className="text-sm text-foreground/80 leading-relaxed pt-1">
-                            {step}
+                            {t(stepKey)}
                           </p>
                         </div>
                       ))}
