@@ -5,91 +5,89 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Wallet, Shield, Coins, ArrowRight, ExternalLink, Download, TrendingUp, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useTranslation } from "@/contexts/TranslationContext";
 
 export default function GettingStarted() {
-  const { t } = useTranslation();
   const guides = [
     {
-      title: t("guidePhantomTitle"),
-      description: t("guidePhantomDesc"),
+      title: "Setting Up Phantom Wallet",
+      description: "Your gateway to Solana - the fastest blockchain for payments",
       icon: Wallet,
       steps: [
-        t("guidePhantomStep1"),
-        t("guidePhantomStep2"),
-        t("guidePhantomStep3"),
-        t("guidePhantomStep4"),
-        t("guidePhantomStep5")
+        "Download Phantom from phantom.app (available as browser extension or mobile app)",
+        "Click 'Create a new wallet' and follow the setup wizard",
+        "Write down your 12-word recovery phrase on paper - NEVER share this with anyone",
+        "Store your recovery phrase in a safe place - this is the only way to recover your wallet",
+        "Set a strong password for quick access to your wallet"
       ]
     },
     {
-      title: t("guideSolTitle"),
-      description: t("guideSolDesc"),
+      title: "Buying Solana (SOL)",
+      description: "Get SOL to pay for eSIMs on Nomiqa",
       icon: Coins,
       steps: [
-        t("guideSolStep1"),
-        t("guideSolStep2"),
-        t("guideSolStep3"),
-        t("guideSolStep4"),
-        t("guideSolStep5")
+        "Open your Phantom wallet and click 'Buy'",
+        "Choose a payment provider (Moonpay, Coinbase, etc.)",
+        "Enter the amount of SOL you want to buy",
+        "Complete the payment with your credit/debit card or bank transfer",
+        "SOL will appear in your Phantom wallet within minutes"
       ]
     },
     {
-      title: t("guideNomiqaTitle"),
-      description: t("guideNomiqaDesc"),
+      title: "Buying $NOMIQA Token",
+      description: "Get Nomiqa tokens to earn rewards and access exclusive benefits",
       icon: TrendingUp,
       steps: [
-        t("guideNomiqaStep1"),
-        t("guideNomiqaStep2"),
-        t("guideNomiqaStep3"),
-        t("guideNomiqaStep4"),
-        t("guideNomiqaStep5"),
-        t("guideNomiqaStep6"),
-        t("guideNomiqaStep7"),
-        t("guideNomiqaStep8")
+        "Make sure you have SOL in your Phantom wallet (you'll need it to swap)",
+        "Open Phantom and click on the 'Swap' button at the bottom",
+        "Select SOL as the token you're swapping from",
+        "Search for 'NOMIQA' or paste the token contract address in the 'To' field",
+        "Enter the amount of SOL you want to swap for $NOMIQA",
+        "Review the exchange rate and click 'Swap'",
+        "Confirm the transaction - your $NOMIQA tokens will appear in your wallet",
+        "Alternative: Use Jupiter (jup.ag) - Solana's most popular DEX for better rates"
       ]
     },
     {
-      title: t("guidePaymentTitle"),
-      description: t("guidePaymentDesc"),
+      title: "Paying for Your eSIM",
+      description: "How to complete your purchase with crypto",
       icon: Download,
       steps: [
-        t("guidePaymentStep1"),
-        t("guidePaymentStep2"),
-        t("guidePaymentStep3"),
-        t("guidePaymentStep4"),
-        t("guidePaymentStep5"),
-        t("guidePaymentStep6")
+        "Select your eSIM plan on Nomiqa",
+        "At checkout, choose to pay with SOL, USDC, or $NOMIQA token for discount",
+        "Copy the payment address shown",
+        "Open Phantom wallet and click 'Send'",
+        "Paste the address, enter the exact amount, and confirm",
+        "Your eSIM will be delivered instantly after payment confirmation"
       ]
     },
     {
-      title: t("guideSecurityTitle"),
-      description: t("guideSecurityDesc"),
+      title: "Security Best Practices",
+      description: "Keep your crypto safe with Phantom",
       icon: Shield,
       steps: [
-        t("guideSecurityStep1"),
-        t("guideSecurityStep2"),
-        t("guideSecurityStep3"),
-        t("guideSecurityStep4"),
-        t("guideSecurityStep5")
+        "NEVER share your 12-word recovery phrase with anyone - not even Nomiqa support",
+        "Enable biometric authentication (Face ID/fingerprint) in Phantom settings",
+        "Beware of fake Phantom apps - only download from phantom.app",
+        "Double-check wallet addresses before sending - crypto transactions are irreversible",
+        "Start with small amounts until you're comfortable with the process"
       ]
     }
   ];
 
   const resources = [
     {
-      title: t("resourcePhantom"),
-      description: t("resourcePhantomDesc"),
+      title: "Phantom Wallet",
+      description: "Download Phantom - the #1 Solana wallet",
       url: "https://phantom.app/"
     },
     {
-      title: t("resourceSolana"),
-      description: t("resourceSolanaDesc"),
+      title: "What is Solana?",
+      description: "Learn about the Solana blockchain",
       url: "https://solana.com/learn"
     },
     {
-      title: t("resourceUsdc"),
-      description: t("resourceUsdcDesc"),
+      title: "USDC on Solana",
+      description: "Learn about USDC stablecoin on Solana",
       url: "https://www.circle.com/usdc"
     }
   ];
@@ -117,15 +115,15 @@ export default function GettingStarted() {
             
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 font-display">
               <span className="block bg-gradient-neon bg-clip-text text-transparent">
-                {t("gettingStartedHero1")}
+                Get Started with
               </span>
               <span className="block bg-gradient-sunset bg-clip-text text-transparent mt-2">
-                {t("gettingStartedHero2")}
+                $NOMIQA
               </span>
             </h1>
             
             <p className="text-xl md:text-2xl text-foreground/80 max-w-3xl mx-auto">
-              {t("gettingStartedSubtitle")}
+              Step-by-step guide to buying our token and using it for eSIM purchases
             </p>
           </div>
         </div>
@@ -157,7 +155,7 @@ export default function GettingStarted() {
                           {guide.description}
                         </p>
                         <p className="text-xs text-neon-cyan/70 md:hidden flex items-center gap-1">
-                          <span>{t("tapToExpand")}</span>
+                          <span>Tap to expand</span>
                           <span className="animate-pulse">→</span>
                         </p>
                       </div>
@@ -189,9 +187,9 @@ export default function GettingStarted() {
           <div className="mb-12">
             <div className="text-center mb-8">
               <h2 className="text-3xl font-bold mb-3 bg-gradient-neon bg-clip-text text-transparent">
-                {t("resourcesTitle")}
+                Helpful Resources
               </h2>
-              <p className="text-foreground/60">{t("resourcesSubtitle")}</p>
+              <p className="text-foreground/60">Quick links to get you started</p>
             </div>
             <div className="grid md:grid-cols-3 gap-6">
               {resources.map((resource, index) => (
@@ -210,7 +208,7 @@ export default function GettingStarted() {
                   </CardHeader>
                   <CardContent className="pt-0">
                     <div className="flex items-center gap-2 text-sm text-neon-cyan group-hover:gap-3 transition-all">
-                      <span>{t("resourceVisit")}</span>
+                      <span>Visit</span>
                       <ExternalLink className="w-4 h-4" />
                     </div>
                   </CardContent>
@@ -226,10 +224,10 @@ export default function GettingStarted() {
               <div className="flex flex-col items-center justify-center text-center gap-6">
                 <div className="space-y-3">
                   <h3 className="text-3xl md:text-4xl font-bold bg-gradient-sunset bg-clip-text text-transparent">
-                    {t("gettingStartedCtaTitle")}
+                    Ready to Get Your eSIM?
                   </h3>
                   <p className="text-foreground/70 text-base md:text-lg max-w-xl mx-auto">
-                    {t("gettingStartedCtaDesc")}
+                    Now that you know how to use Phantom and Solana, browse our plans and connect anywhere
                   </p>
                 </div>
                 <Button 
@@ -237,7 +235,7 @@ export default function GettingStarted() {
                   onClick={() => window.location.href = '/shop'}
                   className="bg-gradient-to-r from-neon-coral to-neon-violet hover:opacity-90 text-white shadow-glow-coral text-lg px-8 py-6 h-auto group"
                 >
-                  {t("browsePlans")}
+                  Browse Plans
                   <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </div>
