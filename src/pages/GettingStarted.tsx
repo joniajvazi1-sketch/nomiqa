@@ -8,7 +8,25 @@ import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/contexts/TranslationContext";
 
 export default function GettingStarted() {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
+  
+  // Language-aware resource URLs
+  const getResourceUrls = () => {
+    const langMap: Record<string, string> = {
+      EN: 'en', ES: 'es', FR: 'fr', DE: 'de', RU: 'ru', 
+      ZH: 'zh', JA: 'ja', PT: 'pt', AR: 'ar', IT: 'it'
+    };
+    const lang = langMap[language] || 'en';
+    
+    return {
+      phantom: 'https://phantom.app/',
+      solana: `https://solana.com/${lang === 'en' ? 'learn' : lang}`,
+      usdc: 'https://www.circle.com/usdc'
+    };
+  };
+  
+  const resourceUrls = getResourceUrls();
+  
   const guides = [
     {
       titleKey: "guidePhantomTitle",
@@ -44,19 +62,19 @@ export default function GettingStarted() {
 
   const resources = [
     {
-      title: "Phantom Wallet",
-      description: "Download Phantom - the #1 Solana wallet",
-      url: "https://phantom.app/"
+      titleKey: "resourcePhantomTitle",
+      descKey: "resourcePhantomDesc",
+      url: resourceUrls.phantom
     },
     {
-      title: "What is Solana?",
-      description: "Learn about the Solana blockchain",
-      url: "https://solana.com/learn"
+      titleKey: "resourceSolanaTitle",
+      descKey: "resourceSolanaDesc",
+      url: resourceUrls.solana
     },
     {
-      title: "USDC on Solana",
-      description: "Learn about USDC stablecoin on Solana",
-      url: "https://www.circle.com/usdc"
+      titleKey: "resourceUsdcTitle",
+      descKey: "resourceUsdcDesc",
+      url: resourceUrls.usdc
     }
   ];
 
@@ -155,9 +173,9 @@ export default function GettingStarted() {
           <div className="mb-12">
             <div className="text-center mb-8">
               <h2 className="text-3xl font-bold mb-3 bg-gradient-neon bg-clip-text text-transparent">
-                Helpful Resources
+                {t("resourcesTitle")}
               </h2>
-              <p className="text-foreground/60">Quick links to get you started</p>
+              <p className="text-foreground/60">{t("resourcesSubtitle")}</p>
             </div>
             <div className="grid md:grid-cols-3 gap-6">
               {resources.map((resource, index) => (
@@ -168,15 +186,15 @@ export default function GettingStarted() {
                 >
                   <CardHeader className="pb-4">
                     <CardTitle className="text-lg group-hover:text-neon-cyan transition-colors">
-                      {resource.title}
+                      {t(resource.titleKey)}
                     </CardTitle>
                     <CardDescription className="text-sm">
-                      {resource.description}
+                      {t(resource.descKey)}
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-0">
                     <div className="flex items-center gap-2 text-sm text-neon-cyan group-hover:gap-3 transition-all">
-                      <span>Visit</span>
+                      <span>{t("resourceVisit")}</span>
                       <ExternalLink className="w-4 h-4" />
                     </div>
                   </CardContent>
