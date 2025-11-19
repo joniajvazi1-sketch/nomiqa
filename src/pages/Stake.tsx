@@ -3,34 +3,10 @@ import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Coins, TrendingUp, Shield, Zap, Users, Network } from "lucide-react";
+import { useTranslation } from "@/contexts/TranslationContext";
 
 export default function Stake() {
-  const benefits = [
-    {
-      icon: TrendingUp,
-      title: "High APY Returns",
-      description: "Earn competitive rewards on your staked $NMQ tokens",
-      gradient: "from-neon-cyan to-neon-violet",
-    },
-    {
-      icon: Shield,
-      title: "Secure Staking",
-      description: "Non-custodial staking directly from your Phantom wallet",
-      gradient: "from-neon-violet to-neon-coral",
-    },
-    {
-      icon: Zap,
-      title: "Instant Rewards",
-      description: "Earn free data credits automatically as you stake",
-      gradient: "from-neon-coral to-neon-orange",
-    },
-    {
-      icon: Users,
-      title: "Affiliate Boost",
-      description: "Stakers get higher commission rates on referrals",
-      gradient: "from-neon-orange to-warm-sand",
-    },
-  ];
+  const { t } = useTranslation();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-deep-space to-background">
@@ -50,7 +26,7 @@ export default function Stake() {
                 <div className="absolute inset-0 bg-gradient-sunset opacity-30 blur-xl rounded-full"></div>
                 <div className="relative bg-card/40 backdrop-blur-sm border border-neon-violet/30 px-8 py-4 rounded-full">
                   <span className="text-lg font-semibold bg-gradient-sunset bg-clip-text text-transparent">
-                    🚀 Coming Soon
+                    {t("stakeComingSoon")}
                   </span>
                 </div>
               </div>
@@ -58,36 +34,35 @@ export default function Stake() {
             
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-8 font-display">
               <span className="block bg-gradient-sunset bg-clip-text text-transparent">
-                Stake $NOMIQA
+                {t("stakeTitle1")}
               </span>
               <span className="block bg-gradient-digital bg-clip-text text-transparent mt-2">
-                Earn Rewards
+                {t("stakeTitle2")}
               </span>
             </h1>
             
             <p className="text-xl md:text-2xl text-foreground/80 max-w-3xl mx-auto mb-8">
-              Our staking platform is currently under development. 
-              Lock tokens to earn rewards and exclusive benefits.
+              {t("stakeDescription")}
             </p>
 
             {/* Features Preview */}
             <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto mt-16 mb-12">
               <div className="p-6 rounded-2xl bg-card/40 backdrop-blur-sm border border-neon-cyan/30">
                 <TrendingUp className="w-12 h-12 text-neon-cyan mx-auto mb-4" />
-                <h3 className="text-lg font-bold mb-2 text-neon-cyan">High APY</h3>
-                <p className="text-sm text-foreground/70">Competitive staking rewards</p>
+                <h3 className="text-lg font-bold mb-2 text-neon-cyan">{t("stakeHighAPY")}</h3>
+                <p className="text-sm text-foreground/70">{t("stakeHighAPYDesc")}</p>
               </div>
               
               <div className="p-6 rounded-2xl bg-card/40 backdrop-blur-sm border border-neon-violet/30">
                 <Zap className="w-12 h-12 text-neon-violet mx-auto mb-4" />
-                <h3 className="text-lg font-bold mb-2 text-neon-violet">Free Data Credits</h3>
-                <p className="text-sm text-foreground/70">Earn eSIM data as you stake</p>
+                <h3 className="text-lg font-bold mb-2 text-neon-violet">{t("stakeFreeData")}</h3>
+                <p className="text-sm text-foreground/70">{t("stakeFreeDataDesc")}</p>
               </div>
               
               <div className="p-6 rounded-2xl bg-card/40 backdrop-blur-sm border border-neon-coral/30">
                 <Users className="w-12 h-12 text-neon-coral mx-auto mb-4" />
-                <h3 className="text-lg font-bold mb-2 text-neon-coral">Affiliate Boost</h3>
-                <p className="text-sm text-foreground/70">Higher referral commissions</p>
+                <h3 className="text-lg font-bold mb-2 text-neon-coral">{t("stakeAffiliateBoost")}</h3>
+                <p className="text-sm text-foreground/70">{t("stakeAffiliateBoostDesc")}</p>
               </div>
             </div>
 
@@ -96,16 +71,16 @@ export default function Stake() {
               <CardContent className="pt-8 pb-8 text-center">
                 <Coins className="w-16 h-16 text-neon-coral mx-auto mb-6 animate-float" />
                 <h3 className="text-2xl md:text-3xl font-bold mb-4 bg-gradient-sunset bg-clip-text text-transparent">
-                  Be the First to Know
+                  {t("stakeBeFirstTitle")}
                 </h3>
                 <p className="text-foreground/70 mb-6">
-                  Sign up to be notified when staking goes live. Early stakers get bonus rewards.
+                  {t("stakeBeFirstDesc")}
                 </p>
                 <Button 
                   size="lg"
                   className="bg-gradient-to-r from-neon-coral to-neon-violet hover:opacity-90 text-white shadow-glow-coral"
                 >
-                  Notify Me at Launch
+                  {t("stakeNotifyButton")}
                 </Button>
               </CardContent>
             </Card>
