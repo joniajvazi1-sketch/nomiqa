@@ -210,10 +210,10 @@ export default function GettingStarted() {
               <div className="flex flex-col items-center justify-center text-center gap-6">
                 <div className="space-y-3">
                   <h3 className="text-3xl md:text-4xl font-bold bg-gradient-sunset bg-clip-text text-transparent">
-                    Ready to Get Your eSIM?
+                    {t("gettingStartedCtaTitle")}
                   </h3>
                   <p className="text-foreground/70 text-base md:text-lg max-w-xl mx-auto">
-                    Now that you know how to use Phantom and Solana, browse our plans and connect anywhere
+                    {t("gettingStartedCtaDesc")}
                   </p>
                 </div>
                 <Button 
@@ -221,7 +221,7 @@ export default function GettingStarted() {
                   onClick={() => window.location.href = '/shop'}
                   className="bg-gradient-to-r from-neon-coral to-neon-violet hover:opacity-90 text-white shadow-glow-coral text-lg px-8 py-6 h-auto group"
                 >
-                  Browse Plans
+                  {t("browsePlans")}
                   <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </div>
