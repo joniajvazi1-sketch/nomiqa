@@ -5,8 +5,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Wallet, Shield, Coins, ArrowRight, ExternalLink, Download, TrendingUp, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/contexts/TranslationContext";
 
 export default function GettingStarted() {
+  const { t } = useTranslation();
   const guides = [
     {
       title: "Setting Up Phantom Wallet",
@@ -115,15 +117,15 @@ export default function GettingStarted() {
             
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 font-display">
               <span className="block bg-gradient-neon bg-clip-text text-transparent">
-                Get Started with
+                {t("gettingStartedTitle1")}
               </span>
               <span className="block bg-gradient-sunset bg-clip-text text-transparent mt-2">
-                $NOMIQA
+                {t("gettingStartedTitle2")}
               </span>
             </h1>
             
             <p className="text-xl md:text-2xl text-foreground/80 max-w-3xl mx-auto">
-              Step-by-step guide to buying our token and using it for eSIM purchases
+              {t("gettingStartedSubtitle")}
             </p>
           </div>
         </div>
