@@ -121,7 +121,7 @@ export default function GettingStarted() {
 
           {/* Guide Cards with Accordion */}
           <div className="mb-16">
-            <Accordion type="single" collapsible defaultValue="item-0" className="space-y-4">
+            <Accordion type="single" collapsible className="space-y-4">
               {guides.map((guide, index) => (
                 <AccordionItem 
                   key={index} 
