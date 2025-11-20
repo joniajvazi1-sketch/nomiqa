@@ -93,114 +93,112 @@ export const ReferEarn = () => {
 
         {/* Earnings Cascade */}
         <Card className="border border-border/50 bg-card/50 backdrop-blur mb-8">
-          <CardContent className="p-6 md:p-10">
-            <div className="text-center mb-10 max-w-2xl mx-auto">
-              <h3 className="text-2xl md:text-4xl font-bold text-foreground mb-4">
+          <CardContent className="p-4 md:p-10">
+            <div className="text-center mb-8 md:mb-10 max-w-2xl mx-auto">
+              <h3 className="text-xl md:text-4xl font-bold text-foreground mb-3 md:mb-4">
                 How Passive Income Works
               </h3>
-              <p className="text-base md:text-lg text-muted-foreground">
+              <p className="text-sm md:text-lg text-muted-foreground">
                 You do the work once. Your network does the rest.
               </p>
             </div>
 
-            <div className="space-y-8 max-w-3xl mx-auto">
+            <div className="space-y-6 md:space-y-8 max-w-3xl mx-auto">
               {/* Level 1 */}
               <div className="group">
-                <div className="flex items-start gap-4 md:gap-6 p-5 md:p-6 bg-gradient-to-r from-neon-coral/5 to-transparent border-l-4 border-neon-coral rounded-lg hover:from-neon-coral/10 transition-all">
-                  <div className="flex-shrink-0">
-                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-neon-coral/10 border-2 border-neon-coral/30 flex items-center justify-center">
+                <div className="flex flex-col md:flex-row md:items-start gap-3 md:gap-6 p-4 md:p-6 bg-gradient-to-r from-neon-coral/5 to-transparent border-l-4 border-neon-coral rounded-lg hover:from-neon-coral/10 transition-all">
+                  <div className="flex items-center gap-3 md:block">
+                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-neon-coral/10 border-2 border-neon-coral/30 flex items-center justify-center flex-shrink-0">
                       <span className="text-lg md:text-xl font-bold text-neon-coral">1</span>
                     </div>
+                    <p className="text-xs md:text-sm text-neon-coral/80 font-medium uppercase tracking-wider md:mt-3">Direct Referral</p>
                   </div>
-                  <div className="flex-1 space-y-3">
-                    <div>
-                      <p className="text-xs md:text-sm text-neon-coral/80 font-medium uppercase tracking-wider mb-2">Direct Referral</p>
-                      <p className="text-base md:text-lg font-semibold text-foreground">You invite Sarah, she buys a $50 eSIM</p>
-                    </div>
-                    <div className="flex items-baseline gap-2 pt-2">
-                      <span className="text-3xl md:text-4xl font-bold text-neon-coral">$4.50</span>
-                      <span className="text-sm text-muted-foreground">9% commission</span>
+                  <div className="flex-1 space-y-2 md:space-y-3">
+                    <p className="text-sm md:text-lg font-semibold text-foreground">You invite Sarah, she buys a $50 eSIM</p>
+                    <div className="flex items-baseline gap-2 pt-1 md:pt-2">
+                      <span className="text-2xl md:text-4xl font-bold text-neon-coral">$4.50</span>
+                      <span className="text-xs md:text-sm text-muted-foreground">9% commission</span>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Divider */}
-              <div className="relative">
+              <div className="relative py-2">
                 <div className="absolute left-5 md:left-6 top-0 bottom-0 w-px bg-gradient-to-b from-border via-primary/50 to-border"></div>
-                <div className="pl-16 md:pl-20 py-2">
-                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 rounded-full text-xs md:text-sm font-medium text-primary">
-                    Passive income starts here
+                <div className="pl-12 md:pl-20">
+                  <div className="inline-flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 bg-primary/10 border border-primary/20 rounded-full text-xs md:text-sm font-medium text-primary">
+                    Passive income starts
                   </div>
                 </div>
               </div>
 
               {/* Level 2 */}
               <div className="group">
-                <div className="flex items-start gap-4 md:gap-6 p-5 md:p-6 bg-gradient-to-r from-neon-purple/5 to-transparent border-l-4 border-neon-purple rounded-lg hover:from-neon-purple/10 transition-all">
-                  <div className="flex-shrink-0">
-                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-neon-purple/10 border-2 border-neon-purple/30 flex items-center justify-center">
+                <div className="flex flex-col md:flex-row md:items-start gap-3 md:gap-6 p-4 md:p-6 bg-gradient-to-r from-neon-purple/5 to-transparent border-l-4 border-neon-purple rounded-lg hover:from-neon-purple/10 transition-all">
+                  <div className="flex items-center gap-3 md:block">
+                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-neon-purple/10 border-2 border-neon-purple/30 flex items-center justify-center flex-shrink-0">
                       <span className="text-lg md:text-xl font-bold text-neon-purple">2</span>
                     </div>
+                    <p className="text-xs md:text-sm text-neon-purple/80 font-medium uppercase tracking-wider md:mt-3">Tier 2 · Passive</p>
                   </div>
-                  <div className="flex-1 space-y-3">
+                  <div className="flex-1 space-y-2 md:space-y-3">
                     <div>
-                      <p className="text-xs md:text-sm text-neon-purple/80 font-medium uppercase tracking-wider mb-2">Tier 2 · Passive</p>
-                      <p className="text-base md:text-lg font-semibold text-foreground">Sarah invites Mike, he buys a $50 eSIM</p>
-                      <p className="text-sm text-muted-foreground mt-1.5">You don't know Mike. You don't talk to Mike.</p>
+                      <p className="text-sm md:text-lg font-semibold text-foreground">Sarah invites Mike, he buys a $50 eSIM</p>
+                      <p className="text-xs md:text-sm text-muted-foreground mt-1 md:mt-1.5">You don't know Mike. You don't talk to Mike.</p>
                     </div>
-                    <div className="flex items-baseline gap-2 pt-2">
-                      <span className="text-3xl md:text-4xl font-bold text-neon-purple">$3.00</span>
-                      <span className="text-sm text-muted-foreground">6% commission</span>
+                    <div className="flex items-baseline gap-2 pt-1 md:pt-2">
+                      <span className="text-2xl md:text-4xl font-bold text-neon-purple">$3.00</span>
+                      <span className="text-xs md:text-sm text-muted-foreground">6% commission</span>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Divider */}
-              <div className="relative">
+              <div className="relative py-1 md:py-0">
                 <div className="absolute left-5 md:left-6 top-0 bottom-0 w-px bg-gradient-to-b from-border via-primary/50 to-border"></div>
               </div>
 
               {/* Level 3 */}
               <div className="group">
-                <div className="flex items-start gap-4 md:gap-6 p-5 md:p-6 bg-gradient-to-r from-neon-cyan/5 to-transparent border-l-4 border-neon-cyan rounded-lg hover:from-neon-cyan/10 transition-all">
-                  <div className="flex-shrink-0">
-                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-neon-cyan/10 border-2 border-neon-cyan/30 flex items-center justify-center">
+                <div className="flex flex-col md:flex-row md:items-start gap-3 md:gap-6 p-4 md:p-6 bg-gradient-to-r from-neon-cyan/5 to-transparent border-l-4 border-neon-cyan rounded-lg hover:from-neon-cyan/10 transition-all">
+                  <div className="flex items-center gap-3 md:block">
+                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-neon-cyan/10 border-2 border-neon-cyan/30 flex items-center justify-center flex-shrink-0">
                       <span className="text-lg md:text-xl font-bold text-neon-cyan">3</span>
                     </div>
+                    <p className="text-xs md:text-sm text-neon-cyan/80 font-medium uppercase tracking-wider md:mt-3">Tier 3 · Passive</p>
                   </div>
-                  <div className="flex-1 space-y-3">
+                  <div className="flex-1 space-y-2 md:space-y-3">
                     <div>
-                      <p className="text-xs md:text-sm text-neon-cyan/80 font-medium uppercase tracking-wider mb-2">Tier 3 · Passive</p>
-                      <p className="text-base md:text-lg font-semibold text-foreground">Mike invites Lisa, she buys a $50 eSIM</p>
-                      <p className="text-sm text-muted-foreground mt-1.5">You've never heard of Lisa. She doesn't know you exist.</p>
+                      <p className="text-sm md:text-lg font-semibold text-foreground">Mike invites Lisa, she buys a $50 eSIM</p>
+                      <p className="text-xs md:text-sm text-muted-foreground mt-1 md:mt-1.5">You've never heard of Lisa. She doesn't know you exist.</p>
                     </div>
-                    <div className="flex items-baseline gap-2 pt-2">
-                      <span className="text-3xl md:text-4xl font-bold text-neon-cyan">$1.50</span>
-                      <span className="text-sm text-muted-foreground">3% commission</span>
+                    <div className="flex items-baseline gap-2 pt-1 md:pt-2">
+                      <span className="text-2xl md:text-4xl font-bold text-neon-cyan">$1.50</span>
+                      <span className="text-xs md:text-sm text-muted-foreground">3% commission</span>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Summary */}
-              <div className="mt-12 p-6 md:p-8 bg-gradient-to-br from-background to-muted/20 border border-border rounded-xl">
-                <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-                  <div className="text-center md:text-left">
-                    <p className="text-sm text-muted-foreground mb-1">Total from 3 sales</p>
+              <div className="mt-8 md:mt-12 p-5 md:p-8 bg-gradient-to-br from-background to-muted/20 border border-border rounded-xl">
+                <div className="flex flex-col items-center gap-4 md:gap-6 md:flex-row md:justify-between">
+                  <div className="text-center md:text-left w-full md:w-auto">
+                    <p className="text-xs md:text-sm text-muted-foreground mb-2">Total from 3 sales</p>
                     <div className="flex items-baseline gap-2 justify-center md:justify-start">
-                      <span className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-neon-coral via-neon-purple to-neon-cyan bg-clip-text text-transparent">
+                      <span className="text-3xl md:text-5xl font-bold bg-gradient-to-r from-neon-coral via-neon-purple to-neon-cyan bg-clip-text text-transparent">
                         $9.00
                       </span>
-                      <span className="text-base text-muted-foreground">USDC or SOL</span>
+                      <span className="text-sm md:text-base text-muted-foreground">USDC or SOL</span>
                     </div>
                   </div>
-                  <div className="flex flex-col gap-2 text-center md:text-right">
-                    <div className="text-sm font-medium text-foreground">
+                  <div className="flex gap-4 md:flex-col md:gap-2 text-center md:text-right">
+                    <div className="text-xs md:text-sm font-medium text-foreground">
                       $4.50 your work
                     </div>
-                    <div className="text-sm font-medium text-primary">
+                    <div className="text-xs md:text-sm font-medium text-primary">
                       $4.50 passive income
                     </div>
                   </div>
@@ -208,12 +206,12 @@ export const ReferEarn = () => {
               </div>
             </div>
 
-            <div className="mt-10 md:mt-12 max-w-2xl mx-auto space-y-6">
-              <div className="p-6 bg-muted/30 border border-border/50 rounded-lg">
-                <p className="text-sm md:text-base text-foreground/90 leading-relaxed">
+            <div className="mt-8 md:mt-12 max-w-2xl mx-auto space-y-5 md:space-y-6">
+              <div className="p-4 md:p-6 bg-muted/30 border border-border/50 rounded-lg">
+                <p className="text-xs md:text-base text-foreground/90 leading-relaxed">
                   When you have 10 people in your network, and they each bring 5 more, that's 50 people.
                   If those 50 each bring 3, that's 150 more people.
-                  <span className="block mt-2 font-semibold text-primary">
+                  <span className="block mt-2 font-semibold text-primary text-sm md:text-base">
                     You earn from all of them. Without talking to 140 of them.
                   </span>
                 </p>
@@ -223,7 +221,7 @@ export const ReferEarn = () => {
                 <Button 
                   onClick={() => navigate(`/${language}/affiliate`)}
                   size="lg"
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-base px-10 py-6"
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-sm md:text-base px-8 md:px-10 py-5 md:py-6 w-full md:w-auto"
                 >
                   Get Started
                 </Button>
