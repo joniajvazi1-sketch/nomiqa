@@ -96,10 +96,10 @@ export const ReferEarn = () => {
           <CardContent className="p-6 md:p-8">
             <div className="text-center mb-8">
               <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-3">
-                Here's How You Get Paid Real Crypto
+                Here's How You Earn Passive Crypto
               </h3>
               <p className="text-base md:text-lg text-warm-sand/90 max-w-2xl mx-auto">
-                You earn from 3 levels. Simple example: if someone YOU invited buys a $50 eSIM, here's what happens...
+                You earn once. Then you keep earning WITHOUT doing anything else. Here's how...
               </p>
             </div>
 
@@ -111,87 +111,101 @@ export const ReferEarn = () => {
                     <span className="text-xl md:text-2xl font-black text-neon-coral">1</span>
                   </div>
                   <div className="flex-1">
-                    <p className="text-xs md:text-sm text-warm-sand/80 mb-1 font-medium">STEP 1</p>
-                    <p className="text-base md:text-lg font-bold text-foreground">Someone YOU invited buys $50 eSIM</p>
+                    <p className="text-xs md:text-sm text-neon-coral font-bold mb-1 uppercase tracking-wide">👉 You do the work</p>
+                    <p className="text-base md:text-lg font-bold text-foreground">You invite Sarah. She buys $50 eSIM</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4 md:gap-0 md:flex-col md:text-right ml-auto md:ml-0">
                   <div className="flex items-baseline gap-1">
                     <span className="text-3xl md:text-4xl font-black text-neon-coral">$4.50</span>
-                    <span className="text-sm md:text-base text-neon-coral/80 font-bold">= 9%</span>
+                    <span className="text-sm md:text-base text-neon-coral/80 font-bold">9%</span>
                   </div>
                   <div className="px-3 py-1 bg-neon-coral/20 rounded-full">
-                    <p className="text-[10px] md:text-xs text-neon-coral font-bold uppercase tracking-wide">Your Money</p>
+                    <p className="text-[10px] md:text-xs text-neon-coral font-bold uppercase tracking-wide">You Earned</p>
                   </div>
                 </div>
               </div>
 
-              {/* Running Total 1 */}
-              <div className="flex justify-center -my-2 md:-my-3">
-                <div className="px-4 py-2 bg-background border-2 border-primary/30 rounded-full">
-                  <p className="text-xs md:text-sm text-warm-sand/70">Your total so far: <span className="font-bold text-neon-coral">$4.50</span></p>
-                </div>
-              </div>
-
-              {/* Arrow */}
-              <div className="flex justify-center">
+              {/* Arrow + Note */}
+              <div className="text-center space-y-2">
                 <div className="text-neon-purple text-3xl md:text-4xl animate-pulse">↓</div>
+                <div className="inline-block px-4 py-2 bg-neon-purple/20 border-2 border-neon-purple/40 rounded-full">
+                  <p className="text-xs md:text-sm text-neon-purple font-bold">⚡ NOW THE PASSIVE INCOME STARTS</p>
+                </div>
               </div>
 
               {/* Level 2 */}
-              <div className="flex flex-col md:flex-row items-start md:items-center gap-3 md:gap-4 p-4 md:p-5 bg-neon-purple/10 border-2 border-neon-purple/30 rounded-xl shadow-lg">
+              <div className="flex flex-col md:flex-row items-start md:items-center gap-3 md:gap-4 p-4 md:p-5 bg-neon-purple/10 border-2 border-neon-purple/30 rounded-xl shadow-lg relative">
+                <div className="absolute -top-3 -right-3 px-3 py-1 bg-neon-purple rounded-full text-white text-xs font-bold animate-pulse shadow-lg">
+                  PASSIVE 💤
+                </div>
                 <div className="flex items-center gap-3 md:gap-4 flex-1">
                   <div className="flex-shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-full bg-neon-purple/30 flex items-center justify-center border-2 border-neon-purple">
                     <span className="text-xl md:text-2xl font-black text-neon-purple">2</span>
                   </div>
                   <div className="flex-1">
-                    <p className="text-xs md:text-sm text-warm-sand/80 mb-1 font-medium">STEP 2</p>
-                    <p className="text-base md:text-lg font-bold text-foreground">That person invites someone, they buy $50</p>
+                    <p className="text-xs md:text-sm text-neon-purple font-bold mb-1 uppercase tracking-wide">😴 You do NOTHING</p>
+                    <p className="text-base md:text-lg font-bold text-foreground">Sarah invites Mike. He buys $50 eSIM</p>
+                    <p className="text-xs md:text-sm text-warm-sand/70 mt-1 italic">You never talked to Mike. You don't even know him.</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4 md:gap-0 md:flex-col md:text-right ml-auto md:ml-0">
                   <div className="flex items-baseline gap-1">
                     <span className="text-3xl md:text-4xl font-black text-neon-purple">+$3.00</span>
-                    <span className="text-sm md:text-base text-neon-purple/80 font-bold">= 6%</span>
+                    <span className="text-sm md:text-base text-neon-purple/80 font-bold">6%</span>
                   </div>
                   <div className="px-3 py-1 bg-neon-purple/20 rounded-full">
-                    <p className="text-[10px] md:text-xs text-neon-purple font-bold uppercase tracking-wide">Bonus!</p>
+                    <p className="text-[10px] md:text-xs text-neon-purple font-bold uppercase tracking-wide">Auto-Earned!</p>
                   </div>
                 </div>
               </div>
 
-              {/* Running Total 2 */}
-              <div className="flex justify-center -my-2 md:-my-3">
-                <div className="px-4 py-2 bg-background border-2 border-primary/30 rounded-full">
-                  <p className="text-xs md:text-sm text-warm-sand/70">Your total so far: <span className="font-bold text-neon-purple">$7.50</span></p>
-                </div>
+              {/* Emphasis Box */}
+              <div className="p-4 bg-neon-purple/10 border-l-4 border-neon-purple rounded-lg">
+                <p className="text-sm md:text-base text-foreground font-semibold">
+                  ✨ You didn't message Mike. You didn't sell to Mike. Sarah did the work. <span className="text-neon-purple">You still get paid $3.</span>
+                </p>
               </div>
 
-              {/* Arrow */}
-              <div className="flex justify-center">
+              {/* Arrow + Note */}
+              <div className="text-center space-y-2">
                 <div className="text-neon-cyan text-3xl md:text-4xl animate-pulse">↓</div>
+                <div className="inline-block px-4 py-2 bg-neon-cyan/20 border-2 border-neon-cyan/40 rounded-full">
+                  <p className="text-xs md:text-sm text-neon-cyan font-bold">⚡ EVEN MORE PASSIVE INCOME</p>
+                </div>
               </div>
 
               {/* Level 3 */}
-              <div className="flex flex-col md:flex-row items-start md:items-center gap-3 md:gap-4 p-4 md:p-5 bg-neon-cyan/10 border-2 border-neon-cyan/30 rounded-xl shadow-lg">
+              <div className="flex flex-col md:flex-row items-start md:items-center gap-3 md:gap-4 p-4 md:p-5 bg-neon-cyan/10 border-2 border-neon-cyan/30 rounded-xl shadow-lg relative">
+                <div className="absolute -top-3 -right-3 px-3 py-1 bg-neon-cyan rounded-full text-white text-xs font-bold animate-pulse shadow-lg">
+                  PASSIVE 💤
+                </div>
                 <div className="flex items-center gap-3 md:gap-4 flex-1">
                   <div className="flex-shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-full bg-neon-cyan/30 flex items-center justify-center border-2 border-neon-cyan">
                     <span className="text-xl md:text-2xl font-black text-neon-cyan">3</span>
                   </div>
                   <div className="flex-1">
-                    <p className="text-xs md:text-sm text-warm-sand/80 mb-1 font-medium">STEP 3</p>
-                    <p className="text-base md:text-lg font-bold text-foreground">Their friend invites someone, they buy $50</p>
+                    <p className="text-xs md:text-sm text-neon-cyan font-bold mb-1 uppercase tracking-wide">😴 You STILL do NOTHING</p>
+                    <p className="text-base md:text-lg font-bold text-foreground">Mike invites Lisa. She buys $50 eSIM</p>
+                    <p className="text-xs md:text-sm text-warm-sand/70 mt-1 italic">You've never heard of Lisa. She's a stranger to you.</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4 md:gap-0 md:flex-col md:text-right ml-auto md:ml-0">
                   <div className="flex items-baseline gap-1">
                     <span className="text-3xl md:text-4xl font-black text-neon-cyan">+$1.50</span>
-                    <span className="text-sm md:text-base text-neon-cyan/80 font-bold">= 3%</span>
+                    <span className="text-sm md:text-base text-neon-cyan/80 font-bold">3%</span>
                   </div>
                   <div className="px-3 py-1 bg-neon-cyan/20 rounded-full">
-                    <p className="text-[10px] md:text-xs text-neon-cyan font-bold uppercase tracking-wide">More!</p>
+                    <p className="text-[10px] md:text-xs text-neon-cyan font-bold uppercase tracking-wide">Auto-Earned!</p>
                   </div>
                 </div>
+              </div>
+
+              {/* Emphasis Box */}
+              <div className="p-4 bg-neon-cyan/10 border-l-4 border-neon-cyan rounded-lg">
+                <p className="text-sm md:text-base text-foreground font-semibold">
+                  ✨ You don't know Lisa. Mike invited her. Mike did the work. <span className="text-neon-cyan">You STILL get paid $1.50.</span>
+                </p>
               </div>
 
               {/* Final Total */}
@@ -199,7 +213,8 @@ export const ReferEarn = () => {
                 <div className="p-6 md:p-8 bg-gradient-to-r from-neon-coral/20 via-neon-purple/20 to-neon-cyan/20 rounded-2xl border-4 border-primary/40 shadow-2xl">
                   <div className="text-center space-y-4">
                     <div className="space-y-2">
-                      <p className="text-base md:text-lg text-warm-sand/80 font-medium uppercase tracking-wide">💰 YOU EARNED FROM JUST 3 SALES</p>
+                      <p className="text-sm md:text-base text-warm-sand/80 font-medium">YOU INVITED 1 PERSON</p>
+                      <p className="text-lg md:text-xl text-warm-sand font-bold uppercase tracking-wide">💰 Total Earned From 3 Sales</p>
                       <div className="flex items-center justify-center gap-3">
                         <DollarSign className="w-8 h-8 md:w-10 md:h-10 text-neon-coral" />
                         <p className="text-5xl md:text-7xl font-black bg-gradient-to-r from-neon-coral via-neon-purple to-neon-cyan bg-clip-text text-transparent">
@@ -207,9 +222,13 @@ export const ReferEarn = () => {
                         </p>
                       </div>
                     </div>
-                    <div className="space-y-2">
-                      <p className="text-sm md:text-base text-warm-sand/90 font-bold">✓ Withdrawn instantly to YOUR wallet</p>
-                      <p className="text-xs md:text-sm text-warm-sand/70">Real USDC or SOL on Solana — not locked credits</p>
+                    <div className="space-y-3 pt-4 border-t-2 border-primary/20">
+                      <div className="inline-block px-6 py-3 bg-gradient-to-r from-neon-coral to-neon-purple rounded-full">
+                        <p className="text-sm md:text-base text-white font-bold">$4.50 from YOUR work + $4.50 from OTHER PEOPLE's work</p>
+                      </div>
+                      <p className="text-xs md:text-sm text-warm-sand/90 font-medium">
+                        ✓ Withdrawn instantly to YOUR wallet in USDC or SOL
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -217,12 +236,14 @@ export const ReferEarn = () => {
             </div>
 
             <div className="mt-8 md:mt-10 text-center space-y-6">
-              <div className="p-6 bg-primary/10 border-2 border-primary/30 rounded-xl max-w-2xl mx-auto">
-                <p className="text-base md:text-lg text-foreground font-bold mb-2">
-                  🚀 Now imagine you have 10 people... 50 people... 100 people in your network
+              <div className="p-6 bg-gradient-to-r from-primary/20 to-accent/20 border-2 border-primary/40 rounded-xl max-w-2xl mx-auto">
+                <p className="text-lg md:text-xl text-foreground font-black mb-3">
+                  🚀 This is PASSIVE INCOME
                 </p>
-                <p className="text-sm md:text-base text-warm-sand/80">
-                  Each one buying, referring, creating MORE chains = MORE passive crypto income for you!
+                <p className="text-sm md:text-base text-warm-sand/90 leading-relaxed">
+                  You invite 10 people. They each invite 5 people. Those 50 people each invite 3 people = <span className="text-neon-coral font-bold">150 people</span>.
+                  <br/>
+                  <span className="text-neon-purple font-bold">You never talked to 140 of them</span>, but you earn from ALL their purchases. Forever. Automatically.
                 </p>
               </div>
               
@@ -231,7 +252,7 @@ export const ReferEarn = () => {
                 size="lg"
                 className="bg-gradient-to-r from-neon-coral to-neon-purple hover:opacity-90 text-white font-bold text-base md:text-lg px-8 md:px-12 py-6 md:py-7 shadow-xl"
               >
-                Start Earning Real Crypto Now →
+                Start Building Passive Income →
               </Button>
             </div>
           </CardContent>
