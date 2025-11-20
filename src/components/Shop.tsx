@@ -33,7 +33,7 @@ export const Shop = () => {
   const navigate = useNavigate();
   const { data: products, isLoading } = useProducts();
   const { items, addItem } = useCart();
-  const { language } = useTranslation();
+  const { language, t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState("");
   const [coverageFilter, setCoverageFilter] = useState<CoverageType>("all");
   const [referEarnModalOpen, setReferEarnModalOpen] = useState(false);
@@ -182,7 +182,7 @@ export const Shop = () => {
                     <div className="text-3xl font-bold text-primary">
                       ${product.price_usd.toFixed(2)}
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">One-time payment</p>
+                    <p className="text-xs text-muted-foreground mt-1">{t('oneTimePayment')}</p>
                   </div>
                 </CardContent>
 
@@ -192,15 +192,15 @@ export const Shop = () => {
                     className="flex-1"
                   >
                     <ShoppingCart className="mr-2 h-4 w-4" />
-                    Add to Cart
+                    {t('addToCart')}
                   </Button>
                   <Button 
                     onClick={() => handleReferEarn(product)}
                     variant="outline"
-                    size="icon"
                     className="shrink-0"
                   >
-                    <HandCoins className="h-4 w-4" />
+                    <HandCoins className="h-4 w-4 mr-2" />
+                    <span className="hidden sm:inline">{t('referAndEarn')}</span>
                   </Button>
                 </CardFooter>
               </Card>
