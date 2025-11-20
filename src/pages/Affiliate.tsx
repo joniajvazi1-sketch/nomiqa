@@ -417,29 +417,29 @@ export default function Affiliate() {
             <div className="animate-fade-in-up">
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold font-display mb-2">
                 <span className="inline-block bg-gradient-sunset bg-clip-text text-transparent hover:scale-105 transition-transform duration-300">
-                  Invite. Earn.
+                  Share Freedom.
                 </span>
               </h1>
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold font-display">
                 <span className="inline-block bg-gradient-to-r from-neon-cyan via-neon-coral to-neon-purple bg-clip-text text-transparent animate-pulse">
-                  Travel Together.
+                  Earn Rewards.
                 </span>
               </h1>
             </div>
             
             <div className="animate-fade-in [animation-delay:200ms] space-y-3">
               <p className="text-2xl md:text-3xl font-semibold text-foreground">
-                Join the{" "}
+                Build your network.{" "}
                 <span className="relative inline-block">
                   <span className="relative z-10 bg-gradient-to-r from-neon-coral to-neon-purple bg-clip-text text-transparent font-bold">
-                    borderless generation
+                    Earn from every layer.
                   </span>
                   <span className="absolute inset-0 bg-neon-coral/20 blur-xl"></span>
                 </span>
               </p>
               <p className="text-xl md:text-2xl text-foreground/70 max-w-2xl mx-auto leading-relaxed">
-                Freedom is no longer physical —{" "}
-                <span className="font-bold text-neon-cyan">it&apos;s digital.</span>
+                Turn connections into income —{" "}
+                <span className="font-bold text-neon-cyan">up to 3 levels deep.</span>
               </p>
             </div>
 
