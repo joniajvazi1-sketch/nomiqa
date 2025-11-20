@@ -440,25 +440,6 @@ export default function Affiliate() {
                   One link. Infinite potential. Your network works for you — 24/7, worldwide.
                 </p>
               </div>
-
-              {/* Earnings Examples Ticker */}
-              <div className="pt-8 space-y-3">
-                <div className="flex flex-wrap justify-center gap-4">
-                  <div className="px-6 py-3 bg-neon-coral/10 border border-neon-coral/30 rounded-lg">
-                    <p className="text-sm text-warm-sand/70 mb-1">Basic Example</p>
-                    <p className="text-lg font-bold text-foreground">
-                      5 referrals × $50 avg = <span className="text-neon-coral">$22.50</span>
-                    </p>
-                  </div>
-                  
-                  <div className="px-6 py-3 bg-neon-purple/10 border border-neon-purple/30 rounded-lg">
-                    <p className="text-sm text-warm-sand/70 mb-1">Network Effect</p>
-                    <p className="text-lg font-bold text-foreground">
-                      10 refs + 2 sub-refs each = <span className="text-neon-purple">$135/mo</span>
-                    </p>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
 
