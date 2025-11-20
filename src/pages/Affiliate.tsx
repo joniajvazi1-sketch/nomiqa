@@ -132,8 +132,8 @@ export default function Affiliate() {
     
     const tiers = [
       { level: 1, name: 'Starter', conversions: 0, description: '9% on direct sales', color: 'text-blue-500' },
-      { level: 2, name: 'Pro', conversions: 10, description: '9% direct + 6% on 2nd level', color: 'text-purple-500' },
-      { level: 3, name: 'Elite', conversions: 30, description: '9% + 6% + 3% on 3rd level', color: 'text-amber-500' }
+      { level: 2, name: 'Pro', conversions: 10, description: 'Additional 6% on 2nd level', color: 'text-purple-500' },
+      { level: 3, name: 'Elite', conversions: 30, description: 'Additional 3% on 3rd level', color: 'text-amber-500' }
     ];
 
     const currentTier = tiers.find(t => t.level === affiliate.tier_level) || tiers[0];
@@ -1152,11 +1152,11 @@ export default function Affiliate() {
                           </div>
                           <div className="flex items-center gap-2">
                             <Lock className="w-4 h-4 text-muted-foreground" />
-                            <span><strong>Tier 2 (Pro):</strong> Unlock at 10 conversions → earn additional 6% on 2nd level</span>
+                            <span><strong>Tier 2 (Pro):</strong> Additional 6% on 2nd level</span>
                           </div>
                           <div className="flex items-center gap-2">
                             <Lock className="w-4 h-4 text-muted-foreground" />
-                            <span><strong>Tier 3 (Elite):</strong> Unlock at 30 conversions → earn additional 3% on 3rd level</span>
+                            <span><strong>Tier 3 (Elite):</strong> Additional 3% on 3rd level</span>
                           </div>
                         </div>
                       </div>
