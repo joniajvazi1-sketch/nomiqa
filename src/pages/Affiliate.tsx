@@ -484,45 +484,45 @@ export default function Affiliate() {
             </Card>
           ) : (
             <>
-              <div className="grid md:grid-cols-4 gap-4 mb-8 text-center">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-8 text-center">
                 <Card>
-                  <CardHeader className="pb-3">
-                    <CardDescription>Total Clicks (All Links)</CardDescription>
+                  <CardHeader className="pb-2 md:pb-3">
+                    <CardDescription className="text-xs md:text-sm">Total Clicks</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-3xl font-bold">
+                    <div className="text-2xl md:text-3xl font-bold">
                       {allAffiliates.reduce((sum, aff) => sum + (aff.total_clicks || 0), 0)}
                     </div>
                   </CardContent>
                 </Card>
                 <Card>
-                  <CardHeader className="pb-3">
-                    <CardDescription>Conversions (All Links)</CardDescription>
+                  <CardHeader className="pb-2 md:pb-3">
+                    <CardDescription className="text-xs md:text-sm">Conversions</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-3xl font-bold text-green-500">
+                    <div className="text-2xl md:text-3xl font-bold text-green-500">
                       {allAffiliates.reduce((sum, aff) => sum + (aff.total_conversions || 0), 0)}
                     </div>
                   </CardContent>
                 </Card>
                 <Card>
-                  <CardHeader className="pb-3">
-                    <CardDescription>Total Earnings</CardDescription>
+                  <CardHeader className="pb-2 md:pb-3">
+                    <CardDescription className="text-xs md:text-sm">Total Earnings</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-3xl font-bold text-primary">
+                    <div className="text-2xl md:text-3xl font-bold text-primary">
                       ${allAffiliates.reduce((sum, aff) => sum + (aff.total_earnings_usd || 0), 0).toFixed(2)}
                     </div>
                   </CardContent>
                 </Card>
                 <Card>
-                  <CardHeader className="pb-3">
-                    <CardDescription>Active Links</CardDescription>
+                  <CardHeader className="pb-2 md:pb-3">
+                    <CardDescription className="text-xs md:text-sm">Active Links</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-1">
-                      <div className="text-3xl font-bold">{allAffiliates.length} / 3</div>
-                      <div className="text-xs text-muted-foreground">Commission: 9% • 6% • 3%</div>
+                      <div className="text-2xl md:text-3xl font-bold">{allAffiliates.length} / 3</div>
+                      <div className="text-[10px] md:text-xs text-muted-foreground">9% • 6% • 3%</div>
                     </div>
                   </CardContent>
                 </Card>
@@ -547,47 +547,61 @@ export default function Affiliate() {
                       : `${window.location.origin}/r/${aff.affiliate_code}`;
                     
                     return (
-                      <div key={aff.id} className="p-4 border rounded-lg space-y-3">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <h3 className="font-semibold">
+                      <div key={aff.id} className="p-3 md:p-4 border rounded-lg space-y-3">
+                        {/* Header */}
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h3 className="font-semibold text-sm md:text-base">
                               {isFirst ? "Primary Link" : `Link ${index + 1}`}
                             </h3>
-                            {isFirst && <Badge>Auto-created</Badge>}
-                          </div>
-                          <div className="flex gap-2 text-sm">
-                            <span className="text-muted-foreground">{aff.total_clicks} clicks</span>
-                            <span className="text-green-600">{aff.total_conversions} conversions</span>
-                            <span className="text-primary">${aff.total_earnings_usd.toFixed(2)}</span>
+                            {isFirst && <Badge className="text-xs">Auto-created</Badge>}
                           </div>
                         </div>
                         
-                        <div className="flex flex-col sm:flex-row gap-2">
-                          <Input 
-                            value={link} 
-                            readOnly 
-                            className="font-mono text-sm"
-                          />
-                          <Button 
-                            onClick={() => copyLink(link)} 
-                            variant="outline"
-                            size="sm"
-                            className="whitespace-nowrap"
-                          >
-                            <Copy className="w-4 h-4 mr-2" />
-                            Copy
-                          </Button>
-                          <Button 
-                            onClick={() => window.open(`https://twitter.com/intent/tweet?text=Check out this crypto eSIM service!&url=${encodeURIComponent(link)}`, '_blank')}
-                            variant="outline"
-                            size="sm"
-                          >
-                            <Share2 className="w-4 h-4" />
-                          </Button>
+                        {/* Stats - Mobile Friendly */}
+                        <div className="grid grid-cols-3 gap-2 py-2">
+                          <div className="text-center">
+                            <div className="text-xs text-muted-foreground mb-1">Clicks</div>
+                            <div className="font-semibold text-sm md:text-base">{aff.total_clicks}</div>
+                          </div>
+                          <div className="text-center border-x">
+                            <div className="text-xs text-muted-foreground mb-1">Conversions</div>
+                            <div className="font-semibold text-sm md:text-base text-green-600">{aff.total_conversions}</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-xs text-muted-foreground mb-1">Earned</div>
+                            <div className="font-semibold text-sm md:text-base text-primary">${aff.total_earnings_usd.toFixed(2)}</div>
+                          </div>
                         </div>
                         
-                        <div className="text-xs text-muted-foreground">
-                          Username: <span className="font-mono">{aff.username}</span>
+                        {/* Link */}
+                        <div className="space-y-2">
+                          <div className="p-2 bg-muted rounded text-xs md:text-sm break-all font-mono">
+                            {link}
+                          </div>
+                          <div className="flex gap-2">
+                            <Button 
+                              onClick={() => copyLink(link)} 
+                              variant="outline"
+                              size="sm"
+                              className="flex-1"
+                            >
+                              <Copy className="w-4 h-4 mr-2" />
+                              Copy
+                            </Button>
+                            <Button 
+                              onClick={() => window.open(`https://twitter.com/intent/tweet?text=Check out this crypto eSIM service!&url=${encodeURIComponent(link)}`, '_blank')}
+                              variant="outline"
+                              size="sm"
+                              className="flex-1"
+                            >
+                              <Share2 className="w-4 h-4 mr-2" />
+                              Share
+                            </Button>
+                          </div>
+                          <div className="text-[10px] md:text-xs text-muted-foreground pt-1 border-t">
+                            Username: <span className="font-mono">{aff.username}</span>
+                          </div>
                         </div>
                       </div>
                     );
@@ -790,14 +804,12 @@ export default function Affiliate() {
               {/* Analytics Dashboard */}
               <Card className="mb-8">
                 <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <CardTitle className="flex items-center gap-2">
-                        <BarChart3 className="w-5 h-5" />
-                        Analytics Dashboard
-                      </CardTitle>
-                      <CardDescription>Track your performance and traffic sources</CardDescription>
-                    </div>
+                  <div>
+                    <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+                      <BarChart3 className="w-4 h-4 md:w-5 md:h-5" />
+                      Analytics Dashboard
+                    </CardTitle>
+                    <CardDescription className="text-xs md:text-sm">Track your performance and traffic sources</CardDescription>
                   </div>
                 </CardHeader>
                 <CardContent>
@@ -809,56 +821,54 @@ export default function Affiliate() {
                     <div className="space-y-8">
                       {/* Traffic Sources */}
                       <div>
-                        <h3 className="font-semibold mb-4 flex items-center gap-2">
+                        <h3 className="font-semibold mb-3 flex items-center gap-2 text-sm md:text-base">
                           <Share2 className="w-4 h-4" />
                           Traffic Sources
                         </h3>
                         {analytics.sourceBreakdown.length > 0 ? (
-                          <div className="space-y-3">
+                          <div className="space-y-2">
                             {analytics.sourceBreakdown.map((source) => {
                               const conversionRate = source.clicks > 0 
                                 ? ((source.conversions / source.clicks) * 100).toFixed(1)
                                 : '0.0';
                               
                               return (
-                                <div key={source.source} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                                  <div className="flex-1">
-                                    <div className="flex items-center gap-3">
-                                      <Badge variant={source.source === 'direct' ? 'default' : 'secondary'} className="capitalize">
-                                        {source.source}
-                                      </Badge>
-                                      <span className="text-sm text-muted-foreground">
-                                        {source.clicks} clicks • {source.conversions} conversions
-                                      </span>
+                                <div key={source.source} className="p-3 bg-muted/50 rounded-lg space-y-2">
+                                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                    <Badge variant={source.source === 'direct' ? 'default' : 'secondary'} className="capitalize w-fit text-xs">
+                                      {source.source}
+                                    </Badge>
+                                    <span className="text-xs md:text-sm text-muted-foreground">
+                                      {source.clicks} clicks • {source.conversions} conversions
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <div className="flex-1 bg-background rounded-full h-2 overflow-hidden">
+                                      <div 
+                                        className="h-full bg-primary transition-all"
+                                        style={{ width: `${Math.min(parseFloat(conversionRate), 100)}%` }}
+                                      />
                                     </div>
-                                    <div className="mt-2 flex items-center gap-2">
-                                      <div className="flex-1 bg-background rounded-full h-2 overflow-hidden">
-                                        <div 
-                                          className="h-full bg-primary transition-all"
-                                          style={{ width: `${Math.min(parseFloat(conversionRate), 100)}%` }}
-                                        />
-                                      </div>
-                                      <span className="text-xs font-semibold text-primary min-w-12">
-                                        {conversionRate}%
-                                      </span>
-                                    </div>
+                                    <span className="text-xs font-semibold text-primary min-w-10 text-right">
+                                      {conversionRate}%
+                                    </span>
                                   </div>
                                 </div>
                               );
                             })}
                           </div>
                         ) : (
-                          <p className="text-sm text-muted-foreground text-center py-4">
+                          <p className="text-xs md:text-sm text-muted-foreground text-center py-4">
                             No traffic data yet. Start sharing your link!
                           </p>
                         )}
                       </div>
 
                       {/* Commission Levels */}
-                      <div className="pt-6 border-t">
-                        <h3 className="font-semibold mb-4">Multi-Level Conversions</h3>
+                      <div className="pt-4 md:pt-6 border-t">
+                        <h3 className="font-semibold mb-3 text-sm md:text-base">Multi-Level Conversions</h3>
                         {analytics.levelBreakdown.length > 0 ? (
-                          <div className="grid md:grid-cols-3 gap-4">
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
                             {[1, 2, 3].map(level => {
                               const levelData = analytics.levelBreakdown.find(l => l.level === level);
                               const conversions = levelData?.conversions || 0;
@@ -867,23 +877,23 @@ export default function Affiliate() {
                               
                               return (
                                 <Card key={level} className={conversions > 0 ? 'border-primary' : ''}>
-                                  <CardHeader className="pb-3">
+                                  <CardHeader className="pb-2 md:pb-3">
                                     <div className="flex items-center justify-between">
-                                      <CardTitle className="text-sm">Level {level}</CardTitle>
-                                      <Badge variant={level === 1 ? 'default' : level === 2 ? 'secondary' : 'outline'}>
+                                      <CardTitle className="text-xs md:text-sm">Level {level}</CardTitle>
+                                      <Badge variant={level === 1 ? 'default' : level === 2 ? 'secondary' : 'outline'} className="text-xs">
                                         {commissionRate}
                                       </Badge>
                                     </div>
                                   </CardHeader>
                                   <CardContent>
-                                    <div className="space-y-2">
+                                    <div className="space-y-1 md:space-y-2">
                                       <div className="flex justify-between items-baseline">
-                                        <span className="text-sm text-muted-foreground">Conversions</span>
-                                        <span className="text-2xl font-bold">{conversions}</span>
+                                        <span className="text-xs md:text-sm text-muted-foreground">Conversions</span>
+                                        <span className="text-xl md:text-2xl font-bold">{conversions}</span>
                                       </div>
                                       <div className="flex justify-between items-baseline">
-                                        <span className="text-sm text-muted-foreground">Earnings</span>
-                                        <span className="text-lg font-bold text-primary">
+                                        <span className="text-xs md:text-sm text-muted-foreground">Earnings</span>
+                                        <span className="text-base md:text-lg font-bold text-primary">
                                           ${earnings.toFixed(2)}
                                         </span>
                                       </div>
@@ -894,7 +904,7 @@ export default function Affiliate() {
                             })}
                           </div>
                         ) : (
-                          <p className="text-sm text-muted-foreground text-center py-4">
+                          <p className="text-xs md:text-sm text-muted-foreground text-center py-4">
                             No conversions yet. Keep sharing your link!
                           </p>
                         )}
