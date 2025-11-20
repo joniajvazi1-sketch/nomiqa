@@ -26,17 +26,17 @@ interface MembershipData {
 }
 
 const TIER_COLORS = {
-  bronze: "bg-gradient-to-br from-amber-800 via-amber-600 to-orange-700",
-  silver: "bg-gradient-to-br from-slate-400 via-slate-300 to-slate-500",
-  gold: "bg-gradient-to-br from-yellow-500 via-amber-400 to-yellow-600",
-  platinum: "bg-gradient-to-br from-purple-600 via-violet-500 to-purple-700"
+  bronze: "bg-gradient-to-br from-amber-900 via-amber-700 to-orange-800",
+  silver: "bg-gradient-to-br from-slate-500 via-slate-400 to-slate-600",
+  gold: "bg-gradient-to-br from-yellow-600 via-amber-500 to-yellow-700",
+  platinum: "bg-gradient-to-br from-purple-700 via-violet-600 to-purple-800"
 };
 
 const TIER_GLOW = {
-  bronze: "shadow-[0_0_50px_rgba(217,119,6,0.5),0_0_100px_rgba(217,119,6,0.3)]",
-  silver: "shadow-[0_0_50px_rgba(148,163,184,0.5),0_0_100px_rgba(148,163,184,0.3)]",
-  gold: "shadow-[0_0_60px_rgba(234,179,8,0.6),0_0_120px_rgba(234,179,8,0.4)]",
-  platinum: "shadow-[0_0_70px_rgba(168,85,247,0.7),0_0_140px_rgba(168,85,247,0.5)]"
+  bronze: "shadow-[0_0_50px_rgba(217,119,6,0.6),0_0_100px_rgba(217,119,6,0.4)]",
+  silver: "shadow-[0_0_50px_rgba(148,163,184,0.6),0_0_100px_rgba(148,163,184,0.4)]",
+  gold: "shadow-[0_0_60px_rgba(234,179,8,0.7),0_0_120px_rgba(234,179,8,0.5)]",
+  platinum: "shadow-[0_0_70px_rgba(168,85,247,0.8),0_0_140px_rgba(168,85,247,0.6)]"
 };
 
 const TIER_ICONS = {
@@ -47,10 +47,10 @@ const TIER_ICONS = {
 };
 
 const TIER_TEXT_COLOR = {
-  bronze: "text-amber-700",
-  silver: "text-slate-600",
-  gold: "text-yellow-600",
-  platinum: "text-purple-600"
+  bronze: "text-amber-600 dark:text-amber-500",
+  silver: "text-slate-700 dark:text-slate-400",
+  gold: "text-yellow-700 dark:text-yellow-500",
+  platinum: "text-purple-700 dark:text-purple-500"
 };
 
 export default function MyAccount() {
@@ -224,36 +224,36 @@ export default function MyAccount() {
                     <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_30%,rgba(255,255,255,0.1)_50%,transparent_70%)] bg-[length:200%_200%] animate-[shimmer_3s_ease-in-out_infinite]" />
                   </div>
                   
-                  <CardHeader className="relative z-10">
+                  <CardHeader className="relative z-10 pb-4">
                       <div className="flex items-start justify-between">
-                        <div className="flex items-center gap-6">
-                          <div className="relative">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 w-full">
+                          <div className="relative shrink-0">
                             <div className="absolute inset-0 bg-white/30 rounded-full blur-2xl animate-pulse" />
                             <div className="absolute inset-0 bg-white/20 rounded-full blur-xl" />
-                            <TierIcon className="w-20 h-20 relative z-10 drop-shadow-2xl animate-[float_3s_ease-in-out_infinite]" />
+                            <TierIcon className="w-16 h-16 sm:w-20 sm:h-20 relative z-10 drop-shadow-2xl animate-[float_3s_ease-in-out_infinite]" />
                           </div>
-                          <div>
-                            <div className="text-4xl md:text-5xl font-bold uppercase tracking-wider flex items-center gap-3 animate-fade-in mb-2">
+                          <div className="flex-1">
+                            <div className="text-3xl sm:text-4xl md:text-5xl font-bold uppercase tracking-wider flex flex-wrap items-center gap-2 sm:gap-3 animate-fade-in mb-2">
                               {membership?.membership_tier} 
-                              <Badge variant="secondary" className="bg-white/30 text-white border-0 text-sm backdrop-blur-sm">
+                              <Badge variant="secondary" className="bg-white/30 text-white border-0 text-xs sm:text-sm backdrop-blur-sm">
                                 Active
                               </Badge>
                             </div>
-                            <div className="text-lg md:text-xl opacity-95 flex items-center gap-2">
-                              <Zap className="w-5 h-5 animate-pulse" />
+                            <div className="text-base sm:text-lg md:text-xl opacity-95 flex flex-wrap items-center gap-2">
+                              <Zap className="w-4 h-4 sm:w-5 sm:h-5 animate-pulse" />
                               <span className="font-semibold">{membership?.cashback_rate}% cashback</span>
                               <span className="opacity-80">on every purchase</span>
                             </div>
                           </div>
                         </div>
                       </div>
-                  </CardHeader>
+                    </CardHeader>
                   
-                  <CardContent className="relative z-10 space-y-6 pt-8">
-                    <div className="bg-white/15 backdrop-blur-md rounded-xl p-6 border border-white/30">
-                      <div className="flex items-center justify-between">
-                        <p className="text-base opacity-90 font-medium">Lifetime Spending</p>
-                        <p className="text-3xl font-bold tracking-tight">${membership?.total_spent_usd.toFixed(2)}</p>
+                  <CardContent className="relative z-10 space-y-4 sm:space-y-6 pt-4 sm:pt-8">
+                    <div className="bg-white/15 backdrop-blur-md rounded-xl p-4 sm:p-6 border border-white/30">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                        <p className="text-sm sm:text-base opacity-90 font-medium">Lifetime Spending</p>
+                        <p className="text-2xl sm:text-3xl font-bold tracking-tight">${membership?.total_spent_usd.toFixed(2)}</p>
                       </div>
                     </div>
 
@@ -261,17 +261,17 @@ export default function MyAccount() {
                       <div className="space-y-3 animate-fade-in">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <TrendingUp className="w-5 h-5" />
-                            <p className="text-sm font-medium">Next Tier Progress</p>
+                            <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5" />
+                            <p className="text-xs sm:text-sm font-medium">Next Tier Progress</p>
                           </div>
-                          <p className="text-sm font-bold">
+                          <p className="text-xs sm:text-sm font-bold">
                             {Math.round(nextTier.progress)}%
                           </p>
                         </div>
                         
                         <div className="relative">
                           {/* Progress bar with glow effect */}
-                          <div className="h-4 bg-white/20 rounded-full overflow-hidden backdrop-blur-sm border border-white/30">
+                          <div className="h-3 sm:h-4 bg-white/20 rounded-full overflow-hidden backdrop-blur-sm border border-white/30">
                             <div 
                               className="h-full bg-gradient-to-r from-white via-white to-white/90 rounded-full transition-all duration-1000 ease-out relative shadow-[0_0_20px_rgba(255,255,255,0.5)]"
                               style={{ width: `${nextTier.progress}%` }}
@@ -281,22 +281,19 @@ export default function MyAccount() {
                           </div>
                         </div>
                         
-                        <div className="flex items-center justify-between text-sm">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs sm:text-sm">
                           <p className="opacity-90">
                             ${nextTier.remaining.toFixed(2)} away from {nextTier.name.toUpperCase()}
                           </p>
-                          <Badge variant="secondary" className="bg-white/20 text-white border-0">
-                            +{(nextTier.rate - (membership?.cashback_rate || 0)).toFixed(0)}% cashback
-                          </Badge>
                         </div>
                       </div>
                     )}
                     
                     {!nextTier && (
-                      <div className="bg-white/15 backdrop-blur-md rounded-xl p-6 border border-white/30 animate-fade-in">
-                        <div className="flex items-center gap-4">
-                          <Crown className="w-8 h-8 animate-[float_3s_ease-in-out_infinite]" />
-                          <p className="text-xl font-semibold">🎉 You've reached the highest tier!</p>
+                      <div className="bg-white/15 backdrop-blur-md rounded-xl p-4 sm:p-6 border border-white/30 animate-fade-in">
+                        <div className="flex items-center gap-3 sm:gap-4">
+                          <Crown className="w-6 h-6 sm:w-8 sm:h-8 animate-[float_3s_ease-in-out_infinite]" />
+                          <p className="text-base sm:text-xl font-semibold">🎉 You've reached the highest tier!</p>
                         </div>
                       </div>
                     )}
@@ -315,133 +312,133 @@ export default function MyAccount() {
                   <CardContent className="space-y-4">
                     <div className="grid gap-4 md:grid-cols-2">
                       {/* Bronze Tier */}
-                      <div className={`group p-6 border-2 rounded-2xl transition-all duration-300 hover:scale-[1.03] hover:shadow-xl ${
+                      <div className={`group p-4 sm:p-6 border-2 rounded-2xl transition-all duration-300 hover:scale-[1.03] hover:shadow-xl ${
                         membership?.membership_tier === 'bronze' 
-                          ? 'border-amber-600/60 bg-gradient-to-br from-amber-50/80 via-amber-50/40 to-transparent dark:from-amber-950/30 dark:via-amber-950/10 shadow-lg' 
+                          ? 'border-amber-600 bg-gradient-to-br from-amber-100/90 via-amber-50/60 to-amber-100/40 dark:from-amber-900/40 dark:via-amber-950/20 dark:to-amber-900/30 shadow-lg ring-2 ring-amber-500/20' 
                           : 'border-border/60 hover:border-amber-600/40 bg-card/30'
                       }`}>
-                        <div className="flex items-center gap-4 mb-4">
+                        <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
                           <div className="relative">
-                            <Star className={`w-9 h-9 ${TIER_TEXT_COLOR.bronze} transition-all duration-300 group-hover:scale-125 group-hover:rotate-12`} />
+                            <Star className={`w-7 h-7 sm:w-9 sm:h-9 ${membership?.membership_tier === 'bronze' ? 'text-amber-700 dark:text-amber-400' : TIER_TEXT_COLOR.bronze} transition-all duration-300 group-hover:scale-125 group-hover:rotate-12`} />
                             {membership?.membership_tier === 'bronze' && (
                               <div className="absolute inset-0 bg-amber-500/30 rounded-full blur-xl animate-pulse" />
                             )}
                           </div>
                           <div className="flex-1">
-                            <h3 className={`font-bold text-xl ${TIER_TEXT_COLOR.bronze} tracking-wide`}>BRONZE</h3>
+                            <h3 className={`font-bold text-lg sm:text-xl ${membership?.membership_tier === 'bronze' ? 'text-amber-800 dark:text-amber-300' : TIER_TEXT_COLOR.bronze} tracking-wide`}>BRONZE</h3>
                             {membership?.membership_tier === 'bronze' && (
-                              <Badge variant="secondary" className="text-xs mt-1 bg-amber-100 dark:bg-amber-950/50">Current Tier</Badge>
+                              <Badge variant="secondary" className="text-xs mt-1 bg-amber-200 dark:bg-amber-800/70 text-amber-900 dark:text-amber-100 font-semibold">Current Tier</Badge>
                             )}
                           </div>
                         </div>
-                        <div className="space-y-3">
-                          <p className="text-sm text-muted-foreground flex items-center gap-2">
+                        <div className="space-y-2 sm:space-y-3">
+                          <p className="text-xs sm:text-sm text-muted-foreground flex flex-wrap items-center gap-1 sm:gap-2">
                             <span className="font-semibold">Entry level</span>
                             <span className="opacity-60">•</span>
                             <span>$0+ spent</span>
                           </p>
                           <div className="flex items-baseline gap-2">
-                            <p className="text-4xl font-bold text-foreground">5%</p>
-                            <p className="text-base text-muted-foreground font-medium">cashback</p>
+                            <p className="text-3xl sm:text-4xl font-bold text-foreground">5%</p>
+                            <p className="text-sm sm:text-base text-muted-foreground font-medium">cashback</p>
                           </div>
                         </div>
                       </div>
 
                       {/* Silver Tier */}
-                      <div className={`group p-6 border-2 rounded-2xl transition-all duration-300 hover:scale-[1.03] hover:shadow-xl ${
+                      <div className={`group p-4 sm:p-6 border-2 rounded-2xl transition-all duration-300 hover:scale-[1.03] hover:shadow-xl ${
                         membership?.membership_tier === 'silver' 
-                          ? 'border-slate-500/60 bg-gradient-to-br from-slate-50/80 via-slate-50/40 to-transparent dark:from-slate-900/30 dark:via-slate-900/10 shadow-lg' 
+                          ? 'border-slate-500 bg-gradient-to-br from-slate-100/90 via-slate-50/60 to-slate-100/40 dark:from-slate-800/40 dark:via-slate-900/20 dark:to-slate-800/30 shadow-lg ring-2 ring-slate-400/20' 
                           : 'border-border/60 hover:border-slate-500/40 bg-card/30'
                       }`}>
-                        <div className="flex items-center gap-4 mb-4">
+                        <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
                           <div className="relative">
-                            <Award className={`w-9 h-9 ${TIER_TEXT_COLOR.silver} transition-all duration-300 group-hover:scale-125 group-hover:rotate-12`} />
+                            <Award className={`w-7 h-7 sm:w-9 sm:h-9 ${membership?.membership_tier === 'silver' ? 'text-slate-700 dark:text-slate-300' : TIER_TEXT_COLOR.silver} transition-all duration-300 group-hover:scale-125 group-hover:rotate-12`} />
                             {membership?.membership_tier === 'silver' && (
                               <div className="absolute inset-0 bg-slate-400/30 rounded-full blur-xl animate-pulse" />
                             )}
                           </div>
                           <div className="flex-1">
-                            <h3 className={`font-bold text-xl ${TIER_TEXT_COLOR.silver} tracking-wide`}>SILVER</h3>
+                            <h3 className={`font-bold text-lg sm:text-xl ${membership?.membership_tier === 'silver' ? 'text-slate-800 dark:text-slate-200' : TIER_TEXT_COLOR.silver} tracking-wide`}>SILVER</h3>
                             {membership?.membership_tier === 'silver' && (
-                              <Badge variant="secondary" className="text-xs mt-1 bg-slate-100 dark:bg-slate-950/50">Current Tier</Badge>
+                              <Badge variant="secondary" className="text-xs mt-1 bg-slate-200 dark:bg-slate-700/70 text-slate-900 dark:text-slate-100 font-semibold">Current Tier</Badge>
                             )}
                           </div>
                         </div>
-                        <div className="space-y-3">
-                          <p className="text-sm text-muted-foreground flex items-center gap-2">
+                        <div className="space-y-2 sm:space-y-3">
+                          <p className="text-xs sm:text-sm text-muted-foreground flex flex-wrap items-center gap-1 sm:gap-2">
                             <span className="font-semibold">Upgrade at</span>
                             <span className="opacity-60">•</span>
                             <span>$20+ spent</span>
                           </p>
                           <div className="flex items-baseline gap-2">
-                            <p className="text-4xl font-bold text-foreground">6%</p>
-                            <p className="text-base text-muted-foreground font-medium">cashback</p>
+                            <p className="text-3xl sm:text-4xl font-bold text-foreground">6%</p>
+                            <p className="text-sm sm:text-base text-muted-foreground font-medium">cashback</p>
                           </div>
                         </div>
                       </div>
 
                       {/* Gold Tier */}
-                      <div className={`group p-6 border-2 rounded-2xl transition-all duration-300 hover:scale-[1.03] hover:shadow-xl ${
+                      <div className={`group p-4 sm:p-6 border-2 rounded-2xl transition-all duration-300 hover:scale-[1.03] hover:shadow-xl ${
                         membership?.membership_tier === 'gold' 
-                          ? 'border-yellow-500/60 bg-gradient-to-br from-yellow-50/80 via-yellow-50/40 to-transparent dark:from-yellow-950/30 dark:via-yellow-950/10 shadow-lg' 
+                          ? 'border-yellow-600 bg-gradient-to-br from-yellow-100/90 via-yellow-50/60 to-yellow-100/40 dark:from-yellow-900/40 dark:via-yellow-950/20 dark:to-yellow-900/30 shadow-lg ring-2 ring-yellow-500/20' 
                           : 'border-border/60 hover:border-yellow-500/40 bg-card/30'
                       }`}>
-                        <div className="flex items-center gap-4 mb-4">
+                        <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
                           <div className="relative">
-                            <Crown className={`w-9 h-9 ${TIER_TEXT_COLOR.gold} transition-all duration-300 group-hover:scale-125 group-hover:rotate-12`} />
+                            <Crown className={`w-7 h-7 sm:w-9 sm:h-9 ${membership?.membership_tier === 'gold' ? 'text-yellow-700 dark:text-yellow-400' : TIER_TEXT_COLOR.gold} transition-all duration-300 group-hover:scale-125 group-hover:rotate-12`} />
                             {membership?.membership_tier === 'gold' && (
                               <div className="absolute inset-0 bg-yellow-500/30 rounded-full blur-xl animate-pulse" />
                             )}
                           </div>
                           <div className="flex-1">
-                            <h3 className={`font-bold text-xl ${TIER_TEXT_COLOR.gold} tracking-wide`}>GOLD</h3>
+                            <h3 className={`font-bold text-lg sm:text-xl ${membership?.membership_tier === 'gold' ? 'text-yellow-800 dark:text-yellow-300' : TIER_TEXT_COLOR.gold} tracking-wide`}>GOLD</h3>
                             {membership?.membership_tier === 'gold' && (
-                              <Badge variant="secondary" className="text-xs mt-1 bg-yellow-100 dark:bg-yellow-950/50">Current Tier</Badge>
+                              <Badge variant="secondary" className="text-xs mt-1 bg-yellow-200 dark:bg-yellow-800/70 text-yellow-900 dark:text-yellow-100 font-semibold">Current Tier</Badge>
                             )}
                           </div>
                         </div>
-                        <div className="space-y-3">
-                          <p className="text-sm text-muted-foreground flex items-center gap-2">
+                        <div className="space-y-2 sm:space-y-3">
+                          <p className="text-xs sm:text-sm text-muted-foreground flex flex-wrap items-center gap-1 sm:gap-2">
                             <span className="font-semibold">Premium</span>
                             <span className="opacity-60">•</span>
                             <span>$50+ spent</span>
                           </p>
                           <div className="flex items-baseline gap-2">
-                            <p className="text-4xl font-bold text-foreground">7%</p>
-                            <p className="text-base text-muted-foreground font-medium">cashback</p>
+                            <p className="text-3xl sm:text-4xl font-bold text-foreground">7%</p>
+                            <p className="text-sm sm:text-base text-muted-foreground font-medium">cashback</p>
                           </div>
                         </div>
                       </div>
 
                       {/* Platinum Tier */}
-                      <div className={`group p-6 border-2 rounded-2xl transition-all duration-300 hover:scale-[1.03] hover:shadow-xl ${
+                      <div className={`group p-4 sm:p-6 border-2 rounded-2xl transition-all duration-300 hover:scale-[1.03] hover:shadow-xl ${
                         membership?.membership_tier === 'platinum' 
-                          ? 'border-purple-500/60 bg-gradient-to-br from-purple-50/80 via-purple-50/40 to-transparent dark:from-purple-950/30 dark:via-purple-950/10 shadow-lg' 
+                          ? 'border-purple-600 bg-gradient-to-br from-purple-100/90 via-purple-50/60 to-purple-100/40 dark:from-purple-900/40 dark:via-purple-950/20 dark:to-purple-900/30 shadow-lg ring-2 ring-purple-500/20' 
                           : 'border-border/60 hover:border-purple-500/40 bg-card/30'
                       }`}>
-                        <div className="flex items-center gap-4 mb-4">
+                        <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
                           <div className="relative">
-                            <Sparkles className={`w-9 h-9 ${TIER_TEXT_COLOR.platinum} transition-all duration-300 group-hover:scale-125 group-hover:rotate-12`} />
+                            <Sparkles className={`w-7 h-7 sm:w-9 sm:h-9 ${membership?.membership_tier === 'platinum' ? 'text-purple-700 dark:text-purple-400' : TIER_TEXT_COLOR.platinum} transition-all duration-300 group-hover:scale-125 group-hover:rotate-12`} />
                             {membership?.membership_tier === 'platinum' && (
                               <div className="absolute inset-0 bg-purple-500/30 rounded-full blur-xl animate-pulse" />
                             )}
                           </div>
                           <div className="flex-1">
-                            <h3 className={`font-bold text-xl ${TIER_TEXT_COLOR.platinum} tracking-wide`}>PLATINUM</h3>
+                            <h3 className={`font-bold text-lg sm:text-xl ${membership?.membership_tier === 'platinum' ? 'text-purple-800 dark:text-purple-300' : TIER_TEXT_COLOR.platinum} tracking-wide`}>PLATINUM</h3>
                             {membership?.membership_tier === 'platinum' && (
-                              <Badge variant="secondary" className="text-xs mt-1 bg-purple-100 dark:bg-purple-950/50">Current Tier</Badge>
+                              <Badge variant="secondary" className="text-xs mt-1 bg-purple-200 dark:bg-purple-800/70 text-purple-900 dark:text-purple-100 font-semibold">Current Tier</Badge>
                             )}
                           </div>
                         </div>
-                        <div className="space-y-3">
-                          <p className="text-sm text-muted-foreground flex items-center gap-2">
+                        <div className="space-y-2 sm:space-y-3">
+                          <p className="text-xs sm:text-sm text-muted-foreground flex flex-wrap items-center gap-1 sm:gap-2">
                             <span className="font-semibold">Elite</span>
                             <span className="opacity-60">•</span>
                             <span>$150+ spent</span>
                           </p>
                           <div className="flex items-baseline gap-2">
-                            <p className="text-4xl font-bold text-foreground">10%</p>
-                            <p className="text-base text-muted-foreground font-medium">cashback</p>
+                            <p className="text-3xl sm:text-4xl font-bold text-foreground">10%</p>
+                            <p className="text-sm sm:text-base text-muted-foreground font-medium">cashback</p>
                           </div>
                         </div>
                       </div>
