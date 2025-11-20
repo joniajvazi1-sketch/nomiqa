@@ -119,7 +119,8 @@ export default function MyAccount() {
         
         if (currentIndex > previousIndex) {
           setShowConfetti(true);
-          toast.success(`🎉 Congratulations! You've unlocked ${membershipData.membership_tier.toUpperCase()} tier!`);
+          const tierKey = `tier${membershipData.membership_tier.charAt(0).toUpperCase() + membershipData.membership_tier.slice(1)}`;
+          toast.success(`🎉 Congratulations! You've unlocked ${t(tierKey)} tier!`);
         }
       }
       localStorage.setItem('previousTier', membershipData.membership_tier);
@@ -170,26 +171,26 @@ export default function MyAccount() {
       <main className="container mx-auto px-4 pt-24 pb-16">
         <div className="max-w-6xl mx-auto">
           <h1 className="text-4xl font-bold mb-8 text-center bg-gradient-neon bg-clip-text text-transparent">
-            My Account
+            {t("myAccount")}
           </h1>
 
           <Tabs defaultValue="info" className="w-full">
             <TabsList className="grid w-full grid-cols-4 mb-8">
               <TabsTrigger value="info" className="flex items-center gap-2">
                 <User className="w-4 h-4" />
-                <span className="hidden sm:inline">Account Info</span>
+                <span className="hidden sm:inline">{t("accountInfo")}</span>
               </TabsTrigger>
               <TabsTrigger value="membership" className="flex items-center gap-2">
                 <Award className="w-4 h-4" />
-                <span className="hidden sm:inline">Membership</span>
+                <span className="hidden sm:inline">{t("membershipTab")}</span>
               </TabsTrigger>
               <TabsTrigger value="orders" className="flex items-center gap-2">
                 <Package className="w-4 h-4" />
-                <span className="hidden sm:inline">My eSIMs</span>
+                <span className="hidden sm:inline">{t("myEsimsTab")}</span>
               </TabsTrigger>
               <TabsTrigger value="earn" className="flex items-center gap-2">
                 <Gift className="w-4 h-4" />
-                <span className="hidden sm:inline">Refer & Earn</span>
+                <span className="hidden sm:inline">{t("referEarnTab")}</span>
               </TabsTrigger>
             </TabsList>
 
@@ -198,16 +199,16 @@ export default function MyAccount() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <User className="w-5 h-5" />
-                    Account Information
+                    {t("accountInformation")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <p className="text-sm text-muted-foreground">Username</p>
+                    <p className="text-sm text-muted-foreground">{t("username")}</p>
                     <p className="text-lg font-medium">{profile?.username}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Email</p>
+                    <p className="text-sm text-muted-foreground">{t("emailLabel")}</p>
                     <p className="text-lg font-medium">{profile?.email}</p>
                   </div>
                 </CardContent>
@@ -234,15 +235,15 @@ export default function MyAccount() {
                           </div>
                           <div className="flex-1">
                             <div className="text-3xl sm:text-4xl md:text-5xl font-bold uppercase tracking-wider flex flex-wrap items-center gap-2 sm:gap-3 animate-fade-in mb-2">
-                              {membership?.membership_tier} 
+                              {t(`tier${membership?.membership_tier.charAt(0).toUpperCase() + membership?.membership_tier.slice(1)}`)}
                               <Badge variant="secondary" className="bg-white/30 text-white border-0 text-xs sm:text-sm backdrop-blur-sm">
-                                Active
+                                {t("active")}
                               </Badge>
                             </div>
                             <div className="text-base sm:text-lg md:text-xl opacity-95 flex flex-wrap items-center gap-2">
                               <Zap className="w-4 h-4 sm:w-5 sm:h-5 animate-pulse" />
-                              <span className="font-semibold">{membership?.cashback_rate}% cashback</span>
-                              <span className="opacity-80">on every purchase</span>
+                              <span className="font-semibold">{membership?.cashback_rate}% {t("cashback")}</span>
+                              <span className="opacity-80">{t("onEveryPurchase")}</span>
                             </div>
                           </div>
                         </div>
@@ -252,7 +253,7 @@ export default function MyAccount() {
                   <CardContent className="relative z-10 space-y-4 sm:space-y-6 pt-4 sm:pt-8">
                     <div className="bg-white/15 backdrop-blur-md rounded-xl p-4 sm:p-6 border border-white/30">
                       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-                        <p className="text-sm sm:text-base opacity-90 font-medium">Lifetime Spending</p>
+                        <p className="text-sm sm:text-base opacity-90 font-medium">{t("lifetimeSpending")}</p>
                         <p className="text-2xl sm:text-3xl font-bold tracking-tight">${membership?.total_spent_usd.toFixed(2)}</p>
                       </div>
                     </div>
@@ -262,7 +263,7 @@ export default function MyAccount() {
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5" />
-                            <p className="text-xs sm:text-sm font-medium">Next Tier Progress</p>
+                            <p className="text-xs sm:text-sm font-medium">{t("nextTierProgress")}</p>
                           </div>
                           <p className="text-xs sm:text-sm font-bold">
                             {Math.round(nextTier.progress)}%
@@ -283,7 +284,7 @@ export default function MyAccount() {
                         
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs sm:text-sm">
                           <p className="opacity-90">
-                            ${nextTier.remaining.toFixed(2)} away from {nextTier.name.toUpperCase()}
+                            ${nextTier.remaining.toFixed(2)} {t("awayFrom")} {t(`tier${nextTier.name.charAt(0).toUpperCase() + nextTier.name.slice(1)}`)}
                           </p>
                         </div>
                       </div>
@@ -293,7 +294,7 @@ export default function MyAccount() {
                       <div className="bg-white/15 backdrop-blur-md rounded-xl p-4 sm:p-6 border border-white/30 animate-fade-in">
                         <div className="flex items-center gap-3 sm:gap-4">
                           <Crown className="w-6 h-6 sm:w-8 sm:h-8 animate-[float_3s_ease-in-out_infinite]" />
-                          <p className="text-base sm:text-xl font-semibold">🎉 You've reached the highest tier!</p>
+                          <p className="text-base sm:text-xl font-semibold">🎉 {t("reachedHighestTier")}</p>
                         </div>
                       </div>
                     )}
@@ -305,9 +306,9 @@ export default function MyAccount() {
                   <CardHeader>
                     <CardTitle className="flex items-center gap-3 text-2xl">
                       <Award className="w-6 h-6 text-primary" />
-                      All Membership Tiers
+                      {t("allMembershipTiers")}
                     </CardTitle>
-                    <CardDescription className="text-base">Unlock better rewards as you spend more</CardDescription>
+                    <CardDescription className="text-base">{t("unlockBetterRewards")}</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="grid gap-4 md:grid-cols-2">
@@ -325,9 +326,9 @@ export default function MyAccount() {
                             )}
                           </div>
                           <div className="flex-1">
-                            <h3 className={`font-bold text-lg sm:text-xl ${membership?.membership_tier === 'bronze' ? 'text-amber-800 dark:text-amber-300' : TIER_TEXT_COLOR.bronze} tracking-wide`}>BRONZE</h3>
+                            <h3 className={`font-bold text-lg sm:text-xl ${membership?.membership_tier === 'bronze' ? 'text-amber-800 dark:text-amber-300' : TIER_TEXT_COLOR.bronze} tracking-wide`}>{t("tierBronze")}</h3>
                             {membership?.membership_tier === 'bronze' && (
-                              <Badge variant="secondary" className="text-xs mt-1 bg-amber-200 dark:bg-amber-800/70 text-amber-900 dark:text-amber-100 font-semibold">Current Tier</Badge>
+                              <Badge variant="secondary" className="text-xs mt-1 bg-amber-200 dark:bg-amber-800/70 text-amber-900 dark:text-amber-100 font-semibold">{t("currentTier")}</Badge>
                             )}
                           </div>
                         </div>
@@ -337,9 +338,9 @@ export default function MyAccount() {
                               ? 'text-amber-900 dark:text-amber-100' 
                               : 'text-muted-foreground'
                           }`}>
-                            <span className="font-semibold">Entry level</span>
+                            <span className="font-semibold">{t("entryLevel")}</span>
                             <span className="opacity-60">•</span>
-                            <span>$0+ spent</span>
+                            <span>$0+ {t("spent")}</span>
                           </p>
                           <div className="flex items-baseline gap-2">
                             <p className={`text-3xl sm:text-4xl font-bold ${
@@ -351,7 +352,7 @@ export default function MyAccount() {
                               membership?.membership_tier === 'bronze' 
                                 ? 'text-amber-800 dark:text-amber-200' 
                                 : 'text-muted-foreground'
-                            }`}>cashback</p>
+                            }`}>{t("cashback")}</p>
                           </div>
                         </div>
                       </div>
@@ -370,9 +371,9 @@ export default function MyAccount() {
                             )}
                           </div>
                           <div className="flex-1">
-                            <h3 className={`font-bold text-lg sm:text-xl ${membership?.membership_tier === 'silver' ? 'text-slate-800 dark:text-slate-200' : TIER_TEXT_COLOR.silver} tracking-wide`}>SILVER</h3>
+                            <h3 className={`font-bold text-lg sm:text-xl ${membership?.membership_tier === 'silver' ? 'text-slate-800 dark:text-slate-200' : TIER_TEXT_COLOR.silver} tracking-wide`}>{t("tierSilver")}</h3>
                             {membership?.membership_tier === 'silver' && (
-                              <Badge variant="secondary" className="text-xs mt-1 bg-slate-200 dark:bg-slate-700/70 text-slate-900 dark:text-slate-100 font-semibold">Current Tier</Badge>
+                              <Badge variant="secondary" className="text-xs mt-1 bg-slate-200 dark:bg-slate-700/70 text-slate-900 dark:text-slate-100 font-semibold">{t("currentTier")}</Badge>
                             )}
                           </div>
                         </div>
@@ -382,9 +383,9 @@ export default function MyAccount() {
                               ? 'text-slate-900 dark:text-slate-100' 
                               : 'text-muted-foreground'
                           }`}>
-                            <span className="font-semibold">Upgrade at</span>
+                            <span className="font-semibold">{t("upgradeAt")}</span>
                             <span className="opacity-60">•</span>
-                            <span>$20+ spent</span>
+                            <span>$20+ {t("spent")}</span>
                           </p>
                           <div className="flex items-baseline gap-2">
                             <p className={`text-3xl sm:text-4xl font-bold ${
@@ -396,7 +397,7 @@ export default function MyAccount() {
                               membership?.membership_tier === 'silver' 
                                 ? 'text-slate-800 dark:text-slate-200' 
                                 : 'text-muted-foreground'
-                            }`}>cashback</p>
+                            }`}>{t("cashback")}</p>
                           </div>
                         </div>
                       </div>
@@ -415,9 +416,9 @@ export default function MyAccount() {
                             )}
                           </div>
                           <div className="flex-1">
-                            <h3 className={`font-bold text-lg sm:text-xl ${membership?.membership_tier === 'gold' ? 'text-yellow-800 dark:text-yellow-300' : TIER_TEXT_COLOR.gold} tracking-wide`}>GOLD</h3>
+                            <h3 className={`font-bold text-lg sm:text-xl ${membership?.membership_tier === 'gold' ? 'text-yellow-800 dark:text-yellow-300' : TIER_TEXT_COLOR.gold} tracking-wide`}>{t("tierGold")}</h3>
                             {membership?.membership_tier === 'gold' && (
-                              <Badge variant="secondary" className="text-xs mt-1 bg-yellow-200 dark:bg-yellow-800/70 text-yellow-900 dark:text-yellow-100 font-semibold">Current Tier</Badge>
+                              <Badge variant="secondary" className="text-xs mt-1 bg-yellow-200 dark:bg-yellow-800/70 text-yellow-900 dark:text-yellow-100 font-semibold">{t("currentTier")}</Badge>
                             )}
                           </div>
                         </div>
@@ -427,9 +428,9 @@ export default function MyAccount() {
                               ? 'text-yellow-900 dark:text-yellow-100' 
                               : 'text-muted-foreground'
                           }`}>
-                            <span className="font-semibold">Premium</span>
+                            <span className="font-semibold">{t("premium")}</span>
                             <span className="opacity-60">•</span>
-                            <span>$50+ spent</span>
+                            <span>$50+ {t("spent")}</span>
                           </p>
                           <div className="flex items-baseline gap-2">
                             <p className={`text-3xl sm:text-4xl font-bold ${
@@ -441,7 +442,7 @@ export default function MyAccount() {
                               membership?.membership_tier === 'gold' 
                                 ? 'text-yellow-800 dark:text-yellow-200' 
                                 : 'text-muted-foreground'
-                            }`}>cashback</p>
+                            }`}>{t("cashback")}</p>
                           </div>
                         </div>
                       </div>
@@ -460,9 +461,9 @@ export default function MyAccount() {
                             )}
                           </div>
                           <div className="flex-1">
-                            <h3 className={`font-bold text-lg sm:text-xl ${membership?.membership_tier === 'platinum' ? 'text-purple-800 dark:text-purple-300' : TIER_TEXT_COLOR.platinum} tracking-wide`}>PLATINUM</h3>
+                            <h3 className={`font-bold text-lg sm:text-xl ${membership?.membership_tier === 'platinum' ? 'text-purple-800 dark:text-purple-300' : TIER_TEXT_COLOR.platinum} tracking-wide`}>{t("tierPlatinum")}</h3>
                             {membership?.membership_tier === 'platinum' && (
-                              <Badge variant="secondary" className="text-xs mt-1 bg-purple-200 dark:bg-purple-800/70 text-purple-900 dark:text-purple-100 font-semibold">Current Tier</Badge>
+                              <Badge variant="secondary" className="text-xs mt-1 bg-purple-200 dark:bg-purple-800/70 text-purple-900 dark:text-purple-100 font-semibold">{t("currentTier")}</Badge>
                             )}
                           </div>
                         </div>
@@ -472,9 +473,9 @@ export default function MyAccount() {
                               ? 'text-purple-900 dark:text-purple-100' 
                               : 'text-muted-foreground'
                           }`}>
-                            <span className="font-semibold">Elite</span>
+                            <span className="font-semibold">{t("elite")}</span>
                             <span className="opacity-60">•</span>
-                            <span>$150+ spent</span>
+                            <span>$150+ {t("spent")}</span>
                           </p>
                           <div className="flex items-baseline gap-2">
                             <p className={`text-3xl sm:text-4xl font-bold ${
@@ -486,7 +487,7 @@ export default function MyAccount() {
                               membership?.membership_tier === 'platinum' 
                                 ? 'text-purple-800 dark:text-purple-200' 
                                 : 'text-muted-foreground'
-                            }`}>cashback</p>
+                            }`}>{t("cashback")}</p>
                           </div>
                         </div>
                       </div>
@@ -501,12 +502,12 @@ export default function MyAccount() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Package className="w-5 h-5" />
-                    My eSIMs
+                    {t("myEsimsTab")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <Button onClick={() => navigate(localizedPath('/orders', language))}>
-                    View All Orders
+                    {t("viewAllOrders")}
                   </Button>
                 </CardContent>
               </Card>
@@ -517,12 +518,12 @@ export default function MyAccount() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Gift className="w-5 h-5" />
-                    Refer & Earn
+                    {t("referEarnTab")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <Button onClick={() => navigate(localizedPath('/affiliate', language))}>
-                    Go to Affiliate Program
+                    {t("goToAffiliateProgram")}
                   </Button>
                 </CardContent>
               </Card>
