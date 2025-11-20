@@ -122,7 +122,25 @@ All colors MUST be HSL.
     }
   }
 
-  .neon-glow {
-    animation: neon-pulse 3s ease-in-out infinite;
+  .animate-fade-up {
+    animation: fade-up 0.6s ease-out;
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: -200% center;
+    }
+    100% {
+      background-position: 200% center;
+    }
   }
 }
