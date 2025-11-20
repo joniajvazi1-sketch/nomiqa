@@ -215,8 +215,8 @@ const App = () => (
               <Route path="about" element={<About />} />
               <Route path="token" element={<Token />} />
             </Route>
-            {/** Hindi */}
-            <Route path="/hindi">
+            {/** Italian */}
+            <Route path="/italiano">
               <Route index element={<Index />} />
               <Route path="shop" element={<ShopPage />} />
               <Route path="auth" element={<Auth />} />
