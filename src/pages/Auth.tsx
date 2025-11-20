@@ -24,9 +24,9 @@ export default function Auth() {
       }
     });
 
-    // Check if URL has signup parameter
+    // Check if URL has signup/mode parameter
     const params = new URLSearchParams(window.location.search);
-    if (params.get('signup') === 'true') {
+    if (params.get('signup') === 'true' || params.get('mode') === 'signup') {
       setIsSignUp(true);
     }
   }, [navigate]);

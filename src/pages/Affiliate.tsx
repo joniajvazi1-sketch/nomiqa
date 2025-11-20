@@ -38,6 +38,8 @@ export default function Affiliate() {
   const [customLink, setCustomLink] = useState("");
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
+  const [newLinkUsername, setNewLinkUsername] = useState("");
+  const [showNewLinkInput, setShowNewLinkInput] = useState(false);
   const [updatingUsername, setUpdatingUsername] = useState(false);
   const [usernameAvailability, setUsernameAvailability] = useState<'idle' | 'checking' | 'available' | 'taken' | 'invalid'>('idle');
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
@@ -47,20 +49,20 @@ export default function Affiliate() {
     checkUser();
   }, []);
 
-  // Debounced username availability check
+  // Debounced username availability check for new link
   useEffect(() => {
-    if (!username || username === affiliate?.username) {
+    if (!newLinkUsername || !showNewLinkInput) {
       setUsernameAvailability('idle');
       return;
     }
 
     // Validate username format
-    if (username.length < 3 || username.length > 30) {
+    if (newLinkUsername.length < 3 || newLinkUsername.length > 30) {
       setUsernameAvailability('invalid');
       return;
     }
 
-    if (!/^[a-z0-9-]+$/.test(username)) {
+    if (!/^[a-z0-9-]+$/.test(newLinkUsername)) {
       setUsernameAvailability('invalid');
       return;
     }
@@ -72,7 +74,7 @@ export default function Affiliate() {
         const { data, error } = await supabase
           .from('affiliates')
           .select('id')
-          .eq('username', username.toLowerCase())
+          .eq('username', newLinkUsername.toLowerCase())
           .maybeSingle();
 
         if (error) throw error;
@@ -85,7 +87,7 @@ export default function Affiliate() {
     }, 500);
 
     return () => clearTimeout(timeoutId);
-  }, [username, affiliate?.username]);
+  }, [newLinkUsername, showNewLinkInput]);
 
   const checkUser = async () => {
     try {
@@ -226,7 +228,18 @@ export default function Affiliate() {
 
   const createAffiliate = async () => {
     if (!user) {
-      navigate('/auth');
+      navigate('/auth?mode=signup');
+      return;
+    }
+
+    // Validate custom username for additional links
+    if (showNewLinkInput && !newLinkUsername) {
+      toast.error("Please enter a username for your new affiliate link");
+      return;
+    }
+
+    if (showNewLinkInput && usernameAvailability !== 'available') {
+      toast.error("Please choose a valid and available username");
       return;
     }
 
@@ -250,7 +263,7 @@ export default function Affiliate() {
       const isFirstAffiliate = !existingAffiliates || existingAffiliates.length === 0;
       
       // For first affiliate, use username from profile
-      let affiliateUsername = username;
+      let affiliateUsername = newLinkUsername.toLowerCase() || username;
       if (isFirstAffiliate) {
         // Get username from profiles table
         const { data: profile } = await supabase
@@ -319,6 +332,11 @@ export default function Affiliate() {
           setAffiliateLink(`${window.location.origin}/r/${retryData.affiliate_code}`);
           toast.success(`Affiliate link ${existingAffiliates.length + 1} created!`);
           
+          // Reset form
+          setShowNewLinkInput(false);
+          setNewLinkUsername("");
+          setUsernameAvailability('idle');
+          
           // Refresh all affiliates
           await fetchAffiliates(user.id);
           return;
@@ -332,6 +350,11 @@ export default function Affiliate() {
       setAffiliateLink(`${window.location.origin}/r/${data.affiliate_code}`);
       
       toast.success(`Affiliate link ${existingAffiliates.length + 1} created!`);
+      
+      // Reset form
+      setShowNewLinkInput(false);
+      setNewLinkUsername("");
+      setUsernameAvailability('idle');
       
       // Refresh all affiliates
       await fetchAffiliates(user.id);
@@ -382,9 +405,9 @@ export default function Affiliate() {
           {!user ? (
             <Card className="max-w-2xl mx-auto">
               <CardHeader>
-                <CardTitle>Join the Affiliate Program</CardTitle>
-                <CardDescription>
-                  Sign up or log in to start earning commissions
+                <CardTitle className="text-center">Start Earning with Nomiqa</CardTitle>
+                <CardDescription className="text-center">
+                  Create an account to get your affiliate links and start earning commissions
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -407,17 +430,16 @@ export default function Affiliate() {
                     </div>
                   </div>
 
-                  <div className="bg-accent/10 border border-accent/20 rounded-lg p-6 text-center">
-                    <AlertCircle className="w-12 h-12 text-accent mx-auto mb-4" />
-                    <h3 className="text-xl font-bold mb-2">Authentication Required</h3>
+                  <div className="bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/20 rounded-lg p-6 text-center">
+                    <CheckCircle2 className="w-12 h-12 text-primary mx-auto mb-4" />
+                    <h3 className="text-xl font-bold mb-2">Ready to Get Started?</h3>
                     <p className="text-muted-foreground mb-6">
-                      You need to register or log in to access the affiliate program. 
-                      Each account automatically gets 1 link based on your username, 
-                      plus you can create 2 additional custom links.
+                      Each account gets 1 automatic link based on your username, 
+                      plus you can create 2 additional custom links to track different campaigns.
                     </p>
                     <div className="flex gap-3 justify-center">
-                      <Button onClick={() => navigate('/auth')} size="lg" variant="default">
-                        Sign Up
+                      <Button onClick={() => navigate('/auth?mode=signup')} size="lg" variant="default">
+                        Register Now
                       </Button>
                       <Button onClick={() => navigate('/auth')} size="lg" variant="outline">
                         Log In
@@ -573,18 +595,86 @@ export default function Affiliate() {
                   
                   {allAffiliates.length < 3 && (
                     <div className="pt-4">
-                      <Button 
-                        onClick={createAffiliate} 
-                        variant="outline"
-                        className="w-full"
-                        disabled={creating}
-                      >
-                        {creating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        Create Additional Link ({allAffiliates.length + 1} / 3)
-                      </Button>
-                      <p className="text-xs text-muted-foreground mt-2 text-center">
-                        You can create {3 - allAffiliates.length} more affiliate link{3 - allAffiliates.length > 1 ? 's' : ''}
-                      </p>
+                      {!showNewLinkInput ? (
+                        <div className="space-y-3">
+                          <Button 
+                            onClick={() => setShowNewLinkInput(true)} 
+                            variant="outline"
+                            className="w-full"
+                          >
+                            Create Additional Link ({allAffiliates.length + 1} / 3)
+                          </Button>
+                          <p className="text-xs text-muted-foreground text-center">
+                            You can create {3 - allAffiliates.length} more affiliate link{3 - allAffiliates.length > 1 ? 's' : ''}
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="space-y-4 p-4 border rounded-lg bg-muted/30">
+                          <h3 className="font-semibold">Create Link {allAffiliates.length + 1}</h3>
+                          <div className="space-y-2">
+                            <label className="text-sm font-medium">
+                              Choose a username for this link
+                            </label>
+                            <div className="flex gap-2">
+                              <span className="flex items-center px-3 py-2 bg-muted text-muted-foreground rounded-md text-sm whitespace-nowrap">
+                                {window.location.origin}/
+                              </span>
+                              <div className="flex-1 relative">
+                                <Input
+                                  value={newLinkUsername}
+                                  onChange={(e) => setNewLinkUsername(e.target.value.toLowerCase())}
+                                  placeholder="your-custom-name"
+                                  className="font-mono"
+                                />
+                                {usernameAvailability === 'checking' && (
+                                  <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
+                                )}
+                                {usernameAvailability === 'available' && (
+                                  <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-green-500" />
+                                )}
+                                {usernameAvailability === 'taken' && (
+                                  <XCircle className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-red-500" />
+                                )}
+                              </div>
+                            </div>
+                            {usernameAvailability === 'invalid' && (
+                              <p className="text-xs text-red-500">
+                                Username must be 3-30 characters, lowercase letters, numbers, and hyphens only
+                              </p>
+                            )}
+                            {usernameAvailability === 'taken' && (
+                              <p className="text-xs text-red-500">
+                                This username is already taken
+                              </p>
+                            )}
+                            {usernameAvailability === 'available' && (
+                              <p className="text-xs text-green-600">
+                                This username is available!
+                              </p>
+                            )}
+                          </div>
+                          <div className="flex gap-2">
+                            <Button 
+                              onClick={createAffiliate}
+                              disabled={creating || usernameAvailability !== 'available'}
+                              className="flex-1"
+                            >
+                              {creating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                              Create Link
+                            </Button>
+                            <Button 
+                              onClick={() => {
+                                setShowNewLinkInput(false);
+                                setNewLinkUsername("");
+                                setUsernameAvailability('idle');
+                              }}
+                              variant="outline"
+                            >
+                              Cancel
+                            </Button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
                   
