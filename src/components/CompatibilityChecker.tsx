@@ -2,6 +2,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Input } from "./ui/input";
 import { useState } from "react";
 import { Search } from "lucide-react";
+import { useTranslation } from "@/contexts/TranslationContext";
 
 interface CompatibilityCheckerProps {
   open: boolean;
@@ -279,6 +280,7 @@ const androidDevices = [
 ];
 
 export const CompatibilityChecker = ({ open, onOpenChange }: CompatibilityCheckerProps) => {
+  const { t } = useTranslation();
   const [iosSearch, setIosSearch] = useState("");
   const [androidSearch, setAndroidSearch] = useState("");
 
@@ -294,34 +296,34 @@ export const CompatibilityChecker = ({ open, onOpenChange }: CompatibilityChecke
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl">Check Device Compatibility</DialogTitle>
+          <DialogTitle className="text-2xl">{t('checkDeviceCompatibility')}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6">
           <div className="p-4 rounded-lg bg-muted/50 space-y-2">
             <p className="text-sm leading-relaxed">
-              To use a Nomiqa eSIM, a device must meet the following conditions:
+              {t('compatibilityIntro')}
             </p>
             <ul className="list-disc list-inside text-sm space-y-1 text-muted-foreground">
-              <li>The device supports eSIMs.</li>
-              <li>The device is not carrier or network locked.</li>
-              <li>The device is not jailbroken (iOS) or rooted (Android).</li>
+              <li>{t('compatibilityCondition1')}</li>
+              <li>{t('compatibilityCondition2')}</li>
+              <li>{t('compatibilityCondition3')}</li>
             </ul>
             <p className="text-sm text-muted-foreground mt-3">
-              You can use our list to see if the device you want to use is eSIM compatible. Note, some regional models may not support eSIMs.
+              {t('compatibilityNote1')}
             </p>
             <p className="text-sm font-medium mt-2">
-              Don't see your device? Our list is updated regularly, but not exhaustive — check with the device manufacturer to confirm it supports eSIMs.
+              {t('compatibilityNote2')}
             </p>
           </div>
 
           {/* iOS Devices */}
           <div className="space-y-3">
-            <h3 className="font-semibold text-lg">iOS Models (Apple)</h3>
+            <h3 className="font-semibold text-lg">{t('iosModels')}</h3>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search iOS devices..."
+                placeholder={t('searchDevices')}
                 value={iosSearch}
                 onChange={(e) => setIosSearch(e.target.value)}
                 className="pl-9"
@@ -342,11 +344,11 @@ export const CompatibilityChecker = ({ open, onOpenChange }: CompatibilityChecke
 
           {/* Android Devices */}
           <div className="space-y-3">
-            <h3 className="font-semibold text-lg">Android Models</h3>
+            <h3 className="font-semibold text-lg">{t('androidModels')}</h3>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search Android devices..."
+                placeholder={t('searchDevices')}
                 value={androidSearch}
                 onChange={(e) => setAndroidSearch(e.target.value)}
                 className="pl-9"
