@@ -430,16 +430,14 @@ export default function Affiliate() {
                 <p className="text-2xl md:text-4xl bg-gradient-to-r from-neon-coral to-neon-purple bg-clip-text text-transparent font-bold">
                   18% Total Commission Split
                 </p>
-                <p className="text-xl md:text-2xl text-warm-sand">
-                  Your link → <span className="text-neon-coral font-bold">9%</span> • 
-                  Their link → <span className="text-neon-purple font-bold">+6%</span> • 
-                  Next level → <span className="text-neon-cyan font-bold">+3%</span>
+                <p className="text-xl md:text-2xl text-warm-sand max-w-3xl mx-auto leading-relaxed">
+                  9% direct sales • 6% second level • 3% third level
                 </p>
               </div>
 
               <div className="pt-4">
                 <p className="text-lg md:text-xl text-warm-sand/90 max-w-3xl mx-auto leading-relaxed">
-                  Build a network once. Earn forever. Every connection multiplies your income — automatically.
+                  One link. Infinite potential. Your network works for you — 24/7, worldwide.
                 </p>
               </div>
             </div>
