@@ -332,14 +332,26 @@ export default function MyAccount() {
                           </div>
                         </div>
                         <div className="space-y-2 sm:space-y-3">
-                          <p className="text-xs sm:text-sm text-muted-foreground flex flex-wrap items-center gap-1 sm:gap-2">
+                          <p className={`text-xs sm:text-sm flex flex-wrap items-center gap-1 sm:gap-2 ${
+                            membership?.membership_tier === 'bronze' 
+                              ? 'text-amber-900 dark:text-amber-100' 
+                              : 'text-muted-foreground'
+                          }`}>
                             <span className="font-semibold">Entry level</span>
                             <span className="opacity-60">•</span>
                             <span>$0+ spent</span>
                           </p>
                           <div className="flex items-baseline gap-2">
-                            <p className="text-3xl sm:text-4xl font-bold text-foreground">5%</p>
-                            <p className="text-sm sm:text-base text-muted-foreground font-medium">cashback</p>
+                            <p className={`text-3xl sm:text-4xl font-bold ${
+                              membership?.membership_tier === 'bronze' 
+                                ? 'text-amber-900 dark:text-amber-100' 
+                                : 'text-foreground'
+                            }`}>5%</p>
+                            <p className={`text-sm sm:text-base font-medium ${
+                              membership?.membership_tier === 'bronze' 
+                                ? 'text-amber-800 dark:text-amber-200' 
+                                : 'text-muted-foreground'
+                            }`}>cashback</p>
                           </div>
                         </div>
                       </div>
@@ -365,14 +377,26 @@ export default function MyAccount() {
                           </div>
                         </div>
                         <div className="space-y-2 sm:space-y-3">
-                          <p className="text-xs sm:text-sm text-muted-foreground flex flex-wrap items-center gap-1 sm:gap-2">
+                          <p className={`text-xs sm:text-sm flex flex-wrap items-center gap-1 sm:gap-2 ${
+                            membership?.membership_tier === 'silver' 
+                              ? 'text-slate-900 dark:text-slate-100' 
+                              : 'text-muted-foreground'
+                          }`}>
                             <span className="font-semibold">Upgrade at</span>
                             <span className="opacity-60">•</span>
                             <span>$20+ spent</span>
                           </p>
                           <div className="flex items-baseline gap-2">
-                            <p className="text-3xl sm:text-4xl font-bold text-foreground">6%</p>
-                            <p className="text-sm sm:text-base text-muted-foreground font-medium">cashback</p>
+                            <p className={`text-3xl sm:text-4xl font-bold ${
+                              membership?.membership_tier === 'silver' 
+                                ? 'text-slate-900 dark:text-slate-100' 
+                                : 'text-foreground'
+                            }`}>6%</p>
+                            <p className={`text-sm sm:text-base font-medium ${
+                              membership?.membership_tier === 'silver' 
+                                ? 'text-slate-800 dark:text-slate-200' 
+                                : 'text-muted-foreground'
+                            }`}>cashback</p>
                           </div>
                         </div>
                       </div>
@@ -398,14 +422,26 @@ export default function MyAccount() {
                           </div>
                         </div>
                         <div className="space-y-2 sm:space-y-3">
-                          <p className="text-xs sm:text-sm text-muted-foreground flex flex-wrap items-center gap-1 sm:gap-2">
+                          <p className={`text-xs sm:text-sm flex flex-wrap items-center gap-1 sm:gap-2 ${
+                            membership?.membership_tier === 'gold' 
+                              ? 'text-yellow-900 dark:text-yellow-100' 
+                              : 'text-muted-foreground'
+                          }`}>
                             <span className="font-semibold">Premium</span>
                             <span className="opacity-60">•</span>
                             <span>$50+ spent</span>
                           </p>
                           <div className="flex items-baseline gap-2">
-                            <p className="text-3xl sm:text-4xl font-bold text-foreground">7%</p>
-                            <p className="text-sm sm:text-base text-muted-foreground font-medium">cashback</p>
+                            <p className={`text-3xl sm:text-4xl font-bold ${
+                              membership?.membership_tier === 'gold' 
+                                ? 'text-yellow-900 dark:text-yellow-100' 
+                                : 'text-foreground'
+                            }`}>7%</p>
+                            <p className={`text-sm sm:text-base font-medium ${
+                              membership?.membership_tier === 'gold' 
+                                ? 'text-yellow-800 dark:text-yellow-200' 
+                                : 'text-muted-foreground'
+                            }`}>cashback</p>
                           </div>
                         </div>
                       </div>
@@ -431,14 +467,26 @@ export default function MyAccount() {
                           </div>
                         </div>
                         <div className="space-y-2 sm:space-y-3">
-                          <p className="text-xs sm:text-sm text-muted-foreground flex flex-wrap items-center gap-1 sm:gap-2">
+                          <p className={`text-xs sm:text-sm flex flex-wrap items-center gap-1 sm:gap-2 ${
+                            membership?.membership_tier === 'platinum' 
+                              ? 'text-purple-900 dark:text-purple-100' 
+                              : 'text-muted-foreground'
+                          }`}>
                             <span className="font-semibold">Elite</span>
                             <span className="opacity-60">•</span>
                             <span>$150+ spent</span>
                           </p>
                           <div className="flex items-baseline gap-2">
-                            <p className="text-3xl sm:text-4xl font-bold text-foreground">10%</p>
-                            <p className="text-sm sm:text-base text-muted-foreground font-medium">cashback</p>
+                            <p className={`text-3xl sm:text-4xl font-bold ${
+                              membership?.membership_tier === 'platinum' 
+                                ? 'text-purple-900 dark:text-purple-100' 
+                                : 'text-foreground'
+                            }`}>10%</p>
+                            <p className={`text-sm sm:text-base font-medium ${
+                              membership?.membership_tier === 'platinum' 
+                                ? 'text-purple-800 dark:text-purple-200' 
+                                : 'text-muted-foreground'
+                            }`}>cashback</p>
                           </div>
                         </div>
                       </div>
