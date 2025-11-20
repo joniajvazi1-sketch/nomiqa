@@ -176,21 +176,21 @@ export default function MyAccount() {
 
           <Tabs defaultValue="info" className="w-full">
             <TabsList className="grid w-full grid-cols-4 mb-8">
-              <TabsTrigger value="info" className="flex items-center gap-2">
+              <TabsTrigger value="info" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-3">
                 <User className="w-4 h-4" />
-                <span className="hidden sm:inline">{t("accountInfo")}</span>
+                <span className="text-xs sm:text-sm">{t("accountInfo")}</span>
               </TabsTrigger>
-              <TabsTrigger value="membership" className="flex items-center gap-2">
+              <TabsTrigger value="membership" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-3">
                 <Award className="w-4 h-4" />
-                <span className="hidden sm:inline">{t("membershipTab")}</span>
+                <span className="text-xs sm:text-sm">{t("membershipTab")}</span>
               </TabsTrigger>
-              <TabsTrigger value="orders" className="flex items-center gap-2">
+              <TabsTrigger value="orders" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-3">
                 <Package className="w-4 h-4" />
-                <span className="hidden sm:inline">{t("myEsimsTab")}</span>
+                <span className="text-xs sm:text-sm">{t("myEsimsTab")}</span>
               </TabsTrigger>
-              <TabsTrigger value="earn" className="flex items-center gap-2">
+              <TabsTrigger value="earn" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-3">
                 <Gift className="w-4 h-4" />
-                <span className="hidden sm:inline">{t("referEarnTab")}</span>
+                <span className="text-xs sm:text-sm">{t("referEarnTab")}</span>
               </TabsTrigger>
             </TabsList>
 
