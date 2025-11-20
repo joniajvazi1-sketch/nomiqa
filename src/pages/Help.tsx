@@ -8,32 +8,25 @@ const Help = () => {
   const { t } = useTranslation();
   
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-deep-space to-background relative overflow-hidden">
-      {/* Background decorations */}
-      <div className="absolute top-20 left-10 w-96 h-96 bg-neon-cyan/10 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-20 right-10 w-96 h-96 bg-neon-coral/10 rounded-full blur-3xl"></div>
-      
+    <div className="min-h-screen bg-background">
       <Navbar />
       
-      <div className="container mx-auto px-3 md:px-4 py-12 md:py-16 relative z-10">
-        <div className="max-w-6xl mx-auto">
-          {/* Hero Section */}
-          <div className="text-center mb-8 md:mb-12 max-w-4xl mx-auto px-4">
-            <div className="space-y-3 md:space-y-4 animate-fade-in">
-              <h1 className="text-3xl md:text-5xl lg:text-6xl font-black font-display leading-tight tracking-tight">
-                <span className="block bg-gradient-to-r from-warm-sand to-neon-coral bg-clip-text text-transparent mb-2">
-                  {t("contactTitle")}
-                </span>
-              </h1>
-              
-              <p className="text-sm md:text-base lg:text-lg text-warm-sand/90 max-w-2xl mx-auto leading-relaxed">
-                {t("contactSubtitle")}
-              </p>
-            </div>
-          </div>
-
-          {/* Contact Card */}
-          <div className="max-w-3xl mx-auto mb-12 md:mb-16">
+      {/* Contact Section */}
+      <section className="pt-24 pb-12 md:pt-32 md:pb-16 bg-gradient-to-br from-deep-space via-midnight-blue to-deep-space relative overflow-hidden">
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute top-20 left-10 w-64 h-64 bg-neon-cyan rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-20 right-10 w-80 h-80 bg-neon-violet rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+        </div>
+        
+        <div className="container px-4 relative z-10">
+          <div className="max-w-3xl mx-auto text-center">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 bg-gradient-neon bg-clip-text text-transparent">
+              {t("contactTitle")}
+            </h1>
+            <p className="text-base md:text-lg text-foreground/70 mb-8">
+              {t("contactSubtitle")}
+            </p>
+            
             <div className="bg-card/30 backdrop-blur-xl border border-neon-cyan/20 rounded-2xl p-6 md:p-8 shadow-lg hover:shadow-glow-cyan transition-all">
               <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-6">
                 <div className="flex items-center justify-center w-14 h-14 md:w-16 md:h-16 bg-neon-cyan/10 rounded-full flex-shrink-0">
@@ -54,7 +47,7 @@ const Help = () => {
             </div>
           </div>
         </div>
-      </div>
+      </section>
       
       {/* FAQ Section */}
       <FAQ />

@@ -404,24 +404,25 @@ export default function Affiliate() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-deep-space to-background relative overflow-hidden">
-      {/* Background decorations */}
-      <div className="absolute top-20 left-10 w-96 h-96 bg-neon-cyan/10 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-20 right-10 w-96 h-96 bg-neon-coral/10 rounded-full blur-3xl"></div>
-      
+    <div className="min-h-screen bg-background">
       <Navbar />
       
-      <div className="container mx-auto px-3 md:px-4 py-16 md:py-20 relative z-10">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12 md:mb-16 max-w-5xl mx-auto px-4">
+      <section className="pt-24 pb-12 md:pt-32 md:pb-16 bg-gradient-to-br from-deep-space via-midnight-blue to-deep-space relative overflow-hidden">
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute top-20 left-10 w-64 h-64 bg-neon-cyan rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-20 right-10 w-80 h-80 bg-neon-violet rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+        </div>
+        
+        <div className="container px-4 relative z-10">
+          <div className="max-w-5xl mx-auto text-center">
             <div className="space-y-4 md:space-y-6 animate-fade-in">
               <div className="inline-block">
                 <span className="text-neon-coral text-xs md:text-base font-bold tracking-wider uppercase">🔥 Passive Income Unlocked</span>
               </div>
               
-              <h1 className="text-4xl md:text-6xl lg:text-8xl font-black font-display leading-tight tracking-tight">
-                <span className="block bg-gradient-to-r from-warm-sand to-neon-coral bg-clip-text text-transparent mb-2 md:mb-4">Earn While</span>
-                <span className="block bg-gradient-to-r from-neon-coral via-neon-purple to-neon-cyan bg-clip-text text-transparent">
+              <h1 className="text-4xl md:text-6xl lg:text-7xl font-black font-display leading-tight tracking-tight">
+                <span className="block bg-gradient-neon bg-clip-text text-transparent mb-2 md:mb-4">Earn While</span>
+                <span className="block bg-gradient-neon bg-clip-text text-transparent">
                   They Travel
                 </span>
               </h1>
@@ -430,18 +431,23 @@ export default function Affiliate() {
                 <p className="text-xl md:text-3xl lg:text-4xl text-foreground font-bold">
                   18% Total Commission Split
                 </p>
-                <p className="text-base md:text-xl lg:text-2xl text-warm-sand max-w-3xl mx-auto leading-relaxed px-2">
+                <p className="text-base md:text-xl lg:text-2xl text-foreground/80 max-w-3xl mx-auto leading-relaxed px-2">
                   9% direct sales • 6% second level • 3% third level
                 </p>
               </div>
 
               <div className="pt-3 md:pt-4">
-                <p className="text-base md:text-lg lg:text-xl text-warm-sand/90 max-w-3xl mx-auto leading-relaxed px-2">
+                <p className="text-base md:text-lg lg:text-xl text-foreground/70 max-w-3xl mx-auto leading-relaxed px-2">
                   One link. Infinite potential. Your network works for you — 24/7, worldwide.
                 </p>
               </div>
             </div>
           </div>
+        </div>
+      </section>
+      
+      <div className="container mx-auto px-3 md:px-4 py-8 md:py-12 relative z-10">
+        <div className="max-w-6xl mx-auto">
 
           {!user ? (
             <Card className="max-w-2xl mx-auto">
