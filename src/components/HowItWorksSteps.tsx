@@ -60,17 +60,21 @@ export const HowItWorksSteps = () => {
   }, []);
 
   return (
-    <section className="py-20 bg-gradient-to-b from-midnight-blue to-background relative overflow-hidden">
-      {/* Decorative grid */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#1a1a2e_1px,transparent_1px),linear-gradient(to_bottom,#1a1a2e_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-20"></div>
+    <section className="py-28 md:py-36 bg-gradient-to-b from-black/30 via-deep-space/50 to-black/30 relative overflow-hidden">
+      {/* Subtle premium grid */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-30"></div>
       
-      <div className="container px-4 relative z-10">
-        <div className="text-center mb-16 animate-fade-in-up">
-          <p className="text-neon-cyan uppercase tracking-[0.3em] text-sm font-semibold mb-4">{t("howItWorksTag")}</p>
-          <h2 className="text-4xl md:text-5xl font-bold font-display mb-4">
-            <span className="bg-gradient-neon bg-clip-text text-transparent">{t("howItWorksTitle")}</span>
+      <div className="container px-6 md:px-8 relative z-10">
+        <div className="text-center mb-20 md:mb-24 animate-fade-in-up">
+          <p className="text-white/40 uppercase tracking-[0.25em] text-xs md:text-sm font-light mb-5">
+            {t("howItWorksTag")}
+          </p>
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-light mb-6">
+            <span className="bg-gradient-to-r from-white via-white/95 to-white/90 bg-clip-text text-transparent">
+              {t("howItWorksTitle")}
+            </span>
           </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+          <p className="text-white/60 text-lg md:text-xl font-light max-w-2xl mx-auto leading-relaxed">
             {t("howItWorksSubtitle")}
           </p>
         </div>
@@ -93,41 +97,37 @@ export const HowItWorksSteps = () => {
                   transition: 'all 1s cubic-bezier(0.34, 1.56, 0.64, 1)',
                 }}
               >
-                {/* Connection line */}
+                {/* Connection line - refined */}
                 {index < steps.length - 1 && (
-                  <div className={`hidden md:block absolute top-16 left-[60%] w-full h-0.5 bg-gradient-to-r from-neon-cyan via-neon-violet to-transparent transition-opacity duration-700 ${
+                  <div className={`hidden md:block absolute top-20 left-[60%] w-full h-px bg-gradient-to-r from-white/20 via-white/10 to-transparent transition-opacity duration-700 ${
                     isVisible ? 'opacity-30' : 'opacity-0'
                   }`}></div>
                 )}
                 
-                <div className={`relative bg-card/50 backdrop-blur-sm border rounded-2xl p-8 transition-all duration-1000 ${
+                <div className={`relative bg-white/[0.02] backdrop-blur-xl border rounded-3xl p-10 md:p-12 transition-all duration-1000 hover-lift ${
                   isVisible 
-                    ? 'border-neon-cyan/70 shadow-[0_0_50px_rgba(6,182,212,0.5),0_0_100px_rgba(6,182,212,0.3)]' 
-                    : 'border-border/50'
-                }`}
-                style={{
-                  animation: isVisible ? 'pulse 3s ease-in-out infinite' : 'none',
-                }}
-                >
-                  {/* Number badge with lightning glow */}
-                  <div className={`absolute -top-4 -left-4 w-12 h-12 rounded-xl bg-gradient-to-br from-${step.color} to-neon-violet flex items-center justify-center text-white font-bold text-xl transition-all duration-1000 ${
+                    ? 'border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)]' 
+                    : 'border-white/5'
+                }`}>
+                  {/* Elegant number badge */}
+                  <div className={`absolute -top-5 -left-5 w-14 h-14 rounded-2xl bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center text-white font-light text-2xl border border-white/10 backdrop-blur-xl transition-all duration-1000 ${
                     isVisible 
-                      ? 'scale-100 shadow-[0_0_60px_rgba(6,182,212,1),0_0_100px_rgba(6,182,212,0.6)]' 
+                      ? 'scale-100' 
                       : 'scale-0'
                   }`}
                   style={{
-                    transform: isVisible ? 'scale(1) rotate(360deg)' : 'scale(0) rotate(0deg)',
+                    transform: isVisible ? 'scale(1) rotate(0deg)' : 'scale(0) rotate(-180deg)',
                     transition: 'all 1s cubic-bezier(0.68, -0.55, 0.265, 1.55)',
                   }}
                   >
                     {step.number}
                   </div>
                   
-                  <div className="mb-6 flex justify-center">
-                    <div className={`w-20 h-20 rounded-2xl bg-${step.color}/10 flex items-center justify-center border transition-all duration-1000 ${
+                  <div className="mb-8 flex justify-center">
+                    <div className={`w-20 h-20 md:w-24 md:h-24 rounded-3xl bg-gradient-to-br from-white/5 to-transparent flex items-center justify-center border transition-all duration-1000 ${
                       isVisible 
-                        ? `border-${step.color}/70 shadow-[0_0_50px_rgba(6,182,212,0.6),0_0_80px_rgba(6,182,212,0.4)]` 
-                        : `border-${step.color}/20`
+                        ? 'border-white/10' 
+                        : 'border-white/5'
                     }`}
                     style={{
                       transform: isVisible ? 'scale(1)' : 'scale(0.3)',
@@ -135,7 +135,7 @@ export const HowItWorksSteps = () => {
                       transitionDelay: '0.2s',
                     }}
                     >
-                      <Icon className={`w-10 h-10 text-${step.color} transition-all duration-1000 ${
+                      <Icon className={`w-10 h-10 md:w-12 md:h-12 text-white transition-all duration-1000 ${
                         isVisible ? 'scale-100 opacity-100' : 'scale-0 opacity-0'
                       }`}
                       style={{
@@ -147,9 +147,11 @@ export const HowItWorksSteps = () => {
                     </div>
                   </div>
                   
-                  <h3 className={`text-xl font-bold text-center mb-3 font-display transition-all duration-700 ${
+                  <h3 className={`text-2xl md:text-3xl font-light text-center mb-4 text-white leading-tight transition-all duration-700 ${
                     isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-                  }`}>{t(step.titleKey)}</h3>
+                  }`}>
+                    {t(step.titleKey)}
+                  </h3>
                 </div>
               </div>
             );
