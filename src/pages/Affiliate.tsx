@@ -413,30 +413,30 @@ export default function Affiliate() {
       
       <div className="container mx-auto px-4 py-20 relative z-10">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16 max-w-5xl mx-auto">
-            <div className="space-y-6 animate-fade-in">
+          <div className="text-center mb-12 md:mb-16 max-w-5xl mx-auto px-4">
+            <div className="space-y-4 md:space-y-6 animate-fade-in">
               <div className="inline-block">
-                <span className="text-neon-coral text-sm md:text-base font-bold tracking-wider uppercase">🔥 Passive Income Unlocked</span>
+                <span className="text-neon-coral text-xs md:text-base font-bold tracking-wider uppercase">🔥 Passive Income Unlocked</span>
               </div>
               
-              <h1 className="text-5xl md:text-7xl lg:text-8xl font-black font-display leading-none tracking-tight">
-                <span className="block bg-gradient-to-r from-warm-sand to-neon-coral bg-clip-text text-transparent mb-4">Earn While</span>
+              <h1 className="text-4xl md:text-6xl lg:text-8xl font-black font-display leading-tight tracking-tight">
+                <span className="block bg-gradient-to-r from-warm-sand to-neon-coral bg-clip-text text-transparent mb-2 md:mb-4">Earn While</span>
                 <span className="block bg-gradient-to-r from-neon-coral via-neon-purple to-neon-cyan bg-clip-text text-transparent">
                   They Travel
                 </span>
               </h1>
               
-              <div className="pt-6 space-y-3">
-                <p className="text-2xl md:text-4xl text-foreground font-bold">
+              <div className="pt-4 md:pt-6 space-y-2 md:space-y-3">
+                <p className="text-xl md:text-3xl lg:text-4xl text-foreground font-bold">
                   18% Total Commission Split
                 </p>
-                <p className="text-xl md:text-2xl text-warm-sand max-w-3xl mx-auto leading-relaxed">
+                <p className="text-base md:text-xl lg:text-2xl text-warm-sand max-w-3xl mx-auto leading-relaxed px-2">
                   9% direct sales • 6% second level • 3% third level
                 </p>
               </div>
 
-              <div className="pt-4">
-                <p className="text-lg md:text-xl text-warm-sand/90 max-w-3xl mx-auto leading-relaxed">
+              <div className="pt-3 md:pt-4">
+                <p className="text-base md:text-lg lg:text-xl text-warm-sand/90 max-w-3xl mx-auto leading-relaxed px-2">
                   One link. Infinite potential. Your network works for you — 24/7, worldwide.
                 </p>
               </div>
