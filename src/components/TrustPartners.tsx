@@ -5,19 +5,40 @@ import meteoraLogo from "@/assets/meteora-logo.jpg";
 import moonpayLogo from "@/assets/moonpay-logo.jpg";
 import { useSolanaPrice } from "@/hooks/useSolanaPrice";
 import { useTranslation } from "@/contexts/TranslationContext";
+import { useEffect, useRef, useState } from "react";
 
 export const TrustPartners = () => {
   const { price, isLoading } = useSolanaPrice();
   const { t } = useTranslation();
+  const [isVisible, setIsVisible] = useState(false);
+  const sectionRef = useRef<HTMLDivElement>(null);
+  
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+        }
+      },
+      { threshold: 0.1 }
+    );
+    
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+    
+    return () => observer.disconnect();
+  }, []);
+  
   
   return (
-    <section className="py-16 md:py-24 lg:py-32 bg-gradient-to-br from-black/40 via-deep-space/60 to-black/40 border-y border-white/5 relative overflow-hidden">
+    <section ref={sectionRef} className="py-16 md:py-24 lg:py-32 bg-gradient-to-br from-black/40 via-deep-space/60 to-black/40 border-y border-white/5 relative overflow-hidden">
       {/* Subtle premium decorations */}
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-neon-cyan/3 rounded-full blur-3xl"></div>
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-neon-violet/3 rounded-full blur-3xl"></div>
       
       <div className="container px-4 sm:px-6 md:px-8 relative z-10">
-        <div className="text-center mb-12 md:mb-16 lg:mb-20">
+        <div className={`text-center mb-12 md:mb-16 lg:mb-20 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           <p className="text-white/50 uppercase tracking-[0.25em] text-[10px] sm:text-xs md:text-sm font-light mb-3 md:mb-4">
             {t("trustInfrastructureTag")}
           </p>
@@ -31,7 +52,7 @@ export const TrustPartners = () => {
           </p>
         </div>
         
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 md:gap-8 max-w-6xl mx-auto">
+        <div className={`grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 md:gap-8 max-w-6xl mx-auto transition-all duration-1000 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           {/* Solana */}
           <div className="group flex flex-col items-center justify-center p-6 sm:p-8 md:p-10 rounded-2xl md:rounded-3xl bg-white/[0.02] backdrop-blur-xl border border-white/5 hover:border-white/10 transition-all duration-500 hover:bg-white/[0.04] hover-lift">
             <div className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-xl md:rounded-2xl bg-gradient-to-br from-white/5 to-transparent flex items-center justify-center mb-4 md:mb-5 group-hover:scale-110 transition-transform duration-500">

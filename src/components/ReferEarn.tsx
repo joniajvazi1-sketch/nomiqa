@@ -4,20 +4,40 @@ import { useNavigate } from "react-router-dom";
 import { DollarSign, Coins, XCircle } from "lucide-react";
 import { useTranslation } from "@/contexts/TranslationContext";
 import { localizedPath } from "@/utils/localizedLinks";
+import { useEffect, useRef, useState } from "react";
 
 export const ReferEarn = () => {
   const navigate = useNavigate();
   const { language } = useTranslation();
+  const [isVisible, setIsVisible] = useState(false);
+  const sectionRef = useRef<HTMLDivElement>(null);
+  
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+        }
+      },
+      { threshold: 0.1 }
+    );
+    
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+    
+    return () => observer.disconnect();
+  }, []);
 
   return (
-    <section className="py-16 md:py-24 lg:py-32 px-4 sm:px-6 relative overflow-hidden bg-gradient-to-br from-black/40 via-deep-space/60 to-black/40 border-y border-white/5">
+    <section ref={sectionRef} className="py-16 md:py-24 lg:py-32 px-4 sm:px-6 relative overflow-hidden bg-gradient-to-br from-black/40 via-deep-space/60 to-black/40 border-y border-white/5">
       {/* Premium background decorations */}
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-neon-cyan/3 rounded-full blur-3xl"></div>
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-neon-coral/3 rounded-full blur-3xl"></div>
       
       <div className="container mx-auto max-w-6xl relative z-10">
         {/* Header */}
-        <div className="text-center mb-12 md:mb-16 lg:mb-20 animate-fade-in-up">
+        <div className={`text-center mb-12 md:mb-16 lg:mb-20 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           <div className="inline-block mb-3 md:mb-4">
             <span className="text-neon-coral text-[10px] sm:text-xs md:text-sm font-light tracking-[0.25em] uppercase">
               💰 Real Earnings, Real Crypto
@@ -34,7 +54,7 @@ export const ReferEarn = () => {
         </div>
 
         {/* Comparison Cards */}
-        <div className="grid md:grid-cols-2 gap-5 sm:gap-6 md:gap-8 mb-12 md:mb-16 lg:mb-20">
+        <div className={`grid md:grid-cols-2 gap-5 sm:gap-6 md:gap-8 mb-12 md:mb-16 lg:mb-20 transition-all duration-1000 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           {/* Competitors */}
           <div className="relative p-6 sm:p-7 md:p-8 rounded-2xl md:rounded-3xl bg-white/[0.02] backdrop-blur-xl border-2 border-red-500/20 hover:border-red-500/30 transition-all duration-500">
             <div className="absolute top-4 right-4 sm:top-5 sm:right-5 md:top-6 md:right-6">
