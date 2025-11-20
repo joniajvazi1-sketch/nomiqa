@@ -1014,118 +1014,173 @@ export default function Affiliate() {
               </Card>
 
               {/* Analytics Dashboard */}
-              <Card className="mb-8">
-                <CardHeader>
-                  <div>
-                    <CardTitle className="flex items-center gap-2 text-base md:text-lg">
-                      <BarChart3 className="w-4 h-4 md:w-5 md:h-5" />
-                      Analytics Dashboard
-                    </CardTitle>
-                    <CardDescription className="text-xs md:text-sm">Track your performance and traffic sources</CardDescription>
+              <Card className="mb-8 border-primary/20 bg-gradient-to-br from-background via-background to-primary/5">
+                <CardHeader className="pb-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
+                        <div className="p-2 rounded-lg bg-primary/10">
+                          <BarChart3 className="w-5 h-5 text-primary" />
+                        </div>
+                        Analytics Dashboard
+                      </CardTitle>
+                      <CardDescription className="text-xs md:text-sm mt-2">Track your performance and earnings</CardDescription>
+                    </div>
                   </div>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="space-y-6">
                   {loadingAnalytics ? (
-                    <div className="flex items-center justify-center py-8">
-                      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    <div className="flex flex-col items-center justify-center py-12">
+                      <Loader2 className="h-10 w-10 animate-spin text-primary mb-3" />
+                      <p className="text-sm text-muted-foreground">Loading analytics...</p>
                     </div>
                   ) : analytics ? (
                     <div className="space-y-8">
                       {/* Traffic Sources */}
-                      <div>
-                        <h3 className="font-semibold mb-3 flex items-center gap-2 text-sm md:text-base">
-                          <Share2 className="w-4 h-4" />
-                          Traffic Sources
-                        </h3>
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-2">
+                          <div className="p-1.5 rounded bg-primary/10">
+                            <Share2 className="w-4 h-4 text-primary" />
+                          </div>
+                          <h3 className="font-semibold text-base md:text-lg">Traffic Sources</h3>
+                        </div>
                         {analytics.sourceBreakdown.length > 0 ? (
-                          <div className="space-y-2">
+                          <div className="space-y-3">
                             {analytics.sourceBreakdown.map((source) => {
                               const conversionRate = source.clicks > 0 
                                 ? ((source.conversions / source.clicks) * 100).toFixed(1)
                                 : '0.0';
                               
                               return (
-                                <div key={source.source} className="p-3 bg-muted/50 rounded-lg space-y-2">
-                                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                                    <Badge variant={source.source === 'direct' ? 'default' : 'secondary'} className="capitalize w-fit text-xs">
-                                      {source.source}
-                                    </Badge>
-                                    <span className="text-xs md:text-sm text-muted-foreground">
-                                      {source.clicks} clicks • {source.conversions} conversions
+                                <div key={source.source} className="group p-4 bg-gradient-to-r from-muted/50 to-muted/30 hover:from-muted/70 hover:to-muted/50 rounded-xl border border-border/50 transition-all duration-300 space-y-3">
+                                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                    <div className="flex items-center gap-3">
+                                      <Badge variant={source.source === 'direct' ? 'default' : 'secondary'} className="capitalize text-xs font-medium px-3 py-1">
+                                        {source.source}
+                                      </Badge>
+                                      <div className="flex items-center gap-2 text-xs md:text-sm text-muted-foreground">
+                                        <span className="font-semibold text-foreground">{source.clicks}</span>
+                                        <span>clicks</span>
+                                        <span className="text-muted-foreground/50">•</span>
+                                        <span className="font-semibold text-foreground">{source.conversions}</span>
+                                        <span>conversions</span>
+                                      </div>
+                                    </div>
+                                    <span className="text-lg md:text-xl font-bold text-primary">
+                                      {conversionRate}%
                                     </span>
                                   </div>
                                   <div className="flex items-center gap-2">
-                                    <div className="flex-1 bg-background rounded-full h-2 overflow-hidden">
+                                    <div className="flex-1 bg-background/80 rounded-full h-2.5 overflow-hidden shadow-inner">
                                       <div 
-                                        className="h-full bg-primary transition-all"
+                                        className="h-full bg-gradient-to-r from-primary to-primary/80 transition-all duration-500 ease-out shadow-[0_0_8px_rgba(var(--primary),0.4)]"
                                         style={{ width: `${Math.min(parseFloat(conversionRate), 100)}%` }}
                                       />
                                     </div>
-                                    <span className="text-xs font-semibold text-primary min-w-10 text-right">
-                                      {conversionRate}%
-                                    </span>
                                   </div>
                                 </div>
                               );
                             })}
                           </div>
                         ) : (
-                          <p className="text-xs md:text-sm text-muted-foreground text-center py-4">
-                            No traffic data yet. Start sharing your link!
-                          </p>
+                          <div className="text-center py-8 px-4 bg-muted/30 rounded-xl border border-dashed border-border">
+                            <Share2 className="w-10 h-10 text-muted-foreground/50 mx-auto mb-3" />
+                            <p className="text-sm text-muted-foreground font-medium">No traffic data yet</p>
+                            <p className="text-xs text-muted-foreground/70 mt-1">Start sharing your link to see analytics!</p>
+                          </div>
                         )}
                       </div>
 
                       {/* Commission Levels */}
-                      <div className="pt-4 md:pt-6 border-t">
-                        <h3 className="font-semibold mb-3 text-sm md:text-base">Multi-Level Conversions</h3>
+                      <div className="pt-6 border-t border-border/50 space-y-4">
+                        <div className="flex items-center gap-2">
+                          <div className="p-1.5 rounded bg-primary/10">
+                            <TrendingUp className="w-4 h-4 text-primary" />
+                          </div>
+                          <h3 className="font-semibold text-base md:text-lg">Multi-Level Earnings</h3>
+                        </div>
                         {analytics.levelBreakdown.length > 0 ? (
-                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             {[1, 2, 3].map(level => {
                               const levelData = analytics.levelBreakdown.find(l => l.level === level);
                               const conversions = levelData?.conversions || 0;
                               const earnings = levelData?.earnings || 0;
                               const commissionRate = level === 1 ? '9%' : level === 2 ? '6%' : '3%';
+                              const isActive = conversions > 0;
                               
                               return (
-                                <Card key={level} className={conversions > 0 ? 'border-primary' : ''}>
-                                  <CardHeader className="pb-2 md:pb-3">
+                                <Card 
+                                  key={level} 
+                                  className={`group transition-all duration-300 ${
+                                    isActive 
+                                      ? 'border-primary/50 bg-gradient-to-br from-primary/10 via-background to-background shadow-lg shadow-primary/10' 
+                                      : 'border-border/50 hover:border-primary/30'
+                                  }`}
+                                >
+                                  <CardHeader className="pb-3">
                                     <div className="flex items-center justify-between">
-                                      <CardTitle className="text-xs md:text-sm">Level {level}</CardTitle>
-                                      <Badge variant={level === 1 ? 'default' : level === 2 ? 'secondary' : 'outline'} className="text-xs">
+                                      <div className="flex items-center gap-2">
+                                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm ${
+                                          level === 1 ? 'bg-primary/20 text-primary' :
+                                          level === 2 ? 'bg-primary/15 text-primary/90' :
+                                          'bg-primary/10 text-primary/80'
+                                        }`}>
+                                          {level}
+                                        </div>
+                                        <CardTitle className="text-sm md:text-base">Level {level}</CardTitle>
+                                      </div>
+                                      <Badge 
+                                        variant={level === 1 ? 'default' : 'secondary'} 
+                                        className="text-xs font-bold px-2.5 py-1"
+                                      >
                                         {commissionRate}
                                       </Badge>
                                     </div>
                                   </CardHeader>
-                                  <CardContent>
-                                    <div className="space-y-1 md:space-y-2">
-                                      <div className="flex justify-between items-baseline">
-                                        <span className="text-xs md:text-sm text-muted-foreground">Conversions</span>
-                                        <span className="text-xl md:text-2xl font-bold">{conversions}</span>
+                                  <CardContent className="space-y-4">
+                                    <div className="space-y-3">
+                                      <div className="flex justify-between items-center">
+                                        <span className="text-xs md:text-sm text-muted-foreground font-medium">Conversions</span>
+                                        <span className={`text-2xl md:text-3xl font-bold ${isActive ? 'text-foreground' : 'text-muted-foreground/50'}`}>
+                                          {conversions}
+                                        </span>
                                       </div>
-                                      <div className="flex justify-between items-baseline">
-                                        <span className="text-xs md:text-sm text-muted-foreground">Earnings</span>
-                                        <span className="text-base md:text-lg font-bold text-primary">
+                                      <div className="h-px bg-border/50" />
+                                      <div className="flex justify-between items-center">
+                                        <span className="text-xs md:text-sm text-muted-foreground font-medium">Earnings</span>
+                                        <span className={`text-xl md:text-2xl font-bold ${isActive ? 'text-primary' : 'text-muted-foreground/50'}`}>
                                           ${earnings.toFixed(2)}
                                         </span>
                                       </div>
                                     </div>
+                                    {isActive && (
+                                      <div className="pt-3 border-t border-primary/20">
+                                        <div className="flex items-center gap-1.5 text-xs text-primary/80">
+                                          <TrendingUp className="w-3.5 h-3.5" />
+                                          <span className="font-medium">Active</span>
+                                        </div>
+                                      </div>
+                                    )}
                                   </CardContent>
                                 </Card>
                               );
                             })}
                           </div>
                         ) : (
-                          <p className="text-xs md:text-sm text-muted-foreground text-center py-4">
-                            No conversions yet. Keep sharing your link!
-                          </p>
+                          <div className="text-center py-8 px-4 bg-muted/30 rounded-xl border border-dashed border-border">
+                            <TrendingUp className="w-10 h-10 text-muted-foreground/50 mx-auto mb-3" />
+                            <p className="text-sm text-muted-foreground font-medium">No conversions yet</p>
+                            <p className="text-xs text-muted-foreground/70 mt-1">Keep sharing to unlock all levels!</p>
+                          </div>
                         )}
                       </div>
                     </div>
                   ) : (
-                    <p className="text-sm text-muted-foreground text-center py-4">
-                      Analytics will appear here once you have referral data
-                    </p>
+                    <div className="text-center py-12 px-4 bg-muted/20 rounded-xl border border-dashed border-border">
+                      <BarChart3 className="w-12 h-12 text-muted-foreground/40 mx-auto mb-4" />
+                      <p className="text-sm text-muted-foreground font-medium">Analytics will appear here</p>
+                      <p className="text-xs text-muted-foreground/70 mt-1">Start sharing to track your performance</p>
+                    </div>
                   )}
                 </CardContent>
               </Card>
