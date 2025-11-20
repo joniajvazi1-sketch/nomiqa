@@ -10,6 +10,7 @@ import { Footer } from "@/components/Footer";
 import { StickyCTA } from "@/components/StickyCTA";
 import { TrustPartners } from "@/components/TrustPartners";
 import { EarnRewardBlock } from "@/components/EarnRewardBlock";
+import { ReferEarn } from "@/components/ReferEarn";
 
 const Index = () => {
   return (
@@ -20,6 +21,7 @@ const Index = () => {
       <TrustPartners />
       <HowItWorksSteps />
       <WhyNomiqa />
+      <ReferEarn />
       <CoverageSection />
       <EasyCheckout />
       <EarnSection />
