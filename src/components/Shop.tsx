@@ -112,10 +112,10 @@ export const Shop = () => {
         <div className="flex justify-between items-center mb-6 md:mb-8">
           <div className="w-full">
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-2 bg-gradient-neon bg-clip-text text-transparent">
-              eSIM Plans
+              {t('esimPlansTitle')}
             </h2>
             <p className="text-foreground/70 text-sm md:text-base">
-              Global connectivity at your fingertips
+              {t('esimPlansSubtitle')}
             </p>
           </div>
         </div>
