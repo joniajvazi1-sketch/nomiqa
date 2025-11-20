@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { DollarSign, Coins, XCircle } from "lucide-react";
 import { useTranslation } from "@/contexts/TranslationContext";
+import { localizedPath } from "@/utils/localizedLinks";
 
 export const ReferEarn = () => {
   const navigate = useNavigate();
@@ -219,7 +220,7 @@ export const ReferEarn = () => {
               
               <div className="text-center">
                 <Button 
-                  onClick={() => navigate(`/${language}/affiliate`)}
+                  onClick={() => navigate(localizedPath('/affiliate', language))}
                   size="lg"
                   className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-sm md:text-base px-8 md:px-10 py-5 md:py-6 w-full md:w-auto"
                 >
