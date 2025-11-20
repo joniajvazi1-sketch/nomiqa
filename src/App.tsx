@@ -22,6 +22,7 @@ import AffiliateRedirect from "./pages/AffiliateRedirect";
 import Privacy from "./pages/Privacy";
 import About from "./pages/About";
 import Token from "./pages/Token";
+import MyAccount from "./pages/MyAccount";
 
 const queryClient = new QueryClient();
 
@@ -70,6 +71,7 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/orders" element={<Orders />} />
+            <Route path="/account" element={<MyAccount />} />
             <Route path="/getting-started" element={<GettingStarted />} />
             <Route path="/stake" element={<Stake />} />
             <Route path="/roadmap" element={<Roadmap />} />
@@ -87,6 +89,7 @@ const App = () => (
               <Route path="auth" element={<Auth />} />
               <Route path="checkout" element={<Checkout />} />
               <Route path="orders" element={<Orders />} />
+              <Route path="account" element={<MyAccount />} />
               <Route path="getting-started" element={<GettingStarted />} />
               <Route path="stake" element={<Stake />} />
               <Route path="roadmap" element={<Roadmap />} />
@@ -102,6 +105,7 @@ const App = () => (
               <Route path="auth" element={<Auth />} />
               <Route path="checkout" element={<Checkout />} />
               <Route path="orders" element={<Orders />} />
+              <Route path="account" element={<MyAccount />} />
               <Route path="getting-started" element={<GettingStarted />} />
               <Route path="stake" element={<Stake />} />
               <Route path="roadmap" element={<Roadmap />} />
@@ -117,6 +121,7 @@ const App = () => (
               <Route path="auth" element={<Auth />} />
               <Route path="checkout" element={<Checkout />} />
               <Route path="orders" element={<Orders />} />
+              <Route path="account" element={<MyAccount />} />
               <Route path="getting-started" element={<GettingStarted />} />
               <Route path="stake" element={<Stake />} />
               <Route path="roadmap" element={<Roadmap />} />
@@ -132,6 +137,7 @@ const App = () => (
               <Route path="auth" element={<Auth />} />
               <Route path="checkout" element={<Checkout />} />
               <Route path="orders" element={<Orders />} />
+              <Route path="account" element={<MyAccount />} />
               <Route path="getting-started" element={<GettingStarted />} />
               <Route path="stake" element={<Stake />} />
               <Route path="roadmap" element={<Roadmap />} />
@@ -147,6 +153,7 @@ const App = () => (
               <Route path="auth" element={<Auth />} />
               <Route path="checkout" element={<Checkout />} />
               <Route path="orders" element={<Orders />} />
+              <Route path="account" element={<MyAccount />} />
               <Route path="getting-started" element={<GettingStarted />} />
               <Route path="stake" element={<Stake />} />
               <Route path="roadmap" element={<Roadmap />} />
@@ -162,6 +169,7 @@ const App = () => (
               <Route path="auth" element={<Auth />} />
               <Route path="checkout" element={<Checkout />} />
               <Route path="orders" element={<Orders />} />
+              <Route path="account" element={<MyAccount />} />
               <Route path="getting-started" element={<GettingStarted />} />
               <Route path="stake" element={<Stake />} />
               <Route path="roadmap" element={<Roadmap />} />
@@ -177,6 +185,7 @@ const App = () => (
               <Route path="auth" element={<Auth />} />
               <Route path="checkout" element={<Checkout />} />
               <Route path="orders" element={<Orders />} />
+              <Route path="account" element={<MyAccount />} />
               <Route path="getting-started" element={<GettingStarted />} />
               <Route path="stake" element={<Stake />} />
               <Route path="roadmap" element={<Roadmap />} />
@@ -192,6 +201,7 @@ const App = () => (
               <Route path="auth" element={<Auth />} />
               <Route path="checkout" element={<Checkout />} />
               <Route path="orders" element={<Orders />} />
+              <Route path="account" element={<MyAccount />} />
               <Route path="getting-started" element={<GettingStarted />} />
               <Route path="stake" element={<Stake />} />
               <Route path="roadmap" element={<Roadmap />} />
@@ -207,6 +217,7 @@ const App = () => (
               <Route path="auth" element={<Auth />} />
               <Route path="checkout" element={<Checkout />} />
               <Route path="orders" element={<Orders />} />
+              <Route path="account" element={<MyAccount />} />
               <Route path="getting-started" element={<GettingStarted />} />
               <Route path="stake" element={<Stake />} />
               <Route path="roadmap" element={<Roadmap />} />
@@ -222,6 +233,7 @@ const App = () => (
               <Route path="auth" element={<Auth />} />
               <Route path="checkout" element={<Checkout />} />
               <Route path="orders" element={<Orders />} />
+              <Route path="account" element={<MyAccount />} />
               <Route path="getting-started" element={<GettingStarted />} />
               <Route path="stake" element={<Stake />} />
               <Route path="roadmap" element={<Roadmap />} />

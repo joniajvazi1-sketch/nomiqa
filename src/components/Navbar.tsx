@@ -149,15 +149,25 @@ export const Navbar = () => {
             </Button>
 
             {/* Desktop Auth - Hidden on mobile */}
-            <div className="hidden md:flex">
+            <div className="hidden md:flex gap-2">
               {user ? (
-                <Button variant="outline" className="border-neon-cyan/40 text-foreground hover:bg-neon-cyan/10" onClick={handleSignOut}>
-                  <LogOut className="w-4 h-4 mr-2" /> {t("signOut")}
-                </Button>
+                <>
+                  <Button variant="ghost" size="sm" onClick={() => navigate(localizedPath('/account', language))}>
+                    My Account
+                  </Button>
+                  <Button variant="outline" size="sm" className="border-neon-cyan/40 text-foreground hover:bg-neon-cyan/10" onClick={handleSignOut}>
+                    <LogOut className="w-4 h-4 mr-2" /> {t("signOut")}
+                  </Button>
+                </>
               ) : (
-                <Button variant="outline" className="border-neon-cyan/40 text-foreground hover:bg-neon-cyan/10" onClick={() => navigate('/auth')}>
-                  <LogIn className="w-4 h-4 mr-2" /> {t("signIn")}
-                </Button>
+                <>
+                  <Button variant="ghost" size="sm" onClick={() => navigate('/auth?mode=login')}>
+                    Login
+                  </Button>
+                  <Button variant="outline" size="sm" className="border-neon-cyan/40 text-foreground hover:bg-neon-cyan/10" onClick={() => navigate('/auth?mode=register')}>
+                    Register
+                  </Button>
+                </>
               )}
             </div>
 
@@ -193,9 +203,14 @@ export const Navbar = () => {
                       {t("howWeProtect")}
                     </button>
                     {user && (
-                      <button onClick={() => handleNavClick('/orders')} className="text-left text-foreground/70 hover:text-foreground transition-colors py-2 px-4 rounded hover:bg-muted">
-                        {t("myEsims")}
-                      </button>
+                      <>
+                        <button onClick={() => handleNavClick('/account')} className="text-left text-foreground/70 hover:text-foreground transition-colors py-2 px-4 rounded hover:bg-muted">
+                          My Account
+                        </button>
+                        <button onClick={() => handleNavClick('/orders')} className="text-left text-foreground/70 hover:text-foreground transition-colors py-2 px-4 rounded hover:bg-muted">
+                          {t("myEsims")}
+                        </button>
+                      </>
                     )}
 
                     <div className="h-px bg-border my-2" />
@@ -206,9 +221,14 @@ export const Navbar = () => {
                         <span className="inline-flex items-center"><LogOut className="w-4 h-4 mr-2" /> {t('signOut')}</span>
                       </button>
                     ) : (
-                      <button onClick={() => handleNavClick('/auth')} className="text-left text-foreground/80 hover:text-foreground transition-colors py-2 px-4 rounded hover:bg-muted">
-                        <span className="inline-flex items-center"><LogIn className="w-4 h-4 mr-2" /> {t('signIn')}</span>
-                      </button>
+                      <>
+                        <button onClick={() => { setMobileMenuOpen(false); navigate('/auth?mode=login'); }} className="text-left text-foreground/80 hover:text-foreground transition-colors py-2 px-4 rounded hover:bg-muted">
+                          <span className="inline-flex items-center"><LogIn className="w-4 h-4 mr-2" /> Login</span>
+                        </button>
+                        <button onClick={() => { setMobileMenuOpen(false); navigate('/auth?mode=register'); }} className="text-left text-foreground/80 hover:text-foreground transition-colors py-2 px-4 rounded hover:bg-muted">
+                          Register
+                        </button>
+                      </>
                     )}
                   </div>
                 </SheetContent>
