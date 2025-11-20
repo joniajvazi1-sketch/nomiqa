@@ -89,6 +89,9 @@ export const Navbar = () => {
             <button onClick={() => navigate(localizedPath('/privacy', language))} className="text-foreground/80 hover:text-neon-cyan transition-colors font-medium text-sm">
               {t("howWeProtect")}
             </button>
+            <button onClick={() => navigate(localizedPath('/help', language))} className="text-foreground/80 hover:text-neon-cyan transition-colors font-medium">
+              {t("help")}
+            </button>
             {user && (
               <button onClick={() => navigate(localizedPath('/orders', language))} className="text-foreground/80 hover:text-neon-cyan transition-colors font-medium">
                 {t("myEsims")}
@@ -201,6 +204,9 @@ export const Navbar = () => {
                     </button>
                     <button onClick={() => handleNavClick('/privacy')} className="text-left text-foreground/70 hover:text-foreground transition-colors py-2 px-4 rounded hover:bg-muted">
                       {t("howWeProtect")}
+                    </button>
+                    <button onClick={() => handleNavClick('/help')} className="text-left text-foreground/70 hover:text-foreground transition-colors py-2 px-4 rounded hover:bg-muted">
+                      {t("help")}
                     </button>
                     {user && (
                       <>
