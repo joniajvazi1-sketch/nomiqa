@@ -413,42 +413,23 @@ export default function Affiliate() {
       
       <div className="container mx-auto px-4 py-20 relative z-10">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16 space-y-8 max-w-4xl mx-auto">
+          <div className="text-center mb-16 space-y-6 max-w-4xl mx-auto">
             <div className="space-y-4 animate-fade-in">
-              <div className="inline-block px-4 py-2 bg-primary/10 border border-primary/20 rounded-full mb-4">
-                <p className="text-sm font-medium text-primary">Multi-Level Affiliate Program</p>
-              </div>
-              
-              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold font-display leading-tight">
-                <span className="block mb-2">Share Freedom.</span>
-                <span className="block bg-gradient-to-r from-neon-coral via-neon-purple to-neon-cyan bg-clip-text text-transparent">
+              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold font-display leading-tight">
+                <span className="block text-foreground mb-3">Share Freedom.</span>
+                <span className="block bg-gradient-to-r from-neon-coral to-neon-purple bg-clip-text text-transparent">
                   Earn Rewards.
                 </span>
               </h1>
             </div>
             
-            <div className="animate-fade-in [animation-delay:200ms] space-y-4">
-              <p className="text-xl md:text-2xl text-foreground/90 font-medium">
+            <div className="animate-fade-in space-y-4 pt-4">
+              <p className="text-2xl md:text-3xl text-foreground/90 font-medium">
                 Build your network. Earn from every layer.
               </p>
-              <p className="text-lg md:text-xl text-foreground/60 max-w-2xl mx-auto">
-                Turn connections into income with our 3-tier commission system — 9% direct, +6% on level 2, +3% on level 3
+              <p className="text-lg md:text-xl text-foreground/60 max-w-2xl mx-auto leading-relaxed">
+                Turn connections into income with our 3-tier commission system
               </p>
-            </div>
-
-            <div className="animate-scale-in [animation-delay:400ms] flex flex-wrap justify-center gap-6 pt-2">
-              <div className="flex items-center gap-2 px-4 py-2 bg-primary/5 rounded-lg">
-                <div className="w-2 h-2 rounded-full bg-neon-coral"></div>
-                <span className="text-sm font-medium">9% Level 1</span>
-              </div>
-              <div className="flex items-center gap-2 px-4 py-2 bg-primary/5 rounded-lg">
-                <div className="w-2 h-2 rounded-full bg-neon-purple"></div>
-                <span className="text-sm font-medium">6% Level 2</span>
-              </div>
-              <div className="flex items-center gap-2 px-4 py-2 bg-primary/5 rounded-lg">
-                <div className="w-2 h-2 rounded-full bg-neon-cyan"></div>
-                <span className="text-sm font-medium">3% Level 3</span>
-              </div>
             </div>
           </div>
 
