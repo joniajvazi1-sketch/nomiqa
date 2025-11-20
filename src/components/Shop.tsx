@@ -176,14 +176,14 @@ export const Shop = () => {
                     <div className="p-3 rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20">
                       <div className="flex items-center gap-2 mb-1">
                         <Wifi className="h-4 w-4 text-primary" />
-                        <span className="text-xs font-medium">Data</span>
+                        <span className="text-xs font-medium">{t('data')}</span>
                       </div>
                       <span className="font-bold text-lg">{product.data_amount}</span>
                     </div>
                     <div className="p-3 rounded-lg bg-gradient-to-br from-accent/10 to-accent/5 border border-accent/20">
                       <div className="flex items-center gap-2 mb-1">
                         <Calendar className="h-4 w-4 text-accent" />
-                        <span className="text-xs font-medium">Validity</span>
+                        <span className="text-xs font-medium">{t('validity')}</span>
                       </div>
                       <span className="font-bold text-lg">{product.validity_days} days</span>
                     </div>
@@ -205,7 +205,7 @@ export const Shop = () => {
 
                   <div className="flex items-center justify-center gap-2 pt-2 text-sm text-muted-foreground/70 group-hover:text-primary transition-colors">
                     <Info className="h-4 w-4" />
-                    <span>Click for more info</span>
+                    <span>{t('clickForMoreInfo')}</span>
                   </div>
                 </CardContent>
 
