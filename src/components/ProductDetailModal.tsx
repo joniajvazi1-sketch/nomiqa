@@ -1,10 +1,12 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
-import { ShoppingCart, HandCoins, Wifi, Calendar, Globe, Zap, Shield, Clock } from "lucide-react";
+import { ShoppingCart, HandCoins, Wifi, Calendar, Globe, Zap, Shield, Clock, Smartphone } from "lucide-react";
 import { useTranslation } from "@/contexts/TranslationContext";
 import { getTranslatedCountryName } from "@/utils/countryTranslations";
 import * as CountryFlags from 'country-flag-icons/react/3x2';
+import { CompatibilityChecker } from "./CompatibilityChecker";
+import { useState } from "react";
 
 interface ProductDetailModalProps {
   open: boolean;
@@ -22,6 +24,7 @@ export const ProductDetailModal = ({
   onReferEarn 
 }: ProductDetailModalProps) => {
   const { language, t } = useTranslation();
+  const [compatibilityOpen, setCompatibilityOpen] = useState(false);
 
   if (!product) return null;
 
@@ -118,11 +121,16 @@ export const ProductDetailModal = ({
           </div>
         </div>
 
-        {/* Additional Info */}
-        <div className="p-4 rounded-lg bg-muted/30 border mb-6">
-          <h4 className="font-semibold mb-2 text-sm">Package ID</h4>
-          <p className="text-xs font-mono text-muted-foreground break-all">{product.airlo_package_id}</p>
-        </div>
+        {/* Check Compatibility Button */}
+        <Button 
+          onClick={() => setCompatibilityOpen(true)}
+          variant="outline"
+          size="lg"
+          className="w-full mb-6"
+        >
+          <Smartphone className="mr-2 h-5 w-5" />
+          Check Device Compatibility
+        </Button>
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-3">
@@ -144,12 +152,17 @@ export const ProductDetailModal = ({
             }}
             variant="outline"
             size="lg"
-            className="sm:w-auto"
+            className="flex-1"
           >
             <HandCoins className="h-5 w-5 mr-2" />
             {t('referAndEarn')}
           </Button>
         </div>
+        
+        <CompatibilityChecker 
+          open={compatibilityOpen} 
+          onOpenChange={setCompatibilityOpen} 
+        />
       </DialogContent>
     </Dialog>
   );
