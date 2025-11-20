@@ -4,27 +4,27 @@ import { WhyNomiqa } from "@/components/WhyNomiqa";
 import { HowItWorksSteps } from "@/components/HowItWorksSteps";
 import { CoverageSection } from "@/components/CoverageSection";
 import { EasyCheckout } from "@/components/EasyCheckout";
-import { EarnSection } from "@/components/EarnSection";
 import { FAQ } from "@/components/FAQ";
 import { Footer } from "@/components/Footer";
 import { StickyCTA } from "@/components/StickyCTA";
 import { TrustPartners } from "@/components/TrustPartners";
 import { EarnRewardBlock } from "@/components/EarnRewardBlock";
 import { ReferEarn } from "@/components/ReferEarn";
+import { LoyaltyProgram } from "@/components/LoyaltyProgram";
 
 const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
       <Hero />
-      <EarnRewardBlock />
       <TrustPartners />
-      <HowItWorksSteps />
       <WhyNomiqa />
+      <HowItWorksSteps />
+      <LoyaltyProgram />
       <ReferEarn />
+      <EarnRewardBlock />
       <CoverageSection />
       <EasyCheckout />
-      <EarnSection />
       <FAQ />
       <Footer />
       <StickyCTA />
