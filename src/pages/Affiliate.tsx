@@ -411,7 +411,7 @@ export default function Affiliate() {
       
       <Navbar />
       
-      <div className="container mx-auto px-4 py-20 relative z-10">
+      <div className="container mx-auto px-3 md:px-4 py-16 md:py-20 relative z-10">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12 md:mb-16 max-w-5xl mx-auto px-4">
             <div className="space-y-4 md:space-y-6 animate-fade-in">
@@ -445,44 +445,44 @@ export default function Affiliate() {
 
           {!user ? (
             <Card className="max-w-2xl mx-auto">
-              <CardHeader>
-                <CardTitle className="text-center">Start Earning with Nomiqa</CardTitle>
-                <CardDescription className="text-center">
+              <CardHeader className="pb-3 md:pb-4">
+                <CardTitle className="text-center text-lg md:text-xl">Start Earning with Nomiqa</CardTitle>
+                <CardDescription className="text-center text-xs md:text-sm">
                   Create an account to get your affiliate links and start earning commissions
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-6">
-                  <div className="grid md:grid-cols-3 gap-4">
-                    <div className="text-center p-4 bg-primary/5 rounded-lg">
-                      <DollarSign className="w-8 h-8 text-primary mx-auto mb-2" />
-                      <h3 className="font-bold">Multi-Tier System</h3>
-                      <p className="text-sm text-muted-foreground">Unlock 3 levels</p>
+                <div className="space-y-4 md:space-y-6">
+                  <div className="grid md:grid-cols-3 gap-3 md:gap-4">
+                    <div className="text-center p-3 md:p-4 bg-primary/5 rounded-lg">
+                      <DollarSign className="w-6 h-6 md:w-8 md:h-8 text-primary mx-auto mb-2" />
+                      <h3 className="font-bold text-sm md:text-base">Multi-Tier System</h3>
+                      <p className="text-xs md:text-sm text-muted-foreground">Unlock 3 levels</p>
                     </div>
-                    <div className="text-center p-4 bg-primary/5 rounded-lg">
-                      <Users className="w-8 h-8 text-primary mx-auto mb-2" />
-                      <h3 className="font-bold">Track Referrals</h3>
-                      <p className="text-sm text-muted-foreground">Real-time stats</p>
+                    <div className="text-center p-3 md:p-4 bg-primary/5 rounded-lg">
+                      <Users className="w-6 h-6 md:w-8 md:h-8 text-primary mx-auto mb-2" />
+                      <h3 className="font-bold text-sm md:text-base">Track Referrals</h3>
+                      <p className="text-xs md:text-sm text-muted-foreground">Real-time stats</p>
                     </div>
-                    <div className="text-center p-4 bg-primary/5 rounded-lg">
-                      <TrendingUp className="w-8 h-8 text-primary mx-auto mb-2" />
-                      <h3 className="font-bold">3 Affiliate Links</h3>
-                      <p className="text-sm text-muted-foreground">Per account</p>
+                    <div className="text-center p-3 md:p-4 bg-primary/5 rounded-lg">
+                      <TrendingUp className="w-6 h-6 md:w-8 md:h-8 text-primary mx-auto mb-2" />
+                      <h3 className="font-bold text-sm md:text-base">3 Affiliate Links</h3>
+                      <p className="text-xs md:text-sm text-muted-foreground">Per account</p>
                     </div>
                   </div>
 
-                  <div className="bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/20 rounded-lg p-6 text-center">
-                    <CheckCircle2 className="w-12 h-12 text-primary mx-auto mb-4" />
-                    <h3 className="text-xl font-bold mb-2">Ready to Get Started?</h3>
-                    <p className="text-muted-foreground mb-6">
+                  <div className="bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/20 rounded-lg p-4 md:p-6 text-center">
+                    <CheckCircle2 className="w-10 h-10 md:w-12 md:h-12 text-primary mx-auto mb-3 md:mb-4" />
+                    <h3 className="text-lg md:text-xl font-bold mb-2">Ready to Get Started?</h3>
+                    <p className="text-xs md:text-sm text-muted-foreground mb-4 md:mb-6">
                       Each account gets 1 automatic link based on your username, 
                       plus you can create 2 additional custom links to track different campaigns.
                     </p>
-                    <div className="flex gap-3 justify-center">
-                      <Button onClick={() => navigate('/auth?mode=signup')} size="lg" variant="default">
+                    <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                      <Button onClick={() => navigate('/auth?mode=signup')} size="lg" variant="default" className="w-full sm:w-auto">
                         Register Now
                       </Button>
-                      <Button onClick={() => navigate('/auth')} size="lg" variant="outline">
+                      <Button onClick={() => navigate('/auth')} size="lg" variant="outline" className="w-full sm:w-auto">
                         Log In
                       </Button>
                     </div>
@@ -573,34 +573,34 @@ export default function Affiliate() {
 
               {/* Tier Progress Card */}
               {getTierInfo()?.nextTier && (
-                <Card className="mb-8 border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Award className="w-5 h-5 text-primary" />
+                <Card className="mb-6 md:mb-8 border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
+                  <CardHeader className="pb-3 md:pb-4">
+                    <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+                      <Award className="w-4 h-4 md:w-5 md:h-5 text-primary" />
                       Unlock Next Tier
                     </CardTitle>
-                    <CardDescription>
+                    <CardDescription className="text-xs md:text-sm">
                       Complete more conversions to unlock higher commission levels
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-4">
+                  <CardContent className="space-y-3 md:space-y-4">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">
+                      <span className="text-xs md:text-sm font-medium">
                         Progress to {getTierInfo()?.nextTier.name}
                       </span>
-                      <span className="text-sm font-bold text-primary">
+                      <span className="text-xs md:text-sm font-bold text-primary">
                         {Math.round(getTierInfo()?.progress || 0)}%
                       </span>
                     </div>
                     
-                    <div className="h-3 bg-muted rounded-full overflow-hidden">
+                    <div className="h-2 md:h-3 bg-muted rounded-full overflow-hidden">
                       <div 
                         className="h-full bg-gradient-to-r from-primary to-accent transition-all duration-500"
                         style={{ width: `${getTierInfo()?.progress}%` }}
                       />
                     </div>
                     
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-xs md:text-sm text-muted-foreground">
                       <span className="font-semibold text-foreground">{getTierInfo()?.remaining} more conversions</span> to unlock <span className="font-semibold">{getTierInfo()?.nextTier.description}</span>
                     </p>
                   </CardContent>
@@ -608,115 +608,115 @@ export default function Affiliate() {
               )}
 
               {/* Tier System Explanation */}
-              <Card className="mb-8">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <TrendingUp className="w-5 h-5" />
+              <Card className="mb-6 md:mb-8">
+                <CardHeader className="pb-3 md:pb-4">
+                  <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+                    <TrendingUp className="w-4 h-4 md:w-5 md:h-5" />
                     3-Tier Commission System
                   </CardTitle>
-                  <CardDescription>
+                  <CardDescription className="text-xs md:text-sm">
                     Unlock more earning potential as you grow your network
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    {/* Tier 1 - Starter */}
-                    <div className={`p-4 rounded-lg border-2 ${
+                  <div className="space-y-3 md:space-y-4">
+                     {/* Tier 1 - Starter */}
+                    <div className={`p-3 md:p-4 rounded-lg border-2 ${
                       affiliate.tier_level >= 1 ? 'border-blue-500/50 bg-blue-500/5' : 'border-muted bg-muted/20'
                     }`}>
-                      <div className="flex items-center justify-between mb-2">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
                         <div className="flex items-center gap-2">
                           {affiliate.tier_level >= 1 ? (
-                            <Unlock className="w-5 h-5 text-blue-500" />
+                            <Unlock className="w-4 h-4 md:w-5 md:h-5 text-blue-500" />
                           ) : (
-                            <Lock className="w-5 h-5 text-muted-foreground" />
+                            <Lock className="w-4 h-4 md:w-5 md:h-5 text-muted-foreground" />
                           )}
-                          <h3 className="font-bold text-blue-500">Tier 1: Starter</h3>
+                          <h3 className="font-bold text-blue-500 text-sm md:text-base">Tier 1: Starter</h3>
                         </div>
-                        <Badge variant={affiliate.tier_level >= 1 ? 'default' : 'secondary'}>
+                        <Badge variant={affiliate.tier_level >= 1 ? 'default' : 'secondary'} className="text-xs w-fit">
                           {affiliate.tier_level >= 1 ? 'Unlocked' : 'Start Here'}
                         </Badge>
                       </div>
-                      <p className="text-sm text-muted-foreground mb-3">
+                      <p className="text-xs md:text-sm text-muted-foreground mb-2 md:mb-3">
                         Everyone starts here (0+ conversions)
                       </p>
-                      <div className="space-y-1 text-sm">
+                      <div className="space-y-1 text-xs md:text-sm">
                         <div className="flex items-center gap-2">
-                          <DollarSign className="w-4 h-4 text-green-500" />
-                          <span><strong>9%</strong> commission on direct referrals (Level 1)</span>
+                          <DollarSign className="w-3 h-3 md:w-4 md:h-4 text-green-500 flex-shrink-0" />
+                          <span><strong>9%</strong> commission on direct referrals</span>
                         </div>
                       </div>
                     </div>
 
                     {/* Tier 2 - Pro */}
-                    <div className={`p-4 rounded-lg border-2 ${
+                    <div className={`p-3 md:p-4 rounded-lg border-2 ${
                       affiliate.tier_level >= 2 ? 'border-purple-500/50 bg-purple-500/5' : 'border-muted bg-muted/20'
                     }`}>
-                      <div className="flex items-center justify-between mb-2">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
                         <div className="flex items-center gap-2">
                           {affiliate.tier_level >= 2 ? (
-                            <Unlock className="w-5 h-5 text-purple-500" />
+                            <Unlock className="w-4 h-4 md:w-5 md:h-5 text-purple-500" />
                           ) : (
-                            <Lock className="w-5 h-5 text-muted-foreground" />
+                            <Lock className="w-4 h-4 md:w-5 md:h-5 text-muted-foreground" />
                           )}
-                          <h3 className="font-bold text-purple-500">Tier 2: Pro</h3>
+                          <h3 className="font-bold text-purple-500 text-sm md:text-base">Tier 2: Pro</h3>
                         </div>
-                        <Badge variant={affiliate.tier_level >= 2 ? 'default' : 'secondary'}>
-                          {affiliate.tier_level >= 2 ? 'Unlocked' : '10 conversions needed'}
+                        <Badge variant={affiliate.tier_level >= 2 ? 'default' : 'secondary'} className="text-xs w-fit">
+                          {affiliate.tier_level >= 2 ? 'Unlocked' : '10 conversions'}
                         </Badge>
                       </div>
-                      <p className="text-sm text-muted-foreground mb-3">
+                      <p className="text-xs md:text-sm text-muted-foreground mb-2 md:mb-3">
                         Unlock at 10 total conversions
                       </p>
-                      <div className="space-y-2 text-sm">
+                      <div className="space-y-2 text-xs md:text-sm">
                         <div className="flex items-center gap-2">
-                          <DollarSign className="w-4 h-4 text-green-500" />
+                          <DollarSign className="w-3 h-3 md:w-4 md:h-4 text-green-500 flex-shrink-0" />
                           <span><strong>9%</strong> on your direct referrals</span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <DollarSign className="w-4 h-4 text-purple-500" />
+                          <DollarSign className="w-3 h-3 md:w-4 md:h-4 text-purple-500 flex-shrink-0" />
                           <span><strong>+ 6%</strong> when YOUR referrals refer others</span>
                         </div>
-                        <p className="text-xs text-muted-foreground pt-2 pl-6 border-l-2 border-purple-500/30">
-                          Level 2 = Sales made by people your referrals brought in
+                        <p className="text-[10px] md:text-xs text-muted-foreground pt-2 pl-4 md:pl-6 border-l-2 border-purple-500/30">
+                          Level 2 = Sales by people your referrals brought in
                         </p>
                       </div>
                     </div>
 
                     {/* Tier 3 - Elite */}
-                    <div className={`p-4 rounded-lg border-2 ${
+                    <div className={`p-3 md:p-4 rounded-lg border-2 ${
                       affiliate.tier_level >= 3 ? 'border-amber-500/50 bg-amber-500/5' : 'border-muted bg-muted/20'
                     }`}>
-                      <div className="flex items-center justify-between mb-2">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
                         <div className="flex items-center gap-2">
                           {affiliate.tier_level >= 3 ? (
-                            <Unlock className="w-5 h-5 text-amber-500" />
+                            <Unlock className="w-4 h-4 md:w-5 md:h-5 text-amber-500" />
                           ) : (
-                            <Lock className="w-5 h-5 text-muted-foreground" />
+                            <Lock className="w-4 h-4 md:w-5 md:h-5 text-muted-foreground" />
                           )}
-                          <h3 className="font-bold text-amber-500">Tier 3: Elite</h3>
+                          <h3 className="font-bold text-amber-500 text-sm md:text-base">Tier 3: Elite</h3>
                         </div>
-                        <Badge variant={affiliate.tier_level >= 3 ? 'default' : 'secondary'}>
-                          {affiliate.tier_level >= 3 ? 'Unlocked' : '30 conversions needed'}
+                        <Badge variant={affiliate.tier_level >= 3 ? 'default' : 'secondary'} className="text-xs w-fit">
+                          {affiliate.tier_level >= 3 ? 'Unlocked' : '30 conversions'}
                         </Badge>
                       </div>
-                      <p className="text-sm text-muted-foreground mb-3">
+                      <p className="text-xs md:text-sm text-muted-foreground mb-2 md:mb-3">
                         Unlock at 30 total conversions
                       </p>
-                      <div className="space-y-2 text-sm">
+                      <div className="space-y-2 text-xs md:text-sm">
                         <div className="flex items-center gap-2">
-                          <DollarSign className="w-4 h-4 text-green-500" />
+                          <DollarSign className="w-3 h-3 md:w-4 md:h-4 text-green-500 flex-shrink-0" />
                           <span><strong>9%</strong> on your direct referrals</span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <DollarSign className="w-4 h-4 text-purple-500" />
+                          <DollarSign className="w-3 h-3 md:w-4 md:h-4 text-purple-500 flex-shrink-0" />
                           <span><strong>+ 6%</strong> when YOUR referrals refer others</span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <DollarSign className="w-4 h-4 text-amber-500" />
+                          <DollarSign className="w-3 h-3 md:w-4 md:h-4 text-amber-500 flex-shrink-0" />
                           <span><strong>+ 3%</strong> when THEIR referrals refer others</span>
                         </div>
-                        <p className="text-xs text-muted-foreground pt-2 pl-6 border-l-2 border-amber-500/30">
+                        <p className="text-[10px] md:text-xs text-muted-foreground pt-2 pl-4 md:pl-6 border-l-2 border-amber-500/30">
                           Level 2 = Your referrals' sales • Level 3 = Their referrals' sales
                         </p>
                       </div>
@@ -726,13 +726,13 @@ export default function Affiliate() {
               </Card>
 
               {/* All Affiliate Links Section */}
-              <Card className="mb-8">
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
+              <Card className="mb-6 md:mb-8">
+                <CardHeader className="pb-3 md:pb-4">
+                  <CardTitle className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-base md:text-lg">
                     <span>Your Affiliate Links</span>
-                    <Badge variant="secondary">{allAffiliates.length} / 3</Badge>
+                    <Badge variant="secondary" className="text-xs w-fit">{allAffiliates.length} / 3</Badge>
                   </CardTitle>
-                  <CardDescription>
+                  <CardDescription className="text-xs md:text-sm">
                     You can have up to 3 affiliate links. Each link has its own tracking and stats.
                   </CardDescription>
                 </CardHeader>
