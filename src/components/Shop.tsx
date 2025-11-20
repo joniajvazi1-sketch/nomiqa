@@ -11,6 +11,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import * as CountryFlags from 'country-flag-icons/react/3x2';
 import { ShareModal } from "./ShareModal";
 import { Confetti } from "./Confetti";
+import { useTranslation } from "@/contexts/TranslationContext";
+import { getTranslatedCountryName, getAllTranslatedNames } from "@/utils/countryTranslations";
 
 type CoverageType = "all" | "local" | "regional";
 
@@ -31,6 +33,7 @@ export const Shop = () => {
   const navigate = useNavigate();
   const { data: products, isLoading } = useProducts();
   const { items, addItem } = useCart();
+  const { language } = useTranslation();
   const [searchQuery, setSearchQuery] = useState("");
   const [coverageFilter, setCoverageFilter] = useState<CoverageType>("all");
   const [shareModalOpen, setShareModalOpen] = useState(false);
@@ -60,8 +63,14 @@ export const Shop = () => {
   };
 
   const filteredProducts = products?.filter(product => {
-    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         product.country_name.toLowerCase().includes(searchQuery.toLowerCase());
+    // Get all possible country names for this product (in all languages)
+    const allCountryNames = getAllTranslatedNames(product.country_code);
+    const searchLower = searchQuery.toLowerCase();
+    
+    // Check if search matches the product name or any translated country name
+    const matchesSearch = product.name.toLowerCase().includes(searchLower) ||
+                         product.country_name.toLowerCase().includes(searchLower) ||
+                         allCountryNames.some(name => name.toLowerCase().includes(searchLower));
     
     if (coverageFilter === "all") {
       return matchesSearch;
@@ -137,7 +146,9 @@ export const Shop = () => {
                     <div className="flex items-center gap-3">
                       {getCountryFlag(product.country_code)}
                       <div>
-                        <CardTitle className="text-xl">{product.country_name}</CardTitle>
+                        <CardTitle className="text-xl">
+                          {getTranslatedCountryName(product.country_code, language)}
+                        </CardTitle>
                         <CardDescription>{product.name}</CardDescription>
                       </div>
                     </div>
