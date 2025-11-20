@@ -5,11 +5,11 @@ import { useCart } from "@/hooks/useCart";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Input } from "./ui/input";
-import { Loader2, ShoppingCart, Search, Wifi, Calendar, Globe, MapPin, Share2 } from "lucide-react";
+import { Loader2, ShoppingCart, Search, Wifi, Calendar, Globe, MapPin, Share2, HandCoins } from "lucide-react";
 import { toast } from "sonner";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import * as CountryFlags from 'country-flag-icons/react/3x2';
-import { ShareModal } from "./ShareModal";
+import { ReferEarnModal } from "./ReferEarnModal";
 import { Confetti } from "./Confetti";
 import { useTranslation } from "@/contexts/TranslationContext";
 import { getTranslatedCountryName, getAllTranslatedNames } from "@/utils/countryTranslations";
@@ -36,7 +36,7 @@ export const Shop = () => {
   const { language } = useTranslation();
   const [searchQuery, setSearchQuery] = useState("");
   const [coverageFilter, setCoverageFilter] = useState<CoverageType>("all");
-  const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [referEarnModalOpen, setReferEarnModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
   const [displayCount, setDisplayCount] = useState(9);
   const [showConfetti, setShowConfetti] = useState(false);
@@ -89,9 +89,9 @@ export const Shop = () => {
     toast.success(`${product.name} added to cart!`);
   };
 
-  const handleShare = (product: any) => {
+  const handleReferEarn = (product: any) => {
     setSelectedProduct(product);
-    setShareModalOpen(true);
+    setReferEarnModalOpen(true);
   };
 
   const getCountryFlag = (countryCode: string) => {
@@ -195,11 +195,12 @@ export const Shop = () => {
                     Add to Cart
                   </Button>
                   <Button 
-                    onClick={() => handleShare(product)}
+                    onClick={() => handleReferEarn(product)}
                     variant="outline"
                     size="icon"
+                    className="shrink-0"
                   >
-                    <Share2 className="h-4 w-4" />
+                    <HandCoins className="h-4 w-4" />
                   </Button>
                 </CardFooter>
               </Card>
@@ -220,9 +221,9 @@ export const Shop = () => {
           </>
         )}
 
-        <ShareModal 
-          open={shareModalOpen}
-          onOpenChange={setShareModalOpen}
+        <ReferEarnModal 
+          open={referEarnModalOpen}
+          onOpenChange={setReferEarnModalOpen}
           product={selectedProduct}
         />
         
