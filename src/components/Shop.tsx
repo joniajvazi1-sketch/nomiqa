@@ -8,6 +8,7 @@ import { Input } from "./ui/input";
 import { Loader2, ShoppingCart, Search, Wifi, Calendar, Globe, MapPin, Share2, HandCoins } from "lucide-react";
 import { toast } from "sonner";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
+import { ProductDetailModal } from "./ProductDetailModal";
 import * as CountryFlags from 'country-flag-icons/react/3x2';
 import { ReferEarnModal } from "./ReferEarnModal";
 import { Confetti } from "./Confetti";
@@ -37,6 +38,7 @@ export const Shop = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [coverageFilter, setCoverageFilter] = useState<CoverageType>("all");
   const [referEarnModalOpen, setReferEarnModalOpen] = useState(false);
+  const [productDetailModalOpen, setProductDetailModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
   const [displayCount, setDisplayCount] = useState(9);
   const [showConfetti, setShowConfetti] = useState(false);
@@ -87,6 +89,11 @@ export const Shop = () => {
     addItem(product);
     setShowConfetti(true);
     toast.success(`${product.name} added to cart!`);
+  };
+
+  const handleProductClick = (product: any) => {
+    setSelectedProduct(product);
+    setProductDetailModalOpen(true);
   };
 
   const handleReferEarn = (product: any) => {
@@ -140,64 +147,81 @@ export const Shop = () => {
           <>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {displayedProducts?.map((product) => (
-              <Card key={product.id} className="hover:shadow-lg transition-shadow">
+              <Card 
+                key={product.id} 
+                className="group hover:shadow-2xl hover:shadow-primary/20 transition-all duration-300 hover:-translate-y-1 cursor-pointer border-2 hover:border-primary/50 bg-gradient-to-br from-card via-card to-card/95"
+                onClick={() => handleProductClick(product)}
+              >
                 <CardHeader>
-                  <div className="flex items-start justify-between mb-2">
+                  <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-3">
                       {getCountryFlag(product.country_code)}
                       <div>
-                        <CardTitle className="text-xl">
+                        <CardTitle className="text-xl group-hover:text-primary transition-colors">
                           {getTranslatedCountryName(product.country_code, language)}
                         </CardTitle>
-                        <CardDescription>{product.name}</CardDescription>
+                        <CardDescription className="text-sm">{product.name}</CardDescription>
                       </div>
                     </div>
                     {product.is_popular && (
-                      <Badge className="bg-gradient-to-r from-primary to-primary/80">
-                        Popular
+                      <Badge className="bg-gradient-to-r from-primary via-primary to-accent shadow-lg">
+                        {t('popular')}
                       </Badge>
                     )}
                   </div>
                 </CardHeader>
 
                 <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-sm">
-                      <Wifi className="h-4 w-4 text-primary" />
-                      <span className="font-semibold">{product.data_amount}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm">
-                      <Calendar className="h-4 w-4 text-primary" />
-                      <span>{product.validity_days} days validity</span>
-                    </div>
-                    {product.features?.coverage && (
-                      <div className="flex items-center gap-2 text-sm">
-                        <Globe className="h-4 w-4 text-primary" />
-                        <span>{product.features.coverage}</span>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="p-3 rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Wifi className="h-4 w-4 text-primary" />
+                        <span className="text-xs font-medium">Data</span>
                       </div>
-                    )}
+                      <span className="font-bold text-lg">{product.data_amount}</span>
+                    </div>
+                    <div className="p-3 rounded-lg bg-gradient-to-br from-accent/10 to-accent/5 border border-accent/20">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Calendar className="h-4 w-4 text-accent" />
+                        <span className="text-xs font-medium">Validity</span>
+                      </div>
+                      <span className="font-bold text-lg">{product.validity_days} days</span>
+                    </div>
                   </div>
 
-                  <div className="pt-4 border-t">
-                    <div className="text-3xl font-bold text-primary">
+                  {product.features?.coverage && (
+                    <div className="flex items-center gap-2 text-sm p-2 rounded bg-muted/50">
+                      <Globe className="h-4 w-4 text-primary shrink-0" />
+                      <span className="text-muted-foreground truncate">{product.features.coverage}</span>
+                    </div>
+                  )}
+
+                  <div className="pt-3 border-t">
+                    <div className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                       ${product.price_usd.toFixed(2)}
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">{t('oneTimePayment')}</p>
                   </div>
                 </CardContent>
 
-                <CardFooter className="flex flex-col sm:flex-row gap-2">
+                <CardFooter className="flex flex-col sm:flex-row gap-2" onClick={(e) => e.stopPropagation()}>
                   <Button 
-                    onClick={() => handleAddToCart(product)}
-                    className="w-full sm:flex-1"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleAddToCart(product);
+                    }}
+                    className="w-full sm:flex-1 shadow-lg hover:shadow-xl transition-shadow"
                   >
                     <ShoppingCart className="mr-2 h-4 w-4" />
                     {t('addToCart')}
                   </Button>
                   <Button 
-                    onClick={() => handleReferEarn(product)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleReferEarn(product);
+                    }}
                     variant="outline"
-                    className="w-full sm:w-auto"
+                    className="w-full sm:w-auto hover:bg-primary/10 hover:border-primary/50 transition-colors"
                   >
                     <HandCoins className="h-4 w-4 mr-2" />
                     {t('referAndEarn')}
@@ -221,6 +245,14 @@ export const Shop = () => {
           </>
         )}
 
+        <ProductDetailModal
+          open={productDetailModalOpen}
+          onOpenChange={setProductDetailModalOpen}
+          product={selectedProduct}
+          onAddToCart={handleAddToCart}
+          onReferEarn={handleReferEarn}
+        />
+        
         <ReferEarnModal 
           open={referEarnModalOpen}
           onOpenChange={setReferEarnModalOpen}
