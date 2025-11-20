@@ -579,26 +579,15 @@ export default function Affiliate() {
                           <div className="p-2 bg-muted rounded text-xs md:text-sm break-all font-mono">
                             {link}
                           </div>
-                          <div className="flex gap-2">
-                            <Button 
-                              onClick={() => copyLink(link)} 
-                              variant="outline"
-                              size="sm"
-                              className="flex-1"
-                            >
-                              <Copy className="w-4 h-4 mr-2" />
-                              Copy
-                            </Button>
-                            <Button 
-                              onClick={() => window.open(`https://twitter.com/intent/tweet?text=Check out this crypto eSIM service!&url=${encodeURIComponent(link)}`, '_blank')}
-                              variant="outline"
-                              size="sm"
-                              className="flex-1"
-                            >
-                              <Share2 className="w-4 h-4 mr-2" />
-                              Share
-                            </Button>
-                          </div>
+                          <Button 
+                            onClick={() => copyLink(link)} 
+                            variant="outline"
+                            size="sm"
+                            className="w-full"
+                          >
+                            <Copy className="w-4 h-4 mr-2" />
+                            Copy Link
+                          </Button>
                           <div className="text-[10px] md:text-xs text-muted-foreground pt-1 border-t">
                             Username: <span className="font-mono">{aff.username}</span>
                           </div>
