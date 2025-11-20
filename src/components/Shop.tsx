@@ -5,7 +5,7 @@ import { useCart } from "@/hooks/useCart";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Input } from "./ui/input";
-import { Loader2, ShoppingCart, Search, Wifi, Calendar, Globe, MapPin, Share2, HandCoins } from "lucide-react";
+import { Loader2, ShoppingCart, Search, Wifi, Calendar, Globe, MapPin, Share2, HandCoins, Info } from "lucide-react";
 import { toast } from "sonner";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import { ProductDetailModal } from "./ProductDetailModal";
@@ -201,6 +201,11 @@ export const Shop = () => {
                       ${product.price_usd.toFixed(2)}
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">{t('oneTimePayment')}</p>
+                  </div>
+
+                  <div className="flex items-center justify-center gap-2 pt-2 text-sm text-muted-foreground/70 group-hover:text-primary transition-colors">
+                    <Info className="h-4 w-4" />
+                    <span>Click for more info</span>
                   </div>
                 </CardContent>
 
