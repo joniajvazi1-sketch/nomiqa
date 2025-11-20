@@ -24,10 +24,13 @@ export default function Auth() {
       }
     });
 
-    // Check if URL has signup/mode parameter
+    // Check if URL has mode parameter for register/login
     const params = new URLSearchParams(window.location.search);
-    if (params.get('signup') === 'true' || params.get('mode') === 'signup') {
+    const mode = params.get('mode');
+    if (mode === 'register') {
       setIsSignUp(true);
+    } else if (mode === 'login') {
+      setIsSignUp(false);
     }
   }, [navigate]);
 
@@ -95,7 +98,7 @@ export default function Auth() {
           <CardTitle className="text-2xl">{isSignUp ? "Create Account" : "Welcome Back"}</CardTitle>
           <CardDescription>
             {isSignUp
-              ? "Sign up to manage your eSIM orders"
+              ? "Register to manage your eSIM orders"
               : "Log in to view your orders and eSIMs"}
           </CardDescription>
         </CardHeader>
@@ -144,7 +147,7 @@ export default function Auth() {
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {isSignUp ? "Sign Up" : "Log In"}
+              {isSignUp ? "Register" : "Log In"}
             </Button>
           </form>
 
@@ -156,7 +159,7 @@ export default function Auth() {
             >
               {isSignUp
                 ? "Already have an account? Log in"
-                : "Don't have an account? Sign up"}
+                : "Don't have an account? Register"}
             </button>
           </div>
 

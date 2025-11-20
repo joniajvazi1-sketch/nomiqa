@@ -380,6 +380,36 @@ export type Database = {
         }
         Relationships: []
       }
+      user_spending: {
+        Row: {
+          cashback_rate: number
+          created_at: string
+          id: string
+          membership_tier: string
+          total_spent_usd: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cashback_rate?: number
+          created_at?: string
+          id?: string
+          membership_tier?: string
+          total_spent_usd?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cashback_rate?: number
+          created_at?: string
+          id?: string
+          membership_tier?: string
+          total_spent_usd?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       webhook_logs: {
         Row: {
           created_at: string | null
