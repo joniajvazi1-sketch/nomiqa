@@ -413,40 +413,42 @@ export default function Affiliate() {
       
       <div className="container mx-auto px-4 py-20 relative z-10">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12 space-y-6">
-            <div className="animate-fade-in-up">
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold font-display mb-2">
-                <span className="inline-block bg-gradient-sunset bg-clip-text text-transparent hover:scale-105 transition-transform duration-300">
-                  Share Freedom.
-                </span>
-              </h1>
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold font-display">
-                <span className="inline-block bg-gradient-to-r from-neon-cyan via-neon-coral to-neon-purple bg-clip-text text-transparent animate-pulse">
+          <div className="text-center mb-16 space-y-8 max-w-4xl mx-auto">
+            <div className="space-y-4 animate-fade-in">
+              <div className="inline-block px-4 py-2 bg-primary/10 border border-primary/20 rounded-full mb-4">
+                <p className="text-sm font-medium text-primary">Multi-Level Affiliate Program</p>
+              </div>
+              
+              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold font-display leading-tight">
+                <span className="block mb-2">Share Freedom.</span>
+                <span className="block bg-gradient-to-r from-neon-coral via-neon-purple to-neon-cyan bg-clip-text text-transparent">
                   Earn Rewards.
                 </span>
               </h1>
             </div>
             
-            <div className="animate-fade-in [animation-delay:200ms] space-y-3">
-              <p className="text-2xl md:text-3xl font-semibold text-foreground">
-                Build your network.{" "}
-                <span className="relative inline-block">
-                  <span className="relative z-10 bg-gradient-to-r from-neon-coral to-neon-purple bg-clip-text text-transparent font-bold">
-                    Earn from every layer.
-                  </span>
-                  <span className="absolute inset-0 bg-neon-coral/20 blur-xl"></span>
-                </span>
+            <div className="animate-fade-in [animation-delay:200ms] space-y-4">
+              <p className="text-xl md:text-2xl text-foreground/90 font-medium">
+                Build your network. Earn from every layer.
               </p>
-              <p className="text-xl md:text-2xl text-foreground/70 max-w-2xl mx-auto leading-relaxed">
-                Turn connections into income —{" "}
-                <span className="font-bold text-neon-cyan">up to 3 levels deep.</span>
+              <p className="text-lg md:text-xl text-foreground/60 max-w-2xl mx-auto">
+                Turn connections into income with our 3-tier commission system — 9% direct, +6% on level 2, +3% on level 3
               </p>
             </div>
 
-            <div className="animate-scale-in [animation-delay:400ms] flex justify-center gap-2 pt-4">
-              <div className="w-2 h-2 rounded-full bg-neon-coral animate-pulse"></div>
-              <div className="w-2 h-2 rounded-full bg-neon-cyan animate-pulse [animation-delay:200ms]"></div>
-              <div className="w-2 h-2 rounded-full bg-neon-purple animate-pulse [animation-delay:400ms]"></div>
+            <div className="animate-scale-in [animation-delay:400ms] flex flex-wrap justify-center gap-6 pt-2">
+              <div className="flex items-center gap-2 px-4 py-2 bg-primary/5 rounded-lg">
+                <div className="w-2 h-2 rounded-full bg-neon-coral"></div>
+                <span className="text-sm font-medium">9% Level 1</span>
+              </div>
+              <div className="flex items-center gap-2 px-4 py-2 bg-primary/5 rounded-lg">
+                <div className="w-2 h-2 rounded-full bg-neon-purple"></div>
+                <span className="text-sm font-medium">6% Level 2</span>
+              </div>
+              <div className="flex items-center gap-2 px-4 py-2 bg-primary/5 rounded-lg">
+                <div className="w-2 h-2 rounded-full bg-neon-cyan"></div>
+                <span className="text-sm font-medium">3% Level 3</span>
+              </div>
             </div>
           </div>
 
