@@ -623,55 +623,85 @@ export default function Affiliate() {
                           </p>
                         </div>
                       ) : (
-                        <div className="space-y-4 p-4 border rounded-lg bg-muted/30">
-                          <h3 className="font-semibold">Create Link {allAffiliates.length + 1}</h3>
-                          <div className="space-y-2">
-                            <label className="text-sm font-medium">
-                              Choose a username for this link
-                            </label>
-                            <div className="flex gap-2">
-                              <span className="flex items-center px-3 py-2 bg-muted text-muted-foreground rounded-md text-sm whitespace-nowrap">
-                                {window.location.origin}/
-                              </span>
-                              <div className="flex-1 relative">
-                                <Input
-                                  value={newLinkUsername}
-                                  onChange={(e) => setNewLinkUsername(e.target.value.toLowerCase())}
-                                  placeholder="your-custom-name"
-                                  className="font-mono"
-                                />
-                                {usernameAvailability === 'checking' && (
-                                  <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
-                                )}
-                                {usernameAvailability === 'available' && (
-                                  <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-green-500" />
-                                )}
-                                {usernameAvailability === 'taken' && (
-                                  <XCircle className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-red-500" />
+                        <div className="space-y-4 p-3 md:p-4 border rounded-lg bg-muted/30">
+                          <h3 className="font-semibold text-sm md:text-base">Create Link {allAffiliates.length + 1}</h3>
+                          
+                          <div className="space-y-3">
+                            <div>
+                              <label className="text-xs md:text-sm font-medium block mb-2">
+                                Choose a username for this link
+                              </label>
+                              
+                              {/* Mobile-friendly stacked layout */}
+                              <div className="space-y-2">
+                                <div className="flex flex-col sm:flex-row gap-2">
+                                  <span className="flex items-center px-3 py-2 bg-muted text-muted-foreground rounded-md text-xs md:text-sm whitespace-nowrap w-fit">
+                                    {window.location.origin}/
+                                  </span>
+                                  <div className="flex-1 relative">
+                                    <Input
+                                      value={newLinkUsername}
+                                      onChange={(e) => setNewLinkUsername(e.target.value.toLowerCase())}
+                                      placeholder="your-custom-name"
+                                      className="font-mono text-sm pr-10"
+                                    />
+                                    {usernameAvailability === 'checking' && (
+                                      <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
+                                    )}
+                                    {usernameAvailability === 'available' && (
+                                      <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-green-500" />
+                                    )}
+                                    {usernameAvailability === 'taken' && (
+                                      <XCircle className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-red-500" />
+                                    )}
+                                  </div>
+                                </div>
+                                
+                                {/* Live Preview */}
+                                {newLinkUsername && (
+                                  <div className="p-3 bg-primary/5 border border-primary/20 rounded-lg">
+                                    <p className="text-[10px] md:text-xs text-muted-foreground mb-1 font-medium">Your link preview:</p>
+                                    <p className="text-xs md:text-sm font-mono break-all text-primary">
+                                      {window.location.origin}/{newLinkUsername}
+                                    </p>
+                                  </div>
                                 )}
                               </div>
                             </div>
+                            
+                            {/* Validation Messages */}
                             {usernameAvailability === 'invalid' && (
-                              <p className="text-xs text-red-500">
-                                Username must be 3-30 characters, lowercase letters, numbers, and hyphens only
-                              </p>
+                              <div className="flex items-start gap-2 p-2 bg-red-500/10 border border-red-500/20 rounded">
+                                <AlertCircle className="h-4 w-4 text-red-500 shrink-0 mt-0.5" />
+                                <p className="text-xs text-red-600">
+                                  Username must be 3-30 characters, lowercase letters, numbers, and hyphens only
+                                </p>
+                              </div>
                             )}
                             {usernameAvailability === 'taken' && (
-                              <p className="text-xs text-red-500">
-                                This username is already taken
-                              </p>
+                              <div className="flex items-start gap-2 p-2 bg-red-500/10 border border-red-500/20 rounded">
+                                <XCircle className="h-4 w-4 text-red-500 shrink-0 mt-0.5" />
+                                <p className="text-xs text-red-600">
+                                  This username is already taken
+                                </p>
+                              </div>
                             )}
                             {usernameAvailability === 'available' && (
-                              <p className="text-xs text-green-600">
-                                This username is available!
-                              </p>
+                              <div className="flex items-start gap-2 p-2 bg-green-500/10 border border-green-500/20 rounded">
+                                <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0 mt-0.5" />
+                                <p className="text-xs text-green-700 dark:text-green-600">
+                                  This username is available!
+                                </p>
+                              </div>
                             )}
                           </div>
+                          
                           <div className="flex gap-2">
                             <Button 
                               onClick={createAffiliate}
                               disabled={creating || usernameAvailability !== 'available'}
                               className="flex-1"
+                              size="sm"
                             >
                               {creating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                               Create Link
@@ -683,6 +713,7 @@ export default function Affiliate() {
                                 setUsernameAvailability('idle');
                               }}
                               variant="outline"
+                              size="sm"
                             >
                               Cancel
                             </Button>
