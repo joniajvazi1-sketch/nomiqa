@@ -3,14 +3,15 @@ import { useNavigate } from "react-router-dom";
 import heroSunsetBg from "@/assets/hero-sunset-background.png";
 import heroMobileSunset from "@/assets/hero-mobile-sunset.png";
 import { useTranslation } from "@/contexts/TranslationContext";
+import { ArrowRight, Shield, Globe } from "lucide-react";
 
 export const Hero = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden pt-20">
-      {/* Background images with very light overlay */}
+    <section className="relative min-h-screen flex items-center overflow-hidden">
+      {/* Premium background with elegant overlay */}
       <div className="absolute inset-0">
         <img 
           src={heroSunsetBg} 
@@ -24,32 +25,86 @@ export const Hero = () => {
           className="md:hidden w-full h-full object-cover object-center" 
           loading="eager"
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-background/10 via-deep-space/15 to-background/10"></div>
+        {/* Sophisticated gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70"></div>
+        <div className="absolute inset-0 bg-gradient-to-tr from-deep-space/80 via-transparent to-midnight-blue/60"></div>
       </div>
       
-      <div className="container relative z-10 px-4 py-24 md:py-32">
-        <div className="max-w-5xl mx-auto text-center">
-          <div className="mb-6 md:mb-8 animate-fade-in-up">
-            <h1 className="text-3xl md:text-4xl lg:text-6xl font-bold font-display leading-tight">
-              <span className="text-neon-cyan">{t("heroPrivate")}</span>{" "}
-              <span className="text-neon-blue">{t("heroBorderless")}</span>{" "}
-              <span className="bg-gradient-to-r from-neon-pink via-neon-coral to-warm-sand bg-clip-text text-transparent">{t("heroHuman")}</span>
+      <div className="container relative z-10 px-6 md:px-8 py-32 md:py-40">
+        <div className="max-w-6xl mx-auto">
+          {/* Premium badge */}
+          <div className="flex justify-center mb-8 animate-fade-in">
+            <div className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl">
+              <Shield className="w-4 h-4 text-neon-cyan" />
+              <span className="text-xs md:text-sm font-semibold tracking-widest uppercase text-white/90">
+                Premium Privacy Network
+              </span>
+            </div>
+          </div>
+
+          {/* Hero headline - Premium typography */}
+          <div className="text-center mb-10 md:mb-12 animate-fade-in" style={{ animationDelay: "0.1s" }}>
+            <h1 className="text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-light font-display leading-[1.1] tracking-tight mb-6">
+              <span className="block text-white font-extralight mb-3">{t("heroPrivate")}</span>
+              <span className="block bg-gradient-to-r from-neon-cyan via-white to-neon-violet bg-clip-text text-transparent font-semibold">
+                {t("heroBorderless")} {t("heroHuman")}
+              </span>
             </h1>
           </div>
           
-          <div className="mb-6 md:mb-8 animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
-            <p className="text-lg md:text-xl lg:text-2xl text-white/95 mb-2 leading-relaxed">{t("heroDescription1")}</p>
-            <p className="text-base md:text-lg lg:text-xl text-white/90 leading-relaxed">{t("heroDescription2")}</p>
+          {/* Premium description */}
+          <div className="text-center mb-12 md:mb-16 max-w-3xl mx-auto animate-fade-in" style={{ animationDelay: "0.2s" }}>
+            <p className="text-lg md:text-xl lg:text-2xl text-white/95 font-light leading-relaxed mb-4">
+              {t("heroDescription1")}
+            </p>
+            <p className="text-base md:text-lg text-white/70 font-light leading-relaxed">
+              {t("heroDescription2")}
+            </p>
           </div>
           
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
-            <Button size="lg" onClick={() => navigate('/shop')} className="bg-neon-coral hover:bg-neon-coral/90 text-white font-semibold px-8 py-5 text-base md:text-lg rounded-xl shadow-xl hover:shadow-neon-coral/50 transition-all">
+          {/* Premium CTAs */}
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-5 justify-center items-center animate-fade-in" style={{ animationDelay: "0.3s" }}>
+            <Button 
+              size="lg" 
+              onClick={() => navigate('/shop')} 
+              className="group bg-white hover:bg-white/95 text-deep-space font-semibold px-10 py-7 text-base md:text-lg rounded-2xl shadow-2xl hover:shadow-white/20 transition-all duration-300 hover:scale-105 border border-white/20"
+            >
               {t("heroBuyNow")}
+              <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Button>
-            <Button variant="outline" size="lg" onClick={() => navigate('/getting-started')} className="border-2 border-neon-cyan/70 text-neon-cyan hover:bg-neon-cyan/10 px-6 py-5 text-base md:text-lg rounded-xl backdrop-blur-sm">
+            <Button 
+              variant="ghost" 
+              size="lg" 
+              onClick={() => navigate('/getting-started')} 
+              className="group backdrop-blur-xl bg-white/5 hover:bg-white/10 text-white border-2 border-white/20 hover:border-white/40 px-10 py-7 text-base md:text-lg rounded-2xl transition-all duration-300"
+            >
               {t("heroWatchHow")}
+              <Globe className="ml-2 w-5 h-5 group-hover:rotate-12 transition-transform" />
             </Button>
           </div>
+
+          {/* Premium trust indicators */}
+          <div className="mt-16 md:mt-20 flex flex-wrap justify-center items-center gap-8 md:gap-12 text-white/60 text-sm animate-fade-in" style={{ animationDelay: "0.4s" }}>
+            <div className="flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-neon-cyan"></div>
+              <span className="font-light">190+ Countries</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-neon-violet"></div>
+              <span className="font-light">Zero KYC Required</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-neon-coral"></div>
+              <span className="font-light">Crypto Payments Only</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Elegant scroll indicator */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
+        <div className="w-6 h-10 rounded-full border-2 border-white/20 flex items-start justify-center p-2">
+          <div className="w-1 h-3 rounded-full bg-white/40"></div>
         </div>
       </div>
     </section>
