@@ -373,7 +373,10 @@ export default function Affiliate() {
               <CardHeader>
                 <CardTitle>Start Earning Today</CardTitle>
                 <CardDescription>
-                  Get your unique referral link instantly - no account required!
+                  {user 
+                    ? "Get your unique referral link instantly using your account!"
+                    : "Get your unique referral link instantly - no account required!"
+                  }
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -396,7 +399,17 @@ export default function Affiliate() {
                     </div>
                   </div>
 
-                  {!user && (
+                  {user ? (
+                    <div className="space-y-2 p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
+                      <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
+                        <CheckCircle2 className="h-5 w-5" />
+                        <span className="font-semibold">You're logged in!</span>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Your affiliate account will be automatically linked to <strong>{user.email}</strong>
+                      </p>
+                    </div>
+                  ) : (
                     <div className="space-y-2">
                       <label htmlFor="email" className="text-sm font-medium">
                         Email (to track your earnings)
@@ -408,6 +421,9 @@ export default function Affiliate() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                       />
+                      <p className="text-xs text-muted-foreground">
+                        💡 Tip: <a href="/auth" className="text-primary hover:underline">Sign up for an account</a> to automatically track all your referrals!
+                      </p>
                     </div>
                   )}
 

@@ -167,6 +167,158 @@ serve(async (req) => {
 
     console.log('Order updated successfully');
 
+    // Process affiliate conversion if referral code exists
+    if (order.referral_code || order.visitor_id) {
+      try {
+        console.log('Processing affiliate conversion...');
+        
+        // Find the affiliate by referral code
+        const { data: affiliate } = await supabase
+          .from('affiliates')
+          .select('id, commission_rate, total_conversions, total_earnings_usd, parent_affiliate_id')
+          .eq('affiliate_code', order.referral_code)
+          .maybeSingle();
+
+        if (affiliate) {
+          // Calculate commission (9% for level 1, 6% for level 2, 3% for level 3)
+          const level1Commission = order.total_amount_usd * 0.09;
+          
+          // Find the referral click record - match by visitor_id OR user_id
+          const { data: referral } = await supabase
+            .from('affiliate_referrals')
+            .select('id, status')
+            .eq('affiliate_id', affiliate.id)
+            .or(`visitor_id.eq.${order.visitor_id}${order.user_id ? `,visitor_id.eq.${order.user_id}` : ''}`)
+            .eq('status', 'pending')
+            .order('clicked_at', { ascending: false })
+            .limit(1)
+            .maybeSingle();
+
+          // Update or create referral record
+          if (referral) {
+            await supabase
+              .from('affiliate_referrals')
+              .update({
+                status: 'converted',
+                order_id: order.id,
+                commission_amount_usd: level1Commission,
+                commission_level: 1,
+                converted_at: new Date().toISOString()
+              })
+              .eq('id', referral.id);
+          } else {
+            // Create new referral record if click wasn't tracked
+            await supabase
+              .from('affiliate_referrals')
+              .insert({
+                affiliate_id: affiliate.id,
+                visitor_id: order.user_id || order.visitor_id || order.email,
+                order_id: order.id,
+                status: 'converted',
+                commission_amount_usd: level1Commission,
+                commission_level: 1,
+                source: 'direct',
+                clicked_at: new Date().toISOString(),
+                converted_at: new Date().toISOString()
+              });
+          }
+
+          // Update affiliate stats
+          await supabase
+            .from('affiliates')
+            .update({
+              total_conversions: (affiliate.total_conversions || 0) + 1,
+              total_earnings_usd: (affiliate.total_earnings_usd || 0) + level1Commission,
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', affiliate.id);
+
+          console.log(`Level 1 commission: $${level1Commission.toFixed(2)}`);
+
+          // Process level 2 commission if there's a parent
+          if (affiliate.parent_affiliate_id) {
+            const { data: parentAffiliate } = await supabase
+              .from('affiliates')
+              .select('id, total_conversions, total_earnings_usd, parent_affiliate_id')
+              .eq('id', affiliate.parent_affiliate_id)
+              .maybeSingle();
+
+            if (parentAffiliate) {
+              const level2Commission = order.total_amount_usd * 0.06;
+              
+              await supabase
+                .from('affiliate_referrals')
+                .insert({
+                  affiliate_id: parentAffiliate.id,
+                  visitor_id: order.user_id || order.visitor_id || order.email,
+                  order_id: order.id,
+                  status: 'converted',
+                  commission_amount_usd: level2Commission,
+                  commission_level: 2,
+                  source: 'level2',
+                  clicked_at: new Date().toISOString(),
+                  converted_at: new Date().toISOString()
+                });
+
+              await supabase
+                .from('affiliates')
+                .update({
+                  total_conversions: (parentAffiliate.total_conversions || 0) + 1,
+                  total_earnings_usd: (parentAffiliate.total_earnings_usd || 0) + level2Commission,
+                  updated_at: new Date().toISOString()
+                })
+                .eq('id', parentAffiliate.id);
+
+              console.log(`Level 2 commission: $${level2Commission.toFixed(2)}`);
+
+              // Process level 3 commission if grandparent exists
+              if (parentAffiliate.parent_affiliate_id) {
+                const { data: grandparentAffiliate } = await supabase
+                  .from('affiliates')
+                  .select('id, total_conversions, total_earnings_usd')
+                  .eq('id', parentAffiliate.parent_affiliate_id)
+                  .maybeSingle();
+
+                if (grandparentAffiliate) {
+                  const level3Commission = order.total_amount_usd * 0.03;
+                  
+                  await supabase
+                    .from('affiliate_referrals')
+                    .insert({
+                      affiliate_id: grandparentAffiliate.id,
+                      visitor_id: order.user_id || order.visitor_id || order.email,
+                      order_id: order.id,
+                      status: 'converted',
+                      commission_amount_usd: level3Commission,
+                      commission_level: 3,
+                      source: 'level3',
+                      clicked_at: new Date().toISOString(),
+                      converted_at: new Date().toISOString()
+                    });
+
+                  await supabase
+                    .from('affiliates')
+                    .update({
+                      total_conversions: (grandparentAffiliate.total_conversions || 0) + 1,
+                      total_earnings_usd: (grandparentAffiliate.total_earnings_usd || 0) + level3Commission,
+                      updated_at: new Date().toISOString()
+                    })
+                    .eq('id', grandparentAffiliate.id);
+
+                  console.log(`Level 3 commission: $${level3Commission.toFixed(2)}`);
+                }
+              }
+            }
+          }
+
+          console.log('Affiliate conversion processed successfully');
+        }
+      } catch (affiliateError) {
+        console.error('Error processing affiliate conversion:', affiliateError);
+        // Don't fail the webhook, just log the error
+      }
+    }
+
     // Provision eSIM from Airalo
     try {
       const airloClientId = Deno.env.get('AIRLO_CLIENT_ID');
