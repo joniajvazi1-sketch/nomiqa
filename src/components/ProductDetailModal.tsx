@@ -64,7 +64,7 @@ export const ProductDetailModal = ({
           <div className="p-4 rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20">
             <div className="flex items-center gap-2 mb-2">
               <Wifi className="h-5 w-5 text-primary" />
-              <span className="font-semibold">Data</span>
+              <span className="font-semibold">{t('data')}</span>
             </div>
             <p className="text-2xl font-bold">{product.data_amount}</p>
           </div>
@@ -72,21 +72,21 @@ export const ProductDetailModal = ({
           <div className="p-4 rounded-lg bg-gradient-to-br from-accent/10 to-accent/5 border border-accent/20">
             <div className="flex items-center gap-2 mb-2">
               <Calendar className="h-5 w-5 text-accent" />
-              <span className="font-semibold">Validity</span>
+              <span className="font-semibold">{t('validity')}</span>
             </div>
-            <p className="text-2xl font-bold">{product.validity_days} days</p>
+            <p className="text-2xl font-bold">{product.validity_days} {t('days')}</p>
           </div>
         </div>
 
         {/* Detailed Features */}
         <div className="space-y-3 mb-6">
-          <h3 className="font-semibold text-lg mb-3">Plan Details</h3>
+          <h3 className="font-semibold text-lg mb-3">{t('planDetails')}</h3>
           
           {product.features?.coverage && (
             <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
               <Globe className="h-5 w-5 text-primary mt-0.5 shrink-0" />
               <div>
-                <p className="font-medium">Coverage</p>
+                <p className="font-medium">{t('coverage')}</p>
                 <p className="text-sm text-muted-foreground">{product.features.coverage}</p>
               </div>
             </div>
@@ -96,7 +96,7 @@ export const ProductDetailModal = ({
             <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
               <Zap className="h-5 w-5 text-primary mt-0.5 shrink-0" />
               <div>
-                <p className="font-medium">Network Speed</p>
+                <p className="font-medium">{t('networkSpeed')}</p>
                 <p className="text-sm text-muted-foreground">{product.features.speed}</p>
               </div>
             </div>
@@ -106,7 +106,7 @@ export const ProductDetailModal = ({
             <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
               <Clock className="h-5 w-5 text-primary mt-0.5 shrink-0" />
               <div>
-                <p className="font-medium">Activation</p>
+                <p className="font-medium">{t('activation')}</p>
                 <p className="text-sm text-muted-foreground">{product.features.activation}</p>
               </div>
             </div>
@@ -115,8 +115,8 @@ export const ProductDetailModal = ({
           <div className="flex items-start gap-3 p-3 rounded-lg bg-gradient-to-br from-green-500/10 to-green-500/5 border border-green-500/20">
             <Shield className="h-5 w-5 text-green-600 mt-0.5 shrink-0" />
             <div>
-              <p className="font-medium text-green-700 dark:text-green-600">Privacy Protected</p>
-              <p className="text-sm text-muted-foreground">No ID verification required. Your data stays private.</p>
+              <p className="font-medium text-green-700 dark:text-green-600">{t('privacyProtected')}</p>
+              <p className="text-sm text-muted-foreground">{t('privacyProtectedDesc')}</p>
             </div>
           </div>
         </div>
@@ -129,7 +129,7 @@ export const ProductDetailModal = ({
           className="w-full mb-6"
         >
           <Smartphone className="mr-2 h-5 w-5" />
-          Check Device Compatibility
+          {t('checkDeviceCompatibility')}
         </Button>
 
         {/* Action Buttons */}
