@@ -33,12 +33,12 @@ export default function Affiliate() {
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [affiliate, setAffiliate] = useState<AffiliateData | null>(null);
+  const [allAffiliates, setAllAffiliates] = useState<AffiliateData[]>([]);
   const [affiliateLink, setAffiliateLink] = useState("");
   const [customLink, setCustomLink] = useState("");
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [updatingUsername, setUpdatingUsername] = useState(false);
-  const [isGuest, setIsGuest] = useState(false);
   const [usernameAvailability, setUsernameAvailability] = useState<'idle' | 'checking' | 'available' | 'taken' | 'invalid'>('idle');
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [loadingAnalytics, setLoadingAnalytics] = useState(false);
@@ -93,25 +93,7 @@ export default function Affiliate() {
       
       if (user) {
         setUser(user);
-        await fetchAffiliate(user.email!);
-      } else {
-        // Check if guest affiliate exists in localStorage
-        const guestAffiliateCode = localStorage.getItem('guest_affiliate_code');
-        if (guestAffiliateCode) {
-          const { data } = await supabase
-            .from('affiliates')
-            .select('*')
-            .eq('affiliate_code', guestAffiliateCode)
-            .maybeSingle();
-          
-          if (data) {
-            setAffiliate(data);
-            setAffiliateLink(`${window.location.origin}/?ref=${data.affiliate_code}`);
-            setIsGuest(true);
-          }
-        } else {
-          setIsGuest(true);
-        }
+        await fetchAffiliates(user.id);
       }
     } catch (error) {
       console.error('Error checking user:', error);
@@ -120,25 +102,33 @@ export default function Affiliate() {
     }
   };
 
-  const fetchAffiliate = async (email: string) => {
+  const fetchAffiliates = async (userId: string) => {
     const { data, error } = await supabase
       .from('affiliates')
       .select('*')
-      .eq('email', email)
-      .maybeSingle();
+      .eq('user_id', userId)
+      .order('created_at', { ascending: true });
 
-    if (!error && data) {
-      setAffiliate(data);
-      setAffiliateLink(`${window.location.origin}/r/${data.affiliate_code}`);
-      setUsername(data.username || '');
-      if (data.username) {
-        setCustomLink(`${window.location.origin}/${data.username}`);
+    if (!error && data && data.length > 0) {
+      setAllAffiliates(data);
+      // Set the first (primary) affiliate as the main one
+      setAffiliate(data[0]);
+      setAffiliateLink(`${window.location.origin}/r/${data[0].affiliate_code}`);
+      setUsername(data[0].username || '');
+      if (data[0].username) {
+        setCustomLink(`${window.location.origin}/${data[0].username}`);
       }
       
-      // Fetch analytics
-      fetchAnalytics(data.id);
+      // Fetch analytics for primary affiliate
+      fetchAnalytics(data[0].id);
     }
   };
+
+  const copyLink = (link: string) => {
+    navigator.clipboard.writeText(link);
+    toast.success("Link copied to clipboard!");
+  };
+
 
   const fetchAnalytics = async (affiliateId: string) => {
     setLoadingAnalytics(true);
@@ -235,24 +225,53 @@ export default function Affiliate() {
   };
 
   const createAffiliate = async () => {
-    if (!email && !user) {
-      toast.error("Please enter your email");
+    if (!user) {
+      navigate('/auth');
       return;
     }
 
     setCreating(true);
     try {
+      // Check how many affiliates this user already has
+      const { data: existingAffiliates, error: countError } = await supabase
+        .from('affiliates')
+        .select('id')
+        .eq('user_id', user.id);
+
+      if (countError) throw countError;
+
+      if (existingAffiliates && existingAffiliates.length >= 3) {
+        toast.error("You've reached the maximum of 3 affiliate links");
+        setCreating(false);
+        return;
+      }
+
       const code = generateCode();
-      const affiliateEmail = user?.email || email;
+      const isFirstAffiliate = !existingAffiliates || existingAffiliates.length === 0;
       
-      // Auto-generate username from email
-      const autoUsername = affiliateEmail.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '');
+      // For first affiliate, use username from profile
+      let affiliateUsername = username;
+      if (isFirstAffiliate) {
+        // Get username from profiles table
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('username')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (profile?.username) {
+          affiliateUsername = profile.username;
+        } else {
+          // Auto-generate from email if no profile username
+          affiliateUsername = user.email!.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '');
+        }
+      }
 
       // Get referrer's affiliate ID if user signed up with a ref code
       const { referralCode } = useAffiliateTracking.getState();
       let parentAffiliateId = null;
 
-      if (referralCode) {
+      if (referralCode && isFirstAffiliate) {
         const { data: parentAffiliate } = await supabase
           .from('affiliates')
           .select('id')
@@ -267,71 +286,63 @@ export default function Affiliate() {
       const { data, error } = await supabase
         .from('affiliates')
         .insert({
-          user_id: user?.id || null,
-          email: affiliateEmail,
+          user_id: user.id,
+          email: user.email!,
           affiliate_code: code,
-          username: autoUsername,
-          parent_affiliate_id: parentAffiliateId,
+          username: affiliateUsername,
+          parent_affiliate_id: isFirstAffiliate ? parentAffiliateId : null,
         })
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        // If username is taken, add random number
+        if (error.code === '23505') {
+          const retryUsername = affiliateUsername + Math.floor(Math.random() * 999);
+          const { data: retryData, error: retryError } = await supabase
+            .from('affiliates')
+            .insert({
+              user_id: user.id,
+              email: user.email!,
+              affiliate_code: code,
+              username: retryUsername,
+              parent_affiliate_id: isFirstAffiliate ? parentAffiliateId : null,
+            })
+            .select()
+            .single();
+
+          if (retryError) throw retryError;
+          
+          setAffiliate(retryData);
+          setUsername(retryData.username || '');
+          setCustomLink(`${window.location.origin}/${retryData.username}`);
+          setAffiliateLink(`${window.location.origin}/r/${retryData.affiliate_code}`);
+          toast.success(`Affiliate link ${existingAffiliates.length + 1} created!`);
+          
+          // Refresh all affiliates
+          await fetchAffiliates(user.id);
+          return;
+        }
+        throw error;
+      }
 
       setAffiliate(data);
       setUsername(data.username || '');
       setCustomLink(`${window.location.origin}/${data.username}`);
       setAffiliateLink(`${window.location.origin}/r/${data.affiliate_code}`);
       
-      // Store in localStorage for guest users
-      if (!user) {
-        localStorage.setItem('guest_affiliate_code', data.affiliate_code);
-      }
+      toast.success(`Affiliate link ${existingAffiliates.length + 1} created!`);
       
-      toast.success("Affiliate account created!");
+      // Refresh all affiliates
+      await fetchAffiliates(user.id);
     } catch (error: any) {
-      // If username is taken, add random number
-      if (error.code === '23505') {
-        try {
-          const code = generateCode();
-          const affiliateEmail = user?.email || email;
-          const autoUsername = affiliateEmail.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '') + Math.floor(Math.random() * 999);
-
-          const { data, error: retryError } = await supabase
-            .from('affiliates')
-            .insert({
-              user_id: user?.id || null,
-              email: affiliateEmail,
-              affiliate_code: code,
-              username: autoUsername,
-            })
-            .select()
-            .single();
-
-          if (retryError) throw retryError;
-
-          setAffiliate(data);
-          setUsername(data.username || '');
-          setCustomLink(`${window.location.origin}/${data.username}`);
-          setAffiliateLink(`${window.location.origin}/r/${data.affiliate_code}`);
-          
-          if (!user) {
-            localStorage.setItem('guest_affiliate_code', data.affiliate_code);
-          }
-          
-          toast.success("Affiliate account created!");
-        } catch (retryError: any) {
-          toast.error(retryError.message || "Failed to create affiliate account");
-        }
-      } else {
-        toast.error(error.message || "Failed to create affiliate account");
-      }
+      toast.error(error.message || "Failed to create affiliate link");
     } finally {
       setCreating(false);
     }
   };
 
-  const copyLink = () => {
+  const copyLinkLegacy = () => {
     navigator.clipboard.writeText(affiliateLink);
     toast.success("Link copied to clipboard!");
   };
@@ -368,15 +379,12 @@ export default function Affiliate() {
             </p>
           </div>
 
-          {!affiliate ? (
+          {!user ? (
             <Card className="max-w-2xl mx-auto">
               <CardHeader>
-                <CardTitle>Start Earning Today</CardTitle>
+                <CardTitle>Join the Affiliate Program</CardTitle>
                 <CardDescription>
-                  {user 
-                    ? "Get your unique referral link instantly using your account!"
-                    : "Get your unique referral link instantly - no account required!"
-                  }
+                  Sign up or log in to start earning commissions
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -394,47 +402,60 @@ export default function Affiliate() {
                     </div>
                     <div className="text-center p-4 bg-primary/5 rounded-lg">
                       <TrendingUp className="w-8 h-8 text-primary mx-auto mb-2" />
-                      <h3 className="font-bold">Earn More</h3>
-                      <p className="text-sm text-muted-foreground">No limits</p>
+                      <h3 className="font-bold">3 Affiliate Links</h3>
+                      <p className="text-sm text-muted-foreground">Per account</p>
                     </div>
                   </div>
 
-                  {user ? (
-                    <div className="space-y-2 p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
-                      <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
-                        <CheckCircle2 className="h-5 w-5" />
-                        <span className="font-semibold">You're logged in!</span>
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        Your affiliate account will be automatically linked to <strong>{user.email}</strong>
-                      </p>
+                  <div className="bg-accent/10 border border-accent/20 rounded-lg p-6 text-center">
+                    <AlertCircle className="w-12 h-12 text-accent mx-auto mb-4" />
+                    <h3 className="text-xl font-bold mb-2">Authentication Required</h3>
+                    <p className="text-muted-foreground mb-6">
+                      You need to register or log in to access the affiliate program. 
+                      Each account automatically gets 1 link based on your username, 
+                      plus you can create 2 additional custom links.
+                    </p>
+                    <div className="flex gap-3 justify-center">
+                      <Button onClick={() => navigate('/auth')} size="lg" variant="default">
+                        Sign Up
+                      </Button>
+                      <Button onClick={() => navigate('/auth')} size="lg" variant="outline">
+                        Log In
+                      </Button>
                     </div>
-                  ) : (
-                    <div className="space-y-2">
-                      <label htmlFor="email" className="text-sm font-medium">
-                        Email (to track your earnings)
-                      </label>
-                      <Input
-                        id="email"
-                        type="email"
-                        placeholder="you@example.com"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                      />
-                      <p className="text-xs text-muted-foreground">
-                        💡 Tip: <a href="/auth" className="text-primary hover:underline">Sign up for an account</a> to automatically track all your referrals!
-                      </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ) : !affiliate ? (
+            <Card className="max-w-2xl mx-auto">
+              <CardHeader>
+                <CardTitle>Create Your First Affiliate Link</CardTitle>
+                <CardDescription>
+                  Get started with your automatic affiliate link based on your username
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
+                    <div className="flex items-center gap-2 text-green-600 dark:text-green-400 mb-2">
+                      <CheckCircle2 className="h-5 w-5" />
+                      <span className="font-semibold">You're logged in as {user.email}</span>
                     </div>
-                  )}
+                    <p className="text-sm text-muted-foreground">
+                      Your first affiliate link will be created automatically using your username. 
+                      You can create 2 more custom links later for a total of 3 links.
+                    </p>
+                  </div>
 
                   <Button 
                     onClick={createAffiliate} 
                     className="w-full" 
                     size="lg"
-                    disabled={creating || (!user && !email)}
+                    disabled={creating}
                   >
                     {creating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    Get My Affiliate Link
+                    Create My First Affiliate Link
                   </Button>
                 </div>
               </CardContent>
@@ -444,19 +465,21 @@ export default function Affiliate() {
               <div className="grid md:grid-cols-4 gap-4 mb-8 text-center">
                 <Card>
                   <CardHeader className="pb-3">
-                    <CardDescription>Total Clicks</CardDescription>
+                    <CardDescription>Total Clicks (All Links)</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-3xl font-bold">{affiliate.total_clicks}</div>
+                    <div className="text-3xl font-bold">
+                      {allAffiliates.reduce((sum, aff) => sum + (aff.total_clicks || 0), 0)}
+                    </div>
                   </CardContent>
                 </Card>
                 <Card>
                   <CardHeader className="pb-3">
-                    <CardDescription>Conversions</CardDescription>
+                    <CardDescription>Conversions (All Links)</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="text-3xl font-bold text-green-500">
-                      {affiliate.total_conversions}
+                      {allAffiliates.reduce((sum, aff) => sum + (aff.total_conversions || 0), 0)}
                     </div>
                   </CardContent>
                 </Card>
@@ -466,24 +489,117 @@ export default function Affiliate() {
                   </CardHeader>
                   <CardContent>
                     <div className="text-3xl font-bold text-primary">
-                      ${affiliate.total_earnings_usd.toFixed(2)}
+                      ${allAffiliates.reduce((sum, aff) => sum + (aff.total_earnings_usd || 0), 0).toFixed(2)}
                     </div>
                   </CardContent>
                 </Card>
                 <Card>
                   <CardHeader className="pb-3">
-                    <CardDescription>Commission Rates</CardDescription>
+                    <CardDescription>Active Links</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-1">
-                      <div className="text-lg font-bold">L1: 9%</div>
-                      <div className="text-sm text-muted-foreground">L2: 6% • L3: 3%</div>
+                      <div className="text-3xl font-bold">{allAffiliates.length} / 3</div>
+                      <div className="text-xs text-muted-foreground">Commission: 9% • 6% • 3%</div>
                     </div>
                   </CardContent>
                 </Card>
               </div>
 
+              {/* All Affiliate Links Section */}
               <Card className="mb-8">
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-between">
+                    <span>Your Affiliate Links</span>
+                    <Badge variant="secondary">{allAffiliates.length} / 3</Badge>
+                  </CardTitle>
+                  <CardDescription>
+                    You can have up to 3 affiliate links. Each link has its own tracking and stats.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {allAffiliates.map((aff, index) => {
+                    const isFirst = index === 0;
+                    const link = aff.username 
+                      ? `${window.location.origin}/${aff.username}`
+                      : `${window.location.origin}/r/${aff.affiliate_code}`;
+                    
+                    return (
+                      <div key={aff.id} className="p-4 border rounded-lg space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-semibold">
+                              {isFirst ? "Primary Link" : `Link ${index + 1}`}
+                            </h3>
+                            {isFirst && <Badge>Auto-created</Badge>}
+                          </div>
+                          <div className="flex gap-2 text-sm">
+                            <span className="text-muted-foreground">{aff.total_clicks} clicks</span>
+                            <span className="text-green-600">{aff.total_conversions} conversions</span>
+                            <span className="text-primary">${aff.total_earnings_usd.toFixed(2)}</span>
+                          </div>
+                        </div>
+                        
+                        <div className="flex flex-col sm:flex-row gap-2">
+                          <Input 
+                            value={link} 
+                            readOnly 
+                            className="font-mono text-sm"
+                          />
+                          <Button 
+                            onClick={() => copyLink(link)} 
+                            variant="outline"
+                            size="sm"
+                            className="whitespace-nowrap"
+                          >
+                            <Copy className="w-4 h-4 mr-2" />
+                            Copy
+                          </Button>
+                          <Button 
+                            onClick={() => window.open(`https://twitter.com/intent/tweet?text=Check out this crypto eSIM service!&url=${encodeURIComponent(link)}`, '_blank')}
+                            variant="outline"
+                            size="sm"
+                          >
+                            <Share2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                        
+                        <div className="text-xs text-muted-foreground">
+                          Username: <span className="font-mono">{aff.username}</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  
+                  {allAffiliates.length < 3 && (
+                    <div className="pt-4">
+                      <Button 
+                        onClick={createAffiliate} 
+                        variant="outline"
+                        className="w-full"
+                        disabled={creating}
+                      >
+                        {creating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        Create Additional Link ({allAffiliates.length + 1} / 3)
+                      </Button>
+                      <p className="text-xs text-muted-foreground mt-2 text-center">
+                        You can create {3 - allAffiliates.length} more affiliate link{3 - allAffiliates.length > 1 ? 's' : ''}
+                      </p>
+                    </div>
+                  )}
+                  
+                  {allAffiliates.length >= 3 && (
+                    <div className="p-4 bg-muted rounded-lg text-center">
+                      <AlertCircle className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+                      <p className="text-sm text-muted-foreground">
+                        You've reached the maximum of 3 affiliate links. These links cannot be edited.
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card className="mb-8 hidden">
                 <CardHeader>
                   <CardTitle>Your Affiliate Link</CardTitle>
                   <CardDescription>
