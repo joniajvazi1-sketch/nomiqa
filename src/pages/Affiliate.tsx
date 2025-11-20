@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Copy, TrendingUp, Users, DollarSign, CheckCircle2, Loader2, XCircle, AlertCircle, BarChart3, Share2 } from "lucide-react";
+import { Copy, TrendingUp, Users, DollarSign, CheckCircle2, Loader2, XCircle, AlertCircle, BarChart3, Share2, Award, Lock, Unlock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAffiliateTracking } from "@/hooks/useAffiliateTracking";
 
@@ -20,6 +20,7 @@ interface AffiliateData {
   total_earnings_usd: number;
   commission_rate: number;
   status: string;
+  tier_level: number;
 }
 
 interface AnalyticsData {
@@ -124,6 +125,30 @@ export default function Affiliate() {
       // Fetch analytics for primary affiliate
       fetchAnalytics(data[0].id);
     }
+  };
+
+  const getTierInfo = () => {
+    if (!affiliate) return null;
+    
+    const tiers = [
+      { level: 1, name: 'Starter', conversions: 0, description: '9% on direct sales', color: 'text-blue-500' },
+      { level: 2, name: 'Pro', conversions: 10, description: '9% direct + 6% on 2nd level', color: 'text-purple-500' },
+      { level: 3, name: 'Elite', conversions: 30, description: '9% + 6% + 3% on 3rd level', color: 'text-amber-500' }
+    ];
+
+    const currentTier = tiers.find(t => t.level === affiliate.tier_level) || tiers[0];
+    const nextTier = tiers.find(t => t.level === affiliate.tier_level + 1);
+    
+    const totalConversions = allAffiliates.reduce((sum, aff) => sum + (aff.total_conversions || 0), 0);
+    
+    if (!nextTier) {
+      return { currentTier, nextTier: null, progress: 100, remaining: 0, totalConversions };
+    }
+    
+    const remaining = nextTier.conversions - totalConversions;
+    const progress = (totalConversions / nextTier.conversions) * 100;
+    
+    return { currentTier, nextTier, progress, remaining, totalConversions };
   };
 
   const copyLink = (link: string) => {
@@ -415,8 +440,8 @@ export default function Affiliate() {
                   <div className="grid md:grid-cols-3 gap-4">
                     <div className="text-center p-4 bg-primary/5 rounded-lg">
                       <DollarSign className="w-8 h-8 text-primary mx-auto mb-2" />
-                      <h3 className="font-bold">Multi-Level Rewards</h3>
-                      <p className="text-sm text-muted-foreground">9% → 6% → 3%</p>
+                      <h3 className="font-bold">Multi-Tier System</h3>
+                      <p className="text-sm text-muted-foreground">Unlock 3 levels</p>
                     </div>
                     <div className="text-center p-4 bg-primary/5 rounded-lg">
                       <Users className="w-8 h-8 text-primary mx-auto mb-2" />
@@ -517,16 +542,166 @@ export default function Affiliate() {
                 </Card>
                 <Card>
                   <CardHeader className="pb-2 md:pb-3">
-                    <CardDescription className="text-xs md:text-sm">Active Links</CardDescription>
+                    <CardDescription className="text-xs md:text-sm">Current Tier</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-1">
-                      <div className="text-2xl md:text-3xl font-bold">{allAffiliates.length} / 3</div>
-                      <div className="text-[10px] md:text-xs text-muted-foreground">9% • 6% • 3%</div>
+                      <div className={`text-xl md:text-2xl font-bold ${getTierInfo()?.currentTier.color}`}>
+                        {getTierInfo()?.currentTier.name}
+                      </div>
+                      <div className="text-[10px] md:text-xs text-muted-foreground">Tier {getTierInfo()?.currentTier.level}</div>
                     </div>
                   </CardContent>
                 </Card>
               </div>
+
+              {/* Tier Progress Card */}
+              {getTierInfo()?.nextTier && (
+                <Card className="mb-8 border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Award className="w-5 h-5 text-primary" />
+                      Unlock Next Tier
+                    </CardTitle>
+                    <CardDescription>
+                      Complete more conversions to unlock higher commission levels
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">
+                        Progress to {getTierInfo()?.nextTier.name}
+                      </span>
+                      <span className="text-sm font-bold text-primary">
+                        {Math.round(getTierInfo()?.progress || 0)}%
+                      </span>
+                    </div>
+                    
+                    <div className="h-3 bg-muted rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-gradient-to-r from-primary to-accent transition-all duration-500"
+                        style={{ width: `${getTierInfo()?.progress}%` }}
+                      />
+                    </div>
+                    
+                    <p className="text-sm text-muted-foreground">
+                      <span className="font-semibold text-foreground">{getTierInfo()?.remaining} more conversions</span> to unlock <span className="font-semibold">{getTierInfo()?.nextTier.description}</span>
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Tier System Explanation */}
+              <Card className="mb-8">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5" />
+                    3-Tier Commission System
+                  </CardTitle>
+                  <CardDescription>
+                    Unlock more earning potential as you grow your network
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {/* Tier 1 - Starter */}
+                    <div className={`p-4 rounded-lg border-2 ${
+                      affiliate.tier_level >= 1 ? 'border-blue-500/50 bg-blue-500/5' : 'border-muted bg-muted/20'
+                    }`}>
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          {affiliate.tier_level >= 1 ? (
+                            <Unlock className="w-5 h-5 text-blue-500" />
+                          ) : (
+                            <Lock className="w-5 h-5 text-muted-foreground" />
+                          )}
+                          <h3 className="font-bold text-blue-500">Tier 1: Starter</h3>
+                        </div>
+                        <Badge variant={affiliate.tier_level >= 1 ? 'default' : 'secondary'}>
+                          {affiliate.tier_level >= 1 ? 'Unlocked' : 'Start Here'}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-3">
+                        Everyone starts here (0+ conversions)
+                      </p>
+                      <div className="space-y-1 text-sm">
+                        <div className="flex items-center gap-2">
+                          <DollarSign className="w-4 h-4 text-green-500" />
+                          <span><strong>9%</strong> commission on direct referrals (Level 1)</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Tier 2 - Pro */}
+                    <div className={`p-4 rounded-lg border-2 ${
+                      affiliate.tier_level >= 2 ? 'border-purple-500/50 bg-purple-500/5' : 'border-muted bg-muted/20'
+                    }`}>
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          {affiliate.tier_level >= 2 ? (
+                            <Unlock className="w-5 h-5 text-purple-500" />
+                          ) : (
+                            <Lock className="w-5 h-5 text-muted-foreground" />
+                          )}
+                          <h3 className="font-bold text-purple-500">Tier 2: Pro</h3>
+                        </div>
+                        <Badge variant={affiliate.tier_level >= 2 ? 'default' : 'secondary'}>
+                          {affiliate.tier_level >= 2 ? 'Unlocked' : '10 conversions needed'}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-3">
+                        Unlock at 10 total conversions
+                      </p>
+                      <div className="space-y-1 text-sm">
+                        <div className="flex items-center gap-2">
+                          <DollarSign className="w-4 h-4 text-green-500" />
+                          <span><strong>9%</strong> on your direct referrals (Level 1)</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <DollarSign className="w-4 h-4 text-purple-500" />
+                          <span><strong>+ 6%</strong> when your referrals make sales (Level 2)</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Tier 3 - Elite */}
+                    <div className={`p-4 rounded-lg border-2 ${
+                      affiliate.tier_level >= 3 ? 'border-amber-500/50 bg-amber-500/5' : 'border-muted bg-muted/20'
+                    }`}>
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          {affiliate.tier_level >= 3 ? (
+                            <Unlock className="w-5 h-5 text-amber-500" />
+                          ) : (
+                            <Lock className="w-5 h-5 text-muted-foreground" />
+                          )}
+                          <h3 className="font-bold text-amber-500">Tier 3: Elite</h3>
+                        </div>
+                        <Badge variant={affiliate.tier_level >= 3 ? 'default' : 'secondary'}>
+                          {affiliate.tier_level >= 3 ? 'Unlocked' : '30 conversions needed'}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-3">
+                        Unlock at 30 total conversions
+                      </p>
+                      <div className="space-y-1 text-sm">
+                        <div className="flex items-center gap-2">
+                          <DollarSign className="w-4 h-4 text-green-500" />
+                          <span><strong>9%</strong> on your direct referrals (Level 1)</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <DollarSign className="w-4 h-4 text-purple-500" />
+                          <span><strong>+ 6%</strong> on 2nd level referrals</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <DollarSign className="w-4 h-4 text-amber-500" />
+                          <span><strong>+ 3%</strong> on 3rd level referrals</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
 
               {/* All Affiliate Links Section */}
               <Card className="mb-8">
@@ -966,10 +1141,24 @@ export default function Affiliate() {
                         3
                       </div>
                       <div>
-                        <h4 className="font-semibold mb-1">Earn Commission</h4>
-                        <p className="text-sm text-muted-foreground">
-                          Earn 9% on direct referrals, 6% on level 2, and 3% on level 3
+                        <h4 className="font-semibold mb-1">Earn Multi-Level Commissions</h4>
+                        <p className="text-sm text-muted-foreground mb-2">
+                          Build your network and earn from multiple levels:
                         </p>
+                        <div className="space-y-2 text-sm">
+                          <div className="flex items-center gap-2">
+                            <Unlock className="w-4 h-4 text-green-500" />
+                            <span><strong>Tier 1 (Starter):</strong> 9% on your direct referrals</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Lock className="w-4 h-4 text-muted-foreground" />
+                            <span><strong>Tier 2 (Pro):</strong> Unlock at 10 conversions → earn additional 6% on 2nd level</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Lock className="w-4 h-4 text-muted-foreground" />
+                            <span><strong>Tier 3 (Elite):</strong> Unlock at 30 conversions → earn additional 3% on 3rd level</span>
+                          </div>
+                        </div>
                       </div>
                     </li>
                   </ol>

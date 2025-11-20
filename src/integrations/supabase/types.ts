@@ -80,6 +80,7 @@ export type Database = {
           id: string
           parent_affiliate_id: string | null
           status: string | null
+          tier_level: number
           total_clicks: number | null
           total_conversions: number | null
           total_earnings_usd: number | null
@@ -95,6 +96,7 @@ export type Database = {
           id?: string
           parent_affiliate_id?: string | null
           status?: string | null
+          tier_level?: number
           total_clicks?: number | null
           total_conversions?: number | null
           total_earnings_usd?: number | null
@@ -110,6 +112,7 @@ export type Database = {
           id?: string
           parent_affiliate_id?: string | null
           status?: string | null
+          tier_level?: number
           total_clicks?: number | null
           total_conversions?: number | null
           total_earnings_usd?: number | null
