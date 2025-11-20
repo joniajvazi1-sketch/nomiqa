@@ -420,17 +420,17 @@ export default function Affiliate() {
               </div>
               
               <h1 className="text-5xl md:text-7xl lg:text-8xl font-black font-display leading-none tracking-tight">
-                <span className="block text-foreground mb-4">Earn While</span>
-                <span className="block bg-gradient-to-r from-neon-coral via-neon-purple to-neon-cyan bg-clip-text text-transparent animate-pulse">
+                <span className="block bg-gradient-to-r from-warm-sand to-neon-coral bg-clip-text text-transparent mb-4">Earn While</span>
+                <span className="block bg-gradient-to-r from-neon-coral via-neon-purple to-neon-cyan bg-clip-text text-transparent">
                   They Travel
                 </span>
               </h1>
               
               <div className="pt-6 space-y-3">
-                <p className="text-2xl md:text-4xl text-foreground font-bold">
+                <p className="text-2xl md:text-4xl bg-gradient-to-r from-neon-coral to-neon-purple bg-clip-text text-transparent font-bold">
                   18% Total Commission Split
                 </p>
-                <p className="text-xl md:text-2xl text-foreground/70">
+                <p className="text-xl md:text-2xl text-warm-sand">
                   Your link → <span className="text-neon-coral font-bold">9%</span> • 
                   Their link → <span className="text-neon-purple font-bold">+6%</span> • 
                   Next level → <span className="text-neon-cyan font-bold">+3%</span>
@@ -438,7 +438,7 @@ export default function Affiliate() {
               </div>
 
               <div className="pt-4">
-                <p className="text-lg md:text-xl text-foreground/60 max-w-3xl mx-auto leading-relaxed">
+                <p className="text-lg md:text-xl text-warm-sand/90 max-w-3xl mx-auto leading-relaxed">
                   Build a network once. Earn forever. Every connection multiplies your income — automatically.
                 </p>
               </div>
