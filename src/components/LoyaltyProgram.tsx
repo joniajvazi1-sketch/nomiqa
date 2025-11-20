@@ -41,77 +41,79 @@ export const LoyaltyProgram = () => {
   ];
 
   return (
-    <section className="py-16 md:py-24 px-4 bg-gradient-to-br from-background via-muted/30 to-background relative overflow-hidden">
-      {/* Background decoration */}
-      <div className="absolute top-10 right-10 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-10 left-10 w-96 h-96 bg-accent/5 rounded-full blur-3xl"></div>
+    <section className="py-16 md:py-24 lg:py-32 px-4 sm:px-6 bg-gradient-to-br from-black/40 via-deep-space/60 to-black/40 relative overflow-hidden border-y border-white/5">
+      {/* Premium background decorations */}
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-neon-cyan/3 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-neon-violet/3 rounded-full blur-3xl"></div>
 
       <div className="container mx-auto max-w-6xl relative z-10">
         {/* Header */}
-        <div className="text-center mb-12 md:mb-16">
-          <div className="inline-block mb-4">
-            <span className="text-primary text-sm md:text-base font-bold tracking-wider uppercase">
+        <div className="text-center mb-12 md:mb-16 lg:mb-20 animate-fade-in-up">
+          <div className="inline-block mb-3 md:mb-4">
+            <span className="text-neon-coral text-[10px] sm:text-xs md:text-sm font-light tracking-[0.25em] uppercase">
               🏆 Rewards Program
             </span>
           </div>
-          <h2 className="text-3xl md:text-5xl font-bold mb-4">
-            <span className="block bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light mb-4 md:mb-6 px-4">
+            <span className="block bg-gradient-to-r from-white via-white/95 to-white/90 bg-clip-text text-transparent">
               Earn Cashback on Every Purchase
             </span>
           </h2>
-          <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white/70 font-light max-w-2xl mx-auto leading-relaxed px-4">
             The more you use Nomiqa, the more you save. Unlock higher tiers and earn up to 10% cashback in crypto.
           </p>
         </div>
 
         {/* Tiers Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 md:gap-6 mb-10 md:mb-12 lg:mb-16">
           {tiers.map((tier, index) => {
             const Icon = tier.icon;
             return (
-              <Card 
+              <div 
                 key={tier.name} 
-                className={`border-2 transition-all duration-300 hover:scale-105 hover:shadow-xl ${
-                  index === 3 ? 'border-primary/50 bg-gradient-to-br from-primary/5 to-accent/5' : 'border-border/50'
+                className={`group relative p-6 sm:p-7 md:p-8 rounded-2xl md:rounded-3xl bg-white/[0.02] backdrop-blur-xl border transition-all duration-700 hover-lift ${
+                  index === 3 
+                    ? 'border-neon-violet/30 bg-gradient-to-br from-neon-violet/5 to-neon-coral/5' 
+                    : 'border-white/10 hover:border-white/20'
                 }`}
               >
-                <CardContent className="p-6 text-center space-y-4">
-                  <div className={`w-16 h-16 mx-auto rounded-full bg-gradient-to-br ${tier.color} flex items-center justify-center shadow-lg`}>
-                    <Icon className="w-8 h-8 text-white" />
+                <div className="text-center space-y-4 md:space-y-5">
+                  <div className={`w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 mx-auto rounded-2xl md:rounded-3xl bg-gradient-to-br ${tier.color} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-500`}>
+                    <Icon className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-foreground mb-2">{tier.name}</h3>
-                    <div className="text-3xl font-black bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                    <h3 className="text-lg sm:text-xl md:text-2xl font-light text-white mb-2 md:mb-3">{tier.name}</h3>
+                    <div className="text-3xl sm:text-4xl md:text-5xl font-extralight bg-gradient-to-r from-white via-white/90 to-white/80 bg-clip-text text-transparent">
                       {tier.cashback}
                     </div>
-                    <p className="text-sm text-muted-foreground mt-1">cashback</p>
+                    <p className="text-xs sm:text-sm md:text-base text-white/50 font-light mt-1 md:mt-2">cashback</p>
                   </div>
-                  <div className="pt-4 border-t border-border/50">
-                    <p className="text-xs text-muted-foreground font-medium">{tier.requirement}</p>
+                  <div className="pt-3 md:pt-4 border-t border-white/10">
+                    <p className="text-xs sm:text-sm text-white/60 font-light">{tier.requirement}</p>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             );
           })}
         </div>
 
         {/* Benefits */}
-        <div className="bg-muted/30 border border-border/50 rounded-xl p-6 md:p-8 mb-8">
-          <div className="grid md:grid-cols-3 gap-6 text-center">
-            <div>
-              <div className="text-2xl mb-2">💰</div>
-              <h4 className="font-semibold text-foreground mb-2">Real Crypto Cashback</h4>
-              <p className="text-sm text-muted-foreground">Earn in USDC or SOL, not platform credits</p>
+        <div className="bg-white/[0.02] backdrop-blur-xl border border-white/10 rounded-2xl md:rounded-3xl p-6 sm:p-7 md:p-10 mb-8 md:mb-12">
+          <div className="grid md:grid-cols-3 gap-6 md:gap-8 text-center">
+            <div className="group">
+              <div className="text-3xl sm:text-4xl mb-3 md:mb-4 group-hover:scale-110 transition-transform duration-300">💰</div>
+              <h4 className="font-light text-base sm:text-lg md:text-xl text-white mb-2 md:mb-3">Real Crypto Cashback</h4>
+              <p className="text-xs sm:text-sm md:text-base text-white/60 font-light leading-relaxed">Earn in USDC or SOL, not platform credits</p>
             </div>
-            <div>
-              <div className="text-2xl mb-2">⚡</div>
-              <h4 className="font-semibold text-foreground mb-2">Instant Rewards</h4>
-              <p className="text-sm text-muted-foreground">Cashback credited immediately after purchase</p>
+            <div className="group">
+              <div className="text-3xl sm:text-4xl mb-3 md:mb-4 group-hover:scale-110 transition-transform duration-300">⚡</div>
+              <h4 className="font-light text-base sm:text-lg md:text-xl text-white mb-2 md:mb-3">Instant Rewards</h4>
+              <p className="text-xs sm:text-sm md:text-base text-white/60 font-light leading-relaxed">Cashback credited immediately after purchase</p>
             </div>
-            <div>
-              <div className="text-2xl mb-2">🚀</div>
-              <h4 className="font-semibold text-foreground mb-2">Lifetime Tiers</h4>
-              <p className="text-sm text-muted-foreground">Never lose your tier level once unlocked</p>
+            <div className="group">
+              <div className="text-3xl sm:text-4xl mb-3 md:mb-4 group-hover:scale-110 transition-transform duration-300">🚀</div>
+              <h4 className="font-light text-base sm:text-lg md:text-xl text-white mb-2 md:mb-3">Lifetime Tiers</h4>
+              <p className="text-xs sm:text-sm md:text-base text-white/60 font-light leading-relaxed">Never lose your tier level once unlocked</p>
             </div>
           </div>
         </div>
@@ -121,7 +123,7 @@ export const LoyaltyProgram = () => {
           <Button 
             onClick={() => navigate(localizedPath('/account', language))}
             size="lg"
-            className="bg-gradient-to-r from-primary to-accent hover:opacity-90 text-primary-foreground font-semibold px-10 py-6"
+            className="bg-white text-black hover:bg-white/90 font-light text-sm sm:text-base md:text-lg px-8 sm:px-10 md:px-12 py-5 sm:py-6 md:py-7 rounded-xl md:rounded-2xl shadow-lg hover:scale-105 transition-all duration-300 w-full sm:w-auto"
           >
             View My Rewards
           </Button>
