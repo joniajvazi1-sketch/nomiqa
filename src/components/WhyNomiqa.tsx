@@ -2,9 +2,29 @@ import { Shield, Zap, Globe } from "lucide-react";
 import { useTranslation } from "@/contexts/TranslationContext";
 import whyNomiqaDesktop from "@/assets/why-nomiqa-desktop.png";
 import whyNomiqaMobile from "@/assets/why-nomiqa-mobile.png";
+import { useEffect, useRef, useState } from "react";
 
 export const WhyNomiqa = () => {
   const { t } = useTranslation();
+  const [isVisible, setIsVisible] = useState(false);
+  const sectionRef = useRef<HTMLDivElement>(null);
+  
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+        }
+      },
+      { threshold: 0.1 }
+    );
+    
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+    
+    return () => observer.disconnect();
+  }, []);
   
   const values = [
     {
@@ -28,7 +48,7 @@ export const WhyNomiqa = () => {
   ];
 
   return (
-    <section className="relative py-16 md:py-24 lg:py-32 overflow-hidden min-h-screen md:min-h-0">
+    <section ref={sectionRef} className="relative py-16 md:py-24 lg:py-32 overflow-hidden min-h-screen md:min-h-0">
       {/* Premium background with elegant overlay */}
       <div className="absolute inset-0">
         <img 
@@ -53,7 +73,7 @@ export const WhyNomiqa = () => {
       <div className="absolute bottom-20 right-10 w-96 h-96 bg-neon-violet/3 rounded-full blur-3xl"></div>
       
       <div className="container relative z-10 px-4 sm:px-6 md:px-8 py-8 md:py-12 lg:py-16">
-        <div className="text-center mb-12 md:mb-16 lg:mb-20">
+        <div className={`text-center mb-12 md:mb-16 lg:mb-20 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light mb-4 md:mb-6 leading-tight px-4">
             <span className="bg-gradient-to-r from-white via-white/95 to-white/90 bg-clip-text text-transparent">
               {t("whyNomiqaMainTitle")}
@@ -65,7 +85,7 @@ export const WhyNomiqa = () => {
         </div>
 
         {/* Premium value cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 lg:gap-10 max-w-7xl mx-auto">
+        <div className={`grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 lg:gap-10 max-w-7xl mx-auto transition-all duration-1000 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           {/* Privacy Card */}
           <div className="group relative p-8 sm:p-10 md:p-12 rounded-2xl md:rounded-3xl bg-white/[0.03] backdrop-blur-xl border border-white/10 hover:border-white/20 transition-all duration-700 hover:bg-white/[0.05] hover-lift">
             <div className="flex justify-center mb-6 md:mb-8">
