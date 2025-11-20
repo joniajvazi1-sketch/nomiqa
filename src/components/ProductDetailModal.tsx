@@ -1,129 +1,153 @@
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Product } from "@/hooks/useProducts";
-import { Check, Globe, Zap, Clock } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
+import { Button } from "./ui/button";
+import { Badge } from "./ui/badge";
+import { ShoppingCart, HandCoins, Wifi, Calendar, Globe, Zap, Shield, Clock } from "lucide-react";
+import { useTranslation } from "@/contexts/TranslationContext";
+import { getTranslatedCountryName } from "@/utils/countryTranslations";
+import * as CountryFlags from 'country-flag-icons/react/3x2';
 
 interface ProductDetailModalProps {
-  product: Product | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  product: any;
+  onAddToCart: (product: any) => void;
+  onReferEarn: (product: any) => void;
 }
 
-export const ProductDetailModal = ({
+export const ProductDetailModal = ({ 
+  open, 
+  onOpenChange, 
   product,
-  open,
-  onOpenChange,
+  onAddToCart,
+  onReferEarn 
 }: ProductDetailModalProps) => {
+  const { language, t } = useTranslation();
+
   if (!product) return null;
+
+  const getCountryFlag = (countryCode: string) => {
+    const FlagComponent = (CountryFlags as any)[countryCode];
+    return FlagComponent ? <FlagComponent className="w-16 h-12 rounded shadow-lg" /> : null;
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl">{product.country_name}</DialogTitle>
+          <div className="flex items-start gap-4 mb-4">
+            {getCountryFlag(product.country_code)}
+            <div className="flex-1">
+              <DialogTitle className="text-2xl mb-2">
+                {getTranslatedCountryName(product.country_code, language)}
+              </DialogTitle>
+              <p className="text-muted-foreground">{product.name}</p>
+              {product.is_popular && (
+                <Badge className="mt-2 bg-gradient-to-r from-primary to-primary/80">
+                  {t('popular')}
+                </Badge>
+              )}
+            </div>
+            <div className="text-right">
+              <div className="text-3xl font-bold text-primary">
+                ${product.price_usd.toFixed(2)}
+              </div>
+              <p className="text-xs text-muted-foreground">{t('oneTimePayment')}</p>
+            </div>
+          </div>
         </DialogHeader>
 
-        <div className="space-y-6">
-          {/* Package Info */}
-          <div className="bg-muted/50 rounded-lg p-6">
-            <div className="flex items-baseline justify-between mb-2">
-              <h3 className="text-3xl font-bold">{product.data_amount}</h3>
-              <div className="text-right">
-                <div className="text-3xl font-bold text-primary">
-                  ${product.price_usd.toFixed(2)}
-                </div>
-              </div>
+        {/* Main Features Grid */}
+        <div className="grid grid-cols-2 gap-4 mb-6">
+          <div className="p-4 rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20">
+            <div className="flex items-center gap-2 mb-2">
+              <Wifi className="h-5 w-5 text-primary" />
+              <span className="font-semibold">Data</span>
             </div>
-            <p className="text-muted-foreground">
-              Valid for {product.validity_days}{" "}
-              {product.validity_days === 1 ? "day" : "days"}
-            </p>
+            <p className="text-2xl font-bold">{product.data_amount}</p>
           </div>
 
-          {/* Features */}
-          {product.features && Object.keys(product.features).length > 0 && (
-            <div>
-              <h4 className="font-semibold mb-3">Features</h4>
-              <div className="space-y-2">
-                {product.features.coverage && (
-                  <div className="flex items-start gap-3">
-                    <Globe className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                    <div>
-                      <div className="font-medium">Coverage</div>
-                      <div className="text-sm text-muted-foreground">
-                        {product.features.coverage}
-                      </div>
-                    </div>
-                  </div>
-                )}
-                {product.features.speed && (
-                  <div className="flex items-start gap-3">
-                    <Zap className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                    <div>
-                      <div className="font-medium">Speed</div>
-                      <div className="text-sm text-muted-foreground">
-                        {product.features.speed}
-                      </div>
-                    </div>
-                  </div>
-                )}
-                {product.features.activation && (
-                  <div className="flex items-start gap-3">
-                    <Clock className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                    <div>
-                      <div className="font-medium">Activation</div>
-                      <div className="text-sm text-muted-foreground">
-                        {product.features.activation}
-                      </div>
-                    </div>
-                  </div>
-                )}
+          <div className="p-4 rounded-lg bg-gradient-to-br from-accent/10 to-accent/5 border border-accent/20">
+            <div className="flex items-center gap-2 mb-2">
+              <Calendar className="h-5 w-5 text-accent" />
+              <span className="font-semibold">Validity</span>
+            </div>
+            <p className="text-2xl font-bold">{product.validity_days} days</p>
+          </div>
+        </div>
+
+        {/* Detailed Features */}
+        <div className="space-y-3 mb-6">
+          <h3 className="font-semibold text-lg mb-3">Plan Details</h3>
+          
+          {product.features?.coverage && (
+            <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+              <Globe className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+              <div>
+                <p className="font-medium">Coverage</p>
+                <p className="text-sm text-muted-foreground">{product.features.coverage}</p>
               </div>
             </div>
           )}
 
-          {/* What's Included */}
-          <div>
-            <h4 className="font-semibold mb-3">What's Included</h4>
-            <ul className="space-y-2">
-              <li className="flex items-start gap-2">
-                <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                <span className="text-sm">{product.data_amount} of data</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                <span className="text-sm">
-                  {product.validity_days} day validity period
-                </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                <span className="text-sm">Easy eSIM activation</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                <span className="text-sm">No physical SIM card needed</span>
-              </li>
-            </ul>
-          </div>
+          {product.features?.speed && (
+            <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+              <Zap className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+              <div>
+                <p className="font-medium">Network Speed</p>
+                <p className="text-sm text-muted-foreground">{product.features.speed}</p>
+              </div>
+            </div>
+          )}
 
-          {/* Coverage Info */}
-          <div className="bg-muted/50 rounded-lg p-4">
-            <h4 className="font-semibold mb-2">Coverage Area</h4>
-            <p className="text-sm text-muted-foreground">
-              This eSIM provides coverage in {product.country_name} (
-              {product.country_code})
-            </p>
-          </div>
+          {product.features?.activation && (
+            <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+              <Clock className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+              <div>
+                <p className="font-medium">Activation</p>
+                <p className="text-sm text-muted-foreground">{product.features.activation}</p>
+              </div>
+            </div>
+          )}
 
-          {/* Buy Button */}
-          <Button variant="hero" size="lg" className="w-full">
-            Buy Now - ${product.price_usd.toFixed(2)}
+          <div className="flex items-start gap-3 p-3 rounded-lg bg-gradient-to-br from-green-500/10 to-green-500/5 border border-green-500/20">
+            <Shield className="h-5 w-5 text-green-600 mt-0.5 shrink-0" />
+            <div>
+              <p className="font-medium text-green-700 dark:text-green-600">Privacy Protected</p>
+              <p className="text-sm text-muted-foreground">No ID verification required. Your data stays private.</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Additional Info */}
+        <div className="p-4 rounded-lg bg-muted/30 border mb-6">
+          <h4 className="font-semibold mb-2 text-sm">Package ID</h4>
+          <p className="text-xs font-mono text-muted-foreground break-all">{product.airlo_package_id}</p>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex flex-col sm:flex-row gap-3">
+          <Button 
+            onClick={() => {
+              onAddToCart(product);
+              onOpenChange(false);
+            }}
+            className="flex-1"
+            size="lg"
+          >
+            <ShoppingCart className="mr-2 h-5 w-5" />
+            {t('addToCart')}
+          </Button>
+          <Button 
+            onClick={() => {
+              onOpenChange(false);
+              onReferEarn(product);
+            }}
+            variant="outline"
+            size="lg"
+            className="sm:w-auto"
+          >
+            <HandCoins className="h-5 w-5 mr-2" />
+            {t('referAndEarn')}
           </Button>
         </div>
       </DialogContent>
