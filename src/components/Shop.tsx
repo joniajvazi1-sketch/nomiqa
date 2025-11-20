@@ -186,10 +186,10 @@ export const Shop = () => {
                   </div>
                 </CardContent>
 
-                <CardFooter className="flex gap-2">
+                <CardFooter className="flex flex-col sm:flex-row gap-2">
                   <Button 
                     onClick={() => handleAddToCart(product)}
-                    className="flex-1"
+                    className="w-full sm:flex-1"
                   >
                     <ShoppingCart className="mr-2 h-4 w-4" />
                     {t('addToCart')}
@@ -197,10 +197,10 @@ export const Shop = () => {
                   <Button 
                     onClick={() => handleReferEarn(product)}
                     variant="outline"
-                    className="shrink-0"
+                    className="w-full sm:w-auto"
                   >
                     <HandCoins className="h-4 w-4 mr-2" />
-                    <span className="hidden sm:inline">{t('referAndEarn')}</span>
+                    {t('referAndEarn')}
                   </Button>
                 </CardFooter>
               </Card>
