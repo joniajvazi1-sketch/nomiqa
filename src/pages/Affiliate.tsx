@@ -413,23 +413,35 @@ export default function Affiliate() {
       
       <div className="container mx-auto px-4 py-20 relative z-10">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16 space-y-6 max-w-4xl mx-auto">
-            <div className="space-y-4 animate-fade-in">
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold font-display leading-tight">
-                <span className="block text-foreground mb-3">Share Freedom.</span>
-                <span className="block bg-gradient-to-r from-neon-coral to-neon-purple bg-clip-text text-transparent">
-                  Earn Rewards.
+          <div className="text-center mb-16 max-w-5xl mx-auto">
+            <div className="space-y-6 animate-fade-in">
+              <div className="inline-block">
+                <span className="text-neon-coral text-sm md:text-base font-bold tracking-wider uppercase">🔥 Passive Income Unlocked</span>
+              </div>
+              
+              <h1 className="text-5xl md:text-7xl lg:text-8xl font-black font-display leading-none tracking-tight">
+                <span className="block text-foreground mb-4">Earn While</span>
+                <span className="block bg-gradient-to-r from-neon-coral via-neon-purple to-neon-cyan bg-clip-text text-transparent animate-pulse">
+                  They Travel
                 </span>
               </h1>
-            </div>
-            
-            <div className="animate-fade-in space-y-4 pt-4">
-              <p className="text-2xl md:text-3xl text-foreground/90 font-medium">
-                Build your network. Earn from every layer.
-              </p>
-              <p className="text-lg md:text-xl text-foreground/60 max-w-2xl mx-auto leading-relaxed">
-                Turn connections into income with our 3-tier commission system
-              </p>
+              
+              <div className="pt-6 space-y-3">
+                <p className="text-2xl md:text-4xl text-foreground font-bold">
+                  18% Total Commission Split
+                </p>
+                <p className="text-xl md:text-2xl text-foreground/70">
+                  Your link → <span className="text-neon-coral font-bold">9%</span> • 
+                  Their link → <span className="text-neon-purple font-bold">+6%</span> • 
+                  Next level → <span className="text-neon-cyan font-bold">+3%</span>
+                </p>
+              </div>
+
+              <div className="pt-4">
+                <p className="text-lg md:text-xl text-foreground/60 max-w-3xl mx-auto leading-relaxed">
+                  Build a network once. Earn forever. Every connection multiplies your income — automatically.
+                </p>
+              </div>
             </div>
           </div>
 
