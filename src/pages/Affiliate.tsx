@@ -652,15 +652,18 @@ export default function Affiliate() {
                       <p className="text-sm text-muted-foreground mb-3">
                         Unlock at 10 total conversions
                       </p>
-                      <div className="space-y-1 text-sm">
+                      <div className="space-y-2 text-sm">
                         <div className="flex items-center gap-2">
                           <DollarSign className="w-4 h-4 text-green-500" />
-                          <span><strong>9%</strong> on your direct referrals (Level 1)</span>
+                          <span><strong>9%</strong> on your direct referrals</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <DollarSign className="w-4 h-4 text-purple-500" />
-                          <span><strong>+ 6%</strong> when your referrals make sales (Level 2)</span>
+                          <span><strong>+ 6%</strong> when YOUR referrals refer others</span>
                         </div>
+                        <p className="text-xs text-muted-foreground pt-2 pl-6 border-l-2 border-purple-500/30">
+                          Level 2 = Sales made by people your referrals brought in
+                        </p>
                       </div>
                     </div>
 
@@ -684,19 +687,22 @@ export default function Affiliate() {
                       <p className="text-sm text-muted-foreground mb-3">
                         Unlock at 30 total conversions
                       </p>
-                      <div className="space-y-1 text-sm">
+                      <div className="space-y-2 text-sm">
                         <div className="flex items-center gap-2">
                           <DollarSign className="w-4 h-4 text-green-500" />
-                          <span><strong>9%</strong> on your direct referrals (Level 1)</span>
+                          <span><strong>9%</strong> on your direct referrals</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <DollarSign className="w-4 h-4 text-purple-500" />
-                          <span><strong>+ 6%</strong> on 2nd level referrals</span>
+                          <span><strong>+ 6%</strong> when YOUR referrals refer others</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <DollarSign className="w-4 h-4 text-amber-500" />
-                          <span><strong>+ 3%</strong> on 3rd level referrals</span>
+                          <span><strong>+ 3%</strong> when THEIR referrals refer others</span>
                         </div>
+                        <p className="text-xs text-muted-foreground pt-2 pl-6 border-l-2 border-amber-500/30">
+                          Level 2 = Your referrals' sales • Level 3 = Their referrals' sales
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -1145,18 +1151,33 @@ export default function Affiliate() {
                         <p className="text-sm text-muted-foreground mb-2">
                           Build your network and earn from multiple levels:
                         </p>
-                        <div className="space-y-2 text-sm">
-                          <div className="flex items-center gap-2">
-                            <Unlock className="w-4 h-4 text-green-500" />
-                            <span><strong>Tier 1 (Starter):</strong> 9% on your direct referrals</span>
+                        <div className="space-y-3 text-sm">
+                          <div>
+                            <div className="flex items-center gap-2 mb-1">
+                              <Unlock className="w-4 h-4 text-green-500" />
+                              <span><strong>Tier 1 (Starter):</strong> 9% on your direct referrals</span>
+                            </div>
+                            <p className="text-xs text-muted-foreground pl-6">
+                              You → Customer (You earn 9%)
+                            </p>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <Lock className="w-4 h-4 text-muted-foreground" />
-                            <span><strong>Tier 2 (Pro):</strong> Additional 6% on 2nd level</span>
+                          <div>
+                            <div className="flex items-center gap-2 mb-1">
+                              <Lock className="w-4 h-4 text-muted-foreground" />
+                              <span><strong>Tier 2 (Pro):</strong> Additional 6% when your referrals refer others</span>
+                            </div>
+                            <p className="text-xs text-muted-foreground pl-6">
+                              You → Your Referral → Their Customer (You earn 9% + 6%)
+                            </p>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <Lock className="w-4 h-4 text-muted-foreground" />
-                            <span><strong>Tier 3 (Elite):</strong> Additional 3% on 3rd level</span>
+                          <div>
+                            <div className="flex items-center gap-2 mb-1">
+                              <Lock className="w-4 h-4 text-muted-foreground" />
+                              <span><strong>Tier 3 (Elite):</strong> Additional 3% from 3rd level down</span>
+                            </div>
+                            <p className="text-xs text-muted-foreground pl-6">
+                              You → Referral → Their Referral → Customer (You earn 9% + 6% + 3%)
+                            </p>
                           </div>
                         </div>
                       </div>
