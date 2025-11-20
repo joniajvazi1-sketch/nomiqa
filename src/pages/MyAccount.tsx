@@ -175,22 +175,22 @@ export default function MyAccount() {
           </h1>
 
           <Tabs defaultValue="info" className="w-full">
-            <TabsList className="grid w-full grid-cols-4 mb-8">
-              <TabsTrigger value="info" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-3">
-                <User className="w-4 h-4" />
-                <span className="text-xs sm:text-sm">{t("accountInfo")}</span>
+            <TabsList className="grid w-full grid-cols-4 mb-8 h-auto">
+              <TabsTrigger value="info" className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2 sm:py-3 px-2">
+                <User className="w-5 h-5 sm:w-4 sm:h-4" />
+                <span className="text-[10px] sm:text-sm font-medium">{t("accountInfo")}</span>
               </TabsTrigger>
-              <TabsTrigger value="membership" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-3">
-                <Award className="w-4 h-4" />
-                <span className="text-xs sm:text-sm">{t("membershipTab")}</span>
+              <TabsTrigger value="membership" className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2 sm:py-3 px-2">
+                <Award className="w-5 h-5 sm:w-4 sm:h-4" />
+                <span className="text-[10px] sm:text-sm font-medium">{t("membershipTab")}</span>
               </TabsTrigger>
-              <TabsTrigger value="orders" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-3">
-                <Package className="w-4 h-4" />
-                <span className="text-xs sm:text-sm">{t("myEsimsTab")}</span>
+              <TabsTrigger value="orders" className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2 sm:py-3 px-2">
+                <Package className="w-5 h-5 sm:w-4 sm:h-4" />
+                <span className="text-[10px] sm:text-sm font-medium">{t("myEsimsTab")}</span>
               </TabsTrigger>
-              <TabsTrigger value="earn" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-3">
-                <Gift className="w-4 h-4" />
-                <span className="text-xs sm:text-sm">{t("referEarnTab")}</span>
+              <TabsTrigger value="earn" className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2 sm:py-3 px-2">
+                <Gift className="w-5 h-5 sm:w-4 sm:h-4" />
+                <span className="text-[10px] sm:text-sm font-medium">{t("referEarnTab")}</span>
               </TabsTrigger>
             </TabsList>
 
