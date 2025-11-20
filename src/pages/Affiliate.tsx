@@ -632,29 +632,24 @@ export default function Affiliate() {
                                 Choose a username for this link
                               </label>
                               
-                              {/* Mobile-friendly stacked layout */}
+                              {/* Username input */}
                               <div className="space-y-2">
-                                <div className="flex flex-col sm:flex-row gap-2">
-                                  <span className="flex items-center px-3 py-2 bg-muted text-muted-foreground rounded-md text-xs md:text-sm whitespace-nowrap w-fit">
-                                    {window.location.origin}/
-                                  </span>
-                                  <div className="flex-1 relative">
-                                    <Input
-                                      value={newLinkUsername}
-                                      onChange={(e) => setNewLinkUsername(e.target.value.toLowerCase())}
-                                      placeholder="your-custom-name"
-                                      className="font-mono text-sm pr-10"
-                                    />
-                                    {usernameAvailability === 'checking' && (
-                                      <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
-                                    )}
-                                    {usernameAvailability === 'available' && (
-                                      <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-green-500" />
-                                    )}
-                                    {usernameAvailability === 'taken' && (
-                                      <XCircle className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-red-500" />
-                                    )}
-                                  </div>
+                                <div className="relative">
+                                  <Input
+                                    value={newLinkUsername}
+                                    onChange={(e) => setNewLinkUsername(e.target.value.toLowerCase())}
+                                    placeholder="your-custom-name"
+                                    className="font-mono text-sm pr-10"
+                                  />
+                                  {usernameAvailability === 'checking' && (
+                                    <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
+                                  )}
+                                  {usernameAvailability === 'available' && (
+                                    <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-green-500" />
+                                  )}
+                                  {usernameAvailability === 'taken' && (
+                                    <XCircle className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-red-500" />
+                                  )}
                                 </div>
                                 
                                 {/* Live Preview */}
