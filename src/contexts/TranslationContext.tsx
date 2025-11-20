@@ -218,6 +218,7 @@ const translations: Record<string, Partial<Record<Language | 'HI', string>>> = {
   oneTimePayment: { EN: "One-time payment", ES: "Pago único", FR: "Paiement unique", DE: "Einmalige Zahlung", RU: "Единовременный платеж", ZH: "一次性付款", JA: "一回限りの支払い", PT: "Pagamento único", AR: "دفعة واحدة", IT: "Pagamento unico" },
   data: { EN: "Data", ES: "Datos", FR: "Données", DE: "Daten", RU: "Данные", ZH: "数据", JA: "データ", PT: "Dados", AR: "البيانات", IT: "Dati" },
   validity: { EN: "Validity", ES: "Validez", FR: "Validité", DE: "Gültigkeit", RU: "Срок действия", ZH: "有效期", JA: "有効期限", PT: "Validade", AR: "الصلاحية", IT: "Validità" },
+  days: { EN: "days", ES: "días", FR: "jours", DE: "Tage", RU: "дней", ZH: "天", JA: "日", PT: "dias", AR: "أيام", IT: "giorni" },
   clickForMoreInfo: { EN: "Click for more info", ES: "Haz clic para más información", FR: "Cliquez pour plus d'informations", DE: "Klicken Sie für weitere Informationen", RU: "Нажмите для получения дополнительной информации", ZH: "点击了解更多信息", JA: "詳細についてはクリックしてください", PT: "Clique para mais informações", AR: "انقر لمزيد من المعلومات", IT: "Clicca per maggiori informazioni" },
   share: { EN: "Share", ES: "Compartir", FR: "Partager", DE: "Teilen", RU: "Поделиться", ZH: "分享", JA: "共有", PT: "Compartilhar", AR: "مشاركة", IT: "Condividi" },
   loadMore: { EN: "Load More Plans", ES: "Cargar más planes", FR: "Charger plus de plans", DE: "Mehr Pläne laden", RU: "Загрузить больше планов", ZH: "加载更多计划", JA: "さらにプランを読み込む", PT: "Carregar mais planos", AR: "تحميل المزيد من الخطط", IT: "Carica più piani" },

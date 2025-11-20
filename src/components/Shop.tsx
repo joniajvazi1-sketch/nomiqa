@@ -185,7 +185,7 @@ export const Shop = () => {
                         <Calendar className="h-4 w-4 text-accent" />
                         <span className="text-xs font-medium">{t('validity')}</span>
                       </div>
-                      <span className="font-bold text-lg">{product.validity_days} days</span>
+                      <span className="font-bold text-lg">{product.validity_days} {t('days')}</span>
                     </div>
                   </div>
 
