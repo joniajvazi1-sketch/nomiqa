@@ -1045,43 +1045,57 @@ export default function Affiliate() {
                           <h3 className="font-semibold text-base md:text-lg">Traffic Sources</h3>
                         </div>
                         {analytics.sourceBreakdown.length > 0 ? (
-                          <div className="space-y-3">
-                            {analytics.sourceBreakdown.map((source) => {
-                              const conversionRate = source.clicks > 0 
-                                ? ((source.conversions / source.clicks) * 100).toFixed(1)
-                                : '0.0';
-                              
-                              return (
-                                <div key={source.source} className="group p-4 bg-gradient-to-r from-muted/50 to-muted/30 hover:from-muted/70 hover:to-muted/50 rounded-xl border border-border/50 transition-all duration-300 space-y-3">
-                                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                                    <div className="flex items-center gap-3">
-                                      <Badge variant={source.source === 'direct' ? 'default' : 'secondary'} className="capitalize text-xs font-medium px-3 py-1">
-                                        {source.source}
-                                      </Badge>
-                                      <div className="flex items-center gap-2 text-xs md:text-sm text-muted-foreground">
-                                        <span className="font-semibold text-foreground">{source.clicks}</span>
-                                        <span>clicks</span>
-                                        <span className="text-muted-foreground/50">•</span>
-                                        <span className="font-semibold text-foreground">{source.conversions}</span>
-                                        <span>conversions</span>
+                          (() => {
+                            const significantSources = analytics.sourceBreakdown.filter(
+                              source => source.clicks >= 3 || source.conversions > 0
+                            );
+                            
+                            return significantSources.length > 0 ? (
+                              <div className="space-y-3">
+                                {significantSources.map((source) => {
+                                  const conversionRate = source.clicks > 0 
+                                    ? ((source.conversions / source.clicks) * 100).toFixed(1)
+                                    : '0.0';
+                                  
+                                  return (
+                                    <div key={source.source} className="group p-4 bg-gradient-to-r from-muted/50 to-muted/30 hover:from-muted/70 hover:to-muted/50 rounded-xl border border-border/50 transition-all duration-300 space-y-3">
+                                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                        <div className="flex items-center gap-3">
+                                          <Badge variant={source.source === 'direct' ? 'default' : 'secondary'} className="capitalize text-xs font-medium px-3 py-1">
+                                            {source.source}
+                                          </Badge>
+                                          <div className="flex items-center gap-2 text-xs md:text-sm text-muted-foreground">
+                                            <span className="font-semibold text-foreground">{source.clicks}</span>
+                                            <span>clicks</span>
+                                            <span className="text-muted-foreground/50">•</span>
+                                            <span className="font-semibold text-foreground">{source.conversions}</span>
+                                            <span>conversions</span>
+                                          </div>
+                                        </div>
+                                        <span className="text-lg md:text-xl font-bold text-primary">
+                                          {conversionRate}%
+                                        </span>
+                                      </div>
+                                      <div className="flex items-center gap-2">
+                                        <div className="flex-1 bg-background/80 rounded-full h-2.5 overflow-hidden shadow-inner">
+                                          <div 
+                                            className="h-full bg-gradient-to-r from-primary to-primary/80 transition-all duration-500 ease-out shadow-[0_0_8px_rgba(var(--primary),0.4)]"
+                                            style={{ width: `${Math.min(parseFloat(conversionRate), 100)}%` }}
+                                          />
+                                        </div>
                                       </div>
                                     </div>
-                                    <span className="text-lg md:text-xl font-bold text-primary">
-                                      {conversionRate}%
-                                    </span>
-                                  </div>
-                                  <div className="flex items-center gap-2">
-                                    <div className="flex-1 bg-background/80 rounded-full h-2.5 overflow-hidden shadow-inner">
-                                      <div 
-                                        className="h-full bg-gradient-to-r from-primary to-primary/80 transition-all duration-500 ease-out shadow-[0_0_8px_rgba(var(--primary),0.4)]"
-                                        style={{ width: `${Math.min(parseFloat(conversionRate), 100)}%` }}
-                                      />
-                                    </div>
-                                  </div>
-                                </div>
-                              );
-                            })}
-                          </div>
+                                  );
+                                })}
+                              </div>
+                            ) : (
+                              <div className="text-center py-8 px-4 bg-muted/30 rounded-xl border border-dashed border-border">
+                                <Share2 className="w-10 h-10 text-muted-foreground/50 mx-auto mb-3" />
+                                <p className="text-sm text-muted-foreground font-medium">No significant traffic yet</p>
+                                <p className="text-xs text-muted-foreground/70 mt-1">Build momentum by sharing your link!</p>
+                              </div>
+                            );
+                          })()
                         ) : (
                           <div className="text-center py-8 px-4 bg-muted/30 rounded-xl border border-dashed border-border">
                             <Share2 className="w-10 h-10 text-muted-foreground/50 mx-auto mb-3" />
@@ -1107,46 +1121,59 @@ export default function Affiliate() {
                               const earnings = levelData?.earnings || 0;
                               const commissionRate = level === 1 ? '9%' : level === 2 ? '6%' : '3%';
                               const isActive = conversions > 0;
+                              const levelIcon = level === 1 ? '🥇' : level === 2 ? '🥈' : '🥉';
                               
                               return (
                                 <Card 
                                   key={level} 
-                                  className={`group transition-all duration-300 ${
+                                  className={`group relative overflow-hidden transition-all duration-300 ${
                                     isActive 
-                                      ? 'border-primary/50 bg-gradient-to-br from-primary/10 via-background to-background shadow-lg shadow-primary/10' 
-                                      : 'border-border/50 hover:border-primary/30'
+                                      ? 'border-primary/50 bg-gradient-to-br from-primary/10 via-background to-background shadow-xl shadow-primary/20' 
+                                      : 'border-border/50 hover:border-primary/30 bg-gradient-to-br from-background to-muted/20'
                                   }`}
                                 >
-                                  <CardHeader className="pb-3">
+                                  {isActive && (
+                                    <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-primary/20 to-transparent rounded-bl-full" />
+                                  )}
+                                  <CardHeader className="pb-3 relative">
                                     <div className="flex items-center justify-between">
                                       <div className="flex items-center gap-2">
-                                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm ${
-                                          level === 1 ? 'bg-primary/20 text-primary' :
-                                          level === 2 ? 'bg-primary/15 text-primary/90' :
-                                          'bg-primary/10 text-primary/80'
+                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-lg shadow-lg ${
+                                          level === 1 ? 'bg-gradient-to-br from-primary to-primary/80 text-primary-foreground' :
+                                          level === 2 ? 'bg-gradient-to-br from-primary/70 to-primary/50 text-primary-foreground' :
+                                          'bg-gradient-to-br from-primary/50 to-primary/30 text-primary'
                                         }`}>
-                                          {level}
+                                          {levelIcon}
                                         </div>
-                                        <CardTitle className="text-sm md:text-base">Level {level}</CardTitle>
+                                        <div>
+                                          <CardTitle className="text-sm md:text-base flex items-center gap-1.5">
+                                            Level {level}
+                                          </CardTitle>
+                                          <p className="text-[10px] md:text-xs text-muted-foreground font-medium">
+                                            {level === 1 ? 'Direct Referrals' : level === 2 ? 'Second Tier' : 'Third Tier'}
+                                          </p>
+                                        </div>
                                       </div>
                                       <Badge 
                                         variant={level === 1 ? 'default' : 'secondary'} 
-                                        className="text-xs font-bold px-2.5 py-1"
+                                        className={`text-xs font-bold px-3 py-1 ${
+                                          level === 1 ? 'shadow-md shadow-primary/30' : ''
+                                        }`}
                                       >
                                         {commissionRate}
                                       </Badge>
                                     </div>
                                   </CardHeader>
-                                  <CardContent className="space-y-4">
+                                  <CardContent className="space-y-4 relative">
                                     <div className="space-y-3">
-                                      <div className="flex justify-between items-center">
+                                      <div className="flex justify-between items-center p-3 rounded-lg bg-muted/30">
                                         <span className="text-xs md:text-sm text-muted-foreground font-medium">Conversions</span>
                                         <span className={`text-2xl md:text-3xl font-bold ${isActive ? 'text-foreground' : 'text-muted-foreground/50'}`}>
                                           {conversions}
                                         </span>
                                       </div>
-                                      <div className="h-px bg-border/50" />
-                                      <div className="flex justify-between items-center">
+                                      <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+                                      <div className="flex justify-between items-center p-3 rounded-lg bg-primary/5">
                                         <span className="text-xs md:text-sm text-muted-foreground font-medium">Earnings</span>
                                         <span className={`text-xl md:text-2xl font-bold ${isActive ? 'text-primary' : 'text-muted-foreground/50'}`}>
                                           ${earnings.toFixed(2)}
@@ -1154,10 +1181,18 @@ export default function Affiliate() {
                                       </div>
                                     </div>
                                     {isActive && (
-                                      <div className="pt-3 border-t border-primary/20">
-                                        <div className="flex items-center gap-1.5 text-xs text-primary/80">
-                                          <TrendingUp className="w-3.5 h-3.5" />
-                                          <span className="font-medium">Active</span>
+                                      <div className="pt-3 border-t border-primary/20 bg-gradient-to-r from-primary/5 to-transparent rounded-lg p-2">
+                                        <div className="flex items-center gap-1.5 text-xs text-primary">
+                                          <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                                          <span className="font-semibold">Active & Earning</span>
+                                        </div>
+                                      </div>
+                                    )}
+                                    {!isActive && (
+                                      <div className="pt-3 border-t border-dashed border-border/50">
+                                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground/70">
+                                          <Lock className="w-3 h-3" />
+                                          <span className="font-medium">Not yet unlocked</span>
                                         </div>
                                       </div>
                                     )}
