@@ -4,7 +4,6 @@ import { WhyNomiqa } from "@/components/WhyNomiqa";
 import { HowItWorksSteps } from "@/components/HowItWorksSteps";
 import { CoverageSection } from "@/components/CoverageSection";
 import { EasyCheckout } from "@/components/EasyCheckout";
-import { FAQ } from "@/components/FAQ";
 import { Footer } from "@/components/Footer";
 import { StickyCTA } from "@/components/StickyCTA";
 import { TrustPartners } from "@/components/TrustPartners";
@@ -25,7 +24,6 @@ const Index = () => {
       <EarnRewardBlock />
       <CoverageSection />
       <EasyCheckout />
-      <FAQ />
       <Footer />
       <StickyCTA />
     </div>

@@ -23,6 +23,7 @@ import Privacy from "./pages/Privacy";
 import About from "./pages/About";
 import Token from "./pages/Token";
 import MyAccount from "./pages/MyAccount";
+import Help from "./pages/Help";
 
 const queryClient = new QueryClient();
 
@@ -80,6 +81,7 @@ const App = () => (
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/about" element={<About />} />
             <Route path="/token" element={<Token />} />
+            <Route path="/help" element={<Help />} />
 
             {/* Localized route groups */}
             {/** German */}
@@ -97,6 +99,7 @@ const App = () => (
               <Route path="privacy" element={<Privacy />} />
               <Route path="about" element={<About />} />
               <Route path="token" element={<Token />} />
+              <Route path="help" element={<Help />} />
             </Route>
             {/** English */}
             <Route path="/english">
@@ -113,6 +116,7 @@ const App = () => (
               <Route path="privacy" element={<Privacy />} />
               <Route path="about" element={<About />} />
               <Route path="token" element={<Token />} />
+              <Route path="help" element={<Help />} />
             </Route>
             {/** French */}
             <Route path="/francais">
@@ -129,6 +133,7 @@ const App = () => (
               <Route path="privacy" element={<Privacy />} />
               <Route path="about" element={<About />} />
               <Route path="token" element={<Token />} />
+              <Route path="help" element={<Help />} />
             </Route>
             {/** Spanish */}
             <Route path="/espanol">
@@ -145,6 +150,7 @@ const App = () => (
               <Route path="privacy" element={<Privacy />} />
               <Route path="about" element={<About />} />
               <Route path="token" element={<Token />} />
+              <Route path="help" element={<Help />} />
             </Route>
             {/** Portuguese */}
             <Route path="/portugues">
@@ -161,6 +167,7 @@ const App = () => (
               <Route path="privacy" element={<Privacy />} />
               <Route path="about" element={<About />} />
               <Route path="token" element={<Token />} />
+              <Route path="help" element={<Help />} />
             </Route>
             {/** Russian */}
             <Route path="/russian">
@@ -177,6 +184,7 @@ const App = () => (
               <Route path="privacy" element={<Privacy />} />
               <Route path="about" element={<About />} />
               <Route path="token" element={<Token />} />
+              <Route path="help" element={<Help />} />
             </Route>
             {/** Chinese */}
             <Route path="/chinese">
@@ -193,6 +201,7 @@ const App = () => (
               <Route path="privacy" element={<Privacy />} />
               <Route path="about" element={<About />} />
               <Route path="token" element={<Token />} />
+              <Route path="help" element={<Help />} />
             </Route>
             {/** Japanese */}
             <Route path="/japanese">
@@ -209,6 +218,7 @@ const App = () => (
               <Route path="privacy" element={<Privacy />} />
               <Route path="about" element={<About />} />
               <Route path="token" element={<Token />} />
+              <Route path="help" element={<Help />} />
             </Route>
             {/** Arabic */}
             <Route path="/arabic">
@@ -241,6 +251,24 @@ const App = () => (
               <Route path="privacy" element={<Privacy />} />
               <Route path="about" element={<About />} />
               <Route path="token" element={<Token />} />
+              <Route path="help" element={<Help />} />
+            </Route>
+            {/** Italian */}
+            <Route path="/italiano">
+              <Route index element={<Index />} />
+              <Route path="shop" element={<ShopPage />} />
+              <Route path="auth" element={<Auth />} />
+              <Route path="checkout" element={<Checkout />} />
+              <Route path="orders" element={<Orders />} />
+              <Route path="account" element={<MyAccount />} />
+              <Route path="getting-started" element={<GettingStarted />} />
+              <Route path="stake" element={<Stake />} />
+              <Route path="roadmap" element={<Roadmap />} />
+              <Route path="affiliate" element={<Affiliate />} />
+              <Route path="privacy" element={<Privacy />} />
+              <Route path="about" element={<About />} />
+              <Route path="token" element={<Token />} />
+              <Route path="help" element={<Help />} />
             </Route>
 
             {/* Username-based affiliate links - must be last before catch-all */}
