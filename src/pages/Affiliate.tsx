@@ -413,18 +413,41 @@ export default function Affiliate() {
       
       <div className="container mx-auto px-4 py-20 relative z-10">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12 animate-fade-in-up">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 font-display">
-              <span className="bg-gradient-sunset bg-clip-text text-transparent">
-                Invite. Earn. Travel Together.
-              </span>
-            </h1>
-            <p className="text-xl md:text-2xl text-foreground/80 mb-2">
-              Join the borderless generation
-            </p>
-            <p className="text-lg text-warm-sand/80">
-              Freedom is no longer physical — it's digital.
-            </p>
+          <div className="text-center mb-12 space-y-6">
+            <div className="animate-fade-in-up">
+              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold font-display mb-2">
+                <span className="inline-block bg-gradient-sunset bg-clip-text text-transparent hover:scale-105 transition-transform duration-300">
+                  Invite. Earn.
+                </span>
+              </h1>
+              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold font-display">
+                <span className="inline-block bg-gradient-to-r from-neon-cyan via-neon-coral to-neon-purple bg-clip-text text-transparent animate-pulse">
+                  Travel Together.
+                </span>
+              </h1>
+            </div>
+            
+            <div className="animate-fade-in [animation-delay:200ms] space-y-3">
+              <p className="text-2xl md:text-3xl font-semibold text-foreground">
+                Join the{" "}
+                <span className="relative inline-block">
+                  <span className="relative z-10 bg-gradient-to-r from-neon-coral to-neon-purple bg-clip-text text-transparent font-bold">
+                    borderless generation
+                  </span>
+                  <span className="absolute inset-0 bg-neon-coral/20 blur-xl"></span>
+                </span>
+              </p>
+              <p className="text-xl md:text-2xl text-foreground/70 max-w-2xl mx-auto leading-relaxed">
+                Freedom is no longer physical —{" "}
+                <span className="font-bold text-neon-cyan">it&apos;s digital.</span>
+              </p>
+            </div>
+
+            <div className="animate-scale-in [animation-delay:400ms] flex justify-center gap-2 pt-4">
+              <div className="w-2 h-2 rounded-full bg-neon-coral animate-pulse"></div>
+              <div className="w-2 h-2 rounded-full bg-neon-cyan animate-pulse [animation-delay:200ms]"></div>
+              <div className="w-2 h-2 rounded-full bg-neon-purple animate-pulse [animation-delay:400ms]"></div>
+            </div>
           </div>
 
           {!user ? (
