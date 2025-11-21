@@ -136,13 +136,19 @@ export const SupportChatbot = () => {
       {/* Floating Chat Bubble - Below Buy Now Button */}
       <div className="fixed bottom-20 right-6 z-40">
         {!isOpen && (
-          <Button
-            onClick={() => setIsOpen(true)}
-            className="h-12 px-6 rounded-full bg-background/95 backdrop-blur-sm border border-neon-cyan/30 text-foreground hover:bg-background hover:border-neon-cyan transition-all duration-300 shadow-lg hover:shadow-neon-cyan/20 flex items-center gap-2"
-          >
-            <Bot className="h-5 w-5 text-neon-cyan" />
-            <span className="text-sm font-medium">AI Support</span>
-          </Button>
+          <div className="relative group">
+            {/* Single subtle glow - matching Buy Now */}
+            <div className="absolute inset-0 bg-neon-cyan/20 rounded-full blur-xl opacity-50 group-hover:opacity-100 group-hover:blur-2xl transition-all duration-500" />
+            
+            <Button
+              onClick={() => setIsOpen(true)}
+              size="lg"
+              className="relative z-10 bg-deep-space/90 backdrop-blur-xl border border-neon-cyan/40 text-white hover:border-neon-cyan hover:bg-deep-space shadow-lg hover:shadow-neon-cyan/50 transition-all duration-300 font-light group-hover:scale-105 flex items-center gap-2"
+            >
+              <Bot className="h-5 w-5 group-hover:rotate-12 transition-transform duration-300" />
+              <span className="hidden sm:inline text-sm">AI Support</span>
+            </Button>
+          </div>
         )}
       </div>
 
