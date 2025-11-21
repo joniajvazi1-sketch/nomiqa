@@ -26,7 +26,7 @@ export const Footer = () => {
         </div>
 
         {/* Footer Links Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-8 md:gap-6 mb-12 md:mb-16">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-8 md:gap-6 mb-12 md:mb-16 text-center md:text-left">
           {/* Our eSIMs */}
           <div>
             <h4 className="font-normal mb-4 text-white text-sm md:text-base">Our eSIMs</h4>
@@ -65,7 +65,7 @@ export const Footer = () => {
           </div>
 
           {/* Follow Us - Centered on mobile */}
-          <div className="col-span-2 md:col-span-1 text-center md:text-left">
+          <div className="col-span-2 md:col-span-1">
             <h4 className="font-normal mb-4 text-white text-sm md:text-base">Follow Us</h4>
             <div className="flex flex-wrap gap-3 justify-center md:justify-start mb-4">
               <a href="https://twitter.com/nomiqa" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-white/[0.02] backdrop-blur-xl border border-white/10 flex items-center justify-center hover:border-neon-cyan/50 hover:bg-neon-cyan/10 hover:scale-110 transition-all duration-300 group" aria-label="Twitter">
