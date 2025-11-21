@@ -6,6 +6,7 @@ import { Badge } from "./ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { Copy, CheckCircle2, Loader2, Users, DollarSign, TrendingUp } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "@/contexts/TranslationContext";
 
 interface AffiliateData {
   id: string;
@@ -24,6 +25,7 @@ interface ReferEarnModalProps {
 
 export const ReferEarnModal = ({ open, onOpenChange, product }: ReferEarnModalProps) => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [affiliates, setAffiliates] = useState<AffiliateData[]>([]);
@@ -89,9 +91,9 @@ export const ReferEarnModal = ({ open, onOpenChange, product }: ReferEarnModalPr
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>Start Earning with Nomiqa</DialogTitle>
+            <DialogTitle>{t("affiliateAuthTitle")}</DialogTitle>
             <DialogDescription>
-              Create an account to get your affiliate links and start earning commissions
+              {t("affiliateAuthDesc")}
             </DialogDescription>
           </DialogHeader>
 
@@ -99,40 +101,39 @@ export const ReferEarnModal = ({ open, onOpenChange, product }: ReferEarnModalPr
             <div className="grid grid-cols-3 gap-3">
               <div className="text-center p-3 bg-primary/5 rounded-lg">
                 <DollarSign className="w-6 h-6 text-primary mx-auto mb-2" />
-                <h3 className="font-bold text-sm">Multi-Level</h3>
-                <p className="text-xs text-muted-foreground">9% → 6% → 3%</p>
+                <h3 className="font-bold text-sm">{t("affiliateMultiLevel")}</h3>
+                <p className="text-xs text-muted-foreground">{t("affiliateFeature1Desc")}</p>
               </div>
               <div className="text-center p-3 bg-primary/5 rounded-lg">
                 <Users className="w-6 h-6 text-primary mx-auto mb-2" />
-                <h3 className="font-bold text-sm">Track Stats</h3>
-                <p className="text-xs text-muted-foreground">Real-time</p>
+                <h3 className="font-bold text-sm">{t("affiliateTrackStats")}</h3>
+                <p className="text-xs text-muted-foreground">{t("affiliateRealTime")}</p>
               </div>
               <div className="text-center p-3 bg-primary/5 rounded-lg">
                 <TrendingUp className="w-6 h-6 text-primary mx-auto mb-2" />
-                <h3 className="font-bold text-sm">3 Links</h3>
-                <p className="text-xs text-muted-foreground">Per account</p>
+                <h3 className="font-bold text-sm">{t("affiliateThreeLinks")}</h3>
+                <p className="text-xs text-muted-foreground">{t("affiliatePerAccount")}</p>
               </div>
             </div>
 
             <div className="bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/20 rounded-lg p-6 text-center">
               <CheckCircle2 className="w-10 h-10 text-primary mx-auto mb-3" />
-              <h3 className="text-lg font-bold mb-2">Ready to Get Started?</h3>
+              <h3 className="text-lg font-bold mb-2">{t("affiliateReadyTitle")}</h3>
               <p className="text-sm text-muted-foreground mb-4">
-                Each account gets 1 automatic link based on your username, 
-                plus you can create 2 additional custom links.
+                {t("affiliateReadyDesc")}
               </p>
               <div className="flex gap-3 justify-center">
                 <Button onClick={() => {
                   onOpenChange(false);
                   navigate('/auth?mode=signup');
                 }} size="sm">
-                  Register Now
+                  {t("affiliateRegisterNow")}
                 </Button>
                 <Button onClick={() => {
                   onOpenChange(false);
                   navigate('/auth');
                 }} size="sm" variant="outline">
-                  Log In
+                  {t("affiliateLogIn")}
                 </Button>
               </div>
             </div>
