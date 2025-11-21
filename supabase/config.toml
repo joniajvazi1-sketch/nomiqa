@@ -20,3 +20,6 @@ verify_jwt = false
 
 [functions.get-order-by-token]
 verify_jwt = false
+
+[functions.create-affiliate]
+verify_jwt = false
