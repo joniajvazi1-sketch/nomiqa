@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { NetworkBackground } from "@/components/NetworkBackground";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -405,8 +406,11 @@ export default function Affiliate() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black/40 via-deep-space/60 to-black/40 relative">
+      {/* Network Background */}
+      <NetworkBackground />
+      
       {/* Subtle background glows */}
-      <div className="fixed inset-0 -z-10 overflow-hidden opacity-30">
+      <div className="fixed inset-0 -z-10 overflow-hidden opacity-20">
         <div className="absolute top-20 left-10 w-96 h-96 bg-neon-violet/30 rounded-full blur-3xl"></div>
         <div className="absolute bottom-20 right-10 w-[500px] h-[500px] bg-neon-cyan/30 rounded-full blur-3xl"></div>
       </div>
