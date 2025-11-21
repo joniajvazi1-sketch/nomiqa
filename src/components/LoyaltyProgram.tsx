@@ -223,26 +223,6 @@ export const LoyaltyProgram = () => {
                     animationDelay: `${index * 0.15}s`
                   }}
                 >
-                  {/* Enhanced pulsing energy orb on mobile */}
-                  <div className={`absolute left-1/2 -translate-x-1/2 -translate-y-1/2 top-0 lg:hidden transition-all duration-500 ${
-                    isLit ? 'opacity-100 scale-100' : 'opacity-0 scale-0'
-                  }`}>
-                    <div className={`absolute w-14 h-14 rounded-full bg-gradient-to-br ${tier.color} blur-2xl animate-pulse`}></div>
-                    <div className={`absolute w-10 h-10 rounded-full bg-gradient-to-br ${tier.color} blur-xl`}></div>
-                    <div className={`absolute w-6 h-6 rounded-full bg-gradient-to-br ${tier.color}`}></div>
-                    <div className="absolute w-3 h-3 rounded-full bg-white/80 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse"></div>
-                  </div>
-
-                  {/* Enhanced pulsing energy orb on desktop (left side) */}
-                  <div className={`hidden lg:block absolute top-1/2 -translate-y-1/2 -translate-x-1/2 left-0 transition-all duration-500 ${
-                    isLit ? 'opacity-100 scale-100' : 'opacity-0 scale-0'
-                  }`}>
-                    <div className={`absolute w-16 h-16 rounded-full bg-gradient-to-br ${tier.color} blur-2xl animate-pulse`}></div>
-                    <div className={`absolute w-12 h-12 rounded-full bg-gradient-to-br ${tier.color} blur-xl`}></div>
-                    <div className={`absolute w-7 h-7 rounded-full bg-gradient-to-br ${tier.color}`}></div>
-                    <div className="absolute w-4 h-4 rounded-full bg-white/80 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse"></div>
-                  </div>
-
                   <div className="text-center space-y-4 md:space-y-5">
                     <div className={`relative w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 mx-auto rounded-2xl md:rounded-3xl bg-gradient-to-br ${tier.color} flex items-center justify-center shadow-lg transition-all duration-700 ${
                       isLit ? 'scale-110 shadow-2xl' : 'group-hover:scale-110 group-hover:shadow-2xl'
