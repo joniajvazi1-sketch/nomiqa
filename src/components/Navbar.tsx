@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { ShoppingCart, LogOut, LogIn, Menu, Globe, Check } from "lucide-react";
+import { ShoppingCart, LogOut, LogIn, Menu, Globe, Check, User as UserIcon } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
 import { supabase } from "@/integrations/supabase/client";
 import { User as SupabaseUser } from "@supabase/supabase-js";
@@ -17,7 +17,17 @@ export const Navbar = () => {
   const { items } = useCart();
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const { language, setLanguage, t } = useTranslation();
+
+  // Scroll detection for blur effect
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Magnetic hover effect
   const handleMagneticHover = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -73,13 +83,17 @@ export const Navbar = () => {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-b from-black/90 via-deep-space/50 to-black/80 backdrop-blur-2xl border-b border-neon-cyan/20 shadow-2xl shadow-neon-cyan/5">
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+      scrolled 
+        ? 'bg-black/40 backdrop-blur-xl border-b border-white/10 shadow-2xl shadow-black/30' 
+        : 'bg-gradient-to-b from-black/70 via-black/40 to-transparent backdrop-blur-md border-b border-white/5'
+    }`}>
       {/* Decorative glow effects */}
-      <div className="absolute inset-0 bg-gradient-to-r from-neon-violet/5 via-transparent to-neon-cyan/5 pointer-events-none" />
-      <div className="absolute top-0 left-1/4 w-96 h-px bg-gradient-to-r from-transparent via-neon-cyan/30 to-transparent" />
+      <div className={`absolute inset-0 bg-gradient-to-r from-neon-violet/5 via-transparent to-neon-cyan/5 pointer-events-none transition-opacity duration-500 ${scrolled ? 'opacity-50' : 'opacity-100'}`} />
+      <div className={`absolute top-0 left-1/4 w-96 h-px bg-gradient-to-r from-transparent via-neon-cyan/30 to-transparent transition-opacity duration-500 ${scrolled ? 'opacity-30' : 'opacity-100'}`} />
       
       <div className="container mx-auto px-4 sm:px-6 relative">
-        <div className="flex items-center justify-between h-14 sm:h-16 md:h-18">
+        <div className="flex items-center justify-between h-16 sm:h-18 md:h-20">
           <div className="flex items-center gap-2 sm:gap-3">
             <button onClick={() => navigate('/')} className="flex items-center gap-2 sm:gap-3 group">
               <div className="relative">
@@ -233,7 +247,7 @@ export const Navbar = () => {
             </DropdownMenu>
 
             {/* Cart */}
-            <Button variant="ghost" size="icon" className="relative hover:bg-neon-cyan/5 hover:border-neon-cyan/30 border border-white/5 transition-all duration-300 h-8 w-8 sm:h-9 sm:w-9" onClick={() => navigate(localizedPath('/checkout', language))} aria-label="Open cart">
+            <Button variant="ghost" size="icon" className="relative hover:bg-neon-cyan/5 hover:border-neon-cyan/30 border border-white/5 transition-all duration-300 h-9 w-9 sm:h-10 sm:w-10" onClick={() => navigate(localizedPath('/checkout', language))} aria-label="Open cart">
               <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 text-white/80 group-hover:text-neon-cyan transition-colors duration-300" />
               {items.length > 0 && (
                 <Badge className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 bg-gradient-to-r from-neon-coral to-neon-orange text-white border-0 px-1 sm:px-1.5 py-0 text-[9px] sm:text-[10px] min-w-[16px] sm:min-w-[18px] h-4 sm:h-[18px] flex items-center justify-center shadow-glow-coral">
@@ -241,6 +255,41 @@ export const Navbar = () => {
                 </Badge>
               )}
             </Button>
+
+            {/* Mobile Auth Buttons - Show only when NOT logged in */}
+            {!user && (
+              <div className="flex lg:hidden gap-1.5">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => navigate('/auth?mode=login')} 
+                  className="text-white/80 hover:text-neon-cyan hover:bg-neon-cyan/5 border border-white/5 hover:border-neon-cyan/30 font-light text-xs px-2.5 h-9 transition-all duration-300"
+                >
+                  {t('login')}
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="border-neon-cyan/30 bg-neon-cyan/5 text-neon-cyan hover:bg-neon-cyan/10 hover:border-neon-cyan/50 font-light text-xs px-2.5 h-9 shadow-glow-cyan transition-all duration-300" 
+                  onClick={() => navigate('/auth?mode=register')}
+                >
+                  {t('register')}
+                </Button>
+              </div>
+            )}
+
+            {/* Mobile My Account Icon - Show only when logged in */}
+            {user && (
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="flex lg:hidden relative hover:bg-neon-cyan/5 hover:border-neon-cyan/30 border border-white/5 transition-all duration-300 h-9 w-9" 
+                onClick={() => navigate(localizedPath('/account', language))} 
+                aria-label="My Account"
+              >
+                <UserIcon className="w-4 h-4 text-white/80 hover:text-neon-cyan transition-colors duration-300" />
+              </Button>
+            )}
 
             {/* Desktop Auth - Hidden on mobile */}
             <div className="hidden lg:flex gap-2">
