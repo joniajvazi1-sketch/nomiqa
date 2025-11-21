@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { z } from "zod";
 import { useAffiliateTracking } from "@/hooks/useAffiliateTracking";
+import { useTranslation } from "@/contexts/TranslationContext";
 
 const emailSchema = z.string().email("Please enter a valid email address");
 
@@ -19,6 +20,7 @@ export default function Checkout() {
   const navigate = useNavigate();
   const { items, removeItem, updateQuantity, clearCart, total } = useCartWithTotal();
   const { referralCode } = useAffiliateTracking();
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
@@ -127,17 +129,17 @@ export default function Checkout() {
             </div>
             <div className="space-y-3">
               <h2 className="text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-                Your cart is empty
+                {t("checkoutEmptyCart")}
               </h2>
               <p className="text-base text-muted-foreground">
-                Add some eSIM packages to get started
+                {t("checkoutEmptyCartDesc")}
               </p>
             </div>
             <Button 
               onClick={() => navigate('/')}
               className="w-full h-12 text-base font-semibold bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-all duration-300 hover:scale-105"
             >
-              Browse Packages
+              {t("checkoutBrowsePackages")}
             </Button>
           </CardContent>
         </Card>
@@ -154,13 +156,13 @@ export default function Checkout() {
           onClick={() => navigate('/')}
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Shop
+          {t("checkoutBackToShop")}
         </Button>
 
         <div className="grid md:grid-cols-3 gap-8">
           {/* Cart Items */}
           <div className="md:col-span-2 space-y-4">
-            <h1 className="text-3xl font-bold mb-6 text-center md:text-left">Checkout</h1>
+            <h1 className="text-3xl font-bold mb-6 text-center md:text-left">{t("checkoutTitle")}</h1>
             
             {items.map((item) => (
               <Card key={item.product.id}>
@@ -200,9 +202,9 @@ export default function Checkout() {
                         </Button>
                       </div>
                     </div>
-                    <div className="text-right">
+                    <div className="text-center md:text-right w-full md:w-auto">
                       <p className="text-xl font-bold">${(item.product.price_usd * item.quantity).toFixed(2)}</p>
-                      <p className="text-sm text-muted-foreground">${item.product.price_usd.toFixed(2)} each</p>
+                      <p className="text-sm text-muted-foreground">${item.product.price_usd.toFixed(2)} {t("checkoutEach")}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -214,17 +216,17 @@ export default function Checkout() {
           <div>
             <Card className="sticky top-4">
               <CardHeader>
-                <CardTitle>Order Summary</CardTitle>
-                <CardDescription>Complete your purchase</CardDescription>
+                <CardTitle>{t("checkoutOrderSummary")}</CardTitle>
+                <CardDescription>{t("checkoutOrderSummaryDesc")}</CardDescription>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="email" className="text-base font-semibold">Email Address *</Label>
+                    <Label htmlFor="email" className="text-base font-semibold">{t("checkoutEmailLabel")} *</Label>
                     <Input
                       id="email"
                       type="email"
-                      placeholder="your@email.com"
+                      placeholder={t("checkoutEmailPlaceholder")}
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
@@ -232,10 +234,10 @@ export default function Checkout() {
                     />
                     <div className="bg-primary/10 border border-primary/20 rounded-lg p-4 mt-3">
                       <p className="text-sm md:text-base font-medium text-foreground">
-                        📧 Your eSIM will be delivered to this email address
+                        {t("checkoutEmailInfo")}
                       </p>
                       <p className="text-xs md:text-sm text-muted-foreground mt-1">
-                        Double-check it's correct before placing your order
+                        {t("checkoutEmailWarning")}
                       </p>
                     </div>
                   </div>
@@ -244,11 +246,11 @@ export default function Checkout() {
 
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span>Subtotal ({items.reduce((sum, item) => sum + item.quantity, 0)} items)</span>
+                      <span>{t("checkoutSubtotal")} ({items.reduce((sum, item) => sum + item.quantity, 0)} {t("checkoutItems")})</span>
                       <span>${total.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between font-bold text-lg pt-2">
-                      <span>Total</span>
+                      <span>{t("checkoutTotal")}</span>
                       <span>${total.toFixed(2)}</span>
                     </div>
                   </div>
@@ -259,11 +261,11 @@ export default function Checkout() {
                     size="lg"
                     disabled={isSubmitting}
                   >
-                    {isSubmitting ? 'Processing...' : 'Complete Order'}
+                    {isSubmitting ? t("checkoutProcessing") : t("checkoutCompleteOrder")}
                   </Button>
 
                   <p className="text-xs text-center text-muted-foreground">
-                    By placing your order, you agree to our terms and conditions
+                    {t("checkoutTerms")}
                   </p>
                 </form>
               </CardContent>
