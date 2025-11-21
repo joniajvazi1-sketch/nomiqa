@@ -32,6 +32,13 @@ const translations: Record<string, Partial<Record<Language | 'HI', string>>> = {
   checkoutBrowsePackages: { EN: "Browse Packages", ES: "Explorar Paquetes", FR: "Parcourir les Forfaits", DE: "Pakete durchsuchen", RU: "Просмотреть пакеты", ZH: "浏览套餐", JA: "パッケージを見る", PT: "Explorar Pacotes", AR: "تصفح الحزم", IT: "Sfoglia Pacchetti" },
   checkoutEach: { EN: "each", ES: "cada uno", FR: "chacun", DE: "jeweils", RU: "каждый", ZH: "每个", JA: "各", PT: "cada", AR: "كل", IT: "ciascuno" },
   
+  // Forgot Password
+  resetPasswordTitle: { EN: "Reset Password", ES: "Restablecer Contraseña", FR: "Réinitialiser le Mot de Passe", DE: "Passwort Zurücksetzen", RU: "Сброс пароля", ZH: "重置密码", JA: "パスワードをリセット", PT: "Redefinir Senha", AR: "إعادة تعيين كلمة المرور", IT: "Reimposta Password" },
+  resetPasswordDesc: { EN: "Enter your email to receive a password reset link", ES: "Ingresa tu correo electrónico para recibir un enlace de restablecimiento de contraseña", FR: "Entrez votre e-mail pour recevoir un lien de réinitialisation du mot de passe", DE: "Gib deine E-Mail-Adresse ein, um einen Link zum Zurücksetzen des Passworts zu erhalten", RU: "Введите свой адрес электронной почты, чтобы получить ссылку для сброса пароля", ZH: "输入您的电子邮件以接收密码重置链接", JA: "パスワードリセットリンクを受け取るためメールアドレスを入力してください", PT: "Digite seu e-mail para receber um link de redefinição de senha", AR: "أدخل بريدك الإلكتروني لتلقي رابط إعادة تعيين كلمة المرور", IT: "Inserisci la tua e-mail per ricevere un link di reimpostazione della password" },
+  sendResetLink: { EN: "Send Reset Link", ES: "Enviar Enlace de Restablecimiento", FR: "Envoyer le Lien de Réinitialisation", DE: "Link zum Zurücksetzen senden", RU: "Отправить ссылку для сброса", ZH: "发送重置链接", JA: "リセットリンクを送信", PT: "Enviar Link de Redefinição", AR: "إرسال رابط إعادة التعيين", IT: "Invia Link di Reimpostazione" },
+  backToLogin: { EN: "Back to login", ES: "Volver al inicio de sesión", FR: "Retour à la connexion", DE: "Zurück zum Login", RU: "Вернуться к входу", ZH: "返回登录", JA: "ログインに戻る", PT: "Voltar ao login", AR: "العودة إلى تسجيل الدخول", IT: "Torna al login" },
+  forgotPassword: { EN: "Forgot password?", ES: "¿Olvidaste tu contraseña?", FR: "Mot de passe oublié ?", DE: "Passwort vergessen?", RU: "Забыли пароль?", ZH: "忘记密码？", JA: "パスワードを忘れた？", PT: "Esqueceu a senha?", AR: "نسيت كلمة المرور؟", IT: "Password dimenticata?" },
+  
   // Navigation
   shop: { EN: "Shop", ES: "Tienda", FR: "Boutique", DE: "Shop", RU: "Магазин", ZH: "商店", JA: "ショップ", PT: "Loja", AR: "المتجر", IT: "Negozio" },
   help: { EN: "Contact", ES: "Contacto", FR: "Contact", DE: "Kontakt", RU: "Контакт", ZH: "联系", JA: "お問い合わせ", PT: "Contato", AR: "اتصل", IT: "Contatto" },
