@@ -7,9 +7,11 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import { useTranslation } from "@/contexts/TranslationContext";
 
 export default function Auth() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState("");
@@ -95,22 +97,22 @@ export default function Auth() {
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl">{isSignUp ? "Create Account" : "Welcome Back"}</CardTitle>
+          <CardTitle className="text-2xl">{isSignUp ? t("createAccount") : t("welcomeBack")}</CardTitle>
           <CardDescription>
             {isSignUp
-              ? "Register to manage your eSIM orders"
-              : "Log in to view your orders and eSIMs"}
+              ? t("signupSubtitle")
+              : t("loginSubtitle")}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleAuth} className="space-y-4">
             {isSignUp && (
               <div className="space-y-2">
-                <Label htmlFor="username">Username</Label>
+                <Label htmlFor="username">{t("usernameLabel")}</Label>
                 <Input
                   id="username"
                   type="text"
-                  placeholder="your_username"
+                  placeholder={t("usernamePlaceholder")}
                   value={username}
                   onChange={(e) => setUsername(e.target.value.replace(/[^a-zA-Z0-9_]/g, ''))}
                   required={isSignUp}
@@ -123,18 +125,18 @@ export default function Auth() {
               </div>
             )}
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t("authEmailLabel")}</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="you@example.com"
+                placeholder={t("emailPlaceholder")}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t("authPasswordLabel")}</Label>
               <Input
                 id="password"
                 type="password"
@@ -147,7 +149,7 @@ export default function Auth() {
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {isSignUp ? "Register" : "Log In"}
+              {isSignUp ? t("registerButton") : t("loginButton")}
             </Button>
           </form>
 
@@ -158,14 +160,14 @@ export default function Auth() {
               className="text-sm text-muted-foreground hover:text-primary"
             >
               {isSignUp
-                ? "Already have an account? Log in"
-                : "Don't have an account? Register"}
+                ? `${t("alreadyHaveAccount")} ${t("loginButton")}`
+                : `${t("noAccountYet")} ${t("registerButton")}`}
             </button>
           </div>
 
           <div className="mt-4 text-center">
             <Button variant="ghost" onClick={() => navigate('/')}>
-              Back to Home
+              {t("backToHome")}
             </Button>
           </div>
         </CardContent>
