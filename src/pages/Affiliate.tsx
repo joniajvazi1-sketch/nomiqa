@@ -605,131 +605,183 @@ export default function Affiliate() {
                 </Card>
               </div>
 
-              {/* Tier Progress Card */}
-              {getTierInfo()?.nextTier && <Card className="mb-6 md:mb-8 bg-white/[0.02] backdrop-blur-xl border-neon-violet/30">
-                  <CardHeader className="pb-3 md:pb-4">
-                    <CardTitle className="flex items-center gap-2 text-base md:text-lg">
-                      <Award className="w-4 h-4 md:w-5 md:h-5 text-primary" />
-                      {t("unlockNextTier")}
-                    </CardTitle>
-                    <CardDescription className="text-xs md:text-sm">
-                      {t("completeMoreConversions")}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-3 md:space-y-4">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs md:text-sm font-medium">
-                        {t("progressToPro")}
-                      </span>
-                      <span className="text-xs md:text-sm font-bold text-primary">
+              {/* Tier Progress Card - Premium */}
+              {getTierInfo()?.nextTier && <Card className="mb-6 md:mb-8 bg-gradient-to-br from-primary/10 via-accent/5 to-primary/10 backdrop-blur-xl border border-primary/30 shadow-xl hover:shadow-2xl transition-all duration-500 relative overflow-hidden group">
+                  {/* Premium glow effect */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/10 to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  
+                  <CardHeader className="pb-4 relative z-10">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="space-y-2 flex-1">
+                        <CardTitle className="flex items-center gap-3 text-lg md:text-xl">
+                          <div className="p-2 bg-primary/20 rounded-lg backdrop-blur-sm">
+                            <Award className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+                          </div>
+                          <span className="bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent font-bold">
+                            {t("unlockNextTier")}
+                          </span>
+                        </CardTitle>
+                        <CardDescription className="text-sm md:text-base text-muted-foreground">
+                          {t("completeMoreConversions")}
+                        </CardDescription>
+                      </div>
+                      <Badge className="bg-primary/20 text-primary border-primary/30 backdrop-blur-sm font-bold">
                         {Math.round(getTierInfo()?.progress || 0)}%
-                      </span>
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-4 md:space-y-5 relative z-10">
+                    <div>
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-sm md:text-base font-semibold text-foreground">
+                          {t("progressToPro")}
+                        </span>
+                        <span className="text-xs md:text-sm font-medium text-muted-foreground">
+                          {getTierInfo()?.totalConversions} / {getTierInfo()?.nextTier?.conversions}
+                        </span>
+                      </div>
+                      
+                      <div className="relative h-3 md:h-4 bg-muted/50 rounded-full overflow-hidden backdrop-blur-sm border border-border/50">
+                        <div 
+                          className="h-full bg-gradient-to-r from-primary via-accent to-primary bg-[length:200%_100%] animate-gradient transition-all duration-500 relative shadow-lg"
+                          style={{ width: `${getTierInfo()?.progress}%` }}
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
+                        </div>
+                      </div>
                     </div>
                     
-                    <div className="h-2 md:h-3 bg-muted rounded-full overflow-hidden">
-                      <div className="h-full bg-gradient-to-r from-primary to-accent transition-all duration-500" style={{
-                  width: `${getTierInfo()?.progress}%`
-                }} />
+                    <div className="p-4 bg-card/80 backdrop-blur-sm rounded-lg border border-border/50">
+                      <p className="text-sm md:text-base">
+                        <span className="font-bold text-primary">{getTierInfo()?.remaining}</span>{" "}
+                        <span className="text-muted-foreground">{t("moreConversionsToUnlock")}</span>{" "}
+                        <span className="font-semibold text-foreground">{t("additionalOnSecondLevel")}</span>
+                      </p>
                     </div>
-                    
-                    <p className="text-xs md:text-sm text-muted-foreground">
-                      <span className="font-semibold text-foreground">{getTierInfo()?.remaining} {t("moreConversionsToUnlock")}</span> {t("additionalOnSecondLevel")}
-                    </p>
                   </CardContent>
                 </Card>}
 
-              {/* Tier System Explanation */}
-              <Card className="mb-6 md:mb-8 bg-white/[0.02] backdrop-blur-xl border-white/10">
-                <CardHeader className="pb-3 md:pb-4">
-                  <CardTitle className="flex items-center gap-2 text-base md:text-lg">
-                    <TrendingUp className="w-4 h-4 md:w-5 md:h-5" />
-                    {t("threeTierCommissionSystem")}
+              {/* Tier System Explanation - Premium */}
+              <Card className="mb-6 md:mb-8 bg-card/80 backdrop-blur-xl border-border/50 shadow-xl hover:shadow-2xl transition-all duration-500">
+                <CardHeader className="pb-4 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 border-b border-border/50">
+                  <CardTitle className="flex items-center gap-3 text-lg md:text-xl">
+                    <div className="p-2 bg-primary/10 rounded-lg">
+                      <TrendingUp className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+                    </div>
+                    <span className="bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent font-bold">
+                      {t("threeTierCommissionSystem")}
+                    </span>
                   </CardTitle>
-                  <CardDescription className="text-xs md:text-sm">
+                  <CardDescription className="text-sm md:text-base pl-11">
                     {t("unlockMoreEarningPotential")}
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-3 md:space-y-4">
+                <CardContent className="pt-6">
+                  <div className="space-y-4 md:space-y-5">
                      {/* Tier 1 - Starter */}
-                    <div className={`p-3 md:p-4 rounded-lg border-2 ${affiliate.tier_level >= 1 ? 'border-blue-500/50 bg-blue-500/5' : 'border-muted bg-muted/20'}`}>
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
-                        <div className="flex items-center gap-2">
-                          {affiliate.tier_level >= 1 ? <Unlock className="w-4 h-4 md:w-5 md:h-5 text-blue-500" /> : <Lock className="w-4 h-4 md:w-5 md:h-5 text-muted-foreground" />}
-                          <h3 className="font-bold text-blue-500 text-sm md:text-base">{t("tierStarter")}</h3>
+                    <div className={`p-4 md:p-5 rounded-xl border-2 transition-all duration-300 ${
+                      affiliate.tier_level >= 1 
+                        ? 'border-blue-500/50 bg-gradient-to-br from-blue-500/10 via-blue-500/5 to-transparent shadow-lg shadow-blue-500/10' 
+                        : 'border-muted bg-muted/20 hover:bg-muted/30'
+                    }`}>
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
+                        <div className="flex items-center gap-3">
+                          <div className={`p-2 rounded-lg ${affiliate.tier_level >= 1 ? 'bg-blue-500/20' : 'bg-muted'}`}>
+                            {affiliate.tier_level >= 1 
+                              ? <Unlock className="w-5 h-5 md:w-6 md:h-6 text-blue-500" /> 
+                              : <Lock className="w-5 h-5 md:w-6 md:h-6 text-muted-foreground" />
+                            }
+                          </div>
+                          <h3 className="font-bold text-blue-500 text-base md:text-lg">{t("tierStarter")}</h3>
                         </div>
-                        <Badge variant={affiliate.tier_level >= 1 ? 'default' : 'secondary'} className="text-xs w-fit">
+                        <Badge variant={affiliate.tier_level >= 1 ? 'default' : 'secondary'} className="text-xs md:text-sm w-fit bg-blue-500/20 text-blue-600 dark:text-blue-400 border-blue-500/30">
                           {affiliate.tier_level >= 1 ? t("unlocked") : t("startHere")}
                         </Badge>
                       </div>
-                      <p className="text-xs md:text-sm text-muted-foreground mb-2 md:mb-3">
+                      <p className="text-sm md:text-base text-muted-foreground mb-3 md:mb-4">
                         {t("everyoneStartsHere")}
                       </p>
-                      <div className="space-y-1 text-xs md:text-sm">
-                        <div className="flex items-center gap-2">
-                          <DollarSign className="w-3 h-3 md:w-4 md:h-4 text-green-500 flex-shrink-0" />
-                          <span>{t("ninePercentDirectCommission")}</span>
-                        </div>
+                      <div className="flex items-center gap-2 p-3 bg-green-500/10 rounded-lg border border-green-500/20">
+                        <DollarSign className="w-4 h-4 md:w-5 md:h-5 text-green-500 flex-shrink-0" />
+                        <span className="text-sm md:text-base font-medium">{t("ninePercentDirectCommission")}</span>
                       </div>
                     </div>
 
                     {/* Tier 2 - Pro */}
-                    <div className={`p-3 md:p-4 rounded-lg border-2 ${affiliate.tier_level >= 2 ? 'border-purple-500/50 bg-purple-500/5' : 'border-muted bg-muted/20'}`}>
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
-                        <div className="flex items-center gap-2">
-                          {affiliate.tier_level >= 2 ? <Unlock className="w-4 h-4 md:w-5 md:h-5 text-purple-500" /> : <Lock className="w-4 h-4 md:w-5 md:h-5 text-muted-foreground" />}
-                          <h3 className="font-bold text-purple-500 text-sm md:text-base">{t("tierPro")}</h3>
+                    <div className={`p-4 md:p-5 rounded-xl border-2 transition-all duration-300 ${
+                      affiliate.tier_level >= 2 
+                        ? 'border-purple-500/50 bg-gradient-to-br from-purple-500/10 via-purple-500/5 to-transparent shadow-lg shadow-purple-500/10' 
+                        : 'border-muted bg-muted/20 hover:bg-muted/30'
+                    }`}>
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
+                        <div className="flex items-center gap-3">
+                          <div className={`p-2 rounded-lg ${affiliate.tier_level >= 2 ? 'bg-purple-500/20' : 'bg-muted'}`}>
+                            {affiliate.tier_level >= 2 
+                              ? <Unlock className="w-5 h-5 md:w-6 md:h-6 text-purple-500" /> 
+                              : <Lock className="w-5 h-5 md:w-6 md:h-6 text-muted-foreground" />
+                            }
+                          </div>
+                          <h3 className="font-bold text-purple-500 text-base md:text-lg">{t("tierPro")}</h3>
                         </div>
-                        <Badge variant={affiliate.tier_level >= 2 ? 'default' : 'secondary'} className="text-xs w-fit">
+                        <Badge variant={affiliate.tier_level >= 2 ? 'default' : 'secondary'} className="text-xs md:text-sm w-fit bg-purple-500/20 text-purple-600 dark:text-purple-400 border-purple-500/30">
                           {affiliate.tier_level >= 2 ? t("unlocked") : "10 conversions"}
                         </Badge>
                       </div>
-                      <p className="text-xs md:text-sm text-muted-foreground mb-2 md:mb-3">
+                      <p className="text-sm md:text-base text-muted-foreground mb-3 md:mb-4">
                         {t("unlockAtConversions").replace("{count}", "10")}
                       </p>
-                      <div className="space-y-2 text-xs md:text-sm">
-                        <div className="flex items-center gap-2">
-                          <DollarSign className="w-3 h-3 md:w-4 md:h-4 text-green-500 flex-shrink-0" />
-                          <span>{t("onYourDirectReferrals")}</span>
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 p-3 bg-green-500/10 rounded-lg border border-green-500/20">
+                          <DollarSign className="w-4 h-4 md:w-5 md:h-5 text-green-500 flex-shrink-0" />
+                          <span className="text-sm md:text-base font-medium">{t("onYourDirectReferrals")}</span>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <DollarSign className="w-3 h-3 md:w-4 md:h-4 text-purple-500 flex-shrink-0" />
-                          <span>{t("whenYourReferralsRefer")}</span>
+                        <div className="flex items-center gap-2 p-3 bg-purple-500/10 rounded-lg border border-purple-500/20">
+                          <DollarSign className="w-4 h-4 md:w-5 md:h-5 text-purple-500 flex-shrink-0" />
+                          <span className="text-sm md:text-base font-medium">{t("whenYourReferralsRefer")}</span>
                         </div>
-                        <p className="text-[10px] md:text-xs text-muted-foreground pt-2 pl-4 md:pl-6 border-l-2 border-purple-500/30">
+                        <p className="text-xs md:text-sm text-muted-foreground pt-2 pl-4 md:pl-6 border-l-2 border-purple-500/30 italic">
                           {t("level2Explanation")}
                         </p>
                       </div>
                     </div>
 
                     {/* Tier 3 - Elite */}
-                    <div className={`p-3 md:p-4 rounded-lg border-2 ${affiliate.tier_level >= 3 ? 'border-amber-500/50 bg-amber-500/5' : 'border-muted bg-muted/20'}`}>
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
-                        <div className="flex items-center gap-2">
-                          {affiliate.tier_level >= 3 ? <Unlock className="w-4 h-4 md:w-5 md:h-5 text-amber-500" /> : <Lock className="w-4 h-4 md:w-5 md:h-5 text-muted-foreground" />}
-                          <h3 className="font-bold text-amber-500 text-sm md:text-base">{t("tierElite")}</h3>
+                    <div className={`p-4 md:p-5 rounded-xl border-2 transition-all duration-300 ${
+                      affiliate.tier_level >= 3 
+                        ? 'border-amber-500/50 bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent shadow-lg shadow-amber-500/10' 
+                        : 'border-muted bg-muted/20 hover:bg-muted/30'
+                    }`}>
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
+                        <div className="flex items-center gap-3">
+                          <div className={`p-2 rounded-lg ${affiliate.tier_level >= 3 ? 'bg-amber-500/20' : 'bg-muted'}`}>
+                            {affiliate.tier_level >= 3 
+                              ? <Unlock className="w-5 h-5 md:w-6 md:h-6 text-amber-500" /> 
+                              : <Lock className="w-5 h-5 md:w-6 md:h-6 text-muted-foreground" />
+                            }
+                          </div>
+                          <h3 className="font-bold text-amber-500 text-base md:text-lg">{t("tierElite")}</h3>
                         </div>
-                        <Badge variant={affiliate.tier_level >= 3 ? 'default' : 'secondary'} className="text-xs w-fit">
+                        <Badge variant={affiliate.tier_level >= 3 ? 'default' : 'secondary'} className="text-xs md:text-sm w-fit bg-amber-500/20 text-amber-600 dark:text-amber-400 border-amber-500/30">
                           {affiliate.tier_level >= 3 ? t("unlocked") : "30 conversions"}
                         </Badge>
                       </div>
-                      <p className="text-xs md:text-sm text-muted-foreground mb-2 md:mb-3">
+                      <p className="text-sm md:text-base text-muted-foreground mb-3 md:mb-4">
                         {t("unlockAtConversions").replace("{count}", "30")}
                       </p>
-                      <div className="space-y-2 text-xs md:text-sm">
-                        <div className="flex items-center gap-2">
-                          <DollarSign className="w-3 h-3 md:w-4 md:h-4 text-green-500 flex-shrink-0" />
-                          <span>{t("onYourDirectReferrals")}</span>
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 p-3 bg-green-500/10 rounded-lg border border-green-500/20">
+                          <DollarSign className="w-4 h-4 md:w-5 md:h-5 text-green-500 flex-shrink-0" />
+                          <span className="text-sm md:text-base font-medium">{t("onYourDirectReferrals")}</span>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <DollarSign className="w-3 h-3 md:w-4 md:h-4 text-purple-500 flex-shrink-0" />
-                          <span>{t("whenYourReferralsRefer")}</span>
+                        <div className="flex items-center gap-2 p-3 bg-purple-500/10 rounded-lg border border-purple-500/20">
+                          <DollarSign className="w-4 h-4 md:w-5 md:h-5 text-purple-500 flex-shrink-0" />
+                          <span className="text-sm md:text-base font-medium">{t("whenYourReferralsRefer")}</span>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <DollarSign className="w-3 h-3 md:w-4 md:h-4 text-amber-500 flex-shrink-0" />
-                          <span>{t("whenTheirReferralsRefer")}</span>
+                        <div className="flex items-center gap-2 p-3 bg-amber-500/10 rounded-lg border border-amber-500/20">
+                          <DollarSign className="w-4 h-4 md:w-5 md:h-5 text-amber-500 flex-shrink-0" />
+                          <span className="text-sm md:text-base font-medium">{t("whenTheirReferralsRefer")}</span>
                         </div>
-                        <p className="text-[10px] md:text-xs text-muted-foreground pt-2 pl-4 md:pl-6 border-l-2 border-amber-500/30">
+                        <p className="text-xs md:text-sm text-muted-foreground pt-2 pl-4 md:pl-6 border-l-2 border-amber-500/30 italic">
                           {t("level3Explanation")}
                         </p>
                       </div>
@@ -738,94 +790,127 @@ export default function Affiliate() {
                 </CardContent>
               </Card>
 
-              {/* All Affiliate Links Section */}
-              <Card className="mb-6 md:mb-8 bg-white/[0.02] backdrop-blur-xl border-white/10">
-                <CardHeader className="pb-3 md:pb-4">
-                  <CardTitle className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-base md:text-lg">
-                    <span>{t("yourAffiliateLinks")}</span>
-                    <Badge variant="secondary" className="text-xs w-fit">{allAffiliates.length} / 3</Badge>
-                  </CardTitle>
-                  <CardDescription className="text-xs md:text-sm">
-                    {t("upToThreeLinks")}
-                  </CardDescription>
+              {/* All Affiliate Links Section - Premium */}
+              <Card className="mb-6 md:mb-8 bg-card/80 backdrop-blur-xl border-border/50 shadow-xl hover:shadow-2xl transition-all duration-500">
+                <CardHeader className="pb-4 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 border-b border-border/50">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div className="space-y-2">
+                      <CardTitle className="flex items-center gap-3 text-lg md:text-xl">
+                        <div className="p-2 bg-primary/10 rounded-lg">
+                          <Share2 className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+                        </div>
+                        <span className="bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent font-bold">
+                          {t("yourAffiliateLinks")}
+                        </span>
+                      </CardTitle>
+                      <CardDescription className="text-sm md:text-base pl-11">
+                        {t("upToThreeLinks")}
+                      </CardDescription>
+                    </div>
+                    <Badge variant="secondary" className="text-sm w-fit bg-primary/10 text-primary border-primary/30 font-semibold">
+                      {allAffiliates.length} / 3
+                    </Badge>
+                  </div>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-4 pt-6">
                   {allAffiliates.map((aff, index) => {
                 const isFirst = index === 0;
                 const link = aff.username ? `${window.location.origin}/${aff.username}` : `${window.location.origin}/r/${aff.affiliate_code}`;
-                return <div key={aff.id} className="p-3 md:p-4 bg-white/[0.02] backdrop-blur-sm border border-white/10 rounded-lg space-y-3 hover:bg-white/[0.04] transition-all">
+                return <div 
+                  key={aff.id} 
+                  className="group p-4 md:p-5 bg-gradient-to-br from-muted/50 via-muted/30 to-transparent backdrop-blur-sm border border-border/50 rounded-xl space-y-4 hover:shadow-lg hover:border-primary/30 transition-all duration-300 animate-fade-in"
+                >
                         {/* Header */}
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <h3 className="font-semibold text-sm md:text-base">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                          <div className="flex items-center gap-3 flex-wrap">
+                            <h3 className="font-bold text-base md:text-lg bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
                               {isFirst ? t("primaryLink") : `Link ${index + 1}`}
                             </h3>
-                            {isFirst && <Badge className="text-xs">{t("autoCreated")}</Badge>}
+                            {isFirst && <Badge className="text-xs bg-primary/20 text-primary border-primary/30">
+                              {t("autoCreated")}
+                            </Badge>}
                           </div>
                         </div>
                         
-                        {/* Stats - Mobile Friendly */}
-                        <div className="grid grid-cols-3 gap-2 py-2">
-                          <div className="text-center">
-                            <div className="text-xs text-muted-foreground mb-1">{t("clicks")}</div>
-                            <div className="font-semibold text-sm md:text-base">{aff.total_clicks}</div>
+                        {/* Stats - Premium Grid */}
+                        <div className="grid grid-cols-3 gap-3 py-3">
+                          <div className="p-3 bg-card/50 backdrop-blur-sm rounded-lg border border-border/30 text-center hover:scale-105 transition-transform">
+                            <div className="text-xs text-muted-foreground mb-1.5 font-medium">{t("clicks")}</div>
+                            <div className="font-bold text-base md:text-lg">{aff.total_clicks}</div>
                           </div>
-                          <div className="text-center border-x">
-                            <div className="text-xs text-muted-foreground mb-1">{t("conversions")}</div>
-                            <div className="font-semibold text-sm md:text-base text-green-600">{aff.total_conversions}</div>
+                          <div className="p-3 bg-card/50 backdrop-blur-sm rounded-lg border border-border/30 text-center hover:scale-105 transition-transform">
+                            <div className="text-xs text-muted-foreground mb-1.5 font-medium">{t("conversions")}</div>
+                            <div className="font-bold text-base md:text-lg text-green-600 dark:text-green-500">{aff.total_conversions}</div>
                           </div>
-                          <div className="text-center">
-                            <div className="text-xs text-muted-foreground mb-1">{t("earned")}</div>
-                            <div className="font-semibold text-sm md:text-base text-primary">${aff.total_earnings_usd.toFixed(2)}</div>
+                          <div className="p-3 bg-card/50 backdrop-blur-sm rounded-lg border border-border/30 text-center hover:scale-105 transition-transform">
+                            <div className="text-xs text-muted-foreground mb-1.5 font-medium">{t("earned")}</div>
+                            <div className="font-bold text-base md:text-lg text-primary">${aff.total_earnings_usd.toFixed(2)}</div>
                           </div>
                         </div>
                         
-                        {/* Link */}
-                        <div className="space-y-2">
-                          <div className="p-2 bg-muted rounded text-xs md:text-sm break-all font-mono">
+                        {/* Link Section */}
+                        <div className="space-y-3">
+                          <div className="p-3 md:p-4 bg-muted/80 backdrop-blur-sm rounded-lg border border-border/50 text-sm md:text-base break-all font-mono shadow-inner">
                             {link}
                           </div>
-                          <Button onClick={() => copyLink(link)} variant="outline" size="sm" className="w-full">
+                          <Button 
+                            onClick={() => copyLink(link)} 
+                            variant="outline" 
+                            size="default"
+                            className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300 h-11 font-semibold"
+                          >
                             <Copy className="w-4 h-4 mr-2" />
                             {t("copyLink")}
                           </Button>
-                          <div className="text-[10px] md:text-xs text-muted-foreground pt-1 border-t">
-                            Username: <span className="font-mono">{aff.username}</span>
+                          <div className="flex items-center gap-2 pt-2 px-2 text-xs md:text-sm text-muted-foreground border-t border-border/50">
+                            <span className="font-medium">Username:</span>
+                            <span className="font-mono font-semibold text-foreground/80">{aff.username}</span>
                           </div>
                         </div>
                       </div>;
               })}
                   
                   {allAffiliates.length < 3 && <div className="pt-4">
-                      {!showNewLinkInput ? <div className="space-y-3">
-                          <Button onClick={() => setShowNewLinkInput(true)} variant="outline" className="w-full">
+                      {!showNewLinkInput ? <div className="space-y-4 p-5 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 rounded-xl border border-border/50">
+                          <Button 
+                            onClick={() => setShowNewLinkInput(true)} 
+                            variant="outline" 
+                            className="w-full h-12 font-semibold text-base hover:bg-primary hover:text-primary-foreground transition-all duration-300"
+                          >
                             {t("createAdditionalLink").replace("{current}", String(allAffiliates.length + 1)).replace("{max}", "3")}
                           </Button>
-                          <p className="text-xs text-muted-foreground text-center">
+                          <p className="text-sm text-muted-foreground text-center">
                             {t("canCreateMoreLinks").replace("{count}", String(3 - allAffiliates.length))}
                           </p>
-                        </div> : <div className="space-y-4 p-3 md:p-4 border rounded-lg bg-muted/30">
-                          <h3 className="font-semibold text-sm md:text-base">Create Link {allAffiliates.length + 1}</h3>
+                        </div> : <div className="space-y-4 p-4 md:p-5 border-2 border-primary/30 rounded-xl bg-gradient-to-br from-primary/10 via-accent/5 to-transparent backdrop-blur-sm shadow-lg animate-scale-in">
+                          <h3 className="font-bold text-base md:text-lg bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+                            Create Link {allAffiliates.length + 1}
+                          </h3>
                           
-                          <div className="space-y-3">
+                          <div className="space-y-4">
                             <div>
-                              <label className="text-xs md:text-sm font-medium block mb-2">
+                              <label className="text-sm md:text-base font-semibold block mb-3 text-foreground">
                                 Choose a username for this link
                               </label>
                               
                               {/* Username input */}
-                              <div className="space-y-2">
+                              <div className="space-y-3">
                                 <div className="relative">
-                                  <Input value={newLinkUsername} onChange={e => setNewLinkUsername(e.target.value.toLowerCase())} placeholder="your-custom-name" className="font-mono text-sm pr-10" />
-                                  {usernameAvailability === 'checking' && <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />}
-                                  {usernameAvailability === 'available' && <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-green-500" />}
-                                  {usernameAvailability === 'taken' && <XCircle className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-red-500" />}
+                                  <Input 
+                                    value={newLinkUsername} 
+                                    onChange={e => setNewLinkUsername(e.target.value.toLowerCase())} 
+                                    placeholder="your-custom-name" 
+                                    className="font-mono text-sm md:text-base pr-10 h-12 border-border/50 bg-card/50 backdrop-blur-sm" 
+                                  />
+                                  {usernameAvailability === 'checking' && <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 animate-spin text-muted-foreground" />}
+                                  {usernameAvailability === 'available' && <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-green-500" />}
+                                  {usernameAvailability === 'taken' && <XCircle className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-red-500" />}
                                 </div>
                                 
                                 {/* Live Preview */}
-                                {newLinkUsername && <div className="p-3 bg-primary/5 border border-primary/20 rounded-lg">
-                                    <p className="text-[10px] md:text-xs text-muted-foreground mb-1 font-medium">Your link preview:</p>
-                                    <p className="text-xs md:text-sm font-mono break-all text-primary">
+                                {newLinkUsername && <div className="p-4 bg-primary/10 border border-primary/30 rounded-lg backdrop-blur-sm">
+                                    <p className="text-xs md:text-sm text-muted-foreground mb-2 font-semibold">Your link preview:</p>
+                                    <p className="text-sm md:text-base font-mono break-all text-primary font-semibold">
                                       {window.location.origin}/{newLinkUsername}
                                     </p>
                                   </div>}
@@ -833,45 +918,53 @@ export default function Affiliate() {
                             </div>
                             
                             {/* Validation Messages */}
-                            {usernameAvailability === 'invalid' && <div className="flex items-start gap-2 p-2 bg-red-500/10 border border-red-500/20 rounded">
-                                <AlertCircle className="h-4 w-4 text-red-500 shrink-0 mt-0.5" />
-                                <p className="text-xs text-red-600">
+                            {usernameAvailability === 'invalid' && <div className="flex items-start gap-3 p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+                                <AlertCircle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
+                                <p className="text-sm text-red-600 dark:text-red-500">
                                   Username must be 3-30 characters, lowercase letters, numbers, and hyphens only
                                 </p>
                               </div>}
-                            {usernameAvailability === 'taken' && <div className="flex items-start gap-2 p-2 bg-red-500/10 border border-red-500/20 rounded">
-                                <XCircle className="h-4 w-4 text-red-500 shrink-0 mt-0.5" />
-                                <p className="text-xs text-red-600">
+                            {usernameAvailability === 'taken' && <div className="flex items-start gap-3 p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+                                <XCircle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
+                                <p className="text-sm text-red-600 dark:text-red-500">
                                   This username is already taken
                                 </p>
                               </div>}
-                            {usernameAvailability === 'available' && <div className="flex items-start gap-2 p-2 bg-green-500/10 border border-green-500/20 rounded">
-                                <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0 mt-0.5" />
-                                <p className="text-xs text-green-700 dark:text-green-600">
+                            {usernameAvailability === 'available' && <div className="flex items-start gap-3 p-3 bg-green-500/10 border border-green-500/30 rounded-lg">
+                                <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-500 shrink-0 mt-0.5" />
+                                <p className="text-sm text-green-700 dark:text-green-600 font-medium">
                                   This username is available!
                                 </p>
                               </div>}
                           </div>
                           
-                          <div className="flex gap-2">
-                            <Button onClick={createAffiliate} disabled={creating || usernameAvailability !== 'available'} className="flex-1" size="sm">
+                          <div className="flex gap-3 pt-2">
+                            <Button 
+                              onClick={createAffiliate} 
+                              disabled={creating || usernameAvailability !== 'available'} 
+                              className="flex-1 h-11 font-semibold bg-gradient-to-r from-primary to-accent hover:opacity-90"
+                            >
                               {creating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                               Create Link
                             </Button>
-                            <Button onClick={() => {
+                            <Button 
+                              onClick={() => {
                       setShowNewLinkInput(false);
                       setNewLinkUsername("");
                       setUsernameAvailability('idle');
-                    }} variant="outline" size="sm">
+                    }} 
+                              variant="outline" 
+                              className="h-11 font-semibold"
+                            >
                               Cancel
                             </Button>
                           </div>
                         </div>}
                     </div>}
                   
-                  {allAffiliates.length >= 3 && <div className="p-4 bg-muted rounded-lg text-center">
-                      <AlertCircle className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-                      <p className="text-sm text-muted-foreground">
+                  {allAffiliates.length >= 3 && <div className="p-5 bg-muted/50 rounded-xl border border-border/50 text-center space-y-3">
+                      <AlertCircle className="w-10 h-10 text-muted-foreground mx-auto" />
+                      <p className="text-sm md:text-base text-muted-foreground font-medium">
                         You've reached the maximum of 3 affiliate links. These links cannot be edited.
                       </p>
                     </div>}
