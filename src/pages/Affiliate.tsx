@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { Copy, TrendingUp, Users, DollarSign, CheckCircle2, Loader2, XCircle, AlertCircle, BarChart3, Share2, Award, Lock, Unlock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAffiliateTracking } from "@/hooks/useAffiliateTracking";
+import { useTranslation } from "@/contexts/TranslationContext";
 
 interface AffiliateData {
   id: string;
@@ -31,6 +32,7 @@ interface AnalyticsData {
 
 export default function Affiliate() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
@@ -433,7 +435,7 @@ export default function Affiliate() {
               <div className="inline-block">
                 <div className="relative">
                   <span className="relative block px-6 py-2 bg-gradient-to-r from-neon-coral/20 to-neon-violet/20 backdrop-blur-xl border border-neon-coral/30 rounded-full text-neon-coral text-xs md:text-base font-bold tracking-wider uppercase">
-                    🔥 Passive Income Unlocked
+                    {t("passiveIncomeUnlocked")}
                   </span>
                 </div>
               </div>
@@ -441,10 +443,10 @@ export default function Affiliate() {
               {/* Premium headline */}
               <h1 className="text-4xl md:text-6xl lg:text-7xl font-black font-display leading-tight tracking-tight">
                 <span className="block bg-gradient-to-r from-neon-cyan via-neon-violet to-neon-coral bg-clip-text text-transparent mb-2 md:mb-4 animate-pulse" style={{ animationDuration: '3s' }}>
-                  Earn While
+                  {t("earnWhileTheyTravel")}
                 </span>
                 <span className="block bg-gradient-to-r from-neon-coral via-neon-violet to-neon-cyan bg-clip-text text-transparent animate-pulse" style={{ animationDuration: '3s', animationDelay: '0.5s' }}>
-                  They Travel
+                
                 </span>
               </h1>
               
@@ -453,23 +455,27 @@ export default function Affiliate() {
                 <div className="inline-block relative">
                   <div className="relative px-8 py-4 bg-white/[0.03] backdrop-blur-2xl border border-white/20 rounded-2xl">
                     <p className="text-2xl md:text-4xl lg:text-5xl font-black bg-gradient-to-r from-white via-neon-violet to-white bg-clip-text text-transparent">
-                      18% Total Commission Split
+                      {t("totalCommissionSplit")}
                     </p>
                   </div>
                 </div>
                 
                 <p className="text-sm md:text-lg lg:text-xl text-foreground/90 max-w-3xl mx-auto leading-relaxed px-2">
-                  <span className="text-neon-cyan font-semibold">9% direct sales</span> • 
-                  <span className="text-neon-violet font-semibold"> 6% second level</span> • 
-                  <span className="text-neon-coral font-semibold"> 3% third level</span>
+                  {t("commissionBreakdown").split(' • ').map((part, i, arr) => (
+                    <span key={i}>
+                      {i === 0 && <span className="text-neon-cyan font-semibold">{part}</span>}
+                      {i === 1 && <span className="text-neon-violet font-semibold">{part}</span>}
+                      {i === 2 && <span className="text-neon-coral font-semibold">{part}</span>}
+                      {i < arr.length - 1 && ' • '}
+                    </span>
+                  ))}
                 </p>
               </div>
 
               {/* Premium tagline */}
               <div className="pt-3 md:pt-4">
                 <p className="text-base md:text-lg lg:text-xl text-foreground/80 max-w-3xl mx-auto leading-relaxed px-2 font-light">
-                  One link. <span className="text-neon-cyan font-semibold">Infinite potential.</span> Your network works for you — 
-                  <span className="bg-gradient-to-r from-neon-violet to-neon-coral bg-clip-text text-transparent font-semibold"> 24/7, worldwide.</span>
+                  {t("infinitePotential")}
                 </p>
               </div>
             </div>
@@ -485,10 +491,10 @@ export default function Affiliate() {
               <div className="absolute inset-0 bg-gradient-to-br from-neon-violet/5 via-transparent to-neon-cyan/5 pointer-events-none"></div>
               <CardHeader className="pb-3 md:pb-4 relative">
                 <CardTitle className="text-center text-xl md:text-2xl bg-gradient-to-r from-neon-cyan via-neon-violet to-neon-coral bg-clip-text text-transparent font-bold">
-                  Start Earning with Nomiqa
+                  {t("affiliateAuthTitle")}
                 </CardTitle>
                 <CardDescription className="text-center text-xs md:text-sm text-foreground/80">
-                  Create an account to get your affiliate links and start earning commissions
+                  {t("affiliateAuthDesc")}
                 </CardDescription>
               </CardHeader>
               <CardContent className="relative">
@@ -500,24 +506,24 @@ export default function Affiliate() {
                         <div className="absolute inset-0 bg-neon-cyan/20 rounded-full blur-xl group-hover:bg-neon-cyan/30 transition-all"></div>
                         <DollarSign className="relative w-8 h-8 md:w-10 md:h-10 text-neon-cyan" />
                       </div>
-                      <h3 className="font-bold text-sm md:text-base mb-1">Multi-Tier System</h3>
-                      <p className="text-xs md:text-sm text-muted-foreground">Unlock 3 levels</p>
+                      <h3 className="font-bold text-sm md:text-base mb-1">{t("multiTierSystem")}</h3>
+                      <p className="text-xs md:text-sm text-muted-foreground">{t("unlockLevels")}</p>
                     </div>
                     <div className="group text-center p-4 md:p-5 bg-gradient-to-br from-white/[0.03] to-white/[0.01] backdrop-blur-sm border border-white/10 rounded-xl hover:border-neon-violet/30 hover:bg-white/[0.05] transition-all">
                       <div className="relative inline-block mb-3">
                         <div className="absolute inset-0 bg-neon-violet/20 rounded-full blur-xl group-hover:bg-neon-violet/30 transition-all"></div>
                         <Users className="relative w-8 h-8 md:w-10 md:h-10 text-neon-violet" />
                       </div>
-                      <h3 className="font-bold text-sm md:text-base mb-1">Track Referrals</h3>
-                      <p className="text-xs md:text-sm text-muted-foreground">Real-time stats</p>
+                      <h3 className="font-bold text-sm md:text-base mb-1">{t("trackReferrals")}</h3>
+                      <p className="text-xs md:text-sm text-muted-foreground">{t("realTimeStats")}</p>
                     </div>
                     <div className="group text-center p-4 md:p-5 bg-gradient-to-br from-white/[0.03] to-white/[0.01] backdrop-blur-sm border border-white/10 rounded-xl hover:border-neon-coral/30 hover:bg-white/[0.05] transition-all">
                       <div className="relative inline-block mb-3">
                         <div className="absolute inset-0 bg-neon-coral/20 rounded-full blur-xl group-hover:bg-neon-coral/30 transition-all"></div>
                         <TrendingUp className="relative w-8 h-8 md:w-10 md:h-10 text-neon-coral" />
                       </div>
-                      <h3 className="font-bold text-sm md:text-base mb-1">3 Affiliate Links</h3>
-                      <p className="text-xs md:text-sm text-muted-foreground">Per account</p>
+                      <h3 className="font-bold text-sm md:text-base mb-1">{t("threeAffiliateLinks")}</h3>
+                      <p className="text-xs md:text-sm text-muted-foreground">{t("affiliatePerAccount")}</p>
                     </div>
                   </div>
 
@@ -529,11 +535,10 @@ export default function Affiliate() {
                         <CheckCircle2 className="w-12 h-12 md:w-14 md:h-14 text-neon-violet" />
                       </div>
                       <h3 className="text-lg md:text-xl font-bold mb-3 bg-gradient-to-r from-neon-cyan via-neon-violet to-neon-coral bg-clip-text text-transparent">
-                        Ready to Get Started?
+                        {t("affiliateReadyTitle")}
                       </h3>
                       <p className="text-xs md:text-sm text-foreground/80 mb-6 max-w-lg mx-auto leading-relaxed">
-                        Each account gets 1 automatic link based on your username, 
-                        plus you can create 2 additional custom links to track different campaigns.
+                        {t("affiliateReadyDesc")}
                       </p>
                       <div className="flex flex-col sm:flex-row gap-3 justify-center">
                         <Button 
@@ -541,7 +546,7 @@ export default function Affiliate() {
                           size="lg" 
                           className="w-full sm:w-auto bg-gradient-to-r from-neon-violet to-neon-coral hover:from-neon-violet/90 hover:to-neon-coral/90 transition-all shadow-lg hover:shadow-neon-violet/50 font-semibold"
                         >
-                          Register Now
+                          {t("affiliateRegisterNow")}
                         </Button>
                         <Button 
                           onClick={() => navigate('/auth')} 
@@ -549,7 +554,7 @@ export default function Affiliate() {
                           variant="outline" 
                           className="w-full sm:w-auto border-white/20 bg-white/[0.02] hover:bg-white/[0.05] backdrop-blur-sm font-semibold"
                         >
-                          Log In
+                          {t("affiliateLogIn")}
                         </Button>
                       </div>
                     </div>
