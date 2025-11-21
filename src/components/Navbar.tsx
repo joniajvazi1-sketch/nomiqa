@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -18,6 +18,22 @@ export const Navbar = () => {
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { language, setLanguage, t } = useTranslation();
+
+  // Magnetic hover effect
+  const handleMagneticHover = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const button = e.currentTarget;
+    const rect = button.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    const deltaX = (e.clientX - centerX) * 0.15;
+    const deltaY = (e.clientY - centerY) * 0.15;
+    button.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+  };
+
+  const handleMagneticLeave = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.currentTarget.style.transform = 'translate(0px, 0px)';
+  };
+
 
   const languages: { code: Language; name: string; flag: string }[] = [
     { code: "EN", name: "English", flag: "🇬🇧" },
@@ -90,36 +106,84 @@ export const Navbar = () => {
 
           {/* Desktop Nav */}
           <div className="hidden lg:flex items-center gap-5 xl:gap-6 ml-8">
-            <button onClick={() => navigate(localizedPath('/shop', language))} className="text-white/60 hover:text-neon-cyan transition-all duration-300 font-light text-sm relative group">
+            <button 
+              onClick={() => navigate(localizedPath('/shop', language))} 
+              onMouseMove={handleMagneticHover}
+              onMouseLeave={handleMagneticLeave}
+              className="text-white/60 hover:text-neon-cyan transition-all duration-300 font-light text-sm relative group"
+              style={{ transition: 'transform 0.2s ease-out, color 0.3s' }}
+            >
               <span className="relative z-10">{t("shop")}</span>
               <span className="absolute inset-x-0 -bottom-1 h-px bg-gradient-to-r from-transparent via-neon-cyan to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </button>
-            <button onClick={() => navigate(localizedPath('/getting-started', language))} className="text-white/60 hover:text-neon-cyan transition-all duration-300 font-light text-sm relative group">
+            <button 
+              onClick={() => navigate(localizedPath('/getting-started', language))} 
+              onMouseMove={handleMagneticHover}
+              onMouseLeave={handleMagneticLeave}
+              className="text-white/60 hover:text-neon-cyan transition-all duration-300 font-light text-sm relative group"
+              style={{ transition: 'transform 0.2s ease-out, color 0.3s' }}
+            >
               <span className="relative z-10">{t("howToBuy")}</span>
               <span className="absolute inset-x-0 -bottom-1 h-px bg-gradient-to-r from-transparent via-neon-cyan to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </button>
-            <button onClick={() => navigate(localizedPath('/affiliate', language))} className="text-white/60 hover:text-neon-cyan transition-all duration-300 font-light text-sm relative group">
+            <button 
+              onClick={() => navigate(localizedPath('/affiliate', language))} 
+              onMouseMove={handleMagneticHover}
+              onMouseLeave={handleMagneticLeave}
+              className="text-white/60 hover:text-neon-cyan transition-all duration-300 font-light text-sm relative group"
+              style={{ transition: 'transform 0.2s ease-out, color 0.3s' }}
+            >
               <span className="relative z-10">{t("affiliate")}</span>
               <span className="absolute inset-x-0 -bottom-1 h-px bg-gradient-to-r from-transparent via-neon-cyan to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </button>
-            <button onClick={() => navigate(localizedPath('/stake', language))} className="text-white/60 hover:text-neon-cyan transition-all duration-300 font-light text-sm relative group">
+            <button 
+              onClick={() => navigate(localizedPath('/stake', language))} 
+              onMouseMove={handleMagneticHover}
+              onMouseLeave={handleMagneticLeave}
+              className="text-white/60 hover:text-neon-cyan transition-all duration-300 font-light text-sm relative group"
+              style={{ transition: 'transform 0.2s ease-out, color 0.3s' }}
+            >
               <span className="relative z-10">{t("stake")}</span>
               <span className="absolute inset-x-0 -bottom-1 h-px bg-gradient-to-r from-transparent via-neon-cyan to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </button>
-            <button onClick={() => navigate(localizedPath('/about', language))} className="text-white/60 hover:text-neon-cyan transition-all duration-300 font-light text-sm relative group">
+            <button 
+              onClick={() => navigate(localizedPath('/about', language))} 
+              onMouseMove={handleMagneticHover}
+              onMouseLeave={handleMagneticLeave}
+              className="text-white/60 hover:text-neon-cyan transition-all duration-300 font-light text-sm relative group"
+              style={{ transition: 'transform 0.2s ease-out, color 0.3s' }}
+            >
               <span className="relative z-10">{t("aboutUs")}</span>
               <span className="absolute inset-x-0 -bottom-1 h-px bg-gradient-to-r from-transparent via-neon-cyan to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </button>
-            <button onClick={() => navigate(localizedPath('/privacy', language))} className="text-white/60 hover:text-neon-cyan transition-all duration-300 font-light text-sm relative group">
+            <button 
+              onClick={() => navigate(localizedPath('/privacy', language))} 
+              onMouseMove={handleMagneticHover}
+              onMouseLeave={handleMagneticLeave}
+              className="text-white/60 hover:text-neon-cyan transition-all duration-300 font-light text-sm relative group"
+              style={{ transition: 'transform 0.2s ease-out, color 0.3s' }}
+            >
               <span className="relative z-10">{t("howWeProtect")}</span>
               <span className="absolute inset-x-0 -bottom-1 h-px bg-gradient-to-r from-transparent via-neon-cyan to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </button>
-            <button onClick={() => navigate(localizedPath('/help', language))} className="text-white/60 hover:text-neon-cyan transition-all duration-300 font-light text-sm relative group">
+            <button 
+              onClick={() => navigate(localizedPath('/help', language))} 
+              onMouseMove={handleMagneticHover}
+              onMouseLeave={handleMagneticLeave}
+              className="text-white/60 hover:text-neon-cyan transition-all duration-300 font-light text-sm relative group"
+              style={{ transition: 'transform 0.2s ease-out, color 0.3s' }}
+            >
               <span className="relative z-10">{t("help")}</span>
               <span className="absolute inset-x-0 -bottom-1 h-px bg-gradient-to-r from-transparent via-neon-cyan to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </button>
             {user && (
-              <button onClick={() => navigate(localizedPath('/orders', language))} className="text-white/60 hover:text-neon-cyan transition-all duration-300 font-light text-sm relative group">
+              <button 
+                onClick={() => navigate(localizedPath('/orders', language))} 
+                onMouseMove={handleMagneticHover}
+                onMouseLeave={handleMagneticLeave}
+                className="text-white/60 hover:text-neon-cyan transition-all duration-300 font-light text-sm relative group"
+                style={{ transition: 'transform 0.2s ease-out, color 0.3s' }}
+              >
                 <span className="relative z-10">{t("myEsims")}</span>
                 <span className="absolute inset-x-0 -bottom-1 h-px bg-gradient-to-r from-transparent via-neon-cyan to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </button>
@@ -209,57 +273,97 @@ export const Navbar = () => {
                     <Menu className="w-5 h-5 sm:w-6 sm:h-6" />
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="right" className="w-[280px] sm:w-[300px] bg-gradient-to-b from-deep-space/98 to-black/98 backdrop-blur-2xl border-neon-cyan/20">
-                  <SheetHeader>
-                    <SheetTitle className="text-white font-light text-lg">{t("menu")}</SheetTitle>
+                <SheetContent side="right" className="w-[280px] sm:w-[320px] bg-gradient-to-b from-deep-space/98 via-black/95 to-black/98 backdrop-blur-2xl border-l border-neon-cyan/20">
+                  {/* Decorative glow */}
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-neon-cyan/10 rounded-full blur-3xl pointer-events-none" />
+                  <div className="absolute bottom-0 left-0 w-48 h-48 bg-neon-violet/10 rounded-full blur-3xl pointer-events-none" />
+                  
+                  <SheetHeader className="relative z-10">
+                    <SheetTitle className="text-white font-light text-xl bg-gradient-to-r from-neon-cyan via-white to-neon-violet bg-clip-text text-transparent">{t("menu")}</SheetTitle>
                   </SheetHeader>
-                  <div className="flex flex-col gap-2 mt-8">
-                    <button onClick={() => handleNavClick('/shop')} className="text-left text-white/70 hover:text-white hover:bg-white/5 transition-all duration-300 py-3 px-4 rounded-lg font-light text-sm">
-                      {t("shop")}
+                  <div className="flex flex-col gap-1 mt-8 relative z-10">
+                    <button onClick={() => handleNavClick('/shop')} className="text-left text-white/70 hover:text-neon-cyan hover:bg-neon-cyan/5 active:bg-neon-cyan/10 transition-all duration-300 py-3.5 px-4 rounded-xl font-light text-base border border-transparent hover:border-neon-cyan/20 group">
+                      <span className="flex items-center gap-3">
+                        <span className="w-1 h-1 rounded-full bg-neon-cyan/50 group-hover:bg-neon-cyan group-hover:w-2 transition-all duration-300" />
+                        {t("shop")}
+                      </span>
                     </button>
-                    <button onClick={() => handleNavClick('/getting-started')} className="text-left text-white/70 hover:text-white hover:bg-white/5 transition-all duration-300 py-3 px-4 rounded-lg font-light text-sm">
-                      {t("howToBuy")}
+                    <button onClick={() => handleNavClick('/getting-started')} className="text-left text-white/70 hover:text-neon-cyan hover:bg-neon-cyan/5 active:bg-neon-cyan/10 transition-all duration-300 py-3.5 px-4 rounded-xl font-light text-base border border-transparent hover:border-neon-cyan/20 group">
+                      <span className="flex items-center gap-3">
+                        <span className="w-1 h-1 rounded-full bg-neon-cyan/50 group-hover:bg-neon-cyan group-hover:w-2 transition-all duration-300" />
+                        {t("howToBuy")}
+                      </span>
                     </button>
-                    <button onClick={() => handleNavClick('/affiliate')} className="text-left text-white/70 hover:text-white hover:bg-white/5 transition-all duration-300 py-3 px-4 rounded-lg font-light text-sm">
-                      {t("affiliate")}
+                    <button onClick={() => handleNavClick('/affiliate')} className="text-left text-white/70 hover:text-neon-cyan hover:bg-neon-cyan/5 active:bg-neon-cyan/10 transition-all duration-300 py-3.5 px-4 rounded-xl font-light text-base border border-transparent hover:border-neon-cyan/20 group">
+                      <span className="flex items-center gap-3">
+                        <span className="w-1 h-1 rounded-full bg-neon-cyan/50 group-hover:bg-neon-cyan group-hover:w-2 transition-all duration-300" />
+                        {t("affiliate")}
+                      </span>
                     </button>
-                    <button onClick={() => handleNavClick('/stake')} className="text-left text-white/70 hover:text-white hover:bg-white/5 transition-all duration-300 py-3 px-4 rounded-lg font-light text-sm">
-                      {t("stake")}
+                    <button onClick={() => handleNavClick('/stake')} className="text-left text-white/70 hover:text-neon-cyan hover:bg-neon-cyan/5 active:bg-neon-cyan/10 transition-all duration-300 py-3.5 px-4 rounded-xl font-light text-base border border-transparent hover:border-neon-cyan/20 group">
+                      <span className="flex items-center gap-3">
+                        <span className="w-1 h-1 rounded-full bg-neon-cyan/50 group-hover:bg-neon-cyan group-hover:w-2 transition-all duration-300" />
+                        {t("stake")}
+                      </span>
                     </button>
-                    <button onClick={() => handleNavClick('/about')} className="text-left text-white/70 hover:text-white hover:bg-white/5 transition-all duration-300 py-3 px-4 rounded-lg font-light text-sm">
-                      {t("aboutUs")}
+                    <button onClick={() => handleNavClick('/about')} className="text-left text-white/70 hover:text-neon-cyan hover:bg-neon-cyan/5 active:bg-neon-cyan/10 transition-all duration-300 py-3.5 px-4 rounded-xl font-light text-base border border-transparent hover:border-neon-cyan/20 group">
+                      <span className="flex items-center gap-3">
+                        <span className="w-1 h-1 rounded-full bg-neon-cyan/50 group-hover:bg-neon-cyan group-hover:w-2 transition-all duration-300" />
+                        {t("aboutUs")}
+                      </span>
                     </button>
-                    <button onClick={() => handleNavClick('/privacy')} className="text-left text-white/70 hover:text-white hover:bg-white/5 transition-all duration-300 py-3 px-4 rounded-lg font-light text-sm">
-                      {t("howWeProtect")}
+                    <button onClick={() => handleNavClick('/privacy')} className="text-left text-white/70 hover:text-neon-cyan hover:bg-neon-cyan/5 active:bg-neon-cyan/10 transition-all duration-300 py-3.5 px-4 rounded-xl font-light text-base border border-transparent hover:border-neon-cyan/20 group">
+                      <span className="flex items-center gap-3">
+                        <span className="w-1 h-1 rounded-full bg-neon-cyan/50 group-hover:bg-neon-cyan group-hover:w-2 transition-all duration-300" />
+                        {t("howWeProtect")}
+                      </span>
                     </button>
-                    <button onClick={() => handleNavClick('/help')} className="text-left text-white/70 hover:text-white hover:bg-white/5 transition-all duration-300 py-3 px-4 rounded-lg font-light text-sm">
-                      {t("help")}
+                    <button onClick={() => handleNavClick('/help')} className="text-left text-white/70 hover:text-neon-cyan hover:bg-neon-cyan/5 active:bg-neon-cyan/10 transition-all duration-300 py-3.5 px-4 rounded-xl font-light text-base border border-transparent hover:border-neon-cyan/20 group">
+                      <span className="flex items-center gap-3">
+                        <span className="w-1 h-1 rounded-full bg-neon-cyan/50 group-hover:bg-neon-cyan group-hover:w-2 transition-all duration-300" />
+                        {t("help")}
+                      </span>
                     </button>
                     {user && (
                       <>
-                        <button onClick={() => handleNavClick('/account')} className="text-left text-white/70 hover:text-white hover:bg-white/5 transition-all duration-300 py-3 px-4 rounded-lg font-light text-sm">
-                          My Account
+                        <button onClick={() => handleNavClick('/account')} className="text-left text-white/70 hover:text-neon-cyan hover:bg-neon-cyan/5 active:bg-neon-cyan/10 transition-all duration-300 py-3.5 px-4 rounded-xl font-light text-base border border-transparent hover:border-neon-cyan/20 group">
+                          <span className="flex items-center gap-3">
+                            <span className="w-1 h-1 rounded-full bg-neon-cyan/50 group-hover:bg-neon-cyan group-hover:w-2 transition-all duration-300" />
+                            My Account
+                          </span>
                         </button>
-                        <button onClick={() => handleNavClick('/orders')} className="text-left text-white/70 hover:text-white hover:bg-white/5 transition-all duration-300 py-3 px-4 rounded-lg font-light text-sm">
-                          {t("myEsims")}
+                        <button onClick={() => handleNavClick('/orders')} className="text-left text-white/70 hover:text-neon-cyan hover:bg-neon-cyan/5 active:bg-neon-cyan/10 transition-all duration-300 py-3.5 px-4 rounded-xl font-light text-base border border-transparent hover:border-neon-cyan/20 group">
+                          <span className="flex items-center gap-3">
+                            <span className="w-1 h-1 rounded-full bg-neon-cyan/50 group-hover:bg-neon-cyan group-hover:w-2 transition-all duration-300" />
+                            {t("myEsims")}
+                          </span>
                         </button>
                       </>
                     )}
 
-                    <div className="h-px bg-white/10 my-3" />
+                    <div className="h-px bg-gradient-to-r from-transparent via-neon-cyan/30 to-transparent my-4" />
 
                     {/* Auth action in mobile menu */}
                     {user ? (
-                      <button onClick={handleSignOut} className="text-left text-white/80 hover:text-white hover:bg-white/5 transition-all duration-300 py-3 px-4 rounded-lg font-light text-sm">
-                        <span className="inline-flex items-center"><LogOut className="w-4 h-4 mr-2" /> {t('signOut')}</span>
+                      <button onClick={handleSignOut} className="text-left text-white/80 hover:text-neon-violet hover:bg-neon-violet/5 active:bg-neon-violet/10 transition-all duration-300 py-3.5 px-4 rounded-xl font-light text-base border border-transparent hover:border-neon-violet/20 group">
+                        <span className="flex items-center gap-3">
+                          <LogOut className="w-4 h-4 text-neon-violet/60 group-hover:text-neon-violet transition-colors duration-300" />
+                          <span>{t('signOut')}</span>
+                        </span>
                       </button>
                     ) : (
                       <>
-                        <button onClick={() => { setMobileMenuOpen(false); navigate('/auth?mode=login'); }} className="text-left text-white/80 hover:text-white hover:bg-white/5 transition-all duration-300 py-3 px-4 rounded-lg font-light text-sm">
-                          <span className="inline-flex items-center"><LogIn className="w-4 h-4 mr-2" /> Login</span>
+                        <button onClick={() => { setMobileMenuOpen(false); navigate('/auth?mode=login'); }} className="text-left text-white/80 hover:text-neon-cyan hover:bg-neon-cyan/5 active:bg-neon-cyan/10 transition-all duration-300 py-3.5 px-4 rounded-xl font-light text-base border border-transparent hover:border-neon-cyan/20 group">
+                          <span className="flex items-center gap-3">
+                            <LogIn className="w-4 h-4 text-neon-cyan/60 group-hover:text-neon-cyan transition-colors duration-300" />
+                            <span>Login</span>
+                          </span>
                         </button>
-                        <button onClick={() => { setMobileMenuOpen(false); navigate('/auth?mode=register'); }} className="text-left text-white/80 hover:text-white hover:bg-white/5 transition-all duration-300 py-3 px-4 rounded-lg font-light text-sm">
-                          Register
+                        <button onClick={() => { setMobileMenuOpen(false); navigate('/auth?mode=register'); }} className="text-left bg-gradient-to-r from-neon-cyan/10 to-neon-violet/10 hover:from-neon-cyan/20 hover:to-neon-violet/20 text-neon-cyan hover:text-white border border-neon-cyan/30 hover:border-neon-cyan/50 active:bg-neon-cyan/20 transition-all duration-300 py-3.5 px-4 rounded-xl font-light text-base shadow-glow-cyan group">
+                          <span className="flex items-center gap-3">
+                            <span className="w-1.5 h-1.5 rounded-full bg-neon-cyan group-hover:scale-150 transition-transform duration-300" />
+                            <span className="font-normal">Register</span>
+                          </span>
                         </button>
                       </>
                     )}
