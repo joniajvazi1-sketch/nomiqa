@@ -60,7 +60,7 @@ export const CoverageSection = () => {
         
         <div className={`grid grid-cols-3 gap-4 sm:gap-6 md:gap-8 lg:gap-10 max-w-4xl mx-auto mt-10 md:mt-14 lg:mt-16 text-center transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           <div className="p-4 sm:p-5 md:p-6 rounded-xl md:rounded-2xl bg-white/[0.02] backdrop-blur-xl border border-white/10 hover:border-neon-cyan/30 hover:bg-white/[0.04] transition-all duration-500 hover-lift">
-            <div className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extralight text-white mb-2 md:mb-3">190+</div>
+            <div className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extralight text-white mb-2 md:mb-3">200+</div>
             <div className="text-white/70 text-xs sm:text-sm md:text-base font-light">{t("coverageCountries")}</div>
           </div>
           <div className="p-4 sm:p-5 md:p-6 rounded-xl md:rounded-2xl bg-white/[0.02] backdrop-blur-xl border border-white/10 hover:border-neon-violet/30 hover:bg-white/[0.04] transition-all duration-500 hover-lift">
