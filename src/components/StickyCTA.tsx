@@ -28,7 +28,7 @@ export const StickyCTA = () => {
 
   return (
     <div
-      className={`fixed bottom-6 right-6 z-40 transition-all duration-500 ${
+      className={`fixed bottom-20 right-6 z-40 transition-all duration-500 ${
         isVisible ? "translate-y-0 opacity-100 scale-100" : "translate-y-20 opacity-0 scale-95 pointer-events-none"
       }`}
     >
