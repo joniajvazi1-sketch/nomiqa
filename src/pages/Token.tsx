@@ -3,8 +3,10 @@ import { Footer } from "@/components/Footer";
 import { NetworkBackground } from "@/components/NetworkBackground";
 import { Coins, Rocket, Sparkles, TrendingUp, Lock, Zap } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
+import { useTranslation } from "@/contexts/TranslationContext";
 
 const Token = () => {
+  const { t } = useTranslation();
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
 
@@ -28,23 +30,23 @@ const Token = () => {
   const features = [
     {
       icon: Coins,
-      title: "Earn Rewards",
-      description: "Get rewarded with $NOMIQA tokens every time you activate or share your eSIM"
+      title: t("tokenFeature1Title"),
+      description: t("tokenFeature1Desc")
     },
     {
       icon: TrendingUp,
-      title: "Stake & Grow",
-      description: "Stake your tokens to earn passive rewards and unlock exclusive benefits"
+      title: t("tokenFeature2Title"),
+      description: t("tokenFeature2Desc")
     },
     {
       icon: Lock,
-      title: "True Ownership",
-      description: "Your tokens, your control. Built on Solana for security and speed"
+      title: t("tokenFeature3Title"),
+      description: t("tokenFeature3Desc")
     },
     {
       icon: Zap,
-      title: "Instant Utility",
-      description: "Redeem tokens for extra data, discounts, and premium features"
+      title: t("tokenFeature4Title"),
+      description: t("tokenFeature4Desc")
     }
   ];
 
@@ -59,19 +61,19 @@ const Token = () => {
           <div className={`text-center space-y-8 mb-20 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
             <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-white/[0.03] backdrop-blur-xl border border-white/10 hover:border-white/20 transition-all duration-300">
               <Coins className="w-6 h-6 text-neon-cyan animate-pulse" />
-              <span className="text-lg font-light tracking-wider text-white/90">$NOMIQA Token</span>
+              <span className="text-lg font-light tracking-wider text-white/90">{t("tokenBadge")}</span>
             </div>
             
             <h1 className="text-5xl md:text-7xl lg:text-8xl font-extralight tracking-tight">
               <span className="bg-gradient-to-r from-white via-neon-cyan to-white bg-clip-text text-transparent">
-                Coming Soon
+                {t("tokenComingSoon")}
               </span>
             </h1>
             
             <p className="text-xl md:text-2xl text-white/70 max-w-3xl mx-auto font-light leading-relaxed">
-              The world's first crypto-enabled travel network token.
+              {t("tokenSubtitle")}
               <br />
-              <span className="text-neon-cyan">Earn. Stake. Travel freely.</span>
+              <span className="text-neon-cyan">{t("tokenTagline")}</span>
             </p>
           </div>
 
@@ -88,7 +90,7 @@ const Token = () => {
               </div>
               <div className="flex items-center gap-2 text-white/60 font-light">
                 <Sparkles className="w-5 h-5 text-neon-cyan animate-pulse" />
-                <span>Launching on Solana blockchain</span>
+                <span>{t("tokenLaunchingOn")}</span>
                 <Sparkles className="w-5 h-5 text-neon-violet animate-pulse" />
               </div>
             </div>
@@ -117,10 +119,10 @@ const Token = () => {
           {/* Description */}
           <div className={`text-center space-y-6 max-w-3xl mx-auto mb-12 transition-all duration-1000 delay-400 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
             <p className="text-lg md:text-xl text-white/80 font-light leading-relaxed">
-              $NOMIQA tokens will power the future of private, borderless connectivity — giving you more control, more rewards, and more freedom.
+              {t("tokenDescription1")}
             </p>
             <p className="text-white/60 font-light">
-              Be part of a decentralized network where your privacy is protected, your data is yours, and your participation is rewarded.
+              {t("tokenDescription2")}
             </p>
           </div>
 
@@ -130,7 +132,7 @@ const Token = () => {
               <div className="absolute inset-0 bg-gradient-to-r from-neon-cyan/20 to-neon-violet/20 rounded-full blur-xl group-hover:blur-2xl transition-all duration-500" />
               <div className="relative px-8 py-4 rounded-full bg-white/[0.05] backdrop-blur-xl border border-white/20 hover:border-white/30 transition-all duration-300">
                 <p className="text-sm md:text-base font-light text-white/90 tracking-wider">
-                  Stay tuned for the official launch announcement
+                  {t("tokenLaunchAnnouncement")}
                 </p>
               </div>
             </div>
