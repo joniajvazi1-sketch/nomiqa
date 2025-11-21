@@ -107,28 +107,39 @@ export const Shop = () => {
   };
 
   return (
-    <section id="shop" className="py-12 md:py-20 px-4 bg-gradient-to-br from-deep-space via-midnight-blue to-deep-space">
-      <div className="container mx-auto max-w-7xl">
-        <div className="flex justify-between items-center mb-6 md:mb-8">
-          <div className="w-full">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-2 bg-gradient-neon bg-clip-text text-transparent">
-              {t('esimPlansTitle')}
-            </h2>
-            <p className="text-foreground/70 text-sm md:text-base">
-              {t('esimPlansSubtitle')}
-            </p>
+    <section id="shop" className="py-16 md:py-24 px-4 relative overflow-hidden bg-gradient-to-br from-black/40 via-deep-space/60 to-black/40">
+      {/* Premium background decorations */}
+      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-neon-cyan/5 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-neon-violet/5 rounded-full blur-3xl"></div>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-neon-coral/3 rounded-full blur-3xl"></div>
+      
+      <div className="container mx-auto max-w-7xl relative z-10">
+        {/* Hero Header */}
+        <div className="text-center mb-12 md:mb-16">
+          <div className="inline-block mb-3 md:mb-4">
+            <span className="text-neon-cyan text-xs md:text-sm font-light tracking-[0.25em] uppercase">
+              ⚡ Global Connectivity
+            </span>
           </div>
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-light mb-4 md:mb-5">
+            <span className="block bg-gradient-to-r from-neon-cyan via-white to-neon-violet bg-clip-text text-transparent">
+              {t('esimPlansTitle')}
+            </span>
+          </h2>
+          <p className="text-white/70 text-base md:text-lg lg:text-xl font-light max-w-2xl mx-auto">
+            {t('esimPlansSubtitle')}
+          </p>
         </div>
 
-        {/* Filters */}
-        <div className="mb-8 flex flex-col md:flex-row gap-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        {/* Search Bar */}
+        <div className="mb-10 md:mb-12 max-w-2xl mx-auto">
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-neon-cyan/60" />
             <Input
               placeholder={t('searchPlaceholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
+              className="pl-12 h-12 md:h-14 bg-white/[0.02] backdrop-blur-xl border-white/10 hover:border-neon-cyan/30 focus:border-neon-cyan/50 text-white placeholder:text-white/40 rounded-xl transition-all duration-300"
             />
           </div>
         </div>
@@ -145,77 +156,83 @@ export const Shop = () => {
           </div>
         ) : (
           <>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
               {displayedProducts?.map((product) => (
               <Card 
                 key={product.id} 
-                className="group hover:shadow-2xl hover:shadow-primary/20 transition-all duration-300 hover:-translate-y-1 cursor-pointer border-2 hover:border-primary/50 bg-gradient-to-br from-card via-card to-card/95"
+                className="group relative overflow-hidden bg-white/[0.02] backdrop-blur-xl border border-white/10 hover:border-neon-cyan/40 transition-all duration-500 hover:-translate-y-2 cursor-pointer hover-lift rounded-2xl"
                 onClick={() => handleProductClick(product)}
               >
-                <CardHeader>
-                  <div className="flex items-start justify-between mb-3">
+                {/* Hover glow effect */}
+                <div className="absolute inset-0 bg-gradient-to-br from-neon-cyan/5 via-transparent to-neon-violet/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+                
+                <CardHeader className="relative z-10">
+                  <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3">
-                      {getCountryFlag(product.country_code)}
+                      <div className="relative">
+                        <div className="absolute inset-0 bg-neon-cyan/20 rounded blur-sm group-hover:bg-neon-cyan/30 transition-all duration-500"></div>
+                        {getCountryFlag(product.country_code)}
+                      </div>
                       <div>
-                        <CardTitle className="text-xl group-hover:text-primary transition-colors">
+                        <CardTitle className="text-lg md:text-xl text-white group-hover:text-neon-cyan transition-colors duration-300 font-light">
                           {getTranslatedCountryName(product.country_code, language)}
                         </CardTitle>
-                        <CardDescription className="text-sm">{product.name}</CardDescription>
+                        <CardDescription className="text-sm text-white/60 font-light">{product.name}</CardDescription>
                       </div>
                     </div>
                     {product.is_popular && (
-                      <Badge className="bg-gradient-to-r from-primary via-primary to-accent shadow-lg">
+                      <Badge className="bg-gradient-to-r from-neon-coral to-neon-orange text-white border-0 shadow-glow-coral font-light">
                         {t('popular')}
                       </Badge>
                     )}
                   </div>
                 </CardHeader>
 
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-4 relative z-10">
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="p-3 rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20">
-                      <div className="flex items-center gap-2 mb-1">
-                        <Wifi className="h-4 w-4 text-primary" />
-                        <span className="text-xs font-medium">{t('data')}</span>
+                    <div className="p-4 rounded-xl bg-gradient-to-br from-neon-cyan/10 to-neon-cyan/5 border border-neon-cyan/20 hover:border-neon-cyan/40 transition-all duration-300">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Wifi className="h-4 w-4 text-neon-cyan" />
+                        <span className="text-xs font-light text-white/70">{t('data')}</span>
                       </div>
-                      <span className="font-bold text-lg">{product.data_amount}</span>
+                      <span className="font-normal text-lg text-white">{product.data_amount}</span>
                     </div>
-                    <div className="p-3 rounded-lg bg-gradient-to-br from-accent/10 to-accent/5 border border-accent/20">
-                      <div className="flex items-center gap-2 mb-1">
-                        <Calendar className="h-4 w-4 text-accent" />
-                        <span className="text-xs font-medium">{t('validity')}</span>
+                    <div className="p-4 rounded-xl bg-gradient-to-br from-neon-violet/10 to-neon-violet/5 border border-neon-violet/20 hover:border-neon-violet/40 transition-all duration-300">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Calendar className="h-4 w-4 text-neon-violet" />
+                        <span className="text-xs font-light text-white/70">{t('validity')}</span>
                       </div>
-                      <span className="font-bold text-lg">{product.validity_days} {t('days')}</span>
+                      <span className="font-normal text-lg text-white">{product.validity_days} {t('days')}</span>
                     </div>
                   </div>
 
                   {product.features?.coverage && (
-                    <div className="flex items-center gap-2 text-sm p-2 rounded bg-muted/50">
-                      <Globe className="h-4 w-4 text-primary shrink-0" />
-                      <span className="text-muted-foreground truncate">{product.features.coverage}</span>
+                    <div className="flex items-center gap-2 text-sm p-3 rounded-lg bg-white/[0.02] border border-white/5">
+                      <Globe className="h-4 w-4 text-neon-cyan shrink-0" />
+                      <span className="text-white/60 truncate font-light">{product.features.coverage}</span>
                     </div>
                   )}
 
-                  <div className="pt-3 border-t">
-                    <div className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                  <div className="pt-4 border-t border-white/10">
+                    <div className="text-3xl md:text-4xl font-extralight bg-gradient-to-r from-neon-cyan via-white to-neon-violet bg-clip-text text-transparent">
                       ${product.price_usd.toFixed(2)}
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">{t('oneTimePayment')}</p>
+                    <p className="text-xs text-white/50 mt-1 font-light">{t('oneTimePayment')}</p>
                   </div>
 
-                  <div className="flex items-center justify-center gap-2 pt-2 text-sm text-muted-foreground/70 group-hover:text-primary transition-colors">
+                  <div className="flex items-center justify-center gap-2 pt-2 text-sm text-white/50 group-hover:text-neon-cyan transition-colors duration-300">
                     <Info className="h-4 w-4" />
-                    <span>{t('clickForMoreInfo')}</span>
+                    <span className="font-light">{t('clickForMoreInfo')}</span>
                   </div>
                 </CardContent>
 
-                <CardFooter className="flex flex-col sm:flex-row gap-2" onClick={(e) => e.stopPropagation()}>
+                <CardFooter className="flex flex-col sm:flex-row gap-3 relative z-10" onClick={(e) => e.stopPropagation()}>
                   <Button 
                     onClick={(e) => {
                       e.stopPropagation();
                       handleAddToCart(product);
                     }}
-                    className="w-full sm:flex-1 shadow-lg hover:shadow-xl transition-shadow"
+                    className="w-full sm:flex-1 bg-gradient-to-r from-neon-cyan to-neon-violet hover:from-neon-cyan/90 hover:to-neon-violet/90 text-white border-0 shadow-glow-cyan font-light h-11 rounded-xl transition-all duration-300"
                   >
                     <ShoppingCart className="mr-2 h-4 w-4" />
                     {t('addToCart')}
@@ -226,7 +243,7 @@ export const Shop = () => {
                       handleReferEarn(product);
                     }}
                     variant="outline"
-                    className="w-full sm:w-auto hover:bg-primary/10 hover:border-primary/50 transition-colors"
+                    className="w-full sm:w-auto bg-white/[0.02] border-neon-coral/30 text-neon-coral hover:bg-neon-coral/10 hover:border-neon-coral/50 transition-all duration-300 font-light h-11 rounded-xl"
                   >
                     <HandCoins className="h-4 w-4 mr-2" />
                     {t('referAndEarn')}
@@ -237,11 +254,12 @@ export const Shop = () => {
             </div>
             
             {hasMore && (
-              <div className="flex justify-center mt-8">
+              <div className="flex justify-center mt-12">
                 <Button 
                   onClick={() => setDisplayCount(prev => prev + 9)}
                   variant="outline"
                   size="lg"
+                  className="bg-white/[0.02] border-neon-cyan/30 text-neon-cyan hover:bg-neon-cyan/10 hover:border-neon-cyan/50 px-8 py-6 rounded-xl font-light transition-all duration-300 shadow-glow-cyan"
                 >
                   Load More ({filteredProducts.length - displayCount} remaining)
                 </Button>
