@@ -3,6 +3,7 @@ import { Navbar } from "@/components/Navbar";
 import { Hero } from "@/components/Hero";
 import { Footer } from "@/components/Footer";
 import { StickyCTA } from "@/components/StickyCTA";
+import { SupportChatbot } from "@/components/SupportChatbot";
 
 // Lazy load below-the-fold components
 const TrustPartners = lazy(() => import("@/components/TrustPartners").then(m => ({ default: m.TrustPartners })));
@@ -31,6 +32,7 @@ const Index = () => {
       </Suspense>
       <Footer />
       <StickyCTA />
+      <SupportChatbot />
     </div>
   );
 };
