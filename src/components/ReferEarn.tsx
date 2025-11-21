@@ -123,8 +123,8 @@ export const ReferEarn = () => {
             <div className="space-y-6 sm:space-y-7 md:space-y-8 max-w-3xl mx-auto">
               {/* Level 1 */}
               <div className="group">
-                <div className="flex flex-col md:flex-row md:items-start gap-3 sm:gap-4 md:gap-6 p-5 sm:p-6 md:p-7 bg-gradient-to-r from-neon-coral/5 to-transparent border-l-4 border-neon-coral rounded-xl md:rounded-2xl hover:from-neon-coral/10 transition-all duration-500 hover-lift">
-                  <div className="flex items-center gap-3 md:block">
+                <div className="flex flex-col md:flex-row md:items-start gap-3 sm:gap-4 md:gap-6 p-5 sm:p-6 md:p-7 bg-gradient-to-r from-neon-coral/5 to-transparent border-l-4 border-neon-coral rounded-xl md:rounded-2xl hover:from-neon-coral/10 transition-all duration-500 hover-lift text-center md:text-left">
+                  <div className="flex items-center gap-3 md:block justify-center md:justify-start">
                     <div className="w-11 h-11 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full bg-neon-coral/10 border-2 border-neon-coral/30 flex items-center justify-center flex-shrink-0">
                       <span className="text-lg sm:text-xl md:text-2xl font-light text-neon-coral">1</span>
                     </div>
@@ -132,7 +132,7 @@ export const ReferEarn = () => {
                   </div>
                   <div className="flex-1 space-y-2 sm:space-y-3">
                     <p className="text-sm sm:text-base md:text-lg font-light text-white">You invite Sarah, she buys a $50 eSIM</p>
-                    <div className="flex items-baseline gap-2 pt-1 sm:pt-2">
+                    <div className="flex items-baseline gap-2 pt-1 sm:pt-2 justify-center md:justify-start">
                       <span className="text-2xl sm:text-3xl md:text-4xl font-extralight text-neon-coral">$4.50</span>
                       <span className="text-xs sm:text-sm text-white/60 font-light">9% commission</span>
                     </div>
@@ -142,8 +142,8 @@ export const ReferEarn = () => {
 
               {/* Divider */}
               <div className="relative py-2 sm:py-3">
-                <div className="absolute left-5 sm:left-6 md:left-7 top-0 bottom-0 w-px bg-gradient-to-b from-white/10 via-neon-coral/30 to-white/10"></div>
-                <div className="pl-12 sm:pl-14 md:pl-20">
+                <div className="absolute left-1/2 md:left-7 top-0 bottom-0 w-px bg-gradient-to-b from-white/10 via-neon-coral/30 to-white/10 -translate-x-1/2 md:translate-x-0"></div>
+                <div className="flex justify-center md:justify-start md:pl-20">
                   <div className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-neon-coral/10 border border-neon-coral/20 rounded-full text-[10px] sm:text-xs md:text-sm font-light text-neon-coral">
                     Passive income starts
                   </div>
@@ -152,8 +152,8 @@ export const ReferEarn = () => {
 
               {/* Level 2 */}
               <div className="group">
-                <div className="flex flex-col md:flex-row md:items-start gap-3 sm:gap-4 md:gap-6 p-5 sm:p-6 md:p-7 bg-gradient-to-r from-neon-violet/5 to-transparent border-l-4 border-neon-violet rounded-xl md:rounded-2xl hover:from-neon-violet/10 transition-all duration-500 hover-lift">
-                  <div className="flex items-center gap-3 md:block">
+                <div className="flex flex-col md:flex-row md:items-start gap-3 sm:gap-4 md:gap-6 p-5 sm:p-6 md:p-7 bg-gradient-to-r from-neon-violet/5 to-transparent border-l-4 border-neon-violet rounded-xl md:rounded-2xl hover:from-neon-violet/10 transition-all duration-500 hover-lift text-center md:text-left">
+                  <div className="flex items-center gap-3 md:block justify-center md:justify-start">
                     <div className="w-11 h-11 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full bg-neon-violet/10 border-2 border-neon-violet/30 flex items-center justify-center flex-shrink-0">
                       <span className="text-lg sm:text-xl md:text-2xl font-light text-neon-violet">2</span>
                     </div>
@@ -164,7 +164,7 @@ export const ReferEarn = () => {
                       <p className="text-sm sm:text-base md:text-lg font-light text-white">Sarah invites Mike, he buys a $50 eSIM</p>
                       <p className="text-xs sm:text-sm text-white/60 font-light mt-1 sm:mt-1.5">You don't know Mike. You don't talk to Mike.</p>
                     </div>
-                    <div className="flex items-baseline gap-2 pt-1 sm:pt-2">
+                    <div className="flex items-baseline gap-2 pt-1 sm:pt-2 justify-center md:justify-start">
                       <span className="text-2xl sm:text-3xl md:text-4xl font-extralight text-neon-violet">$3.00</span>
                       <span className="text-xs sm:text-sm text-white/60 font-light">6% commission</span>
                     </div>
@@ -174,13 +174,13 @@ export const ReferEarn = () => {
 
               {/* Divider */}
               <div className="relative py-1 sm:py-2">
-                <div className="absolute left-5 sm:left-6 md:left-7 top-0 bottom-0 w-px bg-gradient-to-b from-white/10 via-neon-violet/30 to-white/10"></div>
+                <div className="absolute left-1/2 md:left-7 top-0 bottom-0 w-px bg-gradient-to-b from-white/10 via-neon-violet/30 to-white/10 -translate-x-1/2 md:translate-x-0"></div>
               </div>
 
               {/* Level 3 */}
               <div className="group">
-                <div className="flex flex-col md:flex-row md:items-start gap-3 sm:gap-4 md:gap-6 p-5 sm:p-6 md:p-7 bg-gradient-to-r from-neon-cyan/5 to-transparent border-l-4 border-neon-cyan rounded-xl md:rounded-2xl hover:from-neon-cyan/10 transition-all duration-500 hover-lift">
-                  <div className="flex items-center gap-3 md:block">
+                <div className="flex flex-col md:flex-row md:items-start gap-3 sm:gap-4 md:gap-6 p-5 sm:p-6 md:p-7 bg-gradient-to-r from-neon-cyan/5 to-transparent border-l-4 border-neon-cyan rounded-xl md:rounded-2xl hover:from-neon-cyan/10 transition-all duration-500 hover-lift text-center md:text-left">
+                  <div className="flex items-center gap-3 md:block justify-center md:justify-start">
                     <div className="w-11 h-11 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full bg-neon-cyan/10 border-2 border-neon-cyan/30 flex items-center justify-center flex-shrink-0">
                       <span className="text-lg sm:text-xl md:text-2xl font-light text-neon-cyan">3</span>
                     </div>
@@ -191,7 +191,7 @@ export const ReferEarn = () => {
                       <p className="text-sm sm:text-base md:text-lg font-light text-white">Mike invites Lisa, she buys a $50 eSIM</p>
                       <p className="text-xs sm:text-sm text-white/60 font-light mt-1 sm:mt-1.5">You've never heard of Lisa. She doesn't know you exist.</p>
                     </div>
-                    <div className="flex items-baseline gap-2 pt-1 sm:pt-2">
+                    <div className="flex items-baseline gap-2 pt-1 sm:pt-2 justify-center md:justify-start">
                       <span className="text-2xl sm:text-3xl md:text-4xl font-extralight text-neon-cyan">$1.50</span>
                       <span className="text-xs sm:text-sm text-white/60 font-light">3% commission</span>
                     </div>
@@ -201,8 +201,8 @@ export const ReferEarn = () => {
 
               {/* Summary */}
               <div className="mt-8 sm:mt-10 md:mt-12 p-6 sm:p-7 md:p-9 bg-gradient-to-br from-white/[0.03] to-white/[0.01] border border-white/10 rounded-xl md:rounded-2xl">
-                <div className="flex flex-col items-center gap-5 md:gap-6 md:flex-row md:justify-between">
-                  <div className="text-center md:text-left w-full md:w-auto">
+                <div className="flex flex-col items-center gap-5 md:gap-6 md:flex-row md:justify-between text-center md:text-left">
+                  <div className="w-full md:w-auto">
                     <p className="text-xs sm:text-sm text-white/60 font-light mb-2">Total from 3 sales</p>
                     <div className="flex items-baseline gap-2 justify-center md:justify-start flex-wrap">
                       <span className="text-3xl sm:text-4xl md:text-5xl font-extralight bg-gradient-to-r from-neon-coral via-neon-violet to-neon-cyan bg-clip-text text-transparent">
@@ -211,7 +211,7 @@ export const ReferEarn = () => {
                       <span className="text-sm sm:text-base text-white/60 font-light">USDC or SOL</span>
                     </div>
                   </div>
-                  <div className="flex gap-4 sm:gap-5 md:flex-col md:gap-2 text-center md:text-right">
+                  <div className="flex gap-4 sm:gap-5 md:flex-col md:gap-2">
                     <div className="text-xs sm:text-sm font-light text-white/80">
                       $4.50 your work
                     </div>
@@ -224,7 +224,7 @@ export const ReferEarn = () => {
             </div>
 
             <div className="mt-8 sm:mt-10 md:mt-14 max-w-2xl mx-auto space-y-6 sm:space-y-7 md:space-y-8">
-              <div className="p-5 sm:p-6 md:p-8 bg-white/[0.02] backdrop-blur-xl border border-white/10 rounded-xl md:rounded-2xl">
+              <div className="p-5 sm:p-6 md:p-8 bg-white/[0.02] backdrop-blur-xl border border-white/10 rounded-xl md:rounded-2xl text-center md:text-left">
                 <p className="text-sm sm:text-base md:text-lg text-white/80 font-light leading-relaxed">
                   When you have 10 people in your network, and they each bring 5 more, that's 50 people.
                   If those 50 each bring 3, that's 150 more people.
