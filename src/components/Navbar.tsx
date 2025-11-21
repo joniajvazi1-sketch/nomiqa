@@ -161,6 +161,16 @@ export const Navbar = () => {
               <span className="absolute inset-x-0 -bottom-1 h-px bg-gradient-to-r from-transparent via-neon-cyan to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </button>
             <button 
+              onClick={() => navigate(localizedPath('/token', language))} 
+              onMouseMove={handleMagneticHover}
+              onMouseLeave={handleMagneticLeave}
+              className="text-white/60 hover:text-neon-cyan transition-all duration-300 font-light text-sm relative group"
+              style={{ transition: 'transform 0.2s ease-out, color 0.3s' }}
+            >
+              <span className="relative z-10">$NOMIQA</span>
+              <span className="absolute inset-x-0 -bottom-1 h-px bg-gradient-to-r from-transparent via-neon-cyan to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            </button>
+            <button 
               onClick={() => navigate(localizedPath('/about', language))} 
               onMouseMove={handleMagneticHover}
               onMouseLeave={handleMagneticLeave}
@@ -335,6 +345,9 @@ export const Navbar = () => {
                     </button>
                     <button onClick={() => handleNavClick('/stake')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-[15px] tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
                       <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("stake")}</span>
+                    </button>
+                    <button onClick={() => handleNavClick('/token')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-[15px] tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
+                      <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">$NOMIQA</span>
                     </button>
                     <button onClick={() => handleNavClick('/about')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-[15px] tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
                       <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("aboutUs")}</span>
