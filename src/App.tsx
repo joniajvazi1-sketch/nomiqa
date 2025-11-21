@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,22 +8,34 @@ import { useAffiliateTracking } from "@/hooks/useAffiliateTracking";
 import { useScrollToTop } from "@/hooks/useScrollToTop";
 import { supabase } from "@/integrations/supabase/client";
 import { TranslationProvider } from "@/contexts/TranslationContext";
-import Index from "./pages/Index";
-import ShopPage from "./pages/ShopPage";
-import NotFound from "./pages/NotFound";
-import Checkout from "./pages/Checkout";
-import Orders from "./pages/Orders";
-import Auth from "./pages/Auth";
-import GettingStarted from "./pages/GettingStarted";
-import Stake from "./pages/Stake";
-import Roadmap from "./pages/Roadmap";
-import Affiliate from "./pages/Affiliate";
-import AffiliateRedirect from "./pages/AffiliateRedirect";
-import Privacy from "./pages/Privacy";
-import About from "./pages/About";
-import Token from "./pages/Token";
-import MyAccount from "./pages/MyAccount";
-import Help from "./pages/Help";
+
+// Lazy load pages for better initial load performance
+const Index = lazy(() => import("./pages/Index"));
+const ShopPage = lazy(() => import("./pages/ShopPage"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const Checkout = lazy(() => import("./pages/Checkout"));
+const Orders = lazy(() => import("./pages/Orders"));
+const Auth = lazy(() => import("./pages/Auth"));
+const GettingStarted = lazy(() => import("./pages/GettingStarted"));
+const Stake = lazy(() => import("./pages/Stake"));
+const Roadmap = lazy(() => import("./pages/Roadmap"));
+const Affiliate = lazy(() => import("./pages/Affiliate"));
+const AffiliateRedirect = lazy(() => import("./pages/AffiliateRedirect"));
+const Privacy = lazy(() => import("./pages/Privacy"));
+const About = lazy(() => import("./pages/About"));
+const Token = lazy(() => import("./pages/Token"));
+const MyAccount = lazy(() => import("./pages/MyAccount"));
+const Help = lazy(() => import("./pages/Help"));
+
+// Loading fallback component
+const PageLoader = () => (
+  <div className="min-h-screen bg-background flex items-center justify-center">
+    <div className="relative">
+      <div className="w-16 h-16 border-4 border-neon-cyan/20 border-t-neon-cyan rounded-full animate-spin" />
+      <div className="absolute inset-0 bg-neon-cyan/20 rounded-full blur-xl animate-pulse" />
+    </div>
+  </div>
+);
 
 const queryClient = new QueryClient();
 
@@ -65,7 +77,8 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <AffiliateTracker />
-          <Routes>
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
             {/* Base routes (no locale prefix) */}
             <Route path="/" element={<Index />} />
             <Route path="/shop" element={<ShopPage />} />
@@ -272,10 +285,11 @@ const App = () => (
             </Route>
 
             {/* Username-based affiliate links - must be last before catch-all */}
-            <Route path= "/:username" element={<AffiliateRedirect />} />
+            <Route path="/:username" element={<AffiliateRedirect />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </Suspense>
         </BrowserRouter>
       </TooltipProvider>
     </TranslationProvider>
