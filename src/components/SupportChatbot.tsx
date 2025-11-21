@@ -165,7 +165,7 @@ export const SupportChatbot = () => {
               className="relative z-10 bg-deep-space/90 backdrop-blur-xl border border-neon-cyan/40 text-white hover:border-neon-cyan hover:bg-deep-space shadow-lg hover:shadow-neon-cyan/50 transition-all duration-300 font-light group-hover:scale-105 flex items-center gap-2"
             >
               <Bot className="h-5 w-5 group-hover:rotate-12 transition-transform duration-300" />
-              <span className="text-sm">Ask me!</span>
+              <span className="text-sm">{t("chatAskMe")}</span>
             </Button>
           </div>
         )}
