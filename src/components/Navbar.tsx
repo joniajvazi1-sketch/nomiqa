@@ -57,13 +57,20 @@ export const Navbar = () => {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-xl border-b border-white/10 shadow-2xl shadow-black/20">
-      <div className="container mx-auto px-4 sm:px-6">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-b from-black/90 via-deep-space/50 to-black/80 backdrop-blur-2xl border-b border-neon-cyan/20 shadow-2xl shadow-neon-cyan/5">
+      {/* Decorative glow effects */}
+      <div className="absolute inset-0 bg-gradient-to-r from-neon-violet/5 via-transparent to-neon-cyan/5 pointer-events-none" />
+      <div className="absolute top-0 left-1/4 w-96 h-px bg-gradient-to-r from-transparent via-neon-cyan/30 to-transparent" />
+      
+      <div className="container mx-auto px-4 sm:px-6 relative">
         <div className="flex items-center justify-between h-14 sm:h-16 md:h-18">
           <div className="flex items-center gap-2 sm:gap-3">
             <button onClick={() => navigate('/')} className="flex items-center gap-2 sm:gap-3 group">
-              <img src="/nomiqa-logo.jpg" alt="nomiqa" className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg opacity-90 hover:opacity-100 transition-all duration-300 hover:scale-105" />
-              <span className="text-xl sm:text-2xl font-light bg-gradient-to-r from-white via-white/95 to-white/90 bg-clip-text text-transparent hover:opacity-80 transition-opacity duration-300">
+              <div className="relative">
+                <div className="absolute inset-0 bg-neon-cyan/20 rounded-lg blur-md group-hover:bg-neon-cyan/30 transition-all duration-500" />
+                <img src="/nomiqa-logo.jpg" alt="nomiqa" className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg relative z-10 opacity-95 group-hover:opacity-100 transition-all duration-300 group-hover:scale-105" />
+              </div>
+              <span className="text-xl sm:text-2xl font-light bg-gradient-to-r from-neon-cyan via-white to-neon-violet bg-clip-text text-transparent group-hover:from-white group-hover:via-neon-cyan group-hover:to-white transition-all duration-500">
                 nomiqa
               </span>
             </button>
@@ -71,30 +78,38 @@ export const Navbar = () => {
 
           {/* Desktop Nav */}
           <div className="hidden lg:flex items-center gap-5 xl:gap-6 ml-8">
-            <button onClick={() => navigate(localizedPath('/shop', language))} className="text-white/70 hover:text-white transition-colors duration-300 font-light text-sm">
-              {t("shop")}
+            <button onClick={() => navigate(localizedPath('/shop', language))} className="text-white/60 hover:text-neon-cyan transition-all duration-300 font-light text-sm relative group">
+              <span className="relative z-10">{t("shop")}</span>
+              <span className="absolute inset-x-0 -bottom-1 h-px bg-gradient-to-r from-transparent via-neon-cyan to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </button>
-            <button onClick={() => navigate(localizedPath('/getting-started', language))} className="text-white/70 hover:text-white transition-colors duration-300 font-light text-sm">
-              {t("howToBuy")}
+            <button onClick={() => navigate(localizedPath('/getting-started', language))} className="text-white/60 hover:text-neon-cyan transition-all duration-300 font-light text-sm relative group">
+              <span className="relative z-10">{t("howToBuy")}</span>
+              <span className="absolute inset-x-0 -bottom-1 h-px bg-gradient-to-r from-transparent via-neon-cyan to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </button>
-            <button onClick={() => navigate(localizedPath('/affiliate', language))} className="text-white/70 hover:text-white transition-colors duration-300 font-light text-sm">
-              {t("affiliate")}
+            <button onClick={() => navigate(localizedPath('/affiliate', language))} className="text-white/60 hover:text-neon-cyan transition-all duration-300 font-light text-sm relative group">
+              <span className="relative z-10">{t("affiliate")}</span>
+              <span className="absolute inset-x-0 -bottom-1 h-px bg-gradient-to-r from-transparent via-neon-cyan to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </button>
-            <button onClick={() => navigate(localizedPath('/stake', language))} className="text-white/70 hover:text-white transition-colors duration-300 font-light text-sm">
-              {t("stake")}
+            <button onClick={() => navigate(localizedPath('/stake', language))} className="text-white/60 hover:text-neon-cyan transition-all duration-300 font-light text-sm relative group">
+              <span className="relative z-10">{t("stake")}</span>
+              <span className="absolute inset-x-0 -bottom-1 h-px bg-gradient-to-r from-transparent via-neon-cyan to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </button>
-            <button onClick={() => navigate(localizedPath('/about', language))} className="text-white/70 hover:text-white transition-colors duration-300 font-light text-sm">
-              {t("aboutUs")}
+            <button onClick={() => navigate(localizedPath('/about', language))} className="text-white/60 hover:text-neon-cyan transition-all duration-300 font-light text-sm relative group">
+              <span className="relative z-10">{t("aboutUs")}</span>
+              <span className="absolute inset-x-0 -bottom-1 h-px bg-gradient-to-r from-transparent via-neon-cyan to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </button>
-            <button onClick={() => navigate(localizedPath('/privacy', language))} className="text-white/70 hover:text-white transition-colors duration-300 font-light text-sm">
-              {t("howWeProtect")}
+            <button onClick={() => navigate(localizedPath('/privacy', language))} className="text-white/60 hover:text-neon-cyan transition-all duration-300 font-light text-sm relative group">
+              <span className="relative z-10">{t("howWeProtect")}</span>
+              <span className="absolute inset-x-0 -bottom-1 h-px bg-gradient-to-r from-transparent via-neon-cyan to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </button>
-            <button onClick={() => navigate(localizedPath('/help', language))} className="text-white/70 hover:text-white transition-colors duration-300 font-light text-sm">
-              {t("help")}
+            <button onClick={() => navigate(localizedPath('/help', language))} className="text-white/60 hover:text-neon-cyan transition-all duration-300 font-light text-sm relative group">
+              <span className="relative z-10">{t("help")}</span>
+              <span className="absolute inset-x-0 -bottom-1 h-px bg-gradient-to-r from-transparent via-neon-cyan to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </button>
             {user && (
-              <button onClick={() => navigate(localizedPath('/orders', language))} className="text-white/70 hover:text-white transition-colors duration-300 font-light text-sm">
-                {t("myEsims")}
+              <button onClick={() => navigate(localizedPath('/orders', language))} className="text-white/60 hover:text-neon-cyan transition-all duration-300 font-light text-sm relative group">
+                <span className="relative z-10">{t("myEsims")}</span>
+                <span className="absolute inset-x-0 -bottom-1 h-px bg-gradient-to-r from-transparent via-neon-cyan to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </button>
             )}
           </div>
@@ -104,12 +119,12 @@ export const Navbar = () => {
             {/* Language Switcher */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="text-white/80 hover:text-white hover:bg-white/5 h-8 sm:h-9 gap-1 font-light">
+                <Button variant="ghost" size="sm" className="text-white/80 hover:text-neon-cyan hover:bg-neon-cyan/5 h-8 sm:h-9 gap-1 font-light border border-white/5 hover:border-neon-cyan/30 transition-all duration-300">
                   <Globe className="w-3.5 h-3.5 sm:w-4 sm:h-4 hidden sm:block" />
                   <span className="text-xs sm:text-sm">{language} {languages.find(l => l.code === language)?.flag}</span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="z-[60] bg-black/95 backdrop-blur-xl border-white/10">
+              <DropdownMenuContent align="end" className="z-[60] bg-gradient-to-b from-deep-space/98 to-black/98 backdrop-blur-2xl border-neon-cyan/20">
                 {languages.map((l) => (
                   <DropdownMenuItem
                     key={l.code}
@@ -142,10 +157,10 @@ export const Navbar = () => {
             </DropdownMenu>
 
             {/* Cart */}
-            <Button variant="ghost" size="icon" className="relative hover:bg-white/5 h-8 w-8 sm:h-9 sm:w-9" onClick={() => navigate(localizedPath('/checkout', language))} aria-label="Open cart">
-              <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 text-white/80" />
+            <Button variant="ghost" size="icon" className="relative hover:bg-neon-cyan/5 hover:border-neon-cyan/30 border border-white/5 transition-all duration-300 h-8 w-8 sm:h-9 sm:w-9" onClick={() => navigate(localizedPath('/checkout', language))} aria-label="Open cart">
+              <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 text-white/80 group-hover:text-neon-cyan transition-colors duration-300" />
               {items.length > 0 && (
-                <Badge className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 bg-neon-coral text-white border-0 px-1 sm:px-1.5 py-0 text-[9px] sm:text-[10px] min-w-[16px] sm:min-w-[18px] h-4 sm:h-[18px] flex items-center justify-center">
+                <Badge className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 bg-gradient-to-r from-neon-coral to-neon-orange text-white border-0 px-1 sm:px-1.5 py-0 text-[9px] sm:text-[10px] min-w-[16px] sm:min-w-[18px] h-4 sm:h-[18px] flex items-center justify-center shadow-glow-coral">
                   {items.length}
                 </Badge>
               )}
@@ -155,19 +170,19 @@ export const Navbar = () => {
             <div className="hidden lg:flex gap-2">
               {user ? (
                 <>
-                  <Button variant="ghost" size="sm" onClick={() => navigate(localizedPath('/account', language))} className="text-white/80 hover:text-white hover:bg-white/5 font-light text-sm">
+                  <Button variant="ghost" size="sm" onClick={() => navigate(localizedPath('/account', language))} className="text-white/80 hover:text-neon-cyan hover:bg-neon-cyan/5 border border-white/5 hover:border-neon-cyan/30 font-light text-sm transition-all duration-300">
                     My Account
                   </Button>
-                  <Button variant="outline" size="sm" className="border-white/20 text-white/90 hover:bg-white/5 hover:border-white/30 font-light text-sm" onClick={handleSignOut}>
+                  <Button variant="outline" size="sm" className="border-neon-violet/30 text-white/90 hover:bg-neon-violet/10 hover:border-neon-violet/50 hover:text-neon-violet font-light text-sm transition-all duration-300" onClick={handleSignOut}>
                     <LogOut className="w-3.5 h-3.5 mr-1.5" /> {t("signOut")}
                   </Button>
                 </>
               ) : (
                 <>
-                  <Button variant="ghost" size="sm" onClick={() => navigate('/auth?mode=login')} className="text-white/80 hover:text-white hover:bg-white/5 font-light text-sm">
+                  <Button variant="ghost" size="sm" onClick={() => navigate('/auth?mode=login')} className="text-white/80 hover:text-neon-cyan hover:bg-neon-cyan/5 border border-white/5 hover:border-neon-cyan/30 font-light text-sm transition-all duration-300">
                     Login
                   </Button>
-                  <Button variant="outline" size="sm" className="border-white/20 text-white/90 hover:bg-white/5 hover:border-white/30 font-light text-sm" onClick={() => navigate('/auth?mode=register')}>
+                  <Button variant="outline" size="sm" className="border-neon-cyan/30 bg-neon-cyan/5 text-neon-cyan hover:bg-neon-cyan/10 hover:border-neon-cyan/50 font-light text-sm shadow-glow-cyan transition-all duration-300" onClick={() => navigate('/auth?mode=register')}>
                     Register
                   </Button>
                 </>
@@ -178,11 +193,11 @@ export const Navbar = () => {
             <div className="lg:hidden">
               <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
                 <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon" className="text-white/90 hover:bg-white/5 h-8 w-8 sm:h-10 sm:w-10">
+                  <Button variant="ghost" size="icon" className="text-white/90 hover:text-neon-cyan hover:bg-neon-cyan/5 border border-white/5 hover:border-neon-cyan/30 h-8 w-8 sm:h-10 sm:w-10 transition-all duration-300">
                     <Menu className="w-5 h-5 sm:w-6 sm:h-6" />
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="right" className="w-[280px] sm:w-[300px] bg-black/95 backdrop-blur-xl border-white/10">
+                <SheetContent side="right" className="w-[280px] sm:w-[300px] bg-gradient-to-b from-deep-space/98 to-black/98 backdrop-blur-2xl border-neon-cyan/20">
                   <SheetHeader>
                     <SheetTitle className="text-white font-light text-lg">{t("menu")}</SheetTitle>
                   </SheetHeader>
