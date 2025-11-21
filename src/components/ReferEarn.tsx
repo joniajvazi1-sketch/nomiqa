@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from "react";
 
 export const ReferEarn = () => {
   const navigate = useNavigate();
-  const { language } = useTranslation();
+  const { language, t } = useTranslation();
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
   
@@ -40,15 +40,15 @@ export const ReferEarn = () => {
         <div className={`text-center mb-12 md:mb-16 lg:mb-20 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           <div className="inline-block mb-3 md:mb-4">
             <span className="text-neon-coral text-[10px] sm:text-xs md:text-sm font-light tracking-[0.25em] uppercase">
-              💰 Real Earnings, Real Crypto
+              {t("referEarnBadge")}
             </span>
           </div>
           <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light mb-4 md:mb-6 px-4">
             <span className="block bg-gradient-to-r from-white via-white/95 to-white/90 bg-clip-text text-transparent">
-              Refer & Earn
+              {t("referEarnTitle")}
             </span>
             <span className="block text-lg sm:text-xl md:text-2xl lg:text-3xl text-white/70 mt-3 md:mt-4 font-extralight">
-              Unlike Others, We Pay You Real Crypto
+              {t("referEarnSubtitle")}
             </span>
           </h2>
         </div>
@@ -60,23 +60,23 @@ export const ReferEarn = () => {
             <div className="absolute top-4 right-4 sm:top-5 sm:right-5 md:top-6 md:right-6">
               <XCircle className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-red-500/70" />
             </div>
-            <h3 className="text-lg sm:text-xl md:text-2xl font-light text-white mb-5 md:mb-6">Other Platforms</h3>
+            <h3 className="text-lg sm:text-xl md:text-2xl font-light text-white mb-5 md:mb-6">{t("otherPlatforms")}</h3>
             <ul className="space-y-3 sm:space-y-4 text-white/60">
               <li className="flex items-start gap-2 sm:gap-3">
                 <span className="text-red-500 text-sm sm:text-base flex-shrink-0">✗</span>
-                <span className="text-xs sm:text-sm md:text-base font-light">Credits locked to their platform</span>
+                <span className="text-xs sm:text-sm md:text-base font-light">{t("creditsLocked")}</span>
               </li>
               <li className="flex items-start gap-2 sm:gap-3">
                 <span className="text-red-500 text-sm sm:text-base flex-shrink-0">✗</span>
-                <span className="text-xs sm:text-sm md:text-base font-light">Can't withdraw earnings</span>
+                <span className="text-xs sm:text-sm md:text-base font-light">{t("cantWithdraw")}</span>
               </li>
               <li className="flex items-start gap-2 sm:gap-3">
                 <span className="text-red-500 text-sm sm:text-base flex-shrink-0">✗</span>
-                <span className="text-xs sm:text-sm md:text-base font-light">Only usable for their products</span>
+                <span className="text-xs sm:text-sm md:text-base font-light">{t("onlyTheirProducts")}</span>
               </li>
               <li className="flex items-start gap-2 sm:gap-3">
                 <span className="text-red-500 text-sm sm:text-base flex-shrink-0">✗</span>
-                <span className="text-xs sm:text-sm md:text-base font-light">No real financial value</span>
+                <span className="text-xs sm:text-sm md:text-base font-light">{t("noFinancialValue")}</span>
               </li>
             </ul>
           </div>
@@ -86,23 +86,23 @@ export const ReferEarn = () => {
             <div className="absolute top-4 right-4 sm:top-5 sm:right-5 md:top-6 md:right-6">
               <Coins className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-neon-coral" />
             </div>
-            <h3 className="text-lg sm:text-xl md:text-2xl font-light text-neon-coral mb-5 md:mb-6">Nomiqa Affiliate</h3>
+            <h3 className="text-lg sm:text-xl md:text-2xl font-light text-neon-coral mb-5 md:mb-6">{t("nomiqaAffiliate")}</h3>
             <ul className="space-y-3 sm:space-y-4 text-white">
               <li className="flex items-start gap-2 sm:gap-3">
                 <span className="text-neon-coral text-sm sm:text-base flex-shrink-0">✓</span>
-                <span className="text-xs sm:text-sm md:text-base font-light">Earn in USDC & SOL</span>
+                <span className="text-xs sm:text-sm md:text-base font-light">{t("earnUsdcSol")}</span>
               </li>
               <li className="flex items-start gap-2 sm:gap-3">
                 <span className="text-neon-coral text-sm sm:text-base flex-shrink-0">✓</span>
-                <span className="text-xs sm:text-sm md:text-base font-light">Withdraw to your wallet anytime</span>
+                <span className="text-xs sm:text-sm md:text-base font-light">{t("withdrawAnytime")}</span>
               </li>
               <li className="flex items-start gap-2 sm:gap-3">
                 <span className="text-neon-coral text-sm sm:text-base flex-shrink-0">✓</span>
-                <span className="text-xs sm:text-sm md:text-base font-light">Real money, real freedom</span>
+                <span className="text-xs sm:text-sm md:text-base font-light">{t("realMoneyFreedom")}</span>
               </li>
               <li className="flex items-start gap-2 sm:gap-3">
                 <span className="text-neon-coral text-sm sm:text-base flex-shrink-0">✓</span>
-                <span className="text-xs sm:text-sm md:text-base font-light">Up to 18% multi-level commission</span>
+                <span className="text-xs sm:text-sm md:text-base font-light">{t("multiLevelCommission")}</span>
               </li>
             </ul>
           </div>
@@ -113,10 +113,10 @@ export const ReferEarn = () => {
           <div className="p-6 sm:p-8 md:p-10 lg:p-12">
             <div className="text-center mb-10 md:mb-12 lg:mb-16 max-w-2xl mx-auto">
               <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light text-white mb-3 md:mb-5 px-4">
-                How Passive Income Works
+                {t("passiveIncomeTitle")}
               </h3>
               <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white/70 font-light leading-relaxed px-4">
-                You do the work once. Your network does the rest.
+                {t("passiveIncomeSubtitle")}
               </p>
             </div>
 
@@ -128,13 +128,13 @@ export const ReferEarn = () => {
                     <div className="w-11 h-11 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full bg-neon-coral/10 border-2 border-neon-coral/30 flex items-center justify-center flex-shrink-0">
                       <span className="text-lg sm:text-xl md:text-2xl font-light text-neon-coral">1</span>
                     </div>
-                    <p className="text-[10px] sm:text-xs md:text-sm text-neon-coral/80 font-light uppercase tracking-[0.2em] md:mt-3">Direct Referral</p>
+                    <p className="text-[10px] sm:text-xs md:text-sm text-neon-coral/80 font-light uppercase tracking-[0.2em] md:mt-3">{t("directReferral")}</p>
                   </div>
                   <div className="flex-1 space-y-2 sm:space-y-3">
-                    <p className="text-sm sm:text-base md:text-lg font-light text-white">You invite Sarah, she buys a $50 eSIM</p>
+                    <p className="text-sm sm:text-base md:text-lg font-light text-white">{t("sarahBuysEsim")}</p>
                     <div className="flex items-baseline gap-2 pt-1 sm:pt-2 justify-center md:justify-start">
                       <span className="text-2xl sm:text-3xl md:text-4xl font-extralight text-neon-coral">$4.50</span>
-                      <span className="text-xs sm:text-sm text-white/60 font-light">9% commission</span>
+                      <span className="text-xs sm:text-sm text-white/60 font-light">{t("commission9Percent")}</span>
                     </div>
                   </div>
                 </div>
@@ -145,7 +145,7 @@ export const ReferEarn = () => {
                 <div className="absolute left-1/2 md:left-7 top-0 bottom-0 w-px bg-gradient-to-b from-white/10 via-neon-coral/30 to-white/10 -translate-x-1/2 md:translate-x-0"></div>
                 <div className="flex justify-center md:justify-start md:pl-20">
                   <div className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-neon-coral/10 border border-neon-coral/20 rounded-full text-[10px] sm:text-xs md:text-sm font-light text-neon-coral">
-                    Passive income starts
+                    {t("passiveStarts")}
                   </div>
                 </div>
               </div>
@@ -157,16 +157,16 @@ export const ReferEarn = () => {
                     <div className="w-11 h-11 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full bg-neon-violet/10 border-2 border-neon-violet/30 flex items-center justify-center flex-shrink-0">
                       <span className="text-lg sm:text-xl md:text-2xl font-light text-neon-violet">2</span>
                     </div>
-                    <p className="text-[10px] sm:text-xs md:text-sm text-neon-violet/80 font-light uppercase tracking-[0.2em] md:mt-3">Tier 2 · Passive</p>
+                    <p className="text-[10px] sm:text-xs md:text-sm text-neon-violet/80 font-light uppercase tracking-[0.2em] md:mt-3">{t("tier2Passive")}</p>
                   </div>
                   <div className="flex-1 space-y-2 sm:space-y-3">
                     <div>
-                      <p className="text-sm sm:text-base md:text-lg font-light text-white">Sarah invites Mike, he buys a $50 eSIM</p>
-                      <p className="text-xs sm:text-sm text-white/60 font-light mt-1 sm:mt-1.5">You don't know Mike. You don't talk to Mike.</p>
+                      <p className="text-sm sm:text-base md:text-lg font-light text-white">{t("sarahInvitesMike")}</p>
+                      <p className="text-xs sm:text-sm text-white/60 font-light mt-1 sm:mt-1.5">{t("dontKnowMike")}</p>
                     </div>
                     <div className="flex items-baseline gap-2 pt-1 sm:pt-2 justify-center md:justify-start">
                       <span className="text-2xl sm:text-3xl md:text-4xl font-extralight text-neon-violet">$3.00</span>
-                      <span className="text-xs sm:text-sm text-white/60 font-light">6% commission</span>
+                      <span className="text-xs sm:text-sm text-white/60 font-light">{t("commission6Percent")}</span>
                     </div>
                   </div>
                 </div>
@@ -184,16 +184,16 @@ export const ReferEarn = () => {
                     <div className="w-11 h-11 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full bg-neon-cyan/10 border-2 border-neon-cyan/30 flex items-center justify-center flex-shrink-0">
                       <span className="text-lg sm:text-xl md:text-2xl font-light text-neon-cyan">3</span>
                     </div>
-                    <p className="text-[10px] sm:text-xs md:text-sm text-neon-cyan/80 font-light uppercase tracking-[0.2em] md:mt-3">Tier 3 · Passive</p>
+                    <p className="text-[10px] sm:text-xs md:text-sm text-neon-cyan/80 font-light uppercase tracking-[0.2em] md:mt-3">{t("tier3Passive")}</p>
                   </div>
                   <div className="flex-1 space-y-2 sm:space-y-3">
                     <div>
-                      <p className="text-sm sm:text-base md:text-lg font-light text-white">Mike invites Lisa, she buys a $50 eSIM</p>
-                      <p className="text-xs sm:text-sm text-white/60 font-light mt-1 sm:mt-1.5">You've never heard of Lisa. She doesn't know you exist.</p>
+                      <p className="text-sm sm:text-base md:text-lg font-light text-white">{t("mikeInvitesLisa")}</p>
+                      <p className="text-xs sm:text-sm text-white/60 font-light mt-1 sm:mt-1.5">{t("neverHeardLisa")}</p>
                     </div>
                     <div className="flex items-baseline gap-2 pt-1 sm:pt-2 justify-center md:justify-start">
                       <span className="text-2xl sm:text-3xl md:text-4xl font-extralight text-neon-cyan">$1.50</span>
-                      <span className="text-xs sm:text-sm text-white/60 font-light">3% commission</span>
+                      <span className="text-xs sm:text-sm text-white/60 font-light">{t("commission3Percent")}</span>
                     </div>
                   </div>
                 </div>
@@ -203,20 +203,20 @@ export const ReferEarn = () => {
               <div className="mt-8 sm:mt-10 md:mt-12 p-6 sm:p-7 md:p-9 bg-gradient-to-br from-white/[0.03] to-white/[0.01] border border-white/10 rounded-xl md:rounded-2xl">
                 <div className="flex flex-col items-center gap-5 md:gap-6 md:flex-row md:justify-between text-center md:text-left">
                   <div className="w-full md:w-auto">
-                    <p className="text-xs sm:text-sm text-white/60 font-light mb-2">Total from 3 sales</p>
+                    <p className="text-xs sm:text-sm text-white/60 font-light mb-2">{t("totalFrom3Sales")}</p>
                     <div className="flex items-baseline gap-2 justify-center md:justify-start flex-wrap">
                       <span className="text-3xl sm:text-4xl md:text-5xl font-extralight bg-gradient-to-r from-neon-coral via-neon-violet to-neon-cyan bg-clip-text text-transparent">
                         $9.00
                       </span>
-                      <span className="text-sm sm:text-base text-white/60 font-light">USDC or SOL</span>
+                      <span className="text-sm sm:text-base text-white/60 font-light">{t("usdcOrSol")}</span>
                     </div>
                   </div>
                   <div className="flex gap-4 sm:gap-5 md:flex-col md:gap-2">
                     <div className="text-xs sm:text-sm font-light text-white/80">
-                      $4.50 your work
+                      {t("yourWork")}
                     </div>
                     <div className="text-xs sm:text-sm font-light text-neon-coral">
-                      $4.50 passive income
+                      {t("passiveIncome450")}
                     </div>
                   </div>
                 </div>
@@ -226,10 +226,9 @@ export const ReferEarn = () => {
             <div className="mt-8 sm:mt-10 md:mt-14 max-w-2xl mx-auto space-y-6 sm:space-y-7 md:space-y-8">
               <div className="p-5 sm:p-6 md:p-8 bg-white/[0.02] backdrop-blur-xl border border-white/10 rounded-xl md:rounded-2xl text-center md:text-left">
                 <p className="text-sm sm:text-base md:text-lg text-white/80 font-light leading-relaxed">
-                  When you have 10 people in your network, and they each bring 5 more, that's 50 people.
-                  If those 50 each bring 3, that's 150 more people.
+                  {t("networkGrowth")}
                   <span className="block mt-3 sm:mt-4 font-light text-neon-coral text-sm sm:text-base md:text-lg">
-                    You earn from all of them. Without talking to 140 of them.
+                    {t("earnFromAll")}
                   </span>
                 </p>
               </div>
@@ -240,7 +239,7 @@ export const ReferEarn = () => {
                   size="lg"
                   className="bg-white text-black hover:bg-white/90 font-light text-sm sm:text-base md:text-lg px-8 sm:px-10 md:px-12 py-5 sm:py-6 md:py-7 rounded-xl md:rounded-2xl shadow-lg hover:scale-105 transition-all duration-300 w-full sm:w-auto"
                 >
-                  Get Started
+                  {t("getStarted")}
                 </Button>
               </div>
             </div>
