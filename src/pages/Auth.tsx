@@ -146,7 +146,7 @@ export default function Auth() {
                     <div className="absolute inset-0 rounded-md bg-gradient-to-r from-neon-cyan/10 to-neon-violet/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
                   </div>
                   <p className="text-xs text-muted-foreground/80 mt-1.5">
-                    3-20 characters, letters, numbers and underscores only
+                    {t("usernameHint")}
                   </p>
                 </div>
               )}
