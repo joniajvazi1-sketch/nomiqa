@@ -58,10 +58,6 @@ export const ShareModal = ({ open, onOpenChange, product }: ShareModalProps) => 
     }
   };
 
-  const generateCode = () => {
-    return Math.random().toString(36).substring(2, 10).toUpperCase();
-  };
-
   const createAffiliateQuick = async () => {
     if (!email) {
       toast.error("Please enter your email");
@@ -70,21 +66,19 @@ export const ShareModal = ({ open, onOpenChange, product }: ShareModalProps) => 
 
     setCreating(true);
     try {
-      const code = generateCode();
-
-      const { data, error } = await supabase
-        .from('affiliates')
-        .insert({
+      // Call edge function to create affiliate with secure code
+      const { data: result, error } = await supabase.functions.invoke('create-affiliate', {
+        body: {
           email,
-          affiliate_code: code,
-        })
-        .select()
-        .single();
+        }
+      });
 
       if (error) throw error;
+      if (!result?.affiliate) throw new Error('Failed to create affiliate');
 
-      setAffiliateCode(data.affiliate_code);
-      localStorage.setItem('guest_affiliate_code', data.affiliate_code);
+      const affiliateData = result.affiliate;
+      setAffiliateCode(affiliateData.affiliate_code);
+      localStorage.setItem('guest_affiliate_code', affiliateData.affiliate_code);
       toast.success("Affiliate account created!");
     } catch (error: any) {
       toast.error(error.message || "Failed to create affiliate account");

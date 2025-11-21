@@ -274,9 +274,6 @@ export default function Affiliate() {
       setUpdatingUsername(false);
     }
   };
-  const generateCode = () => {
-    return Math.random().toString(36).substring(2, 10).toUpperCase();
-  };
   const createAffiliate = async () => {
     if (!user) {
       navigate('/auth?mode=signup');
@@ -305,7 +302,7 @@ export default function Affiliate() {
         setCreating(false);
         return;
       }
-      const code = generateCode();
+      
       const isFirstAffiliate = !existingAffiliates || existingAffiliates.length === 0;
 
       // For first affiliate, use username from profile
@@ -336,61 +333,38 @@ export default function Affiliate() {
           parentAffiliateId = parentAffiliate.id;
         }
       }
-      const {
-        data,
-        error
-      } = await supabase.from('affiliates').insert({
-        user_id: user.id,
-        email: user.email!,
-        affiliate_code: code,
-        username: affiliateUsername,
-        parent_affiliate_id: isFirstAffiliate ? parentAffiliateId : null
-      }).select().single();
-      if (error) {
-        // If username is taken, add random number
-        if (error.code === '23505') {
-          const retryUsername = affiliateUsername + Math.floor(Math.random() * 999);
-          const {
-            data: retryData,
-            error: retryError
-          } = await supabase.from('affiliates').insert({
-            user_id: user.id,
-            email: user.email!,
-            affiliate_code: code,
-            username: retryUsername,
-            parent_affiliate_id: isFirstAffiliate ? parentAffiliateId : null
-          }).select().single();
-          if (retryError) throw retryError;
-          setAffiliate(retryData);
-          setUsername(retryData.username || '');
-          setCustomLink(`${window.location.origin}/${retryData.username}`);
-          setAffiliateLink(`${window.location.origin}/r/${retryData.affiliate_code}`);
-          toast.success(`Affiliate link ${existingAffiliates.length + 1} created!`);
 
-          // Reset form
-          setShowNewLinkInput(false);
-          setNewLinkUsername("");
-          setUsernameAvailability('idle');
-
-          // Refresh all affiliates
-          await fetchAffiliates(user.id);
-          return;
+      // Call edge function to create affiliate with secure code
+      const { data: result, error: edgeFunctionError } = await supabase.functions.invoke('create-affiliate', {
+        body: {
+          email: user.email!,
+          username: affiliateUsername,
+          userId: user.id,
         }
-        throw error;
+      });
+
+      if (edgeFunctionError) throw edgeFunctionError;
+      if (!result?.affiliate) throw new Error('Failed to create affiliate');
+
+      const affiliateData = result.affiliate;
+
+      // Update parent affiliate ID if needed
+      if (parentAffiliateId) {
+        await supabase
+          .from('affiliates')
+          .update({ parent_affiliate_id: parentAffiliateId })
+          .eq('id', affiliateData.id);
       }
-      setAffiliate(data);
-      setUsername(data.username || '');
-      setCustomLink(`${window.location.origin}/${data.username}`);
-      setAffiliateLink(`${window.location.origin}/r/${data.affiliate_code}`);
-      toast.success(`Affiliate link ${existingAffiliates.length + 1} created!`);
 
-      // Reset form
+      setAffiliate(affiliateData);
+      setUsername(affiliateData.username || '');
+      setCustomLink(`${window.location.origin}/${affiliateData.username}`);
+      setAffiliateLink(`${window.location.origin}/r/${affiliateData.affiliate_code}`);
       setShowNewLinkInput(false);
-      setNewLinkUsername("");
+      setNewLinkUsername('');
       setUsernameAvailability('idle');
-
-      // Refresh all affiliates
       await fetchAffiliates(user.id);
+      toast.success(`Affiliate link ${existingAffiliates.length + 1} created!`);
     } catch (error: any) {
       toast.error(error.message || "Failed to create affiliate link");
     } finally {
