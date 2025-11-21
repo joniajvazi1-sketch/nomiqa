@@ -433,48 +433,52 @@ export default function Affiliate() {
             <div className="space-y-4 md:space-y-6 animate-fade-in">
               {/* Premium badge */}
               <div className="inline-block">
-                <div className="relative">
-                  <span className="relative block px-6 py-2 bg-gradient-to-r from-neon-coral/20 to-neon-violet/20 backdrop-blur-xl border border-neon-coral/30 rounded-full text-neon-coral text-xs md:text-base font-bold tracking-wider uppercase">
-                    {t("passiveIncomeUnlocked")}
+                <div className="relative group">
+                  <div className="absolute -inset-1 bg-gradient-to-r from-neon-coral via-neon-violet to-neon-cyan rounded-full blur opacity-30 group-hover:opacity-50 transition duration-500"></div>
+                  <span className="relative block px-8 py-3 bg-gradient-to-r from-neon-coral/10 via-neon-violet/10 to-neon-cyan/10 backdrop-blur-2xl border border-white/20 rounded-full text-sm md:text-base font-bold tracking-widest uppercase">
+                    <span className="bg-gradient-to-r from-neon-coral via-neon-violet to-neon-cyan bg-clip-text text-transparent">
+                      {t("passiveIncomeUnlocked")}
+                    </span>
                   </span>
                 </div>
               </div>
               
               {/* Premium headline */}
               <h1 className="text-4xl md:text-6xl lg:text-7xl font-black font-display leading-tight tracking-tight">
-                <span className="block bg-gradient-to-r from-neon-cyan via-neon-violet to-neon-coral bg-clip-text text-transparent mb-2 md:mb-4 animate-pulse" style={{ animationDuration: '3s' }}>
+                <span className="block bg-gradient-to-r from-white via-neon-violet to-white bg-clip-text text-transparent mb-2 md:mb-4">
                   {t("earnWhileTheyTravel")}
-                </span>
-                <span className="block bg-gradient-to-r from-neon-coral via-neon-violet to-neon-cyan bg-clip-text text-transparent animate-pulse" style={{ animationDuration: '3s', animationDelay: '0.5s' }}>
-                
                 </span>
               </h1>
               
               {/* Premium commission display */}
-              <div className="pt-4 md:pt-6 space-y-3 md:space-y-4">
-                <div className="inline-block relative">
-                  <div className="relative px-8 py-4 bg-white/[0.03] backdrop-blur-2xl border border-white/20 rounded-2xl">
-                    <p className="text-2xl md:text-4xl lg:text-5xl font-black bg-gradient-to-r from-white via-neon-violet to-white bg-clip-text text-transparent">
+              <div className="pt-6 md:pt-8 space-y-4 md:space-y-6">
+                <div className="inline-block relative group">
+                  <div className="absolute -inset-2 bg-gradient-to-r from-neon-cyan via-neon-violet to-neon-coral rounded-3xl blur-xl opacity-20 group-hover:opacity-40 transition duration-500"></div>
+                  <div className="relative px-10 py-5 bg-gradient-to-br from-white/[0.05] to-white/[0.02] backdrop-blur-3xl border border-white/30 rounded-3xl shadow-2xl">
+                    <p className="text-3xl md:text-5xl lg:text-6xl font-black bg-gradient-to-r from-neon-cyan via-white to-neon-coral bg-clip-text text-transparent tracking-tight">
                       {t("totalCommissionSplit")}
                     </p>
                   </div>
                 </div>
                 
-                <p className="text-sm md:text-lg lg:text-xl text-foreground/90 max-w-3xl mx-auto leading-relaxed px-2">
-                  {t("commissionBreakdown").split(' • ').map((part, i, arr) => (
-                    <span key={i}>
-                      {i === 0 && <span className="text-neon-cyan font-semibold">{part}</span>}
-                      {i === 1 && <span className="text-neon-violet font-semibold">{part}</span>}
-                      {i === 2 && <span className="text-neon-coral font-semibold">{part}</span>}
-                      {i < arr.length - 1 && ' • '}
-                    </span>
-                  ))}
-                </p>
+                <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4 text-sm md:text-base lg:text-lg px-4">
+                  <span className="px-4 py-2 rounded-xl bg-neon-cyan/10 border border-neon-cyan/30 text-neon-cyan font-semibold backdrop-blur-sm">
+                    {t("commissionBreakdown").split(' • ')[0]}
+                  </span>
+                  <span className="text-white/40">•</span>
+                  <span className="px-4 py-2 rounded-xl bg-neon-violet/10 border border-neon-violet/30 text-neon-violet font-semibold backdrop-blur-sm">
+                    {t("commissionBreakdown").split(' • ')[1]}
+                  </span>
+                  <span className="text-white/40">•</span>
+                  <span className="px-4 py-2 rounded-xl bg-neon-coral/10 border border-neon-coral/30 text-neon-coral font-semibold backdrop-blur-sm">
+                    {t("commissionBreakdown").split(' • ')[2]}
+                  </span>
+                </div>
               </div>
 
               {/* Premium tagline */}
-              <div className="pt-3 md:pt-4">
-                <p className="text-base md:text-lg lg:text-xl text-foreground/80 max-w-3xl mx-auto leading-relaxed px-2 font-light">
+              <div className="pt-4 md:pt-6">
+                <p className="text-base md:text-xl lg:text-2xl text-white/70 max-w-4xl mx-auto leading-relaxed px-4 font-light tracking-wide">
                   {t("infinitePotential")}
                 </p>
               </div>
