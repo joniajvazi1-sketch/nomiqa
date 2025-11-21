@@ -35,88 +35,97 @@ export const ProductDetailModal = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <div className="flex items-start gap-4 mb-4">
-            {getCountryFlag(product.country_code)}
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto bg-gradient-to-br from-deep-space/98 via-black/95 to-deep-space/98 backdrop-blur-2xl border-neon-cyan/20">
+        {/* Premium background decorations */}
+        <div className="absolute inset-0 opacity-10 pointer-events-none">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-neon-cyan/30 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-neon-violet/30 rounded-full blur-3xl"></div>
+        </div>
+
+        <DialogHeader className="relative z-10">
+          <div className="flex items-start gap-4 mb-6">
+            <div className="relative">
+              <div className="absolute inset-0 bg-neon-cyan/20 rounded blur-md"></div>
+              {getCountryFlag(product.country_code)}
+            </div>
             <div className="flex-1">
-              <DialogTitle className="text-2xl mb-2">
+              <DialogTitle className="text-2xl md:text-3xl mb-2 bg-gradient-to-r from-neon-cyan via-white to-neon-violet bg-clip-text text-transparent font-light">
                 {getTranslatedCountryName(product.country_code, language)}
               </DialogTitle>
-              <p className="text-muted-foreground">{product.name}</p>
+              <p className="text-white/60 font-light">{product.name}</p>
               {product.is_popular && (
-                <Badge className="mt-2 bg-gradient-to-r from-primary to-primary/80">
+                <Badge className="mt-3 bg-gradient-to-r from-neon-coral to-neon-orange text-white border-0 shadow-glow-coral font-light">
                   {t('popular')}
                 </Badge>
               )}
             </div>
             <div className="text-right">
-              <div className="text-3xl font-bold text-primary">
+              <div className="text-3xl md:text-4xl font-extralight bg-gradient-to-r from-neon-cyan to-neon-violet bg-clip-text text-transparent">
                 ${product.price_usd.toFixed(2)}
               </div>
-              <p className="text-xs text-muted-foreground">{t('oneTimePayment')}</p>
+              <p className="text-xs text-white/50 mt-1 font-light">{t('oneTimePayment')}</p>
             </div>
           </div>
         </DialogHeader>
 
         {/* Main Features Grid */}
-        <div className="grid grid-cols-2 gap-4 mb-6">
-          <div className="p-4 rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20">
-            <div className="flex items-center gap-2 mb-2">
-              <Wifi className="h-5 w-5 text-primary" />
-              <span className="font-semibold">{t('data')}</span>
+        <div className="grid grid-cols-2 gap-4 mb-8 relative z-10">
+          <div className="p-5 rounded-xl bg-gradient-to-br from-neon-cyan/10 to-neon-cyan/5 border border-neon-cyan/20 hover:border-neon-cyan/40 transition-all duration-300">
+            <div className="flex items-center gap-2 mb-3">
+              <Wifi className="h-5 w-5 text-neon-cyan" />
+              <span className="font-light text-white/80">{t('data')}</span>
             </div>
-            <p className="text-2xl font-bold">{product.data_amount}</p>
+            <p className="text-2xl md:text-3xl font-extralight text-white">{product.data_amount}</p>
           </div>
 
-          <div className="p-4 rounded-lg bg-gradient-to-br from-accent/10 to-accent/5 border border-accent/20">
-            <div className="flex items-center gap-2 mb-2">
-              <Calendar className="h-5 w-5 text-accent" />
-              <span className="font-semibold">{t('validity')}</span>
+          <div className="p-5 rounded-xl bg-gradient-to-br from-neon-violet/10 to-neon-violet/5 border border-neon-violet/20 hover:border-neon-violet/40 transition-all duration-300">
+            <div className="flex items-center gap-2 mb-3">
+              <Calendar className="h-5 w-5 text-neon-violet" />
+              <span className="font-light text-white/80">{t('validity')}</span>
             </div>
-            <p className="text-2xl font-bold">{product.validity_days} {t('days')}</p>
+            <p className="text-2xl md:text-3xl font-extralight text-white">{product.validity_days} {t('days')}</p>
           </div>
         </div>
 
         {/* Detailed Features */}
-        <div className="space-y-3 mb-6">
-          <h3 className="font-semibold text-lg mb-3">{t('planDetails')}</h3>
+        <div className="space-y-3 mb-8 relative z-10">
+          <h3 className="font-light text-lg mb-4 text-white">{t('planDetails')}</h3>
           
           {product.features?.coverage && (
-            <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
-              <Globe className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+            <div className="flex items-start gap-3 p-4 rounded-xl bg-white/[0.02] border border-white/10 hover:border-neon-cyan/30 transition-all duration-300">
+              <Globe className="h-5 w-5 text-neon-cyan mt-0.5 shrink-0" />
               <div>
-                <p className="font-medium">{t('coverage')}</p>
-                <p className="text-sm text-muted-foreground">{product.features.coverage}</p>
+                <p className="font-normal text-white">{t('coverage')}</p>
+                <p className="text-sm text-white/60 font-light mt-1">{product.features.coverage}</p>
               </div>
             </div>
           )}
 
           {product.features?.speed && (
-            <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
-              <Zap className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+            <div className="flex items-start gap-3 p-4 rounded-xl bg-white/[0.02] border border-white/10 hover:border-neon-cyan/30 transition-all duration-300">
+              <Zap className="h-5 w-5 text-neon-cyan mt-0.5 shrink-0" />
               <div>
-                <p className="font-medium">{t('networkSpeed')}</p>
-                <p className="text-sm text-muted-foreground">{product.features.speed}</p>
+                <p className="font-normal text-white">{t('networkSpeed')}</p>
+                <p className="text-sm text-white/60 font-light mt-1">{product.features.speed}</p>
               </div>
             </div>
           )}
 
           {product.features?.activation && (
-            <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
-              <Clock className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+            <div className="flex items-start gap-3 p-4 rounded-xl bg-white/[0.02] border border-white/10 hover:border-neon-cyan/30 transition-all duration-300">
+              <Clock className="h-5 w-5 text-neon-cyan mt-0.5 shrink-0" />
               <div>
-                <p className="font-medium">{t('activation')}</p>
-                <p className="text-sm text-muted-foreground">{product.features.activation}</p>
+                <p className="font-normal text-white">{t('activation')}</p>
+                <p className="text-sm text-white/60 font-light mt-1">{product.features.activation}</p>
               </div>
             </div>
           )}
 
-          <div className="flex items-start gap-3 p-3 rounded-lg bg-gradient-to-br from-green-500/10 to-green-500/5 border border-green-500/20">
-            <Shield className="h-5 w-5 text-green-600 mt-0.5 shrink-0" />
+          <div className="flex items-start gap-3 p-4 rounded-xl bg-gradient-to-br from-green-500/10 to-green-500/5 border border-green-500/30 hover:border-green-500/50 transition-all duration-300">
+            <Shield className="h-5 w-5 text-green-400 mt-0.5 shrink-0" />
             <div>
-              <p className="font-medium text-green-700 dark:text-green-600">{t('privacyProtected')}</p>
-              <p className="text-sm text-muted-foreground">{t('privacyProtectedDesc')}</p>
+              <p className="font-normal text-green-400">{t('privacyProtected')}</p>
+              <p className="text-sm text-white/60 font-light mt-1">{t('privacyProtectedDesc')}</p>
             </div>
           </div>
         </div>
@@ -126,20 +135,20 @@ export const ProductDetailModal = ({
           onClick={() => setCompatibilityOpen(true)}
           variant="outline"
           size="lg"
-          className="w-full mb-6"
+          className="w-full mb-6 bg-white/[0.02] border-neon-cyan/30 text-neon-cyan hover:bg-neon-cyan/10 hover:border-neon-cyan/50 transition-all duration-300 font-light h-12 rounded-xl relative z-10"
         >
           <Smartphone className="mr-2 h-5 w-5" />
           {t('checkDeviceCompatibility')}
         </Button>
 
         {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-3">
+        <div className="flex flex-col sm:flex-row gap-3 relative z-10">
           <Button 
             onClick={() => {
               onAddToCart(product);
               onOpenChange(false);
             }}
-            className="flex-1"
+            className="flex-1 bg-gradient-to-r from-neon-cyan to-neon-violet hover:from-neon-cyan/90 hover:to-neon-violet/90 text-white border-0 shadow-glow-cyan font-light h-12 rounded-xl transition-all duration-300"
             size="lg"
           >
             <ShoppingCart className="mr-2 h-5 w-5" />
@@ -152,7 +161,7 @@ export const ProductDetailModal = ({
             }}
             variant="outline"
             size="lg"
-            className="flex-1"
+            className="flex-1 bg-white/[0.02] border-neon-coral/30 text-neon-coral hover:bg-neon-coral/10 hover:border-neon-coral/50 transition-all duration-300 font-light h-12 rounded-xl"
           >
             <HandCoins className="h-5 w-5 mr-2" />
             {t('referAndEarn')}
