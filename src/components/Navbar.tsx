@@ -256,26 +256,16 @@ export const Navbar = () => {
               )}
             </Button>
 
-            {/* Mobile Auth Buttons - Show only when NOT logged in */}
+            {/* Mobile Register Button - Show only when NOT logged in */}
             {!user && (
-              <div className="flex lg:hidden gap-1.5">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={() => navigate('/auth?mode=login')} 
-                  className="text-white/80 hover:text-neon-cyan hover:bg-neon-cyan/5 border border-white/5 hover:border-neon-cyan/30 font-light text-xs px-2.5 h-9 transition-all duration-300"
-                >
-                  {t('login')}
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="border-neon-cyan/30 bg-neon-cyan/5 text-neon-cyan hover:bg-neon-cyan/10 hover:border-neon-cyan/50 font-light text-xs px-2.5 h-9 shadow-glow-cyan transition-all duration-300" 
-                  onClick={() => navigate('/auth?mode=register')}
-                >
-                  {t('register')}
-                </Button>
-              </div>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="flex lg:hidden border-neon-cyan/30 bg-neon-cyan/5 text-neon-cyan hover:bg-neon-cyan/10 hover:border-neon-cyan/50 font-light text-xs px-3 h-9 shadow-glow-cyan transition-all duration-300" 
+                onClick={() => navigate('/auth?mode=register')}
+              >
+                {t('register')}
+              </Button>
             )}
 
             {/* Mobile My Account Icon - Show only when logged in */}
