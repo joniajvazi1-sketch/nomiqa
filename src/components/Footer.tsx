@@ -18,10 +18,10 @@ export const Footer = () => {
             nomiqa
           </h2>
           <p className="text-white/80 text-base md:text-lg mb-2 font-light">
-            Nomiqa — where privacy meets connection.
+            {t("footerTagline1")}
           </p>
           <p className="text-white/60 text-sm md:text-base font-light">
-            Powered by Nomiqa.
+            {t("footerTagline2")}
           </p>
         </div>
 
@@ -29,44 +29,44 @@ export const Footer = () => {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8 md:gap-6 mb-12 md:mb-16 text-center md:text-left">
           {/* Our eSIMs */}
           <div>
-            <h4 className="font-normal mb-4 text-white text-sm md:text-base">Our eSIMs</h4>
+            <h4 className="font-normal mb-4 text-white text-sm md:text-base">{t("footerOurEsims")}</h4>
             <ul className="space-y-2.5 text-white/60 text-xs md:text-sm">
-              <li><a href="/shop" className="hover:text-neon-cyan transition-colors duration-300 font-light">Store</a></li>
-              <li><a href="/shop" className="hover:text-neon-cyan transition-colors duration-300 font-light">Unlimited Data</a></li>
-              <li><a href="/affiliate" className="hover:text-neon-cyan transition-colors duration-300 font-light">Refer and Earn</a></li>
-              <li><a href="/account" className="hover:text-neon-cyan transition-colors duration-300 font-light">Loyalty Programs</a></li>
+              <li><a href="/shop" className="hover:text-neon-cyan transition-colors duration-300 font-light">{t("footerStore")}</a></li>
+              <li><a href="/shop" className="hover:text-neon-cyan transition-colors duration-300 font-light">{t("footerUnlimitedData")}</a></li>
+              <li><a href="/affiliate" className="hover:text-neon-cyan transition-colors duration-300 font-light">{t("footerReferEarn")}</a></li>
+              <li><a href="/account" className="hover:text-neon-cyan transition-colors duration-300 font-light">{t("footerLoyaltyPrograms")}</a></li>
             </ul>
           </div>
 
           {/* Explore */}
           <div>
-            <h4 className="font-normal mb-4 text-white text-sm md:text-base">Explore</h4>
+            <h4 className="font-normal mb-4 text-white text-sm md:text-base">{t("footerExplore")}</h4>
             <ul className="space-y-2.5 text-white/60 text-xs md:text-sm">
-              <li><a href="/shop" className="hover:text-neon-cyan transition-colors duration-300 font-light">eSIMs</a></li>
-              <li><a href="/getting-started" className="hover:text-neon-cyan transition-colors duration-300 font-light">Device Compatibility</a></li>
+              <li><a href="/shop" className="hover:text-neon-cyan transition-colors duration-300 font-light">{t("footerEsims")}</a></li>
+              <li><a href="/getting-started" className="hover:text-neon-cyan transition-colors duration-300 font-light">{t("footerDeviceCompatibility")}</a></li>
             </ul>
           </div>
 
           {/* Get Help */}
           <div>
-            <h4 className="font-normal mb-4 text-white text-sm md:text-base">Get Help</h4>
+            <h4 className="font-normal mb-4 text-white text-sm md:text-base">{t("footerGetHelp")}</h4>
             <ul className="space-y-2.5 text-white/60 text-xs md:text-sm">
-              <li><a href="/help" className="hover:text-neon-cyan transition-colors duration-300 font-light">Contact Us</a></li>
-              <li><a href="/help" className="hover:text-neon-cyan transition-colors duration-300 font-light">Help</a></li>
+              <li><a href="/help" className="hover:text-neon-cyan transition-colors duration-300 font-light">{t("footerContactUs")}</a></li>
+              <li><a href="/help" className="hover:text-neon-cyan transition-colors duration-300 font-light">{t("footerHelp")}</a></li>
             </ul>
           </div>
 
           {/* About */}
           <div>
-            <h4 className="font-normal mb-4 text-white text-sm md:text-base">About</h4>
+            <h4 className="font-normal mb-4 text-white text-sm md:text-base">{t("footerAbout")}</h4>
             <ul className="space-y-2.5 text-white/60 text-xs md:text-sm">
-              <li><a href="/about" className="hover:text-neon-cyan transition-colors duration-300 font-light">About Nomiqa</a></li>
+              <li><a href="/about" className="hover:text-neon-cyan transition-colors duration-300 font-light">{t("footerAboutNomiqa")}</a></li>
             </ul>
           </div>
 
           {/* Follow Us - Centered on mobile */}
           <div className="col-span-2 md:col-span-1">
-            <h4 className="font-normal mb-4 text-white text-sm md:text-base">Follow Us</h4>
+            <h4 className="font-normal mb-4 text-white text-sm md:text-base">{t("footerFollowUs")}</h4>
             <div className="flex flex-wrap gap-3 justify-center md:justify-start mb-4">
               <a href="https://twitter.com/nomiqa" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-white/[0.02] backdrop-blur-xl border border-white/10 flex items-center justify-center hover:border-neon-cyan/50 hover:bg-neon-cyan/10 hover:scale-110 transition-all duration-300 group" aria-label="Twitter">
                 <Twitter className="w-4 h-4 text-white/60 group-hover:text-neon-cyan transition-colors duration-300" />
@@ -82,7 +82,7 @@ export const Footer = () => {
               </a>
             </div>
             <a href="/terms" className="text-white/60 hover:text-neon-cyan transition-colors duration-300 font-light text-xs md:text-sm inline-block">
-              Terms and Conditions
+              {t("footerTermsConditions")}
             </a>
           </div>
         </div>
@@ -90,7 +90,7 @@ export const Footer = () => {
         {/* Copyright */}
         <div className="border-t border-white/10 pt-8 text-center">
           <p className="text-white/40 text-xs sm:text-sm font-light">
-            © 2025 Nomiqa. All rights reserved.
+            {t("footerCopyright")}
           </p>
         </div>
       </div>
