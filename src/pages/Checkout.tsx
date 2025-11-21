@@ -115,15 +115,28 @@ export default function Checkout() {
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md text-center">
-          <CardContent className="pt-6">
-            <ShoppingCart className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-            <h2 className="text-2xl font-bold mb-2">Your cart is empty</h2>
-            <p className="text-muted-foreground mb-6">
-              Add some eSIM packages to get started
-            </p>
-            <Button onClick={() => navigate('/')}>
+      <div className="min-h-screen bg-background relative overflow-hidden flex items-center justify-center p-4">
+        {/* Premium Background Effects */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.15),transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,hsl(var(--accent)/0.1),transparent_40%)]" />
+        
+        <Card className="w-full max-w-md text-center bg-card/80 backdrop-blur-xl border-border/50 shadow-2xl relative z-10 animate-scale-in">
+          <CardContent className="pt-8 pb-6 px-6 space-y-6">
+            <div className="p-6 bg-gradient-to-br from-muted/50 to-transparent rounded-2xl border border-border/50">
+              <ShoppingCart className="h-20 w-20 mx-auto text-muted-foreground/60" />
+            </div>
+            <div className="space-y-3">
+              <h2 className="text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+                Your cart is empty
+              </h2>
+              <p className="text-base text-muted-foreground">
+                Add some eSIM packages to get started
+              </p>
+            </div>
+            <Button 
+              onClick={() => navigate('/')}
+              className="w-full h-12 text-base font-semibold bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-all duration-300 hover:scale-105"
+            >
               Browse Packages
             </Button>
           </CardContent>
