@@ -130,18 +130,20 @@ export default function About() {
                   className="group p-8 rounded-3xl bg-white/[0.02] backdrop-blur-xl border border-white/10 hover:border-neon-cyan/30 transition-all duration-500 hover:bg-white/[0.04] animate-fade-in-up"
                   style={{ animationDelay: `${index * 0.1}s` }}
                 >
-                  <div className="relative inline-block mb-6 mx-auto">
-                    <div className="absolute inset-0 bg-neon-cyan/20 rounded-2xl blur-xl group-hover:bg-neon-cyan/30 transition-all"></div>
-                    <div className="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-neon-cyan/20 to-neon-coral/20 backdrop-blur-sm border border-white/10 flex items-center justify-center">
-                      <value.icon className="w-8 h-8 text-neon-cyan" />
+                  <div className="flex flex-col items-center">
+                    <div className="relative inline-block mb-6">
+                      <div className="absolute inset-0 bg-neon-cyan/20 rounded-2xl blur-xl group-hover:bg-neon-cyan/30 transition-all"></div>
+                      <div className="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-neon-cyan/20 to-neon-coral/20 backdrop-blur-sm border border-white/10 flex items-center justify-center">
+                        <value.icon className="w-8 h-8 text-neon-cyan" />
+                      </div>
                     </div>
+                    <h3 className="text-2xl font-bold mb-3 text-foreground text-center">
+                      {value.title}
+                    </h3>
+                    <p className="text-foreground/70 leading-relaxed text-center">
+                      {value.description}
+                    </p>
                   </div>
-                  <h3 className="text-2xl font-bold mb-3 text-foreground text-center">
-                    {value.title}
-                  </h3>
-                  <p className="text-foreground/70 leading-relaxed text-center">
-                    {value.description}
-                  </p>
                 </div>
               ))}
             </div>
