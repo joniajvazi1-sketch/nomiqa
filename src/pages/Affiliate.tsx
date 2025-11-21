@@ -461,18 +461,20 @@ export default function Affiliate() {
                   </div>
                 </div>
                 
-                <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4 text-sm md:text-base lg:text-lg px-4">
-                  <span className="px-4 py-2 rounded-xl bg-neon-cyan/10 border border-neon-cyan/30 text-neon-cyan font-semibold backdrop-blur-sm">
-                    {t("commissionBreakdown").split(' • ')[0]}
-                  </span>
-                  <span className="text-white/40">•</span>
-                  <span className="px-4 py-2 rounded-xl bg-neon-violet/10 border border-neon-violet/30 text-neon-violet font-semibold backdrop-blur-sm">
-                    {t("commissionBreakdown").split(' • ')[1]}
-                  </span>
-                  <span className="text-white/40">•</span>
-                  <span className="px-4 py-2 rounded-xl bg-neon-coral/10 border border-neon-coral/30 text-neon-coral font-semibold backdrop-blur-sm">
-                    {t("commissionBreakdown").split(' • ')[2]}
-                  </span>
+                <div className="w-full flex justify-center">
+                  <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4 text-sm md:text-base lg:text-lg px-4">
+                    <span className="px-4 py-2 rounded-xl bg-neon-cyan/10 border border-neon-cyan/30 text-neon-cyan font-semibold backdrop-blur-sm">
+                      {t("commissionBreakdown").split(' • ')[0]}
+                    </span>
+                    <span className="text-white/40">•</span>
+                    <span className="px-4 py-2 rounded-xl bg-neon-violet/10 border border-neon-violet/30 text-neon-violet font-semibold backdrop-blur-sm">
+                      {t("commissionBreakdown").split(' • ')[1]}
+                    </span>
+                    <span className="text-white/40">•</span>
+                    <span className="px-4 py-2 rounded-xl bg-neon-coral/10 border border-neon-coral/30 text-neon-coral font-semibold backdrop-blur-sm">
+                      {t("commissionBreakdown").split(' • ')[2]}
+                    </span>
+                  </div>
                 </div>
               </div>
 
