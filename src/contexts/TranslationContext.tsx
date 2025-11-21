@@ -211,8 +211,9 @@ const translations: Record<string, Partial<Record<Language | 'HI', string>>> = {
   termsOfService: { EN: "Terms of Service", ES: "Términos de servicio", FR: "Conditions d'utilisation", DE: "Nutzungsbedingungen", RU: "Условия использования", ZH: "服务条款", JA: "利用規約", PT: "Termos de serviço", AR: "شروط الخدمة", HI: "सेवा की शर्तें" },
 
   // Sticky CTA
-  getEsimNow: { EN: "Get Your eSIM Now", ES: "Obtén tu eSIM ahora", FR: "Obtenez votre eSIM maintenant", DE: "Hol dir jetzt deine eSIM", RU: "Получите свою eSIM сейчас", ZH: "立即获取您的 eSIM", JA: "今すぐeSIMを入手", PT: "Obtenha seu eSIM agora", AR: "احصل على eSIM الآن", HI: "अभी अपना eSIM प्राप्त करें" },
-  buyNow: { EN: "Buy Now", ES: "Comprar ahora", FR: "Acheter", DE: "Jetzt kaufen", RU: "Купить", ZH: "立即购买", JA: "今すぐ購入", PT: "Comprar agora", AR: "اشتري الآن", HI: "अभी खरीदें" },
+  getEsimNow: { EN: "Get Your eSIM Now", ES: "Obtén tu eSIM ahora", FR: "Obtenez votre eSIM maintenant", DE: "Hol dir jetzt deine eSIM", RU: "Получите свою eSIM сейчас", ZH: "立即获取您的 eSIM", JA: "今すぐeSIMを入手", PT: "Obtenha seu eSIM agora", AR: "احصل على eSIM الآن", IT: "Ottieni la tua eSIM ora" },
+  buyNow: { EN: "Buy Now", ES: "Comprar ahora", FR: "Acheter", DE: "Jetzt kaufen", RU: "Купить", ZH: "立即购买", JA: "今すぐ購入", PT: "Comprar agora", AR: "اشتري الآن", IT: "Acquista ora" },
+
 
   // Earn Reward Block
   earnAsConnect: { EN: "Earn as You Connect.", ES: "Gana mientras te conectas.", FR: "Gagnez en vous connectant.", DE: "Verdiene beim Verbinden.", RU: "Зарабатывайте при подключении.", ZH: "连接时赚取。", JA: "接続しながら稼ぐ。", PT: "Ganhe enquanto se conecta.", AR: "اكسب أثناء الاتصال.", IT: "Guadagna mentre ti connetti." },
