@@ -63,9 +63,8 @@ export const WhyNomiqa = () => {
           className="md:hidden w-full h-full object-cover object-center" 
           loading="lazy"
         />
-        {/* Minimal overlay to keep background visible */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/10 to-black/20"></div>
-        <div className="absolute inset-0 bg-gradient-to-tr from-deep-space/10 via-transparent to-midnight-blue/10"></div>
+        {/* Ultra minimal overlay - maximum background visibility */}
+        <div className="absolute inset-0 bg-black/5"></div>
       </div>
       
       {/* Subtle decorative glows */}
@@ -87,7 +86,7 @@ export const WhyNomiqa = () => {
         {/* Premium value cards */}
         <div className={`grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 lg:gap-10 max-w-7xl mx-auto transition-all duration-1000 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           {/* Privacy Card */}
-          <div className="group relative p-8 sm:p-10 md:p-12 rounded-2xl md:rounded-3xl bg-white/[0.01] backdrop-blur-md border border-white/10 hover:border-white/20 transition-all duration-700 hover:bg-white/[0.02] hover-lift">
+          <div className="group relative p-8 sm:p-10 md:p-12 rounded-2xl md:rounded-3xl bg-transparent backdrop-blur-sm border border-white/20 hover:border-white/30 transition-all duration-700 hover:bg-white/[0.01] hover-lift">
             <div className="flex justify-center mb-6 md:mb-8">
               <div className="w-14 h-14 sm:w-16 sm:h-16 md:w-18 md:h-18 rounded-xl md:rounded-2xl bg-gradient-to-br from-neon-cyan/20 to-neon-violet/20 p-0.5">
                 <div className="w-full h-full bg-black/40 rounded-xl md:rounded-2xl flex items-center justify-center backdrop-blur-sm">
@@ -104,7 +103,7 @@ export const WhyNomiqa = () => {
           </div>
 
           {/* Freedom Card */}
-          <div className="group relative p-8 sm:p-10 md:p-12 rounded-2xl md:rounded-3xl bg-white/[0.01] backdrop-blur-md border border-white/10 hover:border-white/20 transition-all duration-700 hover:bg-white/[0.02] hover-lift">
+          <div className="group relative p-8 sm:p-10 md:p-12 rounded-2xl md:rounded-3xl bg-transparent backdrop-blur-sm border border-white/20 hover:border-white/30 transition-all duration-700 hover:bg-white/[0.01] hover-lift">
             <div className="flex justify-center mb-6 md:mb-8">
               <div className="w-14 h-14 sm:w-16 sm:h-16 md:w-18 md:h-18 rounded-xl md:rounded-2xl bg-gradient-to-br from-neon-violet/20 to-neon-coral/20 p-0.5">
                 <div className="w-full h-full bg-black/40 rounded-xl md:rounded-2xl flex items-center justify-center backdrop-blur-sm">
@@ -121,7 +120,7 @@ export const WhyNomiqa = () => {
           </div>
 
           {/* Borderless Card */}
-          <div className="group relative p-8 sm:p-10 md:p-12 rounded-2xl md:rounded-3xl bg-white/[0.01] backdrop-blur-md border border-white/10 hover:border-white/20 transition-all duration-700 hover:bg-white/[0.02] hover-lift">
+          <div className="group relative p-8 sm:p-10 md:p-12 rounded-2xl md:rounded-3xl bg-transparent backdrop-blur-sm border border-white/20 hover:border-white/30 transition-all duration-700 hover:bg-white/[0.01] hover-lift">
             <div className="flex justify-center mb-6 md:mb-8">
               <div className="w-14 h-14 sm:w-16 sm:h-16 md:w-18 md:h-18 rounded-xl md:rounded-2xl bg-gradient-to-br from-neon-coral/20 to-white/20 p-0.5">
                 <div className="w-full h-full bg-black/40 rounded-xl md:rounded-2xl flex items-center justify-center backdrop-blur-sm">
