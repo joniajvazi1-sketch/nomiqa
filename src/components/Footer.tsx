@@ -64,10 +64,10 @@ export const Footer = () => {
             </ul>
           </div>
 
-          {/* Follow Us */}
-          <div>
+          {/* Follow Us - Centered on mobile */}
+          <div className="col-span-2 md:col-span-1 text-center md:text-left">
             <h4 className="font-normal mb-4 text-white text-sm md:text-base">Follow Us</h4>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-3 justify-center md:justify-start mb-4">
               <a href="https://twitter.com/nomiqa" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-white/[0.02] backdrop-blur-xl border border-white/10 flex items-center justify-center hover:border-neon-cyan/50 hover:bg-neon-cyan/10 hover:scale-110 transition-all duration-300 group" aria-label="Twitter">
                 <Twitter className="w-4 h-4 text-white/60 group-hover:text-neon-cyan transition-colors duration-300" />
               </a>
@@ -81,6 +81,9 @@ export const Footer = () => {
                 <Send className="w-4 h-4 text-white/60 group-hover:text-neon-violet transition-colors duration-300" />
               </a>
             </div>
+            <a href="/terms" className="text-white/60 hover:text-neon-cyan transition-colors duration-300 font-light text-xs md:text-sm inline-block">
+              Terms and Conditions
+            </a>
           </div>
         </div>
         
