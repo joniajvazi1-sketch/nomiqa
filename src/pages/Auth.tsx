@@ -8,6 +8,19 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { useTranslation } from "@/contexts/TranslationContext";
+import { z } from "zod";
+
+const authSchema = z.object({
+  email: z.string().trim().email('Invalid email address').max(255, 'Email too long'),
+  password: z.string()
+    .min(8, 'Password must be at least 8 characters')
+    .max(128, 'Password too long'),
+  username: z.string()
+    .regex(/^[a-zA-Z0-9_]+$/, 'Username can only contain letters, numbers, and underscores')
+    .min(3, 'Username must be at least 3 characters')
+    .max(20, 'Username must be at most 20 characters')
+    .optional()
+});
 
 export default function Auth() {
   const navigate = useNavigate();
@@ -41,6 +54,19 @@ export default function Auth() {
     setLoading(true);
 
     try {
+      // Validate input with Zod schema
+      const validationResult = authSchema.safeParse({
+        email,
+        password,
+        username: isSignUp ? username : undefined
+      });
+
+      if (!validationResult.success) {
+        toast.error(validationResult.error.errors[0].message);
+        setLoading(false);
+        return;
+      }
+
       if (isSignUp) {
         // Check if username already exists
         const { data: existingProfile } = await supabase
