@@ -1294,68 +1294,118 @@ export default function Affiliate() {
 
               <Card className="bg-white/[0.02] backdrop-blur-xl border-white/10">
                 <CardHeader>
-                  <CardTitle className="bg-gradient-neon bg-clip-text text-transparent">{t("howItWorks")}</CardTitle>
+                  <CardTitle className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-neon-cyan via-neon-violet to-neon-coral bg-clip-text text-transparent">
+                    {t("howItWorks")}
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <ol className="space-y-4">
-                    <li className="flex flex-col md:flex-row gap-4 text-center md:text-left items-center md:items-start">
-                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/20 text-primary font-bold flex-shrink-0">
-                        1
-                      </div>
-                      <div>
-                        <h4 className="font-semibold mb-1">Share Your Link</h4>
-                        <p className="text-sm text-muted-foreground">
-                          Copy your unique affiliate link and share it on social media, blogs, or with friends
-                        </p>
+                  <ol className="space-y-8">
+                    {/* Step 1 */}
+                    <li className="group relative">
+                      <div className="flex flex-col md:flex-row gap-6 items-start">
+                        {/* Number Badge */}
+                        <div className="relative flex-shrink-0">
+                          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-neon-cyan/20 to-neon-violet/20 backdrop-blur-xl border border-neon-cyan/30 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-neon-cyan/50">
+                            <span className="text-2xl font-black bg-gradient-to-br from-neon-cyan to-neon-violet bg-clip-text text-transparent">1</span>
+                          </div>
+                          <div className="absolute -inset-1 bg-gradient-to-r from-neon-cyan to-neon-violet rounded-2xl blur opacity-0 group-hover:opacity-30 transition duration-300"></div>
+                        </div>
+                        
+                        {/* Content */}
+                        <div className="flex-1 space-y-3">
+                          <h4 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent group-hover:from-neon-cyan group-hover:to-neon-violet transition-all duration-300">
+                            {t("shareYourLink")}
+                          </h4>
+                          <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
+                            {t("shareYourLinkDesc")}
+                          </p>
+                        </div>
                       </div>
                     </li>
-                    <li className="flex flex-col md:flex-row gap-4 text-center md:text-left items-center md:items-start">
-                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/20 text-primary font-bold flex-shrink-0">
-                        2
-                      </div>
-                      <div>
-                        <h4 className="font-semibold mb-1">They Purchase</h4>
-                        <p className="text-sm text-muted-foreground">
-                          When someone clicks your link and makes a purchase, it is tracked to your account
-                        </p>
+
+                    {/* Step 2 */}
+                    <li className="group relative">
+                      <div className="flex flex-col md:flex-row gap-6 items-start">
+                        {/* Number Badge */}
+                        <div className="relative flex-shrink-0">
+                          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-neon-violet/20 to-neon-coral/20 backdrop-blur-xl border border-neon-violet/30 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-neon-violet/50">
+                            <span className="text-2xl font-black bg-gradient-to-br from-neon-violet to-neon-coral bg-clip-text text-transparent">2</span>
+                          </div>
+                          <div className="absolute -inset-1 bg-gradient-to-r from-neon-violet to-neon-coral rounded-2xl blur opacity-0 group-hover:opacity-30 transition duration-300"></div>
+                        </div>
+                        
+                        {/* Content */}
+                        <div className="flex-1 space-y-3">
+                          <h4 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent group-hover:from-neon-violet group-hover:to-neon-coral transition-all duration-300">
+                            {t("theyPurchase")}
+                          </h4>
+                          <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
+                            {t("theyPurchaseDesc")}
+                          </p>
+                        </div>
                       </div>
                     </li>
-                    <li className="flex flex-col md:flex-row gap-4 text-center md:text-left items-center md:items-start">
-                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/20 text-primary font-bold flex-shrink-0">
-                        3
-                      </div>
-                      <div>
-                        <h4 className="font-semibold mb-1">Earn Multi-Level Commissions</h4>
-                        <p className="text-sm text-muted-foreground mb-2">
-                          Build your network and earn from multiple levels:
-                        </p>
-                        <div className="space-y-3 text-sm">
-                          <div>
-                            <div className="flex items-center gap-2 mb-1">
-                              <Unlock className="w-4 h-4 text-green-500" />
-                              <span><strong>Tier 1 (Starter):</strong> 9% on your direct referrals</span>
-                            </div>
-                            <p className="text-xs text-muted-foreground pl-6">
-                              You → Customer (You earn 9%)
-                            </p>
+
+                    {/* Step 3 */}
+                    <li className="group relative">
+                      <div className="flex flex-col md:flex-row gap-6 items-start">
+                        {/* Number Badge */}
+                        <div className="relative flex-shrink-0">
+                          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-neon-coral/20 to-neon-cyan/20 backdrop-blur-xl border border-neon-coral/30 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-neon-coral/50">
+                            <span className="text-2xl font-black bg-gradient-to-br from-neon-coral to-neon-cyan bg-clip-text text-transparent">3</span>
                           </div>
-                          <div>
-                            <div className="flex items-center gap-2 mb-1">
-                              <Lock className="w-4 h-4 text-muted-foreground" />
-                              <span><strong>Tier 2 (Pro):</strong> Additional 6% when your referrals refer others</span>
+                          <div className="absolute -inset-1 bg-gradient-to-r from-neon-coral to-neon-cyan rounded-2xl blur opacity-0 group-hover:opacity-30 transition duration-300"></div>
+                        </div>
+                        
+                        {/* Content */}
+                        <div className="flex-1 space-y-4">
+                          <h4 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent group-hover:from-neon-coral group-hover:to-neon-cyan transition-all duration-300">
+                            {t("earnMultiLevelCommissions")}
+                          </h4>
+                          <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-4">
+                            {t("buildYourNetworkDesc")}
+                          </p>
+                          
+                          {/* Tier Examples */}
+                          <div className="space-y-4 pl-0 md:pl-4">
+                            {/* Tier 1 */}
+                            <div className="p-4 rounded-xl bg-gradient-to-r from-blue-500/5 to-blue-500/10 border border-blue-500/20 backdrop-blur-sm hover:border-blue-500/40 transition-all duration-300">
+                              <div className="flex items-start gap-3 mb-2">
+                                <Unlock className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
+                                <span className="text-sm md:text-base font-semibold text-foreground">
+                                  {t("tierStarterEarn")}
+                                </span>
+                              </div>
+                              <p className="text-xs md:text-sm text-muted-foreground pl-8">
+                                {t("tierStarterExample")}
+                              </p>
                             </div>
-                            <p className="text-xs text-muted-foreground pl-6">
-                              You → Your Referral → Their Customer (You earn 9% + 6%)
-                            </p>
-                          </div>
-                          <div>
-                            <div className="flex items-center gap-2 mb-1">
-                              <Lock className="w-4 h-4 text-muted-foreground" />
-                              <span><strong>Tier 3 (Elite):</strong> Additional 3% from 3rd level down</span>
+
+                            {/* Tier 2 */}
+                            <div className="p-4 rounded-xl bg-gradient-to-r from-purple-500/5 to-purple-500/10 border border-purple-500/20 backdrop-blur-sm hover:border-purple-500/40 transition-all duration-300">
+                              <div className="flex items-start gap-3 mb-2">
+                                <Lock className="w-5 h-5 text-purple-500 flex-shrink-0 mt-0.5" />
+                                <span className="text-sm md:text-base font-semibold text-foreground">
+                                  {t("tierProEarn")}
+                                </span>
+                              </div>
+                              <p className="text-xs md:text-sm text-muted-foreground pl-8">
+                                {t("tierProExample")}
+                              </p>
                             </div>
-                            <p className="text-xs text-muted-foreground pl-6">
-                              You → Referral → Their Referral → Customer (You earn 9% + 6% + 3%)
-                            </p>
+
+                            {/* Tier 3 */}
+                            <div className="p-4 rounded-xl bg-gradient-to-r from-amber-500/5 to-amber-500/10 border border-amber-500/20 backdrop-blur-sm hover:border-amber-500/40 transition-all duration-300">
+                              <div className="flex items-start gap-3 mb-2">
+                                <Lock className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+                                <span className="text-sm md:text-base font-semibold text-foreground">
+                                  {t("tierEliteEarn")}
+                                </span>
+                              </div>
+                              <p className="text-xs md:text-sm text-muted-foreground pl-8">
+                                {t("tierEliteExample")}
+                              </p>
+                            </div>
                           </div>
                         </div>
                       </div>
