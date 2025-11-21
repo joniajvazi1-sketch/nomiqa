@@ -559,47 +559,74 @@ export default function Affiliate() {
                 </div>
               </CardContent>
             </Card> : <>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-8 text-center">
-                <Card className="bg-white/[0.02] backdrop-blur-xl border-white/10 hover:border-white/20 transition-all">
-                  <CardHeader className="pb-2 md:pb-3">
-                    <CardDescription className="text-xs md:text-sm">{t("totalClicks")}</CardDescription>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8 text-center">
+                <Card className="group bg-gradient-to-br from-card/80 via-card/60 to-card/40 backdrop-blur-xl border border-border/50 hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:scale-105 relative overflow-hidden">
+                  {/* Glow effect */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/0 via-primary/5 to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  
+                  <CardHeader className="pb-3 md:pb-4 relative z-10">
+                    <CardDescription className="text-xs md:text-sm font-medium flex items-center justify-center gap-2">
+                      <Users className="w-4 h-4 text-primary" />
+                      {t("totalClicks")}
+                    </CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-neon-cyan to-neon-violet bg-clip-text text-transparent">
+                  <CardContent className="relative z-10">
+                    <div className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                       {allAffiliates.reduce((sum, aff) => sum + (aff.total_clicks || 0), 0)}
                     </div>
                   </CardContent>
                 </Card>
-                <Card className="bg-white/[0.02] backdrop-blur-xl border-white/10 hover:border-white/20 transition-all">
-                  <CardHeader className="pb-2 md:pb-3">
-                    <CardDescription className="text-xs md:text-sm">{t("conversions")}</CardDescription>
+                
+                <Card className="group bg-gradient-to-br from-card/80 via-card/60 to-card/40 backdrop-blur-xl border border-border/50 hover:border-green-500/50 transition-all duration-300 hover:shadow-xl hover:scale-105 relative overflow-hidden">
+                  {/* Glow effect */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-green-500/0 via-green-500/5 to-green-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  
+                  <CardHeader className="pb-3 md:pb-4 relative z-10">
+                    <CardDescription className="text-xs md:text-sm font-medium flex items-center justify-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-green-500" />
+                      {t("conversions")}
+                    </CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl md:text-3xl font-bold text-green-400">
+                  <CardContent className="relative z-10">
+                    <div className="text-3xl md:text-4xl font-bold text-green-500">
                       {allAffiliates.reduce((sum, aff) => sum + (aff.total_conversions || 0), 0)}
                     </div>
                   </CardContent>
                 </Card>
-                <Card className="bg-white/[0.02] backdrop-blur-xl border-white/10 hover:border-white/20 transition-all">
-                  <CardHeader className="pb-2 md:pb-3">
-                    <CardDescription className="text-xs md:text-sm">{t("totalEarnings")}</CardDescription>
+                
+                <Card className="group bg-gradient-to-br from-card/80 via-card/60 to-card/40 backdrop-blur-xl border border-border/50 hover:border-accent/50 transition-all duration-300 hover:shadow-xl hover:scale-105 relative overflow-hidden">
+                  {/* Glow effect */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-accent/0 via-accent/5 to-accent/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  
+                  <CardHeader className="pb-3 md:pb-4 relative z-10">
+                    <CardDescription className="text-xs md:text-sm font-medium flex items-center justify-center gap-2">
+                      <DollarSign className="w-4 h-4 text-accent" />
+                      {t("totalEarnings")}
+                    </CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-neon-coral to-neon-violet bg-clip-text text-transparent">
+                  <CardContent className="relative z-10">
+                    <div className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">
                       ${allAffiliates.reduce((sum, aff) => sum + (aff.total_earnings_usd || 0), 0).toFixed(2)}
                     </div>
                   </CardContent>
                 </Card>
-                <Card className="bg-white/[0.02] backdrop-blur-xl border-white/10 hover:border-white/20 transition-all">
-                  <CardHeader className="pb-2 md:pb-3">
-                    <CardDescription className="text-xs md:text-sm">{t("currentTier")}</CardDescription>
+                
+                <Card className="group bg-gradient-to-br from-card/80 via-card/60 to-card/40 backdrop-blur-xl border border-border/50 hover:border-blue-500/50 transition-all duration-300 hover:shadow-xl hover:scale-105 relative overflow-hidden">
+                  {/* Glow effect */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 via-blue-500/5 to-blue-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  
+                  <CardHeader className="pb-3 md:pb-4 relative z-10">
+                    <CardDescription className="text-xs md:text-sm font-medium flex items-center justify-center gap-2">
+                      <Award className="w-4 h-4 text-blue-500" />
+                      {t("currentTier")}
+                    </CardDescription>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="relative z-10">
                     <div className="space-y-1">
-                      <div className={`text-xl md:text-2xl font-bold ${getTierInfo()?.currentTier.color}`}>
+                      <div className={`text-2xl md:text-3xl font-bold ${getTierInfo()?.currentTier.color}`}>
                         {getTierInfo()?.currentTier.name}
                       </div>
-                      <div className="text-[10px] md:text-xs text-muted-foreground">Tier {getTierInfo()?.currentTier.level}</div>
+                      <div className="text-[10px] md:text-xs text-muted-foreground font-medium">Tier {getTierInfo()?.currentTier.level}</div>
                     </div>
                   </CardContent>
                 </Card>
@@ -1035,69 +1062,88 @@ export default function Affiliate() {
                 </CardContent>
               </Card>
 
-              {/* Analytics Dashboard */}
-              <Card className="mb-8 bg-white/[0.02] backdrop-blur-xl border-white/10">
-                <CardHeader className="pb-4">
+              {/* Analytics Dashboard - Premium */}
+              <Card className="mb-8 bg-card/80 backdrop-blur-xl border-border/50 shadow-xl hover:shadow-2xl transition-all duration-500">
+                <CardHeader className="pb-5 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 border-b border-border/50">
                   <div className="flex items-center justify-between">
-                    <div>
-                      <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
-                        <div className="p-2 rounded-lg bg-primary/10">
-                          <BarChart3 className="w-5 h-5 text-primary" />
+                    <div className="space-y-2">
+                      <CardTitle className="flex items-center gap-3 text-xl md:text-2xl">
+                        <div className="p-2 bg-primary/10 rounded-lg">
+                          <BarChart3 className="w-6 h-6 md:w-7 md:h-7 text-primary" />
                         </div>
-                        {t("analyticsDashboard")}
+                        <span className="bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent font-bold">
+                          {t("analyticsDashboard")}
+                        </span>
                       </CardTitle>
-                      <CardDescription className="text-xs md:text-sm mt-2">{t("trackYourPerformance")}</CardDescription>
+                      <CardDescription className="text-sm md:text-base pl-11">{t("trackYourPerformance")}</CardDescription>
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent className="space-y-6">
-                  {loadingAnalytics ? <div className="flex flex-col items-center justify-center py-12">
-                      <Loader2 className="h-10 w-10 animate-spin text-primary mb-3" />
-                      <p className="text-sm text-muted-foreground">Loading analytics...</p>
+                <CardContent className="space-y-8 pt-6">
+                  {loadingAnalytics ? <div className="flex flex-col items-center justify-center py-16">
+                      <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
+                      <p className="text-base text-muted-foreground font-medium">Loading analytics...</p>
                     </div> : analytics ? <div className="space-y-8">
-                      {/* Traffic Sources */}
-                      <div className="space-y-4">
-                        <div className="flex items-center gap-2">
-                          <div className="p-1.5 rounded bg-primary/10">
-                            <Share2 className="w-4 h-4 text-primary" />
+                      {/* Traffic Sources - Premium */}
+                      <div className="space-y-5">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 rounded-lg bg-primary/10">
+                            <Share2 className="w-5 h-5 text-primary" />
                           </div>
-                          <h3 className="font-semibold text-base md:text-lg">{t("trafficSources")}</h3>
+                          <h3 className="font-bold text-lg md:text-xl bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+                            {t("trafficSources")}
+                          </h3>
                         </div>
                         {analytics.sourceBreakdown.length > 0 ? (() => {
                     const significantSources = analytics.sourceBreakdown.filter(source => source.clicks >= 3 || source.conversions > 0);
-                    return significantSources.length > 0 ? <div className="space-y-3">
+                    return significantSources.length > 0 ? <div className="space-y-4">
                                 {significantSources.map(source => {
                         const conversionRate = source.clicks > 0 ? (source.conversions / source.clicks * 100).toFixed(1) : '0.0';
-                        return <div key={source.source} className="group p-4 bg-gradient-to-r from-muted/50 to-muted/30 hover:from-muted/70 hover:to-muted/50 rounded-xl border border-border/50 transition-all duration-300 space-y-3">
-                                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                                        <div className="flex items-center gap-3">
-                                          <Badge variant={source.source === 'direct' ? 'default' : 'secondary'} className="capitalize text-xs font-medium px-3 py-1">
+                        return <div 
+                          key={source.source} 
+                          className="group p-5 md:p-6 bg-gradient-to-br from-muted/60 via-muted/40 to-transparent backdrop-blur-sm rounded-xl border border-border/50 hover:border-primary/30 hover:shadow-lg transition-all duration-300 space-y-4"
+                        >
+                                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                        <div className="flex items-center gap-4">
+                                          <Badge 
+                                            variant={source.source === 'direct' ? 'default' : 'secondary'} 
+                                            className="capitalize text-sm font-semibold px-4 py-1.5 bg-primary/20 text-primary border-primary/30"
+                                          >
                                             {source.source}
                                           </Badge>
-                                          <div className="flex items-center gap-2 text-xs md:text-sm text-muted-foreground">
-                                            <span className="font-semibold text-foreground">{source.clicks}</span>
-                                            <span>clicks</span>
-                                            <span className="text-muted-foreground/50">•</span>
-                                            <span className="font-semibold text-foreground">{source.conversions}</span>
-                                            <span>conversions</span>
+                                          <div className="flex flex-wrap items-center gap-3 text-sm md:text-base">
+                                            <div className="flex items-center gap-1.5">
+                                              <span className="font-bold text-foreground">{source.clicks}</span>
+                                              <span className="text-muted-foreground">clicks</span>
+                                            </div>
+                                            <span className="text-muted-foreground/40">•</span>
+                                            <div className="flex items-center gap-1.5">
+                                              <span className="font-bold text-green-600 dark:text-green-500">{source.conversions}</span>
+                                              <span className="text-muted-foreground">conversions</span>
+                                            </div>
                                           </div>
                                         </div>
-                                        <span className="text-lg md:text-xl font-bold text-primary">
-                                          {conversionRate}%
-                                        </span>
+                                        <div className="flex items-center gap-2">
+                                          <span className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                                            {conversionRate}%
+                                          </span>
+                                        </div>
                                       </div>
-                                      <div className="flex items-center gap-2">
-                                        <div className="flex-1 bg-background/80 rounded-full h-2.5 overflow-hidden shadow-inner">
-                                          <div className="h-full bg-gradient-to-r from-primary to-primary/80 transition-all duration-500 ease-out shadow-[0_0_8px_rgba(var(--primary),0.4)]" style={{
-                                width: `${Math.min(parseFloat(conversionRate), 100)}%`
-                              }} />
+                                      <div className="flex items-center gap-3">
+                                        <div className="flex-1 bg-muted/50 rounded-full h-3 overflow-hidden shadow-inner border border-border/30">
+                                          <div 
+                                            className="h-full bg-gradient-to-r from-primary via-accent to-primary bg-[length:200%_100%] animate-gradient transition-all duration-500 ease-out shadow-lg"
+                                            style={{ width: `${Math.min(parseFloat(conversionRate), 100)}%` }}
+                                          >
+                                            <div className="h-full w-full bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
+                                          </div>
                                         </div>
                                       </div>
                                     </div>;
                       })}
-                              </div> : <div className="text-center py-8 px-4 bg-muted/30 rounded-xl border border-dashed border-border">
-                                <Share2 className="w-10 h-10 text-muted-foreground/50 mx-auto mb-3" />
-                                <p className="text-sm text-muted-foreground font-medium">No significant traffic yet</p>
+                              </div> : <div className="text-center py-12 px-6 bg-muted/30 rounded-xl border-2 border-dashed border-border/50">
+                                <Share2 className="w-12 h-12 text-muted-foreground/40 mx-auto mb-4" />
+                                <p className="text-base text-muted-foreground font-semibold">No significant traffic yet</p>
                                 <p className="text-xs text-muted-foreground/70 mt-1">Build momentum by sharing your link!</p>
                               </div>;
                   })() : <div className="text-center py-8 px-4 bg-muted/30 rounded-xl border border-dashed border-border">
