@@ -67,10 +67,22 @@ export const Navbar = () => {
           <div className="flex items-center gap-2 sm:gap-3">
             <button onClick={() => navigate('/')} className="flex items-center gap-2 sm:gap-3 group">
               <div className="relative">
-                <div className="absolute inset-0 bg-neon-cyan/20 rounded-lg blur-md group-hover:bg-neon-cyan/30 transition-all duration-500" />
-                <img src="/nomiqa-logo.jpg" alt="nomiqa" className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg relative z-10 opacity-95 group-hover:opacity-100 transition-all duration-300 group-hover:scale-105" />
+                {/* Pulsing outer glow */}
+                <div className="absolute inset-0 bg-neon-cyan/20 rounded-lg blur-lg group-hover:animate-pulse transition-all duration-500" />
+                <div className="absolute inset-0 bg-gradient-to-r from-neon-cyan/30 via-neon-violet/20 to-neon-cyan/30 rounded-lg blur-md opacity-0 group-hover:opacity-100 transition-all duration-700 animate-pulse" />
+                
+                {/* Logo image with smooth transitions */}
+                <img 
+                  src="/nomiqa-logo.jpg" 
+                  alt="nomiqa" 
+                  className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg relative z-10 opacity-95 group-hover:opacity-100 transition-all duration-500 group-hover:scale-110 group-hover:rotate-2 shadow-lg group-hover:shadow-neon-cyan/50" 
+                />
+                
+                {/* Shine effect on hover */}
+                <div className="absolute inset-0 rounded-lg bg-gradient-to-tr from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 z-20 pointer-events-none" />
               </div>
-              <span className="text-xl sm:text-2xl font-light bg-gradient-to-r from-neon-cyan via-white to-neon-violet bg-clip-text text-transparent group-hover:from-white group-hover:via-neon-cyan group-hover:to-white transition-all duration-500">
+              
+              <span className="text-xl sm:text-2xl font-light bg-gradient-to-r from-neon-cyan via-white to-neon-violet bg-clip-text text-transparent group-hover:from-white group-hover:via-neon-cyan group-hover:to-white transition-all duration-700 group-hover:tracking-wide">
                 nomiqa
               </span>
             </button>
