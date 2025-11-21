@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { useTranslation } from "@/contexts/TranslationContext";
 import { z } from "zod";
+import nomiqaLogo from "@/assets/nomiqa-logo.jpg";
 
 const authSchema = z.object({
   email: z.string().trim().email('Invalid email address').max(255, 'Email too long'),
@@ -129,19 +130,21 @@ export default function Auth() {
       </div>
 
       <div className="relative z-10 flex items-center justify-center min-h-screen p-4 py-12">
+        {/* Logo at the top */}
+        <div className="absolute top-8 left-1/2 -translate-x-1/2 z-20">
+          <img 
+            src={nomiqaLogo} 
+            alt="Nomiqa" 
+            className="h-12 md:h-16 w-auto cursor-pointer hover:opacity-80 transition-opacity"
+            onClick={() => navigate('/')}
+          />
+        </div>
+
         <Card className="w-full max-w-md bg-white/[0.02] backdrop-blur-2xl border-white/10 shadow-2xl overflow-hidden animate-fade-in">
           {/* Card glow effect */}
           <div className="absolute inset-0 bg-gradient-to-br from-neon-violet/5 via-transparent to-neon-cyan/5 pointer-events-none"></div>
           
-          <CardHeader className="text-center pb-4 relative">
-            <div className="mb-4">
-              <div className="inline-block relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-neon-cyan/20 to-neon-violet/20 rounded-full blur-xl"></div>
-                <div className="relative w-16 h-16 mx-auto bg-gradient-to-br from-neon-cyan/10 to-neon-violet/10 rounded-full flex items-center justify-center border border-white/10">
-                  <div className="w-8 h-8 bg-gradient-to-r from-neon-cyan via-neon-violet to-neon-coral rounded-full"></div>
-                </div>
-              </div>
-            </div>
+          <CardHeader className="text-center pb-4 relative pt-8">
             <CardTitle className="text-3xl md:text-4xl font-black bg-gradient-to-r from-neon-cyan via-neon-violet to-neon-coral bg-clip-text text-transparent mb-2">
               {isSignUp ? t("createAccount") : t("welcomeBack")}
             </CardTitle>
