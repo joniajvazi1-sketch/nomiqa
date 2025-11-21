@@ -8,43 +8,43 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Dark, crisp foundation */
-    --background: 220 45% 4%;
-    --foreground: 40 40% 96%;
-    --card: 220 40% 8%;
-    --card-foreground: 40 40% 96%;
-    --popover: 220 45% 4%;
-    --popover-foreground: 40 40% 96%;
+    /* Lighter, brighter foundation with depth */
+    --background: 220 35% 8%;           /* Lighter dark blue */
+    --foreground: 40 40% 98%;           /* Brighter text */
+    --card: 220 30% 12%;                /* Lighter cards */
+    --card-foreground: 40 40% 98%;
+    --popover: 220 35% 10%;
+    --popover-foreground: 40 40% 98%;
     
-    /* Vibrant freedom gradient colors */
-    --primary: 190 100% 60%;         /* Vibrant Cyan */
-    --primary-foreground: 220 45% 4%;
-    --secondary: 270 70% 65%;        /* Vibrant Violet */
-    --secondary-foreground: 40 40% 96%;
-    --accent: 10 90% 65%;            /* Vibrant Coral */
-    --accent-foreground: 40 40% 96%;
+    /* Vibrant, electric freedom colors - BRIGHTENED */
+    --primary: 190 100% 65%;            /* Brighter Electric Cyan */
+    --primary-foreground: 220 35% 8%;
+    --secondary: 270 80% 70%;           /* Brighter Electric Violet */
+    --secondary-foreground: 40 40% 98%;
+    --accent: 10 95% 68%;               /* Brighter Coral Spark */
+    --accent-foreground: 40 40% 98%;
     
-    /* Supporting colors - crisp contrast */
-    --muted: 220 40% 12%;
-    --muted-foreground: 215.4 16.3% 56.9%;
-    --destructive: 0 70% 50%;
+    /* Supporting colors - brighter contrast */
+    --muted: 220 30% 16%;               /* Lighter muted */
+    --muted-foreground: 215 20% 65%;    /* Brighter muted text */
+    --destructive: 0 75% 55%;
     --destructive-foreground: 210 40% 98%;
-    --border: 220 40% 18%;
-    --input: 220 40% 18%;
-    --ring: 190 100% 60%;
+    --border: 220 35% 22%;              /* Lighter borders */
+    --input: 220 35% 22%;
+    --ring: 190 100% 65%;
     --radius: 0.5rem;
     
-    /* Vibrant brand color palette */
-    --neon-cyan: 190 100% 60%;
-    --neon-blue: 235 100% 65%;
-    --neon-violet: 270 70% 65%;
-    --neon-pink: 330 82% 68%;
-    --neon-coral: 10 90% 65%;
-    --neon-orange: 25 95% 60%;
-    --neon-yellow: 48 96% 65%;
-    --warm-sand: 40 30% 82%;
-    --deep-space: 220 40% 8%;
-    --midnight-blue: 220 45% 4%;
+    /* ELECTRIFIED brand color palette - maximum vibrancy */
+    --neon-cyan: 190 100% 65%;          /* Brighter cyan */
+    --neon-blue: 235 100% 70%;          /* Brighter blue */
+    --neon-violet: 270 85% 72%;         /* Brighter violet */
+    --neon-pink: 330 85% 72%;           /* Brighter pink */
+    --neon-coral: 10 95% 68%;           /* Brighter coral */
+    --neon-orange: 25 100% 65%;         /* Brighter orange */
+    --neon-yellow: 48 100% 70%;         /* Brighter yellow */
+    --warm-sand: 40 35% 85%;            /* Lighter sand */
+    --deep-space: 220 30% 12%;          /* Lighter space */
+    --midnight-blue: 220 35% 8%;        /* Lighter midnight */
     
     
     /* Freedom gradient definitions */
@@ -55,41 +55,41 @@ All colors MUST be HSL.
     --gradient-neon: linear-gradient(135deg, hsl(var(--neon-cyan)) 0%, hsl(var(--neon-violet)) 50%, hsl(var(--neon-pink)) 100%);
     --gradient-sunset: linear-gradient(135deg, hsl(var(--neon-orange)) 0%, hsl(var(--neon-coral)) 50%, hsl(var(--neon-pink)) 100%);
     
-    /* Neon Glow Effects */
-    --glow-neon: 0 0 40px hsl(190 100% 60% / 0.6), 0 0 80px hsl(270 70% 65% / 0.4);
-    --glow-cyan: 0 0 30px hsl(190 100% 60% / 0.5);
-    --glow-violet: 0 0 30px hsl(270 70% 65% / 0.5);
-    --glow-coral: 0 0 30px hsl(10 90% 65% / 0.5);
-    --glow-orange: 0 0 40px hsl(25 95% 60% / 0.4);
-    --shadow-warm: 0 10px 40px -10px hsl(190 100% 60% / 0.3);
-    --shadow-signal: 0 0 80px hsl(190 100% 60% / 0.35);
-    --shadow-neon: 0 0 60px hsl(190 100% 60% / 0.4), 0 0 100px hsl(270 70% 65% / 0.3);
+    /* AMPLIFIED Neon Glow Effects - brighter and more intense */
+    --glow-neon: 0 0 50px hsl(190 100% 65% / 0.7), 0 0 100px hsl(270 85% 72% / 0.5);
+    --glow-cyan: 0 0 40px hsl(190 100% 65% / 0.6), 0 0 80px hsl(190 100% 65% / 0.3);
+    --glow-violet: 0 0 40px hsl(270 85% 72% / 0.6), 0 0 80px hsl(270 85% 72% / 0.3);
+    --glow-coral: 0 0 40px hsl(10 95% 68% / 0.6), 0 0 80px hsl(10 95% 68% / 0.3);
+    --glow-orange: 0 0 50px hsl(25 100% 65% / 0.5), 0 0 100px hsl(25 100% 65% / 0.3);
+    --shadow-warm: 0 10px 50px -10px hsl(190 100% 65% / 0.4);
+    --shadow-signal: 0 0 100px hsl(190 100% 65% / 0.45), 0 0 150px hsl(270 85% 72% / 0.3);
+    --shadow-neon: 0 0 80px hsl(190 100% 65% / 0.5), 0 0 120px hsl(270 85% 72% / 0.4);
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     --transition-glow: all 0.4s ease-in-out;
 
-    /* Brand Colors (kept for compatibility) */
-    --midnight: 220 40% 10%;
-    --midnight-foreground: 40 40% 96%;
-    --cyan: 190 100% 60%;
-    --cyan-foreground: 220 45% 4%;
-    --sand: 40 30% 82%;
-    --sand-foreground: 220 45% 4%;
+    /* Brand Colors (brightened) */
+    --midnight: 220 30% 14%;            /* Lighter midnight */
+    --midnight-foreground: 40 40% 98%;
+    --cyan: 190 100% 65%;               /* Brighter cyan */
+    --cyan-foreground: 220 35% 8%;
+    --sand: 40 35% 85%;                 /* Lighter sand */
+    --sand-foreground: 220 35% 8%;
     
-    /* Legacy Colors */
-    --nomiqa-orange: 25 95% 60%;
-    --nomiqa-teal: 190 100% 60%;
-    --nomiqa-green: 145 70% 45%;
-    --nomiqa-cream: 40 40% 96%;
-    --nomiqa-peach: 40 100% 93%;
-    --nomiqa-blue: 190 100% 60%;
-    --nomiqa-dark: 220 45% 4%;
+    /* Legacy Colors (brightened) */
+    --nomiqa-orange: 25 100% 65%;
+    --nomiqa-teal: 190 100% 65%;
+    --nomiqa-green: 145 75% 50%;
+    --nomiqa-cream: 40 45% 98%;
+    --nomiqa-peach: 40 100% 95%;
+    --nomiqa-blue: 190 100% 65%;
+    --nomiqa-dark: 220 35% 8%;
   }
 
   .dark {
-    /* Already dark by default, but keeping for compatibility */
-    --background: 220 45% 4%;
-    --foreground: 40 40% 96%;
+    /* Lightened dark mode */
+    --background: 220 35% 8%;
+    --foreground: 40 40% 98%;
   }
 }
 
