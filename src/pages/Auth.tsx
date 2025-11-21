@@ -155,11 +155,11 @@ export default function Auth() {
             </div>
             
             <CardTitle className="text-3xl md:text-4xl font-black text-foreground mb-2">
-              {isForgotPassword ? "Reset Password" : isSignUp ? t("createAccount") : t("welcomeBack")}
+              {isForgotPassword ? t("resetPasswordTitle") : isSignUp ? t("createAccount") : t("welcomeBack")}
             </CardTitle>
             <CardDescription className="text-sm md:text-base text-muted-foreground">
               {isForgotPassword 
-                ? "Enter your email to receive a password reset link" 
+                ? t("resetPasswordDesc")
                 : isSignUp ? t("signupSubtitle") : t("loginSubtitle")}
             </CardDescription>
           </CardHeader>
@@ -227,7 +227,7 @@ export default function Auth() {
                 disabled={loading}
               >
                 {loading && <Loader2 className="h-5 w-5 animate-spin mr-2" />}
-                {isForgotPassword ? "Send Reset Link" : isSignUp ? t("registerButton") : t("loginButton")}
+                {isForgotPassword ? t("sendResetLink") : isSignUp ? t("registerButton") : t("loginButton")}
               </Button>
             </form>
 
@@ -238,7 +238,7 @@ export default function Auth() {
                   onClick={() => setIsForgotPassword(true)}
                   className="text-sm text-muted-foreground hover:text-primary transition-colors font-medium"
                 >
-                  Forgot password?
+                  {t("forgotPassword")}
                 </button>
               </div>
             )}
@@ -256,7 +256,7 @@ export default function Auth() {
                 className="text-sm text-muted-foreground hover:text-primary transition-colors font-medium"
               >
                 {isForgotPassword
-                  ? "Back to login"
+                  ? t("backToLogin")
                   : isSignUp
                     ? `${t("alreadyHaveAccount")} ${t("loginButton")}`
                     : `${t("noAccountYet")} ${t("registerButton")}`}
