@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { MessageCircle, X, Send, Loader2 } from "lucide-react";
+import { Bot, X, Send, Loader2 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { useTranslation } from "@/contexts/TranslationContext";
@@ -133,29 +133,27 @@ export const SupportChatbot = () => {
 
   return (
     <>
-      {/* Floating Chat Bubble */}
-      <div className="fixed bottom-6 right-6 z-50">
+      {/* Floating Chat Bubble - Below Buy Now Button */}
+      <div className="fixed bottom-6 right-6 z-40">
         {!isOpen && (
           <Button
             onClick={() => setIsOpen(true)}
-            size="lg"
-            className="h-14 w-14 rounded-full shadow-2xl bg-gradient-to-br from-neon-cyan via-neon-violet to-neon-coral hover:scale-110 transition-all duration-300 group relative overflow-hidden"
+            className="h-12 px-6 rounded-full bg-background/95 backdrop-blur-sm border border-neon-cyan/30 text-foreground hover:bg-background hover:border-neon-cyan transition-all duration-300 shadow-lg hover:shadow-neon-cyan/20 flex items-center gap-2"
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-neon-cyan/20 via-neon-violet/20 to-neon-coral/20 blur-xl group-hover:blur-2xl transition-all"></div>
-            <MessageCircle className="h-6 w-6 text-white relative z-10" />
+            <Bot className="h-5 w-5 text-neon-cyan" />
+            <span className="text-sm font-medium">AI Support</span>
           </Button>
         )}
       </div>
 
       {/* Chat Window */}
       {isOpen && (
-        <div className="fixed bottom-6 right-6 z-50 w-[90vw] max-w-md h-[600px] bg-background/95 backdrop-blur-xl border border-neon-cyan/30 rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+        <div className="fixed bottom-6 right-6 z-40 w-[90vw] max-w-md h-[600px] bg-background/95 backdrop-blur-xl border border-neon-cyan/30 rounded-2xl shadow-2xl flex flex-col overflow-hidden">
           {/* Header */}
-          <div className="bg-gradient-to-r from-neon-cyan/20 via-neon-violet/20 to-neon-coral/20 p-4 border-b border-neon-cyan/30 flex items-center justify-between">
+          <div className="bg-background/60 backdrop-blur-sm p-4 border-b border-neon-cyan/30 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="relative">
-                <div className="absolute inset-0 bg-neon-cyan/30 blur-lg rounded-full"></div>
-                <MessageCircle className="h-6 w-6 text-neon-cyan relative z-10" />
+              <div className="flex items-center justify-center w-10 h-10 rounded-full bg-neon-cyan/10 border border-neon-cyan/30">
+                <Bot className="h-5 w-5 text-neon-cyan" />
               </div>
               <div>
                 <h3 className="font-semibold text-foreground">{t("chatTitle")}</h3>
@@ -182,8 +180,8 @@ export const SupportChatbot = () => {
                 <div
                   className={`max-w-[80%] rounded-2xl px-4 py-2.5 ${
                     msg.role === "user"
-                      ? "bg-gradient-to-br from-neon-cyan/20 to-neon-violet/20 text-foreground"
-                      : "bg-white/5 text-foreground/90"
+                      ? "bg-neon-cyan/10 border border-neon-cyan/30 text-foreground"
+                      : "bg-white/5 border border-white/10 text-foreground/90"
                   }`}
                 >
                   <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
@@ -245,9 +243,9 @@ export const SupportChatbot = () => {
                 onClick={sendMessage}
                 disabled={!input.trim() || isLoading}
                 size="icon"
-                className="bg-gradient-to-br from-neon-cyan to-neon-violet hover:scale-105 transition-all"
+                className="bg-neon-cyan/20 border border-neon-cyan/30 hover:bg-neon-cyan/30 transition-all"
               >
-                <Send className="h-4 w-4" />
+                <Send className="h-4 w-4 text-neon-cyan" />
               </Button>
             </div>
           </div>
