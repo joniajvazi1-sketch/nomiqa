@@ -25,9 +25,8 @@ export const Hero = () => {
           className="md:hidden w-full h-full object-cover object-center" 
           loading="eager"
         />
-        {/* Sophisticated gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70"></div>
-        <div className="absolute inset-0 bg-gradient-to-tr from-deep-space/80 via-transparent to-midnight-blue/60"></div>
+        {/* Ultra minimal overlay - maximum background visibility */}
+        <div className="absolute inset-0 bg-black/10"></div>
       </div>
       
       <div className="container relative z-10 px-6 md:px-8 py-32 md:py-40">
