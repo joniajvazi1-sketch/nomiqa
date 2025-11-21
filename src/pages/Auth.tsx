@@ -130,12 +130,12 @@ export default function Auth() {
       </div>
 
       <div className="relative z-10 flex items-center justify-center min-h-screen p-4 py-12">
-        {/* Logo at the top */}
-        <div className="absolute top-8 left-1/2 -translate-x-1/2 z-20">
+        {/* Logo at the top - desktop only */}
+        <div className="hidden md:block absolute top-8 left-1/2 -translate-x-1/2 z-20">
           <img 
             src={nomiqaLogo} 
             alt="Nomiqa" 
-            className="h-12 md:h-16 w-auto cursor-pointer hover:opacity-80 transition-opacity"
+            className="h-16 w-auto cursor-pointer hover:opacity-80 transition-opacity"
             onClick={() => navigate('/')}
           />
         </div>
@@ -145,6 +145,16 @@ export default function Auth() {
           <div className="absolute inset-0 bg-gradient-to-br from-neon-violet/5 via-transparent to-neon-cyan/5 pointer-events-none"></div>
           
           <CardHeader className="text-center pb-4 relative pt-8">
+            {/* Logo at the top - mobile only */}
+            <div className="md:hidden mb-6">
+              <img 
+                src={nomiqaLogo} 
+                alt="Nomiqa" 
+                className="h-12 w-auto mx-auto cursor-pointer hover:opacity-80 transition-opacity"
+                onClick={() => navigate('/')}
+              />
+            </div>
+            
             <CardTitle className="text-3xl md:text-4xl font-black bg-gradient-to-r from-neon-cyan via-neon-violet to-neon-coral bg-clip-text text-transparent mb-2">
               {isSignUp ? t("createAccount") : t("welcomeBack")}
             </CardTitle>
