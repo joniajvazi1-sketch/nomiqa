@@ -18,12 +18,14 @@ export const Hero = () => {
           alt="Sunset cityscape" 
           className="hidden md:block w-full h-full object-cover object-center" 
           loading="eager"
+          fetchPriority="high"
         />
         <img 
           src={heroMobileSunset} 
           alt="Person using phone at sunset" 
-          className="md:hidden w-full h-full object-cover object-center" 
+          className="md:hidden w-full h-full object-cover object-[70%_center]" 
           loading="eager"
+          fetchPriority="high"
         />
         {/* Ultra minimal overlay - maximum background visibility */}
         <div className="absolute inset-0 bg-black/10"></div>
