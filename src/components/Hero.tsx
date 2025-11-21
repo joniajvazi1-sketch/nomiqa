@@ -36,7 +36,7 @@ export const Hero = () => {
             <div className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl">
               <Shield className="w-4 h-4 text-neon-cyan" />
               <span className="text-xs md:text-sm font-semibold tracking-widest uppercase text-white/90">
-                Premium Privacy Network
+                {t("heroBadge")}
               </span>
             </div>
           </div>
@@ -86,15 +86,15 @@ export const Hero = () => {
           <div className="mt-16 md:mt-20 flex flex-wrap justify-center items-center gap-8 md:gap-12 text-white/60 text-sm animate-fade-in" style={{ animationDelay: "0.4s" }}>
             <div className="flex items-center gap-2">
               <div className="w-1.5 h-1.5 rounded-full bg-neon-cyan"></div>
-              <span className="font-light">190+ Countries</span>
+              <span className="font-light">{t("heroCountries")}</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-1.5 h-1.5 rounded-full bg-neon-violet"></div>
-              <span className="font-light">Zero KYC Required</span>
+              <span className="font-light">{t("heroNoKyc")}</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-1.5 h-1.5 rounded-full bg-neon-coral"></div>
-              <span className="font-light">Crypto Payments Only</span>
+              <span className="font-light">{t("heroCryptoOnly")}</span>
             </div>
           </div>
         </div>
