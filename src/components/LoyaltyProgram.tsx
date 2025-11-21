@@ -114,32 +114,97 @@ export const LoyaltyProgram = () => {
           </p>
         </div>
 
-        {/* Tiers Grid with Lightning Connection */}
+        {/* Tiers Grid with Dynamic Lightning Connection */}
         <div ref={tiersContainerRef} className={`relative transition-all duration-1000 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-          {/* Animated lightning path - mobile only */}
-          <div className="absolute left-1/2 top-0 bottom-0 w-px -translate-x-1/2 lg:hidden overflow-hidden">
-            {/* Background track */}
-            <div className="absolute inset-0 bg-white/10"></div>
-            {/* Animated lightning progress */}
+          {/* Animated lightning path - mobile vertical */}
+          <div className="absolute left-1/2 top-0 bottom-0 -translate-x-1/2 lg:hidden overflow-visible" style={{ width: '4px' }}>
+            {/* Enhanced background track with glow */}
+            <div className="absolute inset-0 bg-gradient-to-b from-white/5 via-white/10 to-white/5 rounded-full"></div>
+            <div className="absolute inset-0 bg-white/20 rounded-full blur-sm"></div>
+            
+            {/* Multi-layer animated lightning progress */}
             <div 
-              className="absolute top-0 left-0 right-0 bg-gradient-to-b from-amber-400 via-yellow-300 to-purple-500 transition-all duration-300 ease-out"
+              className="absolute top-0 left-0 right-0 rounded-full transition-all duration-500 ease-out overflow-hidden"
               style={{ 
                 height: `${scrollProgress * 100}%`,
-                boxShadow: '0 0 20px rgba(251, 191, 36, 0.6), 0 0 40px rgba(251, 191, 36, 0.4)'
               }}
-            ></div>
-            {/* Glowing tip */}
+            >
+              {/* Core beam */}
+              <div className="absolute inset-0 bg-gradient-to-b from-amber-300 via-yellow-200 to-purple-400 rounded-full"></div>
+              {/* Inner glow */}
+              <div className="absolute inset-0 bg-gradient-to-b from-yellow-100 via-amber-100 to-purple-200 blur-sm rounded-full"></div>
+              {/* Outer glow */}
+              <div className="absolute inset-0 bg-gradient-to-b from-amber-400/60 via-yellow-300/60 to-purple-500/60 blur-md rounded-full"></div>
+              {/* Energy pulse effect */}
+              <div className="absolute inset-0 bg-gradient-to-b from-white/40 via-transparent to-transparent blur-lg animate-pulse rounded-full"></div>
+            </div>
+            
+            {/* Enhanced glowing energy orb at the tip */}
             <div 
-              className="absolute left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-yellow-300 blur-sm transition-all duration-300 ease-out"
+              className="absolute left-1/2 -translate-x-1/2 transition-all duration-500 ease-out"
               style={{ 
                 top: `${scrollProgress * 100}%`,
                 opacity: scrollProgress > 0 && scrollProgress < 1 ? 1 : 0,
-                boxShadow: '0 0 15px rgba(253, 224, 71, 0.8)'
               }}
-            ></div>
+            >
+              {/* Outer glow rings */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-yellow-300/30 blur-xl animate-pulse"></div>
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-yellow-200/50 blur-lg"></div>
+              {/* Core orb */}
+              <div className="relative w-5 h-5 rounded-full bg-gradient-to-br from-white via-yellow-200 to-amber-400 shadow-[0_0_20px_rgba(253,224,71,0.8),0_0_40px_rgba(251,191,36,0.5)]">
+                <div className="absolute inset-0 rounded-full bg-white/60 blur-sm animate-pulse"></div>
+              </div>
+              {/* Sparkle particles */}
+              <div className="absolute top-0 left-0 w-1 h-1 bg-white rounded-full animate-ping"></div>
+              <div className="absolute bottom-0 right-0 w-1 h-1 bg-amber-300 rounded-full animate-ping" style={{ animationDelay: '0.3s' }}></div>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-5 md:gap-6 mb-10 md:mb-12 lg:mb-16 relative">
+          {/* Desktop horizontal connection */}
+          <div className="hidden lg:block absolute top-1/2 left-0 right-0 -translate-y-1/2 h-1 overflow-visible">
+            {/* Enhanced background track */}
+            <div className="absolute inset-0 bg-gradient-to-r from-white/5 via-white/10 to-white/5 rounded-full"></div>
+            <div className="absolute inset-0 bg-white/20 rounded-full blur-sm"></div>
+            
+            {/* Animated lightning progress - desktop */}
+            <div 
+              className="absolute top-0 left-0 bottom-0 rounded-full transition-all duration-500 ease-out overflow-hidden"
+              style={{ 
+                width: `${scrollProgress * 100}%`,
+              }}
+            >
+              {/* Core beam */}
+              <div className="absolute inset-0 bg-gradient-to-r from-amber-300 via-yellow-200 to-purple-400 rounded-full"></div>
+              {/* Inner glow */}
+              <div className="absolute inset-0 bg-gradient-to-r from-yellow-100 via-amber-100 to-purple-200 blur-sm rounded-full"></div>
+              {/* Outer glow */}
+              <div className="absolute inset-0 bg-gradient-to-r from-amber-400/60 via-yellow-300/60 to-purple-500/60 blur-md rounded-full"></div>
+              {/* Energy pulse */}
+              <div className="absolute inset-0 bg-gradient-to-r from-white/40 via-transparent to-transparent blur-lg animate-pulse rounded-full"></div>
+            </div>
+            
+            {/* Enhanced glowing energy orb - desktop */}
+            <div 
+              className="absolute top-1/2 -translate-y-1/2 transition-all duration-500 ease-out"
+              style={{ 
+                left: `${scrollProgress * 100}%`,
+                opacity: scrollProgress > 0 && scrollProgress < 1 ? 1 : 0,
+              }}
+            >
+              {/* Outer glow rings */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 rounded-full bg-yellow-300/30 blur-xl animate-pulse"></div>
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-yellow-200/50 blur-lg"></div>
+              {/* Core orb */}
+              <div className="relative w-6 h-6 rounded-full bg-gradient-to-br from-white via-yellow-200 to-amber-400 shadow-[0_0_25px_rgba(253,224,71,0.9),0_0_50px_rgba(251,191,36,0.6)]">
+                <div className="absolute inset-0 rounded-full bg-white/60 blur-sm animate-pulse"></div>
+              </div>
+              {/* Sparkle particles */}
+              <div className="absolute -top-1 -left-1 w-1.5 h-1.5 bg-white rounded-full animate-ping"></div>
+              <div className="absolute -bottom-1 -right-1 w-1.5 h-1.5 bg-amber-300 rounded-full animate-ping" style={{ animationDelay: '0.3s' }}></div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 sm:gap-8 md:gap-10 lg:gap-6 mb-10 md:mb-12 lg:mb-16 relative">
             {tiers.map((tier, index) => {
               const Icon = tier.icon;
               const isLit = getCardLitState(index);
@@ -158,12 +223,24 @@ export const LoyaltyProgram = () => {
                     animationDelay: `${index * 0.15}s`
                   }}
                 >
-                  {/* Pulsing energy orb on mobile */}
-                  <div className={`absolute left-1/2 -translate-x-1/2 -translate-y-1/2 top-0 w-10 h-10 lg:hidden transition-all duration-500 ${
+                  {/* Enhanced pulsing energy orb on mobile */}
+                  <div className={`absolute left-1/2 -translate-x-1/2 -translate-y-1/2 top-0 lg:hidden transition-all duration-500 ${
                     isLit ? 'opacity-100 scale-100' : 'opacity-0 scale-0'
                   }`}>
-                    <div className={`absolute inset-0 rounded-full bg-gradient-to-br ${tier.color} blur-xl animate-pulse`}></div>
-                    <div className={`absolute inset-0 rounded-full bg-gradient-to-br ${tier.color} scale-50`}></div>
+                    <div className={`absolute w-14 h-14 rounded-full bg-gradient-to-br ${tier.color} blur-2xl animate-pulse`}></div>
+                    <div className={`absolute w-10 h-10 rounded-full bg-gradient-to-br ${tier.color} blur-xl`}></div>
+                    <div className={`absolute w-6 h-6 rounded-full bg-gradient-to-br ${tier.color}`}></div>
+                    <div className="absolute w-3 h-3 rounded-full bg-white/80 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse"></div>
+                  </div>
+
+                  {/* Enhanced pulsing energy orb on desktop (left side) */}
+                  <div className={`hidden lg:block absolute top-1/2 -translate-y-1/2 -translate-x-1/2 left-0 transition-all duration-500 ${
+                    isLit ? 'opacity-100 scale-100' : 'opacity-0 scale-0'
+                  }`}>
+                    <div className={`absolute w-16 h-16 rounded-full bg-gradient-to-br ${tier.color} blur-2xl animate-pulse`}></div>
+                    <div className={`absolute w-12 h-12 rounded-full bg-gradient-to-br ${tier.color} blur-xl`}></div>
+                    <div className={`absolute w-7 h-7 rounded-full bg-gradient-to-br ${tier.color}`}></div>
+                    <div className="absolute w-4 h-4 rounded-full bg-white/80 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse"></div>
                   </div>
 
                   <div className="text-center space-y-4 md:space-y-5">
