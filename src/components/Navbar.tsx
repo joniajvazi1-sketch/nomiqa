@@ -356,13 +356,13 @@ export const Navbar = () => {
                         <button onClick={() => { setMobileMenuOpen(false); navigate('/auth?mode=login'); }} className="text-left text-white/80 hover:text-neon-cyan hover:bg-neon-cyan/5 active:bg-neon-cyan/10 transition-all duration-300 py-3.5 px-4 rounded-xl font-light text-base border border-transparent hover:border-neon-cyan/20 group">
                           <span className="flex items-center gap-3">
                             <LogIn className="w-4 h-4 text-neon-cyan/60 group-hover:text-neon-cyan transition-colors duration-300" />
-                            <span>Login</span>
+                            <span>{t('login')}</span>
                           </span>
                         </button>
                         <button onClick={() => { setMobileMenuOpen(false); navigate('/auth?mode=register'); }} className="text-left bg-gradient-to-r from-neon-cyan/10 to-neon-violet/10 hover:from-neon-cyan/20 hover:to-neon-violet/20 text-neon-cyan hover:text-white border border-neon-cyan/30 hover:border-neon-cyan/50 active:bg-neon-cyan/20 transition-all duration-300 py-3.5 px-4 rounded-xl font-light text-base shadow-glow-cyan group">
                           <span className="flex items-center gap-3">
                             <span className="w-1.5 h-1.5 rounded-full bg-neon-cyan group-hover:scale-150 transition-transform duration-300" />
-                            <span className="font-normal">Register</span>
+                            <span className="font-normal">{t('register')}</span>
                           </span>
                         </button>
                       </>

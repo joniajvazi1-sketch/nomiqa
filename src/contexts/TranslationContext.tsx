@@ -98,6 +98,8 @@ const translations: Record<string, Partial<Record<Language | 'HI', string>>> = {
   myOrders: { EN: "My Orders", ES: "Mis pedidos", FR: "Mes commandes", DE: "Meine Bestellungen", RU: "Мои заказы", ZH: "我的订单", JA: "注文履歴", PT: "Meus pedidos", AR: "طلباتي", IT: "I miei ordini" },
   signIn: { EN: "Sign In", ES: "Iniciar sesión", FR: "Se connecter", DE: "Anmelden", RU: "Войти", ZH: "登录", JA: "ログイン", PT: "Entrar", AR: "تسجيل الدخول", IT: "Accedi" },
   signOut: { EN: "Sign Out", ES: "Cerrar sesión", FR: "Se déconnecter", DE: "Abmelden", RU: "Выйти", ZH: "退出登录", JA: "ログアウト", PT: "Sair", AR: "تسجيل الخروج", IT: "Esci" },
+  login: { EN: "Login", ES: "Iniciar Sesión", FR: "Connexion", DE: "Anmelden", IT: "Accedi", PT: "Entrar", RU: "Войти", ZH: "登录", JA: "ログイン", AR: "تسجيل الدخول" },
+  register: { EN: "Register", ES: "Registrarse", FR: "S'inscrire", DE: "Registrieren", IT: "Registrati", PT: "Registrar", RU: "Регистрация", ZH: "注册", JA: "登録", AR: "التسجيل" },
   signUp: { EN: "Sign Up", ES: "Crear cuenta", FR: "Créer un compte", DE: "Konto erstellen", RU: "Создать аккаунт", ZH: "创建账号", JA: "アカウント作成", PT: "Criar conta", AR: "إنشاء حساب", IT: "Registrati" },
   menu: { EN: "Menu", ES: "Menú", FR: "Menu", DE: "Menü", RU: "Меню", ZH: "菜单", JA: "メニュー", PT: "Menu", AR: "القائمة", IT: "Menu" },
 
