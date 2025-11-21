@@ -34,8 +34,8 @@ export const CoverageSection = () => {
           className="w-full h-full object-cover object-center" 
           loading="lazy"
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/50 to-black/60"></div>
-        <div className="absolute inset-0 bg-gradient-to-t from-deep-space/80 via-transparent to-deep-space/60"></div>
+        {/* Ultra minimal overlay for maximum background visibility */}
+        <div className="absolute inset-0 bg-black/10"></div>
       </div>
       
       <div className="container px-4 sm:px-6 md:px-8 relative z-10">
