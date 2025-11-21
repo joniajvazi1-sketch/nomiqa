@@ -405,11 +405,10 @@ export default function Affiliate() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black/40 via-deep-space/60 to-black/40 relative">
-      {/* Animated background glows */}
-      <div className="fixed inset-0 -z-10 overflow-hidden">
-        <div className="absolute top-20 left-10 w-96 h-96 bg-neon-violet/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 right-10 w-[500px] h-[500px] bg-neon-cyan/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-neon-coral/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+      {/* Subtle background glows */}
+      <div className="fixed inset-0 -z-10 overflow-hidden opacity-30">
+        <div className="absolute top-20 left-10 w-96 h-96 bg-neon-violet/30 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 right-10 w-[500px] h-[500px] bg-neon-cyan/30 rounded-full blur-3xl"></div>
       </div>
 
       <Navbar />
@@ -417,11 +416,10 @@ export default function Affiliate() {
       <section className="pt-24 pb-12 md:pt-32 md:pb-16 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-deep-space/80 via-midnight-blue/60 to-deep-space/80 backdrop-blur-sm"></div>
         
-        {/* Premium animated glows */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-neon-violet/30 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-neon-coral/30 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-neon-cyan/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+        {/* Subtle accent glows */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
+          <div className="absolute top-1/4 left-1/4 w-80 h-80 bg-neon-violet/40 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-neon-coral/40 rounded-full blur-3xl"></div>
         </div>
         
         <div className="container px-4 relative z-10">
@@ -429,9 +427,8 @@ export default function Affiliate() {
             <div className="space-y-4 md:space-y-6 animate-fade-in">
               {/* Premium badge */}
               <div className="inline-block">
-                <div className="relative group">
-                  <div className="absolute inset-0 bg-gradient-to-r from-neon-coral to-neon-violet blur-xl opacity-50 group-hover:opacity-75 transition-opacity"></div>
-                  <span className="relative block px-6 py-2 bg-gradient-to-r from-neon-coral/20 to-neon-violet/20 backdrop-blur-xl border border-neon-coral/30 rounded-full text-neon-coral text-xs md:text-base font-bold tracking-wider uppercase shadow-glow-coral">
+                <div className="relative">
+                  <span className="relative block px-6 py-2 bg-gradient-to-r from-neon-coral/20 to-neon-violet/20 backdrop-blur-xl border border-neon-coral/30 rounded-full text-neon-coral text-xs md:text-base font-bold tracking-wider uppercase">
                     🔥 Passive Income Unlocked
                   </span>
                 </div>
@@ -449,9 +446,8 @@ export default function Affiliate() {
               
               {/* Premium commission display */}
               <div className="pt-4 md:pt-6 space-y-3 md:space-y-4">
-                <div className="inline-block relative group">
-                  <div className="absolute inset-0 bg-gradient-to-r from-neon-violet to-neon-cyan blur-2xl opacity-40 group-hover:opacity-60 transition-opacity"></div>
-                  <div className="relative px-8 py-4 bg-white/[0.03] backdrop-blur-2xl border border-white/20 rounded-2xl shadow-glow-violet">
+                <div className="inline-block relative">
+                  <div className="relative px-8 py-4 bg-white/[0.03] backdrop-blur-2xl border border-white/20 rounded-2xl">
                     <p className="text-2xl md:text-4xl lg:text-5xl font-black bg-gradient-to-r from-white via-neon-violet to-white bg-clip-text text-transparent">
                       18% Total Commission Split
                     </p>
@@ -481,7 +477,7 @@ export default function Affiliate() {
         <div className="max-w-6xl mx-auto">
 
           {!user ? (
-            <Card className="max-w-2xl mx-auto bg-white/[0.02] backdrop-blur-xl border-white/10 shadow-glow-cyan">
+            <Card className="max-w-2xl mx-auto bg-white/[0.02] backdrop-blur-xl border-white/10">
               <CardHeader className="pb-3 md:pb-4">
                 <CardTitle className="text-center text-lg md:text-xl bg-gradient-neon bg-clip-text text-transparent">Start Earning with Nomiqa</CardTitle>
                 <CardDescription className="text-center text-xs md:text-sm text-foreground/70">
@@ -491,24 +487,24 @@ export default function Affiliate() {
               <CardContent>
                 <div className="space-y-4 md:space-y-6">
                   <div className="grid md:grid-cols-3 gap-3 md:gap-4">
-                    <div className="text-center p-3 md:p-4 bg-white/[0.02] backdrop-blur-sm border border-white/10 rounded-lg hover:shadow-glow-cyan transition-all">
+                    <div className="text-center p-3 md:p-4 bg-white/[0.02] backdrop-blur-sm border border-white/10 rounded-lg hover:bg-white/[0.04] transition-all">
                       <DollarSign className="w-6 h-6 md:w-8 md:h-8 text-neon-cyan mx-auto mb-2" />
                       <h3 className="font-bold text-sm md:text-base">Multi-Tier System</h3>
                       <p className="text-xs md:text-sm text-muted-foreground">Unlock 3 levels</p>
                     </div>
-                    <div className="text-center p-3 md:p-4 bg-white/[0.02] backdrop-blur-sm border border-white/10 rounded-lg hover:shadow-glow-cyan transition-all">
+                    <div className="text-center p-3 md:p-4 bg-white/[0.02] backdrop-blur-sm border border-white/10 rounded-lg hover:bg-white/[0.04] transition-all">
                       <Users className="w-6 h-6 md:w-8 md:h-8 text-neon-violet mx-auto mb-2" />
                       <h3 className="font-bold text-sm md:text-base">Track Referrals</h3>
                       <p className="text-xs md:text-sm text-muted-foreground">Real-time stats</p>
                     </div>
-                    <div className="text-center p-3 md:p-4 bg-white/[0.02] backdrop-blur-sm border border-white/10 rounded-lg hover:shadow-glow-cyan transition-all">
+                    <div className="text-center p-3 md:p-4 bg-white/[0.02] backdrop-blur-sm border border-white/10 rounded-lg hover:bg-white/[0.04] transition-all">
                       <TrendingUp className="w-6 h-6 md:w-8 md:h-8 text-neon-coral mx-auto mb-2" />
                       <h3 className="font-bold text-sm md:text-base">3 Affiliate Links</h3>
                       <p className="text-xs md:text-sm text-muted-foreground">Per account</p>
                     </div>
                   </div>
 
-                  <div className="bg-gradient-to-br from-neon-violet/10 via-neon-coral/10 to-neon-cyan/10 border border-neon-violet/30 rounded-lg p-4 md:p-6 text-center shadow-glow-violet">
+                  <div className="bg-gradient-to-br from-neon-violet/10 via-neon-coral/10 to-neon-cyan/10 border border-neon-violet/30 rounded-lg p-4 md:p-6 text-center">
                     <CheckCircle2 className="w-10 h-10 md:w-12 md:h-12 text-neon-violet mx-auto mb-3 md:mb-4" />
                     <h3 className="text-lg md:text-xl font-bold mb-2 bg-gradient-neon bg-clip-text text-transparent">Ready to Get Started?</h3>
                     <p className="text-xs md:text-sm text-muted-foreground mb-4 md:mb-6">
@@ -516,7 +512,7 @@ export default function Affiliate() {
                       plus you can create 2 additional custom links to track different campaigns.
                     </p>
                     <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                      <Button onClick={() => navigate('/auth?mode=signup')} size="lg" variant="default" className="w-full sm:w-auto bg-gradient-to-r from-neon-violet to-neon-coral hover:shadow-glow-coral transition-all">
+                      <Button onClick={() => navigate('/auth?mode=signup')} size="lg" variant="default" className="w-full sm:w-auto bg-gradient-to-r from-neon-violet to-neon-coral hover:opacity-90 transition-all">
                         Register Now
                       </Button>
                       <Button onClick={() => navigate('/auth')} size="lg" variant="outline" className="w-full sm:w-auto border-white/20 hover:bg-white/5">
@@ -528,7 +524,7 @@ export default function Affiliate() {
               </CardContent>
             </Card>
           ) : !affiliate ? (
-            <Card className="max-w-2xl mx-auto bg-white/[0.02] backdrop-blur-xl border-white/10 shadow-glow-cyan">
+            <Card className="max-w-2xl mx-auto bg-white/[0.02] backdrop-blur-xl border-white/10">
               <CardHeader>
                 <CardTitle>Create Your First Affiliate Link</CardTitle>
                 <CardDescription>
@@ -563,7 +559,7 @@ export default function Affiliate() {
           ) : (
             <>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-8 text-center">
-                <Card className="bg-white/[0.02] backdrop-blur-xl border-white/10 hover:shadow-glow-cyan transition-all">
+                <Card className="bg-white/[0.02] backdrop-blur-xl border-white/10 hover:border-white/20 transition-all">
                   <CardHeader className="pb-2 md:pb-3">
                     <CardDescription className="text-xs md:text-sm">Total Clicks</CardDescription>
                   </CardHeader>
@@ -573,7 +569,7 @@ export default function Affiliate() {
                     </div>
                   </CardContent>
                 </Card>
-                <Card className="bg-white/[0.02] backdrop-blur-xl border-white/10 hover:shadow-glow-cyan transition-all">
+                <Card className="bg-white/[0.02] backdrop-blur-xl border-white/10 hover:border-white/20 transition-all">
                   <CardHeader className="pb-2 md:pb-3">
                     <CardDescription className="text-xs md:text-sm">Conversions</CardDescription>
                   </CardHeader>
@@ -583,7 +579,7 @@ export default function Affiliate() {
                     </div>
                   </CardContent>
                 </Card>
-                <Card className="bg-white/[0.02] backdrop-blur-xl border-white/10 hover:shadow-glow-coral transition-all">
+                <Card className="bg-white/[0.02] backdrop-blur-xl border-white/10 hover:border-white/20 transition-all">
                   <CardHeader className="pb-2 md:pb-3">
                     <CardDescription className="text-xs md:text-sm">Total Earnings</CardDescription>
                   </CardHeader>
@@ -593,7 +589,7 @@ export default function Affiliate() {
                     </div>
                   </CardContent>
                 </Card>
-                <Card className="bg-white/[0.02] backdrop-blur-xl border-white/10 hover:shadow-glow-violet transition-all">
+                <Card className="bg-white/[0.02] backdrop-blur-xl border-white/10 hover:border-white/20 transition-all">
                   <CardHeader className="pb-2 md:pb-3">
                     <CardDescription className="text-xs md:text-sm">Current Tier</CardDescription>
                   </CardHeader>
@@ -610,7 +606,7 @@ export default function Affiliate() {
 
               {/* Tier Progress Card */}
               {getTierInfo()?.nextTier && (
-                <Card className="mb-6 md:mb-8 bg-white/[0.02] backdrop-blur-xl border-neon-violet/30 shadow-glow-violet">
+                <Card className="mb-6 md:mb-8 bg-white/[0.02] backdrop-blur-xl border-neon-violet/30">
                   <CardHeader className="pb-3 md:pb-4">
                     <CardTitle className="flex items-center gap-2 text-base md:text-lg">
                       <Award className="w-4 h-4 md:w-5 md:h-5 text-primary" />
@@ -645,7 +641,7 @@ export default function Affiliate() {
               )}
 
               {/* Tier System Explanation */}
-              <Card className="mb-6 md:mb-8 bg-white/[0.02] backdrop-blur-xl border-white/10 shadow-glow-cyan">
+              <Card className="mb-6 md:mb-8 bg-white/[0.02] backdrop-blur-xl border-white/10">
                 <CardHeader className="pb-3 md:pb-4">
                   <CardTitle className="flex items-center gap-2 text-base md:text-lg">
                     <TrendingUp className="w-4 h-4 md:w-5 md:h-5" />
@@ -763,7 +759,7 @@ export default function Affiliate() {
               </Card>
 
               {/* All Affiliate Links Section */}
-              <Card className="mb-6 md:mb-8 bg-white/[0.02] backdrop-blur-xl border-white/10 shadow-glow-cyan">
+              <Card className="mb-6 md:mb-8 bg-white/[0.02] backdrop-blur-xl border-white/10">
                 <CardHeader className="pb-3 md:pb-4">
                   <CardTitle className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-base md:text-lg">
                     <span>Your Affiliate Links</span>
@@ -781,7 +777,7 @@ export default function Affiliate() {
                       : `${window.location.origin}/r/${aff.affiliate_code}`;
                     
                     return (
-                      <div key={aff.id} className="p-3 md:p-4 bg-white/[0.02] backdrop-blur-sm border border-white/10 rounded-lg space-y-3 hover:shadow-glow-cyan transition-all">
+                      <div key={aff.id} className="p-3 md:p-4 bg-white/[0.02] backdrop-blur-sm border border-white/10 rounded-lg space-y-3 hover:bg-white/[0.04] transition-all">
                         {/* Header */}
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                           <div className="flex items-center gap-2 flex-wrap">
@@ -1051,7 +1047,7 @@ export default function Affiliate() {
               </Card>
 
               {/* Analytics Dashboard */}
-              <Card className="mb-8 bg-white/[0.02] backdrop-blur-xl border-white/10 shadow-glow-violet">
+              <Card className="mb-8 bg-white/[0.02] backdrop-blur-xl border-white/10">
                 <CardHeader className="pb-4">
                   <div className="flex items-center justify-between">
                     <div>
@@ -1257,7 +1253,7 @@ export default function Affiliate() {
                 </CardContent>
               </Card>
 
-              <Card className="bg-white/[0.02] backdrop-blur-xl border-white/10 shadow-glow-cyan">
+              <Card className="bg-white/[0.02] backdrop-blur-xl border-white/10">
                 <CardHeader>
                   <CardTitle className="bg-gradient-neon bg-clip-text text-transparent">How It Works</CardTitle>
                 </CardHeader>
