@@ -417,32 +417,59 @@ export default function Affiliate() {
       <section className="pt-24 pb-12 md:pt-32 md:pb-16 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-deep-space/80 via-midnight-blue/60 to-deep-space/80 backdrop-blur-sm"></div>
         
+        {/* Premium animated glows */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-neon-violet/30 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-neon-coral/30 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-neon-cyan/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+        </div>
+        
         <div className="container px-4 relative z-10">
           <div className="max-w-5xl mx-auto text-center">
             <div className="space-y-4 md:space-y-6 animate-fade-in">
+              {/* Premium badge */}
               <div className="inline-block">
-                <span className="text-neon-coral text-xs md:text-base font-bold tracking-wider uppercase">🔥 Passive Income Unlocked</span>
+                <div className="relative group">
+                  <div className="absolute inset-0 bg-gradient-to-r from-neon-coral to-neon-violet blur-xl opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                  <span className="relative block px-6 py-2 bg-gradient-to-r from-neon-coral/20 to-neon-violet/20 backdrop-blur-xl border border-neon-coral/30 rounded-full text-neon-coral text-xs md:text-base font-bold tracking-wider uppercase shadow-glow-coral">
+                    🔥 Passive Income Unlocked
+                  </span>
+                </div>
               </div>
               
+              {/* Premium headline */}
               <h1 className="text-4xl md:text-6xl lg:text-7xl font-black font-display leading-tight tracking-tight">
-                <span className="block bg-gradient-neon bg-clip-text text-transparent mb-2 md:mb-4">Earn While</span>
-                <span className="block bg-gradient-neon bg-clip-text text-transparent">
+                <span className="block bg-gradient-to-r from-neon-cyan via-neon-violet to-neon-coral bg-clip-text text-transparent mb-2 md:mb-4 animate-pulse" style={{ animationDuration: '3s' }}>
+                  Earn While
+                </span>
+                <span className="block bg-gradient-to-r from-neon-coral via-neon-violet to-neon-cyan bg-clip-text text-transparent animate-pulse" style={{ animationDuration: '3s', animationDelay: '0.5s' }}>
                   They Travel
                 </span>
               </h1>
               
-              <div className="pt-4 md:pt-6 space-y-2 md:space-y-3">
-                <p className="text-xl md:text-3xl lg:text-4xl text-foreground font-bold">
-                  18% Total Commission Split
-                </p>
-                <p className="text-base md:text-xl lg:text-2xl text-foreground/80 max-w-3xl mx-auto leading-relaxed px-2">
-                  9% direct sales • 6% second level • 3% third level
+              {/* Premium commission display */}
+              <div className="pt-4 md:pt-6 space-y-3 md:space-y-4">
+                <div className="inline-block relative group">
+                  <div className="absolute inset-0 bg-gradient-to-r from-neon-violet to-neon-cyan blur-2xl opacity-40 group-hover:opacity-60 transition-opacity"></div>
+                  <div className="relative px-8 py-4 bg-white/[0.03] backdrop-blur-2xl border border-white/20 rounded-2xl shadow-glow-violet">
+                    <p className="text-2xl md:text-4xl lg:text-5xl font-black bg-gradient-to-r from-white via-neon-violet to-white bg-clip-text text-transparent">
+                      18% Total Commission Split
+                    </p>
+                  </div>
+                </div>
+                
+                <p className="text-sm md:text-lg lg:text-xl text-foreground/90 max-w-3xl mx-auto leading-relaxed px-2">
+                  <span className="text-neon-cyan font-semibold">9% direct sales</span> • 
+                  <span className="text-neon-violet font-semibold"> 6% second level</span> • 
+                  <span className="text-neon-coral font-semibold"> 3% third level</span>
                 </p>
               </div>
 
+              {/* Premium tagline */}
               <div className="pt-3 md:pt-4">
-                <p className="text-base md:text-lg lg:text-xl text-foreground/70 max-w-3xl mx-auto leading-relaxed px-2">
-                  One link. Infinite potential. Your network works for you — 24/7, worldwide.
+                <p className="text-base md:text-lg lg:text-xl text-foreground/80 max-w-3xl mx-auto leading-relaxed px-2 font-light">
+                  One link. <span className="text-neon-cyan font-semibold">Infinite potential.</span> Your network works for you — 
+                  <span className="bg-gradient-to-r from-neon-violet to-neon-coral bg-clip-text text-transparent font-semibold"> 24/7, worldwide.</span>
                 </p>
               </div>
             </div>
