@@ -1362,7 +1362,7 @@ export default function Affiliate() {
                           <h4 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent group-hover:from-neon-coral group-hover:to-neon-cyan transition-all duration-300">
                             {t("earnMultiLevelCommissions")}
                           </h4>
-                          <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-4">
+                          <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-4 text-center">
                             {t("buildYourNetworkDesc")}
                           </p>
                           
