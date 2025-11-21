@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { Crown, TrendingUp, Award, Zap } from "lucide-react";
+import { Crown, TrendingUp, Award, Zap, Wallet, Trophy } from "lucide-react";
 import { useTranslation } from "@/contexts/TranslationContext";
 import { localizedPath } from "@/utils/localizedLinks";
 import { useEffect, useRef, useState } from "react";
@@ -121,17 +121,29 @@ export const LoyaltyProgram = () => {
         <div className={`bg-white/[0.02] backdrop-blur-xl border border-white/10 rounded-2xl md:rounded-3xl p-6 sm:p-7 md:p-10 mb-8 md:mb-12 transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           <div className="grid md:grid-cols-3 gap-6 md:gap-8 text-center">
             <div className="group">
-              <div className="text-3xl sm:text-4xl mb-3 md:mb-4 group-hover:scale-110 transition-transform duration-300">💰</div>
+              <div className="mb-3 md:mb-4 flex justify-center">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-neon-coral/20 to-neon-violet/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <Wallet className="w-6 h-6 sm:w-7 sm:h-7 text-neon-coral" />
+                </div>
+              </div>
               <h4 className="font-light text-base sm:text-lg md:text-xl text-white mb-2 md:mb-3">{t("loyaltyRealCryptoTitle")}</h4>
               <p className="text-xs sm:text-sm md:text-base text-white/60 font-light leading-relaxed">{t("loyaltyRealCryptoDesc")}</p>
             </div>
             <div className="group">
-              <div className="text-3xl sm:text-4xl mb-3 md:mb-4 group-hover:scale-110 transition-transform duration-300">⚡</div>
+              <div className="mb-3 md:mb-4 flex justify-center">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-neon-violet/20 to-neon-cyan/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <Zap className="w-6 h-6 sm:w-7 sm:h-7 text-neon-violet" />
+                </div>
+              </div>
               <h4 className="font-light text-base sm:text-lg md:text-xl text-white mb-2 md:mb-3">{t("loyaltyInstantTitle")}</h4>
               <p className="text-xs sm:text-sm md:text-base text-white/60 font-light leading-relaxed">{t("loyaltyInstantDesc")}</p>
             </div>
             <div className="group">
-              <div className="text-3xl sm:text-4xl mb-3 md:mb-4 group-hover:scale-110 transition-transform duration-300">🚀</div>
+              <div className="mb-3 md:mb-4 flex justify-center">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-neon-cyan/20 to-warm-sand/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <Trophy className="w-6 h-6 sm:w-7 sm:h-7 text-neon-cyan" />
+                </div>
+              </div>
               <h4 className="font-light text-base sm:text-lg md:text-xl text-white mb-2 md:mb-3">{t("loyaltyLifetimeTitle")}</h4>
               <p className="text-xs sm:text-sm md:text-base text-white/60 font-light leading-relaxed">{t("loyaltyLifetimeDesc")}</p>
             </div>
