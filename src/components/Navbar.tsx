@@ -312,63 +312,66 @@ export const Navbar = () => {
                     <Menu className="w-5 h-5 sm:w-6 sm:h-6" />
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="right" className="w-[85vw] max-w-[320px] bg-gradient-to-br from-gray-950 via-black to-gray-950 backdrop-blur-3xl border-l border-white/10">
-                  {/* Elegant gradient overlays */}
-                  <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-white/[0.03] via-transparent to-transparent pointer-events-none" />
-                  <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-neon-cyan/[0.02] via-transparent to-transparent pointer-events-none" />
+                <SheetContent side="right" className="w-[85vw] max-w-[320px] bg-white/[0.03] backdrop-blur-2xl border-l border-white/20 shadow-2xl">
+                  {/* Glassy gradient overlays */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/[0.08] via-white/[0.02] to-transparent pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-tl from-neon-cyan/[0.05] via-transparent to-neon-violet/[0.03] pointer-events-none" />
                   
-                  <SheetHeader className="relative z-10 border-b border-white/10 pb-5 mb-1">
+                  {/* Glass reflection effect */}
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-white/[0.05] rounded-full blur-3xl pointer-events-none" />
+                  
+                  <SheetHeader className="relative z-10 border-b border-white/20 pb-5 mb-1">
                     <SheetTitle className="text-white font-light text-base tracking-wider uppercase">{t("menu")}</SheetTitle>
                   </SheetHeader>
                   <div className="flex flex-col gap-0.5 mt-6 relative z-10">
-                    <button onClick={() => handleNavClick('/shop')} className="group text-left text-white/80 hover:text-white hover:bg-white/[0.03] transition-all duration-300 py-4 px-5 rounded-md font-light text-[15px] tracking-wide border-l-2 border-transparent hover:border-white/20">
+                    <button onClick={() => handleNavClick('/shop')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-[15px] tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
                       <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("shop")}</span>
                     </button>
-                    <button onClick={() => handleNavClick('/getting-started')} className="group text-left text-white/80 hover:text-white hover:bg-white/[0.03] transition-all duration-300 py-4 px-5 rounded-md font-light text-[15px] tracking-wide border-l-2 border-transparent hover:border-white/20">
+                    <button onClick={() => handleNavClick('/getting-started')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-[15px] tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
                       <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("howToBuy")}</span>
                     </button>
-                    <button onClick={() => handleNavClick('/affiliate')} className="group text-left text-white/80 hover:text-white hover:bg-white/[0.03] transition-all duration-300 py-4 px-5 rounded-md font-light text-[15px] tracking-wide border-l-2 border-transparent hover:border-white/20">
+                    <button onClick={() => handleNavClick('/affiliate')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-[15px] tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
                       <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("affiliate")}</span>
                     </button>
-                    <button onClick={() => handleNavClick('/stake')} className="group text-left text-white/80 hover:text-white hover:bg-white/[0.03] transition-all duration-300 py-4 px-5 rounded-md font-light text-[15px] tracking-wide border-l-2 border-transparent hover:border-white/20">
+                    <button onClick={() => handleNavClick('/stake')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-[15px] tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
                       <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("stake")}</span>
                     </button>
-                    <button onClick={() => handleNavClick('/about')} className="group text-left text-white/80 hover:text-white hover:bg-white/[0.03] transition-all duration-300 py-4 px-5 rounded-md font-light text-[15px] tracking-wide border-l-2 border-transparent hover:border-white/20">
+                    <button onClick={() => handleNavClick('/about')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-[15px] tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
                       <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("aboutUs")}</span>
                     </button>
-                    <button onClick={() => handleNavClick('/privacy')} className="group text-left text-white/80 hover:text-white hover:bg-white/[0.03] transition-all duration-300 py-4 px-5 rounded-md font-light text-[15px] tracking-wide border-l-2 border-transparent hover:border-white/20">
+                    <button onClick={() => handleNavClick('/privacy')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-[15px] tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
                       <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("howWeProtect")}</span>
                     </button>
-                    <button onClick={() => handleNavClick('/help')} className="group text-left text-white/80 hover:text-white hover:bg-white/[0.03] transition-all duration-300 py-4 px-5 rounded-md font-light text-[15px] tracking-wide border-l-2 border-transparent hover:border-white/20">
+                    <button onClick={() => handleNavClick('/help')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-[15px] tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
                       <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("help")}</span>
                     </button>
                     {user && (
                       <>
-                        <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent my-3" />
-                        <button onClick={() => handleNavClick('/account')} className="group text-left text-white/80 hover:text-white hover:bg-white/[0.03] transition-all duration-300 py-4 px-5 rounded-md font-light text-[15px] tracking-wide border-l-2 border-transparent hover:border-white/20">
+                        <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent my-3" />
+                        <button onClick={() => handleNavClick('/account')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-[15px] tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
                           <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">My Account</span>
                         </button>
-                        <button onClick={() => handleNavClick('/orders')} className="group text-left text-white/80 hover:text-white hover:bg-white/[0.03] transition-all duration-300 py-4 px-5 rounded-md font-light text-[15px] tracking-wide border-l-2 border-transparent hover:border-white/20">
+                        <button onClick={() => handleNavClick('/orders')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-[15px] tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
                           <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("myEsims")}</span>
                         </button>
                       </>
                     )}
 
-                    <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent my-4" />
+                    <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent my-4" />
 
                     {/* Auth action in mobile menu */}
                     {user ? (
-                      <button onClick={handleSignOut} className="group text-left text-white/60 hover:text-white/90 hover:bg-white/[0.03] transition-all duration-300 py-4 px-5 rounded-md font-light text-[15px] tracking-wide flex items-center gap-3 border-l-2 border-transparent hover:border-white/20">
+                      <button onClick={handleSignOut} className="group text-left text-white/70 hover:text-white/95 hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-[15px] tracking-wide flex items-center gap-3 backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
                         <LogOut className="w-4 h-4 transition-transform duration-300 group-hover:-translate-x-0.5" />
                         <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t('signOut')}</span>
                       </button>
                     ) : (
                       <>
-                        <button onClick={() => { setMobileMenuOpen(false); navigate('/auth?mode=login'); }} className="group text-left text-white/70 hover:text-white hover:bg-white/[0.03] transition-all duration-300 py-4 px-5 rounded-md font-light text-[15px] tracking-wide flex items-center gap-3 border-l-2 border-transparent hover:border-white/20">
+                        <button onClick={() => { setMobileMenuOpen(false); navigate('/auth?mode=login'); }} className="group text-left text-white/80 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-[15px] tracking-wide flex items-center gap-3 backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
                           <LogIn className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5" />
                           <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t('login')}</span>
                         </button>
-                        <button onClick={() => { setMobileMenuOpen(false); navigate('/auth?mode=register'); }} className="text-left text-white/90 hover:text-white bg-white/[0.05] hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-md font-normal text-[15px] tracking-wide border border-white/10 hover:border-white/20 mt-2">
+                        <button onClick={() => { setMobileMenuOpen(false); navigate('/auth?mode=register'); }} className="text-left text-white hover:text-white bg-white/[0.1] hover:bg-white/[0.15] transition-all duration-300 py-4 px-5 rounded-lg font-normal text-[15px] tracking-wide border border-white/30 hover:border-white/40 mt-2 backdrop-blur-sm shadow-lg shadow-white/5">
                           {t('register')}
                         </button>
                       </>
