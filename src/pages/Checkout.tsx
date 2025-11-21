@@ -165,15 +165,15 @@ export default function Checkout() {
             {items.map((item) => (
               <Card key={item.product.id}>
                 <CardContent className="p-6">
-                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <div className="flex-1 text-center md:text-left w-full">
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
                       <h3 className="font-semibold text-lg mb-1">
                         {item.product.country_name} - {item.product.data_amount} - {item.product.validity_days} days
                       </h3>
                       <p className="text-sm text-muted-foreground mb-2">
                         {item.product.country_name} • {item.product.data_amount} • {item.product.validity_days} days
                       </p>
-                      <div className="flex items-center gap-4 justify-center md:justify-start">
+                      <div className="flex items-center gap-4">
                         <div className="flex items-center gap-2">
                           <Button
                             variant="outline"
@@ -200,7 +200,7 @@ export default function Checkout() {
                         </Button>
                       </div>
                     </div>
-                    <div className="text-center md:text-right w-full md:w-auto">
+                    <div className="text-right">
                       <p className="text-xl font-bold">${(item.product.price_usd * item.quantity).toFixed(2)}</p>
                       <p className="text-sm text-muted-foreground">${item.product.price_usd.toFixed(2)} each</p>
                     </div>
