@@ -102,7 +102,7 @@ export const ReferEarnModal = ({ open, onOpenChange, product }: ReferEarnModalPr
               <div className="text-center p-3 bg-primary/5 rounded-lg">
                 <DollarSign className="w-6 h-6 text-primary mx-auto mb-2" />
                 <h3 className="font-bold text-sm">{t("affiliateMultiLevel")}</h3>
-                <p className="text-xs text-muted-foreground">{t("affiliateFeature1Desc")}</p>
+                <p className="text-xs text-muted-foreground">{t("affiliateCommissionTiers")}</p>
               </div>
               <div className="text-center p-3 bg-primary/5 rounded-lg">
                 <Users className="w-6 h-6 text-primary mx-auto mb-2" />
