@@ -148,10 +148,10 @@ export const ProductDetailModal = ({
               onAddToCart(product);
               onOpenChange(false);
             }}
-            className="flex-1 bg-gradient-to-r from-neon-cyan to-neon-violet hover:from-neon-cyan/90 hover:to-neon-violet/90 text-white border-0 shadow-glow-cyan font-light h-14 sm:h-12 rounded-xl transition-all duration-300 text-base sm:text-sm"
+            className="flex-1 bg-gradient-to-r from-neon-cyan to-neon-violet hover:from-neon-cyan/90 hover:to-neon-violet/90 text-white border-0 shadow-glow-cyan font-light h-16 sm:h-12 rounded-xl transition-all duration-300 text-lg sm:text-sm px-6"
             size="lg"
           >
-            <ShoppingCart className="mr-2 h-5 w-5 sm:h-4 sm:w-4" />
+            <ShoppingCart className="mr-2 h-6 w-6 sm:h-4 sm:w-4" />
             {t('addToCart')}
           </Button>
           <Button 
@@ -161,9 +161,9 @@ export const ProductDetailModal = ({
             }}
             variant="outline"
             size="lg"
-            className="flex-1 bg-white/[0.02] border-neon-coral/30 text-neon-coral hover:bg-neon-coral/10 hover:border-neon-coral/50 transition-all duration-300 font-light h-14 sm:h-12 rounded-xl text-base sm:text-sm"
+            className="flex-1 bg-white/[0.02] border-neon-coral/30 text-neon-coral hover:bg-neon-coral/10 hover:border-neon-coral/50 transition-all duration-300 font-light h-16 sm:h-12 rounded-xl text-lg sm:text-sm px-6"
           >
-            <HandCoins className="h-5 w-5 mr-2 sm:h-4 sm:w-4" />
+            <HandCoins className="h-6 w-6 mr-2 sm:h-4 sm:w-4" />
             {t('referAndEarn')}
           </Button>
         </div>
