@@ -600,7 +600,7 @@ export default function Affiliate() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-8 text-center">
                 <Card className="bg-white/[0.02] backdrop-blur-xl border-white/10 hover:border-white/20 transition-all">
                   <CardHeader className="pb-2 md:pb-3">
-                    <CardDescription className="text-xs md:text-sm">Total Clicks</CardDescription>
+                    <CardDescription className="text-xs md:text-sm">{t("totalClicks")}</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-neon-cyan to-neon-violet bg-clip-text text-transparent">
@@ -610,7 +610,7 @@ export default function Affiliate() {
                 </Card>
                 <Card className="bg-white/[0.02] backdrop-blur-xl border-white/10 hover:border-white/20 transition-all">
                   <CardHeader className="pb-2 md:pb-3">
-                    <CardDescription className="text-xs md:text-sm">Conversions</CardDescription>
+                    <CardDescription className="text-xs md:text-sm">{t("conversions")}</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl md:text-3xl font-bold text-green-400">
@@ -620,7 +620,7 @@ export default function Affiliate() {
                 </Card>
                 <Card className="bg-white/[0.02] backdrop-blur-xl border-white/10 hover:border-white/20 transition-all">
                   <CardHeader className="pb-2 md:pb-3">
-                    <CardDescription className="text-xs md:text-sm">Total Earnings</CardDescription>
+                    <CardDescription className="text-xs md:text-sm">{t("totalEarnings")}</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-neon-coral to-neon-violet bg-clip-text text-transparent">
@@ -630,7 +630,7 @@ export default function Affiliate() {
                 </Card>
                 <Card className="bg-white/[0.02] backdrop-blur-xl border-white/10 hover:border-white/20 transition-all">
                   <CardHeader className="pb-2 md:pb-3">
-                    <CardDescription className="text-xs md:text-sm">Current Tier</CardDescription>
+                    <CardDescription className="text-xs md:text-sm">{t("currentTier")}</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-1">
@@ -649,16 +649,16 @@ export default function Affiliate() {
                   <CardHeader className="pb-3 md:pb-4">
                     <CardTitle className="flex items-center gap-2 text-base md:text-lg">
                       <Award className="w-4 h-4 md:w-5 md:h-5 text-primary" />
-                      Unlock Next Tier
+                      {t("unlockNextTier")}
                     </CardTitle>
                     <CardDescription className="text-xs md:text-sm">
-                      Complete more conversions to unlock higher commission levels
+                      {t("completeMoreConversions")}
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-3 md:space-y-4">
                     <div className="flex items-center justify-between">
                       <span className="text-xs md:text-sm font-medium">
-                        Progress to {getTierInfo()?.nextTier.name}
+                        {t("progressToPro")}
                       </span>
                       <span className="text-xs md:text-sm font-bold text-primary">
                         {Math.round(getTierInfo()?.progress || 0)}%
@@ -673,7 +673,7 @@ export default function Affiliate() {
                     </div>
                     
                     <p className="text-xs md:text-sm text-muted-foreground">
-                      <span className="font-semibold text-foreground">{getTierInfo()?.remaining} more conversions</span> to unlock <span className="font-semibold">{getTierInfo()?.nextTier.description}</span>
+                      <span className="font-semibold text-foreground">{getTierInfo()?.remaining} {t("moreConversionsToUnlock")}</span> {t("additionalOnSecondLevel")}
                     </p>
                   </CardContent>
                 </Card>
@@ -684,10 +684,10 @@ export default function Affiliate() {
                 <CardHeader className="pb-3 md:pb-4">
                   <CardTitle className="flex items-center gap-2 text-base md:text-lg">
                     <TrendingUp className="w-4 h-4 md:w-5 md:h-5" />
-                    3-Tier Commission System
+                    {t("threeTierCommissionSystem")}
                   </CardTitle>
                   <CardDescription className="text-xs md:text-sm">
-                    Unlock more earning potential as you grow your network
+                    {t("unlockMoreEarningPotential")}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -703,19 +703,19 @@ export default function Affiliate() {
                           ) : (
                             <Lock className="w-4 h-4 md:w-5 md:h-5 text-muted-foreground" />
                           )}
-                          <h3 className="font-bold text-blue-500 text-sm md:text-base">Tier 1: Starter</h3>
+                          <h3 className="font-bold text-blue-500 text-sm md:text-base">{t("tierStarter")}</h3>
                         </div>
                         <Badge variant={affiliate.tier_level >= 1 ? 'default' : 'secondary'} className="text-xs w-fit">
-                          {affiliate.tier_level >= 1 ? 'Unlocked' : 'Start Here'}
+                          {affiliate.tier_level >= 1 ? t("unlocked") : t("startHere")}
                         </Badge>
                       </div>
                       <p className="text-xs md:text-sm text-muted-foreground mb-2 md:mb-3">
-                        Everyone starts here (0+ conversions)
+                        {t("everyoneStartsHere")}
                       </p>
                       <div className="space-y-1 text-xs md:text-sm">
                         <div className="flex items-center gap-2">
                           <DollarSign className="w-3 h-3 md:w-4 md:h-4 text-green-500 flex-shrink-0" />
-                          <span><strong>9%</strong> commission on direct referrals</span>
+                          <span>{t("ninePercentDirectCommission")}</span>
                         </div>
                       </div>
                     </div>
@@ -731,26 +731,26 @@ export default function Affiliate() {
                           ) : (
                             <Lock className="w-4 h-4 md:w-5 md:h-5 text-muted-foreground" />
                           )}
-                          <h3 className="font-bold text-purple-500 text-sm md:text-base">Tier 2: Pro</h3>
+                          <h3 className="font-bold text-purple-500 text-sm md:text-base">{t("tierPro")}</h3>
                         </div>
                         <Badge variant={affiliate.tier_level >= 2 ? 'default' : 'secondary'} className="text-xs w-fit">
-                          {affiliate.tier_level >= 2 ? 'Unlocked' : '10 conversions'}
+                          {affiliate.tier_level >= 2 ? t("unlocked") : "10 conversions"}
                         </Badge>
                       </div>
                       <p className="text-xs md:text-sm text-muted-foreground mb-2 md:mb-3">
-                        Unlock at 10 total conversions
+                        {t("unlockAtConversions").replace("{count}", "10")}
                       </p>
                       <div className="space-y-2 text-xs md:text-sm">
                         <div className="flex items-center gap-2">
                           <DollarSign className="w-3 h-3 md:w-4 md:h-4 text-green-500 flex-shrink-0" />
-                          <span><strong>9%</strong> on your direct referrals</span>
+                          <span>{t("onYourDirectReferrals")}</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <DollarSign className="w-3 h-3 md:w-4 md:h-4 text-purple-500 flex-shrink-0" />
-                          <span><strong>+ 6%</strong> when YOUR referrals refer others</span>
+                          <span>{t("whenYourReferralsRefer")}</span>
                         </div>
                         <p className="text-[10px] md:text-xs text-muted-foreground pt-2 pl-4 md:pl-6 border-l-2 border-purple-500/30">
-                          Level 2 = Sales by people your referrals brought in
+                          {t("level2Explanation")}
                         </p>
                       </div>
                     </div>
@@ -766,30 +766,30 @@ export default function Affiliate() {
                           ) : (
                             <Lock className="w-4 h-4 md:w-5 md:h-5 text-muted-foreground" />
                           )}
-                          <h3 className="font-bold text-amber-500 text-sm md:text-base">Tier 3: Elite</h3>
+                          <h3 className="font-bold text-amber-500 text-sm md:text-base">{t("tierElite")}</h3>
                         </div>
                         <Badge variant={affiliate.tier_level >= 3 ? 'default' : 'secondary'} className="text-xs w-fit">
-                          {affiliate.tier_level >= 3 ? 'Unlocked' : '30 conversions'}
+                          {affiliate.tier_level >= 3 ? t("unlocked") : "30 conversions"}
                         </Badge>
                       </div>
                       <p className="text-xs md:text-sm text-muted-foreground mb-2 md:mb-3">
-                        Unlock at 30 total conversions
+                        {t("unlockAtConversions").replace("{count}", "30")}
                       </p>
                       <div className="space-y-2 text-xs md:text-sm">
                         <div className="flex items-center gap-2">
                           <DollarSign className="w-3 h-3 md:w-4 md:h-4 text-green-500 flex-shrink-0" />
-                          <span><strong>9%</strong> on your direct referrals</span>
+                          <span>{t("onYourDirectReferrals")}</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <DollarSign className="w-3 h-3 md:w-4 md:h-4 text-purple-500 flex-shrink-0" />
-                          <span><strong>+ 6%</strong> when YOUR referrals refer others</span>
+                          <span>{t("whenYourReferralsRefer")}</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <DollarSign className="w-3 h-3 md:w-4 md:h-4 text-amber-500 flex-shrink-0" />
-                          <span><strong>+ 3%</strong> when THEIR referrals refer others</span>
+                          <span>{t("whenTheirReferralsRefer")}</span>
                         </div>
                         <p className="text-[10px] md:text-xs text-muted-foreground pt-2 pl-4 md:pl-6 border-l-2 border-amber-500/30">
-                          Level 2 = Your referrals' sales • Level 3 = Their referrals' sales
+                          {t("level3Explanation")}
                         </p>
                       </div>
                     </div>
@@ -801,11 +801,11 @@ export default function Affiliate() {
               <Card className="mb-6 md:mb-8 bg-white/[0.02] backdrop-blur-xl border-white/10">
                 <CardHeader className="pb-3 md:pb-4">
                   <CardTitle className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-base md:text-lg">
-                    <span>Your Affiliate Links</span>
+                    <span>{t("yourAffiliateLinks")}</span>
                     <Badge variant="secondary" className="text-xs w-fit">{allAffiliates.length} / 3</Badge>
                   </CardTitle>
                   <CardDescription className="text-xs md:text-sm">
-                    You can have up to 3 affiliate links. Each link has its own tracking and stats.
+                    {t("upToThreeLinks")}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -821,24 +821,24 @@ export default function Affiliate() {
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                           <div className="flex items-center gap-2 flex-wrap">
                             <h3 className="font-semibold text-sm md:text-base">
-                              {isFirst ? "Primary Link" : `Link ${index + 1}`}
+                              {isFirst ? t("primaryLink") : `Link ${index + 1}`}
                             </h3>
-                            {isFirst && <Badge className="text-xs">Auto-created</Badge>}
+                            {isFirst && <Badge className="text-xs">{t("autoCreated")}</Badge>}
                           </div>
                         </div>
                         
                         {/* Stats - Mobile Friendly */}
                         <div className="grid grid-cols-3 gap-2 py-2">
                           <div className="text-center">
-                            <div className="text-xs text-muted-foreground mb-1">Clicks</div>
+                            <div className="text-xs text-muted-foreground mb-1">{t("clicks")}</div>
                             <div className="font-semibold text-sm md:text-base">{aff.total_clicks}</div>
                           </div>
                           <div className="text-center border-x">
-                            <div className="text-xs text-muted-foreground mb-1">Conversions</div>
+                            <div className="text-xs text-muted-foreground mb-1">{t("conversions")}</div>
                             <div className="font-semibold text-sm md:text-base text-green-600">{aff.total_conversions}</div>
                           </div>
                           <div className="text-center">
-                            <div className="text-xs text-muted-foreground mb-1">Earned</div>
+                            <div className="text-xs text-muted-foreground mb-1">{t("earned")}</div>
                             <div className="font-semibold text-sm md:text-base text-primary">${aff.total_earnings_usd.toFixed(2)}</div>
                           </div>
                         </div>
@@ -855,7 +855,7 @@ export default function Affiliate() {
                             className="w-full"
                           >
                             <Copy className="w-4 h-4 mr-2" />
-                            Copy Link
+                            {t("copyLink")}
                           </Button>
                           <div className="text-[10px] md:text-xs text-muted-foreground pt-1 border-t">
                             Username: <span className="font-mono">{aff.username}</span>
@@ -874,10 +874,10 @@ export default function Affiliate() {
                             variant="outline"
                             className="w-full"
                           >
-                            Create Additional Link ({allAffiliates.length + 1} / 3)
+                            {t("createAdditionalLink").replace("{current}", String(allAffiliates.length + 1)).replace("{max}", "3")}
                           </Button>
                           <p className="text-xs text-muted-foreground text-center">
-                            You can create {3 - allAffiliates.length} more affiliate link{3 - allAffiliates.length > 1 ? 's' : ''}
+                            {t("canCreateMoreLinks").replace("{count}", String(3 - allAffiliates.length))}
                           </p>
                         </div>
                       ) : (
@@ -1094,9 +1094,9 @@ export default function Affiliate() {
                         <div className="p-2 rounded-lg bg-primary/10">
                           <BarChart3 className="w-5 h-5 text-primary" />
                         </div>
-                        Analytics Dashboard
+                        {t("analyticsDashboard")}
                       </CardTitle>
-                      <CardDescription className="text-xs md:text-sm mt-2">Track your performance and earnings</CardDescription>
+                      <CardDescription className="text-xs md:text-sm mt-2">{t("trackYourPerformance")}</CardDescription>
                     </div>
                   </div>
                 </CardHeader>
@@ -1114,7 +1114,7 @@ export default function Affiliate() {
                           <div className="p-1.5 rounded bg-primary/10">
                             <Share2 className="w-4 h-4 text-primary" />
                           </div>
-                          <h3 className="font-semibold text-base md:text-lg">Traffic Sources</h3>
+                          <h3 className="font-semibold text-base md:text-lg">{t("trafficSources")}</h3>
                         </div>
                         {analytics.sourceBreakdown.length > 0 ? (
                           (() => {
@@ -1183,7 +1183,7 @@ export default function Affiliate() {
                           <div className="p-1.5 rounded bg-primary/10">
                             <TrendingUp className="w-4 h-4 text-primary" />
                           </div>
-                          <h3 className="font-semibold text-base md:text-lg">Multi-Level Earnings</h3>
+                          <h3 className="font-semibold text-base md:text-lg">{t("multiLevelEarnings")}</h3>
                         </div>
                         {analytics.levelBreakdown.length > 0 ? (
                           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -1276,8 +1276,8 @@ export default function Affiliate() {
                         ) : (
                           <div className="text-center py-8 px-4 bg-muted/30 rounded-xl border border-dashed border-border">
                             <TrendingUp className="w-10 h-10 text-muted-foreground/50 mx-auto mb-3" />
-                            <p className="text-sm text-muted-foreground font-medium">No conversions yet</p>
-                            <p className="text-xs text-muted-foreground/70 mt-1">Keep sharing to unlock all levels!</p>
+                            <p className="text-sm text-muted-foreground font-medium">{t("noConversionsYet")}</p>
+                            <p className="text-xs text-muted-foreground/70 mt-1">{t("keepSharingToUnlock")}</p>
                           </div>
                         )}
                       </div>
@@ -1294,7 +1294,7 @@ export default function Affiliate() {
 
               <Card className="bg-white/[0.02] backdrop-blur-xl border-white/10">
                 <CardHeader>
-                  <CardTitle className="bg-gradient-neon bg-clip-text text-transparent">How It Works</CardTitle>
+                  <CardTitle className="bg-gradient-neon bg-clip-text text-transparent">{t("howItWorks")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ol className="space-y-4">
