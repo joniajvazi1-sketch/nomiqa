@@ -481,47 +481,77 @@ export default function Affiliate() {
         <div className="max-w-6xl mx-auto">
 
           {!user ? (
-            <Card className="max-w-2xl mx-auto bg-white/[0.02] backdrop-blur-xl border-white/10">
-              <CardHeader className="pb-3 md:pb-4">
-                <CardTitle className="text-center text-lg md:text-xl bg-gradient-neon bg-clip-text text-transparent">Start Earning with Nomiqa</CardTitle>
-                <CardDescription className="text-center text-xs md:text-sm text-foreground/70">
+            <Card className="max-w-2xl mx-auto bg-white/[0.02] backdrop-blur-xl border-white/10 overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-neon-violet/5 via-transparent to-neon-cyan/5 pointer-events-none"></div>
+              <CardHeader className="pb-3 md:pb-4 relative">
+                <CardTitle className="text-center text-xl md:text-2xl bg-gradient-to-r from-neon-cyan via-neon-violet to-neon-coral bg-clip-text text-transparent font-bold">
+                  Start Earning with Nomiqa
+                </CardTitle>
+                <CardDescription className="text-center text-xs md:text-sm text-foreground/80">
                   Create an account to get your affiliate links and start earning commissions
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="relative">
                 <div className="space-y-4 md:space-y-6">
+                  {/* Feature Cards */}
                   <div className="grid md:grid-cols-3 gap-3 md:gap-4">
-                    <div className="text-center p-3 md:p-4 bg-white/[0.02] backdrop-blur-sm border border-white/10 rounded-lg hover:bg-white/[0.04] transition-all">
-                      <DollarSign className="w-6 h-6 md:w-8 md:h-8 text-neon-cyan mx-auto mb-2" />
-                      <h3 className="font-bold text-sm md:text-base">Multi-Tier System</h3>
+                    <div className="group text-center p-4 md:p-5 bg-gradient-to-br from-white/[0.03] to-white/[0.01] backdrop-blur-sm border border-white/10 rounded-xl hover:border-neon-cyan/30 hover:bg-white/[0.05] transition-all">
+                      <div className="relative inline-block mb-3">
+                        <div className="absolute inset-0 bg-neon-cyan/20 rounded-full blur-xl group-hover:bg-neon-cyan/30 transition-all"></div>
+                        <DollarSign className="relative w-8 h-8 md:w-10 md:h-10 text-neon-cyan" />
+                      </div>
+                      <h3 className="font-bold text-sm md:text-base mb-1">Multi-Tier System</h3>
                       <p className="text-xs md:text-sm text-muted-foreground">Unlock 3 levels</p>
                     </div>
-                    <div className="text-center p-3 md:p-4 bg-white/[0.02] backdrop-blur-sm border border-white/10 rounded-lg hover:bg-white/[0.04] transition-all">
-                      <Users className="w-6 h-6 md:w-8 md:h-8 text-neon-violet mx-auto mb-2" />
-                      <h3 className="font-bold text-sm md:text-base">Track Referrals</h3>
+                    <div className="group text-center p-4 md:p-5 bg-gradient-to-br from-white/[0.03] to-white/[0.01] backdrop-blur-sm border border-white/10 rounded-xl hover:border-neon-violet/30 hover:bg-white/[0.05] transition-all">
+                      <div className="relative inline-block mb-3">
+                        <div className="absolute inset-0 bg-neon-violet/20 rounded-full blur-xl group-hover:bg-neon-violet/30 transition-all"></div>
+                        <Users className="relative w-8 h-8 md:w-10 md:h-10 text-neon-violet" />
+                      </div>
+                      <h3 className="font-bold text-sm md:text-base mb-1">Track Referrals</h3>
                       <p className="text-xs md:text-sm text-muted-foreground">Real-time stats</p>
                     </div>
-                    <div className="text-center p-3 md:p-4 bg-white/[0.02] backdrop-blur-sm border border-white/10 rounded-lg hover:bg-white/[0.04] transition-all">
-                      <TrendingUp className="w-6 h-6 md:w-8 md:h-8 text-neon-coral mx-auto mb-2" />
-                      <h3 className="font-bold text-sm md:text-base">3 Affiliate Links</h3>
+                    <div className="group text-center p-4 md:p-5 bg-gradient-to-br from-white/[0.03] to-white/[0.01] backdrop-blur-sm border border-white/10 rounded-xl hover:border-neon-coral/30 hover:bg-white/[0.05] transition-all">
+                      <div className="relative inline-block mb-3">
+                        <div className="absolute inset-0 bg-neon-coral/20 rounded-full blur-xl group-hover:bg-neon-coral/30 transition-all"></div>
+                        <TrendingUp className="relative w-8 h-8 md:w-10 md:h-10 text-neon-coral" />
+                      </div>
+                      <h3 className="font-bold text-sm md:text-base mb-1">3 Affiliate Links</h3>
                       <p className="text-xs md:text-sm text-muted-foreground">Per account</p>
                     </div>
                   </div>
 
-                  <div className="bg-gradient-to-br from-neon-violet/10 via-neon-coral/10 to-neon-cyan/10 border border-neon-violet/30 rounded-lg p-4 md:p-6 text-center">
-                    <CheckCircle2 className="w-10 h-10 md:w-12 md:h-12 text-neon-violet mx-auto mb-3 md:mb-4" />
-                    <h3 className="text-lg md:text-xl font-bold mb-2 bg-gradient-neon bg-clip-text text-transparent">Ready to Get Started?</h3>
-                    <p className="text-xs md:text-sm text-muted-foreground mb-4 md:mb-6">
-                      Each account gets 1 automatic link based on your username, 
-                      plus you can create 2 additional custom links to track different campaigns.
-                    </p>
-                    <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                      <Button onClick={() => navigate('/auth?mode=signup')} size="lg" variant="default" className="w-full sm:w-auto bg-gradient-to-r from-neon-violet to-neon-coral hover:opacity-90 transition-all">
-                        Register Now
-                      </Button>
-                      <Button onClick={() => navigate('/auth')} size="lg" variant="outline" className="w-full sm:w-auto border-white/20 hover:bg-white/5">
-                        Log In
-                      </Button>
+                  {/* CTA Section */}
+                  <div className="relative bg-gradient-to-br from-neon-violet/10 via-neon-coral/5 to-neon-cyan/10 border border-neon-violet/20 rounded-2xl p-6 md:p-8 text-center overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-r from-neon-violet/10 via-transparent to-neon-cyan/10 animate-pulse" style={{ animationDuration: '3s' }}></div>
+                    <div className="relative">
+                      <div className="inline-block mb-4">
+                        <CheckCircle2 className="w-12 h-12 md:w-14 md:h-14 text-neon-violet" />
+                      </div>
+                      <h3 className="text-lg md:text-xl font-bold mb-3 bg-gradient-to-r from-neon-cyan via-neon-violet to-neon-coral bg-clip-text text-transparent">
+                        Ready to Get Started?
+                      </h3>
+                      <p className="text-xs md:text-sm text-foreground/80 mb-6 max-w-lg mx-auto leading-relaxed">
+                        Each account gets 1 automatic link based on your username, 
+                        plus you can create 2 additional custom links to track different campaigns.
+                      </p>
+                      <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                        <Button 
+                          onClick={() => navigate('/auth?mode=signup')} 
+                          size="lg" 
+                          className="w-full sm:w-auto bg-gradient-to-r from-neon-violet to-neon-coral hover:from-neon-violet/90 hover:to-neon-coral/90 transition-all shadow-lg hover:shadow-neon-violet/50 font-semibold"
+                        >
+                          Register Now
+                        </Button>
+                        <Button 
+                          onClick={() => navigate('/auth')} 
+                          size="lg" 
+                          variant="outline" 
+                          className="w-full sm:w-auto border-white/20 bg-white/[0.02] hover:bg-white/[0.05] backdrop-blur-sm font-semibold"
+                        >
+                          Log In
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </div>
