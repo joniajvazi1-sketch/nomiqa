@@ -80,6 +80,31 @@ serve(async (req) => {
       );
     }
 
+    // Rate limiting: Limit to 1 request per minute per user per ICCID
+    const oneMinuteAgo = new Date(Date.now() - 60 * 1000).toISOString();
+    const { data: recentRequests } = await supabase
+      .from('webhook_logs')
+      .select('id')
+      .eq('event_type', 'esim_usage_fetch')
+      .gte('created_at', oneMinuteAgo)
+      .limit(1);
+
+    if (recentRequests && recentRequests.length > 0) {
+      console.log(`Rate limit: User ${user.id} requesting too frequently for ICCID ${iccid}`);
+      return new Response(
+        JSON.stringify({ error: 'Please wait before refreshing usage data' }),
+        { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Log this usage fetch
+    await supabase
+      .from('webhook_logs')
+      .insert({
+        event_type: 'esim_usage_fetch',
+        payload: { user_id: user.id, iccid }
+      });
+
     const airloClientId = Deno.env.get('AIRLO_CLIENT_ID');
     const airloClientSecret = Deno.env.get('AIRLO_CLIENT_SECRET');
     const airloEnv = Deno.env.get('AIRLO_ENV') || 'sandbox';

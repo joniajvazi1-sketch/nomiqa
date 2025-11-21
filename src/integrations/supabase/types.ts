@@ -77,6 +77,7 @@ export type Database = {
           commission_rate: number | null
           created_at: string
           email: string
+          email_verified: boolean | null
           id: string
           parent_affiliate_id: string | null
           status: string | null
@@ -87,12 +88,15 @@ export type Database = {
           updated_at: string
           user_id: string | null
           username: string | null
+          verification_sent_at: string | null
+          verification_token: string | null
         }
         Insert: {
           affiliate_code: string
           commission_rate?: number | null
           created_at?: string
           email: string
+          email_verified?: boolean | null
           id?: string
           parent_affiliate_id?: string | null
           status?: string | null
@@ -103,12 +107,15 @@ export type Database = {
           updated_at?: string
           user_id?: string | null
           username?: string | null
+          verification_sent_at?: string | null
+          verification_token?: string | null
         }
         Update: {
           affiliate_code?: string
           commission_rate?: number | null
           created_at?: string
           email?: string
+          email_verified?: boolean | null
           id?: string
           parent_affiliate_id?: string | null
           status?: string | null
@@ -119,6 +126,8 @@ export type Database = {
           updated_at?: string
           user_id?: string | null
           username?: string | null
+          verification_sent_at?: string | null
+          verification_token?: string | null
         }
         Relationships: [
           {
@@ -183,6 +192,8 @@ export type Database = {
       orders: {
         Row: {
           access_token: string | null
+          access_token_expires_at: string | null
+          access_token_invalidated: boolean | null
           activation_code: string | null
           airlo_order_id: string | null
           airlo_request_id: string | null
@@ -209,6 +220,8 @@ export type Database = {
         }
         Insert: {
           access_token?: string | null
+          access_token_expires_at?: string | null
+          access_token_invalidated?: boolean | null
           activation_code?: string | null
           airlo_order_id?: string | null
           airlo_request_id?: string | null
@@ -235,6 +248,8 @@ export type Database = {
         }
         Update: {
           access_token?: string | null
+          access_token_expires_at?: string | null
+          access_token_invalidated?: boolean | null
           activation_code?: string | null
           airlo_order_id?: string | null
           airlo_request_id?: string | null
