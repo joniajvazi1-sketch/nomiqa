@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from "react";
 
 export const LoyaltyProgram = () => {
   const navigate = useNavigate();
-  const { language } = useTranslation();
+  const { language, t } = useTranslation();
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
   
@@ -31,32 +31,32 @@ export const LoyaltyProgram = () => {
 
   const tiers = [
     {
-      name: "Bronze",
+      nameKey: "loyaltyTierBronze",
       icon: Award,
       cashback: "5%",
       color: "from-amber-600 to-amber-800",
-      requirement: "Automatic",
+      requirementKey: "loyaltyAutomatic",
     },
     {
-      name: "Silver",
+      nameKey: "loyaltyTierSilver",
       icon: TrendingUp,
       cashback: "6%",
       color: "from-gray-400 to-gray-600",
-      requirement: "$20 spent",
+      requirementKey: "loyaltySpent20",
     },
     {
-      name: "Gold",
+      nameKey: "loyaltyTierGold",
       icon: Zap,
       cashback: "7%",
       color: "from-yellow-400 to-yellow-600",
-      requirement: "$50 spent",
+      requirementKey: "loyaltySpent50",
     },
     {
-      name: "Platinum",
+      nameKey: "loyaltyTierPlatinum",
       icon: Crown,
       cashback: "10%",
       color: "from-purple-400 to-purple-600",
-      requirement: "$150 spent",
+      requirementKey: "loyaltySpent150",
     },
   ];
 
@@ -71,16 +71,16 @@ export const LoyaltyProgram = () => {
         <div className={`text-center mb-12 md:mb-16 lg:mb-20 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           <div className="inline-block mb-3 md:mb-4">
             <span className="text-neon-coral text-[10px] sm:text-xs md:text-sm font-light tracking-[0.25em] uppercase">
-              🏆 Rewards Program
+              {t("loyaltyBadge")}
             </span>
           </div>
           <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light mb-4 md:mb-6 px-4">
             <span className="block bg-gradient-to-r from-white via-white/95 to-white/90 bg-clip-text text-transparent">
-              Earn Cashback on Every Purchase
+              {t("loyaltyTitle")}
             </span>
           </h2>
           <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white/70 font-light max-w-2xl mx-auto leading-relaxed px-4">
-            The more you use Nomiqa, the more you save. Unlock higher tiers and earn up to 10% cashback in crypto.
+            {t("loyaltySubtitle")}
           </p>
         </div>
 
@@ -90,7 +90,7 @@ export const LoyaltyProgram = () => {
             const Icon = tier.icon;
             return (
               <div 
-                key={tier.name} 
+                key={tier.nameKey} 
                 className={`group relative p-6 sm:p-7 md:p-8 rounded-2xl md:rounded-3xl bg-white/[0.02] backdrop-blur-xl border transition-all duration-700 hover-lift ${
                   index === 3 
                     ? 'border-neon-violet/30 bg-gradient-to-br from-neon-violet/5 to-neon-coral/5' 
@@ -102,14 +102,14 @@ export const LoyaltyProgram = () => {
                     <Icon className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-lg sm:text-xl md:text-2xl font-light text-white mb-2 md:mb-3">{tier.name}</h3>
+                    <h3 className="text-lg sm:text-xl md:text-2xl font-light text-white mb-2 md:mb-3">{t(tier.nameKey)}</h3>
                     <div className="text-3xl sm:text-4xl md:text-5xl font-extralight bg-gradient-to-r from-white via-white/90 to-white/80 bg-clip-text text-transparent">
                       {tier.cashback}
                     </div>
-                    <p className="text-xs sm:text-sm md:text-base text-white/50 font-light mt-1 md:mt-2">cashback</p>
+                    <p className="text-xs sm:text-sm md:text-base text-white/50 font-light mt-1 md:mt-2">{t("cashback")}</p>
                   </div>
                   <div className="pt-3 md:pt-4 border-t border-white/10">
-                    <p className="text-xs sm:text-sm text-white/60 font-light">{tier.requirement}</p>
+                    <p className="text-xs sm:text-sm text-white/60 font-light">{t(tier.requirementKey)}</p>
                   </div>
                 </div>
               </div>
@@ -122,18 +122,18 @@ export const LoyaltyProgram = () => {
           <div className="grid md:grid-cols-3 gap-6 md:gap-8 text-center">
             <div className="group">
               <div className="text-3xl sm:text-4xl mb-3 md:mb-4 group-hover:scale-110 transition-transform duration-300">💰</div>
-              <h4 className="font-light text-base sm:text-lg md:text-xl text-white mb-2 md:mb-3">Real Crypto Cashback</h4>
-              <p className="text-xs sm:text-sm md:text-base text-white/60 font-light leading-relaxed">Earn in USDC or SOL, not platform credits</p>
+              <h4 className="font-light text-base sm:text-lg md:text-xl text-white mb-2 md:mb-3">{t("loyaltyRealCryptoTitle")}</h4>
+              <p className="text-xs sm:text-sm md:text-base text-white/60 font-light leading-relaxed">{t("loyaltyRealCryptoDesc")}</p>
             </div>
             <div className="group">
               <div className="text-3xl sm:text-4xl mb-3 md:mb-4 group-hover:scale-110 transition-transform duration-300">⚡</div>
-              <h4 className="font-light text-base sm:text-lg md:text-xl text-white mb-2 md:mb-3">Instant Rewards</h4>
-              <p className="text-xs sm:text-sm md:text-base text-white/60 font-light leading-relaxed">Cashback credited immediately after purchase</p>
+              <h4 className="font-light text-base sm:text-lg md:text-xl text-white mb-2 md:mb-3">{t("loyaltyInstantTitle")}</h4>
+              <p className="text-xs sm:text-sm md:text-base text-white/60 font-light leading-relaxed">{t("loyaltyInstantDesc")}</p>
             </div>
             <div className="group">
               <div className="text-3xl sm:text-4xl mb-3 md:mb-4 group-hover:scale-110 transition-transform duration-300">🚀</div>
-              <h4 className="font-light text-base sm:text-lg md:text-xl text-white mb-2 md:mb-3">Lifetime Tiers</h4>
-              <p className="text-xs sm:text-sm md:text-base text-white/60 font-light leading-relaxed">Never lose your tier level once unlocked</p>
+              <h4 className="font-light text-base sm:text-lg md:text-xl text-white mb-2 md:mb-3">{t("loyaltyLifetimeTitle")}</h4>
+              <p className="text-xs sm:text-sm md:text-base text-white/60 font-light leading-relaxed">{t("loyaltyLifetimeDesc")}</p>
             </div>
           </div>
         </div>
@@ -145,7 +145,7 @@ export const LoyaltyProgram = () => {
             size="lg"
             className="bg-white text-black hover:bg-white/90 font-light text-sm sm:text-base md:text-lg px-8 sm:px-10 md:px-12 py-5 sm:py-6 md:py-7 rounded-xl md:rounded-2xl shadow-lg hover:scale-105 transition-all duration-300 w-full sm:w-auto"
           >
-            View My Rewards
+            {t("loyaltyViewRewards")}
           </Button>
         </div>
       </div>
