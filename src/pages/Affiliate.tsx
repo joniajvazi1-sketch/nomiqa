@@ -1302,7 +1302,7 @@ export default function Affiliate() {
                   <ol className="space-y-8">
                     {/* Step 1 */}
                     <li className="group relative">
-                      <div className="flex flex-col md:flex-row gap-6 items-start">
+                      <div className="flex flex-col md:flex-row gap-6 items-center md:items-start">
                         {/* Number Badge */}
                         <div className="relative flex-shrink-0">
                           <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-neon-cyan/20 to-neon-violet/20 backdrop-blur-xl border border-neon-cyan/30 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-neon-cyan/50">
@@ -1312,7 +1312,7 @@ export default function Affiliate() {
                         </div>
                         
                         {/* Content */}
-                        <div className="flex-1 space-y-3">
+                        <div className="flex-1 space-y-3 text-center md:text-left">
                           <h4 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent group-hover:from-neon-cyan group-hover:to-neon-violet transition-all duration-300">
                             {t("shareYourLink")}
                           </h4>
@@ -1325,7 +1325,7 @@ export default function Affiliate() {
 
                     {/* Step 2 */}
                     <li className="group relative">
-                      <div className="flex flex-col md:flex-row gap-6 items-start">
+                      <div className="flex flex-col md:flex-row gap-6 items-center md:items-start">
                         {/* Number Badge */}
                         <div className="relative flex-shrink-0">
                           <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-neon-violet/20 to-neon-coral/20 backdrop-blur-xl border border-neon-violet/30 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-neon-violet/50">
@@ -1335,7 +1335,7 @@ export default function Affiliate() {
                         </div>
                         
                         {/* Content */}
-                        <div className="flex-1 space-y-3">
+                        <div className="flex-1 space-y-3 text-center md:text-left">
                           <h4 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent group-hover:from-neon-violet group-hover:to-neon-coral transition-all duration-300">
                             {t("theyPurchase")}
                           </h4>
@@ -1348,7 +1348,7 @@ export default function Affiliate() {
 
                     {/* Step 3 */}
                     <li className="group relative">
-                      <div className="flex flex-col md:flex-row gap-6 items-start">
+                      <div className="flex flex-col md:flex-row gap-6 items-center md:items-start">
                         {/* Number Badge */}
                         <div className="relative flex-shrink-0">
                           <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-neon-coral/20 to-neon-cyan/20 backdrop-blur-xl border border-neon-coral/30 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-neon-coral/50">
@@ -1358,11 +1358,11 @@ export default function Affiliate() {
                         </div>
                         
                         {/* Content */}
-                        <div className="flex-1 space-y-4">
+                        <div className="flex-1 space-y-4 text-center md:text-left">
                           <h4 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent group-hover:from-neon-coral group-hover:to-neon-cyan transition-all duration-300">
                             {t("earnMultiLevelCommissions")}
                           </h4>
-                          <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-4 text-center">
+                          <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-4">
                             {t("buildYourNetworkDesc")}
                           </p>
                           
