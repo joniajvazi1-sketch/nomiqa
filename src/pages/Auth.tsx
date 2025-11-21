@@ -94,84 +94,143 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl">{isSignUp ? t("createAccount") : t("welcomeBack")}</CardTitle>
-          <CardDescription>
-            {isSignUp
-              ? t("signupSubtitle")
-              : t("loginSubtitle")}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleAuth} className="space-y-4">
-            {isSignUp && (
-              <div className="space-y-2">
-                <Label htmlFor="username">{t("usernameLabel")}</Label>
-                <Input
-                  id="username"
-                  type="text"
-                  placeholder={t("usernamePlaceholder")}
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value.replace(/[^a-zA-Z0-9_]/g, ''))}
-                  required={isSignUp}
-                  minLength={3}
-                  maxLength={20}
-                />
-                <p className="text-xs text-muted-foreground">
-                  3-20 characters, letters, numbers and underscores only
-                </p>
+    <div className="min-h-screen bg-gradient-to-br from-deep-space via-midnight-blue to-deep-space relative overflow-hidden">
+      {/* Background effects */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-30">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-neon-violet/40 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '4s' }}></div>
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-neon-coral/40 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '3s' }}></div>
+        <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-neon-cyan/30 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '5s' }}></div>
+      </div>
+
+      <div className="relative z-10 flex items-center justify-center min-h-screen p-4 py-12">
+        <Card className="w-full max-w-md bg-white/[0.02] backdrop-blur-2xl border-white/10 shadow-2xl overflow-hidden animate-fade-in">
+          {/* Card glow effect */}
+          <div className="absolute inset-0 bg-gradient-to-br from-neon-violet/5 via-transparent to-neon-cyan/5 pointer-events-none"></div>
+          
+          <CardHeader className="text-center pb-4 relative">
+            <div className="mb-4">
+              <div className="inline-block relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-neon-cyan/20 to-neon-violet/20 rounded-full blur-xl"></div>
+                <div className="relative w-16 h-16 mx-auto bg-gradient-to-br from-neon-cyan/10 to-neon-violet/10 rounded-full flex items-center justify-center border border-white/10">
+                  <div className="w-8 h-8 bg-gradient-to-r from-neon-cyan via-neon-violet to-neon-coral rounded-full"></div>
+                </div>
               </div>
-            )}
-            <div className="space-y-2">
-              <Label htmlFor="email">{t("authEmailLabel")}</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder={t("emailPlaceholder")}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">{t("authPasswordLabel")}</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                minLength={6}
-              />
+            <CardTitle className="text-3xl md:text-4xl font-black bg-gradient-to-r from-neon-cyan via-neon-violet to-neon-coral bg-clip-text text-transparent mb-2">
+              {isSignUp ? t("createAccount") : t("welcomeBack")}
+            </CardTitle>
+            <CardDescription className="text-sm md:text-base text-foreground/70">
+              {isSignUp ? t("signupSubtitle") : t("loginSubtitle")}
+            </CardDescription>
+          </CardHeader>
+
+          <CardContent className="relative">
+            <form onSubmit={handleAuth} className="space-y-5">
+              {isSignUp && (
+                <div className="space-y-2 animate-fade-in">
+                  <Label htmlFor="username" className="text-sm font-semibold text-foreground/90">
+                    {t("usernameLabel")}
+                  </Label>
+                  <div className="relative group">
+                    <Input
+                      id="username"
+                      type="text"
+                      placeholder={t("usernamePlaceholder")}
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value.replace(/[^a-zA-Z0-9_]/g, ''))}
+                      required={isSignUp}
+                      minLength={3}
+                      maxLength={20}
+                      className="bg-white/[0.03] border-white/10 focus:border-neon-cyan/50 focus:bg-white/[0.05] transition-all h-11 text-base backdrop-blur-sm group-hover:border-white/20"
+                    />
+                    <div className="absolute inset-0 rounded-md bg-gradient-to-r from-neon-cyan/10 to-neon-violet/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+                  </div>
+                  <p className="text-xs text-muted-foreground/80 mt-1.5">
+                    3-20 characters, letters, numbers and underscores only
+                  </p>
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-sm font-semibold text-foreground/90">
+                  {t("authEmailLabel")}
+                </Label>
+                <div className="relative group">
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder={t("emailPlaceholder")}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="bg-white/[0.03] border-white/10 focus:border-neon-violet/50 focus:bg-white/[0.05] transition-all h-11 text-base backdrop-blur-sm group-hover:border-white/20"
+                  />
+                  <div className="absolute inset-0 rounded-md bg-gradient-to-r from-neon-violet/10 to-neon-coral/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-sm font-semibold text-foreground/90">
+                  {t("authPasswordLabel")}
+                </Label>
+                <div className="relative group">
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    minLength={6}
+                    className="bg-white/[0.03] border-white/10 focus:border-neon-coral/50 focus:bg-white/[0.05] transition-all h-11 text-base backdrop-blur-sm group-hover:border-white/20"
+                  />
+                  <div className="absolute inset-0 rounded-md bg-gradient-to-r from-neon-coral/10 to-neon-cyan/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+                </div>
+              </div>
+
+              <Button 
+                type="submit" 
+                className="w-full h-12 text-base font-bold bg-gradient-to-r from-neon-violet via-neon-coral to-neon-cyan hover:from-neon-violet/90 hover:via-neon-coral/90 hover:to-neon-cyan/90 transition-all shadow-lg hover:shadow-neon-violet/50 mt-6 relative overflow-hidden group" 
+                disabled={loading}
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-neon-cyan/20 via-neon-violet/20 to-neon-coral/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <span className="relative flex items-center justify-center gap-2">
+                  {loading && <Loader2 className="h-5 w-5 animate-spin" />}
+                  {isSignUp ? t("registerButton") : t("loginButton")}
+                </span>
+              </Button>
+            </form>
+
+            <div className="mt-6 text-center">
+              <button
+                type="button"
+                onClick={() => setIsSignUp(!isSignUp)}
+                className="text-sm text-muted-foreground hover:text-neon-cyan transition-colors font-medium inline-flex items-center gap-1 group"
+              >
+                <span className="relative">
+                  {isSignUp
+                    ? `${t("alreadyHaveAccount")} ${t("loginButton")}`
+                    : `${t("noAccountYet")} ${t("registerButton")}`}
+                  <span className="absolute bottom-0 left-0 w-full h-0.5 bg-neon-cyan scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></span>
+                </span>
+              </button>
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {isSignUp ? t("registerButton") : t("loginButton")}
-            </Button>
-          </form>
 
-          <div className="mt-4 text-center">
-            <button
-              type="button"
-              onClick={() => setIsSignUp(!isSignUp)}
-              className="text-sm text-muted-foreground hover:text-primary"
-            >
-              {isSignUp
-                ? `${t("alreadyHaveAccount")} ${t("loginButton")}`
-                : `${t("noAccountYet")} ${t("registerButton")}`}
-            </button>
-          </div>
-
-          <div className="mt-4 text-center">
-            <Button variant="ghost" onClick={() => navigate('/')}>
-              {t("backToHome")}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+            <div className="mt-6 pt-6 border-t border-white/5">
+              <Button 
+                variant="ghost" 
+                onClick={() => navigate('/')}
+                className="w-full hover:bg-white/[0.05] hover:text-neon-violet transition-all font-semibold group"
+              >
+                <span className="flex items-center gap-2">
+                  <span className="group-hover:-translate-x-1 transition-transform">←</span>
+                  {t("backToHome")}
+                </span>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
