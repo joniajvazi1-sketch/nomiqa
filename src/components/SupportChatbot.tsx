@@ -15,7 +15,22 @@ export const SupportChatbot = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Show button after scrolling 800px down
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 800) {
+        setIsVisible(true);
+      } else {
+        setIsVisible(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -134,7 +149,11 @@ export const SupportChatbot = () => {
   return (
     <>
       {/* Floating Chat Bubble - Below Buy Now Button */}
-      <div className="fixed bottom-20 right-6 z-40">
+      <div
+        className={`fixed bottom-20 right-6 z-40 transition-all duration-500 ${
+          isVisible ? "translate-y-0 opacity-100 scale-100" : "translate-y-20 opacity-0 scale-95 pointer-events-none"
+        }`}
+      >
         {!isOpen && (
           <div className="relative group">
             {/* Single subtle glow - matching Buy Now */}
