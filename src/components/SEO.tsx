@@ -8,27 +8,27 @@ interface SEOProps {
 const seoData: Record<string, Record<Language, { title: string; description: string }>> = {
   home: {
     EN: {
-      title: "Nomiqa - Private eSIM with Crypto Payments | 190+ Countries",
-      description: "Connect privately anywhere with Nomiqa eSIM. Pay with SOL, USDC, or $NOMIQA token. No ID, no tracking, no limits. Instant activation in 190+ countries."
+      title: "Nomiqa - Private eSIM with Crypto Payments | 200+ Countries",
+      description: "Connect privately anywhere with Nomiqa eSIM. Pay with SOL, USDC, or $NOMIQA token. No ID, no tracking, no limits. Instant activation in 200+ countries."
     },
     DE: {
-      title: "Nomiqa - Private eSIM mit Krypto-Zahlungen | 190+ Länder",
+      title: "Nomiqa - Private eSIM mit Krypto-Zahlungen | 200+ Länder",
       description: "Verbinde dich privat überall mit Nomiqa eSIM. Bezahle mit SOL, USDC oder $NOMIQA Token. Keine ID, kein Tracking, keine Limits. Sofortige Aktivierung in über 190 Ländern."
     },
     FR: {
-      title: "Nomiqa - eSIM Privée avec Paiements Crypto | 190+ Pays",
+      title: "Nomiqa - eSIM Privée avec Paiements Crypto | 200+ Pays",
       description: "Connectez-vous en privé partout avec Nomiqa eSIM. Payez avec SOL, USDC ou jeton $NOMIQA. Pas d'ID, pas de suivi, pas de limites. Activation instantanée dans plus de 190 pays."
     },
     ES: {
-      title: "Nomiqa - eSIM Privado con Pagos Crypto | 190+ Países",
+      title: "Nomiqa - eSIM Privado con Pagos Crypto | 200+ Países",
       description: "Conéctate de forma privada en cualquier lugar con Nomiqa eSIM. Paga con SOL, USDC o token $NOMIQA. Sin ID, sin seguimiento, sin límites. Activación instantánea en más de 190 países."
     },
     IT: {
-      title: "Nomiqa - eSIM Privata con Pagamenti Crypto | 190+ Paesi",
+      title: "Nomiqa - eSIM Privata con Pagamenti Crypto | 200+ Paesi",
       description: "Connettiti privatamente ovunque con Nomiqa eSIM. Paga con SOL, USDC o token $NOMIQA. Nessun ID, nessun tracciamento, nessun limite. Attivazione istantanea in oltre 190 paesi."
     },
     PT: {
-      title: "Nomiqa - eSIM Privado com Pagamentos Crypto | 190+ Países",
+      title: "Nomiqa - eSIM Privado com Pagamentos Crypto | 200+ Países",
       description: "Conecte-se privativamente em qualquer lugar com Nomiqa eSIM. Pague com SOL, USDC ou token $NOMIQA. Sem ID, sem rastreamento, sem limites. Ativação instantânea em mais de 190 países."
     },
     JA: {
@@ -40,18 +40,18 @@ const seoData: Record<string, Record<Language, { title: string; description: str
       description: "使用Nomiqa eSIM在任何地方私密连接。使用SOL、USDC或$NOMIQA代币支付。无需身份证明，无追踪，无限制。在190多个国家即时激活。"
     },
     RU: {
-      title: "Nomiqa - Приватная eSIM с Крипто-Платежами | 190+ Стран",
+      title: "Nomiqa - Приватная eSIM с Крипто-Платежами | 200+ Стран",
       description: "Подключайтесь конфиденциально где угодно с Nomiqa eSIM. Платите SOL, USDC или токеном $NOMIQA. Без ID, без отслеживания, без ограничений. Мгновенная активация в более чем 190 странах."
     },
     AR: {
-      title: "Nomiqa - eSIM خاص بمدفوعات العملات المشفرة | 190+ دولة",
+      title: "Nomiqa - eSIM خاص بمدفوعات العملات المشفرة | 200+ دولة",
       description: "اتصل بشكل خاص في أي مكان مع Nomiqa eSIM. ادفع باستخدام SOL أو USDC أو رمز $NOMIQA. بدون هوية، بدون تتبع، بدون حدود. تفعيل فوري في أكثر من 190 دولة."
     }
   },
   shop: {
     EN: {
       title: "Shop eSIM Plans - Crypto Payments | Nomiqa",
-      description: "Browse 190+ country eSIM plans. Pay with SOL, USDC or $NOMIQA token. Instant delivery, no KYC required. Private global connectivity starts here."
+      description: "Browse 200+ country eSIM plans. Pay with SOL, USDC or $NOMIQA token. Instant delivery, no KYC required. Private global connectivity starts here."
     },
     DE: {
       title: "eSIM-Tarife kaufen - Krypto-Zahlungen | Nomiqa",

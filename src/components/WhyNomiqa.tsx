@@ -42,7 +42,7 @@ export const WhyNomiqa = () => {
     {
       icon: Globe,
       title: "Borderless Connection. Limitless Possibilities.",
-      description: "190+ countries. One eSIM. The world is yours to explore freely.",
+      description: "200+ countries. One eSIM. The world is yours to explore freely.",
       gradient: "from-neon-coral to-warm-sand",
     },
   ];
