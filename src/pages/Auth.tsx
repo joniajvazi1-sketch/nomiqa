@@ -28,6 +28,7 @@ export default function Auth() {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
@@ -55,6 +56,21 @@ export default function Auth() {
     setLoading(true);
 
     try {
+      if (isForgotPassword) {
+        // Handle password reset
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/auth?mode=reset`,
+        });
+
+        if (error) throw error;
+        
+        toast.success("Password reset email sent! Check your inbox.");
+        setIsForgotPassword(false);
+        setEmail("");
+        setLoading(false);
+        return;
+      }
+
       // Validate input with Zod schema
       const validationResult = authSchema.safeParse({
         email,
@@ -122,11 +138,11 @@ export default function Auth() {
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
-      {/* Simplified background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-secondary/5"></div>
+      {/* Simple background */}
+      <div className="absolute inset-0 bg-muted/20"></div>
 
       <div className="relative z-10 flex items-center justify-center min-h-screen p-4 py-12">
-        <Card className="w-full max-w-md bg-card/80 backdrop-blur-xl border-border/50 shadow-2xl overflow-hidden animate-fade-in">
+        <Card className="w-full max-w-md bg-card backdrop-blur-xl border-border shadow-2xl overflow-hidden animate-fade-in">
           <CardHeader className="text-center pb-4 relative pt-8">
             {/* Animated Logo */}
             <div className="mb-8">
@@ -138,17 +154,19 @@ export default function Auth() {
               />
             </div>
             
-            <CardTitle className="text-3xl md:text-4xl font-black bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-2">
-              {isSignUp ? t("createAccount") : t("welcomeBack")}
+            <CardTitle className="text-3xl md:text-4xl font-black text-foreground mb-2">
+              {isForgotPassword ? "Reset Password" : isSignUp ? t("createAccount") : t("welcomeBack")}
             </CardTitle>
             <CardDescription className="text-sm md:text-base text-muted-foreground">
-              {isSignUp ? t("signupSubtitle") : t("loginSubtitle")}
+              {isForgotPassword 
+                ? "Enter your email to receive a password reset link" 
+                : isSignUp ? t("signupSubtitle") : t("loginSubtitle")}
             </CardDescription>
           </CardHeader>
 
           <CardContent className="relative">
             <form onSubmit={handleAuth} className="space-y-5">
-              {isSignUp && (
+              {!isForgotPassword && isSignUp && (
                 <div className="space-y-2 animate-fade-in">
                   <Label htmlFor="username" className="text-sm font-semibold">
                     {t("usernameLabel")}
@@ -185,49 +203,71 @@ export default function Auth() {
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-sm font-semibold">
-                  {t("authPasswordLabel")}
-                </Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  minLength={6}
-                  className="h-11 text-base"
-                />
-              </div>
+              {!isForgotPassword && (
+                <div className="space-y-2">
+                  <Label htmlFor="password" className="text-sm font-semibold">
+                    {t("authPasswordLabel")}
+                  </Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    minLength={6}
+                    className="h-11 text-base"
+                  />
+                </div>
+              )}
 
               <Button 
                 type="submit" 
-                className="w-full h-12 text-base font-bold bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-all shadow-lg mt-6" 
+                className="w-full h-12 text-base font-bold bg-primary hover:bg-primary/90 transition-all shadow-lg mt-6" 
                 disabled={loading}
               >
                 {loading && <Loader2 className="h-5 w-5 animate-spin mr-2" />}
-                {isSignUp ? t("registerButton") : t("loginButton")}
+                {isForgotPassword ? "Send Reset Link" : isSignUp ? t("registerButton") : t("loginButton")}
               </Button>
             </form>
+
+            {!isForgotPassword && !isSignUp && (
+              <div className="mt-4 text-center">
+                <button
+                  type="button"
+                  onClick={() => setIsForgotPassword(true)}
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors font-medium"
+                >
+                  Forgot password?
+                </button>
+              </div>
+            )}
 
             <div className="mt-6 text-center">
               <button
                 type="button"
-                onClick={() => setIsSignUp(!isSignUp)}
+                onClick={() => {
+                  if (isForgotPassword) {
+                    setIsForgotPassword(false);
+                  } else {
+                    setIsSignUp(!isSignUp);
+                  }
+                }}
                 className="text-sm text-muted-foreground hover:text-primary transition-colors font-medium"
               >
-                {isSignUp
-                  ? `${t("alreadyHaveAccount")} ${t("loginButton")}`
-                  : `${t("noAccountYet")} ${t("registerButton")}`}
+                {isForgotPassword
+                  ? "Back to login"
+                  : isSignUp
+                    ? `${t("alreadyHaveAccount")} ${t("loginButton")}`
+                    : `${t("noAccountYet")} ${t("registerButton")}`}
               </button>
             </div>
 
-            <div className="mt-6 pt-6 border-t border-border/50">
+            <div className="mt-6 pt-6 border-t border-border">
               <Button 
                 variant="ghost" 
                 onClick={() => navigate('/')}
-                className="w-full hover:bg-primary/10 transition-all font-semibold"
+                className="w-full hover:bg-muted transition-all font-semibold"
               >
                 ← {t("backToHome")}
               </Button>
