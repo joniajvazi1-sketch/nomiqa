@@ -53,20 +53,14 @@ export const FAQ = () => {
   ];
 
   return (
-    <section className="py-12 md:py-20 bg-gradient-to-br from-deep-space via-midnight-blue to-deep-space relative overflow-hidden">
-      {/* Decorative Elements */}
-      <div className="absolute inset-0 opacity-20">
-        <div className="absolute top-20 left-10 w-64 h-64 bg-neon-cyan rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 right-10 w-80 h-80 bg-neon-violet rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
-      </div>
-      
+    <section className="py-12 md:py-20 relative overflow-hidden">
       <div className="container px-4 relative z-10">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-8 md:mb-12">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-3 md:mb-4 bg-gradient-neon bg-clip-text text-transparent">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-3 md:mb-4 bg-gradient-to-r from-neon-cyan via-neon-violet to-neon-coral bg-clip-text text-transparent">
               {t("faqTitle")}
             </h2>
-            <p className="text-base md:text-xl text-foreground/70">
+            <p className="text-base md:text-xl text-foreground/80">
               {t("faqSubtitle")}
             </p>
           </div>
@@ -76,7 +70,7 @@ export const FAQ = () => {
               <AccordionItem 
                 key={index} 
                 value={`item-${index}`}
-                className="bg-card/50 backdrop-blur-xl border border-neon-cyan/20 rounded-xl px-4 md:px-6 shadow-lg hover:shadow-glow-cyan transition-all"
+                className="bg-white/[0.02] backdrop-blur-xl border border-white/10 hover:border-neon-cyan/30 rounded-xl px-4 md:px-6 transition-all hover:bg-white/[0.04]"
               >
                 <AccordionTrigger className="text-left text-base md:text-lg font-semibold text-foreground hover:text-neon-cyan transition-colors py-4">
                   {faq.question}
