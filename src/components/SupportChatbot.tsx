@@ -134,7 +134,7 @@ export const SupportChatbot = () => {
   return (
     <>
       {/* Floating Chat Bubble - Below Buy Now Button */}
-      <div className="fixed bottom-6 right-6 z-40">
+      <div className="fixed bottom-20 right-6 z-40">
         {!isOpen && (
           <Button
             onClick={() => setIsOpen(true)}
