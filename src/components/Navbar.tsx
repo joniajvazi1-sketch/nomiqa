@@ -259,9 +259,9 @@ export const Navbar = () => {
             {/* Mobile Register Button - Show only when NOT logged in */}
             {!user && (
               <Button 
-                variant="outline" 
+                variant="ghost" 
                 size="sm" 
-                className="flex lg:hidden border-neon-cyan/30 bg-neon-cyan/5 text-neon-cyan hover:bg-neon-cyan/10 hover:border-neon-cyan/50 font-light text-xs px-3 h-9 shadow-glow-cyan transition-all duration-300" 
+                className="flex lg:hidden text-white/80 hover:text-neon-cyan hover:bg-neon-cyan/5 border border-white/5 hover:border-neon-cyan/30 font-light text-xs px-3 h-9 transition-all duration-300" 
                 onClick={() => navigate('/auth?mode=register')}
               >
                 {t('register')}
@@ -308,101 +308,66 @@ export const Navbar = () => {
             <div className="lg:hidden">
               <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
                 <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon" className="text-white/90 hover:text-neon-cyan hover:bg-neon-cyan/5 border border-white/5 hover:border-neon-cyan/30 h-8 w-8 sm:h-10 sm:w-10 transition-all duration-300">
+                  <Button variant="ghost" size="icon" className="text-white/90 hover:text-neon-cyan hover:bg-neon-cyan/5 border border-white/5 hover:border-neon-cyan/30 h-9 w-9 sm:h-10 sm:w-10 transition-all duration-300">
                     <Menu className="w-5 h-5 sm:w-6 sm:h-6" />
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="right" className="w-[280px] sm:w-[320px] bg-gradient-to-b from-deep-space/98 via-black/95 to-black/98 backdrop-blur-2xl border-l border-neon-cyan/20">
-                  {/* Decorative glow */}
-                  <div className="absolute top-0 right-0 w-64 h-64 bg-neon-cyan/10 rounded-full blur-3xl pointer-events-none" />
-                  <div className="absolute bottom-0 left-0 w-48 h-48 bg-neon-violet/10 rounded-full blur-3xl pointer-events-none" />
+                <SheetContent side="right" className="w-[85vw] max-w-[320px] bg-black/95 backdrop-blur-3xl border-l border-white/10">
+                  {/* Subtle gradient overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] via-transparent to-neon-cyan/[0.03] pointer-events-none" />
                   
-                  <SheetHeader className="relative z-10">
-                    <SheetTitle className="text-white font-light text-xl bg-gradient-to-r from-neon-cyan via-white to-neon-violet bg-clip-text text-transparent">{t("menu")}</SheetTitle>
+                  <SheetHeader className="relative z-10 border-b border-white/5 pb-4">
+                    <SheetTitle className="text-white font-light text-lg tracking-wide">{t("menu")}</SheetTitle>
                   </SheetHeader>
-                  <div className="flex flex-col gap-1 mt-8 relative z-10">
-                    <button onClick={() => handleNavClick('/shop')} className="text-left text-white/70 hover:text-neon-cyan hover:bg-neon-cyan/5 active:bg-neon-cyan/10 transition-all duration-300 py-3.5 px-4 rounded-xl font-light text-base border border-transparent hover:border-neon-cyan/20 group">
-                      <span className="flex items-center gap-3">
-                        <span className="w-1 h-1 rounded-full bg-neon-cyan/50 group-hover:bg-neon-cyan group-hover:w-2 transition-all duration-300" />
-                        {t("shop")}
-                      </span>
+                  <div className="flex flex-col gap-0.5 mt-6 relative z-10">
+                    <button onClick={() => handleNavClick('/shop')} className="text-left text-white/70 hover:text-white hover:bg-white/5 transition-all duration-200 py-3.5 px-4 rounded-lg font-light text-sm">
+                      {t("shop")}
                     </button>
-                    <button onClick={() => handleNavClick('/getting-started')} className="text-left text-white/70 hover:text-neon-cyan hover:bg-neon-cyan/5 active:bg-neon-cyan/10 transition-all duration-300 py-3.5 px-4 rounded-xl font-light text-base border border-transparent hover:border-neon-cyan/20 group">
-                      <span className="flex items-center gap-3">
-                        <span className="w-1 h-1 rounded-full bg-neon-cyan/50 group-hover:bg-neon-cyan group-hover:w-2 transition-all duration-300" />
-                        {t("howToBuy")}
-                      </span>
+                    <button onClick={() => handleNavClick('/getting-started')} className="text-left text-white/70 hover:text-white hover:bg-white/5 transition-all duration-200 py-3.5 px-4 rounded-lg font-light text-sm">
+                      {t("howToBuy")}
                     </button>
-                    <button onClick={() => handleNavClick('/affiliate')} className="text-left text-white/70 hover:text-neon-cyan hover:bg-neon-cyan/5 active:bg-neon-cyan/10 transition-all duration-300 py-3.5 px-4 rounded-xl font-light text-base border border-transparent hover:border-neon-cyan/20 group">
-                      <span className="flex items-center gap-3">
-                        <span className="w-1 h-1 rounded-full bg-neon-cyan/50 group-hover:bg-neon-cyan group-hover:w-2 transition-all duration-300" />
-                        {t("affiliate")}
-                      </span>
+                    <button onClick={() => handleNavClick('/affiliate')} className="text-left text-white/70 hover:text-white hover:bg-white/5 transition-all duration-200 py-3.5 px-4 rounded-lg font-light text-sm">
+                      {t("affiliate")}
                     </button>
-                    <button onClick={() => handleNavClick('/stake')} className="text-left text-white/70 hover:text-neon-cyan hover:bg-neon-cyan/5 active:bg-neon-cyan/10 transition-all duration-300 py-3.5 px-4 rounded-xl font-light text-base border border-transparent hover:border-neon-cyan/20 group">
-                      <span className="flex items-center gap-3">
-                        <span className="w-1 h-1 rounded-full bg-neon-cyan/50 group-hover:bg-neon-cyan group-hover:w-2 transition-all duration-300" />
-                        {t("stake")}
-                      </span>
+                    <button onClick={() => handleNavClick('/stake')} className="text-left text-white/70 hover:text-white hover:bg-white/5 transition-all duration-200 py-3.5 px-4 rounded-lg font-light text-sm">
+                      {t("stake")}
                     </button>
-                    <button onClick={() => handleNavClick('/about')} className="text-left text-white/70 hover:text-neon-cyan hover:bg-neon-cyan/5 active:bg-neon-cyan/10 transition-all duration-300 py-3.5 px-4 rounded-xl font-light text-base border border-transparent hover:border-neon-cyan/20 group">
-                      <span className="flex items-center gap-3">
-                        <span className="w-1 h-1 rounded-full bg-neon-cyan/50 group-hover:bg-neon-cyan group-hover:w-2 transition-all duration-300" />
-                        {t("aboutUs")}
-                      </span>
+                    <button onClick={() => handleNavClick('/about')} className="text-left text-white/70 hover:text-white hover:bg-white/5 transition-all duration-200 py-3.5 px-4 rounded-lg font-light text-sm">
+                      {t("aboutUs")}
                     </button>
-                    <button onClick={() => handleNavClick('/privacy')} className="text-left text-white/70 hover:text-neon-cyan hover:bg-neon-cyan/5 active:bg-neon-cyan/10 transition-all duration-300 py-3.5 px-4 rounded-xl font-light text-base border border-transparent hover:border-neon-cyan/20 group">
-                      <span className="flex items-center gap-3">
-                        <span className="w-1 h-1 rounded-full bg-neon-cyan/50 group-hover:bg-neon-cyan group-hover:w-2 transition-all duration-300" />
-                        {t("howWeProtect")}
-                      </span>
+                    <button onClick={() => handleNavClick('/privacy')} className="text-left text-white/70 hover:text-white hover:bg-white/5 transition-all duration-200 py-3.5 px-4 rounded-lg font-light text-sm">
+                      {t("howWeProtect")}
                     </button>
-                    <button onClick={() => handleNavClick('/help')} className="text-left text-white/70 hover:text-neon-cyan hover:bg-neon-cyan/5 active:bg-neon-cyan/10 transition-all duration-300 py-3.5 px-4 rounded-xl font-light text-base border border-transparent hover:border-neon-cyan/20 group">
-                      <span className="flex items-center gap-3">
-                        <span className="w-1 h-1 rounded-full bg-neon-cyan/50 group-hover:bg-neon-cyan group-hover:w-2 transition-all duration-300" />
-                        {t("help")}
-                      </span>
+                    <button onClick={() => handleNavClick('/help')} className="text-left text-white/70 hover:text-white hover:bg-white/5 transition-all duration-200 py-3.5 px-4 rounded-lg font-light text-sm">
+                      {t("help")}
                     </button>
                     {user && (
                       <>
-                        <button onClick={() => handleNavClick('/account')} className="text-left text-white/70 hover:text-neon-cyan hover:bg-neon-cyan/5 active:bg-neon-cyan/10 transition-all duration-300 py-3.5 px-4 rounded-xl font-light text-base border border-transparent hover:border-neon-cyan/20 group">
-                          <span className="flex items-center gap-3">
-                            <span className="w-1 h-1 rounded-full bg-neon-cyan/50 group-hover:bg-neon-cyan group-hover:w-2 transition-all duration-300" />
-                            My Account
-                          </span>
+                        <button onClick={() => handleNavClick('/account')} className="text-left text-white/70 hover:text-white hover:bg-white/5 transition-all duration-200 py-3.5 px-4 rounded-lg font-light text-sm">
+                          My Account
                         </button>
-                        <button onClick={() => handleNavClick('/orders')} className="text-left text-white/70 hover:text-neon-cyan hover:bg-neon-cyan/5 active:bg-neon-cyan/10 transition-all duration-300 py-3.5 px-4 rounded-xl font-light text-base border border-transparent hover:border-neon-cyan/20 group">
-                          <span className="flex items-center gap-3">
-                            <span className="w-1 h-1 rounded-full bg-neon-cyan/50 group-hover:bg-neon-cyan group-hover:w-2 transition-all duration-300" />
-                            {t("myEsims")}
-                          </span>
+                        <button onClick={() => handleNavClick('/orders')} className="text-left text-white/70 hover:text-white hover:bg-white/5 transition-all duration-200 py-3.5 px-4 rounded-lg font-light text-sm">
+                          {t("myEsims")}
                         </button>
                       </>
                     )}
 
-                    <div className="h-px bg-gradient-to-r from-transparent via-neon-cyan/30 to-transparent my-4" />
+                    <div className="h-px bg-white/5 my-3" />
 
                     {/* Auth action in mobile menu */}
                     {user ? (
-                      <button onClick={handleSignOut} className="text-left text-white/80 hover:text-neon-violet hover:bg-neon-violet/5 active:bg-neon-violet/10 transition-all duration-300 py-3.5 px-4 rounded-xl font-light text-base border border-transparent hover:border-neon-violet/20 group">
-                        <span className="flex items-center gap-3">
-                          <LogOut className="w-4 h-4 text-neon-violet/60 group-hover:text-neon-violet transition-colors duration-300" />
-                          <span>{t('signOut')}</span>
-                        </span>
+                      <button onClick={handleSignOut} className="text-left text-white/60 hover:text-white/90 hover:bg-white/5 transition-all duration-200 py-3.5 px-4 rounded-lg font-light text-sm flex items-center gap-2.5">
+                        <LogOut className="w-4 h-4" />
+                        <span>{t('signOut')}</span>
                       </button>
                     ) : (
                       <>
-                        <button onClick={() => { setMobileMenuOpen(false); navigate('/auth?mode=login'); }} className="text-left text-white/80 hover:text-neon-cyan hover:bg-neon-cyan/5 active:bg-neon-cyan/10 transition-all duration-300 py-3.5 px-4 rounded-xl font-light text-base border border-transparent hover:border-neon-cyan/20 group">
-                          <span className="flex items-center gap-3">
-                            <LogIn className="w-4 h-4 text-neon-cyan/60 group-hover:text-neon-cyan transition-colors duration-300" />
-                            <span>{t('login')}</span>
-                          </span>
+                        <button onClick={() => { setMobileMenuOpen(false); navigate('/auth?mode=login'); }} className="text-left text-white/70 hover:text-white hover:bg-white/5 transition-all duration-200 py-3.5 px-4 rounded-lg font-light text-sm flex items-center gap-2.5">
+                          <LogIn className="w-4 h-4" />
+                          <span>{t('login')}</span>
                         </button>
-                        <button onClick={() => { setMobileMenuOpen(false); navigate('/auth?mode=register'); }} className="text-left bg-gradient-to-r from-neon-cyan/10 to-neon-violet/10 hover:from-neon-cyan/20 hover:to-neon-violet/20 text-neon-cyan hover:text-white border border-neon-cyan/30 hover:border-neon-cyan/50 active:bg-neon-cyan/20 transition-all duration-300 py-3.5 px-4 rounded-xl font-light text-base shadow-glow-cyan group">
-                          <span className="flex items-center gap-3">
-                            <span className="w-1.5 h-1.5 rounded-full bg-neon-cyan group-hover:scale-150 transition-transform duration-300" />
-                            <span className="font-normal">{t('register')}</span>
-                          </span>
+                        <button onClick={() => { setMobileMenuOpen(false); navigate('/auth?mode=register'); }} className="text-left text-white hover:bg-white/5 transition-all duration-200 py-3.5 px-4 rounded-lg font-light text-sm border border-white/10 mt-1">
+                          {t('register')}
                         </button>
                       </>
                     )}
