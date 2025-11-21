@@ -84,55 +84,47 @@ export const LoyaltyProgram = () => {
           </p>
         </div>
 
-        {/* Tiers Grid with Magical Connection Line */}
-        <div className={`relative transition-all duration-1000 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-          {/* Magical connecting line - mobile only */}
-          <div className="absolute left-1/2 top-0 bottom-0 w-1 -translate-x-1/2 lg:hidden">
-            <div className="absolute inset-0 bg-gradient-to-b from-amber-500/30 via-yellow-400/30 to-purple-500/30 rounded-full blur-sm"></div>
-            <div className="absolute inset-0 bg-gradient-to-b from-amber-500/50 via-yellow-400/50 to-purple-500/50 rounded-full animate-pulse"></div>
-            <div className="absolute inset-0 bg-gradient-to-b from-amber-600 via-yellow-400 to-purple-600 rounded-full w-0.5 left-1/2 -translate-x-1/2"></div>
-          </div>
+        {/* Tiers Grid - Premium Design */}
+        <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-5 md:gap-6 mb-10 md:mb-12 lg:mb-16 transition-all duration-1000 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+          {tiers.map((tier, index) => {
+            const Icon = tier.icon;
+            return (
+              <div 
+                key={tier.nameKey} 
+                className={`group relative p-6 sm:p-7 md:p-8 rounded-2xl md:rounded-3xl backdrop-blur-xl border transition-all duration-700 hover-lift ${
+                  index === 3 
+                    ? 'bg-gradient-to-br from-neon-violet/10 to-neon-coral/10 border-neon-violet/40 shadow-[0_0_30px_rgba(168,85,247,0.15)]' 
+                    : 'bg-white/[0.03] border-white/20 hover:border-white/30 hover:bg-white/[0.05]'
+                }`}
+                style={{
+                  animationDelay: `${index * 0.15}s`
+                }}
+              >
+                {/* Premium glow effect for Platinum */}
+                {index === 3 && (
+                  <div className="absolute inset-0 rounded-2xl md:rounded-3xl bg-gradient-to-br from-neon-violet/5 to-neon-coral/5 blur-xl -z-10"></div>
+                )}
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-5 md:gap-6 mb-10 md:mb-12 lg:mb-16 relative">
-            {tiers.map((tier, index) => {
-              const Icon = tier.icon;
-              return (
-                <div 
-                  key={tier.nameKey} 
-                  className={`group relative p-6 sm:p-7 md:p-8 rounded-2xl md:rounded-3xl bg-white/[0.02] backdrop-blur-xl border transition-all duration-700 hover-lift ${
-                    index === 3 
-                      ? 'border-neon-violet/30 bg-gradient-to-br from-neon-violet/5 to-neon-coral/5' 
-                      : 'border-white/10 hover:border-white/20'
-                  }`}
-                  style={{
-                    animationDelay: `${index * 0.1}s`
-                  }}
-                >
-                  {/* Magical glow orb on mobile */}
-                  <div className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 top-0 w-8 h-8 lg:hidden">
-                    <div className={`w-full h-full rounded-full bg-gradient-to-br ${tier.color} blur-md animate-pulse`}></div>
-                    <div className={`absolute inset-0 w-full h-full rounded-full bg-gradient-to-br ${tier.color} scale-75`}></div>
+                <div className="text-center space-y-4 md:space-y-5">
+                  <div className={`relative w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 mx-auto rounded-2xl md:rounded-3xl bg-gradient-to-br ${tier.color} flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:shadow-2xl transition-all duration-500`}>
+                    <Icon className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 text-white" />
+                    {/* Subtle shine effect */}
+                    <div className="absolute inset-0 rounded-2xl md:rounded-3xl bg-gradient-to-tr from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                   </div>
-
-                  <div className="text-center space-y-4 md:space-y-5">
-                    <div className={`w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 mx-auto rounded-2xl md:rounded-3xl bg-gradient-to-br ${tier.color} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-500`}>
-                      <Icon className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 text-white" />
+                  <div>
+                    <h3 className="text-lg sm:text-xl md:text-2xl font-light text-white mb-2 md:mb-3">{t(tier.nameKey)}</h3>
+                    <div className="text-3xl sm:text-4xl md:text-5xl font-extralight bg-gradient-to-r from-white via-white/90 to-white/80 bg-clip-text text-transparent">
+                      {tier.cashback}
                     </div>
-                    <div>
-                      <h3 className="text-lg sm:text-xl md:text-2xl font-light text-white mb-2 md:mb-3">{t(tier.nameKey)}</h3>
-                      <div className="text-3xl sm:text-4xl md:text-5xl font-extralight bg-gradient-to-r from-white via-white/90 to-white/80 bg-clip-text text-transparent">
-                        {tier.cashback}
-                      </div>
-                      <p className="text-xs sm:text-sm md:text-base text-white/50 font-light mt-1 md:mt-2">{t("cashback")}</p>
-                    </div>
-                    <div className="pt-3 md:pt-4 border-t border-white/10">
-                      <p className="text-xs sm:text-sm text-white/60 font-light">{t(tier.requirementKey)}</p>
-                    </div>
+                    <p className="text-xs sm:text-sm md:text-base text-white/50 font-light mt-1 md:mt-2">{t("cashback")}</p>
+                  </div>
+                  <div className="pt-3 md:pt-4 border-t border-white/10">
+                    <p className="text-xs sm:text-sm text-white/60 font-light">{t(tier.requirementKey)}</p>
                   </div>
                 </div>
-              );
-            })}
-          </div>
+              </div>
+            );
+          })}
         </div>
 
         {/* Benefits */}
