@@ -164,52 +164,78 @@ export default function MyAccount() {
   const TierIcon = membership ? TIER_ICONS[membership.membership_tier as keyof typeof TIER_ICONS] : Star;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Premium Background Effects */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.15),transparent_50%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,hsl(var(--accent)/0.1),transparent_40%)]" />
+      
       <Confetti trigger={showConfetti} onComplete={() => setShowConfetti(false)} />
       <Navbar />
       
-      <main className="container mx-auto px-4 pt-24 pb-16">
+      <main className="container mx-auto px-4 pt-24 pb-16 relative z-10">
         <div className="max-w-6xl mx-auto">
-          <h1 className="text-4xl font-bold mb-8 text-center bg-gradient-neon bg-clip-text text-transparent">
-            {t("myAccount")}
-          </h1>
+          {/* Premium Header with Gradient */}
+          <div className="text-center mb-12 space-y-3 animate-fade-in">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-gradient bg-[length:200%_auto]">
+              {t("myAccount")}
+            </h1>
+            {profile && (
+              <p className="text-lg text-muted-foreground">
+                Welcome back, <span className="font-semibold text-foreground">{profile.username}</span>
+              </p>
+            )}
+          </div>
 
           <Tabs defaultValue="info" className="w-full">
-            <TabsList className="grid w-full grid-cols-4 mb-8 h-auto">
-              <TabsTrigger value="info" className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2 sm:py-3 px-2">
+            <TabsList className="grid w-full grid-cols-4 mb-8 h-auto bg-card/50 backdrop-blur-sm border border-border/50 p-1">
+              <TabsTrigger 
+                value="info" 
+                className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-3 sm:py-3 px-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary transition-all duration-300 hover:scale-105"
+              >
                 <User className="w-5 h-5 sm:w-4 sm:h-4" />
                 <span className="text-[10px] sm:text-sm font-medium">{t("accountInfo")}</span>
               </TabsTrigger>
-              <TabsTrigger value="membership" className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2 sm:py-3 px-2">
+              <TabsTrigger 
+                value="membership" 
+                className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-3 sm:py-3 px-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary transition-all duration-300 hover:scale-105"
+              >
                 <Award className="w-5 h-5 sm:w-4 sm:h-4" />
                 <span className="text-[10px] sm:text-sm font-medium">{t("membershipTab")}</span>
               </TabsTrigger>
-              <TabsTrigger value="orders" className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2 sm:py-3 px-2">
+              <TabsTrigger 
+                value="orders" 
+                className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-3 sm:py-3 px-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary transition-all duration-300 hover:scale-105"
+              >
                 <Package className="w-5 h-5 sm:w-4 sm:h-4" />
                 <span className="text-[10px] sm:text-sm font-medium">{t("myEsimsTab")}</span>
               </TabsTrigger>
-              <TabsTrigger value="earn" className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2 sm:py-3 px-2">
+              <TabsTrigger 
+                value="earn" 
+                className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-3 sm:py-3 px-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary transition-all duration-300 hover:scale-105"
+              >
                 <Gift className="w-5 h-5 sm:w-4 sm:h-4" />
                 <span className="text-[10px] sm:text-sm font-medium">{t("referEarnTab")}</span>
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="info">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <User className="w-5 h-5" />
+            <TabsContent value="info" className="animate-fade-in">
+              <Card className="border-border/50 bg-card/80 backdrop-blur-xl shadow-xl hover:shadow-2xl transition-all duration-300">
+                <CardHeader className="bg-gradient-to-br from-primary/10 via-transparent to-accent/10 border-b border-border/50">
+                  <CardTitle className="flex items-center gap-3 text-2xl">
+                    <div className="p-2 bg-primary/10 rounded-lg">
+                      <User className="w-6 h-6 text-primary" />
+                    </div>
                     {t("accountInformation")}
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <p className="text-sm text-muted-foreground">{t("username")}</p>
-                    <p className="text-lg font-medium">{profile?.username}</p>
+                <CardContent className="space-y-6 pt-6">
+                  <div className="group p-4 rounded-xl border border-border/50 bg-muted/30 hover:bg-muted/50 transition-all duration-300 hover:scale-[1.02]">
+                    <p className="text-sm text-muted-foreground mb-2 font-medium">{t("username")}</p>
+                    <p className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">{profile?.username}</p>
                   </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">{t("emailLabel")}</p>
-                    <p className="text-lg font-medium">{profile?.email}</p>
+                  <div className="group p-4 rounded-xl border border-border/50 bg-muted/30 hover:bg-muted/50 transition-all duration-300 hover:scale-[1.02]">
+                    <p className="text-sm text-muted-foreground mb-2 font-medium">{t("emailLabel")}</p>
+                    <p className="text-lg font-medium text-foreground/90">{profile?.email}</p>
                   </div>
                 </CardContent>
               </Card>
@@ -497,32 +523,44 @@ export default function MyAccount() {
               </div>
             </TabsContent>
 
-            <TabsContent value="orders">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Package className="w-5 h-5" />
+            <TabsContent value="orders" className="animate-fade-in">
+              <Card className="border-border/50 bg-card/80 backdrop-blur-xl shadow-xl hover:shadow-2xl transition-all duration-300">
+                <CardHeader className="bg-gradient-to-br from-primary/10 via-transparent to-accent/10 border-b border-border/50">
+                  <CardTitle className="flex items-center gap-3 text-2xl">
+                    <div className="p-2 bg-primary/10 rounded-lg">
+                      <Package className="w-6 h-6 text-primary" />
+                    </div>
                     {t("myEsimsTab")}
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <Button onClick={() => navigate(localizedPath('/orders', language))}>
+                <CardContent className="pt-6">
+                  <Button 
+                    onClick={() => navigate(localizedPath('/orders', language))}
+                    className="w-full h-12 text-lg font-semibold bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-all duration-300 hover:scale-105 shadow-lg"
+                  >
+                    <Package className="w-5 h-5 mr-2" />
                     {t("viewAllOrders")}
                   </Button>
                 </CardContent>
               </Card>
             </TabsContent>
 
-            <TabsContent value="earn">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Gift className="w-5 h-5" />
+            <TabsContent value="earn" className="animate-fade-in">
+              <Card className="border-border/50 bg-card/80 backdrop-blur-xl shadow-xl hover:shadow-2xl transition-all duration-300">
+                <CardHeader className="bg-gradient-to-br from-primary/10 via-transparent to-accent/10 border-b border-border/50">
+                  <CardTitle className="flex items-center gap-3 text-2xl">
+                    <div className="p-2 bg-primary/10 rounded-lg">
+                      <Gift className="w-6 h-6 text-primary" />
+                    </div>
                     {t("referEarnTab")}
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <Button onClick={() => navigate(localizedPath('/affiliate', language))}>
+                <CardContent className="pt-6">
+                  <Button 
+                    onClick={() => navigate(localizedPath('/affiliate', language))}
+                    className="w-full h-12 text-lg font-semibold bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-all duration-300 hover:scale-105 shadow-lg"
+                  >
+                    <Gift className="w-5 h-5 mr-2" />
                     {t("goToAffiliateProgram")}
                   </Button>
                 </CardContent>
