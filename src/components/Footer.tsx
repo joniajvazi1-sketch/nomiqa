@@ -67,32 +67,20 @@ export const Footer = () => {
           {/* Follow Us */}
           <div>
             <h4 className="font-normal mb-4 text-white text-sm md:text-base">Follow Us</h4>
-            <ul className="space-y-2.5 text-white/60 text-xs md:text-sm">
-              <li>
-                <a href="https://twitter.com/nomiqa" target="_blank" rel="noopener noreferrer" className="hover:text-neon-cyan transition-colors duration-300 font-light flex items-center gap-2">
-                  <Twitter className="w-3.5 h-3.5" />
-                  X
-                </a>
-              </li>
-              <li>
-                <a href="https://instagram.com/nomiqa" target="_blank" rel="noopener noreferrer" className="hover:text-neon-coral transition-colors duration-300 font-light flex items-center gap-2">
-                  <Instagram className="w-3.5 h-3.5" />
-                  Instagram
-                </a>
-              </li>
-              <li>
-                <a href="https://youtube.com/@nomiqa" target="_blank" rel="noopener noreferrer" className="hover:text-neon-orange transition-colors duration-300 font-light flex items-center gap-2">
-                  <Youtube className="w-3.5 h-3.5" />
-                  YouTube
-                </a>
-              </li>
-              <li>
-                <a href="https://tiktok.com/@nomiqa" target="_blank" rel="noopener noreferrer" className="hover:text-neon-violet transition-colors duration-300 font-light flex items-center gap-2">
-                  <Send className="w-3.5 h-3.5" />
-                  TikTok
-                </a>
-              </li>
-            </ul>
+            <div className="flex flex-wrap gap-3">
+              <a href="https://twitter.com/nomiqa" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-white/[0.02] backdrop-blur-xl border border-white/10 flex items-center justify-center hover:border-neon-cyan/50 hover:bg-neon-cyan/10 hover:scale-110 transition-all duration-300 group" aria-label="Twitter">
+                <Twitter className="w-4 h-4 text-white/60 group-hover:text-neon-cyan transition-colors duration-300" />
+              </a>
+              <a href="https://instagram.com/nomiqa" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-white/[0.02] backdrop-blur-xl border border-white/10 flex items-center justify-center hover:border-neon-coral/50 hover:bg-neon-coral/10 hover:scale-110 transition-all duration-300 group" aria-label="Instagram">
+                <Instagram className="w-4 h-4 text-white/60 group-hover:text-neon-coral transition-colors duration-300" />
+              </a>
+              <a href="https://youtube.com/@nomiqa" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-white/[0.02] backdrop-blur-xl border border-white/10 flex items-center justify-center hover:border-neon-orange/50 hover:bg-neon-orange/10 hover:scale-110 transition-all duration-300 group" aria-label="YouTube">
+                <Youtube className="w-4 h-4 text-white/60 group-hover:text-neon-orange transition-colors duration-300" />
+              </a>
+              <a href="https://tiktok.com/@nomiqa" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-white/[0.02] backdrop-blur-xl border border-white/10 flex items-center justify-center hover:border-neon-violet/50 hover:bg-neon-violet/10 hover:scale-110 transition-all duration-300 group" aria-label="TikTok">
+                <Send className="w-4 h-4 text-white/60 group-hover:text-neon-violet transition-colors duration-300" />
+              </a>
+            </div>
           </div>
         </div>
         
