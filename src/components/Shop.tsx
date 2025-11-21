@@ -156,7 +156,7 @@ export const Shop = () => {
           </div>
         ) : (
           <>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
               {displayedProducts?.map((product) => (
               <Card 
                 key={product.id} 
