@@ -111,8 +111,8 @@ export const FeaturedProducts = () => {
                   </div>
                   
                   <div className="flex items-center justify-between pt-4 border-t border-border/50">
-                    <div className="text-2xl font-bold bg-gradient-to-r from-neon-cyan to-neon-violet bg-clip-text text-transparent">
-                      ${product.price_usd}
+                    <div className="text-3xl font-extralight bg-gradient-to-r from-neon-cyan via-white to-neon-violet bg-clip-text text-transparent">
+                      ${product.price_usd.toFixed(2)}
                     </div>
                     <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-neon-cyan group-hover:translate-x-1 transition-all" />
                   </div>
@@ -146,8 +146,8 @@ export const FeaturedProducts = () => {
                   </div>
                   
                   <div className="flex items-center gap-3">
-                    <div className="text-xl font-bold bg-gradient-to-r from-neon-cyan to-neon-violet bg-clip-text text-transparent whitespace-nowrap">
-                      ${product.price_usd}
+                    <div className="text-2xl font-extralight bg-gradient-to-r from-neon-cyan via-white to-neon-violet bg-clip-text text-transparent whitespace-nowrap">
+                      ${product.price_usd.toFixed(2)}
                     </div>
                     <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-neon-cyan group-hover:translate-x-1 transition-all flex-shrink-0" />
                   </div>
