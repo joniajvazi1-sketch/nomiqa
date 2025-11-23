@@ -7,6 +7,7 @@ import { SupportChatbot } from "@/components/SupportChatbot";
 
 // Lazy load below-the-fold components
 const TrustPartners = lazy(() => import("@/components/TrustPartners").then(m => ({ default: m.TrustPartners })));
+const FeaturedProducts = lazy(() => import("@/components/FeaturedProducts").then(m => ({ default: m.FeaturedProducts })));
 const WhyNomiqa = lazy(() => import("@/components/WhyNomiqa").then(m => ({ default: m.WhyNomiqa })));
 const HowItWorksSteps = lazy(() => import("@/components/HowItWorksSteps").then(m => ({ default: m.HowItWorksSteps })));
 const LoyaltyProgram = lazy(() => import("@/components/LoyaltyProgram").then(m => ({ default: m.LoyaltyProgram })));
@@ -22,6 +23,7 @@ const Index = () => {
       <Hero />
       <Suspense fallback={<div className="h-20" />}>
         <TrustPartners />
+        <FeaturedProducts />
         <WhyNomiqa />
         <HowItWorksSteps />
         <LoyaltyProgram />
