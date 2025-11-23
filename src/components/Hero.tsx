@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import heroSunsetBg from "@/assets/hero-sunset-background.png";
 import heroMobileSunset from "@/assets/hero-mobile-sunset.png";
 import { useTranslation } from "@/contexts/TranslationContext";
-import { ArrowRight, Shield, Globe } from "lucide-react";
+import { ArrowRight, Globe } from "lucide-react";
 
 export const Hero = () => {
   const navigate = useNavigate();
@@ -33,16 +33,6 @@ export const Hero = () => {
       
       <div className="container relative z-10 px-6 md:px-8 py-32 md:py-40">
         <div className="max-w-6xl mx-auto">
-          {/* Premium badge */}
-          <div className="flex justify-center mb-8 animate-fade-in">
-            <div className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl">
-              <Shield className="w-4 h-4 text-neon-cyan" />
-              <span className="text-xs md:text-sm font-semibold tracking-widest uppercase text-white/90">
-                {t("heroBadge")}
-              </span>
-            </div>
-          </div>
-
           {/* Hero headline - Premium typography */}
           <div className="text-center mb-10 md:mb-12 animate-fade-in" style={{ animationDelay: "0.1s" }}>
             <h1 className="text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-light font-display leading-[1.1] tracking-tight mb-4">
