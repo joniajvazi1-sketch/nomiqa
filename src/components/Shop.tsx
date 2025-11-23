@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useProducts } from "@/hooks/useProducts";
 import { useCart } from "@/hooks/useCart";
@@ -42,6 +42,15 @@ export const Shop = () => {
   const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
   const [displayCount, setDisplayCount] = useState(9);
   const [showConfetti, setShowConfetti] = useState(false);
+
+  // Check for URL search parameter on mount
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const searchParam = urlParams.get('search');
+    if (searchParam) {
+      setSearchQuery(decodeURIComponent(searchParam));
+    }
+  }, []);
 
   // Classify products by coverage type
   const getProductCoverageType = (product: any): CoverageType => {

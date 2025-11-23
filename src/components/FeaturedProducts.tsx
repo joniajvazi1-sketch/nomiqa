@@ -1,38 +1,46 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useProducts } from "@/hooks/useProducts";
-import { useCart } from "@/hooks/useCart";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
-import { Loader2, ShoppingCart, Wifi, Calendar, MapPin, ArrowRight } from "lucide-react";
-import { toast } from "sonner";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
+import { Loader2, ArrowRight, Wifi, Calendar } from "lucide-react";
+import { Card, CardContent } from "./ui/card";
 import * as CountryFlags from 'country-flag-icons/react/3x2';
 import { useTranslation } from "@/contexts/TranslationContext";
 import { getTranslatedCountryName } from "@/utils/countryTranslations";
 
+// Featured country codes - showing cheapest packages
+const FEATURED_COUNTRIES = [
+  'TR', // Turkey
+  'CN', // China
+  'TH', // Thailand
+  'US', // USA
+  'ID', // Indonesia
+  'SG', // Singapore
+  'SA', // Saudi Arabia
+  'JP', // Japan
+  'BR', // Brazil
+  'IE', // Ireland
+  'AE', // UAE
+  'MX'  // Mexico
+];
+
 export const FeaturedProducts = () => {
   const navigate = useNavigate();
   const { data: products, isLoading } = useProducts();
-  const { addItem } = useCart();
   const { language, t } = useTranslation();
-  const [addingToCart, setAddingToCart] = useState<string | null>(null);
 
-  // Get featured products (popular ones or first 6)
-  const featuredProducts = products
-    ?.filter(p => p.is_popular)
-    .slice(0, 6) || products?.slice(0, 6) || [];
+  // Get cheapest package for each featured country
+  const featuredProducts = FEATURED_COUNTRIES.map(countryCode => {
+    const countryProducts = products?.filter(p => p.country_code === countryCode) || [];
+    // Find the cheapest product for this country
+    return countryProducts.reduce((cheapest, current) => 
+      !cheapest || current.price_usd < cheapest.price_usd ? current : cheapest
+    , null as any);
+  }).filter(Boolean);
 
-  const handleAddToCart = async (product: any) => {
-    setAddingToCart(product.id);
-    try {
-      addItem(product);
-      toast.success(t("addedToCart"));
-    } catch (error) {
-      toast.error(t("errorAddingToCart"));
-    } finally {
-      setAddingToCart(null);
-    }
+  const handleProductClick = (product: any) => {
+    const translatedCountryName = getTranslatedCountryName(product.country_code, language);
+    navigate(`/shop?search=${encodeURIComponent(translatedCountryName)}`);
   };
 
   const getCountryFlag = (countryCode: string) => {
@@ -77,8 +85,8 @@ export const FeaturedProducts = () => {
           </p>
         </div>
 
-        {/* Products Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+        {/* Desktop Grid */}
+        <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
           {featuredProducts.map((product, index) => {
             const translatedCountryName = getTranslatedCountryName(product.country_code, language);
             
@@ -86,73 +94,65 @@ export const FeaturedProducts = () => {
               <Card 
                 key={product.id} 
                 className="group relative overflow-hidden backdrop-blur-xl bg-card/50 border-border/50 hover:border-neon-cyan/30 transition-all duration-300 hover:shadow-xl hover:shadow-neon-cyan/10 hover:-translate-y-1 animate-fade-in cursor-pointer"
-                style={{ animationDelay: `${index * 0.1}s` }}
-                onClick={() => navigate('/shop')}
+                style={{ animationDelay: `${index * 0.05}s` }}
+                onClick={() => handleProductClick(product)}
               >
-                {product.is_popular && (
-                  <div className="absolute top-4 right-4 z-10">
-                    <Badge className="bg-gradient-to-r from-neon-coral to-neon-violet text-white border-0 shadow-lg">
-                      {t("popular")}
-                    </Badge>
-                  </div>
-                )}
-                
-                <CardHeader className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    {getCountryFlag(product.country_code)}
-                    <div className="flex-1">
-                      <CardTitle className="text-xl font-semibold group-hover:text-neon-cyan transition-colors">
-                        {translatedCountryName}
-                      </CardTitle>
-                      <CardDescription className="text-sm text-muted-foreground mt-1">
-                        {product.name}
-                      </CardDescription>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      {getCountryFlag(product.country_code)}
+                      <div>
+                        <h3 className="text-lg font-semibold group-hover:text-neon-cyan transition-colors">
+                          {translatedCountryName}
+                        </h3>
+                        <p className="text-xs text-muted-foreground">{product.data_amount}</p>
+                      </div>
                     </div>
                   </div>
-                </CardHeader>
-
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-3 text-sm">
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <Wifi className="w-4 h-4 text-neon-cyan" />
-                      <span>{product.data_amount}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <Calendar className="w-4 h-4 text-neon-violet" />
-                      <span>{product.validity_days} {t("productDetailDays")}</span>
-                    </div>
-                  </div>
-
-                  <div className="pt-4 border-t border-border/50">
-                    <div className="text-3xl font-bold bg-gradient-to-r from-neon-cyan to-neon-violet bg-clip-text text-transparent">
+                  
+                  <div className="flex items-center justify-between pt-4 border-t border-border/50">
+                    <div className="text-2xl font-bold bg-gradient-to-r from-neon-cyan to-neon-violet bg-clip-text text-transparent">
                       ${product.price_usd}
                     </div>
-                    <div className="text-sm text-muted-foreground mt-1">
-                      {t("checkoutEach")}
-                    </div>
+                    <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-neon-cyan group-hover:translate-x-1 transition-all" />
                   </div>
                 </CardContent>
-
-                <CardFooter className="gap-2">
-                  <Button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleAddToCart(product);
-                    }}
-                    disabled={addingToCart === product.id}
-                    className="flex-1 bg-gradient-to-r from-neon-cyan to-neon-violet hover:opacity-90 text-white border-0 shadow-lg hover:shadow-neon-cyan/30"
-                  >
-                    {addingToCart === product.id ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <>
-                        <ShoppingCart className="w-4 h-4 mr-2" />
-                        {t("addToCart")}
-                      </>
-                    )}
-                  </Button>
-                </CardFooter>
               </Card>
+            );
+          })}
+        </div>
+
+        {/* Mobile Compact List */}
+        <div className="md:hidden space-y-3 mb-12">
+          {featuredProducts.map((product, index) => {
+            const translatedCountryName = getTranslatedCountryName(product.country_code, language);
+            
+            return (
+              <div
+                key={product.id}
+                className="group relative overflow-hidden backdrop-blur-xl bg-card/50 border border-border/50 hover:border-neon-cyan/30 rounded-2xl transition-all duration-300 hover:shadow-xl hover:shadow-neon-cyan/10 cursor-pointer animate-fade-in p-4"
+                style={{ animationDelay: `${index * 0.05}s` }}
+                onClick={() => handleProductClick(product)}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    {getCountryFlag(product.country_code)}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-base font-semibold group-hover:text-neon-cyan transition-colors truncate">
+                        {translatedCountryName}
+                      </h3>
+                      <p className="text-xs text-muted-foreground">{product.data_amount}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-3">
+                    <div className="text-xl font-bold bg-gradient-to-r from-neon-cyan to-neon-violet bg-clip-text text-transparent whitespace-nowrap">
+                      ${product.price_usd}
+                    </div>
+                    <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-neon-cyan group-hover:translate-x-1 transition-all flex-shrink-0" />
+                  </div>
+                </div>
+              </div>
             );
           })}
         </div>
