@@ -45,12 +45,14 @@ export const Hero = () => {
 
           {/* Hero headline - Premium typography */}
           <div className="text-center mb-10 md:mb-12 animate-fade-in" style={{ animationDelay: "0.1s" }}>
-            <h1 className="text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-light font-display leading-[1.1] tracking-tight mb-6">
-              <span className="block text-white font-extralight mb-3">{t("heroPrivate")}</span>
-              <span className="block bg-gradient-to-r from-neon-cyan via-white to-neon-violet bg-clip-text text-transparent font-semibold">
-                {t("heroBorderless")} {t("heroHuman")}
+            <h1 className="text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-light font-display leading-[1.1] tracking-tight mb-4">
+              <span className="block text-white font-extralight">
+                {t("heroPrivate")} {t("heroBorderless")} {t("heroHuman")}
               </span>
             </h1>
+            <p className="text-xl md:text-2xl lg:text-3xl text-white/80 font-light tracking-wide">
+              {t("heroSubtitle")}
+            </p>
           </div>
           
           {/* Premium description */}
@@ -102,10 +104,20 @@ export const Hero = () => {
         </div>
       </div>
 
-      {/* Elegant scroll indicator */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
+      {/* Elegant scroll indicator - Desktop */}
+      <div className="hidden md:block absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
         <div className="w-6 h-10 rounded-full border-2 border-white/20 flex items-start justify-center p-2">
           <div className="w-1 h-3 rounded-full bg-white/40"></div>
+        </div>
+      </div>
+
+      {/* Mobile scroll indicator */}
+      <div className="md:hidden absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce">
+        <span className="text-white/60 text-sm font-light tracking-wider uppercase">Scroll</span>
+        <div className="flex flex-col gap-1">
+          <div className="w-1 h-2 rounded-full bg-white/40 animate-pulse"></div>
+          <div className="w-1 h-2 rounded-full bg-white/30 animate-pulse" style={{ animationDelay: "0.2s" }}></div>
+          <div className="w-1 h-2 rounded-full bg-white/20 animate-pulse" style={{ animationDelay: "0.4s" }}></div>
         </div>
       </div>
     </section>
