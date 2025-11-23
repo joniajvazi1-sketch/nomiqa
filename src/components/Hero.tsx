@@ -36,7 +36,7 @@ export const Hero = () => {
           {/* Hero headline - Premium typography */}
           <div className="text-center mb-10 md:mb-12 animate-fade-in" style={{ animationDelay: "0.1s" }}>
             <h1 className="text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-light font-display leading-[1.1] tracking-tight mb-4">
-              <span className="block text-white font-extralight">
+              <span className="block bg-gradient-to-r from-neon-cyan via-white to-neon-violet bg-clip-text text-transparent font-semibold">
                 {t("heroPrivate")} {t("heroBorderless")} {t("heroHuman")}
               </span>
             </h1>
