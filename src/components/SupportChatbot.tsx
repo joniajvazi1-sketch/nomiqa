@@ -253,6 +253,13 @@ export const SupportChatbot = () => {
             </div>
           )}
 
+          {/* Disclaimer */}
+          <div className="px-4 py-3 border-t border-neon-cyan/30 bg-white/[0.02]">
+            <p className="text-xs text-foreground/50 text-center leading-relaxed">
+              💬 Chatbot's responses are for informational purposes only; please verify all details before taking action, as the chatbot cannot make or alter agreements on behalf of the company.
+            </p>
+          </div>
+
           {/* Input */}
           <div className="p-4 border-t border-neon-cyan/30">
             <div className="flex gap-2">
