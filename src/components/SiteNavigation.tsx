@@ -22,8 +22,8 @@ export const SiteNavigation = () => {
           <Accordion type="single" collapsible className="w-full">
             {/* Our eSIMs */}
             <AccordionItem value="esims" className="border-0">
-              <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mb-6"></div>
-              <AccordionTrigger className="text-left text-xl md:text-2xl font-normal text-white hover:text-neon-cyan transition-colors py-6 hover:no-underline">
+              <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mb-4"></div>
+              <AccordionTrigger className="text-left text-lg md:text-xl font-normal text-white hover:text-neon-cyan transition-colors py-4 hover:no-underline">
                 {t("footerOurEsims")}
               </AccordionTrigger>
               <AccordionContent className="pb-8">
@@ -38,8 +38,8 @@ export const SiteNavigation = () => {
 
             {/* Explore */}
             <AccordionItem value="explore" className="border-0">
-              <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mb-6"></div>
-              <AccordionTrigger className="text-left text-xl md:text-2xl font-normal text-white hover:text-neon-cyan transition-colors py-6 hover:no-underline">
+              <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mb-4"></div>
+              <AccordionTrigger className="text-left text-lg md:text-xl font-normal text-white hover:text-neon-cyan transition-colors py-4 hover:no-underline">
                 {t("footerExplore")}
               </AccordionTrigger>
               <AccordionContent className="pb-8">
@@ -52,8 +52,8 @@ export const SiteNavigation = () => {
 
             {/* Get Help */}
             <AccordionItem value="help" className="border-0">
-              <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mb-6"></div>
-              <AccordionTrigger className="text-left text-xl md:text-2xl font-normal text-white hover:text-neon-cyan transition-colors py-6 hover:no-underline">
+              <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mb-4"></div>
+              <AccordionTrigger className="text-left text-lg md:text-xl font-normal text-white hover:text-neon-cyan transition-colors py-4 hover:no-underline">
                 {t("footerGetHelp")}
               </AccordionTrigger>
               <AccordionContent className="pb-8">
@@ -66,8 +66,8 @@ export const SiteNavigation = () => {
 
             {/* About */}
             <AccordionItem value="about" className="border-0">
-              <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mb-6"></div>
-              <AccordionTrigger className="text-left text-xl md:text-2xl font-normal text-white hover:text-neon-cyan transition-colors py-6 hover:no-underline">
+              <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mb-4"></div>
+              <AccordionTrigger className="text-left text-lg md:text-xl font-normal text-white hover:text-neon-cyan transition-colors py-4 hover:no-underline">
                 {t("footerAbout")}
               </AccordionTrigger>
               <AccordionContent className="pb-8">
@@ -75,7 +75,7 @@ export const SiteNavigation = () => {
                   <li><a href="/about" className="hover:text-neon-cyan transition-colors duration-300 font-light block">{t("footerAboutNomiqa")}</a></li>
                 </ul>
               </AccordionContent>
-              <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mt-6"></div>
+              <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mt-4"></div>
             </AccordionItem>
           </Accordion>
         </div>
