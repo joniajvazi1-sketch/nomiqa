@@ -44,15 +44,15 @@ export const ScrollableFeatures = () => {
     },
     {
       icon: Users,
-      title: t("affiliateHeroTitle"),
-      description: t("affiliateHeroSubtitle"),
+      title: t("referEarnTitle"),
+      description: t("referEarnSubtitle"),
       highlights: [
         { text: "9% direct referral commission", gradient: "from-neon-cyan to-neon-cyan", icon: Users },
         { text: "6% tier 2 passive income", gradient: "from-neon-violet to-neon-violet", icon: Users },
         { text: "3% tier 3 passive income", gradient: "from-neon-coral to-neon-coral", icon: Users },
         { text: "Real USDC & SOL earnings", gradient: "from-warm-sand to-warm-sand", icon: Coins },
       ],
-      cta: t("affiliateGetStarted"),
+      cta: t("getStarted"),
       path: "/affiliate",
       gradient: "from-neon-cyan/10 via-neon-violet/10 to-neon-coral/10",
       showImage: false
