@@ -223,7 +223,7 @@ export const Shop = () => {
                   )}
 
                   <div className="pt-4 border-t border-white/10">
-                    <div className="text-3xl md:text-4xl font-extralight bg-gradient-to-r from-neon-cyan via-white to-neon-violet bg-clip-text text-transparent">
+                    <div className="text-3xl md:text-4xl font-bold text-white">
                       ${product.price_usd.toFixed(2)}
                     </div>
                     <p className="text-xs text-white/50 mt-1 font-light">{t('oneTimePayment')}</p>
