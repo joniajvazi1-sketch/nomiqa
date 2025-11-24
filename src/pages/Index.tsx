@@ -2,7 +2,6 @@ import { lazy, Suspense } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Hero } from "@/components/Hero";
 import { Footer } from "@/components/Footer";
-import { StickyCTA } from "@/components/StickyCTA";
 import { SupportChatbot } from "@/components/SupportChatbot";
 
 // Lazy load below-the-fold components
@@ -33,7 +32,6 @@ const Index = () => {
         <EasyCheckout />
       </Suspense>
       <Footer />
-      <StickyCTA />
       <SupportChatbot />
     </div>
   );
