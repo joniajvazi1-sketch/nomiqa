@@ -1,7 +1,17 @@
+import { useState } from "react";
 import { useTranslation } from "@/contexts/TranslationContext";
-import { Twitter, Instagram, Send, Youtube } from "lucide-react";
+import { Twitter, Instagram, Send, Youtube, ChevronDown } from "lucide-react";
 export const Footer = () => {
   const { t } = useTranslation();
+  const [openSections, setOpenSections] = useState<string[]>([]);
+
+  const toggleSection = (section: string) => {
+    setOpenSections(prev => 
+      prev.includes(section) 
+        ? prev.filter(s => s !== section)
+        : [...prev, section]
+    );
+  };
   
   return <footer className="relative bg-gradient-to-b from-black/60 via-deep-space/80 to-black/90 text-white overflow-hidden border-t border-white/10">
       {/* Premium decorative glows */}
@@ -28,8 +38,14 @@ export const Footer = () => {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8 md:gap-6 mb-12 md:mb-16 text-center md:text-left">
           {/* Our eSIMs */}
           <div>
-            <h4 className="font-normal mb-4 text-white text-sm md:text-base">{t("footerOurEsims")}</h4>
-            <ul className="space-y-2.5 text-white/60 text-xs md:text-sm">
+            <button 
+              onClick={() => toggleSection('esims')}
+              className="flex items-center justify-between w-full md:justify-start font-normal mb-4 text-white text-sm md:text-base hover:text-neon-cyan transition-colors group"
+            >
+              <span>{t("footerOurEsims")}</span>
+              <ChevronDown className={`w-4 h-4 transition-transform duration-300 md:hidden ${openSections.includes('esims') ? 'rotate-180' : ''}`} />
+            </button>
+            <ul className={`space-y-2.5 text-white/60 text-xs md:text-sm transition-all duration-300 overflow-hidden ${openSections.includes('esims') ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0 md:max-h-96 md:opacity-100'}`}>
               <li><a href="/shop" className="hover:text-neon-cyan transition-colors duration-300 font-light">{t("footerStore")}</a></li>
               <li><a href="/shop" className="hover:text-neon-cyan transition-colors duration-300 font-light">{t("footerUnlimitedData")}</a></li>
               <li><a href="/affiliate" className="hover:text-neon-cyan transition-colors duration-300 font-light">{t("footerReferEarn")}</a></li>
@@ -39,8 +55,14 @@ export const Footer = () => {
 
           {/* Explore */}
           <div>
-            <h4 className="font-normal mb-4 text-white text-sm md:text-base">{t("footerExplore")}</h4>
-            <ul className="space-y-2.5 text-white/60 text-xs md:text-sm">
+            <button 
+              onClick={() => toggleSection('explore')}
+              className="flex items-center justify-between w-full md:justify-start font-normal mb-4 text-white text-sm md:text-base hover:text-neon-cyan transition-colors group"
+            >
+              <span>{t("footerExplore")}</span>
+              <ChevronDown className={`w-4 h-4 transition-transform duration-300 md:hidden ${openSections.includes('explore') ? 'rotate-180' : ''}`} />
+            </button>
+            <ul className={`space-y-2.5 text-white/60 text-xs md:text-sm transition-all duration-300 overflow-hidden ${openSections.includes('explore') ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0 md:max-h-96 md:opacity-100'}`}>
               <li><a href="/shop" className="hover:text-neon-cyan transition-colors duration-300 font-light">{t("footerEsims")}</a></li>
               <li><a href="/getting-started" className="hover:text-neon-cyan transition-colors duration-300 font-light">{t("footerDeviceCompatibility")}</a></li>
             </ul>
@@ -48,8 +70,14 @@ export const Footer = () => {
 
           {/* Get Help */}
           <div>
-            <h4 className="font-normal mb-4 text-white text-sm md:text-base">{t("footerGetHelp")}</h4>
-            <ul className="space-y-2.5 text-white/60 text-xs md:text-sm">
+            <button 
+              onClick={() => toggleSection('help')}
+              className="flex items-center justify-between w-full md:justify-start font-normal mb-4 text-white text-sm md:text-base hover:text-neon-cyan transition-colors group"
+            >
+              <span>{t("footerGetHelp")}</span>
+              <ChevronDown className={`w-4 h-4 transition-transform duration-300 md:hidden ${openSections.includes('help') ? 'rotate-180' : ''}`} />
+            </button>
+            <ul className={`space-y-2.5 text-white/60 text-xs md:text-sm transition-all duration-300 overflow-hidden ${openSections.includes('help') ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0 md:max-h-96 md:opacity-100'}`}>
               <li><a href="/help" className="hover:text-neon-cyan transition-colors duration-300 font-light">{t("footerContactUs")}</a></li>
               <li><a href="/help" className="hover:text-neon-cyan transition-colors duration-300 font-light">{t("footerHelp")}</a></li>
             </ul>
@@ -57,8 +85,14 @@ export const Footer = () => {
 
           {/* About */}
           <div>
-            <h4 className="font-normal mb-4 text-white text-sm md:text-base">{t("footerAbout")}</h4>
-            <ul className="space-y-2.5 text-white/60 text-xs md:text-sm">
+            <button 
+              onClick={() => toggleSection('about')}
+              className="flex items-center justify-between w-full md:justify-start font-normal mb-4 text-white text-sm md:text-base hover:text-neon-cyan transition-colors group"
+            >
+              <span>{t("footerAbout")}</span>
+              <ChevronDown className={`w-4 h-4 transition-transform duration-300 md:hidden ${openSections.includes('about') ? 'rotate-180' : ''}`} />
+            </button>
+            <ul className={`space-y-2.5 text-white/60 text-xs md:text-sm transition-all duration-300 overflow-hidden ${openSections.includes('about') ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0 md:max-h-96 md:opacity-100'}`}>
               <li><a href="/about" className="hover:text-neon-cyan transition-colors duration-300 font-light">{t("footerAboutNomiqa")}</a></li>
             </ul>
           </div>
