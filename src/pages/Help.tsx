@@ -2,11 +2,20 @@ import { Navbar } from "@/components/Navbar";
 import { FAQ } from "@/components/FAQ";
 import { Footer } from "@/components/Footer";
 import { NetworkBackground } from "@/components/NetworkBackground";
-import { Mail } from "lucide-react";
+import { MessageCircle, Mail } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/contexts/TranslationContext";
 
 const Help = () => {
   const { t } = useTranslation();
+
+  const handleChatbotClick = () => {
+    // Trigger the chatbot
+    const chatbotButton = document.querySelector('[aria-label="Open support chat"]');
+    if (chatbotButton instanceof HTMLElement) {
+      chatbotButton.click();
+    }
+  };
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-black/40 via-deep-space/60 to-black/40 relative">
@@ -19,36 +28,71 @@ const Help = () => {
       
       <Navbar />
       
-      {/* Contact Section */}
+      {/* Help Center Section */}
       <section className="pt-24 pb-12 md:pt-32 md:pb-16 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-deep-space/80 via-midnight-blue/60 to-deep-space/80 backdrop-blur-sm"></div>
         
         <div className="container px-4 relative z-10">
-          <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 bg-gradient-to-r from-neon-cyan via-neon-violet to-neon-coral bg-clip-text text-transparent">
-              {t("contactTitle")}
+          <div className="max-w-4xl mx-auto text-center">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6 bg-gradient-to-r from-neon-cyan via-neon-violet to-neon-coral bg-clip-text text-transparent">
+              {t("helpCenterTitle")}
             </h1>
-            <p className="text-base md:text-lg text-foreground/80 mb-8">
-              {t("contactSubtitle")}
+            <p className="text-base md:text-lg text-foreground/80 mb-10 md:mb-12 font-light">
+              {t("helpCenterSubtitle")}
             </p>
-            
-            <div className="bg-white/[0.02] backdrop-blur-xl border border-neon-cyan/30 rounded-2xl p-6 md:p-8 hover:border-neon-cyan/50 transition-all">
-              <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-6">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-neon-cyan/20 rounded-full blur-xl"></div>
-                  <div className="relative flex items-center justify-center w-14 h-14 md:w-16 md:h-16 bg-neon-cyan/10 rounded-full flex-shrink-0">
-                    <Mail className="w-7 h-7 md:w-8 md:h-8 text-neon-cyan" />
+
+            {/* Support Options */}
+            <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+              {/* Ask Chatbot */}
+              <div className="group relative bg-white/[0.02] backdrop-blur-xl border border-white/10 hover:border-neon-cyan/30 rounded-2xl p-6 md:p-8 transition-all duration-300 hover:bg-white/[0.04] hover:shadow-2xl hover:shadow-neon-cyan/10">
+                <div className="absolute inset-0 bg-gradient-to-br from-neon-cyan/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                
+                <div className="relative z-10">
+                  <div className="w-14 h-14 md:w-16 md:h-16 mx-auto mb-5 md:mb-6 bg-gradient-to-br from-neon-cyan/20 to-neon-cyan/10 rounded-2xl flex items-center justify-center border border-neon-cyan/20 group-hover:scale-110 transition-transform duration-300">
+                    <MessageCircle className="w-7 h-7 md:w-8 md:h-8 text-neon-cyan" />
                   </div>
-                </div>
-                <div className="text-center md:text-left">
-                  <h3 className="text-base md:text-lg font-semibold text-foreground mb-2">
-                    {t("contactAvailable")}
+                  
+                  <h3 className="text-lg md:text-xl font-semibold text-white mb-3">
+                    {t("helpCenterChatbotTitle")}
                   </h3>
-                  <a 
-                    href="mailto:support@nomiqa.com" 
-                    className="text-lg md:text-2xl font-bold text-neon-cyan hover:text-neon-violet transition-colors break-all"
+                  <p className="text-foreground/70 mb-5 md:mb-6 font-light text-sm">
+                    {t("helpCenterChatbotDesc")}
+                  </p>
+                  
+                  <Button 
+                    onClick={handleChatbotClick}
+                    className="w-full bg-gradient-to-r from-neon-cyan to-neon-cyan/80 hover:from-neon-cyan/90 hover:to-neon-cyan/70 text-white border-0 shadow-glow-cyan"
                   >
-                    support@nomiqa.com
+                    {t("helpCenterChatbotButton")}
+                  </Button>
+                </div>
+              </div>
+
+              {/* Contact Us */}
+              <div className="group relative bg-white/[0.02] backdrop-blur-xl border border-white/10 hover:border-neon-violet/30 rounded-2xl p-6 md:p-8 transition-all duration-300 hover:bg-white/[0.04] hover:shadow-2xl hover:shadow-neon-violet/10">
+                <div className="absolute inset-0 bg-gradient-to-br from-neon-violet/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                
+                <div className="relative z-10">
+                  <div className="w-14 h-14 md:w-16 md:h-16 mx-auto mb-5 md:mb-6 bg-gradient-to-br from-neon-violet/20 to-neon-violet/10 rounded-2xl flex items-center justify-center border border-neon-violet/20 group-hover:scale-110 transition-transform duration-300">
+                    <Mail className="w-7 h-7 md:w-8 md:h-8 text-neon-violet" />
+                  </div>
+                  
+                  <h3 className="text-lg md:text-xl font-semibold text-white mb-3">
+                    {t("helpCenterEmailTitle")}
+                  </h3>
+                  <p className="text-foreground/70 mb-5 md:mb-6 font-light text-sm">
+                    {t("helpCenterEmailDesc")}
+                  </p>
+                  
+                  <a 
+                    href="mailto:support@nomiqa.com"
+                    className="block w-full"
+                  >
+                    <Button 
+                      className="w-full bg-gradient-to-r from-neon-violet to-neon-violet/80 hover:from-neon-violet/90 hover:to-neon-violet/70 text-white border-0 shadow-glow-violet"
+                    >
+                      support@nomiqa.com
+                    </Button>
                   </a>
                 </div>
               </div>
