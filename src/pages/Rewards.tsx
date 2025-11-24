@@ -3,7 +3,7 @@ import { Navbar } from "@/components/Navbar";
 import { SiteNavigation } from "@/components/SiteNavigation";
 import { Footer } from "@/components/Footer";
 import { NetworkBackground } from "@/components/NetworkBackground";
-import { Crown, TrendingUp, Award, Zap, Wallet, Trophy } from "lucide-react";
+import { Plane, Compass, Mountain, Rocket, Wallet, Sparkles, Zap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "@/contexts/TranslationContext";
 import { localizedPath } from "@/utils/localizedLinks";
@@ -35,28 +35,28 @@ export default function Rewards() {
   const tiers = [
     {
       nameKey: "loyaltyTierBronze",
-      icon: Award,
+      icon: Plane,
       cashback: "5%",
       color: "from-amber-600 to-amber-800",
       requirementKey: "loyaltyAutomatic",
     },
     {
       nameKey: "loyaltyTierSilver",
-      icon: TrendingUp,
+      icon: Compass,
       cashback: "6%",
       color: "from-gray-400 to-gray-600",
       requirementKey: "loyaltySpent20",
     },
     {
       nameKey: "loyaltyTierGold",
-      icon: Zap,
+      icon: Mountain,
       cashback: "7%",
       color: "from-yellow-400 to-yellow-600",
       requirementKey: "loyaltySpent50",
     },
     {
       nameKey: "loyaltyTierPlatinum",
-      icon: Crown,
+      icon: Rocket,
       cashback: "10%",
       color: "from-purple-400 to-purple-600",
       requirementKey: "loyaltySpent150",
@@ -73,7 +73,7 @@ export default function Rewards() {
           {/* Hero Section */}
           <div className={`text-center mb-16 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
             <div className="inline-flex items-center gap-2 mb-6 px-6 py-3 rounded-full bg-white/[0.03] backdrop-blur-xl border border-white/10">
-              <Trophy className="w-6 h-6 text-neon-cyan animate-pulse" />
+              <Sparkles className="w-6 h-6 text-neon-cyan animate-pulse" />
               <span className="text-neon-coral text-xs md:text-sm font-light tracking-[0.25em] uppercase">
                 {t("loyaltyBadge")}
               </span>
@@ -147,7 +147,7 @@ export default function Rewards() {
               <div className="group">
                 <div className="mb-4 flex justify-center">
                   <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-neon-cyan/20 to-warm-sand/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                    <Trophy className="w-7 h-7 text-neon-cyan" />
+                    <Sparkles className="w-7 h-7 text-neon-cyan" />
                   </div>
                 </div>
                 <h4 className="font-light text-xl text-white mb-3">{t("loyaltyLifetimeTitle")}</h4>
