@@ -27,6 +27,7 @@ const Token = lazy(() => import("./pages/Token"));
 const MyAccount = lazy(() => import("./pages/MyAccount"));
 const Help = lazy(() => import("./pages/Help"));
 const Rewards = lazy(() => import("./pages/Rewards"));
+const SiteMap = lazy(() => import("./pages/SiteMap"));
 
 // Loading fallback component
 const PageLoader = () => (
@@ -97,6 +98,7 @@ const App = () => (
             <Route path="/token" element={<Token />} />
             <Route path="/help" element={<Help />} />
             <Route path="/rewards" element={<Rewards />} />
+            <Route path="/sitemap" element={<SiteMap />} />
 
             {/* Localized route groups */}
             {/** German */}
@@ -116,6 +118,7 @@ const App = () => (
               <Route path="token" element={<Token />} />
               <Route path="help" element={<Help />} />
               <Route path="rewards" element={<Rewards />} />
+              <Route path="sitemap" element={<SiteMap />} />
             </Route>
             {/** English */}
             <Route path="/english">
@@ -134,6 +137,7 @@ const App = () => (
               <Route path="token" element={<Token />} />
               <Route path="help" element={<Help />} />
               <Route path="rewards" element={<Rewards />} />
+              <Route path="sitemap" element={<SiteMap />} />
             </Route>
             {/** French */}
             <Route path="/francais">
@@ -152,6 +156,7 @@ const App = () => (
               <Route path="token" element={<Token />} />
               <Route path="help" element={<Help />} />
               <Route path="rewards" element={<Rewards />} />
+              <Route path="sitemap" element={<SiteMap />} />
             </Route>
             {/** Spanish */}
             <Route path="/espanol">
@@ -170,6 +175,7 @@ const App = () => (
               <Route path="token" element={<Token />} />
               <Route path="help" element={<Help />} />
               <Route path="rewards" element={<Rewards />} />
+              <Route path="sitemap" element={<SiteMap />} />
             </Route>
             {/** Portuguese */}
             <Route path="/portugues">
@@ -188,6 +194,7 @@ const App = () => (
               <Route path="token" element={<Token />} />
               <Route path="help" element={<Help />} />
               <Route path="rewards" element={<Rewards />} />
+              <Route path="sitemap" element={<SiteMap />} />
             </Route>
             {/** Russian */}
             <Route path="/russian">
@@ -206,6 +213,7 @@ const App = () => (
               <Route path="token" element={<Token />} />
               <Route path="help" element={<Help />} />
               <Route path="rewards" element={<Rewards />} />
+              <Route path="sitemap" element={<SiteMap />} />
             </Route>
             {/** Chinese */}
             <Route path="/chinese">
@@ -224,6 +232,7 @@ const App = () => (
               <Route path="token" element={<Token />} />
               <Route path="help" element={<Help />} />
               <Route path="rewards" element={<Rewards />} />
+              <Route path="sitemap" element={<SiteMap />} />
             </Route>
             {/** Japanese */}
             <Route path="/japanese">
@@ -241,6 +250,7 @@ const App = () => (
               <Route path="about" element={<About />} />
               <Route path="token" element={<Token />} />
               <Route path="help" element={<Help />} />
+              <Route path="sitemap" element={<SiteMap />} />
             </Route>
             {/** Arabic */}
             <Route path="/arabic">
@@ -258,6 +268,7 @@ const App = () => (
               <Route path="about" element={<About />} />
               <Route path="token" element={<Token />} />
               <Route path="rewards" element={<Rewards />} />
+              <Route path="sitemap" element={<SiteMap />} />
             </Route>
             {/** Italian */}
             <Route path="/italiano">
@@ -275,6 +286,7 @@ const App = () => (
               <Route path="about" element={<About />} />
               <Route path="token" element={<Token />} />
               <Route path="help" element={<Help />} />
+              <Route path="sitemap" element={<SiteMap />} />
             </Route>
             {/** Italian */}
             <Route path="/italiano">
@@ -293,6 +305,7 @@ const App = () => (
               <Route path="token" element={<Token />} />
               <Route path="help" element={<Help />} />
               <Route path="rewards" element={<Rewards />} />
+              <Route path="sitemap" element={<SiteMap />} />
             </Route>
 
             {/* Username-based affiliate links - must be last before catch-all */}
