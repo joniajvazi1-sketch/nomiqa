@@ -60,7 +60,7 @@ export const ProductDetailModal = ({
               )}
             </div>
             <div className="text-right">
-              <div className="text-3xl md:text-4xl font-extralight bg-gradient-to-r from-neon-cyan to-neon-violet bg-clip-text text-transparent">
+              <div className="text-3xl md:text-4xl font-bold text-white">
                 ${product.price_usd.toFixed(2)}
               </div>
               <p className="text-xs text-white/50 mt-1 font-light">{t('oneTimePayment')}</p>

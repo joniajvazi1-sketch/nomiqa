@@ -44,7 +44,7 @@ const Help = () => {
             {/* Support Options */}
             <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
               {/* Ask Chatbot */}
-              <div className="group relative bg-white/[0.02] backdrop-blur-xl border border-white/10 hover:border-neon-cyan/30 rounded-2xl p-6 md:p-8 transition-all duration-300 hover:bg-white/[0.04] hover:shadow-2xl hover:shadow-neon-cyan/10">
+              <div className="group relative bg-white/[0.02] backdrop-blur-xl border border-white/10 hover:border-neon-cyan/30 rounded-2xl p-6 md:p-8 transition-all duration-300 hover:bg-white/[0.04]">
                 <div className="absolute inset-0 bg-gradient-to-br from-neon-cyan/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 
                 <div className="relative z-10">
@@ -61,7 +61,7 @@ const Help = () => {
                   
                   <Button 
                     onClick={handleChatbotClick}
-                    className="w-full bg-gradient-to-r from-neon-cyan to-neon-cyan/80 hover:from-neon-cyan/90 hover:to-neon-cyan/70 text-white border-0 shadow-glow-cyan"
+                    className="w-full bg-gradient-to-r from-neon-cyan to-neon-cyan/80 hover:from-neon-cyan/90 hover:to-neon-cyan/70 text-white border-0"
                   >
                     {t("helpCenterChatbotButton")}
                   </Button>
@@ -69,7 +69,7 @@ const Help = () => {
               </div>
 
               {/* Contact Us */}
-              <div className="group relative bg-white/[0.02] backdrop-blur-xl border border-white/10 hover:border-neon-violet/30 rounded-2xl p-6 md:p-8 transition-all duration-300 hover:bg-white/[0.04] hover:shadow-2xl hover:shadow-neon-violet/10">
+              <div className="group relative bg-white/[0.02] backdrop-blur-xl border border-white/10 hover:border-neon-violet/30 rounded-2xl p-6 md:p-8 transition-all duration-300 hover:bg-white/[0.04]">
                 <div className="absolute inset-0 bg-gradient-to-br from-neon-violet/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 
                 <div className="relative z-10">
@@ -89,7 +89,7 @@ const Help = () => {
                     className="block w-full"
                   >
                     <Button 
-                      className="w-full bg-gradient-to-r from-neon-violet to-neon-violet/80 hover:from-neon-violet/90 hover:to-neon-violet/70 text-white border-0 shadow-glow-violet"
+                      className="w-full bg-gradient-to-r from-neon-violet to-neon-violet/80 hover:from-neon-violet/90 hover:to-neon-violet/70 text-white border-0"
                     >
                       support@nomiqa.com
                     </Button>

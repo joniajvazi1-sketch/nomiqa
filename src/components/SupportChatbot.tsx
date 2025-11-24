@@ -156,13 +156,14 @@ export const SupportChatbot = () => {
       >
         {!isOpen && (
           <div className="relative group">
-            {/* Single subtle glow - matching Buy Now */}
-            <div className="absolute inset-0 bg-neon-cyan/20 rounded-full blur-xl opacity-50 group-hover:opacity-100 group-hover:blur-2xl transition-all duration-500" />
+            {/* Subtle glow - reduced */}
+            <div className="absolute inset-0 bg-neon-cyan/10 rounded-full blur-lg opacity-30 group-hover:opacity-60 transition-all duration-500" />
             
             <Button
               onClick={() => setIsOpen(true)}
               size="lg"
-              className="relative z-10 bg-deep-space/90 backdrop-blur-xl border border-neon-cyan/40 text-white hover:border-neon-cyan hover:bg-deep-space shadow-lg hover:shadow-neon-cyan/50 transition-all duration-300 font-light group-hover:scale-105 flex items-center gap-2"
+              aria-label="Open support chat"
+              className="relative z-10 bg-deep-space/90 backdrop-blur-xl border border-neon-cyan/40 text-white hover:border-neon-cyan hover:bg-deep-space shadow-lg hover:shadow-neon-cyan/30 transition-all duration-300 font-light group-hover:scale-105 flex items-center gap-2"
             >
               <Bot className="h-5 w-5 group-hover:rotate-12 transition-transform duration-300" />
               <span className="text-sm">{t("chatAskMe")}</span>

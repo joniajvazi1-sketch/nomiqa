@@ -33,8 +33,8 @@ export const StickyCTA = () => {
       }`}
     >
       <div className="relative group">
-        {/* Single subtle glow */}
-        <div className="absolute inset-0 bg-white/10 rounded-full blur-xl opacity-50 group-hover:opacity-100 group-hover:blur-2xl transition-all duration-500" />
+        {/* Subtle glow - reduced */}
+        <div className="absolute inset-0 bg-white/5 rounded-full blur-lg opacity-30 group-hover:opacity-60 transition-all duration-500" />
         
         <Button
           variant="neon"
