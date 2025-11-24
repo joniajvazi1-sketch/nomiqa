@@ -30,7 +30,7 @@ export const Footer = () => {
 
         {/* Follow Us - Centered */}
         <div className="mb-12 md:mb-16 text-center">
-          <h4 className="font-normal mb-4 text-white text-sm md:text-base">{t("footerFollowUs")}</h4>
+          <h4 className="font-normal mb-4 text-white text-xl md:text-2xl">{t("footerFollowUs")}</h4>
           <div className="flex flex-wrap gap-3 justify-center mb-4">
             <a href="https://twitter.com/nomiqa" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-white/[0.02] backdrop-blur-xl border border-white/10 flex items-center justify-center hover:border-neon-cyan/50 hover:bg-neon-cyan/10 hover:scale-110 transition-all duration-300 group" aria-label="Twitter">
               <Twitter className="w-4 h-4 text-white/60 group-hover:text-neon-cyan transition-colors duration-300" />
