@@ -85,7 +85,7 @@ export const ScrollableFeatures = () => {
 
         {/* Scrollable Cards Container */}
         <div className={`transition-all duration-1000 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-          <div className="overflow-x-auto overflow-y-visible pb-6 -mx-4 px-4 md:-mx-6 md:px-6">
+          <div className="overflow-x-auto overflow-y-visible pb-6 -mx-4 px-4 md:-mx-6 md:px-6 scrollbar-glass">
             <div className="flex gap-6 min-w-min">
               {features.map((feature, index) => {
                 const Icon = feature.icon;
