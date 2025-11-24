@@ -2,9 +2,10 @@ import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { ShoppingCart, LogOut, LogIn, Menu, Globe, Check, User as UserIcon } from "lucide-react";
+import { ShoppingCart, LogOut, LogIn, Menu, Globe, Check, User as UserIcon, Search } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
 import { supabase } from "@/integrations/supabase/client";
 import { User as SupabaseUser } from "@supabase/supabase-js";
@@ -17,7 +18,9 @@ export const Navbar = () => {
   const { items } = useCart();
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [desktopMenuOpen, setDesktopMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const { language, setLanguage, t } = useTranslation();
 
   // Scroll detection for blur effect
@@ -79,7 +82,18 @@ export const Navbar = () => {
 
   const handleNavClick = (path: string) => {
     setMobileMenuOpen(false);
+    setDesktopMenuOpen(false);
     navigate(localizedPath(path, language));
+  };
+
+  const handleSearch = (e: React.FormEvent, fromMobile: boolean = false) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      if (fromMobile) setMobileMenuOpen(false);
+      setDesktopMenuOpen(false);
+      navigate(localizedPath(`/shop?search=${encodeURIComponent(searchQuery.trim())}`, language));
+      setSearchQuery("");
+    }
   };
 
   return (
@@ -118,100 +132,98 @@ export const Navbar = () => {
             </button>
           </div>
 
-          {/* Desktop Nav */}
-          <div className="hidden lg:flex items-center gap-5 xl:gap-6 ml-8">
-            <button 
-              onClick={() => navigate(localizedPath('/shop', language))} 
-              onMouseMove={handleMagneticHover}
-              onMouseLeave={handleMagneticLeave}
-              className="text-white/60 hover:text-neon-cyan transition-all duration-300 font-light text-sm relative group"
-              style={{ transition: 'transform 0.2s ease-out, color 0.3s' }}
-            >
-              <span className="relative z-10">{t("shop")}</span>
-              <span className="absolute inset-x-0 -bottom-1 h-px bg-gradient-to-r from-transparent via-neon-cyan to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            </button>
-            <button 
-              onClick={() => navigate(localizedPath('/getting-started', language))} 
-              onMouseMove={handleMagneticHover}
-              onMouseLeave={handleMagneticLeave}
-              className="text-white/60 hover:text-neon-cyan transition-all duration-300 font-light text-sm relative group"
-              style={{ transition: 'transform 0.2s ease-out, color 0.3s' }}
-            >
-              <span className="relative z-10">{t("howToBuy")}</span>
-              <span className="absolute inset-x-0 -bottom-1 h-px bg-gradient-to-r from-transparent via-neon-cyan to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            </button>
-            <button 
-              onClick={() => navigate(localizedPath('/affiliate', language))} 
-              onMouseMove={handleMagneticHover}
-              onMouseLeave={handleMagneticLeave}
-              className="text-white/60 hover:text-neon-cyan transition-all duration-300 font-light text-sm relative group"
-              style={{ transition: 'transform 0.2s ease-out, color 0.3s' }}
-            >
-              <span className="relative z-10">{t("affiliate")}</span>
-              <span className="absolute inset-x-0 -bottom-1 h-px bg-gradient-to-r from-transparent via-neon-cyan to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            </button>
-            <button 
-              onClick={() => navigate(localizedPath('/stake', language))} 
-              onMouseMove={handleMagneticHover}
-              onMouseLeave={handleMagneticLeave}
-              className="text-white/60 hover:text-neon-cyan transition-all duration-300 font-light text-sm relative group"
-              style={{ transition: 'transform 0.2s ease-out, color 0.3s' }}
-            >
-              <span className="relative z-10">{t("stake")}</span>
-              <span className="absolute inset-x-0 -bottom-1 h-px bg-gradient-to-r from-transparent via-neon-cyan to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            </button>
-            <button 
-              onClick={() => navigate(localizedPath('/token', language))} 
-              onMouseMove={handleMagneticHover}
-              onMouseLeave={handleMagneticLeave}
-              className="text-white/60 hover:text-neon-cyan transition-all duration-300 font-light text-sm relative group"
-              style={{ transition: 'transform 0.2s ease-out, color 0.3s' }}
-            >
-              <span className="relative z-10">$NOMIQA</span>
-              <span className="absolute inset-x-0 -bottom-1 h-px bg-gradient-to-r from-transparent via-neon-cyan to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            </button>
-            <button 
-              onClick={() => navigate(localizedPath('/about', language))} 
-              onMouseMove={handleMagneticHover}
-              onMouseLeave={handleMagneticLeave}
-              className="text-white/60 hover:text-neon-cyan transition-all duration-300 font-light text-sm relative group"
-              style={{ transition: 'transform 0.2s ease-out, color 0.3s' }}
-            >
-              <span className="relative z-10">{t("aboutUs")}</span>
-              <span className="absolute inset-x-0 -bottom-1 h-px bg-gradient-to-r from-transparent via-neon-cyan to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            </button>
-            <button 
-              onClick={() => navigate(localizedPath('/privacy', language))} 
-              onMouseMove={handleMagneticHover}
-              onMouseLeave={handleMagneticLeave}
-              className="text-white/60 hover:text-neon-cyan transition-all duration-300 font-light text-sm relative group"
-              style={{ transition: 'transform 0.2s ease-out, color 0.3s' }}
-            >
-              <span className="relative z-10">{t("howWeProtect")}</span>
-              <span className="absolute inset-x-0 -bottom-1 h-px bg-gradient-to-r from-transparent via-neon-cyan to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            </button>
-            <button 
-              onClick={() => navigate(localizedPath('/help', language))} 
-              onMouseMove={handleMagneticHover}
-              onMouseLeave={handleMagneticLeave}
-              className="text-white/60 hover:text-neon-cyan transition-all duration-300 font-light text-sm relative group"
-              style={{ transition: 'transform 0.2s ease-out, color 0.3s' }}
-            >
-              <span className="relative z-10">{t("help")}</span>
-              <span className="absolute inset-x-0 -bottom-1 h-px bg-gradient-to-r from-transparent via-neon-cyan to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            </button>
-            {user && (
-              <button 
-                onClick={() => navigate(localizedPath('/orders', language))} 
-                onMouseMove={handleMagneticHover}
-                onMouseLeave={handleMagneticLeave}
-                className="text-white/60 hover:text-neon-cyan transition-all duration-300 font-light text-sm relative group"
-                style={{ transition: 'transform 0.2s ease-out, color 0.3s' }}
-              >
-                <span className="relative z-10">{t("myEsims")}</span>
-                <span className="absolute inset-x-0 -bottom-1 h-px bg-gradient-to-r from-transparent via-neon-cyan to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              </button>
-            )}
+          {/* Desktop Search Bar */}
+          <div className="hidden lg:flex flex-1 max-w-md mx-8">
+            <form onSubmit={(e) => handleSearch(e, false)} className="w-full relative group">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 group-hover:text-neon-cyan transition-colors duration-300" />
+              <Input
+                type="text"
+                placeholder={t("searchEsims")}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-white/5 backdrop-blur-xl border border-white/10 hover:border-neon-cyan/30 focus:border-neon-cyan/50 text-white placeholder:text-white/40 pl-10 pr-4 py-2 rounded-lg font-light text-sm transition-all duration-300 focus-visible:ring-neon-cyan/20"
+              />
+            </form>
+          </div>
+
+          {/* Desktop Menu Button */}
+          <div className="hidden lg:flex">
+            <Sheet open={desktopMenuOpen} onOpenChange={setDesktopMenuOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="text-white/90 hover:text-neon-cyan hover:bg-neon-cyan/5 border border-white/5 hover:border-neon-cyan/30 h-10 w-10 transition-all duration-300">
+                  <Menu className="w-6 h-6" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[85vw] max-w-[380px] bg-white/[0.03] backdrop-blur-2xl border-l border-white/20 shadow-2xl">
+                {/* Glassy gradient overlays */}
+                <div className="absolute inset-0 bg-gradient-to-br from-white/[0.08] via-white/[0.02] to-transparent pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-tl from-neon-cyan/[0.05] via-transparent to-neon-violet/[0.03] pointer-events-none" />
+                
+                {/* Glass reflection effect */}
+                <div className="absolute top-0 right-0 w-32 h-32 bg-white/[0.05] rounded-full blur-3xl pointer-events-none" />
+                
+                <SheetHeader className="relative z-10 border-b border-white/20 pb-5 mb-1">
+                  <SheetTitle className="text-white font-light text-lg tracking-wider uppercase">{t("menu")}</SheetTitle>
+                </SheetHeader>
+                <div className="flex flex-col gap-0.5 mt-6 relative z-10">
+                  <button onClick={() => handleNavClick('/shop')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-base tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
+                    <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("shop")}</span>
+                  </button>
+                  <button onClick={() => handleNavClick('/getting-started')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-base tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
+                    <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("howToBuy")}</span>
+                  </button>
+                  <button onClick={() => handleNavClick('/affiliate')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-base tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
+                    <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("affiliate")}</span>
+                  </button>
+                  <button onClick={() => handleNavClick('/stake')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-base tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
+                    <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("stake")}</span>
+                  </button>
+                  <button onClick={() => handleNavClick('/token')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-base tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
+                    <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">$NOMIQA</span>
+                  </button>
+                  <button onClick={() => handleNavClick('/about')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-base tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
+                    <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("aboutUs")}</span>
+                  </button>
+                  <button onClick={() => handleNavClick('/privacy')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-base tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
+                    <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("howWeProtect")}</span>
+                  </button>
+                  <button onClick={() => handleNavClick('/help')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-base tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
+                    <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("help")}</span>
+                  </button>
+                  {user && (
+                    <>
+                      <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent my-3" />
+                      <button onClick={() => handleNavClick('/account')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-base tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
+                        <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">My Account</span>
+                      </button>
+                      <button onClick={() => handleNavClick('/orders')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-base tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
+                        <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("myEsims")}</span>
+                      </button>
+                    </>
+                  )}
+
+                  <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent my-4" />
+
+                  {/* Auth action in desktop menu */}
+                  {user ? (
+                    <button onClick={handleSignOut} className="group text-left text-white/70 hover:text-white/95 hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-base tracking-wide flex items-center gap-3 backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
+                      <LogOut className="w-4 h-4 transition-transform duration-300 group-hover:-translate-x-0.5" />
+                      <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t('signOut')}</span>
+                    </button>
+                  ) : (
+                    <>
+                      <button onClick={() => { setDesktopMenuOpen(false); navigate('/auth?mode=login'); }} className="group text-left text-white/80 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-base tracking-wide flex items-center gap-3 backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
+                        <LogIn className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5" />
+                        <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t('login')}</span>
+                      </button>
+                      <button onClick={() => { setDesktopMenuOpen(false); navigate('/auth?mode=register'); }} className="text-left text-white hover:text-white bg-white/[0.1] hover:bg-white/[0.15] transition-all duration-300 py-4 px-5 rounded-lg font-normal text-base tracking-wide border border-white/30 hover:border-white/40 mt-2 backdrop-blur-sm shadow-lg shadow-white/5">
+                        {t('register')}
+                      </button>
+                    </>
+                  )}
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
 
           {/* Right controls */}
@@ -291,38 +303,15 @@ export const Navbar = () => {
               </Button>
             )}
 
-            {/* Desktop Auth - Hidden on mobile */}
-            <div className="hidden lg:flex gap-2">
-              {user ? (
-                <>
-                  <Button variant="ghost" size="sm" onClick={() => navigate(localizedPath('/account', language))} className="text-white/80 hover:text-neon-cyan hover:bg-neon-cyan/5 border border-white/5 hover:border-neon-cyan/30 font-light text-sm transition-all duration-300">
-                    My Account
-                  </Button>
-                  <Button variant="outline" size="sm" className="border-neon-violet/30 text-white/90 hover:bg-neon-violet/10 hover:border-neon-violet/50 hover:text-neon-violet font-light text-sm transition-all duration-300" onClick={handleSignOut}>
-                    <LogOut className="w-3.5 h-3.5 mr-1.5" /> {t("signOut")}
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Button variant="ghost" size="sm" onClick={() => navigate('/auth?mode=login')} className="text-white/80 hover:text-neon-cyan hover:bg-neon-cyan/5 border border-white/5 hover:border-neon-cyan/30 font-light text-sm transition-all duration-300">
-                    Login
-                  </Button>
-                  <Button variant="outline" size="sm" className="border-neon-cyan/30 bg-neon-cyan/5 text-neon-cyan hover:bg-neon-cyan/10 hover:border-neon-cyan/50 font-light text-sm shadow-glow-cyan transition-all duration-300" onClick={() => navigate('/auth?mode=register')}>
-                    Register
-                  </Button>
-                </>
-              )}
-            </div>
-
             {/* Mobile Menu */}
             <div className="lg:hidden">
               <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
                 <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon" className="text-white/90 hover:text-neon-cyan hover:bg-neon-cyan/5 border border-white/5 hover:border-neon-cyan/30 h-9 w-9 sm:h-10 sm:w-10 transition-all duration-300">
-                    <Menu className="w-5 h-5 sm:w-6 sm:h-6" />
+                  <Button variant="ghost" size="icon" className="text-white/90 hover:text-neon-cyan hover:bg-neon-cyan/5 border border-white/5 hover:border-neon-cyan/30 h-11 w-11 sm:h-12 sm:w-12 transition-all duration-300">
+                    <Menu className="w-6 h-6 sm:w-7 sm:h-7" />
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="right" className="w-[85vw] max-w-[320px] bg-white/[0.03] backdrop-blur-2xl border-l border-white/20 shadow-2xl">
+                <SheetContent side="right" className="w-[90vw] max-w-[400px] bg-white/[0.03] backdrop-blur-2xl border-l border-white/20 shadow-2xl">
                   {/* Glassy gradient overlays */}
                   <div className="absolute inset-0 bg-gradient-to-br from-white/[0.08] via-white/[0.02] to-transparent pointer-events-none" />
                   <div className="absolute inset-0 bg-gradient-to-tl from-neon-cyan/[0.05] via-transparent to-neon-violet/[0.03] pointer-events-none" />
@@ -330,61 +319,76 @@ export const Navbar = () => {
                   {/* Glass reflection effect */}
                   <div className="absolute top-0 right-0 w-32 h-32 bg-white/[0.05] rounded-full blur-3xl pointer-events-none" />
                   
-                  <SheetHeader className="relative z-10 border-b border-white/20 pb-5 mb-1">
-                    <SheetTitle className="text-white font-light text-base tracking-wider uppercase">{t("menu")}</SheetTitle>
+                  <SheetHeader className="relative z-10 border-b border-white/20 pb-6 mb-4">
+                    <SheetTitle className="text-white font-light text-xl tracking-wider uppercase">{t("menu")}</SheetTitle>
                   </SheetHeader>
-                  <div className="flex flex-col gap-0.5 mt-6 relative z-10">
-                    <button onClick={() => handleNavClick('/shop')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-[15px] tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
+                  
+                  {/* Mobile Search Bar */}
+                  <form onSubmit={(e) => handleSearch(e, true)} className="mb-6 relative z-10">
+                    <div className="relative group">
+                      <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40 group-hover:text-neon-cyan transition-colors duration-300" />
+                      <Input
+                        type="text"
+                        placeholder={t("searchEsims")}
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full bg-white/5 backdrop-blur-xl border border-white/20 hover:border-neon-cyan/30 focus:border-neon-cyan/50 text-white placeholder:text-white/40 pl-12 pr-4 py-3 rounded-lg font-light text-base transition-all duration-300 focus-visible:ring-neon-cyan/20"
+                      />
+                    </div>
+                  </form>
+
+                  <div className="flex flex-col gap-0.5 relative z-10">
+                    <button onClick={() => handleNavClick('/shop')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-5 px-6 rounded-lg font-light text-base tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
                       <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("shop")}</span>
                     </button>
-                    <button onClick={() => handleNavClick('/getting-started')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-[15px] tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
+                    <button onClick={() => handleNavClick('/getting-started')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-5 px-6 rounded-lg font-light text-base tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
                       <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("howToBuy")}</span>
                     </button>
-                    <button onClick={() => handleNavClick('/affiliate')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-[15px] tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
+                    <button onClick={() => handleNavClick('/affiliate')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-5 px-6 rounded-lg font-light text-base tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
                       <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("affiliate")}</span>
                     </button>
-                    <button onClick={() => handleNavClick('/stake')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-[15px] tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
+                    <button onClick={() => handleNavClick('/stake')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-5 px-6 rounded-lg font-light text-base tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
                       <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("stake")}</span>
                     </button>
-                    <button onClick={() => handleNavClick('/token')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-[15px] tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
+                    <button onClick={() => handleNavClick('/token')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-5 px-6 rounded-lg font-light text-base tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
                       <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">$NOMIQA</span>
                     </button>
-                    <button onClick={() => handleNavClick('/about')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-[15px] tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
+                    <button onClick={() => handleNavClick('/about')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-5 px-6 rounded-lg font-light text-base tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
                       <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("aboutUs")}</span>
                     </button>
-                    <button onClick={() => handleNavClick('/privacy')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-[15px] tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
+                    <button onClick={() => handleNavClick('/privacy')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-5 px-6 rounded-lg font-light text-base tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
                       <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("howWeProtect")}</span>
                     </button>
-                    <button onClick={() => handleNavClick('/help')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-[15px] tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
+                    <button onClick={() => handleNavClick('/help')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-5 px-6 rounded-lg font-light text-base tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
                       <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("help")}</span>
                     </button>
                     {user && (
                       <>
-                        <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent my-3" />
-                        <button onClick={() => handleNavClick('/account')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-[15px] tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
+                        <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent my-4" />
+                        <button onClick={() => handleNavClick('/account')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-5 px-6 rounded-lg font-light text-base tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
                           <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">My Account</span>
                         </button>
-                        <button onClick={() => handleNavClick('/orders')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-[15px] tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
+                        <button onClick={() => handleNavClick('/orders')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-5 px-6 rounded-lg font-light text-base tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
                           <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("myEsims")}</span>
                         </button>
                       </>
                     )}
 
-                    <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent my-4" />
+                    <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent my-5" />
 
                     {/* Auth action in mobile menu */}
                     {user ? (
-                      <button onClick={handleSignOut} className="group text-left text-white/70 hover:text-white/95 hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-[15px] tracking-wide flex items-center gap-3 backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
-                        <LogOut className="w-4 h-4 transition-transform duration-300 group-hover:-translate-x-0.5" />
+                      <button onClick={handleSignOut} className="group text-left text-white/70 hover:text-white/95 hover:bg-white/[0.08] transition-all duration-300 py-5 px-6 rounded-lg font-light text-base tracking-wide flex items-center gap-3 backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
+                        <LogOut className="w-5 h-5 transition-transform duration-300 group-hover:-translate-x-0.5" />
                         <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t('signOut')}</span>
                       </button>
                     ) : (
                       <>
-                        <button onClick={() => { setMobileMenuOpen(false); navigate('/auth?mode=login'); }} className="group text-left text-white/80 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-[15px] tracking-wide flex items-center gap-3 backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
-                          <LogIn className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5" />
+                        <button onClick={() => { setMobileMenuOpen(false); navigate('/auth?mode=login'); }} className="group text-left text-white/80 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-5 px-6 rounded-lg font-light text-base tracking-wide flex items-center gap-3 backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
+                          <LogIn className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-0.5" />
                           <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t('login')}</span>
                         </button>
-                        <button onClick={() => { setMobileMenuOpen(false); navigate('/auth?mode=register'); }} className="text-left text-white hover:text-white bg-white/[0.1] hover:bg-white/[0.15] transition-all duration-300 py-4 px-5 rounded-lg font-normal text-[15px] tracking-wide border border-white/30 hover:border-white/40 mt-2 backdrop-blur-sm shadow-lg shadow-white/5">
+                        <button onClick={() => { setMobileMenuOpen(false); navigate('/auth?mode=register'); }} className="text-left text-white hover:text-white bg-white/[0.1] hover:bg-white/[0.15] transition-all duration-300 py-5 px-6 rounded-lg font-normal text-base tracking-wide border border-white/30 hover:border-white/40 mt-2 backdrop-blur-sm shadow-lg shadow-white/5">
                           {t('register')}
                         </button>
                       </>
