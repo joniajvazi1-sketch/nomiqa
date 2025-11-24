@@ -1,6 +1,7 @@
 import { lazy, Suspense } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Hero } from "@/components/Hero";
+import { SiteNavigation } from "@/components/SiteNavigation";
 import { Footer } from "@/components/Footer";
 import { SupportChatbot } from "@/components/SupportChatbot";
 
@@ -27,6 +28,7 @@ const Index = () => {
         <CoverageSection />
         <FAQ />
       </Suspense>
+      <SiteNavigation />
       <Footer />
       <SupportChatbot />
     </div>
