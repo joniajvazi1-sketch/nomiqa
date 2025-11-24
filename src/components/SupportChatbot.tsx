@@ -161,12 +161,11 @@ export const SupportChatbot = () => {
             
             <Button
               onClick={() => setIsOpen(true)}
-              size="lg"
+              size="icon"
               aria-label="Open support chat"
-              className="relative z-10 bg-deep-space/90 backdrop-blur-xl border border-neon-cyan/40 text-white hover:border-neon-cyan hover:bg-deep-space shadow-lg hover:shadow-neon-cyan/30 transition-all duration-300 font-light group-hover:scale-105 flex items-center gap-2"
+              className="relative z-10 bg-deep-space/90 backdrop-blur-xl border border-neon-cyan/40 text-white hover:border-neon-cyan hover:bg-deep-space shadow-lg hover:shadow-neon-cyan/30 transition-all duration-300 font-light group-hover:scale-105 h-14 w-14"
             >
-              <MessageCircle className="h-5 w-5 group-hover:scale-110 transition-transform duration-300" />
-              <span className="text-sm">{t("chatAskMe")}</span>
+              <MessageCircle className="h-6 w-6 group-hover:scale-110 transition-transform duration-300" />
             </Button>
           </div>
         )}
