@@ -1,5 +1,6 @@
 import { Navbar } from "@/components/Navbar";
 import { FAQ } from "@/components/FAQ";
+import { SiteNavigation } from "@/components/SiteNavigation";
 import { Footer } from "@/components/Footer";
 import { NetworkBackground } from "@/components/NetworkBackground";
 import { MessageCircle, Mail } from "lucide-react";
@@ -104,6 +105,7 @@ const Help = () => {
       {/* FAQ Section */}
       <FAQ />
       
+      <SiteNavigation />
       <Footer />
     </div>
   );

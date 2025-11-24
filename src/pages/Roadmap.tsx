@@ -1,4 +1,5 @@
 import { Navbar } from "@/components/Navbar";
+import { SiteNavigation } from "@/components/SiteNavigation";
 import { Footer } from "@/components/Footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -155,6 +156,7 @@ export default function Roadmap() {
         </div>
       </div>
 
+      <SiteNavigation />
       <Footer />
     </div>
   );
