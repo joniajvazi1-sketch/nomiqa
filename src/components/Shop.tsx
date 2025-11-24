@@ -229,8 +229,8 @@ export const Shop = () => {
                     <p className="text-xs text-white/50 mt-2 font-light">{t('oneTimePayment')}</p>
                   </div>
 
-                  <div className="flex items-center justify-center gap-2 pt-2 text-sm text-white/50 group-hover:text-neon-cyan transition-colors duration-300">
-                    <Info className="h-4 w-4" />
+                  <div className="flex items-center justify-center gap-2 pt-2 text-sm text-white/50 group-hover:text-neon-cyan transition-colors duration-300 text-center">
+                    <Info className="h-4 w-4 flex-shrink-0" />
                     <span className="font-light">{t('clickForMoreInfo')}</span>
                   </div>
                 </CardContent>
