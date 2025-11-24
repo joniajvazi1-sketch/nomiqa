@@ -59,7 +59,6 @@ export const SiteNavigation = () => {
               <AccordionContent className="pb-8">
                 <ul className="space-y-4 text-white/60 text-sm md:text-base pl-0">
                   <li><a href="/help" className="hover:text-neon-cyan transition-colors duration-300 font-light block">{t("footerContactUs")}</a></li>
-                  <li><a href="/help" className="hover:text-neon-cyan transition-colors duration-300 font-light block">{t("footerHelp")}</a></li>
                 </ul>
               </AccordionContent>
             </AccordionItem>
