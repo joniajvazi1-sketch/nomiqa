@@ -22,15 +22,6 @@ export const Footer = () => {
           <p className="text-white/60 text-sm md:text-base font-light">
             {t("footerTagline2")}
           </p>
-          <div className="mt-6">
-            <a 
-              href="/sitemap" 
-              className="inline-flex items-center gap-2 text-neon-cyan hover:text-white transition-colors duration-300 text-sm font-light"
-            >
-              <span>View All Links</span>
-              <span className="text-xs">→</span>
-            </a>
-          </div>
         </div>
 
         {/* Footer Links Grid */}
