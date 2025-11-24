@@ -11,6 +11,7 @@ const WhyNomiqa = lazy(() => import("@/components/WhyNomiqa").then(m => ({ defau
 const HowItWorksSteps = lazy(() => import("@/components/HowItWorksSteps").then(m => ({ default: m.HowItWorksSteps })));
 const ScrollableFeatures = lazy(() => import("@/components/ScrollableFeatures").then(m => ({ default: m.ScrollableFeatures })));
 const CoverageSection = lazy(() => import("@/components/CoverageSection").then(m => ({ default: m.CoverageSection })));
+const FAQ = lazy(() => import("@/components/FAQ").then(m => ({ default: m.FAQ })));
 
 const Index = () => {
   return (
@@ -24,6 +25,7 @@ const Index = () => {
         <HowItWorksSteps />
         <ScrollableFeatures />
         <CoverageSection />
+        <FAQ />
       </Suspense>
       <Footer />
       <SupportChatbot />
