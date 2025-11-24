@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Bot, X, Send, Loader2 } from "lucide-react";
+import { MessageCircle, X, Send, Loader2 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { useTranslation } from "@/contexts/TranslationContext";
@@ -165,7 +165,7 @@ export const SupportChatbot = () => {
               aria-label="Open support chat"
               className="relative z-10 bg-deep-space/90 backdrop-blur-xl border border-neon-cyan/40 text-white hover:border-neon-cyan hover:bg-deep-space shadow-lg hover:shadow-neon-cyan/30 transition-all duration-300 font-light group-hover:scale-105 flex items-center gap-2"
             >
-              <Bot className="h-5 w-5 group-hover:rotate-12 transition-transform duration-300" />
+              <MessageCircle className="h-5 w-5 group-hover:scale-110 transition-transform duration-300" />
               <span className="text-sm">{t("chatAskMe")}</span>
             </Button>
           </div>
@@ -179,7 +179,7 @@ export const SupportChatbot = () => {
           <div className="bg-background/60 backdrop-blur-sm p-4 border-b border-neon-cyan/30 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="flex items-center justify-center w-10 h-10 rounded-full bg-neon-cyan/10 border border-neon-cyan/30">
-                <Bot className="h-5 w-5 text-neon-cyan" />
+                <MessageCircle className="h-5 w-5 text-neon-cyan" />
               </div>
               <div>
                 <h3 className="font-semibold text-foreground">{t("chatTitle")}</h3>
