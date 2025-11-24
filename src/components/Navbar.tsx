@@ -5,13 +5,16 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { ShoppingCart, LogOut, LogIn, Menu, Globe, Check, User as UserIcon, Search } from "lucide-react";
+import { ShoppingCart, LogOut, LogIn, Menu, Globe, Check, User as UserIcon, Search, MapPin } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
+import { useProducts } from "@/hooks/useProducts";
 import { supabase } from "@/integrations/supabase/client";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import { toast } from "sonner";
 import { Language, useTranslation } from "@/contexts/TranslationContext";
 import { localizedPath } from "@/utils/localizedLinks";
+import { getTranslatedCountryName, getAllTranslatedNames } from "@/utils/countryTranslations";
+import * as CountryFlags from 'country-flag-icons/react/3x2';
 
 export const Navbar = () => {
   const navigate = useNavigate();
@@ -21,7 +24,9 @@ export const Navbar = () => {
   const [desktopMenuOpen, setDesktopMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [showSearchResults, setShowSearchResults] = useState(false);
   const { language, setLanguage, t } = useTranslation();
+  const { data: products } = useProducts();
 
   // Scroll detection for blur effect
   useEffect(() => {
@@ -71,14 +76,82 @@ export const Navbar = () => {
     navigate(localizedPath(path, language));
   };
 
+  // Fuzzy search helper - calculates similarity between two strings
+  const calculateSimilarity = (str1: string, str2: string): number => {
+    const s1 = str1.toLowerCase();
+    const s2 = str2.toLowerCase();
+    
+    // Exact match
+    if (s1 === s2) return 1;
+    
+    // Substring match
+    if (s2.includes(s1) || s1.includes(s2)) return 0.8;
+    
+    // Character-based similarity
+    let matches = 0;
+    const maxLength = Math.max(s1.length, s2.length);
+    for (let i = 0; i < Math.min(s1.length, s2.length); i++) {
+      if (s1[i] === s2[i]) matches++;
+    }
+    
+    return matches / maxLength;
+  };
+
+  // Get search results with fuzzy matching
+  const getSearchResults = () => {
+    if (!searchQuery.trim() || !products) return [];
+    
+    const searchLower = searchQuery.toLowerCase();
+    const results = products
+      .map(product => {
+        const allCountryNames = getAllTranslatedNames(product.country_code);
+        const currentCountryName = getTranslatedCountryName(product.country_code, language);
+        
+        // Calculate similarity scores
+        const scores = [
+          calculateSimilarity(searchLower, currentCountryName.toLowerCase()),
+          ...allCountryNames.map(name => calculateSimilarity(searchLower, name.toLowerCase())),
+          calculateSimilarity(searchLower, product.name.toLowerCase())
+        ];
+        
+        const maxScore = Math.max(...scores);
+        
+        return {
+          product,
+          score: maxScore,
+          displayName: currentCountryName
+        };
+      })
+      .filter(item => item.score > 0.4) // Threshold for fuzzy matching
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 5); // Show top 5 results
+    
+    return results;
+  };
+
+  const searchResults = getSearchResults();
+
   const handleSearch = (e: React.FormEvent, fromMobile: boolean = false) => {
     e.preventDefault();
     if (searchQuery.trim()) {
       if (fromMobile) setMobileMenuOpen(false);
       setDesktopMenuOpen(false);
+      setShowSearchResults(false);
       navigate(localizedPath(`/shop?search=${encodeURIComponent(searchQuery.trim())}`, language));
       setSearchQuery("");
     }
+  };
+
+  const handleResultClick = (countryName: string) => {
+    navigate(localizedPath(`/shop?search=${encodeURIComponent(countryName)}`, language));
+    setSearchQuery("");
+    setShowSearchResults(false);
+    setMobileMenuOpen(false);
+  };
+
+  const getCountryFlag = (countryCode: string) => {
+    const FlagComponent = (CountryFlags as any)[countryCode];
+    return FlagComponent ? <FlagComponent className="w-6 h-4 rounded shadow" /> : null;
   };
 
   return (
@@ -363,17 +436,47 @@ export const Navbar = () => {
           </div>
         </div>
 
-        {/* Mobile Search Bar - Always visible */}
-        <div className="lg:hidden pb-3">
-          <form onSubmit={(e) => handleSearch(e, true)} className="w-full relative group">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 group-hover:text-neon-cyan transition-colors duration-300" />
+        {/* Mobile Search Bar - Subtle and always visible */}
+        <div className="lg:hidden pb-2">
+          <form onSubmit={(e) => handleSearch(e, true)} className="w-full relative">
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/30" />
             <Input
               type="text"
               placeholder={t("searchEsims")}
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-white/5 backdrop-blur-xl border border-white/10 hover:border-neon-cyan/30 focus:border-neon-cyan/50 text-white placeholder:text-white/40 pl-10 pr-3 py-2.5 rounded-lg font-light text-sm transition-all duration-300 focus-visible:ring-neon-cyan/20"
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setShowSearchResults(e.target.value.trim().length > 0);
+              }}
+              onFocus={() => setShowSearchResults(searchQuery.trim().length > 0)}
+              onBlur={() => setTimeout(() => setShowSearchResults(false), 200)}
+              className="w-full pl-8 pr-3 h-9 bg-white/[0.02] backdrop-blur-xl border-white/[0.08] hover:border-white/[0.12] focus:border-neon-cyan/20 text-white placeholder:text-white/25 rounded-lg transition-all duration-300 text-xs"
             />
+            
+            {/* Search Results Dropdown */}
+            {showSearchResults && searchResults.length > 0 && (
+              <div className="absolute top-full left-0 right-0 mt-1 bg-black/95 backdrop-blur-xl border border-white/10 rounded-lg overflow-hidden z-50 shadow-2xl">
+                {searchResults.map(({ product, displayName }) => (
+                  <button
+                    key={product.id}
+                    type="button"
+                    onClick={() => handleResultClick(displayName)}
+                    className="w-full px-3 py-2.5 flex items-center gap-2.5 hover:bg-neon-cyan/10 transition-colors duration-200 border-b border-white/5 last:border-0"
+                  >
+                    <div className="shrink-0">
+                      {getCountryFlag(product.country_code)}
+                    </div>
+                    <div className="flex-1 text-left">
+                      <div className="text-white text-sm font-light">{displayName}</div>
+                      <div className="text-white/40 text-xs">
+                        {product.data_amount} • {product.validity_days} days • ${product.price_usd.toFixed(2)}
+                      </div>
+                    </div>
+                    <MapPin className="w-3.5 h-3.5 text-neon-cyan/50" />
+                  </button>
+                ))}
+              </div>
+            )}
           </form>
         </div>
       </div>
