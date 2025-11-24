@@ -60,10 +60,15 @@ export const ProductDetailModal = ({
               )}
             </div>
             <div className="text-right">
-              <div className="text-3xl md:text-4xl font-bold text-white">
-                ${product.price_usd.toFixed(2)}
+              <div className="relative inline-block">
+                <div className="absolute inset-0 bg-gradient-to-r from-neon-cyan/20 to-neon-violet/20 rounded-xl blur-lg"></div>
+                <div className="relative px-5 py-3 bg-white/[0.05] backdrop-blur-xl border border-white/20 rounded-xl">
+                  <span className="text-3xl md:text-4xl font-semibold bg-gradient-to-r from-white via-neon-cyan to-white bg-clip-text text-transparent">
+                    ${product.price_usd.toFixed(2)}
+                  </span>
+                </div>
               </div>
-              <p className="text-xs text-white/50 mt-1 font-light">{t('oneTimePayment')}</p>
+              <p className="text-xs text-white/50 mt-3 font-light">{t('oneTimePayment')}</p>
             </div>
           </div>
         </DialogHeader>
