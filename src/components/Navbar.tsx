@@ -121,20 +121,6 @@ export const Navbar = () => {
             </button>
           </div>
 
-          {/* Mobile Search Bar - Shows after scrolling */}
-          <div className={`lg:hidden flex-1 transition-all duration-300 ${showMobileSearch ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2 pointer-events-none'}`}>
-            <form onSubmit={(e) => handleSearch(e, true)} className="w-full relative group">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 group-hover:text-neon-cyan transition-colors duration-300" />
-              <Input
-                type="text"
-                placeholder={t("searchEsims")}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-white/5 backdrop-blur-xl border border-white/10 hover:border-neon-cyan/30 focus:border-neon-cyan/50 text-white placeholder:text-white/40 pl-10 pr-3 py-2 rounded-lg font-light text-sm transition-all duration-300 focus-visible:ring-neon-cyan/20"
-              />
-            </form>
-          </div>
-
           {/* Desktop Search Bar */}
           <div className="hidden lg:flex flex-1 max-w-md">
             <form onSubmit={(e) => handleSearch(e, false)} className="w-full relative group">
@@ -306,11 +292,11 @@ export const Navbar = () => {
             <div className="lg:hidden">
               <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
                 <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon" className="text-white/90 hover:text-neon-cyan hover:bg-neon-cyan/5 border border-white/5 hover:border-neon-cyan/30 h-9 w-9 transition-all duration-300">
+                  <Button variant="ghost" size="icon" className="text-white/90 hover:text-neon-cyan hover:bg-neon-cyan/5 border border-white/5 hover:border-neon-cyan/30 h-10 w-10 transition-all duration-300">
                     <Menu className="w-5 h-5" />
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="right" className="w-[85vw] max-w-[320px] bg-white/[0.03] backdrop-blur-2xl border-l border-white/20 shadow-2xl">
+                <SheetContent side="right" className="w-[95vw] max-w-[450px] bg-white/[0.03] backdrop-blur-2xl border-l border-white/20 shadow-2xl overflow-y-auto">
                   <div className="absolute inset-0 bg-gradient-to-br from-white/[0.08] via-white/[0.02] to-transparent pointer-events-none" />
                   <div className="absolute inset-0 bg-gradient-to-tl from-neon-cyan/[0.05] via-transparent to-neon-violet/[0.03] pointer-events-none" />
                   <div className="absolute top-0 right-0 w-32 h-32 bg-white/[0.05] rounded-full blur-3xl pointer-events-none" />
@@ -378,6 +364,20 @@ export const Navbar = () => {
               </Sheet>
             </div>
           </div>
+        </div>
+
+        {/* Mobile Search Bar - Shows after scrolling as separate row */}
+        <div className={`lg:hidden transition-all duration-300 pb-3 ${showMobileSearch ? 'opacity-100 translate-y-0 max-h-20' : 'opacity-0 -translate-y-2 pointer-events-none max-h-0 overflow-hidden'}`}>
+          <form onSubmit={(e) => handleSearch(e, true)} className="w-full relative group">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 group-hover:text-neon-cyan transition-colors duration-300" />
+            <Input
+              type="text"
+              placeholder={t("searchEsims")}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-white/5 backdrop-blur-xl border border-white/10 hover:border-neon-cyan/30 focus:border-neon-cyan/50 text-white placeholder:text-white/40 pl-10 pr-3 py-2.5 rounded-lg font-light text-sm transition-all duration-300 focus-visible:ring-neon-cyan/20"
+            />
+          </form>
         </div>
       </div>
     </nav>
