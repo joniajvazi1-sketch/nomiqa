@@ -222,7 +222,7 @@ export const Shop = () => {
                     </div>
                   )}
 
-                  <div className="pt-4 border-t border-white/10">
+                  <div className="pt-4 border-t border-white/10 text-center md:text-left">
                     <div className="text-3xl md:text-4xl font-semibold bg-gradient-to-r from-white via-neon-cyan to-white bg-clip-text text-transparent drop-shadow-[0_0_12px_rgba(6,182,212,0.4)]">
                       ${product.price_usd.toFixed(2)}
                     </div>
