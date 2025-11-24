@@ -34,13 +34,13 @@ export const StickyCTA = () => {
     >
       <div className="relative group">
         {/* Single subtle glow */}
-        <div className="absolute inset-0 bg-neon-cyan/20 rounded-full blur-xl opacity-50 group-hover:opacity-100 group-hover:blur-2xl transition-all duration-500" />
+        <div className="absolute inset-0 bg-white/10 rounded-full blur-xl opacity-50 group-hover:opacity-100 group-hover:blur-2xl transition-all duration-500" />
         
         <Button
           variant="neon"
           size="lg"
           onClick={() => navigate('/shop')}
-          className="relative z-10 bg-deep-space/90 backdrop-blur-xl border border-neon-cyan/40 text-white hover:border-neon-cyan hover:bg-deep-space shadow-lg hover:shadow-neon-cyan/50 transition-all duration-300 pr-12 font-light group-hover:scale-105"
+          className="relative z-10 bg-white/[0.08] backdrop-blur-xl border border-white/20 text-white hover:border-white/40 hover:bg-white/[0.12] shadow-lg hover:shadow-white/20 transition-all duration-300 pr-12 font-light group-hover:scale-105"
         >
           <ShoppingBag className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform duration-300" />
           <span className="hidden sm:inline">{t("getEsimNow")}</span>
@@ -49,10 +49,10 @@ export const StickyCTA = () => {
         
         <button
           onClick={() => setIsDismissed(true)}
-          className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-deep-space/95 backdrop-blur-xl border border-white/20 hover:border-neon-violet hover:bg-neon-violet/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110"
+          className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-white/[0.08] backdrop-blur-xl border border-white/20 hover:border-white/40 hover:bg-white/[0.15] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110"
           aria-label={t("dismiss")}
         >
-          <X className="w-3.5 h-3.5 text-white/70 hover:text-neon-violet transition-colors duration-300" />
+          <X className="w-3.5 h-3.5 text-white/70 hover:text-white transition-colors duration-300" />
         </button>
       </div>
     </div>
