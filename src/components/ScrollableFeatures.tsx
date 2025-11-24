@@ -39,7 +39,6 @@ export const ScrollableFeatures = () => {
       ],
       cta: t("loyaltyViewRewards"),
       path: "/rewards",
-      gradient: "from-neon-violet/10 via-neon-coral/10 to-neon-cyan/10",
       showImage: false
     },
     {
@@ -54,7 +53,6 @@ export const ScrollableFeatures = () => {
       ],
       cta: t("getStarted"),
       path: "/affiliate",
-      gradient: "from-neon-cyan/10 via-neon-violet/10 to-neon-coral/10",
       showImage: false
     },
     {
@@ -68,7 +66,6 @@ export const ScrollableFeatures = () => {
       ],
       cta: t("discoverToken"),
       path: "/token",
-      gradient: "from-neon-cyan/10 via-neon-violet/10 to-warm-sand/10",
       showImage: true
     },
   ];
@@ -98,7 +95,7 @@ export const ScrollableFeatures = () => {
                     className="flex-shrink-0 w-[85vw] sm:w-[400px] md:w-[450px] group"
                     style={{ animationDelay: `${index * 150}ms` }}
                   >
-                    <div className={`relative h-full overflow-hidden rounded-2xl md:rounded-3xl border border-white/10 bg-gradient-to-br ${feature.gradient} p-8 md:p-10 backdrop-blur-xl hover:border-white/20 transition-all duration-500 hover:scale-[1.02]`}>
+                    <div className="relative h-full overflow-hidden rounded-2xl md:rounded-3xl border border-white/10 bg-white/[0.03] p-8 md:p-10 backdrop-blur-xl hover:border-white/20 hover:bg-white/[0.05] transition-all duration-500 hover:scale-[1.02]">
                       {/* Premium decorative glow */}
                       <div className="absolute -top-20 -right-20 w-48 h-48 bg-neon-violet/20 rounded-full blur-3xl" />
                       <div className="absolute -bottom-20 -left-20 w-48 h-48 bg-neon-coral/20 rounded-full blur-3xl" />
