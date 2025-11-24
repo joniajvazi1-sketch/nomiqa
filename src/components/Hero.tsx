@@ -13,20 +13,17 @@ export const Hero = () => {
     <section className="relative min-h-screen flex items-center overflow-hidden">
       {/* Premium background with elegant overlay */}
       <div className="absolute inset-0">
-        <img 
-          src={heroSunsetBg} 
-          alt="Sunset cityscape" 
-          className="hidden md:block w-full h-full object-cover object-center" 
-          loading="eager"
-          fetchPriority="high"
-        />
-        <img 
-          src={heroMobileSunset} 
-          alt="Person using phone at sunset" 
-          className="md:hidden w-full h-full object-cover object-[70%_center]" 
-          loading="eager"
-          fetchPriority="high"
-        />
+        <picture>
+          <source media="(min-width: 768px)" srcSet={heroSunsetBg} />
+          <img 
+            src={heroMobileSunset} 
+            alt="Sunset cityscape" 
+            className="w-full h-full object-cover object-center md:object-center object-[70%_center]" 
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
+          />
+        </picture>
         {/* Ultra minimal overlay - maximum background visibility */}
         <div className="absolute inset-0 bg-black/10"></div>
       </div>
