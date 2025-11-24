@@ -20,16 +20,13 @@ export const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [desktopMenuOpen, setDesktopMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [showMobileSearch, setShowMobileSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const { language, setLanguage, t } = useTranslation();
 
-  // Scroll detection for blur effect and mobile search visibility
+  // Scroll detection for blur effect
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
-      // Show mobile search after scrolling past hero (approximately 600px)
-      setShowMobileSearch(window.scrollY > 600);
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
@@ -366,8 +363,8 @@ export const Navbar = () => {
           </div>
         </div>
 
-        {/* Mobile Search Bar - Shows after scrolling as separate row */}
-        <div className={`lg:hidden transition-all duration-300 pb-3 ${showMobileSearch ? 'opacity-100 translate-y-0 max-h-20' : 'opacity-0 -translate-y-2 pointer-events-none max-h-0 overflow-hidden'}`}>
+        {/* Mobile Search Bar - Always visible */}
+        <div className="lg:hidden pb-3">
           <form onSubmit={(e) => handleSearch(e, true)} className="w-full relative group">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 group-hover:text-neon-cyan transition-colors duration-300" />
             <Input
