@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "@/contexts/TranslationContext";
-import { Twitter, Instagram, Video, Youtube, Facebook, ChevronDown } from "lucide-react";
+import { Twitter, Instagram, Music, Youtube, Facebook, ChevronDown } from "lucide-react";
 export const Footer = () => {
   const { t } = useTranslation();
   const [openSections, setOpenSections] = useState<string[]>([]);
@@ -42,7 +42,7 @@ export const Footer = () => {
               <Youtube className="w-4 h-4 text-white/60 group-hover:text-neon-orange transition-colors duration-300" />
             </a>
             <a href="https://tiktok.com/@nomiqa" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-white/[0.02] backdrop-blur-xl border border-white/10 flex items-center justify-center hover:border-neon-violet/50 hover:bg-neon-violet/10 hover:scale-110 transition-all duration-300 group" aria-label="TikTok">
-              <Video className="w-4 h-4 text-white/60 group-hover:text-neon-violet transition-colors duration-300" />
+              <Music className="w-4 h-4 text-white/60 group-hover:text-neon-violet transition-colors duration-300" />
             </a>
             <a href="https://facebook.com/nomiqa" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-white/[0.02] backdrop-blur-xl border border-white/10 flex items-center justify-center hover:border-blue-500/50 hover:bg-blue-500/10 hover:scale-110 transition-all duration-300 group" aria-label="Facebook">
               <Facebook className="w-4 h-4 text-white/60 group-hover:text-blue-500 transition-colors duration-300" />
