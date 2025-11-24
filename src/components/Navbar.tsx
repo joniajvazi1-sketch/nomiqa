@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -18,6 +18,7 @@ import * as CountryFlags from 'country-flag-icons/react/3x2';
 
 export const Navbar = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { items } = useCart();
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -27,6 +28,9 @@ export const Navbar = () => {
   const [showSearchResults, setShowSearchResults] = useState(false);
   const { language, setLanguage, t } = useTranslation();
   const { data: products } = useProducts();
+
+  // Check if we're on the shop page
+  const isShopPage = location.pathname.includes('/shop');
 
   // Scroll detection for blur effect
   useEffect(() => {
@@ -97,34 +101,43 @@ export const Navbar = () => {
     return matches / maxLength;
   };
 
-  // Get search results with fuzzy matching
+  // Get search results with fuzzy matching - show unique countries only
   const getSearchResults = () => {
     if (!searchQuery.trim() || !products) return [];
     
     const searchLower = searchQuery.toLowerCase();
-    const results = products
-      .map(product => {
-        const allCountryNames = getAllTranslatedNames(product.country_code);
-        const currentCountryName = getTranslatedCountryName(product.country_code, language);
-        
-        // Calculate similarity scores
-        const scores = [
-          calculateSimilarity(searchLower, currentCountryName.toLowerCase()),
-          ...allCountryNames.map(name => calculateSimilarity(searchLower, name.toLowerCase())),
-          calculateSimilarity(searchLower, product.name.toLowerCase())
-        ];
-        
-        const maxScore = Math.max(...scores);
-        
-        return {
-          product,
-          score: maxScore,
-          displayName: currentCountryName
-        };
-      })
-      .filter(item => item.score > 0.4) // Threshold for fuzzy matching
+    
+    // Group products by country and calculate best score for each country
+    const countryMap = new Map<string, { countryCode: string; countryName: string; score: number }>();
+    
+    products.forEach(product => {
+      const allCountryNames = getAllTranslatedNames(product.country_code);
+      const currentCountryName = getTranslatedCountryName(product.country_code, language);
+      
+      // Calculate similarity scores
+      const scores = [
+        calculateSimilarity(searchLower, currentCountryName.toLowerCase()),
+        ...allCountryNames.map(name => calculateSimilarity(searchLower, name.toLowerCase())),
+      ];
+      
+      const maxScore = Math.max(...scores);
+      
+      // Only keep the best score for each country
+      const existing = countryMap.get(product.country_code);
+      if (!existing || maxScore > existing.score) {
+        countryMap.set(product.country_code, {
+          countryCode: product.country_code,
+          countryName: currentCountryName,
+          score: maxScore
+        });
+      }
+    });
+    
+    // Convert to array, filter, sort and limit
+    const results = Array.from(countryMap.values())
+      .filter(item => item.score > 0.4)
       .sort((a, b) => b.score - a.score)
-      .slice(0, 5); // Show top 5 results
+      .slice(0, 5);
     
     return results;
   };
@@ -191,19 +204,21 @@ export const Navbar = () => {
             </button>
           </div>
 
-          {/* Desktop Search Bar */}
-          <div className="hidden lg:flex flex-1 max-w-md">
-            <form onSubmit={(e) => handleSearch(e, false)} className="w-full relative group">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 group-hover:text-neon-cyan transition-colors duration-300" />
-              <Input
-                type="text"
-                placeholder={t("searchEsims")}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-white/5 backdrop-blur-xl border border-white/10 hover:border-neon-cyan/30 focus:border-neon-cyan/50 text-white placeholder:text-white/40 pl-10 pr-4 py-2 rounded-lg font-light text-sm transition-all duration-300 focus-visible:ring-neon-cyan/20"
-              />
-            </form>
-          </div>
+          {/* Desktop Search Bar - Hidden on shop page */}
+          {!isShopPage && (
+            <div className="hidden lg:flex flex-1 max-w-md">
+              <form onSubmit={(e) => handleSearch(e, false)} className="w-full relative group">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 group-hover:text-neon-cyan transition-colors duration-300" />
+                <Input
+                  type="text"
+                  placeholder={t("searchEsims")}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full bg-white/5 backdrop-blur-xl border border-white/10 hover:border-neon-cyan/30 focus:border-neon-cyan/50 text-white placeholder:text-white/40 pl-10 pr-4 py-2 rounded-lg font-light text-sm transition-all duration-300 focus-visible:ring-neon-cyan/20"
+                />
+              </form>
+            </div>
+          )}
 
           {/* Right controls */}
           <div className="flex items-center gap-2 flex-shrink-0">
@@ -436,49 +451,48 @@ export const Navbar = () => {
           </div>
         </div>
 
-        {/* Mobile Search Bar - Subtle and always visible */}
-        <div className="lg:hidden pb-2">
-          <form onSubmit={(e) => handleSearch(e, true)} className="w-full relative">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/30" />
-            <Input
-              type="text"
-              placeholder={t("searchEsims")}
-              value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
-                setShowSearchResults(e.target.value.trim().length > 0);
-              }}
-              onFocus={() => setShowSearchResults(searchQuery.trim().length > 0)}
-              onBlur={() => setTimeout(() => setShowSearchResults(false), 200)}
-              className="w-full pl-8 pr-3 h-9 bg-white/[0.02] backdrop-blur-xl border-white/[0.08] hover:border-white/[0.12] focus:border-neon-cyan/20 text-white placeholder:text-white/25 rounded-lg transition-all duration-300 text-xs"
-            />
-            
-            {/* Search Results Dropdown */}
-            {showSearchResults && searchResults.length > 0 && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-black/95 backdrop-blur-xl border border-white/10 rounded-lg overflow-hidden z-50 shadow-2xl">
-                {searchResults.map(({ product, displayName }) => (
-                  <button
-                    key={product.id}
-                    type="button"
-                    onClick={() => handleResultClick(displayName)}
-                    className="w-full px-3 py-2.5 flex items-center gap-2.5 hover:bg-neon-cyan/10 transition-colors duration-200 border-b border-white/5 last:border-0"
-                  >
-                    <div className="shrink-0">
-                      {getCountryFlag(product.country_code)}
-                    </div>
-                    <div className="flex-1 text-left">
-                      <div className="text-white text-sm font-light">{displayName}</div>
-                      <div className="text-white/40 text-xs">
-                        {product.data_amount} • {product.validity_days} days • ${product.price_usd.toFixed(2)}
+        {/* Mobile Search Bar - Subtle and always visible, hidden on shop page */}
+        {!isShopPage && (
+          <div className="lg:hidden pb-2">
+            <form onSubmit={(e) => handleSearch(e, true)} className="w-full relative">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/30" />
+              <Input
+                type="text"
+                placeholder={t("searchEsims")}
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setShowSearchResults(e.target.value.trim().length > 0);
+                }}
+                onFocus={() => setShowSearchResults(searchQuery.trim().length > 0)}
+                onBlur={() => setTimeout(() => setShowSearchResults(false), 200)}
+                className="w-full pl-8 pr-3 h-9 bg-white/[0.02] backdrop-blur-xl border-white/[0.08] hover:border-white/[0.12] focus:border-neon-cyan/20 text-white placeholder:text-white/25 rounded-lg transition-all duration-300 text-xs"
+              />
+              
+              {/* Search Results Dropdown - Shows unique countries only */}
+              {showSearchResults && searchResults.length > 0 && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-black/95 backdrop-blur-xl border border-white/10 rounded-lg overflow-hidden z-50 shadow-2xl">
+                  {searchResults.map(({ countryCode, countryName }) => (
+                    <button
+                      key={countryCode}
+                      type="button"
+                      onClick={() => handleResultClick(countryName)}
+                      className="w-full px-3 py-2.5 flex items-center gap-2.5 hover:bg-neon-cyan/10 transition-colors duration-200 border-b border-white/5 last:border-0"
+                    >
+                      <div className="shrink-0">
+                        {getCountryFlag(countryCode)}
                       </div>
-                    </div>
-                    <MapPin className="w-3.5 h-3.5 text-neon-cyan/50" />
-                  </button>
-                ))}
-              </div>
-            )}
-          </form>
-        </div>
+                      <div className="flex-1 text-left">
+                        <div className="text-white text-sm font-light">{countryName}</div>
+                      </div>
+                      <MapPin className="w-3.5 h-3.5 text-neon-cyan/50" />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </form>
+          </div>
+        )}
       </div>
     </nav>
   );
