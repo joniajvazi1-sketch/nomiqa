@@ -9,6 +9,7 @@ const TrustPartners = lazy(() => import("@/components/TrustPartners").then(m => 
 const FeaturedProducts = lazy(() => import("@/components/FeaturedProducts").then(m => ({ default: m.FeaturedProducts })));
 const WhyNomiqa = lazy(() => import("@/components/WhyNomiqa").then(m => ({ default: m.WhyNomiqa })));
 const HowItWorksSteps = lazy(() => import("@/components/HowItWorksSteps").then(m => ({ default: m.HowItWorksSteps })));
+const ScrollableFeatures = lazy(() => import("@/components/ScrollableFeatures").then(m => ({ default: m.ScrollableFeatures })));
 const CoverageSection = lazy(() => import("@/components/CoverageSection").then(m => ({ default: m.CoverageSection })));
 
 const Index = () => {
@@ -21,6 +22,7 @@ const Index = () => {
         <FeaturedProducts />
         <WhyNomiqa />
         <HowItWorksSteps />
+        <ScrollableFeatures />
         <CoverageSection />
       </Suspense>
       <Footer />
