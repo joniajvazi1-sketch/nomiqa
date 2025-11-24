@@ -111,13 +111,8 @@ export const FeaturedProducts = () => {
                   </div>
                   
                   <div className="flex items-center justify-between pt-4 border-t border-border/50">
-                    <div className="relative">
-                      <div className="absolute inset-0 bg-gradient-to-r from-neon-cyan/20 to-neon-violet/20 rounded-lg blur-md"></div>
-                      <div className="relative px-4 py-2 bg-white/[0.05] backdrop-blur-xl border border-white/20 rounded-lg">
-                        <span className="text-3xl font-semibold bg-gradient-to-r from-white via-neon-cyan to-white bg-clip-text text-transparent">
-                          ${product.price_usd.toFixed(2)}
-                        </span>
-                      </div>
+                    <div className="text-3xl font-semibold bg-gradient-to-r from-white via-neon-cyan to-white bg-clip-text text-transparent drop-shadow-[0_0_8px_rgba(6,182,212,0.3)]">
+                      ${product.price_usd.toFixed(2)}
                     </div>
                     <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-neon-cyan group-hover:translate-x-1 transition-all" />
                   </div>
@@ -151,13 +146,8 @@ export const FeaturedProducts = () => {
                   </div>
                   
                   <div className="flex items-center gap-3">
-                    <div className="relative">
-                      <div className="absolute inset-0 bg-gradient-to-r from-neon-cyan/20 to-neon-violet/20 rounded-lg blur-md"></div>
-                      <div className="relative px-3 py-1.5 bg-white/[0.05] backdrop-blur-xl border border-white/20 rounded-lg">
-                        <span className="text-2xl font-semibold bg-gradient-to-r from-white via-neon-cyan to-white bg-clip-text text-transparent whitespace-nowrap">
-                          ${product.price_usd.toFixed(2)}
-                        </span>
-                      </div>
+                    <div className="text-2xl font-semibold bg-gradient-to-r from-white via-neon-cyan to-white bg-clip-text text-transparent drop-shadow-[0_0_8px_rgba(6,182,212,0.3)] whitespace-nowrap">
+                      ${product.price_usd.toFixed(2)}
                     </div>
                     <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-neon-cyan group-hover:translate-x-1 transition-all flex-shrink-0" />
                   </div>
