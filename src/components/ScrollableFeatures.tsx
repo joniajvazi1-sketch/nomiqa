@@ -1,9 +1,10 @@
 import { Button } from "@/components/ui/button";
-import { Trophy, Users, Coins } from "lucide-react";
+import { Trophy, Users, Coins, Gift } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "@/contexts/TranslationContext";
 import { localizedPath } from "@/utils/localizedLinks";
 import { useEffect, useRef, useState } from "react";
+import tokenLogo from "@/assets/nomiqa-token-logo.gif";
 
 export const ScrollableFeatures = () => {
   const navigate = useNavigate();
@@ -31,41 +32,44 @@ export const ScrollableFeatures = () => {
       title: t("loyaltyTitle"),
       description: t("loyaltySubtitle"),
       highlights: [
-        { text: "Bronze: 5% cashback", gradient: "from-amber-600 to-amber-800" },
-        { text: "Silver: 6% cashback", gradient: "from-gray-400 to-gray-600" },
-        { text: "Gold: 7% cashback", gradient: "from-yellow-400 to-yellow-600" },
-        { text: "Platinum: 10% cashback", gradient: "from-purple-400 to-purple-600" },
+        { text: "Bronze: 5% cashback", gradient: "from-amber-600 to-amber-800", icon: Trophy },
+        { text: "Silver: 6% cashback", gradient: "from-gray-400 to-gray-600", icon: Trophy },
+        { text: "Gold: 7% cashback", gradient: "from-yellow-400 to-yellow-600", icon: Trophy },
+        { text: "Platinum: 10% cashback", gradient: "from-purple-400 to-purple-600", icon: Trophy },
       ],
       cta: t("loyaltyViewRewards"),
       path: "/rewards",
-      gradient: "from-neon-violet/10 via-neon-coral/10 to-neon-cyan/10"
+      gradient: "from-neon-violet/10 via-neon-coral/10 to-neon-cyan/10",
+      showImage: false
     },
     {
       icon: Users,
       title: t("affiliateHeroTitle"),
       description: t("affiliateHeroSubtitle"),
       highlights: [
-        { text: "9% direct referral commission", gradient: "from-neon-cyan to-neon-cyan" },
-        { text: "6% tier 2 passive income", gradient: "from-neon-violet to-neon-violet" },
-        { text: "3% tier 3 passive income", gradient: "from-neon-coral to-neon-coral" },
-        { text: "Real USDC & SOL earnings", gradient: "from-warm-sand to-warm-sand" },
+        { text: "9% direct referral commission", gradient: "from-neon-cyan to-neon-cyan", icon: Users },
+        { text: "6% tier 2 passive income", gradient: "from-neon-violet to-neon-violet", icon: Users },
+        { text: "3% tier 3 passive income", gradient: "from-neon-coral to-neon-coral", icon: Users },
+        { text: "Real USDC & SOL earnings", gradient: "from-warm-sand to-warm-sand", icon: Coins },
       ],
       cta: t("affiliateGetStarted"),
       path: "/affiliate",
-      gradient: "from-neon-cyan/10 via-neon-violet/10 to-neon-coral/10"
+      gradient: "from-neon-cyan/10 via-neon-violet/10 to-neon-coral/10",
+      showImage: false
     },
     {
       icon: Coins,
       title: t("earnAsConnectTitle"),
       description: t("earnAsConnectDesc"),
       highlights: [
-        { text: t("redeemTokens"), gradient: "from-neon-violet to-neon-violet" },
-        { text: t("earnForReferrals"), gradient: "from-neon-coral to-neon-coral" },
-        { text: t("growNetwork"), gradient: "from-neon-cyan to-neon-cyan" },
+        { text: t("redeemTokens"), gradient: "from-neon-violet to-neon-violet", icon: Coins },
+        { text: t("earnForReferrals"), gradient: "from-neon-coral to-neon-coral", icon: Gift },
+        { text: t("growNetwork"), gradient: "from-neon-cyan to-neon-cyan", icon: Users },
       ],
       cta: t("discoverToken"),
       path: "/token",
-      gradient: "from-neon-cyan/10 via-neon-violet/10 to-warm-sand/10"
+      gradient: "from-neon-cyan/10 via-neon-violet/10 to-warm-sand/10",
+      showImage: true
     },
   ];
 
@@ -100,15 +104,24 @@ export const ScrollableFeatures = () => {
                       <div className="absolute -bottom-20 -left-20 w-48 h-48 bg-neon-coral/20 rounded-full blur-3xl" />
                       
                       <div className="relative z-10 flex flex-col h-full">
-                        {/* Icon */}
-                        <div className="mb-6">
-                          <div className="w-16 h-16 rounded-2xl bg-white/[0.05] border border-white/10 flex items-center justify-center group-hover:bg-white/[0.08] transition-all duration-300">
-                            <Icon className="w-8 h-8 text-neon-cyan" />
-                          </div>
+                        {/* Icon or Image */}
+                        <div className="mb-6 text-center md:text-left">
+                          {feature.showImage ? (
+                            <img 
+                              src={tokenLogo} 
+                              alt="NOMIQA Token" 
+                              className="w-auto h-16 md:h-20 object-contain mx-auto md:mx-0" 
+                              loading="lazy"
+                            />
+                          ) : (
+                            <div className="w-16 h-16 rounded-2xl bg-white/[0.05] border border-white/10 flex items-center justify-center group-hover:bg-white/[0.08] transition-all duration-300 mx-auto md:mx-0">
+                              <Icon className="w-8 h-8 text-neon-cyan" />
+                            </div>
+                          )}
                         </div>
 
                         {/* Title & Description */}
-                        <div className="mb-6">
+                        <div className="mb-6 text-center md:text-left">
                           <h3 className="text-2xl md:text-3xl font-light text-white mb-3">
                             {feature.title}
                           </h3>
@@ -119,15 +132,20 @@ export const ScrollableFeatures = () => {
 
                         {/* Highlights */}
                         <div className="space-y-3 mb-8 flex-grow">
-                          {feature.highlights.map((highlight, idx) => (
-                            <div 
-                              key={idx}
-                              className="flex items-center gap-2 text-white/80 text-sm md:text-base font-light"
-                            >
-                              <div className={`w-1.5 h-1.5 rounded-full bg-gradient-to-r ${highlight.gradient}`} />
-                              {highlight.text}
-                            </div>
-                          ))}
+                          {feature.highlights.map((highlight, idx) => {
+                            const HighlightIcon = highlight.icon;
+                            return (
+                              <div 
+                                key={idx}
+                                className="flex items-center gap-3 text-white/80 text-sm md:text-base font-light justify-center md:justify-start"
+                              >
+                                <div className={`w-8 h-8 rounded-full bg-gradient-to-r ${highlight.gradient} flex items-center justify-center flex-shrink-0`}>
+                                  <HighlightIcon className="w-4 h-4 text-white" />
+                                </div>
+                                <span>{highlight.text}</span>
+                              </div>
+                            );
+                          })}
                         </div>
 
                         {/* CTA Button */}
