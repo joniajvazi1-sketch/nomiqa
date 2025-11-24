@@ -1,3 +1,9 @@
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { useTranslation } from "@/contexts/TranslationContext";
 
 export const SiteNavigation = () => {
@@ -12,57 +18,66 @@ export const SiteNavigation = () => {
       </div>
       
       <div className="container px-4 sm:px-6 md:px-8 relative z-10 py-12 md:py-16">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
+        <div className="max-w-4xl mx-auto">
+          <Accordion type="single" collapsible className="w-full">
             {/* Our eSIMs */}
-            <div className="space-y-4">
-              <h3 className="text-sm md:text-base font-semibold text-white mb-4">
+            <AccordionItem value="esims" className="border-0">
+              <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mb-6"></div>
+              <AccordionTrigger className="text-left text-xl md:text-2xl font-normal text-white hover:text-neon-cyan transition-colors py-6 hover:no-underline">
                 {t("footerOurEsims")}
-              </h3>
-              <div className="w-full h-px bg-gradient-to-r from-white/20 via-white/10 to-transparent mb-4"></div>
-              <ul className="space-y-3 text-white/60 text-xs md:text-sm">
-                <li><a href="/shop" className="hover:text-neon-cyan transition-colors duration-300 font-light">{t("footerStore")}</a></li>
-                <li><a href="/shop" className="hover:text-neon-cyan transition-colors duration-300 font-light">{t("footerUnlimitedData")}</a></li>
-                <li><a href="/affiliate" className="hover:text-neon-cyan transition-colors duration-300 font-light">{t("footerReferEarn")}</a></li>
-                <li><a href="/rewards" className="hover:text-neon-cyan transition-colors duration-300 font-light">{t("footerLoyaltyPrograms")}</a></li>
-              </ul>
-            </div>
+              </AccordionTrigger>
+              <AccordionContent className="pb-8">
+                <ul className="space-y-4 text-white/60 text-sm md:text-base pl-0">
+                  <li><a href="/shop" className="hover:text-neon-cyan transition-colors duration-300 font-light block">{t("footerStore")}</a></li>
+                  <li><a href="/shop" className="hover:text-neon-cyan transition-colors duration-300 font-light block">{t("footerUnlimitedData")}</a></li>
+                  <li><a href="/affiliate" className="hover:text-neon-cyan transition-colors duration-300 font-light block">{t("footerReferEarn")}</a></li>
+                  <li><a href="/rewards" className="hover:text-neon-cyan transition-colors duration-300 font-light block">{t("footerLoyaltyPrograms")}</a></li>
+                </ul>
+              </AccordionContent>
+            </AccordionItem>
 
             {/* Explore */}
-            <div className="space-y-4">
-              <h3 className="text-sm md:text-base font-semibold text-white mb-4">
+            <AccordionItem value="explore" className="border-0">
+              <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mb-6"></div>
+              <AccordionTrigger className="text-left text-xl md:text-2xl font-normal text-white hover:text-neon-cyan transition-colors py-6 hover:no-underline">
                 {t("footerExplore")}
-              </h3>
-              <div className="w-full h-px bg-gradient-to-r from-white/20 via-white/10 to-transparent mb-4"></div>
-              <ul className="space-y-3 text-white/60 text-xs md:text-sm">
-                <li><a href="/shop" className="hover:text-neon-cyan transition-colors duration-300 font-light">{t("footerEsims")}</a></li>
-                <li><a href="/getting-started" className="hover:text-neon-cyan transition-colors duration-300 font-light">{t("footerDeviceCompatibility")}</a></li>
-              </ul>
-            </div>
+              </AccordionTrigger>
+              <AccordionContent className="pb-8">
+                <ul className="space-y-4 text-white/60 text-sm md:text-base pl-0">
+                  <li><a href="/shop" className="hover:text-neon-cyan transition-colors duration-300 font-light block">{t("footerEsims")}</a></li>
+                  <li><a href="/getting-started" className="hover:text-neon-cyan transition-colors duration-300 font-light block">{t("footerDeviceCompatibility")}</a></li>
+                </ul>
+              </AccordionContent>
+            </AccordionItem>
 
             {/* Get Help */}
-            <div className="space-y-4">
-              <h3 className="text-sm md:text-base font-semibold text-white mb-4">
+            <AccordionItem value="help" className="border-0">
+              <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mb-6"></div>
+              <AccordionTrigger className="text-left text-xl md:text-2xl font-normal text-white hover:text-neon-cyan transition-colors py-6 hover:no-underline">
                 {t("footerGetHelp")}
-              </h3>
-              <div className="w-full h-px bg-gradient-to-r from-white/20 via-white/10 to-transparent mb-4"></div>
-              <ul className="space-y-3 text-white/60 text-xs md:text-sm">
-                <li><a href="/help" className="hover:text-neon-cyan transition-colors duration-300 font-light">{t("footerContactUs")}</a></li>
-                <li><a href="/help" className="hover:text-neon-cyan transition-colors duration-300 font-light">{t("footerHelp")}</a></li>
-              </ul>
-            </div>
+              </AccordionTrigger>
+              <AccordionContent className="pb-8">
+                <ul className="space-y-4 text-white/60 text-sm md:text-base pl-0">
+                  <li><a href="/help" className="hover:text-neon-cyan transition-colors duration-300 font-light block">{t("footerContactUs")}</a></li>
+                  <li><a href="/help" className="hover:text-neon-cyan transition-colors duration-300 font-light block">{t("footerHelp")}</a></li>
+                </ul>
+              </AccordionContent>
+            </AccordionItem>
 
             {/* About */}
-            <div className="space-y-4">
-              <h3 className="text-sm md:text-base font-semibold text-white mb-4">
+            <AccordionItem value="about" className="border-0">
+              <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mb-6"></div>
+              <AccordionTrigger className="text-left text-xl md:text-2xl font-normal text-white hover:text-neon-cyan transition-colors py-6 hover:no-underline">
                 {t("footerAbout")}
-              </h3>
-              <div className="w-full h-px bg-gradient-to-r from-white/20 via-white/10 to-transparent mb-4"></div>
-              <ul className="space-y-3 text-white/60 text-xs md:text-sm">
-                <li><a href="/about" className="hover:text-neon-cyan transition-colors duration-300 font-light">{t("footerAboutNomiqa")}</a></li>
-              </ul>
-            </div>
-          </div>
+              </AccordionTrigger>
+              <AccordionContent className="pb-8">
+                <ul className="space-y-4 text-white/60 text-sm md:text-base pl-0">
+                  <li><a href="/about" className="hover:text-neon-cyan transition-colors duration-300 font-light block">{t("footerAboutNomiqa")}</a></li>
+                </ul>
+              </AccordionContent>
+              <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mt-6"></div>
+            </AccordionItem>
+          </Accordion>
         </div>
       </div>
     </section>
