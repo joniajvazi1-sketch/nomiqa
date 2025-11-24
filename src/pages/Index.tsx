@@ -9,11 +9,7 @@ const TrustPartners = lazy(() => import("@/components/TrustPartners").then(m => 
 const FeaturedProducts = lazy(() => import("@/components/FeaturedProducts").then(m => ({ default: m.FeaturedProducts })));
 const WhyNomiqa = lazy(() => import("@/components/WhyNomiqa").then(m => ({ default: m.WhyNomiqa })));
 const HowItWorksSteps = lazy(() => import("@/components/HowItWorksSteps").then(m => ({ default: m.HowItWorksSteps })));
-const LoyaltyProgram = lazy(() => import("@/components/LoyaltyProgram").then(m => ({ default: m.LoyaltyProgram })));
-const ReferEarn = lazy(() => import("@/components/ReferEarn").then(m => ({ default: m.ReferEarn })));
-const EarnRewardBlock = lazy(() => import("@/components/EarnRewardBlock").then(m => ({ default: m.EarnRewardBlock })));
 const CoverageSection = lazy(() => import("@/components/CoverageSection").then(m => ({ default: m.CoverageSection })));
-const EasyCheckout = lazy(() => import("@/components/EasyCheckout").then(m => ({ default: m.EasyCheckout })));
 
 const Index = () => {
   return (
@@ -25,11 +21,7 @@ const Index = () => {
         <FeaturedProducts />
         <WhyNomiqa />
         <HowItWorksSteps />
-        <LoyaltyProgram />
-        <ReferEarn />
-        <EarnRewardBlock />
         <CoverageSection />
-        <EasyCheckout />
       </Suspense>
       <Footer />
       <SupportChatbot />
