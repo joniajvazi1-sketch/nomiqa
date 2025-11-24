@@ -452,6 +452,7 @@ const translations: Record<string, Partial<Record<Language | 'HI', string>>> = {
   // FAQ headings
   faqTitle: { EN: "Questions? We've got you.", ES: "¿Preguntas? Te ayudamos.", FR: "Des questions ? On est là.", DE: "Fragen? Wir sind da.", RU: "Вопросы? Мы поможем.", ZH: "有问题？我们来帮你。", JA: "質問はありますか？お任せください。", PT: "Dúvidas? Estamos com você.", AR: "أسئلة؟ نحن هنا لأجلك.", HI: "सवाल? हम आपके साथ हैं।" },
   faqSubtitle: { EN: "eSIM setup, troubleshooting, and payments.", ES: "Configuración de eSIM, solución de problemas y pagos.", FR: "Configuration eSIM, dépannage et paiements.", DE: "eSIM-Einrichtung, Fehlerbehebung und Zahlungen.", RU: "Настройка eSIM, устранение неполадок и платежи.", ZH: "eSIM 设置、故障排除和支付。", JA: "eSIM の設定、トラブルシューティング、支払い。", PT: "Configuração de eSIM, solução de problemas e pagamentos.", AR: "إعداد eSIM، استكشاف الأخطاء وإصلاحها، والمدفوعات.", HI: "eSIM सेटअप, ट्रबलशूटिंग और पेमेंट।" },
+  contactHelpCenter: { EN: "Contact Help Center", ES: "Contactar Centro de Ayuda", FR: "Contacter le Centre d'Aide", DE: "Hilfezentrum kontaktieren", RU: "Связаться с Центром поддержки", ZH: "联系帮助中心", JA: "ヘルプセンターに連絡", PT: "Contatar Centro de Ajuda", AR: "اتصل بمركز المساعدة", IT: "Contatta Centro Assistenza" },
 
   // FAQ Q&A keys
   faq1Q: { EN: "How do I install my eSIM?", ES: "¿Cómo instalo mi eSIM?", FR: "Comment installer mon eSIM ?", DE: "Wie installiere ich meine eSIM?", RU: "Как установить мою eSIM?", ZH: "如何安装我的 eSIM？", JA: "eSIM のインストール方法は？", PT: "Como instalo meu eSIM?", AR: "كيف أقوم بتثبيت eSIM؟", IT: "Come installo la mia eSIM?" },

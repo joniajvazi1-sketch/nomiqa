@@ -5,9 +5,13 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { useTranslation } from "@/contexts/TranslationContext";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
+import { localizedPath } from "@/utils/localizedLinks";
 
 export const FAQ = () => {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
+  const navigate = useNavigate();
   
   const faqs = [
     {
@@ -66,7 +70,7 @@ export const FAQ = () => {
           </div>
 
           <Accordion type="single" collapsible className="space-y-4">
-            {faqs.map((faq, index) => (
+            {faqs.slice(0, 5).map((faq, index) => (
               <AccordionItem 
                 key={index} 
                 value={`item-${index}`}
@@ -81,6 +85,16 @@ export const FAQ = () => {
               </AccordionItem>
             ))}
           </Accordion>
+          
+          <div className="flex justify-center mt-8 md:mt-12">
+            <Button
+              onClick={() => navigate(localizedPath("/help", language))}
+              size="lg"
+              className="bg-gradient-to-r from-neon-cyan to-neon-violet hover:from-neon-cyan/90 hover:to-neon-violet/90 text-white border-0 shadow-glow-cyan font-light px-8 rounded-xl transition-all duration-300"
+            >
+              {t("contactHelpCenter")}
+            </Button>
+          </div>
         </div>
       </div>
     </section>
