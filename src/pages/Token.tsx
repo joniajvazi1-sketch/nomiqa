@@ -1,9 +1,10 @@
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { NetworkBackground } from "@/components/NetworkBackground";
-import { Coins, Rocket, Sparkles, TrendingUp, Lock, Zap } from "lucide-react";
+import { Coins, Rocket, Sparkles, TrendingUp, Lock, Zap, Gift, Users } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import { useTranslation } from "@/contexts/TranslationContext";
+import tokenLogo from "@/assets/nomiqa-token-logo.gif";
 
 const Token = () => {
   const { t } = useTranslation();
@@ -126,8 +127,67 @@ const Token = () => {
             </p>
           </div>
 
+          {/* Earn as You Connect Section */}
+          <div className={`mt-20 mb-16 transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+            <div className="relative overflow-hidden rounded-3xl border border-neon-violet/30 bg-gradient-to-br from-neon-violet/5 via-neon-coral/5 to-neon-cyan/5 p-10 md:p-14 shadow-2xl shadow-neon-violet/10 backdrop-blur-xl">
+              {/* Premium decorative glow */}
+              <div className="absolute -top-24 -right-24 w-64 h-64 bg-neon-violet/20 rounded-full blur-3xl" />
+              <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-neon-coral/20 rounded-full blur-3xl" />
+              
+              <div className="relative z-10 text-center space-y-8">
+                {/* Headline with Logo */}
+                <div className="space-y-5">
+                  <div className="flex items-center justify-center gap-4 mb-2">
+                    <img 
+                      src={tokenLogo} 
+                      alt="NOMIQA Token" 
+                      className="w-auto h-20 object-contain" 
+                      loading="lazy"
+                    />
+                  </div>
+                  <h2 className="text-4xl md:text-5xl font-light bg-gradient-to-r from-white via-white/95 to-white/90 bg-clip-text text-transparent">
+                    {t("earnAsConnectTitle")}
+                  </h2>
+                </div>
+
+                {/* Subline */}
+                <p className="text-lg md:text-xl text-white/80 max-w-2xl mx-auto font-light leading-relaxed">
+                  {t("earnAsConnectDesc")}
+                </p>
+
+                {/* Benefits Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-5 pt-8">
+                  <div className="flex items-center gap-4 p-5 rounded-2xl bg-white/[0.02] backdrop-blur-xl border border-white/10 hover:border-neon-violet/30 hover:bg-white/[0.04] transition-all duration-500">
+                    <div className="flex-shrink-0 w-12 h-12 rounded-full bg-neon-violet/10 flex items-center justify-center text-neon-violet border border-neon-violet/20">
+                      <Coins className="w-5 h-5" />
+                    </div>
+                    <p className="text-sm md:text-base font-light text-white text-left leading-relaxed">
+                      {t("redeemTokens")}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-4 p-5 rounded-2xl bg-white/[0.02] backdrop-blur-xl border border-white/10 hover:border-neon-violet/30 hover:bg-white/[0.04] transition-all duration-500">
+                    <div className="flex-shrink-0 w-12 h-12 rounded-full bg-neon-violet/10 flex items-center justify-center text-neon-violet border border-neon-violet/20">
+                      <Gift className="w-5 h-5" />
+                    </div>
+                    <p className="text-sm md:text-base font-light text-white text-left leading-relaxed">
+                      {t("earnForReferrals")}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-4 p-5 rounded-2xl bg-white/[0.02] backdrop-blur-xl border border-white/10 hover:border-neon-violet/30 hover:bg-white/[0.04] transition-all duration-500">
+                    <div className="flex-shrink-0 w-12 h-12 rounded-full bg-neon-violet/10 flex items-center justify-center text-neon-violet border border-neon-violet/20">
+                      <Users className="w-5 h-5" />
+                    </div>
+                    <p className="text-sm md:text-base font-light text-white text-left leading-relaxed">
+                      {t("growNetwork")}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Coming Soon Badge */}
-          <div className={`text-center transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+          <div className={`text-center transition-all duration-1000 delay-600 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
             <div className="inline-block relative group">
               <div className="absolute inset-0 bg-gradient-to-r from-neon-cyan/20 to-neon-violet/20 rounded-full blur-xl group-hover:blur-2xl transition-all duration-500" />
               <div className="relative px-8 py-4 rounded-full bg-white/[0.05] backdrop-blur-xl border border-white/20 hover:border-white/30 transition-all duration-300">
