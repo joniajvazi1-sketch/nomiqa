@@ -1,4 +1,5 @@
 import { Navbar } from "@/components/Navbar";
+import { SiteNavigation } from "@/components/SiteNavigation";
 import { Footer } from "@/components/Footer";
 import { StickyCTA } from "@/components/StickyCTA";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -230,6 +231,7 @@ export default function GettingStarted() {
         </div>
       </section>
 
+      <SiteNavigation />
       <Footer />
       <StickyCTA />
     </div>

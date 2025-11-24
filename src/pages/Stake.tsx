@@ -1,4 +1,5 @@
 import { Navbar } from "@/components/Navbar";
+import { SiteNavigation } from "@/components/SiteNavigation";
 import { Footer } from "@/components/Footer";
 import { NetworkBackground } from "@/components/NetworkBackground";
 import { Button } from "@/components/ui/button";
@@ -105,6 +106,7 @@ export default function Stake() {
         </div>
       </section>
       
+      <SiteNavigation />
       <Footer />
     </div>
   );

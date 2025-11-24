@@ -1,4 +1,5 @@
 import { Navbar } from "@/components/Navbar";
+import { SiteNavigation } from "@/components/SiteNavigation";
 import { Footer } from "@/components/Footer";
 import { StickyCTA } from "@/components/StickyCTA";
 import { NetworkBackground } from "@/components/NetworkBackground";
@@ -171,6 +172,7 @@ export default function About() {
         </div>
       </section>
       
+      <SiteNavigation />
       <Footer />
       <StickyCTA />
     </div>

@@ -1,4 +1,5 @@
 import { Navbar } from "@/components/Navbar";
+import { SiteNavigation } from "@/components/SiteNavigation";
 import { Footer } from "@/components/Footer";
 import { NetworkBackground } from "@/components/NetworkBackground";
 import { Coins, Rocket, Sparkles, TrendingUp, Lock, Zap } from "lucide-react";
@@ -141,6 +142,7 @@ const Token = () => {
         </div>
       </main>
 
+      <SiteNavigation />
       <Footer />
     </div>
   );

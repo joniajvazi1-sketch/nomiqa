@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/Navbar";
+import { SiteNavigation } from "@/components/SiteNavigation";
 import { Footer } from "@/components/Footer";
 import { NetworkBackground } from "@/components/NetworkBackground";
 import { Crown, TrendingUp, Award, Zap, Wallet, Trophy } from "lucide-react";
@@ -168,6 +169,7 @@ export default function Rewards() {
         </div>
       </main>
 
+      <SiteNavigation />
       <Footer />
     </div>
   );
