@@ -21,17 +21,11 @@ export const Footer = () => {
       </div>
       
       <div className="container px-4 sm:px-6 md:px-8 relative z-10 py-12 md:py-16">
-        {/* Logo and Tagline */}
+        {/* Logo */}
         <div className="text-center mb-12 md:mb-16">
-          <h2 className="text-3xl md:text-4xl font-light mb-4 bg-gradient-to-r from-neon-cyan via-white to-neon-violet bg-clip-text text-transparent">
+          <h2 className="text-6xl md:text-8xl font-light bg-gradient-to-r from-neon-cyan via-white to-neon-violet bg-clip-text text-transparent">
             nomiqa
           </h2>
-          <p className="text-white/80 text-base md:text-lg mb-2 font-light">
-            {t("footerTagline1")}
-          </p>
-          <p className="text-white/60 text-sm md:text-base font-light">
-            {t("footerTagline2")}
-          </p>
         </div>
 
         {/* Follow Us - Centered */}
