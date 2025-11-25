@@ -26,3 +26,15 @@ verify_jwt = false
 
 [functions.chat-support]
 verify_jwt = false
+
+[functions.send-email]
+verify_jwt = false
+
+[functions.verify-email-code]
+verify_jwt = false
+
+[functions.resend-verification-code]
+verify_jwt = false
+
+[functions.reset-password]
+verify_jwt = false
