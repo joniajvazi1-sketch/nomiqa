@@ -13,6 +13,7 @@ import { Copy, TrendingUp, Users, DollarSign, CheckCircle2, Loader2, XCircle, Al
 import { useNavigate } from "react-router-dom";
 import { useAffiliateTracking } from "@/hooks/useAffiliateTracking";
 import { useTranslation } from "@/contexts/TranslationContext";
+import { EmailVerification } from "@/components/EmailVerification";
 interface AffiliateData {
   id: string;
   affiliate_code: string;
@@ -56,6 +57,8 @@ export default function Affiliate() {
   const [usernameAvailability, setUsernameAvailability] = useState<'idle' | 'checking' | 'available' | 'taken' | 'invalid'>('idle');
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [loadingAnalytics, setLoadingAnalytics] = useState(false);
+  const [showVerification, setShowVerification] = useState(false);
+  const [pendingEmail, setPendingEmail] = useState("");
   useEffect(() => {
     checkUser();
   }, []);
@@ -349,6 +352,15 @@ export default function Affiliate() {
 
       const affiliateData = result.affiliate;
 
+      // Check if verification is required
+      if (result.requiresVerification) {
+        setPendingEmail(user.email!);
+        setShowVerification(true);
+        toast.info("Check your email for verification code!");
+        setCreating(false);
+        return;
+      }
+
       // Update parent affiliate ID if needed
       if (parentAffiliateId) {
         await supabase
@@ -381,6 +393,30 @@ export default function Affiliate() {
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>;
   }
+
+  // Show verification modal if needed
+  if (showVerification) {
+    return (
+      <div className="min-h-screen bg-background relative overflow-hidden">
+        <NetworkBackground />
+        <div className="relative z-10 flex items-center justify-center min-h-screen p-4 py-12">
+          <EmailVerification
+            email={pendingEmail}
+            type="affiliate"
+            onVerified={() => {
+              setShowVerification(false);
+              toast.success("Affiliate account verified! Refreshing...");
+              if (user) {
+                fetchAffiliates(user.id);
+              }
+            }}
+            onBack={() => setShowVerification(false)}
+          />
+        </div>
+      </div>
+    );
+  }
+
   return <div className="min-h-screen bg-gradient-to-br from-black/40 via-deep-space/60 to-black/40 relative">
       {/* Network Background */}
       <NetworkBackground />

@@ -106,8 +106,9 @@ serve(async (req) => {
       );
     }
 
-    // Generate verification token
-    const verificationToken = generateVerificationToken();
+    // Generate 6-digit verification code
+    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
 
     // Create affiliate account
     const { data: affiliate, error: createError } = await supabase
@@ -118,7 +119,8 @@ serve(async (req) => {
         username: username || null,
         user_id: userId || null,
         email_verified: false,
-        verification_token: verificationToken,
+        verification_token: verificationCode,
+        verification_code_expires_at: expiresAt,
         verification_sent_at: new Date().toISOString(),
       })
       .select()
@@ -132,19 +134,25 @@ serve(async (req) => {
       );
     }
 
-    // TODO: Send verification email
-    // For now, auto-verify for development
-    await supabase
-      .from('affiliates')
-      .update({ email_verified: true })
-      .eq('id', affiliate.id);
+    // Send verification email with OTP code
+    try {
+      await supabase.functions.invoke('send-email', {
+        body: {
+          type: 'affiliate_verification',
+          to: email,
+          data: { code: verificationCode },
+        },
+      });
+    } catch (emailError) {
+      console.error('Error sending verification email:', emailError);
+    }
 
     return new Response(
       JSON.stringify({ 
         affiliate: {
           ...affiliate,
-          email_verified: true
-        }
+        },
+        requiresVerification: true,
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
