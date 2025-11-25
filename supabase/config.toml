@@ -3,6 +3,9 @@ project_id = "gzhmbiopiciugriatsdb"
 [functions.airlo-products]
 verify_jwt = true
 
+[functions.recover-order]
+verify_jwt = true
+
 [functions.update-prices-from-csv]
 verify_jwt = true
 

@@ -28,6 +28,7 @@ const Token = lazy(() => import("./pages/Token"));
 const MyAccount = lazy(() => import("./pages/MyAccount"));
 const Help = lazy(() => import("./pages/Help"));
 const Rewards = lazy(() => import("./pages/Rewards"));
+const AdminRecovery = lazy(() => import("./pages/AdminRecovery"));
 
 
 // Loading fallback component
@@ -100,6 +101,7 @@ const App = () => (
             <Route path="/token" element={<Token />} />
             <Route path="/help" element={<Help />} />
             <Route path="/rewards" element={<Rewards />} />
+            <Route path="/admin/recovery" element={<AdminRecovery />} />
             
 
             {/* Localized route groups */}
