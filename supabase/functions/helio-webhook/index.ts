@@ -392,7 +392,9 @@ serve(async (req) => {
         throw new Error('Product not found or missing Airalo package ID');
       }
 
-      // Submit async order to Airalo
+      // Submit async order to Airalo with webhook URL
+      const webhookUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/webhook-async-order`;
+      
       const orderResponse = await fetch(`${baseUrl}/v2/orders-async`, {
         method: 'POST',
         headers: {
@@ -403,7 +405,8 @@ serve(async (req) => {
           package_id: product.airlo_package_id,
           quantity: 1,
           type: 'sim',
-          description: `Order ${order.id} for ${order.email}`
+          description: `Order ${order.id} for ${order.email}`,
+          webhook_url: webhookUrl
         })
       });
 
