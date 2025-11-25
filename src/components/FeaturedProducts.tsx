@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useProducts } from "@/hooks/useProducts";
+import { useFeaturedProducts } from "@/hooks/useProducts";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Loader2, ArrowRight, Wifi, Calendar } from "lucide-react";
@@ -26,17 +26,8 @@ const FEATURED_COUNTRIES = [
 
 export const FeaturedProducts = () => {
   const navigate = useNavigate();
-  const { data: products, isLoading } = useProducts();
+  const { data: featuredProducts, isLoading } = useFeaturedProducts(FEATURED_COUNTRIES);
   const { language, t } = useTranslation();
-
-  // Get cheapest package for each featured country
-  const featuredProducts = FEATURED_COUNTRIES.map(countryCode => {
-    const countryProducts = products?.filter(p => p.country_code === countryCode) || [];
-    // Find the cheapest product for this country
-    return countryProducts.reduce((cheapest, current) => 
-      !cheapest || current.price_usd < cheapest.price_usd ? current : cheapest
-    , null as any);
-  }).filter(Boolean);
 
   const handleProductClick = (product: any) => {
     const translatedCountryName = getTranslatedCountryName(product.country_code, language);
