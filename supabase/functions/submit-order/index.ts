@@ -58,10 +58,8 @@ serve(async (req) => {
     const { data: authData } = await authResponse.json();
     const accessToken = authData.access_token;
 
-    // Submit async order with webhook URL, email delivery, and branding
-    const webhookUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/webhook-async-order`;
-    
-    const orderResponse = await fetch(`${baseUrl}/v2/orders-async`, {
+    // Submit sync order with email delivery and branding
+    const orderResponse = await fetch(`${baseUrl}/v2/orders`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -72,7 +70,6 @@ serve(async (req) => {
         quantity: 1,
         type: 'sim',
         description: `Order for ${email}`,
-        webhook_url: webhookUrl,
         brand_settings_name: 'nomiqa',
         to_email: email,
         sharing_option: ['link']
@@ -86,6 +83,9 @@ serve(async (req) => {
 
     const { data: orderData } = await orderResponse.json();
     
+    // Sync orders return eSIM data immediately
+    const esimData = orderData.sims?.[0];
+    
     // Get product details
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -97,7 +97,7 @@ serve(async (req) => {
       .eq('airlo_package_id', packageId)
       .single();
 
-    // Create order record
+    // Create order record with eSIM details
     const { data: order, error: orderError } = await supabase
       .from('orders')
       .insert({
@@ -105,8 +105,16 @@ serve(async (req) => {
         product_id: product?.id,
         email,
         total_amount_usd: product?.price_usd || 0,
-        status: 'pending',
-        airlo_request_id: orderData.request_id,
+        status: 'completed',
+        airlo_order_id: orderData.id?.toString(),
+        iccid: esimData?.iccid,
+        lpa: esimData?.lpa,
+        matching_id: esimData?.matching_id,
+        qrcode: esimData?.qrcode,
+        qr_code_url: esimData?.qrcode_url,
+        activation_code: esimData?.matching_id,
+        manual_installation: orderData.manual_installation,
+        qrcode_installation: orderData.qrcode_installation,
         package_name: product?.name,
         data_amount: product?.data_amount,
         validity_days: product?.validity_days
@@ -213,11 +221,48 @@ serve(async (req) => {
       }
     }
 
+    // Create eSIM usage record if we have ICCID
+    if (esimData?.iccid) {
+      await supabase
+        .from('esim_usage')
+        .insert({
+          iccid: esimData.iccid,
+          order_id: order.id,
+          status: 'NOT_ACTIVE',
+          total_mb: null,
+          remaining_mb: null
+        });
+    }
+
+    // Update user spending for membership tier tracking
+    if (userId && product?.price_usd) {
+      const { data: existingSpending } = await supabase
+        .from('user_spending')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+
+      if (existingSpending) {
+        await supabase
+          .from('user_spending')
+          .update({
+            total_spent_usd: existingSpending.total_spent_usd + product.price_usd
+          })
+          .eq('user_id', userId);
+      } else {
+        await supabase
+          .from('user_spending')
+          .insert({
+            user_id: userId,
+            total_spent_usd: product.price_usd
+          });
+      }
+    }
+
     return new Response(
       JSON.stringify({
         success: true,
-        order,
-        airlo_request_id: orderData.request_id
+        order
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
