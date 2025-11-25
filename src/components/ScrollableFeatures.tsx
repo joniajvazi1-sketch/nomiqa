@@ -76,10 +76,13 @@ export const ScrollableFeatures = () => {
         {/* Section Header */}
         <div className={`text-center mb-12 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-light mb-4 bg-gradient-to-r from-white via-white/95 to-white/90 bg-clip-text text-transparent">
-            Earn More with Nomiqa
+            {t('earnMoreTitle')}
           </h2>
-          <p className="text-base md:text-lg text-white/70 font-light max-w-2xl mx-auto">
-            Discover multiple ways to earn rewards and grow your network
+          <p className="text-base md:text-lg text-white/70 font-light max-w-2xl mx-auto mb-3">
+            {t('earnMoreDesc')}
+          </p>
+          <p className="text-sm md:text-base text-neon-cyan/80 font-light max-w-3xl mx-auto px-4">
+            💎 {t('earnRealCrypto')}
           </p>
         </div>
 
