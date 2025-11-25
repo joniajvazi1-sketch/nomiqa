@@ -43,10 +43,10 @@ serve(async (req) => {
 
     console.log('Parsed payload:', JSON.stringify(data, null, 2));
 
-    // Validate webhook payload structure - Airalo wraps data in a "data" object
+    // Validate webhook payload structure - Airalo sends request_id at root level
     const webhookSchema = z.object({
+      request_id: z.string(), // At root level, not inside data
       data: z.object({
-        request_id: z.string(),
         reason: z.string().optional(),
         sims: z.array(z.object({
           iccid: z.string(),
@@ -61,8 +61,7 @@ serve(async (req) => {
       }),
       meta: z.object({
         message: z.string()
-      }).optional(),
-      request_id: z.string().optional()
+      }).optional()
     });
 
     const validationResult = webhookSchema.safeParse(data);
@@ -91,13 +90,13 @@ serve(async (req) => {
     // Extract the nested data object from Airalo's payload
     const airaloData = data.data;
 
-    console.log('Processing order with request_id:', airaloData.request_id);
+    console.log('Processing order with request_id:', data.request_id);
 
     // Find order by request_id
     const { data: order } = await supabase
       .from('orders')
       .select('*')
-      .eq('airlo_request_id', airaloData.request_id)
+      .eq('airlo_request_id', data.request_id)
       .single();
 
     if (!order) {
