@@ -116,6 +116,7 @@ const App = () => (
               <Route path="roadmap" element={<Roadmap />} />
               <Route path="affiliate" element={<Affiliate />} />
               <Route path="privacy" element={<Privacy />} />
+              <Route path="terms" element={<Terms />} />
               <Route path="about" element={<About />} />
               <Route path="token" element={<Token />} />
               <Route path="help" element={<Help />} />
@@ -134,6 +135,7 @@ const App = () => (
               <Route path="roadmap" element={<Roadmap />} />
               <Route path="affiliate" element={<Affiliate />} />
               <Route path="privacy" element={<Privacy />} />
+              <Route path="terms" element={<Terms />} />
               <Route path="about" element={<About />} />
               <Route path="token" element={<Token />} />
               <Route path="help" element={<Help />} />
@@ -152,6 +154,7 @@ const App = () => (
               <Route path="roadmap" element={<Roadmap />} />
               <Route path="affiliate" element={<Affiliate />} />
               <Route path="privacy" element={<Privacy />} />
+              <Route path="terms" element={<Terms />} />
               <Route path="about" element={<About />} />
               <Route path="token" element={<Token />} />
               <Route path="help" element={<Help />} />
@@ -170,6 +173,7 @@ const App = () => (
               <Route path="roadmap" element={<Roadmap />} />
               <Route path="affiliate" element={<Affiliate />} />
               <Route path="privacy" element={<Privacy />} />
+              <Route path="terms" element={<Terms />} />
               <Route path="about" element={<About />} />
               <Route path="token" element={<Token />} />
               <Route path="help" element={<Help />} />
@@ -188,6 +192,7 @@ const App = () => (
               <Route path="roadmap" element={<Roadmap />} />
               <Route path="affiliate" element={<Affiliate />} />
               <Route path="privacy" element={<Privacy />} />
+              <Route path="terms" element={<Terms />} />
               <Route path="about" element={<About />} />
               <Route path="token" element={<Token />} />
               <Route path="help" element={<Help />} />
@@ -206,6 +211,7 @@ const App = () => (
               <Route path="roadmap" element={<Roadmap />} />
               <Route path="affiliate" element={<Affiliate />} />
               <Route path="privacy" element={<Privacy />} />
+              <Route path="terms" element={<Terms />} />
               <Route path="about" element={<About />} />
               <Route path="token" element={<Token />} />
               <Route path="help" element={<Help />} />
@@ -224,6 +230,7 @@ const App = () => (
               <Route path="roadmap" element={<Roadmap />} />
               <Route path="affiliate" element={<Affiliate />} />
               <Route path="privacy" element={<Privacy />} />
+              <Route path="terms" element={<Terms />} />
               <Route path="about" element={<About />} />
               <Route path="token" element={<Token />} />
               <Route path="help" element={<Help />} />
@@ -242,6 +249,7 @@ const App = () => (
               <Route path="roadmap" element={<Roadmap />} />
               <Route path="affiliate" element={<Affiliate />} />
               <Route path="privacy" element={<Privacy />} />
+              <Route path="terms" element={<Terms />} />
               <Route path="about" element={<About />} />
               <Route path="token" element={<Token />} />
               <Route path="help" element={<Help />} />
@@ -259,6 +267,7 @@ const App = () => (
               <Route path="roadmap" element={<Roadmap />} />
               <Route path="affiliate" element={<Affiliate />} />
               <Route path="privacy" element={<Privacy />} />
+              <Route path="terms" element={<Terms />} />
               <Route path="about" element={<About />} />
               <Route path="token" element={<Token />} />
               <Route path="rewards" element={<Rewards />} />
@@ -276,6 +285,7 @@ const App = () => (
               <Route path="roadmap" element={<Roadmap />} />
               <Route path="affiliate" element={<Affiliate />} />
               <Route path="privacy" element={<Privacy />} />
+              <Route path="terms" element={<Terms />} />
               <Route path="about" element={<About />} />
               <Route path="token" element={<Token />} />
               <Route path="help" element={<Help />} />
@@ -293,6 +303,7 @@ const App = () => (
               <Route path="roadmap" element={<Roadmap />} />
               <Route path="affiliate" element={<Affiliate />} />
               <Route path="privacy" element={<Privacy />} />
+              <Route path="terms" element={<Terms />} />
               <Route path="about" element={<About />} />
               <Route path="token" element={<Token />} />
               <Route path="help" element={<Help />} />
