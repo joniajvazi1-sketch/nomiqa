@@ -116,11 +116,11 @@ serve(async (req) => {
 
     console.log('Submitting Airalo order for package:', packageId);
     
-    const airloOrderResponse = await fetch(`${baseUrl}/v2/orders/async`, {
+    const airloOrderResponse = await fetch(`${baseUrl}/v2/orders-async`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `${authData.data.token_type} ${authData.data.access_token}`,
+        'Authorization': `Bearer ${authData.data.access_token}`,
       },
       body: JSON.stringify({
         quantity: 1,
