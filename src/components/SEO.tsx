@@ -2,7 +2,7 @@ import { Helmet } from "react-helmet-async";
 import { useTranslation, Language } from "@/contexts/TranslationContext";
 
 interface SEOProps {
-  page?: "home" | "shop" | "about" | "privacy" | "affiliate" | "gettingStarted";
+  page?: "home" | "shop" | "about" | "privacy" | "affiliate" | "gettingStarted" | "terms";
 }
 
 const seoData: Record<string, Record<Language, { title: string; description: string }>> = {
@@ -256,6 +256,48 @@ const seoData: Record<string, Record<Language, { title: string; description: str
     AR: {
       title: "البدء مع رمز $NOMIQA - دليل الإعداد",
       description: "دليل خطوة بخطوة لشراء رمز $NOMIQA واستخدامه لشراء eSIM. تعرف على محفظة Phantom وSolana ومدفوعات العملات المشفرة."
+    }
+  },
+  terms: {
+    EN: {
+      title: "Terms & Conditions - Legal Information | Nomiqa",
+      description: "Read Nomiqa's Terms & Conditions, Privacy Policy, and legal information. Understand our eSIM service policies, data protection, and user agreements."
+    },
+    DE: {
+      title: "Allgemeine Geschäftsbedingungen - Rechtsinformationen | Nomiqa",
+      description: "Lesen Sie Nomiqas AGB, Datenschutzrichtlinie und rechtliche Informationen. Verstehen Sie unsere eSIM-Servicerichtlinien, Datenschutz und Nutzervereinbarungen."
+    },
+    FR: {
+      title: "Termes et Conditions - Informations Légales | Nomiqa",
+      description: "Lisez les Termes et Conditions, la Politique de Confidentialité et les informations légales de Nomiqa. Comprenez nos politiques de service eSIM, protection des données et accords d'utilisateur."
+    },
+    ES: {
+      title: "Términos y Condiciones - Información Legal | Nomiqa",
+      description: "Lea los Términos y Condiciones, Política de Privacidad e información legal de Nomiqa. Comprenda nuestras políticas de servicio eSIM, protección de datos y acuerdos de usuario."
+    },
+    IT: {
+      title: "Termini e Condizioni - Informazioni Legali | Nomiqa",
+      description: "Leggi Termini e Condizioni, Informativa sulla Privacy e informazioni legali di Nomiqa. Comprendi le nostre politiche del servizio eSIM, protezione dei dati e accordi utente."
+    },
+    PT: {
+      title: "Termos e Condições - Informações Legais | Nomiqa",
+      description: "Leia os Termos e Condições, Política de Privacidade e informações legais da Nomiqa. Entenda nossas políticas de serviço eSIM, proteção de dados e acordos de usuário."
+    },
+    JA: {
+      title: "利用規約 - 法的情報 | Nomiqa",
+      description: "Nomiqaの利用規約、プライバシーポリシー、法的情報をお読みください。eSIMサービスポリシー、データ保護、ユーザー契約を理解してください。"
+    },
+    ZH: {
+      title: "条款与条件 - 法律信息 | Nomiqa",
+      description: "阅读Nomiqa的条款与条件、隐私政策和法律信息。了解我们的eSIM服务政策、数据保护和用户协议。"
+    },
+    RU: {
+      title: "Условия использования - Юридическая информация | Nomiqa",
+      description: "Прочитайте Условия использования, Политику конфиденциальности и юридическую информацию Nomiqa. Поймите наши политики обслуживания eSIM, защиты данных и пользовательских соглашений."
+    },
+    AR: {
+      title: "الشروط والأحكام - المعلومات القانونية | Nomiqa",
+      description: "اقرأ الشروط والأحكام وسياسة الخصوصية والمعلومات القانونية لـ Nomiqa. فهم سياسات خدمة eSIM وحماية البيانات واتفاقيات المستخدم."
     }
   }
 };
