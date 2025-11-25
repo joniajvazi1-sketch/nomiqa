@@ -41,30 +41,40 @@ serve(async (req) => {
 
     const data = JSON.parse(payload);
 
-    // Validate webhook payload structure
+    console.log('Parsed payload:', JSON.stringify(data, null, 2));
+
+    // Validate webhook payload structure - Airalo wraps data in a "data" object
     const webhookSchema = z.object({
-      request_id: z.string(),
-      reason: z.string().optional(),
-      sims: z.array(z.object({
-        iccid: z.string(),
-        lpa: z.string().optional(),
-        matching_id: z.string().optional(),
-        qrcode: z.string().optional(),
-        qrcode_url: z.string().optional()
-      })).optional(),
-      manual_installation: z.string().optional(),
-      qrcode_installation: z.string().optional(),
-      id: z.union([z.string(), z.number()]).optional()
+      data: z.object({
+        request_id: z.string(),
+        reason: z.string().optional(),
+        sims: z.array(z.object({
+          iccid: z.string(),
+          lpa: z.string().optional(),
+          matching_id: z.string().optional(),
+          qrcode: z.string().optional(),
+          qrcode_url: z.string().optional()
+        })).optional(),
+        manual_installation: z.string().optional(),
+        qrcode_installation: z.string().optional(),
+        id: z.union([z.string(), z.number()]).optional()
+      }),
+      meta: z.object({
+        message: z.string()
+      }).optional(),
+      request_id: z.string().optional()
     });
 
     const validationResult = webhookSchema.safeParse(data);
     if (!validationResult.success) {
       console.error('Invalid webhook payload:', validationResult.error);
       return new Response(
-        JSON.stringify({ error: 'Invalid payload structure' }),
+        JSON.stringify({ error: 'Invalid payload structure', details: validationResult.error }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    console.log('Validation passed! Processing webhook...');
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -78,23 +88,31 @@ serve(async (req) => {
       processed: false
     });
 
+    // Extract the nested data object from Airalo's payload
+    const airaloData = data.data;
+
+    console.log('Processing order with request_id:', airaloData.request_id);
+
     // Find order by request_id
     const { data: order } = await supabase
       .from('orders')
       .select('*')
-      .eq('airlo_request_id', data.request_id)
+      .eq('airlo_request_id', airaloData.request_id)
       .single();
 
     if (!order) {
-      console.error('Order not found:', data.request_id);
+      console.error('Order not found:', airaloData.request_id);
       return new Response(
         JSON.stringify({ status: 'Order not found but acknowledged' }),
         { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
+    console.log('Order found:', order.id);
+
     // Check for errors
-    if (data.reason && !data.sims) {
+    if (airaloData.reason && !airaloData.sims) {
+      console.log('Order failed with reason:', airaloData.reason);
       await supabase
         .from('orders')
         .update({
@@ -110,8 +128,10 @@ serve(async (req) => {
     }
 
     // Update order with eSIM details
-    if (data.sims && data.sims.length > 0) {
-      const sim = data.sims[0];
+    if (airaloData.sims && airaloData.sims.length > 0) {
+      const sim = airaloData.sims[0];
+      
+      console.log('Updating order with eSIM data, ICCID:', sim.iccid);
       
       await supabase
         .from('orders')
@@ -123,14 +143,17 @@ serve(async (req) => {
           qrcode: sim.qrcode,
           qr_code_url: sim.qrcode_url,
           activation_code: sim.matching_id,
-          manual_installation: data.manual_installation,
-          qrcode_installation: data.qrcode_installation,
-          airlo_order_id: data.id?.toString(),
+          manual_installation: airaloData.manual_installation,
+          qrcode_installation: airaloData.qrcode_installation,
+          airlo_order_id: airaloData.id?.toString(),
           updated_at: new Date().toISOString()
         })
         .eq('id', order.id);
 
+      console.log('Order updated successfully with eSIM data');
+
       // Create eSIM usage record
+      console.log('Creating eSIM usage record');
       await supabase.from('esim_usage').insert({
         order_id: order.id,
         iccid: sim.iccid,
@@ -138,6 +161,8 @@ serve(async (req) => {
         remaining_mb: parseInt(order.data_amount) * 1024 || 0,
         status: 'NOT_ACTIVE'
       });
+
+      console.log('eSIM usage record created successfully');
     }
 
     // Mark webhook as processed
