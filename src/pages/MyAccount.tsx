@@ -7,7 +7,7 @@ import { Footer } from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Loader2, User, Award, Package, Gift, Crown, Star, TrendingUp, Zap, Sparkles } from "lucide-react";
+import { Loader2, User, Award, Package, Gift, Crown, Star, TrendingUp, Zap, Sparkles, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "@/contexts/TranslationContext";
 import { localizedPath } from "@/utils/localizedLinks";
@@ -92,7 +92,7 @@ export default function MyAccount() {
         .from('user_spending')
         .select('*')
         .eq('user_id', session.user.id)
-        .single();
+        .maybeSingle();
 
       if (!membershipData) {
         // Create initial membership record
@@ -137,20 +137,42 @@ export default function MyAccount() {
     if (!membership) return null;
     
     const tiers = [
-      { name: 'bronze', threshold: 0, rate: 5 },
-      { name: 'silver', threshold: 20, rate: 6 },
-      { name: 'gold', threshold: 50, rate: 7 },
-      { name: 'platinum', threshold: 150, rate: 10 }
+      { name: 'beginner', threshold: 0, rate: 5 },
+      { name: 'traveler', threshold: 20, rate: 6 },
+      { name: 'adventurer', threshold: 50, rate: 7 },
+      { name: 'explorer', threshold: 150, rate: 10 }
     ];
 
-    const currentIndex = tiers.findIndex(t => t.name === membership.membership_tier);
+    const currentTier = membership.membership_tier;
+    const currentIndex = tiers.findIndex(t => t.name === currentTier);
     if (currentIndex === tiers.length - 1) return null; // Already at max tier
 
     const nextTier = tiers[currentIndex + 1];
     const remaining = nextTier.threshold - membership.total_spent_usd;
-    const progress = (membership.total_spent_usd / nextTier.threshold) * 100;
+    const progress = Math.min((membership.total_spent_usd / nextTier.threshold) * 100, 100);
 
     return { ...nextTier, remaining, progress };
+  };
+
+  const refreshMembership = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const { data: membershipData } = await supabase
+        .from('user_spending')
+        .select('*')
+        .eq('user_id', session.user.id)
+        .maybeSingle();
+
+      if (membershipData) {
+        setMembership(membershipData);
+        toast.success('Membership data refreshed');
+      }
+    } catch (error) {
+      console.error('Error refreshing membership:', error);
+      toast.error('Failed to refresh membership data');
+    }
   };
 
   if (loading) {
@@ -277,7 +299,19 @@ export default function MyAccount() {
                       </div>
                     </CardHeader>
                   
-                  <CardContent className="relative z-10 space-y-4 sm:space-y-6 pt-4 sm:pt-8">
+                   <CardContent className="relative z-10 space-y-4 sm:space-y-6 pt-4 sm:pt-8">
+                    <div className="flex items-center justify-between gap-4 mb-4">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={refreshMembership}
+                        className="bg-white/20 hover:bg-white/30 text-white border-white/30"
+                      >
+                        <RefreshCw className="w-4 h-4 mr-2" />
+                        {t("refresh")}
+                      </Button>
+                    </div>
+                    
                     <div className="bg-white/15 backdrop-blur-md rounded-xl p-4 sm:p-6 border border-white/30">
                       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
                         <p className="text-sm sm:text-base opacity-90 font-medium">{t("lifetimeSpending")}</p>
