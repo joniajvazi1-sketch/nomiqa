@@ -164,35 +164,6 @@ serve(async (req) => {
     console.log('Payment successful for order:', order.id);
     console.log('Transaction signature:', transactionSignature);
 
-    // Send order confirmation email
-    try {
-      const { data: product } = await supabase
-        .from('products')
-        .select('*')
-        .eq('id', order.product_id)
-        .single();
-
-      if (product) {
-        await supabase.functions.invoke('send-email', {
-          body: {
-            type: 'order_confirmation',
-            to: order.email,
-            data: {
-              orderId: order.id,
-              country: product.country_name,
-              dataAmount: product.data_amount,
-              validity: product.validity_days,
-              price: order.total_amount_usd,
-            },
-          },
-        });
-        console.log('Order confirmation email sent to:', order.email);
-      }
-    } catch (emailError) {
-      console.error('Error sending order confirmation email:', emailError);
-      // Don't fail the webhook if email fails
-    }
-
     // Mark transaction as processed to prevent replay attacks
     if (transactionId) {
       await supabase
