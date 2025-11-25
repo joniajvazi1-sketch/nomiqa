@@ -174,7 +174,11 @@ export default function Auth() {
         }
 
         toast.success("Successfully logged in!");
-        navigate('/');
+        
+        // Check for redirect parameter
+        const params = new URLSearchParams(window.location.search);
+        const redirectUrl = params.get('redirect') || '/';
+        navigate(redirectUrl);
       }
     } catch (error: any) {
       toast.error(error.message || "An error occurred");
