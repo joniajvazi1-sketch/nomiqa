@@ -82,7 +82,7 @@ export const ScrollableFeatures = () => {
             {t('earnMoreDesc')}
           </p>
           <p className="text-sm md:text-base text-neon-cyan/80 font-light max-w-3xl mx-auto px-4">
-            💎 {t('earnRealCrypto')}
+            {t('earnRealCrypto')}
           </p>
         </div>
 
