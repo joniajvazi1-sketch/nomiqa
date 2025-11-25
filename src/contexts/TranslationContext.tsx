@@ -408,7 +408,12 @@ const translations: Record<string, Partial<Record<Language | 'HI', string>>> = {
   tierSilver: { EN: "TRAVELER", ES: "VIAJERO", FR: "VOYAGEUR", DE: "REISENDER", RU: "ПУТЕШЕСТВЕННИК", ZH: "旅行者", JA: "旅行者", PT: "VIAJANTE", AR: "مسافر", IT: "VIAGGIATORE" },
   tierGold: { EN: "ADVENTURER", ES: "AVENTURERO", FR: "AVENTURIER", DE: "ABENTEURER", RU: "ИСКАТЕЛЬ ПРИКЛЮЧЕНИЙ", ZH: "冒险家", JA: "冒険者", PT: "AVENTUREIRO", AR: "مغامر", IT: "AVVENTURIERO" },
   tierPlatinum: { EN: "EXPLORER", ES: "EXPLORADOR", FR: "EXPLORATEUR", DE: "ENTDECKER", RU: "ИССЛЕДОВАТЕЛЬ", ZH: "探险家", JA: "探検家", PT: "EXPLORADOR", AR: "مستكشف", IT: "ESPLORATORE" },
-  currentTier: { EN: "Current Tier", ES: "Nivel actual", FR: "Niveau actuel", DE: "Aktueller Level", RU: "Текущий уровень", ZH: "当前等级", JA: "現在のレベル", PT: "Nível atual", AR: "المستوى الحالي", IT: "Livello attuale" },
+  tierBeginner: { EN: "BEGINNER", ES: "PRINCIPIANTE", FR: "DÉBUTANT", DE: "ANFÄNGER", RU: "НОВИЧОК", ZH: "初学者", JA: "初心者", PT: "INICIANTE", AR: "مبتدئ", IT: "PRINCIPIANTE" },
+  tierTraveler: { EN: "TRAVELER", ES: "VIAJERO", FR: "VOYAGEUR", DE: "REISENDER", RU: "ПУТЕШЕСТВЕННИК", ZH: "旅行者", JA: "旅行者", PT: "VIAJANTE", AR: "مسافر", IT: "VIAGGIATORE" },
+  tierAdventurer: { EN: "ADVENTURER", ES: "AVENTURERO", FR: "AVENTURIER", DE: "ABENTEURER", RU: "ИСКАТЕЛЬ ПРИКЛЮЧЕНИЙ", ZH: "冒险家", JA: "冒険者", PT: "AVENTUREIRO", AR: "مغامر", IT: "AVVENTURIERO" },
+  tierExplorer: { EN: "EXPLORER", ES: "EXPLORADOR", FR: "EXPLORATEUR", DE: "ENTDECKER", RU: "ИССЛЕДОВАТЕЛЬ", ZH: "探险家", JA: "探検家", PT: "EXPLORADOR", AR: "مستكشف", IT: "ESPLORATORE" },
+  // Missing translation keys
+  refresh: { EN: "Refresh", ES: "Actualizar", FR: "Actualiser", DE: "Aktualisieren", RU: "Обновить", ZH: "刷新", JA: "更新", PT: "Atualizar", AR: "تحديث", IT: "Aggiorna" },
   active: { EN: "Active", ES: "Activo", FR: "Actif", DE: "Aktiv", RU: "Активный", ZH: "激活", JA: "アクティブ", PT: "Ativo", AR: "نشط", IT: "Attivo" },
   entryLevel: { EN: "Entry level", ES: "Nivel de entrada", FR: "Niveau d'entrée", DE: "Einstiegslevel", RU: "Начальный уровень", ZH: "入门级", JA: "エントリーレベル", PT: "Nível inicial", AR: "مستوى الدخول", IT: "Livello base" },
   upgradeAt: { EN: "Upgrade at", ES: "Actualizar en", FR: "Mise à niveau à", DE: "Upgrade bei", RU: "Обновление при", ZH: "升级要求", JA: "アップグレード条件", PT: "Atualizar em", AR: "الترقية في", IT: "Aggiorna a" },
