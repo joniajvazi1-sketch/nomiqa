@@ -20,7 +20,7 @@ export default function Checkout() {
   const navigate = useNavigate();
   const { items, removeItem, updateQuantity, clearCart, total } = useCartWithTotal();
   const { referralCode } = useAffiliateTracking();
-  const { t } = useTranslation();
+  const { t, formatPrice } = useTranslation();
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
@@ -225,8 +225,8 @@ export default function Checkout() {
                       </div>
                     </div>
                     <div className="text-center md:text-right w-full md:w-auto">
-                      <p className="text-xl font-bold">${(item.product.price_usd * item.quantity).toFixed(2)}</p>
-                      <p className="text-sm text-muted-foreground">${item.product.price_usd.toFixed(2)} {t("checkoutEach")}</p>
+                      <p className="text-xl font-bold">{formatPrice(item.product.price_usd * item.quantity)}</p>
+                      <p className="text-sm text-muted-foreground">{formatPrice(item.product.price_usd)} {t("checkoutEach")}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -295,11 +295,11 @@ export default function Checkout() {
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
                       <span>{t("checkoutSubtotal")} ({items.reduce((sum, item) => sum + item.quantity, 0)} {t("checkoutItems")})</span>
-                      <span>${total.toFixed(2)}</span>
+                      <span>{formatPrice(total)}</span>
                     </div>
                     <div className="flex justify-between font-bold text-lg pt-2">
                       <span>{t("checkoutTotal")}</span>
-                      <span>${total.toFixed(2)}</span>
+                      <span>{formatPrice(total)}</span>
                     </div>
                   </div>
 

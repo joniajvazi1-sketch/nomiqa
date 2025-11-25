@@ -25,7 +25,7 @@ interface ReferEarnModalProps {
 
 export const ReferEarnModal = ({ open, onOpenChange, product }: ReferEarnModalProps) => {
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, formatPrice } = useTranslation();
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [affiliates, setAffiliates] = useState<AffiliateData[]>([]);
@@ -200,7 +200,7 @@ export const ReferEarnModal = ({ open, onOpenChange, product }: ReferEarnModalPr
                 <p className="text-sm text-muted-foreground">{product?.data_amount} • {product?.validity_days} days</p>
               </div>
               <div className="text-right">
-                <div className="text-2xl font-bold text-primary">${product?.price_usd.toFixed(2)}</div>
+                <div className="text-2xl font-bold text-primary">{formatPrice(product?.price_usd)}</div>
                 <p className="text-xs text-muted-foreground">Earn 9% commission</p>
               </div>
             </div>

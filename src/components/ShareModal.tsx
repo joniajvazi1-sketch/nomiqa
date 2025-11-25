@@ -7,6 +7,7 @@ import { Textarea } from "./ui/textarea";
 import { Copy, Check, Facebook, Twitter, Linkedin, Mail, Share2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { useTranslation } from "@/contexts/TranslationContext";
 
 interface ShareModalProps {
   open: boolean;
@@ -15,6 +16,7 @@ interface ShareModalProps {
 }
 
 export const ShareModal = ({ open, onOpenChange, product }: ShareModalProps) => {
+  const { formatPrice } = useTranslation();
   const [affiliateCode, setAffiliateCode] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
@@ -93,7 +95,7 @@ export const ShareModal = ({ open, onOpenChange, product }: ShareModalProps) => 
     ? `${window.location.origin}/r/${affiliateCode}`
     : '';
 
-  const shareText = `Check out this amazing eSIM plan: ${product.name} - ${product.data_amount} for ${product.validity_days} days in ${product.country_name}! Only $${product.price_usd.toFixed(2)}`;
+  const shareText = `Check out this amazing eSIM plan: ${product.name} - ${product.data_amount} for ${product.validity_days} days in ${product.country_name}! Only ${formatPrice(product.price_usd)}`;
 
 
   const copyLink = () => {
@@ -184,7 +186,7 @@ export const ShareModal = ({ open, onOpenChange, product }: ShareModalProps) => 
               <div className="flex items-center gap-4 text-sm">
                 <span>📊 {product.data_amount}</span>
                 <span>📅 {product.validity_days} days</span>
-                <span className="font-bold text-primary">${product.price_usd.toFixed(2)}</span>
+                <span className="font-bold text-primary">{formatPrice(product.price_usd)}</span>
               </div>
             </div>
 
