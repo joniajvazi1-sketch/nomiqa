@@ -163,6 +163,41 @@ serve(async (req) => {
       });
 
       console.log('eSIM usage record created successfully');
+
+      // Update user spending for membership tier tracking (only if user is logged in)
+      if (order.user_id) {
+        console.log('Updating user spending for membership tier...');
+        
+        // Get current spending or create new record
+        const { data: currentSpending } = await supabase
+          .from('user_spending')
+          .select('total_spent_usd')
+          .eq('user_id', order.user_id)
+          .maybeSingle();
+
+        if (currentSpending) {
+          // Update existing spending record
+          await supabase
+            .from('user_spending')
+            .update({
+              total_spent_usd: currentSpending.total_spent_usd + order.total_amount_usd,
+              updated_at: new Date().toISOString()
+            })
+            .eq('user_id', order.user_id);
+          
+          console.log(`Updated user spending: $${currentSpending.total_spent_usd} + $${order.total_amount_usd}`);
+        } else {
+          // Create new spending record
+          await supabase
+            .from('user_spending')
+            .insert({
+              user_id: order.user_id,
+              total_spent_usd: order.total_amount_usd
+            });
+          
+          console.log(`Created new user spending record: $${order.total_amount_usd}`);
+        }
+      }
     }
 
     // Mark webhook as processed
