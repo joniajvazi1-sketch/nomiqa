@@ -6,6 +6,9 @@ verify_jwt = true
 [functions.recover-order]
 verify_jwt = true
 
+[functions.provision-esim-manual]
+verify_jwt = false
+
 [functions.update-prices-from-csv]
 verify_jwt = true
 
