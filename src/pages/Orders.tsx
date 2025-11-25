@@ -214,7 +214,7 @@ export default function Orders() {
         </Button>
 
         <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold bg-gradient-digital bg-clip-text text-transparent">My Orders</h1>
+          <h1 className="text-3xl md:text-4xl font-bold text-foreground">My Orders</h1>
           {new URLSearchParams(window.location.search).get('token') && (
             <p className="text-sm text-muted-foreground mt-2">
               Viewing order via secure access link
