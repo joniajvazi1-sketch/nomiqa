@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ArrowLeft, ShoppingCart, Trash2 } from "lucide-react";
+import { ArrowLeft, ShoppingCart, Trash2, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -25,6 +25,28 @@ export default function Checkout() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paylinkUrl, setPaylinkUrl] = useState<string | null>(null);
+  const [user, setUser] = useState<any>(null);
+  const [checkingAuth, setCheckingAuth] = useState(true);
+
+  // Check authentication status
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast.error("Please log in to purchase eSIMs");
+        navigate('/auth?redirect=/checkout');
+        return;
+      }
+      
+      setUser(user);
+      // Pre-fill email from authenticated user
+      setEmail(user.email || "");
+      setCheckingAuth(false);
+    };
+    
+    checkAuth();
+  }, [navigate]);
 
   // Generate or retrieve visitor ID for affiliate tracking
   const getVisitorId = () => {
@@ -114,6 +136,14 @@ export default function Checkout() {
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
   }, [navigate, clearCart]);
+
+  if (checkingAuth) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   if (items.length === 0) {
     return (
@@ -230,14 +260,15 @@ export default function Checkout() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
-                      className="text-base py-6"
+                      readOnly
+                      className="text-base py-6 bg-muted/50 cursor-not-allowed"
                     />
                     <div className="bg-primary/10 border border-primary/20 rounded-lg p-4 mt-3">
                       <p className="text-sm md:text-base font-medium text-foreground">
                         {t("checkoutEmailInfo")}
                       </p>
                       <p className="text-xs md:text-sm text-muted-foreground mt-1">
-                        {t("checkoutEmailWarning")}
+                        Email from your account • {t("checkoutEmailWarning")}
                       </p>
                     </div>
                   </div>
