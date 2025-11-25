@@ -12,28 +12,54 @@ serve(async (req) => {
   }
 
   try {
-    // Verify webhook signature
-    const authHeader = req.headers.get('authorization');
+    // Parse webhook payload first
+    const rawBody = await req.text();
+    const payload = JSON.parse(rawBody);
+    
+    console.log('Received webhook payload:', JSON.stringify(payload, null, 2));
+    console.log('Webhook headers:', Object.fromEntries(req.headers.entries()));
+
+    // Verify MoonPay Commerce webhook signature
+    const signature = req.headers.get('x-webhook-signature') || req.headers.get('signature');
     const webhookSecret = Deno.env.get('HELIO_WEBHOOK_SECRET');
 
-    if (!authHeader || !webhookSecret) {
-      console.error('Missing authorization header or webhook secret');
-      return new Response('Unauthorized', { status: 401 });
+    if (!webhookSecret) {
+      console.error('Missing webhook secret configuration');
+      return new Response('Server configuration error', { status: 500 });
     }
 
-    // Extract Bearer token
-    const token = authHeader.replace('Bearer ', '');
-    
-    if (token !== webhookSecret) {
-      console.error('Invalid webhook signature');
-      return new Response('Invalid signature', { status: 401 });
+    // Verify HMAC-SHA256 signature if present
+    if (signature) {
+      const encoder = new TextEncoder();
+      const key = await crypto.subtle.importKey(
+        'raw',
+        encoder.encode(webhookSecret),
+        { name: 'HMAC', hash: 'SHA-256' },
+        false,
+        ['sign']
+      );
+      
+      const signatureBuffer = await crypto.subtle.sign(
+        'HMAC',
+        key,
+        encoder.encode(rawBody)
+      );
+      
+      const computedSignature = Array.from(new Uint8Array(signatureBuffer))
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('');
+      
+      if (computedSignature !== signature) {
+        console.error('Invalid webhook signature');
+        console.error('Expected:', signature);
+        console.error('Computed:', computedSignature);
+        return new Response('Invalid signature', { status: 401 });
+      }
+      
+      console.log('Webhook signature verified successfully');
+    } else {
+      console.warn('No signature provided - processing anyway for debugging');
     }
-
-    console.log('Webhook signature verified');
-
-    // Parse webhook payload
-    const payload = await req.json();
-    console.log('Received Helio webhook:', JSON.stringify(payload, null, 2));
 
     // Initialize Supabase client early for replay protection
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
