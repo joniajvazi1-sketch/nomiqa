@@ -20,82 +20,160 @@ const generateEmailHTML = (type: string, data: any): { html: string; subject: st
     <style>
       * { margin: 0; padding: 0; box-sizing: border-box; }
       body { 
-        background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+        background: linear-gradient(135deg, #050505 0%, #0a0a1f 50%, #1a0a2e 100%);
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; 
         margin: 0; 
         padding: 0;
         width: 100%;
       }
       .email-wrapper {
-        background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+        background: linear-gradient(135deg, #050505 0%, #0a0a1f 50%, #1a0a2e 100%);
         padding: 60px 20px;
         width: 100%;
+        position: relative;
+      }
+      .email-wrapper::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(circle at 50% 0%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+                    radial-gradient(circle at 0% 100%, rgba(6, 182, 212, 0.1) 0%, transparent 50%);
+        pointer-events: none;
       }
       .container { 
         max-width: 600px; 
         margin: 0 auto; 
-        background: rgba(255, 255, 255, 0.03);
-        backdrop-filter: blur(40px);
-        border-radius: 32px;
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+        backdrop-filter: blur(60px) saturate(180%);
+        -webkit-backdrop-filter: blur(60px) saturate(180%);
+        border-radius: 40px;
+        border: 2px solid transparent;
+        background-clip: padding-box;
+        position: relative;
         padding: 56px 48px;
-        box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4), 0 0 1px rgba(255, 255, 255, 0.1) inset;
+        box-shadow: 
+          0 8px 32px rgba(0, 0, 0, 0.6),
+          0 1px 2px rgba(255, 255, 255, 0.1) inset,
+          0 40px 80px rgba(139, 92, 246, 0.15);
+      }
+      .container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border-radius: 40px;
+        padding: 2px;
+        background: linear-gradient(135deg, rgba(139, 92, 246, 0.4), rgba(6, 182, 212, 0.4));
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        pointer-events: none;
       }
       .logo-section { 
         text-align: center; 
-        margin-bottom: 48px; 
+        margin-bottom: 48px;
+        position: relative;
+      }
+      .logo-section::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 180px;
+        height: 180px;
+        background: radial-gradient(circle, rgba(139, 92, 246, 0.3) 0%, transparent 70%);
+        filter: blur(40px);
+        pointer-events: none;
+        z-index: 0;
       }
       .logo-section img { 
         width: 140px; 
         height: 140px; 
-        border-radius: 28px; 
-        border: 3px solid rgba(139, 92, 246, 0.4);
-        box-shadow: 0 0 40px rgba(139, 92, 246, 0.3);
+        border-radius: 32px; 
+        border: 3px solid rgba(139, 92, 246, 0.6);
+        box-shadow: 
+          0 0 60px rgba(139, 92, 246, 0.5),
+          0 8px 32px rgba(0, 0, 0, 0.4),
+          0 2px 4px rgba(255, 255, 255, 0.1) inset;
+        position: relative;
+        z-index: 1;
       }
       h1 { 
-        background: linear-gradient(135deg, #06b6d4 0%, #8b5cf6 100%);
+        background: linear-gradient(135deg, #06b6d4 0%, #8b5cf6 50%, #ec4899 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
-        font-size: 36px;
-        font-weight: 800;
+        font-size: 38px;
+        font-weight: 900;
         text-align: center;
         margin: 0 0 20px 0;
-        letter-spacing: -0.5px;
+        letter-spacing: -1px;
+        filter: drop-shadow(0 0 30px rgba(139, 92, 246, 0.3));
       }
       .subtitle {
-        color: #cbd5e1;
+        color: #e2e8f0;
         font-size: 17px;
         line-height: 28px;
         text-align: center;
         margin: 0 0 40px 0;
+        font-weight: 400;
+        opacity: 0.95;
       }
       .code-container {
-        background: linear-gradient(135deg, rgba(6, 182, 212, 0.08) 0%, rgba(139, 92, 246, 0.08) 100%);
-        border: 2px solid rgba(139, 92, 246, 0.25);
-        border-radius: 20px;
-        padding: 40px 32px;
+        background: linear-gradient(135deg, rgba(6, 182, 212, 0.12) 0%, rgba(139, 92, 246, 0.12) 100%);
+        backdrop-filter: blur(20px);
+        border: 2px solid transparent;
+        background-clip: padding-box;
+        border-radius: 24px;
+        padding: 48px 32px;
         margin: 40px 0;
         text-align: center;
-        box-shadow: 0 0 50px rgba(139, 92, 246, 0.15);
+        box-shadow: 
+          0 0 80px rgba(139, 92, 246, 0.25),
+          0 8px 32px rgba(0, 0, 0, 0.3),
+          0 1px 2px rgba(255, 255, 255, 0.1) inset;
+        position: relative;
+      }
+      .code-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border-radius: 24px;
+        padding: 2px;
+        background: linear-gradient(135deg, rgba(6, 182, 212, 0.5), rgba(139, 92, 246, 0.5));
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        pointer-events: none;
       }
       .code-display {
-        font-size: 56px;
+        font-size: 60px;
         font-weight: 900;
-        letter-spacing: 16px;
-        background: linear-gradient(135deg, #06b6d4 0%, #8b5cf6 100%);
+        letter-spacing: 20px;
+        background: linear-gradient(135deg, #06b6d4 0%, #8b5cf6 50%, #ec4899 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
-        text-shadow: 0 0 30px rgba(139, 92, 246, 0.4);
+        filter: drop-shadow(0 0 40px rgba(139, 92, 246, 0.6));
       }
       .info-box {
-        background: rgba(239, 68, 68, 0.08);
-        border: 1px solid rgba(239, 68, 68, 0.2);
-        border-radius: 16px;
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.12) 0%, rgba(220, 38, 38, 0.08) 100%);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        border-radius: 20px;
         padding: 20px 24px;
         margin: 28px 0;
         text-align: center;
+        box-shadow: 0 4px 16px rgba(239, 68, 68, 0.2);
       }
       .info-box p {
         color: #fca5a5;
@@ -104,12 +182,14 @@ const generateEmailHTML = (type: string, data: any): { html: string; subject: st
         margin: 0;
       }
       .success-box {
-        background: rgba(16, 185, 129, 0.08);
-        border: 1px solid rgba(16, 185, 129, 0.2);
-        border-radius: 16px;
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(5, 150, 105, 0.08) 100%);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(16, 185, 129, 0.3);
+        border-radius: 20px;
         padding: 24px;
         margin: 28px 0;
         text-align: center;
+        box-shadow: 0 4px 16px rgba(16, 185, 129, 0.2);
       }
       .success-box .title {
         color: #6ee7b7;
@@ -123,18 +203,20 @@ const generateEmailHTML = (type: string, data: any): { html: string; subject: st
         margin: 0;
       }
       .details-card {
-        background: rgba(6, 182, 212, 0.06);
-        border: 1px solid rgba(6, 182, 212, 0.15);
-        border-radius: 20px;
+        background: linear-gradient(135deg, rgba(6, 182, 212, 0.08) 0%, rgba(139, 92, 246, 0.06) 100%);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(6, 182, 212, 0.25);
+        border-radius: 24px;
         padding: 32px 28px;
         margin: 32px 0;
+        box-shadow: 0 4px 24px rgba(6, 182, 212, 0.15);
       }
       .detail-row {
         display: flex;
         justify-content: space-between;
         align-items: center;
         padding: 14px 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
       }
       .detail-row:last-child { border-bottom: none; padding-bottom: 0; }
       .detail-label {
@@ -142,24 +224,24 @@ const generateEmailHTML = (type: string, data: any): { html: string; subject: st
         font-size: 15px;
       }
       .detail-value {
-        color: #e2e8f0;
+        color: #f1f5f9;
         font-size: 16px;
         font-weight: 700;
       }
       .total-row {
         margin-top: 24px;
         padding-top: 24px;
-        border-top: 2px solid rgba(139, 92, 246, 0.2);
+        border-top: 2px solid rgba(139, 92, 246, 0.3);
       }
       .total-label {
-        color: #cbd5e1;
+        color: #e2e8f0;
         font-size: 17px;
         font-weight: 700;
       }
       .total-value {
         font-size: 32px;
         font-weight: 900;
-        background: linear-gradient(135deg, #06b6d4 0%, #8b5cf6 100%);
+        background: linear-gradient(135deg, #06b6d4 0%, #8b5cf6 50%, #ec4899 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
       }
@@ -174,7 +256,11 @@ const generateEmailHTML = (type: string, data: any): { html: string; subject: st
         font-size: 17px;
         text-align: center;
         margin: 32px auto;
-        box-shadow: 0 8px 32px rgba(139, 92, 246, 0.4);
+        box-shadow: 
+          0 8px 32px rgba(139, 92, 246, 0.5),
+          0 0 60px rgba(139, 92, 246, 0.3),
+          0 2px 4px rgba(255, 255, 255, 0.2) inset;
+        transition: transform 0.2s ease;
       }
       .text-muted {
         color: #94a3b8;
@@ -182,29 +268,31 @@ const generateEmailHTML = (type: string, data: any): { html: string; subject: st
         line-height: 26px;
         text-align: center;
         margin: 28px 0 0 0;
+        opacity: 0.9;
       }
       .footer {
         text-align: center;
         margin-top: 48px;
         padding-top: 32px;
-        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
       }
       .footer-text {
-        color: #64748b;
+        color: #94a3b8;
         font-size: 14px;
         margin: 0 0 8px 0;
         font-weight: 600;
       }
       .footer-subtext {
-        color: #475569;
+        color: #64748b;
         font-size: 13px;
         margin: 0;
       }
       @media only screen and (max-width: 600px) {
-        .container { padding: 40px 28px; }
-        h1 { font-size: 28px; }
-        .code-display { font-size: 44px; letter-spacing: 12px; }
+        .container { padding: 40px 28px; border-radius: 32px; }
+        h1 { font-size: 30px; }
+        .code-display { font-size: 48px; letter-spacing: 14px; }
         .cta-button { padding: 16px 36px; font-size: 16px; }
+        .logo-section img { width: 120px; height: 120px; }
       }
     </style>
   `;
