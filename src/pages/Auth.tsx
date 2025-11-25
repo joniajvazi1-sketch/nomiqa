@@ -10,6 +10,7 @@ import { Loader2 } from "lucide-react";
 import { useTranslation } from "@/contexts/TranslationContext";
 import { z } from "zod";
 import nomiqaAnimatedLogo from "@/assets/nomiqa-animated-logo.gif";
+import { EmailVerification } from "@/components/EmailVerification";
 
 const authSchema = z.object({
   email: z.string().trim().email('Invalid email address').max(255, 'Email too long'),
@@ -32,6 +33,9 @@ export default function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
+  const [showVerification, setShowVerification] = useState(false);
+  const [verificationType, setVerificationType] = useState<'registration' | 'password_reset'>('registration');
+  const [newPassword, setNewPassword] = useState("");
 
   useEffect(() => {
     // Check if user is already logged in
@@ -57,16 +61,19 @@ export default function Auth() {
 
     try {
       if (isForgotPassword) {
-        // Handle password reset
-        const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: `${window.location.origin}/auth?mode=reset`,
+        // Request password reset code via edge function
+        const { error } = await supabase.functions.invoke('resend-verification-code', {
+          body: {
+            email,
+            type: 'password_reset',
+          },
         });
 
         if (error) throw error;
-        
-        toast.success("Password reset email sent! Check your inbox.");
-        setIsForgotPassword(false);
-        setEmail("");
+
+        toast.success("Reset code sent! Check your email.");
+        setVerificationType('password_reset');
+        setShowVerification(true);
         setLoading(false);
         return;
       }
@@ -106,19 +113,36 @@ export default function Auth() {
 
         if (error) throw error;
 
-        // Create profile with username
+        // Create profile with username and verification code
         if (authData.user) {
+          const code = Math.floor(100000 + Math.random() * 900000).toString();
+          const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
+
           const { error: profileError } = await supabase
             .from('profiles')
             .insert({
               user_id: authData.user.id,
-              username: username.toLowerCase()
+              username: username.toLowerCase(),
+              email_verified: false,
+              verification_code: code,
+              verification_code_expires_at: expiresAt,
             });
 
           if (profileError) throw profileError;
-        }
 
-        toast.success("Check your email to confirm your account!");
+          // Send verification email
+          await supabase.functions.invoke('send-email', {
+            body: {
+              type: 'user_verification',
+              to: email,
+              data: { code },
+            },
+          });
+
+          toast.success("Check your email for verification code!");
+          setVerificationType('registration');
+          setShowVerification(true);
+        }
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
@@ -135,6 +159,68 @@ export default function Auth() {
       setLoading(false);
     }
   };
+
+  const handleVerified = async () => {
+    if (verificationType === 'registration') {
+      toast.success("Email verified! You can now log in.");
+      setShowVerification(false);
+      setIsSignUp(false);
+      setEmail("");
+      setPassword("");
+      setUsername("");
+    } else {
+      // Password reset verified, now show new password input
+      setShowVerification(false);
+      setIsForgotPassword(false);
+      // User needs to set new password
+      toast.info("Enter your new password");
+    }
+  };
+
+  const handlePasswordReset = async (resetToken: string) => {
+    if (!newPassword || newPassword.length < 8) {
+      toast.error("Password must be at least 8 characters");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const { error } = await supabase.functions.invoke('reset-password', {
+        body: {
+          email,
+          resetToken,
+          newPassword,
+        },
+      });
+
+      if (error) throw error;
+
+      toast.success("Password reset successfully! You can now log in.");
+      setNewPassword("");
+      setEmail("");
+      setPassword("");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to reset password");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (showVerification) {
+    return (
+      <div className="min-h-screen bg-background relative overflow-hidden">
+        <div className="absolute inset-0 bg-muted/20"></div>
+        <div className="relative z-10 flex items-center justify-center min-h-screen p-4 py-12">
+          <EmailVerification
+            email={email}
+            type={verificationType}
+            onVerified={handleVerified}
+            onBack={() => setShowVerification(false)}
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
