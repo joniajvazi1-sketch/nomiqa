@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ArrowLeft, ShoppingCart, Trash2, Loader2 } from "lucide-react";
+import { ArrowLeft, ShoppingCart, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -26,27 +26,20 @@ export default function Checkout() {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paylinkUrl, setPaylinkUrl] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
-  const [checkingAuth, setCheckingAuth] = useState(true);
 
-  // Check authentication status
+  // Check authentication status without redirecting
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        toast.error("Please log in to purchase eSIMs");
-        navigate('/auth?redirect=/checkout');
-        return;
-      }
-      
       setUser(user);
-      // Pre-fill email from authenticated user
-      setEmail(user.email || "");
-      setCheckingAuth(false);
+      // Pre-fill email if user is logged in
+      if (user?.email) {
+        setEmail(user.email);
+      }
     };
     
     checkAuth();
-  }, [navigate]);
+  }, []);
 
   // Generate or retrieve visitor ID for affiliate tracking
   const getVisitorId = () => {
@@ -60,6 +53,13 @@ export default function Checkout() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Check if user is logged in before proceeding with checkout
+    if (!user) {
+      toast.error("Please log in to complete your purchase");
+      navigate('/auth?redirect=/checkout');
+      return;
+    }
     
     // Validate email
     const result = emailSchema.safeParse(email);
@@ -136,14 +136,6 @@ export default function Checkout() {
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
   }, [navigate, clearCart]);
-
-  if (checkingAuth) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
 
   if (items.length === 0) {
     return (
@@ -253,23 +245,48 @@ export default function Checkout() {
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="email" className="text-base font-semibold">{t("checkoutEmailLabel")} *</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder={t("checkoutEmailPlaceholder")}
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      readOnly
-                      className="text-base py-6 bg-muted/50 cursor-not-allowed"
-                    />
+                    {user ? (
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder={t("checkoutEmailPlaceholder")}
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        readOnly
+                        className="text-base py-6 bg-muted/50 cursor-not-allowed"
+                      />
+                    ) : (
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder={t("checkoutEmailPlaceholder")}
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        className="text-base py-6"
+                      />
+                    )}
                     <div className="bg-primary/10 border border-primary/20 rounded-lg p-4 mt-3">
-                      <p className="text-sm md:text-base font-medium text-foreground">
-                        {t("checkoutEmailInfo")}
-                      </p>
-                      <p className="text-xs md:text-sm text-muted-foreground mt-1">
-                        Email from your account • {t("checkoutEmailWarning")}
-                      </p>
+                      {user ? (
+                        <>
+                          <p className="text-sm md:text-base font-medium text-foreground">
+                            {t("checkoutEmailInfo")}
+                          </p>
+                          <p className="text-xs md:text-sm text-muted-foreground mt-1">
+                            Email from your account • {t("checkoutEmailWarning")}
+                          </p>
+                        </>
+                      ) : (
+                        <>
+                          <p className="text-sm md:text-base font-medium text-foreground">
+                            ⚠️ Login Required to Purchase
+                          </p>
+                          <p className="text-xs md:text-sm text-muted-foreground mt-1">
+                            You must be logged in to complete your purchase. Click checkout to continue.
+                          </p>
+                        </>
+                      )}
                     </div>
                   </div>
 
