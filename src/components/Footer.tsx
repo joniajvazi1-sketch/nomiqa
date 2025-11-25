@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useTranslation } from "@/contexts/TranslationContext";
 import { Twitter, Instagram, Music, Youtube, Facebook, ChevronDown } from "lucide-react";
+import { localizedPath } from "@/utils/localizedLinks";
 export const Footer = () => {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const [openSections, setOpenSections] = useState<string[]>([]);
 
   const toggleSection = (section: string) => {
@@ -48,7 +49,7 @@ export const Footer = () => {
               <Facebook className="w-4 h-4 text-white/60 group-hover:text-blue-500 transition-colors duration-300" />
             </a>
           </div>
-          <a href="/terms" className="text-white/60 hover:text-neon-cyan transition-colors duration-300 font-light text-xs md:text-sm inline-block">
+          <a href={localizedPath("/terms", language)} className="text-white/60 hover:text-neon-cyan transition-colors duration-300 font-light text-xs md:text-sm inline-block">
             {t("footerTermsConditions")}
           </a>
         </div>

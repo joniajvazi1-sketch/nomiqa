@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState, ReactNode } from "react";
+import { termsTranslations } from "@/translations/termsTranslations";
 
 export type Language = "EN" | "ES" | "FR" | "DE" | "RU" | "ZH" | "JA" | "PT" | "AR" | "IT";
 
@@ -733,6 +734,9 @@ const translations: Record<string, Partial<Record<Language | 'HI', string>>> = {
   tierEliteEarn: { EN: "Tier 3 (Elite): Additional 3% from 3rd level down", ES: "Nivel 3 (Élite): 3% adicional del 3er nivel hacia abajo", FR: "Niveau 3 (Élite): 3% supplémentaires à partir du 3ème niveau", DE: "Stufe 3 (Elite): Zusätzliche 3% ab der 3. Ebene", RU: "Уровень 3 (Элита): Дополнительные 3% с 3-го уровня", ZH: "等级3（精英）：从第3层开始获得额外3%", JA: "ティア3（エリート）：3レベル目から追加3%", PT: "Nível 3 (Elite): 3% adicionais a partir do 3º nível", AR: "المستوى 3 (نخبة): 3% إضافية من المستوى الثالث فما دون", IT: "Livello 3 (Elite): 3% aggiuntivo dal 3° livello in giù" },
   tierEliteExample: { EN: "You → Referral → Their Referral → Customer (You earn 9% + 6% + 3%)", ES: "Tú → Referencia → Su Referencia → Cliente (Ganas 9% + 6% + 3%)", FR: "Vous → Parrainage → Leur Parrainage → Client (Vous gagnez 9% + 6% + 3%)", DE: "Du → Empfehlung → Deren Empfehlung → Kunde (Du verdienst 9% + 6% + 3%)", RU: "Вы → Реферал → Их Реферал → Клиент (Вы зарабатываете 9% + 6% + 3%)", ZH: "您 → 推荐人 → 他们的推荐人 → 客户（您赚取9% + 6% + 3%）", JA: "あなた → 紹介 → その紹介 → 顧客（あなたが9% + 6% + 3%稼ぐ）", PT: "Você → Indicação → Indicação Deles → Cliente (Você ganha 9% + 6% + 3%)", AR: "أنت ← إحالة ← إحالتهم ← عميل (تربح 9% + 6% + 3%)", IT: "Tu → Referral → Il Loro Referral → Cliente (Guadagni 9% + 6% + 3%)" },
   trackPerformance: { EN: "Track your performance and earnings", ES: "Rastrea tu rendimiento y ganancias", FR: "Suivez vos performances et vos gains", DE: "Verfolge deine Leistung und Einnahmen", RU: "Отслеживайте свою производительность и доходы", ZH: "跟踪您的表现和收入", JA: "パフォーマンスと収益を追跡", PT: "Acompanhe seu desempenho e ganhos", AR: "تتبع أدائك وأرباحك", IT: "Monitora le tue prestazioni e i tuoi guadagni" },
+  
+  // Merge all terms translations
+  ...termsTranslations,
 };
 
 function isRTL(lang: Language) {
