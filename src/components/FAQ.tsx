@@ -8,12 +8,13 @@ import { useTranslation } from "@/contexts/TranslationContext";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { localizedPath } from "@/utils/localizedLinks";
+import { memo, useMemo } from "react";
 
-export const FAQ = () => {
+export const FAQ = memo(() => {
   const { t, language } = useTranslation();
   const navigate = useNavigate();
   
-  const faqs = [
+  const faqs = useMemo(() => [
     {
       question: t("faq1Q"),
       answer: t("faq1A")
@@ -54,7 +55,7 @@ export const FAQ = () => {
       question: t("faq10Q"),
       answer: t("faq10A")
     }
-  ];
+  ], [t]);
 
   return (
     <section className="py-12 md:py-20 relative overflow-hidden">
@@ -74,9 +75,9 @@ export const FAQ = () => {
               <AccordionItem 
                 key={index} 
                 value={`item-${index}`}
-                className="bg-white/[0.02] backdrop-blur-xl border border-white/10 hover:border-neon-cyan/30 rounded-xl px-4 md:px-6 transition-all hover:bg-white/[0.04]"
+                className="bg-white/[0.02] backdrop-blur-sm border border-white/10 hover:border-neon-cyan/30 rounded-xl px-4 md:px-6 transition-all duration-200 hover:bg-white/[0.04] transform-gpu will-change-transform"
               >
-                <AccordionTrigger className="text-left text-base md:text-lg font-semibold text-foreground hover:text-neon-cyan transition-colors py-4">
+                <AccordionTrigger className="text-left text-base md:text-lg font-semibold text-foreground hover:text-neon-cyan transition-colors duration-200 py-4">
                   {faq.question}
                 </AccordionTrigger>
                 <AccordionContent className="text-foreground/80 leading-relaxed text-sm md:text-base pb-4">
@@ -90,7 +91,7 @@ export const FAQ = () => {
             <Button
               onClick={() => navigate(localizedPath("/help", language))}
               size="lg"
-              className="bg-gradient-to-r from-neon-cyan to-neon-violet hover:from-neon-cyan/90 hover:to-neon-violet/90 text-white border-0 shadow-glow-cyan font-light px-8 rounded-xl transition-all duration-300"
+              className="bg-gradient-to-r from-neon-cyan to-neon-violet hover:from-neon-cyan/90 hover:to-neon-violet/90 text-white border-0 shadow-glow-cyan font-light px-8 rounded-xl transition-all duration-200"
             >
               {t("contactHelpCenter")}
             </Button>
@@ -99,4 +100,4 @@ export const FAQ = () => {
       </div>
     </section>
   );
-};
+});
