@@ -79,6 +79,16 @@ export default function Orders() {
           setUsageData({ [response.order.id]: response.usage });
         }
       } else {
+        // Check if user is authenticated
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (!session) {
+          // Redirect to login if not authenticated
+          toast.error("Please login to view your orders");
+          navigate('/auth');
+          return;
+        }
+
         // Authenticated user access - rely on RLS policies
         const result = await supabase
           .from('orders')
@@ -108,6 +118,12 @@ export default function Orders() {
         
         setUsageData(usageMap);
       }
+
+      if (error) {
+        throw error;
+      }
+
+      setOrders(data || []);
     } catch (error: any) {
       console.error('Error fetching orders:', error);
       toast.error("Failed to load orders");
