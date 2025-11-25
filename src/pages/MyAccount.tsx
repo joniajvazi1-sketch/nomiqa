@@ -27,31 +27,31 @@ interface MembershipData {
 }
 
 const TIER_COLORS = {
-  bronze: "bg-gradient-to-br from-amber-900 via-amber-700 to-orange-800",
-  silver: "bg-gradient-to-br from-slate-500 via-slate-400 to-slate-600",
-  gold: "bg-gradient-to-br from-yellow-600 via-amber-500 to-yellow-700",
-  platinum: "bg-gradient-to-br from-purple-700 via-violet-600 to-purple-800"
+  beginner: "bg-gradient-to-br from-amber-900 via-amber-700 to-orange-800",
+  traveler: "bg-gradient-to-br from-slate-500 via-slate-400 to-slate-600",
+  adventurer: "bg-gradient-to-br from-yellow-600 via-amber-500 to-yellow-700",
+  explorer: "bg-gradient-to-br from-purple-700 via-violet-600 to-purple-800"
 };
 
 const TIER_GLOW = {
-  bronze: "shadow-[0_0_50px_rgba(217,119,6,0.6),0_0_100px_rgba(217,119,6,0.4)]",
-  silver: "shadow-[0_0_50px_rgba(148,163,184,0.6),0_0_100px_rgba(148,163,184,0.4)]",
-  gold: "shadow-[0_0_60px_rgba(234,179,8,0.7),0_0_120px_rgba(234,179,8,0.5)]",
-  platinum: "shadow-[0_0_70px_rgba(168,85,247,0.8),0_0_140px_rgba(168,85,247,0.6)]"
+  beginner: "shadow-[0_0_50px_rgba(217,119,6,0.6),0_0_100px_rgba(217,119,6,0.4)]",
+  traveler: "shadow-[0_0_50px_rgba(148,163,184,0.6),0_0_100px_rgba(148,163,184,0.4)]",
+  adventurer: "shadow-[0_0_60px_rgba(234,179,8,0.7),0_0_120px_rgba(234,179,8,0.5)]",
+  explorer: "shadow-[0_0_70px_rgba(168,85,247,0.8),0_0_140px_rgba(168,85,247,0.6)]"
 };
 
 const TIER_ICONS = {
-  bronze: Star,
-  silver: Award,
-  gold: Crown,
-  platinum: Sparkles
+  beginner: Star,
+  traveler: Award,
+  adventurer: Crown,
+  explorer: Sparkles
 };
 
 const TIER_TEXT_COLOR = {
-  bronze: "text-amber-600 dark:text-amber-500",
-  silver: "text-slate-700 dark:text-slate-400",
-  gold: "text-yellow-700 dark:text-yellow-500",
-  platinum: "text-purple-700 dark:text-purple-500"
+  beginner: "text-amber-600 dark:text-amber-500",
+  traveler: "text-slate-700 dark:text-slate-400",
+  adventurer: "text-yellow-700 dark:text-yellow-500",
+  explorer: "text-purple-700 dark:text-purple-500"
 };
 
 export default function MyAccount() {
@@ -373,29 +373,29 @@ export default function MyAccount() {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="grid gap-4 md:grid-cols-2">
-                      {/* Bronze Tier */}
+                      {/* Beginner Tier */}
                       <div className={`group p-4 sm:p-6 border-2 rounded-2xl transition-all duration-300 hover:scale-[1.03] hover:shadow-xl ${
-                        membership?.membership_tier === 'bronze' 
+                        membership?.membership_tier === 'beginner' 
                           ? 'border-amber-600 bg-gradient-to-br from-amber-100/90 via-amber-50/60 to-amber-100/40 dark:from-amber-900/40 dark:via-amber-950/20 dark:to-amber-900/30 shadow-lg ring-2 ring-amber-500/20' 
                           : 'border-border/60 hover:border-amber-600/40 bg-card/30'
                       }`}>
                         <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
                           <div className="relative">
-                            <Star className={`w-7 h-7 sm:w-9 sm:h-9 ${membership?.membership_tier === 'bronze' ? 'text-amber-700 dark:text-amber-400' : TIER_TEXT_COLOR.bronze} transition-all duration-300 group-hover:scale-125 group-hover:rotate-12`} />
-                            {membership?.membership_tier === 'bronze' && (
+                            <Star className={`w-7 h-7 sm:w-9 sm:h-9 ${membership?.membership_tier === 'beginner' ? 'text-amber-700 dark:text-amber-400' : TIER_TEXT_COLOR.beginner} transition-all duration-300 group-hover:scale-125 group-hover:rotate-12`} />
+                            {membership?.membership_tier === 'beginner' && (
                               <div className="absolute inset-0 bg-amber-500/30 rounded-full blur-xl animate-pulse" />
                             )}
                           </div>
                           <div className="flex-1">
-                            <h3 className={`font-bold text-lg sm:text-xl ${membership?.membership_tier === 'bronze' ? 'text-amber-800 dark:text-amber-300' : TIER_TEXT_COLOR.bronze} tracking-wide`}>{t("tierBronze")}</h3>
-                            {membership?.membership_tier === 'bronze' && (
+                            <h3 className={`font-bold text-lg sm:text-xl ${membership?.membership_tier === 'beginner' ? 'text-amber-800 dark:text-amber-300' : TIER_TEXT_COLOR.beginner} tracking-wide`}>{t("tierBeginner")}</h3>
+                            {membership?.membership_tier === 'beginner' && (
                               <Badge variant="secondary" className="text-xs mt-1 bg-amber-200 dark:bg-amber-800/70 text-amber-900 dark:text-amber-100 font-semibold">{t("currentTier")}</Badge>
                             )}
                           </div>
                         </div>
                         <div className="space-y-2 sm:space-y-3">
                           <p className={`text-xs sm:text-sm flex flex-wrap items-center gap-1 sm:gap-2 ${
-                            membership?.membership_tier === 'bronze' 
+                            membership?.membership_tier === 'beginner' 
                               ? 'text-amber-900 dark:text-amber-100' 
                               : 'text-muted-foreground'
                           }`}>
@@ -405,12 +405,12 @@ export default function MyAccount() {
                           </p>
                           <div className="flex items-baseline gap-2">
                             <p className={`text-3xl sm:text-4xl font-bold ${
-                              membership?.membership_tier === 'bronze' 
+                              membership?.membership_tier === 'beginner' 
                                 ? 'text-amber-900 dark:text-amber-100' 
                                 : 'text-foreground'
                             }`}>5%</p>
                             <p className={`text-sm sm:text-base font-medium ${
-                              membership?.membership_tier === 'bronze' 
+                              membership?.membership_tier === 'beginner' 
                                 ? 'text-amber-800 dark:text-amber-200' 
                                 : 'text-muted-foreground'
                             }`}>{t("cashback")}</p>
@@ -418,29 +418,29 @@ export default function MyAccount() {
                         </div>
                       </div>
 
-                      {/* Silver Tier */}
+                      {/* Traveler Tier */}
                       <div className={`group p-4 sm:p-6 border-2 rounded-2xl transition-all duration-300 hover:scale-[1.03] hover:shadow-xl ${
-                        membership?.membership_tier === 'silver' 
+                        membership?.membership_tier === 'traveler' 
                           ? 'border-slate-500 bg-gradient-to-br from-slate-100/90 via-slate-50/60 to-slate-100/40 dark:from-slate-800/40 dark:via-slate-900/20 dark:to-slate-800/30 shadow-lg ring-2 ring-slate-400/20' 
                           : 'border-border/60 hover:border-slate-500/40 bg-card/30'
                       }`}>
                         <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
                           <div className="relative">
-                            <Award className={`w-7 h-7 sm:w-9 sm:h-9 ${membership?.membership_tier === 'silver' ? 'text-slate-700 dark:text-slate-300' : TIER_TEXT_COLOR.silver} transition-all duration-300 group-hover:scale-125 group-hover:rotate-12`} />
-                            {membership?.membership_tier === 'silver' && (
+                            <Award className={`w-7 h-7 sm:w-9 sm:h-9 ${membership?.membership_tier === 'traveler' ? 'text-slate-700 dark:text-slate-300' : TIER_TEXT_COLOR.traveler} transition-all duration-300 group-hover:scale-125 group-hover:rotate-12`} />
+                            {membership?.membership_tier === 'traveler' && (
                               <div className="absolute inset-0 bg-slate-400/30 rounded-full blur-xl animate-pulse" />
                             )}
                           </div>
                           <div className="flex-1">
-                            <h3 className={`font-bold text-lg sm:text-xl ${membership?.membership_tier === 'silver' ? 'text-slate-800 dark:text-slate-200' : TIER_TEXT_COLOR.silver} tracking-wide`}>{t("tierSilver")}</h3>
-                            {membership?.membership_tier === 'silver' && (
+                            <h3 className={`font-bold text-lg sm:text-xl ${membership?.membership_tier === 'traveler' ? 'text-slate-800 dark:text-slate-200' : TIER_TEXT_COLOR.traveler} tracking-wide`}>{t("tierTraveler")}</h3>
+                            {membership?.membership_tier === 'traveler' && (
                               <Badge variant="secondary" className="text-xs mt-1 bg-slate-200 dark:bg-slate-700/70 text-slate-900 dark:text-slate-100 font-semibold">{t("currentTier")}</Badge>
                             )}
                           </div>
                         </div>
                         <div className="space-y-2 sm:space-y-3">
                           <p className={`text-xs sm:text-sm flex flex-wrap items-center gap-1 sm:gap-2 ${
-                            membership?.membership_tier === 'silver' 
+                            membership?.membership_tier === 'traveler' 
                               ? 'text-slate-900 dark:text-slate-100' 
                               : 'text-muted-foreground'
                           }`}>
@@ -450,12 +450,12 @@ export default function MyAccount() {
                           </p>
                           <div className="flex items-baseline gap-2">
                             <p className={`text-3xl sm:text-4xl font-bold ${
-                              membership?.membership_tier === 'silver' 
+                              membership?.membership_tier === 'traveler' 
                                 ? 'text-slate-900 dark:text-slate-100' 
                                 : 'text-foreground'
                             }`}>6%</p>
                             <p className={`text-sm sm:text-base font-medium ${
-                              membership?.membership_tier === 'silver' 
+                              membership?.membership_tier === 'traveler' 
                                 ? 'text-slate-800 dark:text-slate-200' 
                                 : 'text-muted-foreground'
                             }`}>{t("cashback")}</p>
@@ -463,29 +463,29 @@ export default function MyAccount() {
                         </div>
                       </div>
 
-                      {/* Gold Tier */}
+                      {/* Adventurer Tier */}
                       <div className={`group p-4 sm:p-6 border-2 rounded-2xl transition-all duration-300 hover:scale-[1.03] hover:shadow-xl ${
-                        membership?.membership_tier === 'gold' 
+                        membership?.membership_tier === 'adventurer' 
                           ? 'border-yellow-600 bg-gradient-to-br from-yellow-100/90 via-yellow-50/60 to-yellow-100/40 dark:from-yellow-900/40 dark:via-yellow-950/20 dark:to-yellow-900/30 shadow-lg ring-2 ring-yellow-500/20' 
                           : 'border-border/60 hover:border-yellow-500/40 bg-card/30'
                       }`}>
                         <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
                           <div className="relative">
-                            <Crown className={`w-7 h-7 sm:w-9 sm:h-9 ${membership?.membership_tier === 'gold' ? 'text-yellow-700 dark:text-yellow-400' : TIER_TEXT_COLOR.gold} transition-all duration-300 group-hover:scale-125 group-hover:rotate-12`} />
-                            {membership?.membership_tier === 'gold' && (
+                            <Crown className={`w-7 h-7 sm:w-9 sm:h-9 ${membership?.membership_tier === 'adventurer' ? 'text-yellow-700 dark:text-yellow-400' : TIER_TEXT_COLOR.adventurer} transition-all duration-300 group-hover:scale-125 group-hover:rotate-12`} />
+                            {membership?.membership_tier === 'adventurer' && (
                               <div className="absolute inset-0 bg-yellow-500/30 rounded-full blur-xl animate-pulse" />
                             )}
                           </div>
                           <div className="flex-1">
-                            <h3 className={`font-bold text-lg sm:text-xl ${membership?.membership_tier === 'gold' ? 'text-yellow-800 dark:text-yellow-300' : TIER_TEXT_COLOR.gold} tracking-wide`}>{t("tierGold")}</h3>
-                            {membership?.membership_tier === 'gold' && (
+                            <h3 className={`font-bold text-lg sm:text-xl ${membership?.membership_tier === 'adventurer' ? 'text-yellow-800 dark:text-yellow-300' : TIER_TEXT_COLOR.adventurer} tracking-wide`}>{t("tierAdventurer")}</h3>
+                            {membership?.membership_tier === 'adventurer' && (
                               <Badge variant="secondary" className="text-xs mt-1 bg-yellow-200 dark:bg-yellow-800/70 text-yellow-900 dark:text-yellow-100 font-semibold">{t("currentTier")}</Badge>
                             )}
                           </div>
                         </div>
                         <div className="space-y-2 sm:space-y-3">
                           <p className={`text-xs sm:text-sm flex flex-wrap items-center gap-1 sm:gap-2 ${
-                            membership?.membership_tier === 'gold' 
+                            membership?.membership_tier === 'adventurer' 
                               ? 'text-yellow-900 dark:text-yellow-100' 
                               : 'text-muted-foreground'
                           }`}>
@@ -495,12 +495,12 @@ export default function MyAccount() {
                           </p>
                           <div className="flex items-baseline gap-2">
                             <p className={`text-3xl sm:text-4xl font-bold ${
-                              membership?.membership_tier === 'gold' 
+                              membership?.membership_tier === 'adventurer' 
                                 ? 'text-yellow-900 dark:text-yellow-100' 
                                 : 'text-foreground'
                             }`}>7%</p>
                             <p className={`text-sm sm:text-base font-medium ${
-                              membership?.membership_tier === 'gold' 
+                              membership?.membership_tier === 'adventurer' 
                                 ? 'text-yellow-800 dark:text-yellow-200' 
                                 : 'text-muted-foreground'
                             }`}>{t("cashback")}</p>
@@ -508,29 +508,29 @@ export default function MyAccount() {
                         </div>
                       </div>
 
-                      {/* Platinum Tier */}
+                      {/* Explorer Tier */}
                       <div className={`group p-4 sm:p-6 border-2 rounded-2xl transition-all duration-300 hover:scale-[1.03] hover:shadow-xl ${
-                        membership?.membership_tier === 'platinum' 
+                        membership?.membership_tier === 'explorer' 
                           ? 'border-purple-600 bg-gradient-to-br from-purple-100/90 via-purple-50/60 to-purple-100/40 dark:from-purple-900/40 dark:via-purple-950/20 dark:to-purple-900/30 shadow-lg ring-2 ring-purple-500/20' 
                           : 'border-border/60 hover:border-purple-500/40 bg-card/30'
                       }`}>
                         <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
                           <div className="relative">
-                            <Sparkles className={`w-7 h-7 sm:w-9 sm:h-9 ${membership?.membership_tier === 'platinum' ? 'text-purple-700 dark:text-purple-400' : TIER_TEXT_COLOR.platinum} transition-all duration-300 group-hover:scale-125 group-hover:rotate-12`} />
-                            {membership?.membership_tier === 'platinum' && (
+                            <Sparkles className={`w-7 h-7 sm:w-9 sm:h-9 ${membership?.membership_tier === 'explorer' ? 'text-purple-700 dark:text-purple-400' : TIER_TEXT_COLOR.explorer} transition-all duration-300 group-hover:scale-125 group-hover:rotate-12`} />
+                            {membership?.membership_tier === 'explorer' && (
                               <div className="absolute inset-0 bg-purple-500/30 rounded-full blur-xl animate-pulse" />
                             )}
                           </div>
                           <div className="flex-1">
-                            <h3 className={`font-bold text-lg sm:text-xl ${membership?.membership_tier === 'platinum' ? 'text-purple-800 dark:text-purple-300' : TIER_TEXT_COLOR.platinum} tracking-wide`}>{t("tierPlatinum")}</h3>
-                            {membership?.membership_tier === 'platinum' && (
+                            <h3 className={`font-bold text-lg sm:text-xl ${membership?.membership_tier === 'explorer' ? 'text-purple-800 dark:text-purple-300' : TIER_TEXT_COLOR.explorer} tracking-wide`}>{t("tierExplorer")}</h3>
+                            {membership?.membership_tier === 'explorer' && (
                               <Badge variant="secondary" className="text-xs mt-1 bg-purple-200 dark:bg-purple-800/70 text-purple-900 dark:text-purple-100 font-semibold">{t("currentTier")}</Badge>
                             )}
                           </div>
                         </div>
                         <div className="space-y-2 sm:space-y-3">
                           <p className={`text-xs sm:text-sm flex flex-wrap items-center gap-1 sm:gap-2 ${
-                            membership?.membership_tier === 'platinum' 
+                            membership?.membership_tier === 'explorer' 
                               ? 'text-purple-900 dark:text-purple-100' 
                               : 'text-muted-foreground'
                           }`}>
@@ -540,12 +540,12 @@ export default function MyAccount() {
                           </p>
                           <div className="flex items-baseline gap-2">
                             <p className={`text-3xl sm:text-4xl font-bold ${
-                              membership?.membership_tier === 'platinum' 
+                              membership?.membership_tier === 'explorer' 
                                 ? 'text-purple-900 dark:text-purple-100' 
                                 : 'text-foreground'
                             }`}>10%</p>
                             <p className={`text-sm sm:text-base font-medium ${
-                              membership?.membership_tier === 'platinum' 
+                              membership?.membership_tier === 'explorer' 
                                 ? 'text-purple-800 dark:text-purple-200' 
                                 : 'text-muted-foreground'
                             }`}>{t("cashback")}</p>
