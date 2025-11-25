@@ -36,6 +36,7 @@ interface Order {
   qr_code_url: string | null;
   matching_id: string | null;
   iccid: string | null;
+  lpa: string | null;
   manual_installation: string | null;
   qrcode_installation: string | null;
 }
@@ -306,26 +307,43 @@ export default function Orders() {
                     </div>
 
                     {(order.status === 'completed' || order.status === 'paid') && order.qrcode && (
-                      <div className="flex gap-2 md:justify-end items-start">
-                        <Button
-                          variant="outline"
-                          onClick={() => {
-                            setSelectedOrder(order);
-                            setShowQR(true);
-                          }}
-                        >
-                          <QrCode className="mr-2 h-4 w-4" />
-                          View QR Code
-                        </Button>
-                        {order.qr_code_url && (
+                      <div className="flex flex-col gap-2 md:justify-end items-stretch md:items-start">
+                        {/* iOS Direct Install - Show on all devices but emphasize for iOS */}
+                        {order.lpa && (
                           <Button
-                            variant="outline"
-                            onClick={() => window.open(order.qr_code_url!, '_blank')}
+                            variant="default"
+                            className="w-full md:w-auto"
+                            onClick={() => {
+                              // On iOS, this will open Settings and prompt to install eSIM
+                              window.location.href = order.lpa!;
+                            }}
                           >
                             <Download className="mr-2 h-4 w-4" />
-                            Download
+                            Install eSIM (Tap on iOS)
                           </Button>
                         )}
+                        
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            onClick={() => {
+                              setSelectedOrder(order);
+                              setShowQR(true);
+                            }}
+                          >
+                            <QrCode className="mr-2 h-4 w-4" />
+                            View QR Code
+                          </Button>
+                          {order.qr_code_url && (
+                            <Button
+                              variant="outline"
+                              onClick={() => window.open(order.qr_code_url!, '_blank')}
+                            >
+                              <Download className="mr-2 h-4 w-4" />
+                              Download
+                            </Button>
+                          )}
+                        </div>
                       </div>
                     )}
                   </div>
