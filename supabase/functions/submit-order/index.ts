@@ -73,7 +73,8 @@ serve(async (req) => {
         type: 'sim',
         description: `Order for ${email}`,
         email: email,
-        webhook_url: webhookUrl
+        webhook_url: webhookUrl,
+        brand_settings_name: 'nomiqa'
       })
     });
 
