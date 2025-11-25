@@ -58,7 +58,9 @@ serve(async (req) => {
     const { data: authData } = await authResponse.json();
     const accessToken = authData.access_token;
 
-    // Submit async order
+    // Submit async order with webhook URL and email
+    const webhookUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/webhook-async-order`;
+    
     const orderResponse = await fetch(`${baseUrl}/v2/orders-async`, {
       method: 'POST',
       headers: {
@@ -69,7 +71,9 @@ serve(async (req) => {
         package_id: packageId,
         quantity: 1,
         type: 'sim',
-        description: `Order for ${email}`
+        description: `Order for ${email}`,
+        email: email,
+        webhook_url: webhookUrl
       })
     });
 
