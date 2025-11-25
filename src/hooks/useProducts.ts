@@ -36,6 +36,39 @@ export const useProducts = () => {
   });
 };
 
+// Optimized hook for featured products - only fetches 12 products instead of all
+export const useFeaturedProducts = (countryCodes: string[]) => {
+  return useQuery({
+    queryKey: ['featured-products', countryCodes],
+    queryFn: async () => {
+      // Fetch cheapest product for each country using a more efficient query
+      const products: Product[] = [];
+      
+      for (const countryCode of countryCodes) {
+        const { data, error } = await supabase
+          .from('products')
+          .select('*')
+          .eq('country_code', countryCode)
+          .order('price_usd', { ascending: true })
+          .limit(1)
+          .maybeSingle();
+
+        if (error) {
+          console.error(`Error fetching product for ${countryCode}:`, error);
+          continue;
+        }
+        
+        if (data) {
+          products.push(data as Product);
+        }
+      }
+      
+      return products;
+    },
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+  });
+};
+
 export const useSyncProducts = () => {
   return async () => {
     const { data, error } = await supabase.functions.invoke('airlo-products');
