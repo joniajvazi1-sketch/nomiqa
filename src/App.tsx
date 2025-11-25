@@ -22,6 +22,7 @@ const Roadmap = lazy(() => import("./pages/Roadmap"));
 const Affiliate = lazy(() => import("./pages/Affiliate"));
 const AffiliateRedirect = lazy(() => import("./pages/AffiliateRedirect"));
 const Privacy = lazy(() => import("./pages/Privacy"));
+const Terms = lazy(() => import("./pages/Terms"));
 const About = lazy(() => import("./pages/About"));
 const Token = lazy(() => import("./pages/Token"));
 const MyAccount = lazy(() => import("./pages/MyAccount"));
@@ -93,7 +94,8 @@ const App = () => (
             <Route path="/roadmap" element={<Roadmap />} />
             <Route path="/affiliate" element={<Affiliate />} />
             <Route path="/r/:code" element={<AffiliateRedirect />} />
-            <Route path="/privacy" element={<Privacy />} />
+              <Route path="/privacy" element={<Privacy />} />
+              <Route path="/terms" element={<Terms />} />
             <Route path="/about" element={<About />} />
             <Route path="/token" element={<Token />} />
             <Route path="/help" element={<Help />} />
