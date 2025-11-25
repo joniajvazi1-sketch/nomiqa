@@ -88,6 +88,7 @@ export type Database = {
           updated_at: string
           user_id: string | null
           username: string | null
+          verification_code_expires_at: string | null
           verification_sent_at: string | null
           verification_token: string | null
         }
@@ -107,6 +108,7 @@ export type Database = {
           updated_at?: string
           user_id?: string | null
           username?: string | null
+          verification_code_expires_at?: string | null
           verification_sent_at?: string | null
           verification_token?: string | null
         }
@@ -126,6 +128,7 @@ export type Database = {
           updated_at?: string
           user_id?: string | null
           username?: string | null
+          verification_code_expires_at?: string | null
           verification_sent_at?: string | null
           verification_token?: string | null
         }
@@ -356,24 +359,39 @@ export type Database = {
       profiles: {
         Row: {
           created_at: string
+          email_verified: boolean | null
           id: string
+          password_reset_code: string | null
+          password_reset_expires_at: string | null
           updated_at: string
           user_id: string
           username: string
+          verification_code: string | null
+          verification_code_expires_at: string | null
         }
         Insert: {
           created_at?: string
+          email_verified?: boolean | null
           id?: string
+          password_reset_code?: string | null
+          password_reset_expires_at?: string | null
           updated_at?: string
           user_id: string
           username: string
+          verification_code?: string | null
+          verification_code_expires_at?: string | null
         }
         Update: {
           created_at?: string
+          email_verified?: boolean | null
           id?: string
+          password_reset_code?: string | null
+          password_reset_expires_at?: string | null
           updated_at?: string
           user_id?: string
           username?: string
+          verification_code?: string | null
+          verification_code_expires_at?: string | null
         }
         Relationships: []
       }
