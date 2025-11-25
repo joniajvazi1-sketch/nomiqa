@@ -153,18 +153,37 @@ export default function Auth() {
             console.log('Verification email sent successfully');
           }
 
+          // Sign out the user immediately - they must verify email first
+          await supabase.auth.signOut();
+          
           toast.success("Check your email for verification code!");
           setVerificationType('registration');
           setShowVerification(true);
           console.log('Showing verification screen');
         }
       } else {
-        const { error } = await supabase.auth.signInWithPassword({
+        // Check if email is verified before allowing login
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('email_verified')
+          .eq('username', email.split('@')[0].toLowerCase())
+          .maybeSingle();
+
+        const { error, data } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
 
         if (error) throw error;
+
+        // Verify email is confirmed
+        if (profile && !profile.email_verified) {
+          await supabase.auth.signOut();
+          toast.error("Please verify your email before logging in. Check your inbox for the verification code.");
+          setLoading(false);
+          return;
+        }
+
         toast.success("Successfully logged in!");
         navigate('/');
       }
