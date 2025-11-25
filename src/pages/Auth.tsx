@@ -40,7 +40,8 @@ export default function Auth() {
   useEffect(() => {
     // Check if user is already logged in
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
+      // Don't redirect if we're showing verification
+      if (session && !showVerification) {
         navigate('/');
       }
     });
@@ -53,7 +54,7 @@ export default function Auth() {
     } else if (mode === 'login') {
       setIsSignUp(false);
     }
-  }, [navigate]);
+  }, [navigate, showVerification]);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -118,6 +119,8 @@ export default function Auth() {
           const code = Math.floor(100000 + Math.random() * 900000).toString();
           const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
 
+          console.log('Creating profile with verification code for user:', authData.user.id);
+
           const { error: profileError } = await supabase
             .from('profiles')
             .insert({
@@ -128,10 +131,15 @@ export default function Auth() {
               verification_code_expires_at: expiresAt,
             });
 
-          if (profileError) throw profileError;
+          if (profileError) {
+            console.error('Profile creation error:', profileError);
+            throw profileError;
+          }
+
+          console.log('Profile created, sending verification email to:', email);
 
           // Send verification email
-          await supabase.functions.invoke('send-email', {
+          const { error: emailError } = await supabase.functions.invoke('send-email', {
             body: {
               type: 'user_verification',
               to: email,
@@ -139,9 +147,16 @@ export default function Auth() {
             },
           });
 
+          if (emailError) {
+            console.error('Email send error:', emailError);
+          } else {
+            console.log('Verification email sent successfully');
+          }
+
           toast.success("Check your email for verification code!");
           setVerificationType('registration');
           setShowVerification(true);
+          console.log('Showing verification screen');
         }
       } else {
         const { error } = await supabase.auth.signInWithPassword({
