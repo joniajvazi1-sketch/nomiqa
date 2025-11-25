@@ -9,7 +9,7 @@ import { Loader2 } from "lucide-react";
 interface EmailVerificationProps {
   email: string;
   type: 'registration' | 'password_reset' | 'affiliate';
-  onVerified: () => void;
+  onVerified: (token?: string) => void;
   onBack?: () => void;
 }
 
@@ -49,7 +49,8 @@ export const EmailVerification = ({ email, type, onVerified, onBack }: EmailVeri
       }
 
       toast.success("Email verified successfully!");
-      onVerified();
+      // Pass the code as token for password reset flow
+      onVerified(type === 'password_reset' ? code : undefined);
     } catch (error: any) {
       console.error("Verification error:", error);
       toast.error(error.message || "Failed to verify code");

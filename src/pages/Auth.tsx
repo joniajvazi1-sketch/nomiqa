@@ -36,6 +36,8 @@ export default function Auth() {
   const [showVerification, setShowVerification] = useState(false);
   const [verificationType, setVerificationType] = useState<'registration' | 'password_reset'>('registration');
   const [newPassword, setNewPassword] = useState("");
+  const [showNewPasswordForm, setShowNewPasswordForm] = useState(false);
+  const [resetToken, setResetToken] = useState("");
 
   useEffect(() => {
     // Check if user is already logged in
@@ -162,10 +164,15 @@ export default function Auth() {
 
         if (error) throw error;
 
-        // Check if this user's email is verified
+        // Check if this user's email is verified (only for NEW accounts)
         const userProfile = profiles?.find(p => p.user_id === authData.user?.id);
         
-        if (!userProfile?.email_verified) {
+        // Only enforce email verification for accounts created after 2025-11-25
+        const accountCreatedAt = new Date(authData.user.created_at);
+        const verificationCutoffDate = new Date('2025-11-25T00:00:00Z');
+        const requiresVerification = accountCreatedAt >= verificationCutoffDate;
+        
+        if (requiresVerification && !userProfile?.email_verified) {
           // Immediately sign them out
           await supabase.auth.signOut();
           toast.error("Email not verified. Please check your inbox for the verification code.");
@@ -187,7 +194,7 @@ export default function Auth() {
     }
   };
 
-  const handleVerified = async () => {
+  const handleVerified = async (token?: string) => {
     if (verificationType === 'registration') {
       toast.success("Email verified! You can now log in.");
       setShowVerification(false);
@@ -196,15 +203,19 @@ export default function Auth() {
       setPassword("");
       setUsername("");
     } else {
-      // Password reset verified, now show new password input
+      // Password reset verified, now show new password input form
       setShowVerification(false);
-      setIsForgotPassword(false);
-      // User needs to set new password
+      setShowNewPasswordForm(true);
+      if (token) {
+        setResetToken(token);
+      }
       toast.info("Enter your new password");
     }
   };
 
-  const handlePasswordReset = async (resetToken: string) => {
+  const handlePasswordReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
     if (!newPassword || newPassword.length < 8) {
       toast.error("Password must be at least 8 characters");
       return;
@@ -223,9 +234,11 @@ export default function Auth() {
       if (error) throw error;
 
       toast.success("Password reset successfully! You can now log in.");
+      setShowNewPasswordForm(false);
       setNewPassword("");
-      setEmail("");
-      setPassword("");
+      setResetToken("");
+      setIsForgotPassword(false);
+      setIsSignUp(false);
     } catch (error: any) {
       toast.error(error.message || "Failed to reset password");
     } finally {
@@ -244,6 +257,77 @@ export default function Auth() {
             onVerified={handleVerified}
             onBack={() => setShowVerification(false)}
           />
+        </div>
+      </div>
+    );
+  }
+
+  if (showNewPasswordForm) {
+    return (
+      <div className="min-h-screen bg-background relative overflow-hidden">
+        <div className="absolute inset-0 bg-muted/20"></div>
+        <div className="relative z-10 flex items-center justify-center min-h-screen p-4 py-12">
+          <Card className="w-full max-w-md bg-card backdrop-blur-xl border-border shadow-2xl">
+            <CardHeader className="text-center pb-4 relative pt-8">
+              <div className="mb-8">
+                <img 
+                  src={nomiqaAnimatedLogo} 
+                  alt="Nomiqa" 
+                  className="h-24 md:h-32 w-auto mx-auto cursor-pointer hover:opacity-80 transition-opacity"
+                  onClick={() => navigate('/')}
+                />
+              </div>
+              <CardTitle className="text-3xl md:text-4xl font-black text-foreground mb-2">
+                {t("setNewPassword")}
+              </CardTitle>
+              <CardDescription className="text-sm md:text-base text-muted-foreground">
+                {t("enterNewPasswordDesc")}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handlePasswordReset} className="space-y-5">
+                <div className="space-y-2">
+                  <Label htmlFor="newPassword" className="text-sm font-semibold">
+                    {t("newPasswordLabel")}
+                  </Label>
+                  <Input
+                    id="newPassword"
+                    type="password"
+                    placeholder="••••••••"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    required
+                    minLength={8}
+                    className="h-11 text-base"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1.5">
+                    {t("passwordRequirements")}
+                  </p>
+                </div>
+                <Button 
+                  type="submit" 
+                  className="w-full h-12 text-base font-bold bg-primary hover:bg-primary/90 transition-all shadow-lg" 
+                  disabled={loading}
+                >
+                  {loading && <Loader2 className="h-5 w-5 animate-spin mr-2" />}
+                  {t("resetPasswordButton")}
+                </Button>
+              </form>
+              <div className="mt-6 pt-6 border-t border-border">
+                <Button 
+                  variant="ghost" 
+                  onClick={() => {
+                    setShowNewPasswordForm(false);
+                    setNewPassword("");
+                    setResetToken("");
+                  }}
+                  className="w-full hover:bg-muted transition-all font-semibold"
+                >
+                  ← {t("backToLogin")}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     );
