@@ -34,7 +34,7 @@ export const Shop = () => {
   const navigate = useNavigate();
   const { data: products, isLoading } = useProducts();
   const { items, addItem } = useCart();
-  const { language, t } = useTranslation();
+  const { language, t, formatPrice } = useTranslation();
   const [searchQuery, setSearchQuery] = useState("");
   const [coverageFilter, setCoverageFilter] = useState<CoverageType>("all");
   const [referEarnModalOpen, setReferEarnModalOpen] = useState(false);
@@ -224,7 +224,7 @@ export const Shop = () => {
 
                   <div className="pt-4 border-t border-white/10 text-center md:text-left">
                     <div className="text-3xl md:text-4xl font-semibold bg-gradient-to-r from-white via-neon-cyan to-white bg-clip-text text-transparent drop-shadow-[0_0_12px_rgba(6,182,212,0.4)]">
-                      ${product.price_usd.toFixed(2)}
+                      {formatPrice(product.price_usd)}
                     </div>
                     <p className="text-xs text-white/50 mt-2 font-light">{t('oneTimePayment')}</p>
                   </div>
