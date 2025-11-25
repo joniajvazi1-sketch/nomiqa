@@ -58,7 +58,7 @@ serve(async (req) => {
     const { data: authData } = await authResponse.json();
     const accessToken = authData.access_token;
 
-    // Submit async order with webhook URL and email
+    // Submit async order with webhook URL, email delivery, and branding
     const webhookUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/webhook-async-order`;
     
     const orderResponse = await fetch(`${baseUrl}/v2/orders-async`, {
@@ -72,9 +72,10 @@ serve(async (req) => {
         quantity: 1,
         type: 'sim',
         description: `Order for ${email}`,
-        email: email,
         webhook_url: webhookUrl,
-        brand_settings_name: 'nomiqa'
+        brand_settings_name: 'nomiqa',
+        to_email: email,
+        sharing_option: ['link']
       })
     });
 
