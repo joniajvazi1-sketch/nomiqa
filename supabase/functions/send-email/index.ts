@@ -239,7 +239,7 @@ const generateEmailHTML = (type: string, data: any): { html: string; subject: st
                   </div>
                   <p class="text-muted">If you didn't create this account, you can safely ignore this email.</p>
                   <div class="footer">
-                    <p class="footer-text">© 2024 Nomiqa</p>
+                    <p class="footer-text">© 2025 Nomiqa</p>
                     <p class="footer-subtext">Private. Borderless. Human.</p>
                   </div>
                 </div>
@@ -276,7 +276,7 @@ const generateEmailHTML = (type: string, data: any): { html: string; subject: st
                   </div>
                   <p class="text-muted">If you didn't request this password reset, please ignore this email and your password will remain unchanged.</p>
                   <div class="footer">
-                    <p class="footer-text">© 2024 Nomiqa</p>
+                    <p class="footer-text">© 2025 Nomiqa</p>
                     <p class="footer-subtext">Private. Borderless. Human.</p>
                   </div>
                 </div>
@@ -316,7 +316,7 @@ const generateEmailHTML = (type: string, data: any): { html: string; subject: st
                     <p>⏱️ Code expires in 15 minutes</p>
                   </div>
                   <div class="footer">
-                    <p class="footer-text">© 2024 Nomiqa</p>
+                    <p class="footer-text">© 2025 Nomiqa</p>
                     <p class="footer-subtext">Private. Borderless. Human.</p>
                   </div>
                 </div>
@@ -374,7 +374,7 @@ const generateEmailHTML = (type: string, data: any): { html: string; subject: st
                     <a href="https://nomiqa-esim.com/my-account" class="cta-button">View My eSIMs</a>
                   </div>
                   <div class="footer">
-                    <p class="footer-text">© 2024 Nomiqa</p>
+                    <p class="footer-text">© 2025 Nomiqa</p>
                     <p class="footer-subtext">Need help? Visit nomiqa-esim.com/help</p>
                   </div>
                 </div>
@@ -421,7 +421,7 @@ const generateEmailHTML = (type: string, data: any): { html: string; subject: st
                     <a href="https://nomiqa-esim.com/affiliate" class="cta-button">Visit Dashboard</a>
                   </div>
                   <div class="footer">
-                    <p class="footer-text">© 2024 Nomiqa</p>
+                    <p class="footer-text">© 2025 Nomiqa</p>
                     <p class="footer-subtext">Private. Borderless. Human.</p>
                   </div>
                 </div>
@@ -473,7 +473,7 @@ const generateEmailHTML = (type: string, data: any): { html: string; subject: st
                     Thank you for being a valued member of the Nomiqa community. Your journey continues!
                   </p>
                   <div class="footer">
-                    <p class="footer-text">© 2024 Nomiqa</p>
+                    <p class="footer-text">© 2025 Nomiqa</p>
                     <p class="footer-subtext">Private. Borderless. Human.</p>
                   </div>
                 </div>
