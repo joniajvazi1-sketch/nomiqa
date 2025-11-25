@@ -119,8 +119,6 @@ export default function Auth() {
           const code = Math.floor(100000 + Math.random() * 900000).toString();
           const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
 
-          console.log('Creating profile with verification code for user:', authData.user.id);
-
           const { error: profileError } = await supabase
             .from('profiles')
             .insert({
@@ -131,15 +129,10 @@ export default function Auth() {
               verification_code_expires_at: expiresAt,
             });
 
-          if (profileError) {
-            console.error('Profile creation error:', profileError);
-            throw profileError;
-          }
-
-          console.log('Profile created, sending verification email to:', email);
+          if (profileError) throw profileError;
 
           // Send verification email
-          const { error: emailError } = await supabase.functions.invoke('send-email', {
+          await supabase.functions.invoke('send-email', {
             body: {
               type: 'user_verification',
               to: email,
@@ -147,39 +140,35 @@ export default function Auth() {
             },
           });
 
-          if (emailError) {
-            console.error('Email send error:', emailError);
-          } else {
-            console.log('Verification email sent successfully');
-          }
-
-          // Sign out the user immediately - they must verify email first
+          // CRITICAL: Sign out immediately - no session until email verified
           await supabase.auth.signOut();
           
-          toast.success("Check your email for verification code!");
+          toast.success("Verification code sent! Check your email to activate your account.");
           setVerificationType('registration');
           setShowVerification(true);
-          console.log('Showing verification screen');
         }
       } else {
-        // Check if email is verified before allowing login
-        const { data: profile } = await supabase
+        // Get user's profile to check verification status
+        const { data: profiles } = await supabase
           .from('profiles')
-          .select('email_verified')
-          .eq('username', email.split('@')[0].toLowerCase())
-          .maybeSingle();
+          .select('email_verified, user_id')
+          .limit(1);
 
-        const { error, data } = await supabase.auth.signInWithPassword({
+        // Try to sign in
+        const { error, data: authData } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
 
         if (error) throw error;
 
-        // Verify email is confirmed
-        if (profile && !profile.email_verified) {
+        // Check if this user's email is verified
+        const userProfile = profiles?.find(p => p.user_id === authData.user?.id);
+        
+        if (!userProfile?.email_verified) {
+          // Immediately sign them out
           await supabase.auth.signOut();
-          toast.error("Please verify your email before logging in. Check your inbox for the verification code.");
+          toast.error("Email not verified. Please check your inbox for the verification code.");
           setLoading(false);
           return;
         }
