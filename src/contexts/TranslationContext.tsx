@@ -766,6 +766,10 @@ const translations: Record<string, Partial<Record<Language | 'HI', string>>> = {
   tierEliteExample: { EN: "You → Referral → Their Referral → Customer (You earn 9% + 6% + 3%)", ES: "Tú → Referencia → Su Referencia → Cliente (Ganas 9% + 6% + 3%)", FR: "Vous → Parrainage → Leur Parrainage → Client (Vous gagnez 9% + 6% + 3%)", DE: "Du → Empfehlung → Deren Empfehlung → Kunde (Du verdienst 9% + 6% + 3%)", RU: "Вы → Реферал → Их Реферал → Клиент (Вы зарабатываете 9% + 6% + 3%)", ZH: "您 → 推荐人 → 他们的推荐人 → 客户（您赚取9% + 6% + 3%）", JA: "あなた → 紹介 → その紹介 → 顧客（あなたが9% + 6% + 3%稼ぐ）", PT: "Você → Indicação → Indicação Deles → Cliente (Você ganha 9% + 6% + 3%)", AR: "أنت ← إحالة ← إحالتهم ← عميل (تربح 9% + 6% + 3%)", IT: "Tu → Referral → Il Loro Referral → Cliente (Guadagni 9% + 6% + 3%)" },
   trackPerformance: { EN: "Track your performance and earnings", ES: "Rastrea tu rendimiento y ganancias", FR: "Suivez vos performances et vos gains", DE: "Verfolge deine Leistung und Einnahmen", RU: "Отслеживайте свою производительность и доходы", ZH: "跟踪您的表现和收入", JA: "パフォーマンスと収益を追跡", PT: "Acompanhe seu desempenho e ganhos", AR: "تتبع أدائك وأرباحك", IT: "Monitora le tue prestazioni e i tuoi guadagni" },
   
+  // Orders Page
+  viewEsimDetails: { EN: "View eSIM Details", ES: "Ver detalles eSIM", FR: "Voir les détails eSIM", DE: "eSIM-Details anzeigen", RU: "Просмотр деталей eSIM", ZH: "查看 eSIM 详情", JA: "eSIM 詳細を表示", PT: "Ver detalhes do eSIM", AR: "عرض تفاصيل eSIM", IT: "Visualizza dettagli eSIM" },
+  accessCode: { EN: "Code", ES: "Código", FR: "Code", DE: "Code", RU: "Код", ZH: "代码", JA: "コード", PT: "Código", AR: "الكود", IT: "Codice" },
+  
   // Merge all terms translations
   ...termsTranslations,
 };
