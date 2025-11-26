@@ -139,6 +139,36 @@ export default function Orders() {
 
   useEffect(() => {
     fetchOrders();
+
+    // Set up real-time subscription for esim_usage updates
+    const channel = supabase
+      .channel('esim-usage-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'esim_usage'
+        },
+        (payload) => {
+          console.log('eSIM usage updated:', payload);
+          // Update local state with new usage data
+          const updatedUsage = payload.new as UsageData;
+          const orderId = (payload.new as any).order_id;
+          if (orderId) {
+            setUsageData(prev => ({
+              ...prev,
+              [orderId]: updatedUsage
+            }));
+            toast.success("eSIM status updated!");
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const refreshUsage = async (orderId: string, iccid: string) => {
@@ -297,7 +327,14 @@ export default function Orders() {
                           <div className="grid grid-cols-2 gap-2 text-sm">
                             <div>
                               <p className="text-muted-foreground">Status</p>
-                              <p className="font-medium">{usage.status}</p>
+                              <Badge 
+                                variant={usage.status === 'ACTIVE' ? 'default' : 'secondary'}
+                                className={usage.status === 'ACTIVE' ? 'bg-green-600' : ''}
+                              >
+                                {usage.status === 'NOT_ACTIVE' ? 'Not Activated' : 
+                                 usage.status === 'ACTIVE' ? 'Active' : 
+                                 usage.status}
+                              </Badge>
                             </div>
                             {usage.expired_at && (
                               <div>
@@ -306,6 +343,14 @@ export default function Orders() {
                               </div>
                             )}
                           </div>
+                          
+                          {usage.status !== 'ACTIVE' && (
+                            <div className="mt-3 p-3 bg-muted/50 rounded-lg">
+                              <p className="text-xs text-muted-foreground">
+                                💡 After installing and activating your eSIM, click the refresh button above to update the status.
+                              </p>
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
