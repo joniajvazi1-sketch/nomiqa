@@ -150,12 +150,6 @@ export default function Auth() {
           setShowVerification(true);
         }
       } else {
-        // Get user's profile to check verification status
-        const { data: profiles } = await supabase
-          .from('profiles')
-          .select('email_verified, user_id')
-          .limit(1);
-
         // Try to sign in
         const { error, data: authData } = await supabase.auth.signInWithPassword({
           email,
@@ -164,20 +158,26 @@ export default function Auth() {
 
         if (error) throw error;
 
-        // Check if this user's email is verified (only for NEW accounts)
-        const userProfile = profiles?.find(p => p.user_id === authData.user?.id);
-        
         // Only enforce email verification for accounts created after 2025-11-25
         const accountCreatedAt = new Date(authData.user.created_at);
         const verificationCutoffDate = new Date('2025-11-25T00:00:00Z');
         const requiresVerification = accountCreatedAt >= verificationCutoffDate;
         
-        if (requiresVerification && !userProfile?.email_verified) {
-          // Immediately sign them out
-          await supabase.auth.signOut();
-          toast.error("Email not verified. Please check your inbox for the verification code.");
-          setLoading(false);
-          return;
+        if (requiresVerification) {
+          // Get THIS user's profile to check verification status
+          const { data: userProfile } = await supabase
+            .from('profiles')
+            .select('email_verified')
+            .eq('user_id', authData.user.id)
+            .single();
+          
+          if (!userProfile?.email_verified) {
+            // Immediately sign them out
+            await supabase.auth.signOut();
+            toast.error("Email not verified. Please check your inbox for the verification code.");
+            setLoading(false);
+            return;
+          }
         }
 
         toast.success("Successfully logged in!");
