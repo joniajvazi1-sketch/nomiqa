@@ -38,6 +38,7 @@ export default function Auth() {
   const [newPassword, setNewPassword] = useState("");
   const [showNewPasswordForm, setShowNewPasswordForm] = useState(false);
   const [resetToken, setResetToken] = useState("");
+  const [showResendVerification, setShowResendVerification] = useState(false);
 
   useEffect(() => {
     // Check if user is already logged in
@@ -175,6 +176,7 @@ export default function Auth() {
             // Immediately sign them out
             await supabase.auth.signOut();
             toast.error("Email not verified. Please check your inbox for the verification code.");
+            setShowResendVerification(true);
             setLoading(false);
             return;
           }
@@ -210,6 +212,29 @@ export default function Auth() {
         setResetToken(token);
       }
       toast.info("Enter your new password");
+    }
+  };
+
+  const handleResendVerification = async () => {
+    setLoading(true);
+    try {
+      const { error } = await supabase.functions.invoke('resend-verification-code', {
+        body: {
+          email,
+          type: 'registration',
+        },
+      });
+
+      if (error) throw error;
+
+      toast.success("Verification code resent! Check your email.");
+      setVerificationType('registration');
+      setShowVerification(true);
+      setShowResendVerification(false);
+    } catch (error: any) {
+      toast.error(error.message || "Failed to resend verification code");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -437,6 +462,22 @@ export default function Auth() {
                 >
                   {t("forgotPassword")}
                 </button>
+              </div>
+            )}
+
+            {showResendVerification && !isForgotPassword && !isSignUp && (
+              <div className="mt-4 p-4 bg-muted/50 rounded-lg border border-border">
+                <p className="text-sm text-muted-foreground mb-3 text-center">
+                  Your email is not verified. Need a new code?
+                </p>
+                <Button 
+                  onClick={handleResendVerification}
+                  disabled={loading}
+                  className="w-full bg-primary/90 hover:bg-primary"
+                >
+                  {loading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                  Resend Verification Code
+                </Button>
               </div>
             )}
 
