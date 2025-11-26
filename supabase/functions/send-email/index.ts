@@ -454,12 +454,27 @@ const generateEmailHTML = (type: string, data: any): { html: string; subject: st
                       <span class="total-value">$${data.price}</span>
                     </div>
                   </div>
-                  <div class="success-box">
-                    <p class="title">✨ Next Steps</p>
-                    <p class="text">Check your account to view activation instructions and QR code</p>
-                  </div>
-                  <div style="text-align: center;">
-                    <a href="https://nomiqa-esim.com/my-account" class="cta-button">View My eSIMs</a>
+                  ${data.sharingLink ? `
+                    <div class="success-box">
+                      <p class="title">🔗 Access Your eSIM</p>
+                      <p class="text" style="margin-bottom: 16px;">Click below to view your eSIM details and QR code:</p>
+                      <div style="text-align: center; margin-top: 20px;">
+                        <a href="${data.sharingLink}" class="cta-button" style="display: inline-block;">View eSIM Details</a>
+                      </div>
+                      ${data.accessCode ? `
+                        <p class="text" style="margin-top: 20px; font-size: 13px;">
+                          <strong>Access Code:</strong> <span style="font-family: 'SF Mono', monospace; background: rgba(139, 92, 246, 0.2); padding: 4px 12px; border-radius: 8px; font-weight: 700;">${data.accessCode}</span>
+                        </p>
+                      ` : ''}
+                    </div>
+                  ` : `
+                    <div class="success-box">
+                      <p class="title">✨ Next Steps</p>
+                      <p class="text">Check your account to view activation instructions and QR code</p>
+                    </div>
+                  `}
+                  <div style="text-align: center; margin-top: 32px;">
+                    <a href="https://nomiqa-esim.com/my-account" class="cta-button">View My Account</a>
                   </div>
                   <div class="footer">
                     <p class="footer-text">© 2025 Nomiqa</p>
