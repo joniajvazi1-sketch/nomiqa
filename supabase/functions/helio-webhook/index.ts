@@ -392,10 +392,8 @@ serve(async (req) => {
         throw new Error('Product not found or missing Airalo package ID');
       }
 
-      // Submit async order to Airalo with webhook URL
-      const webhookUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/webhook-async-order`;
-      
-      const orderResponse = await fetch(`${baseUrl}/v2/orders-async`, {
+      // Submit sync order to Airalo with brand settings
+      const orderResponse = await fetch(`${baseUrl}/v2/orders`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -406,7 +404,8 @@ serve(async (req) => {
           quantity: 1,
           type: 'sim',
           description: `Order ${order.id} for ${order.email}`,
-          webhook_url: webhookUrl
+          brand_settings_name: 'nomiqa',
+          to_email: order.email
         })
       });
 
@@ -417,17 +416,106 @@ serve(async (req) => {
 
       const { data: orderData } = await orderResponse.json();
       
-      console.log('Airalo order submitted:', orderData.request_id);
+      console.log('Airalo order submitted:', orderData.id);
 
-      // Update order with Airalo request ID
+      // Extract eSIM details from sync response
+      const sim = orderData.sims?.[0];
+      if (!sim) {
+        throw new Error('No eSIM data in Airalo response');
+      }
+
+      // Update order with complete eSIM details and branded sharing info
       await supabase
         .from('orders')
         .update({
-          airlo_request_id: orderData.request_id,
+          status: 'completed',
+          airlo_order_id: orderData.id?.toString(),
+          iccid: sim.iccid,
+          lpa: sim.lpa,
+          matching_id: sim.matching_id,
+          qrcode: sim.qrcode,
+          qr_code_url: sim.qrcode_url,
+          activation_code: sim.matching_id,
+          manual_installation: orderData.manual_installation,
+          qrcode_installation: orderData.qrcode_installation,
+          sharing_link: orderData.sharing_link,
+          sharing_access_code: orderData.sharing_access_code,
+          updated_at: new Date().toISOString()
         })
         .eq('id', order.id);
 
-      console.log('eSIM provisioning initiated successfully');
+      console.log('eSIM provisioned successfully with branded portal');
+
+      // Create eSIM usage record
+      await supabase.from('esim_usage').insert({
+        order_id: order.id,
+        iccid: sim.iccid,
+        total_mb: parseInt(order.data_amount) * 1024 || 0,
+        remaining_mb: parseInt(order.data_amount) * 1024 || 0,
+        status: 'NOT_ACTIVE'
+      });
+
+      // Update user spending for membership tier tracking
+      if (order.user_id) {
+        const { data: currentSpending } = await supabase
+          .from('user_spending')
+          .select('total_spent_usd')
+          .eq('user_id', order.user_id)
+          .maybeSingle();
+
+        if (currentSpending) {
+          await supabase
+            .from('user_spending')
+            .update({
+              total_spent_usd: currentSpending.total_spent_usd + order.total_amount_usd,
+              updated_at: new Date().toISOString()
+            })
+            .eq('user_id', order.user_id);
+        } else {
+          await supabase
+            .from('user_spending')
+            .insert({
+              user_id: order.user_id,
+              total_spent_usd: order.total_amount_usd
+            });
+        }
+      }
+
+      // Send order confirmation email with eSIM Cloud portal link
+      try {
+        console.log('Sending order confirmation email to:', order.email);
+        
+        const { data: product } = await supabase
+          .from('products')
+          .select('country_name')
+          .eq('id', order.product_id)
+          .single();
+
+        const emailResponse = await supabase.functions.invoke('send-email', {
+          body: {
+            type: 'order_confirmation',
+            to: order.email,
+            data: {
+              country: product?.country_name || 'Unknown',
+              dataAmount: order.data_amount,
+              validity: order.validity_days,
+              price: order.total_amount_usd.toFixed(2),
+              sharingLink: orderData.sharing_link,
+              accessCode: orderData.sharing_access_code
+            }
+          }
+        });
+
+        if (emailResponse.error) {
+          console.error('Failed to send order confirmation email:', emailResponse.error);
+        } else {
+          console.log('Order confirmation email sent successfully');
+        }
+      } catch (emailError) {
+        console.error('Error sending order confirmation email:', emailError);
+      }
+
+      console.log('Order processing completed successfully');
     } catch (airloError) {
       console.error('Error provisioning eSIM from Airalo:', airloError);
       // Don't fail the webhook, just log the error
