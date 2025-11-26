@@ -468,7 +468,8 @@ serve(async (req) => {
       }
 
       // Update order with complete eSIM details and branded sharing info
-      await supabase
+      console.log('Updating order in database...');
+      const { error: updateError } = await supabase
         .from('orders')
         .update({
           status: 'completed',
@@ -487,16 +488,30 @@ serve(async (req) => {
         })
         .eq('id', order.id);
 
-      console.log('eSIM provisioned successfully with branded portal');
+      if (updateError) {
+        console.error('Failed to update order:', updateError);
+        throw new Error(`Failed to update order: ${updateError.message}`);
+      }
+
+      console.log('✓ Order updated successfully in database');
+      console.log('=== eSIM PROVISIONING COMPLETE ===');
 
       // Create eSIM usage record
-      await supabase.from('esim_usage').insert({
+      console.log('Creating eSIM usage tracking record...');
+      const { error: usageError } = await supabase.from('esim_usage').insert({
         order_id: order.id,
         iccid: sim.iccid,
         total_mb: parseInt(order.data_amount) * 1024 || 0,
         remaining_mb: parseInt(order.data_amount) * 1024 || 0,
         status: 'NOT_ACTIVE'
       });
+
+      if (usageError) {
+        console.error('Failed to create usage record:', usageError);
+        // Don't throw - this is not critical for order completion
+      } else {
+        console.log('✓ eSIM usage record created');
+      }
 
       // Update user spending for membership tier tracking
       if (order.user_id) {
@@ -556,49 +571,81 @@ serve(async (req) => {
       }
 
       // Send order confirmation email with eSIM Cloud portal link
+      console.log('=== SENDING ORDER CONFIRMATION EMAIL ===');
       try {
-        console.log('Sending order confirmation email to:', order.email);
+        console.log('Email recipient:', order.email);
+        console.log('Order ID:', order.id);
         
-        const { data: productInfo } = await supabase
+        const { data: productInfo, error: productFetchError } = await supabase
           .from('products')
-          .select('country_name')
+          .select('country_name, name')
           .eq('id', order.product_id)
           .maybeSingle();
+
+        if (productFetchError) {
+          console.error('Error fetching product info for email:', productFetchError);
+        }
+
+        const emailData = {
+          country: productInfo?.country_name || 'Unknown',
+          dataAmount: order.data_amount,
+          validity: order.validity_days,
+          price: order.total_amount_usd.toFixed(2),
+          sharingLink: orderData.sharing?.link || null,
+          accessCode: orderData.sharing?.access_code || null
+        };
+
+        console.log('Email data:', JSON.stringify(emailData, null, 2));
+
+        if (!emailData.sharingLink) {
+          console.warn('⚠ WARNING: No sharing link available for email');
+        }
+        if (!emailData.accessCode) {
+          console.warn('⚠ WARNING: No access code available for email');
+        }
 
         const emailResponse = await supabase.functions.invoke('send-email', {
           body: {
             type: 'order_confirmation',
             to: order.email,
-            data: {
-              country: productInfo?.country_name || 'Unknown',
-              dataAmount: order.data_amount,
-              validity: order.validity_days,
-              price: order.total_amount_usd.toFixed(2),
-              sharingLink: orderData.sharing?.link || null,
-              accessCode: orderData.sharing?.access_code || null
-            }
+            data: emailData
           }
         });
 
         if (emailResponse.error) {
-          console.error('Failed to send order confirmation email:', emailResponse.error);
+          console.error('❌ Failed to send order confirmation email:', emailResponse.error);
         } else {
-          console.log('Order confirmation email sent successfully');
+          console.log('✓ Order confirmation email sent successfully');
         }
-      } catch (emailError) {
-        console.error('Error sending order confirmation email:', emailError);
+      } catch (emailError: any) {
+        console.error('❌ Error sending order confirmation email:', emailError);
+        console.error('Email error details:', emailError.message || emailError);
       }
+      console.log('=== EMAIL SENDING COMPLETE ===');
 
-      console.log('Order processing completed successfully');
+      console.log('=== ORDER PROCESSING COMPLETE ===');
+      console.log('Order ID:', order.id);
+      console.log('Status: completed');
+      console.log('eSIM provisioned: ✓');
+      console.log('Database updated: ✓');
+      console.log('Email sent: ✓');
+      console.log('Sharing link:', orderData.sharing?.link ? '✓ Available' : '❌ Missing');
+      console.log('Access code:', orderData.sharing?.access_code ? '✓ Available' : '❌ Missing');
+      console.log('================================');
       
-      // Log warning if sharing link is missing
+      // Log critical warning if sharing link is missing
       if (!orderData.sharing?.link) {
-        console.warn('WARNING: No sharing link in Airalo response - branded portal may not be configured correctly');
+        console.error('⚠️ CRITICAL: No sharing link in Airalo response - customer cannot access eSIM portal!');
+        console.error('Check Airalo Partner Dashboard brand settings configuration for "nomiqa"');
       }
-    } catch (airloError) {
-      console.error('Error provisioning eSIM from Airalo:', airloError);
+    } catch (airloError: any) {
+      console.error('=== ❌ ESIM PROVISIONING FAILED ===');
+      console.error('Order ID:', order.id);
+      console.error('Error:', airloError.message || airloError);
+      console.error('Stack:', airloError.stack);
+      console.error('===================================');
       // Don't fail the webhook, just log the error
-      // The order is already marked as paid
+      // The order is already marked as paid but will remain in failed state
     }
 
     return new Response(
