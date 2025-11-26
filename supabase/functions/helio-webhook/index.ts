@@ -407,7 +407,7 @@ serve(async (req) => {
           description: `Order ${order.id} for ${order.email}`,
           brand_settings_name: 'nomiqa',
           to_email: order.email,
-          sharing_option: 'email_and_sms'
+          sharing_option: ['email_and_sms']
         })
       });
 
