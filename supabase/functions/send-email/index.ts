@@ -9,7 +9,7 @@ const corsHeaders = {
 };
 
 interface EmailRequest {
-  type: 'user_verification' | 'password_reset' | 'affiliate_verification' | 'order_confirmation' | 'affiliate_welcome' | 'tier_upgrade';
+  type: 'user_verification' | 'password_reset' | 'affiliate_verification' | 'order_confirmation' | 'affiliate_welcome' | 'tier_upgrade' | 'affiliate_tier_upgrade';
   to: string;
   language?: string;
   data: Record<string, any>;
@@ -541,9 +541,16 @@ const generateEmailHTML = (type: string, data: any): { html: string; subject: st
         adventurer: "🥇",
         explorer: "💎",
       };
-      const tierName = data.tier.charAt(0).toUpperCase() + data.tier.slice(1);
+      const tierCashback: Record<string, number> = {
+        beginner: 5,
+        traveler: 6,
+        adventurer: 7,
+        explorer: 10,
+      };
+      const newTierName = data.newTier.charAt(0).toUpperCase() + data.newTier.slice(1);
+      const newCashback = tierCashback[data.newTier.toLowerCase()] || 5;
       return {
-        subject: `🎉 You've Unlocked ${tierName}!`,
+        subject: `🎉 You've Unlocked ${newTierName} Membership!`,
         html: `
           <!DOCTYPE html>
           <html>
@@ -559,21 +566,93 @@ const generateEmailHTML = (type: string, data: any): { html: string; subject: st
                     <img src="${logoSrc}" alt="Nomiqa" />
                   </div>
                   <div style="text-align: center; margin-bottom: 40px;">
-                    <div style="font-size: 88px; margin-bottom: 24px;">${tierEmojis[data.tier.toLowerCase()] || "✨"}</div>
+                    <div style="font-size: 88px; margin-bottom: 24px;">${tierEmojis[data.newTier.toLowerCase()] || "✨"}</div>
                     <h1 style="background: linear-gradient(135deg, #fbbf24 0%, #f97316 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Congratulations!</h1>
-                    <p class="subtitle" style="font-size: 19px; font-weight: 600; color: #e2e8f0;">${data.username}</p>
+                    <p class="subtitle" style="font-size: 19px; font-weight: 600; color: #e2e8f0;">You've reached ${newTierName}</p>
                   </div>
                   <div style="background: rgba(139, 92, 246, 0.08); border: 3px solid rgba(139, 92, 246, 0.3); border-radius: 24px; padding: 40px 32px; margin: 32px 0; text-align: center; box-shadow: 0 0 50px rgba(139, 92, 246, 0.25);">
                     <p style="color: #cbd5e1; font-size: 16px; margin-bottom: 16px; font-weight: 600; letter-spacing: 0.5px;">YOU'VE UNLOCKED</p>
-                    <p style="color: #06b6d4; font-size: 44px; font-weight: 900; text-shadow: 0 0 40px rgba(6, 182, 212, 0.5); letter-spacing: -0.5px;">${tierName}</p>
+                    <p style="color: #06b6d4; font-size: 44px; font-weight: 900; text-shadow: 0 0 40px rgba(6, 182, 212, 0.5); letter-spacing: -0.5px;">${newTierName} Tier</p>
                   </div>
                   <div style="background: rgba(16, 185, 129, 0.08); border: 2px solid rgba(16, 185, 129, 0.25); border-radius: 20px; padding: 40px 32px; margin: 32px 0; text-align: center;">
                     <p style="color: #a7f3d0; font-size: 15px; margin-bottom: 12px; font-weight: 600;">NEW CASHBACK RATE</p>
-                    <p style="color: #6ee7b7; font-size: 64px; font-weight: 900; line-height: 1;">${data.cashbackRate}%</p>
+                    <p style="color: #6ee7b7; font-size: 64px; font-weight: 900; line-height: 1;">${newCashback}%</p>
                     <p style="color: #d1fae5; font-size: 16px; margin-top: 16px; font-weight: 600;">on all eSIM purchases!</p>
+                  </div>
+                  <div style="background: rgba(6, 182, 212, 0.08); border: 2px solid rgba(6, 182, 212, 0.25); border-radius: 20px; padding: 32px; margin: 32px 0; text-align: center;">
+                    <p style="color: #67e8f9; font-size: 14px; margin-bottom: 8px; font-weight: 600;">TOTAL SPENT</p>
+                    <p style="color: #06b6d4; font-size: 32px; font-weight: 900; line-height: 1;">$${data.totalSpent}</p>
                   </div>
                   <p class="subtitle" style="font-size: 17px; line-height: 30px; text-align: center; margin: 32px 0;">
                     Thank you for being a valued member of the Nomiqa community. Your journey continues!
+                  </p>
+                  <div class="footer">
+                    <p class="footer-text">© 2025 Nomiqa</p>
+                    <p class="footer-subtext">Private. Borderless. Human.</p>
+                  </div>
+                </div>
+              </div>
+            </body>
+          </html>
+        `,
+      };
+
+    case 'affiliate_tier_upgrade':
+      const affiliateTierNames: Record<number, string> = {
+        1: "Starter",
+        2: "Pro",
+        3: "Elite",
+      };
+      const affiliateTierEmojis: Record<number, string> = {
+        1: "🌟",
+        2: "💫",
+        3: "👑",
+      };
+      const affiliateNewTierName = affiliateTierNames[data.newTier] || `Tier ${data.newTier}`;
+      const benefits: Record<number, string[]> = {
+        2: ["Earn 9% on direct sales", "NEW: Earn 6% on 2nd level referrals"],
+        3: ["Earn 9% on direct sales", "Earn 6% on 2nd level referrals", "NEW: Earn 3% on 3rd level referrals"],
+      };
+      return {
+        subject: `🎉 Affiliate Tier Upgraded to ${affiliateNewTierName}!`,
+        html: `
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <meta charset="utf-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              ${baseStyle}
+            </head>
+            <body>
+              <div class="email-wrapper">
+                <div class="container">
+                  <div class="logo-section">
+                    <img src="${logoSrc}" alt="Nomiqa" />
+                  </div>
+                  <div style="text-align: center; margin-bottom: 40px;">
+                    <div style="font-size: 88px; margin-bottom: 24px;">${affiliateTierEmojis[data.newTier] || "✨"}</div>
+                    <h1 style="background: linear-gradient(135deg, #8b5cf6 0%, #06b6d4 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Affiliate Tier Upgraded!</h1>
+                    <p class="subtitle" style="font-size: 19px; font-weight: 600; color: #e2e8f0;">You've reached ${affiliateNewTierName}</p>
+                  </div>
+                  <div style="background: rgba(139, 92, 246, 0.08); border: 3px solid rgba(139, 92, 246, 0.3); border-radius: 24px; padding: 40px 32px; margin: 32px 0; text-align: center; box-shadow: 0 0 50px rgba(139, 92, 246, 0.25);">
+                    <p style="color: #cbd5e1; font-size: 16px; margin-bottom: 16px; font-weight: 600; letter-spacing: 0.5px;">NEW AFFILIATE TIER</p>
+                    <p style="color: #8b5cf6; font-size: 44px; font-weight: 900; text-shadow: 0 0 40px rgba(139, 92, 246, 0.5); letter-spacing: -0.5px;">${affiliateNewTierName}</p>
+                  </div>
+                  <div style="background: rgba(16, 185, 129, 0.08); border: 2px solid rgba(16, 185, 129, 0.25); border-radius: 20px; padding: 40px 32px; margin: 32px 0;">
+                    <p style="color: #a7f3d0; font-size: 15px; margin-bottom: 20px; font-weight: 600; text-align: center;">YOUR NEW COMMISSION STRUCTURE</p>
+                    ${(benefits[data.newTier] || []).map((benefit: string) => `
+                      <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                        <span style="color: #10b981; margin-right: 12px; font-size: 20px;">✓</span>
+                        <span style="color: #d1fae5; font-size: 16px;">${benefit}</span>
+                      </div>
+                    `).join('')}
+                  </div>
+                  <div style="background: rgba(6, 182, 212, 0.08); border: 2px solid rgba(6, 182, 212, 0.25); border-radius: 20px; padding: 32px; margin: 32px 0; text-align: center;">
+                    <p style="color: #67e8f9; font-size: 14px; margin-bottom: 8px; font-weight: 600;">TOTAL CONVERSIONS</p>
+                    <p style="color: #06b6d4; font-size: 48px; font-weight: 900; line-height: 1;">${data.totalConversions}</p>
+                  </div>
+                  <p class="subtitle" style="font-size: 17px; line-height: 30px; text-align: center; margin: 32px 0;">
+                    Keep sharing Nomiqa and watch your earnings grow with our multi-tier commission system!
                   </p>
                   <div class="footer">
                     <p class="footer-text">© 2025 Nomiqa</p>
