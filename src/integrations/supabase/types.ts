@@ -214,6 +214,8 @@ export type Database = {
           qrcode: string | null
           qrcode_installation: string | null
           referral_code: string | null
+          sharing_access_code: string | null
+          sharing_link: string | null
           status: string
           total_amount_usd: number
           updated_at: string
@@ -242,6 +244,8 @@ export type Database = {
           qrcode?: string | null
           qrcode_installation?: string | null
           referral_code?: string | null
+          sharing_access_code?: string | null
+          sharing_link?: string | null
           status?: string
           total_amount_usd: number
           updated_at?: string
@@ -270,6 +274,8 @@ export type Database = {
           qrcode?: string | null
           qrcode_installation?: string | null
           referral_code?: string | null
+          sharing_access_code?: string | null
+          sharing_link?: string | null
           status?: string
           total_amount_usd?: number
           updated_at?: string
