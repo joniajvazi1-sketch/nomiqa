@@ -249,17 +249,54 @@ serve(async (req) => {
               });
           }
 
-          // Update affiliate stats
-          await supabase
-            .from('affiliates')
-            .update({
-              total_conversions: (affiliate.total_conversions || 0) + 1,
-              total_earnings_usd: (affiliate.total_earnings_usd || 0) + level1Commission,
-              updated_at: new Date().toISOString()
-            })
-            .eq('id', affiliate.id);
+            // Update affiliate stats
+            const { data: currentAffiliate } = await supabase
+              .from('affiliates')
+              .select('total_conversions, total_earnings_usd, tier_level, email')
+              .eq('id', affiliate.id)
+              .single();
 
-          console.log(`Level 1 commission: $${level1Commission.toFixed(2)}`);
+            const oldTierLevel = currentAffiliate?.tier_level || 1;
+            const newTotalConversions = (currentAffiliate?.total_conversions || 0) + 1;
+
+            await supabase
+              .from('affiliates')
+              .update({
+                total_conversions: newTotalConversions,
+                total_earnings_usd: (currentAffiliate?.total_earnings_usd || 0) + level1Commission,
+                updated_at: new Date().toISOString()
+              })
+              .eq('id', affiliate.id);
+
+            // Check if affiliate tier upgraded and send celebration email
+            const { data: updatedAffiliate } = await supabase
+              .from('affiliates')
+              .select('tier_level, email')
+              .eq('id', affiliate.id)
+              .single();
+
+            if (updatedAffiliate && updatedAffiliate.tier_level > oldTierLevel) {
+              console.log(`Affiliate tier upgraded: ${oldTierLevel} -> ${updatedAffiliate.tier_level}`);
+              
+              try {
+                await supabase.functions.invoke('send-email', {
+                  body: {
+                    type: 'affiliate_tier_upgrade',
+                    to: updatedAffiliate.email,
+                    data: {
+                      oldTier: oldTierLevel,
+                      newTier: updatedAffiliate.tier_level,
+                      totalConversions: newTotalConversions
+                    }
+                  }
+                });
+                console.log('Affiliate tier upgrade celebration email sent');
+              } catch (emailError) {
+                console.error('Failed to send affiliate tier upgrade email:', emailError);
+              }
+            }
+
+            console.log(`Level 1 commission: $${level1Commission.toFixed(2)}`);
 
           // Process level 2 commission if there's a parent AND they've unlocked tier 2
           if (affiliate.parent_affiliate_id) {
@@ -464,15 +501,18 @@ serve(async (req) => {
       if (order.user_id) {
         const { data: currentSpending } = await supabase
           .from('user_spending')
-          .select('total_spent_usd')
+          .select('total_spent_usd, membership_tier')
           .eq('user_id', order.user_id)
           .maybeSingle();
+
+        const oldTier = currentSpending?.membership_tier;
+        const newTotalSpent = (currentSpending?.total_spent_usd || 0) + order.total_amount_usd;
 
         if (currentSpending) {
           await supabase
             .from('user_spending')
             .update({
-              total_spent_usd: currentSpending.total_spent_usd + order.total_amount_usd,
+              total_spent_usd: newTotalSpent,
               updated_at: new Date().toISOString()
             })
             .eq('user_id', order.user_id);
@@ -483,6 +523,34 @@ serve(async (req) => {
               user_id: order.user_id,
               total_spent_usd: order.total_amount_usd
             });
+        }
+
+        // Check if tier upgraded and send celebration email
+        const { data: updatedSpending } = await supabase
+          .from('user_spending')
+          .select('membership_tier')
+          .eq('user_id', order.user_id)
+          .single();
+
+        if (updatedSpending && oldTier && updatedSpending.membership_tier !== oldTier) {
+          console.log(`Membership tier upgraded: ${oldTier} -> ${updatedSpending.membership_tier}`);
+          
+          try {
+            await supabase.functions.invoke('send-email', {
+              body: {
+                type: 'tier_upgrade',
+                to: order.email,
+                data: {
+                  oldTier,
+                  newTier: updatedSpending.membership_tier,
+                  totalSpent: newTotalSpent.toFixed(2)
+                }
+              }
+            });
+            console.log('Tier upgrade celebration email sent');
+          } catch (emailError) {
+            console.error('Failed to send tier upgrade email:', emailError);
+          }
         }
       }
 
