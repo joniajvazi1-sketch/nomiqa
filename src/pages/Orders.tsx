@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, Download, QrCode, RefreshCw } from "lucide-react";
+import { ArrowLeft, Download, QrCode, RefreshCw, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -15,6 +15,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import QRCode from "react-qr-code";
+import { useTranslation } from "@/contexts/TranslationContext";
 
 interface UsageData {
   remaining_mb: number;
@@ -39,10 +40,13 @@ interface Order {
   lpa: string | null;
   manual_installation: string | null;
   qrcode_installation: string | null;
+  sharing_link: string | null;
+  sharing_access_code: string | null;
 }
 
 export default function Orders() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
@@ -308,6 +312,24 @@ export default function Orders() {
 
                     {(order.status === 'completed' || order.status === 'paid') && order.qrcode && (
                       <div className="flex flex-col gap-2 md:justify-end items-stretch md:items-start">
+                        {/* Branded eSIM Cloud Portal - Primary action */}
+                        {order.sharing_link && (
+                          <Button
+                            variant="default"
+                            size="lg"
+                            className="w-full md:w-auto bg-gradient-to-r from-neon-cyan to-neon-violet hover:from-neon-cyan/90 hover:to-neon-violet/90 shadow-lg shadow-neon-cyan/20"
+                            onClick={() => window.open(order.sharing_link!, '_blank')}
+                          >
+                            <ExternalLink className="mr-2 h-4 w-4" />
+                            {t('viewEsimDetails')}
+                            {order.sharing_access_code && (
+                              <Badge variant="secondary" className="ml-2">
+                                {t('accessCode')}: {order.sharing_access_code}
+                              </Badge>
+                            )}
+                          </Button>
+                        )}
+                        
                         {/* iOS Direct Install - Show on all devices but emphasize for iOS */}
                         {order.lpa && (
                           <Button
