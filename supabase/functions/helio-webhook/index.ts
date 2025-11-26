@@ -386,13 +386,14 @@ serve(async (req) => {
         .from('products')
         .select('airlo_package_id')
         .eq('id', order.product_id)
-        .single();
+        .maybeSingle();
 
       if (!product || !product.airlo_package_id) {
         throw new Error('Product not found or missing Airalo package ID');
       }
 
       // Submit sync order to Airalo with brand settings
+      console.log('Submitting order with brand settings: nomiqa');
       const orderResponse = await fetch(`${baseUrl}/v2/orders`, {
         method: 'POST',
         headers: {
@@ -405,18 +406,22 @@ serve(async (req) => {
           type: 'sim',
           description: `Order ${order.id} for ${order.email}`,
           brand_settings_name: 'nomiqa',
-          to_email: order.email
+          to_email: order.email,
+          sharing_option: 'email_and_sms'
         })
       });
 
       if (!orderResponse.ok) {
-        const errorData = await orderResponse.json();
-        throw new Error(`Airalo order failed: ${JSON.stringify(errorData)}`);
+        const errorText = await orderResponse.text();
+        console.error('Airalo order failed:', errorText);
+        throw new Error(`Airalo order failed: ${errorText}`);
       }
 
       const { data: orderData } = await orderResponse.json();
       
-      console.log('Airalo order submitted:', orderData.id);
+      console.log('Airalo response:', JSON.stringify(orderData, null, 2));
+      console.log('Sharing link:', orderData.sharing_link);
+      console.log('Access code:', orderData.sharing_access_code);
 
       // Extract eSIM details from sync response
       const sim = orderData.sims?.[0];
@@ -485,23 +490,23 @@ serve(async (req) => {
       try {
         console.log('Sending order confirmation email to:', order.email);
         
-        const { data: product } = await supabase
+        const { data: productInfo } = await supabase
           .from('products')
           .select('country_name')
           .eq('id', order.product_id)
-          .single();
+          .maybeSingle();
 
         const emailResponse = await supabase.functions.invoke('send-email', {
           body: {
             type: 'order_confirmation',
             to: order.email,
             data: {
-              country: product?.country_name || 'Unknown',
+              country: productInfo?.country_name || 'Unknown',
               dataAmount: order.data_amount,
               validity: order.validity_days,
               price: order.total_amount_usd.toFixed(2),
-              sharingLink: orderData.sharing_link,
-              accessCode: orderData.sharing_access_code
+              sharingLink: orderData.sharing_link || null,
+              accessCode: orderData.sharing_access_code || null
             }
           }
         });
@@ -516,6 +521,11 @@ serve(async (req) => {
       }
 
       console.log('Order processing completed successfully');
+      
+      // Log warning if sharing link is missing
+      if (!orderData.sharing_link) {
+        console.warn('WARNING: No sharing_link in Airalo response - branded portal may not be configured correctly');
+      }
     } catch (airloError) {
       console.error('Error provisioning eSIM from Airalo:', airloError);
       // Don't fail the webhook, just log the error
