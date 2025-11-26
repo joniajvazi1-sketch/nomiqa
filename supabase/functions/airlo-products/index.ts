@@ -21,12 +21,22 @@ interface AirloCountry {
   slug: string;
   country_code: string;
   title: string;
+  image?: {
+    url: string;
+    width: number;
+    height: number;
+  };
   operators: AirloOperator[];
 }
 
 interface AirloOperator {
   id: number;
   title: string;
+  image?: {
+    url: string;
+    width: number;
+    height: number;
+  };
   packages: AirloPackage[];
 }
 
@@ -214,17 +224,21 @@ for (const env of envs) {
       throw lastError || new Error('Failed to fetch packages from all environments');
     }
 
-    // Extract packages from nested operators structure
+    // Extract packages from nested operators structure with operator info
     const allPackages: any[] = [];
     
     for (const country of packages) {
       const countryCode = country.country_code;
       const countryName = country.title;
+      const countryImageUrl = country.image?.url || null;
       
       if (!country.operators || !Array.isArray(country.operators)) continue;
       
       for (const operator of country.operators) {
         if (!operator.packages || !Array.isArray(operator.packages)) continue;
+        
+        const operatorName = operator.title || null;
+        const operatorImageUrl = operator.image?.url || null;
         
         for (const pkg of operator.packages) {
           allPackages.push({
@@ -232,6 +246,9 @@ for (const env of envs) {
             name: pkg.title || pkg.data,
             country_code: countryCode,
             country_name: countryName,
+            country_image_url: countryImageUrl,
+            operator_name: operatorName,
+            operator_image_url: operatorImageUrl,
             data_amount: pkg.data || `${pkg.amount}MB`,
             validity_days: pkg.day,
             price_usd: pkg.price,
@@ -242,7 +259,13 @@ for (const env of envs) {
 
     const valid = allPackages.filter(pkg => 
       pkg.id && pkg.country_code && pkg.country_name && pkg.data_amount && pkg.validity_days && pkg.price_usd
-    );
+    ).map(pkg => ({
+      ...pkg,
+      // Ensure all new fields are included in upsert
+      country_image_url: pkg.country_image_url || null,
+      operator_name: pkg.operator_name || null,
+      operator_image_url: pkg.operator_image_url || null,
+    }));
 
     console.log(`Preparing to upsert ${valid.length} valid packages (skipped ${packages.length - valid.length})`);
 
