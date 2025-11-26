@@ -66,6 +66,37 @@ export const ProductDetailModal = ({
               <p className="text-xs text-white/50 mt-2 font-light">{t('oneTimePayment')}</p>
             </div>
           </div>
+
+          {/* Operator Image */}
+          {product.operator_image_url && (
+            <div className="mb-6 p-6 rounded-xl bg-white/[0.02] border border-white/10 flex items-center justify-center">
+              <div className="relative">
+                <div className="absolute inset-0 bg-neon-cyan/10 rounded-lg blur-xl"></div>
+                <img 
+                  src={product.operator_image_url} 
+                  alt={product.operator_name || 'Operator'} 
+                  className="relative h-16 md:h-20 object-contain rounded-lg"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+              </div>
+              {product.operator_name && (
+                <p className="ml-4 text-sm text-white/60 font-light">{t('poweredBy')} {product.operator_name}</p>
+              )}
+            </div>
+          )}
+
+          {/* Device Compatibility - Prominent */}
+          <Button 
+            onClick={() => setCompatibilityOpen(true)}
+            variant="outline"
+            size="lg"
+            className="w-full mb-6 bg-gradient-to-br from-neon-cyan/10 to-neon-cyan/5 border-neon-cyan/40 text-neon-cyan hover:bg-neon-cyan/20 hover:border-neon-cyan/60 transition-all duration-300 font-light h-14 rounded-xl shadow-lg shadow-neon-cyan/10"
+          >
+            <Smartphone className="mr-2 h-5 w-5" />
+            {t('checkDeviceCompatibility')}
+          </Button>
         </DialogHeader>
 
         {/* Main Features Grid */}
@@ -130,16 +161,7 @@ export const ProductDetailModal = ({
           </div>
         </div>
 
-        {/* Check Compatibility Button */}
-        <Button 
-          onClick={() => setCompatibilityOpen(true)}
-          variant="outline"
-          size="lg"
-          className="w-full mb-6 bg-white/[0.02] border-neon-cyan/30 text-neon-cyan hover:bg-neon-cyan/10 hover:border-neon-cyan/50 transition-all duration-300 font-light h-12 rounded-xl relative z-10"
-        >
-          <Smartphone className="mr-2 h-5 w-5" />
-          {t('checkDeviceCompatibility')}
-        </Button>
+        {/* Removed duplicate Check Compatibility Button - now in header */}
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 relative z-10">

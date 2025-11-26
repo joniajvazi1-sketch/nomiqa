@@ -321,6 +321,7 @@ export type Database = {
         Row: {
           airlo_package_id: string
           country_code: string
+          country_image_url: string | null
           country_name: string
           created_at: string
           data_amount: string
@@ -328,6 +329,8 @@ export type Database = {
           id: string
           is_popular: boolean | null
           name: string
+          operator_image_url: string | null
+          operator_name: string | null
           price_usd: number
           updated_at: string
           validity_days: number
@@ -335,6 +338,7 @@ export type Database = {
         Insert: {
           airlo_package_id: string
           country_code: string
+          country_image_url?: string | null
           country_name: string
           created_at?: string
           data_amount: string
@@ -342,6 +346,8 @@ export type Database = {
           id?: string
           is_popular?: boolean | null
           name: string
+          operator_image_url?: string | null
+          operator_name?: string | null
           price_usd: number
           updated_at?: string
           validity_days: number
@@ -349,6 +355,7 @@ export type Database = {
         Update: {
           airlo_package_id?: string
           country_code?: string
+          country_image_url?: string | null
           country_name?: string
           created_at?: string
           data_amount?: string
@@ -356,6 +363,8 @@ export type Database = {
           id?: string
           is_popular?: boolean | null
           name?: string
+          operator_image_url?: string | null
+          operator_name?: string | null
           price_usd?: number
           updated_at?: string
           validity_days?: number
