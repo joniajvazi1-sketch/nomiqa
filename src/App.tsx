@@ -29,6 +29,7 @@ const MyAccount = lazy(() => import("./pages/MyAccount"));
 const Help = lazy(() => import("./pages/Help"));
 const Rewards = lazy(() => import("./pages/Rewards"));
 const AdminRecovery = lazy(() => import("./pages/AdminRecovery"));
+const AdminProductSync = lazy(() => import("./pages/AdminProductSync"));
 
 
 // Loading fallback component
@@ -102,6 +103,7 @@ const App = () => (
             <Route path="/help" element={<Help />} />
             <Route path="/rewards" element={<Rewards />} />
             <Route path="/admin/recovery" element={<AdminRecovery />} />
+            <Route path="/admin/sync" element={<AdminProductSync />} />
             
 
             {/* Localized route groups */}
