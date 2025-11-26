@@ -392,28 +392,38 @@ serve(async (req) => {
       const airloClientSecret = Deno.env.get('AIRLO_CLIENT_SECRET');
       const airloEnv = Deno.env.get('AIRLO_ENV') || 'sandbox';
       
+      if (!airloClientId || !airloClientSecret) {
+        throw new Error('Missing Airalo API credentials');
+      }
+      
       const baseUrl = airloEnv === 'production' 
         ? 'https://partners-api.airalo.com'
         : 'https://sandbox-partners-api.airalo.com';
 
       console.log('Getting Airalo access token...');
       
-      // Get access token
+      // Get access token using FormData (required by Airalo API)
+      const tokenFormData = new FormData();
+      tokenFormData.append('client_id', airloClientId);
+      tokenFormData.append('client_secret', airloClientSecret);
+      tokenFormData.append('grant_type', 'client_credentials');
+      
       const authResponse = await fetch(`${baseUrl}/v2/token`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          client_id: airloClientId,
-          client_secret: airloClientSecret,
-          grant_type: 'client_credentials'
-        })
+        headers: { 'Accept': 'application/json' },
+        body: tokenFormData
       });
 
+      const authResponseText = await authResponse.text();
+      console.log('Auth response status:', authResponse.status);
+      console.log('Auth response body:', authResponseText);
+
       if (!authResponse.ok) {
-        throw new Error('Failed to authenticate with Airalo');
+        throw new Error(`Failed to authenticate with Airalo: ${authResponse.status} - ${authResponseText}`);
       }
 
-      const { data: authData } = await authResponse.json();
+      const authJson = JSON.parse(authResponseText);
+      const { data: authData } = authJson;
       const accessToken = authData.access_token;
 
       console.log('Submitting eSIM order to Airalo...');
@@ -430,14 +440,14 @@ serve(async (req) => {
       }
 
       // Submit sync order to Airalo with brand settings using FormData
-      console.log('Submitting order with brand settings: nomiqa');
+      console.log('Submitting order with brand settings: Nomiqa');
       
       const formData = new FormData();
       formData.append('package_id', product.airlo_package_id);
       formData.append('quantity', '1');
       formData.append('type', 'sim');
       formData.append('description', `Order ${order.id} for ${order.email}`);
-      formData.append('brand_settings_name', 'nomiqa');
+      formData.append('brand_settings_name', 'Nomiqa');
       formData.append('to_email', order.email);
       formData.append('sharing_option[]', 'link');  // Form data format with []
       
@@ -450,13 +460,17 @@ serve(async (req) => {
         body: formData
       });
 
+      const orderResponseText = await orderResponse.text();
+      console.log('Order response status:', orderResponse.status);
+      console.log('Order response body:', orderResponseText);
+
       if (!orderResponse.ok) {
-        const errorText = await orderResponse.text();
-        console.error('Airalo order failed:', errorText);
-        throw new Error(`Airalo order failed: ${errorText}`);
+        console.error('Airalo order failed:', orderResponseText);
+        throw new Error(`Airalo order failed: ${orderResponse.status} - ${orderResponseText}`);
       }
 
-      const { data: orderData } = await orderResponse.json();
+      const orderJson = JSON.parse(orderResponseText);
+      const { data: orderData } = orderJson;
       
       console.log('Airalo response:', JSON.stringify(orderData, null, 2));
       console.log('Sharing object:', orderData.sharing);
