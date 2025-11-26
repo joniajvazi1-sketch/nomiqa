@@ -198,8 +198,47 @@ serve(async (req) => {
         }
       }
 
-      // Airalo handles email delivery automatically
-      console.log('eSIM provisioned successfully. Airalo will send delivery email to:', order.email);
+      // Send order confirmation email with eSIM Cloud portal link
+      try {
+        console.log('Sending order confirmation email to:', order.email);
+        
+        // Fetch updated order to get sharing_link and sharing_access_code
+        const { data: updatedOrder } = await supabase
+          .from('orders')
+          .select('sharing_link, sharing_access_code, package_name')
+          .eq('id', order.id)
+          .single();
+        
+        const { data: product } = await supabase
+          .from('products')
+          .select('country_name')
+          .eq('id', order.product_id)
+          .single();
+
+        const emailResponse = await supabase.functions.invoke('send-email', {
+          body: {
+            type: 'order_confirmation',
+            to: order.email,
+            data: {
+              country: product?.country_name || 'Unknown',
+              dataAmount: order.data_amount,
+              validity: order.validity_days,
+              price: order.total_amount_usd.toFixed(2),
+              sharingLink: updatedOrder?.sharing_link,
+              accessCode: updatedOrder?.sharing_access_code
+            }
+          }
+        });
+
+        if (emailResponse.error) {
+          console.error('Failed to send order confirmation email:', emailResponse.error);
+        } else {
+          console.log('Order confirmation email sent successfully');
+        }
+      } catch (emailError) {
+        console.error('Error sending order confirmation email:', emailError);
+        // Don't fail the webhook, just log the error
+      }
     }
 
     // Mark webhook as processed
