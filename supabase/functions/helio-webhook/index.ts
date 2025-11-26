@@ -444,7 +444,7 @@ serve(async (req) => {
           description: `Order ${order.id} for ${order.email}`,
           brand_settings_name: 'nomiqa',
           to_email: order.email,
-          sharing_option: 'LINK_ONLY'
+          sharing_option: ['LINK_ONLY']  // MUST be an array, not a string
         })
       });
 
