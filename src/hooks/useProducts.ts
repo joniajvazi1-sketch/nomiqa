@@ -7,6 +7,9 @@ export interface Product {
   name: string;
   country_code: string;
   country_name: string;
+  country_image_url: string | null;
+  operator_name: string | null;
+  operator_image_url: string | null;
   data_amount: string;
   validity_days: number;
   price_usd: number;

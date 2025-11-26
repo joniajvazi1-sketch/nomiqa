@@ -42,6 +42,7 @@ export const Shop = () => {
   const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
   const [displayCount, setDisplayCount] = useState(9);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
 
   // Check for URL search parameter on mount
   useEffect(() => {
@@ -49,8 +50,17 @@ export const Shop = () => {
     const searchParam = urlParams.get('search');
     if (searchParam) {
       setSearchQuery(decodeURIComponent(searchParam));
+      // If there's a search, try to auto-select the country
+      const matchingCountry = products?.find(p => 
+        getAllTranslatedNames(p.country_code).some(name => 
+          name.toLowerCase() === searchParam.toLowerCase()
+        )
+      );
+      if (matchingCountry) {
+        setSelectedCountry(matchingCountry.country_code);
+      }
     }
-  }, []);
+  }, [products]);
 
   // Classify products by coverage type
   const getProductCoverageType = (product: any): CoverageType => {
@@ -91,8 +101,29 @@ export const Shop = () => {
     return matchesSearch && productType === coverageFilter;
   });
 
-  const displayedProducts = filteredProducts?.slice(0, displayCount);
-  const hasMore = filteredProducts && filteredProducts.length > displayCount;
+  // Group products by country
+  const countriesMap = new Map<string, { country_code: string; country_name: string; country_image_url: string | null; products: any[] }>();
+  
+  filteredProducts?.forEach(product => {
+    if (!countriesMap.has(product.country_code)) {
+      countriesMap.set(product.country_code, {
+        country_code: product.country_code,
+        country_name: product.country_name,
+        country_image_url: product.country_image_url,
+        products: []
+      });
+    }
+    countriesMap.get(product.country_code)!.products.push(product);
+  });
+
+  const countries = Array.from(countriesMap.values());
+  const displayedCountries = countries.slice(0, displayCount);
+  const hasMore = countries.length > displayCount;
+
+  // Get packages for selected country
+  const selectedCountryPackages = selectedCountry 
+    ? filteredProducts?.filter(p => p.country_code === selectedCountry)
+    : null;
 
   const handleAddToCart = (product: any) => {
     addItem(product);
@@ -157,16 +188,25 @@ export const Shop = () => {
           <div className="flex justify-center py-20">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
-        ) : !filteredProducts?.length ? (
+        ) : !countries?.length ? (
           <div className="text-center py-20">
             <p className="text-muted-foreground">
               {searchQuery || coverageFilter !== "all" ? "No products match your filters" : "No products available"}
             </p>
           </div>
-        ) : (
+        ) : selectedCountry ? (
+          /* Show packages for selected country */
           <>
+            <Button
+              onClick={() => setSelectedCountry(null)}
+              variant="outline"
+              className="mb-8 bg-white/[0.02] border-neon-cyan/30 text-neon-cyan hover:bg-neon-cyan/10 hover:border-neon-cyan/50 transition-all duration-300 font-light h-12 rounded-xl"
+            >
+              ← {t('backToCountries') || 'Back to Countries'}
+            </Button>
+            
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-              {displayedProducts?.map((product) => (
+              {selectedCountryPackages?.map((product) => (
               <Card 
                 key={product.id} 
                 className="group relative overflow-hidden bg-white/[0.02] backdrop-blur-xl border border-white/10 hover:border-neon-cyan/40 transition-all duration-500 hover:-translate-y-2 cursor-pointer hover-lift rounded-2xl"
@@ -261,6 +301,73 @@ export const Shop = () => {
               ))}
             </div>
             
+            {selectedCountryPackages && selectedCountryPackages.length > displayCount && (
+              <div className="flex justify-center mt-12">
+                <Button 
+                  onClick={() => setDisplayCount(prev => prev + 9)}
+                  variant="outline"
+                  size="lg"
+                  className="bg-white/[0.02] border-neon-cyan/30 text-neon-cyan hover:bg-neon-cyan/10 hover:border-neon-cyan/50 px-8 py-6 rounded-xl font-light transition-all duration-300 shadow-glow-cyan"
+                >
+                  Load More ({selectedCountryPackages.length - displayCount} remaining)
+                </Button>
+              </div>
+            )}
+          </>
+        ) : (
+          /* Show countries list */
+          <>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+              {displayedCountries?.map((country) => (
+                <Card 
+                  key={country.country_code} 
+                  className="group relative overflow-hidden bg-white/[0.02] backdrop-blur-xl border border-white/10 hover:border-neon-cyan/40 transition-all duration-500 hover:-translate-y-2 cursor-pointer hover-lift rounded-2xl"
+                  onClick={() => setSelectedCountry(country.country_code)}
+                >
+                  {/* Hover glow effect */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-neon-cyan/5 via-transparent to-neon-violet/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+                  
+                  <CardHeader className="relative z-10">
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="relative">
+                        <div className="absolute inset-0 bg-neon-cyan/20 rounded blur-sm group-hover:bg-neon-cyan/30 transition-all duration-500"></div>
+                        {getCountryFlag(country.country_code)}
+                      </div>
+                      <div className="flex-1">
+                        <CardTitle className="text-xl md:text-2xl text-white group-hover:text-neon-cyan transition-colors duration-300 font-light">
+                          {getTranslatedCountryName(country.country_code, language)}
+                        </CardTitle>
+                        <CardDescription className="text-sm text-white/60 font-light">
+                          {country.products.length} {t('plans') || 'plans'}
+                        </CardDescription>
+                      </div>
+                    </div>
+
+                    {/* Country image if available */}
+                    {country.country_image_url && (
+                      <div className="mt-4 rounded-xl overflow-hidden h-32 relative">
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10"></div>
+                        <img 
+                          src={country.country_image_url} 
+                          alt={country.country_name}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                      </div>
+                    )}
+                  </CardHeader>
+
+                  <CardContent className="relative z-10">
+                    <div className="text-center text-sm text-white/50 group-hover:text-neon-cyan transition-colors duration-300">
+                      <span className="font-light">{t('clickToViewPlans') || 'Click to view plans'}</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+            
             {hasMore && (
               <div className="flex justify-center mt-12">
                 <Button 
@@ -269,7 +376,7 @@ export const Shop = () => {
                   size="lg"
                   className="bg-white/[0.02] border-neon-cyan/30 text-neon-cyan hover:bg-neon-cyan/10 hover:border-neon-cyan/50 px-8 py-6 rounded-xl font-light transition-all duration-300 shadow-glow-cyan"
                 >
-                  Load More ({filteredProducts.length - displayCount} remaining)
+                  Load More ({countries.length - displayCount} remaining)
                 </Button>
               </div>
             )}
@@ -284,7 +391,7 @@ export const Shop = () => {
           onReferEarn={handleReferEarn}
         />
         
-        <ReferEarnModal 
+        <ReferEarnModal
           open={referEarnModalOpen}
           onOpenChange={setReferEarnModalOpen}
           product={selectedProduct}
