@@ -11,6 +11,7 @@ const corsHeaders = {
 const paylinkSchema = z.object({
   orderId: z.string().uuid().optional(),
   email: z.string().email().max(255).optional(),
+  fullName: z.string().min(2).max(255).optional(),
   productId: z.string().uuid().optional(),
   quantity: z.number().int().min(1).max(10).default(1).optional(),
   referralCode: z.string().max(50).nullable().optional(),
@@ -112,7 +113,7 @@ serve(async (req) => {
       order = existingOrder;
     } else {
       // Create order on the server (bypasses client RLS)
-      const { email, productId, quantity = 1, referralCode = null, visitorId = null, userId = null } = validatedData;
+      const { email, fullName, productId, quantity = 1, referralCode = null, visitorId = null, userId = null } = validatedData;
       if (!email || !productId) {
         throw new Error('Missing email or productId');
       }
@@ -136,6 +137,7 @@ serve(async (req) => {
         .insert({
           user_id: userId,
           email,
+          full_name: fullName || 'Customer',
           product_id: product.id,
           package_name: product.name,
           data_amount: product.data_amount,
