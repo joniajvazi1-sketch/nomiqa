@@ -443,7 +443,8 @@ serve(async (req) => {
           type: 'sim',
           description: `Order ${order.id} for ${order.email}`,
           brand_settings_name: 'nomiqa',
-          to_email: order.email
+          to_email: order.email,
+          sharing_option: 'LINK_ONLY'
         })
       });
 
