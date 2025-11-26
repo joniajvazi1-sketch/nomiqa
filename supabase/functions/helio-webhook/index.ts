@@ -406,8 +406,7 @@ serve(async (req) => {
           type: 'sim',
           description: `Order ${order.id} for ${order.email}`,
           brand_settings_name: 'nomiqa',
-          to_email: order.email,
-          sharing_option: ['link', 'pdf']
+          to_email: order.email
         })
       });
 
@@ -420,8 +419,9 @@ serve(async (req) => {
       const { data: orderData } = await orderResponse.json();
       
       console.log('Airalo response:', JSON.stringify(orderData, null, 2));
-      console.log('Sharing link:', orderData.sharing_link);
-      console.log('Access code:', orderData.sharing_access_code);
+      console.log('Sharing object:', orderData.sharing);
+      console.log('Sharing link:', orderData.sharing?.link);
+      console.log('Access code:', orderData.sharing?.access_code);
 
       // Extract eSIM details from sync response
       const sim = orderData.sims?.[0];
@@ -443,8 +443,8 @@ serve(async (req) => {
           activation_code: sim.matching_id,
           manual_installation: orderData.manual_installation,
           qrcode_installation: orderData.qrcode_installation,
-          sharing_link: orderData.sharing_link,
-          sharing_access_code: orderData.sharing_access_code,
+          sharing_link: orderData.sharing?.link,
+          sharing_access_code: orderData.sharing?.access_code,
           updated_at: new Date().toISOString()
         })
         .eq('id', order.id);
@@ -505,8 +505,8 @@ serve(async (req) => {
               dataAmount: order.data_amount,
               validity: order.validity_days,
               price: order.total_amount_usd.toFixed(2),
-              sharingLink: orderData.sharing_link || null,
-              accessCode: orderData.sharing_access_code || null
+              sharingLink: orderData.sharing?.link || null,
+              accessCode: orderData.sharing?.access_code || null
             }
           }
         });
@@ -523,8 +523,8 @@ serve(async (req) => {
       console.log('Order processing completed successfully');
       
       // Log warning if sharing link is missing
-      if (!orderData.sharing_link) {
-        console.warn('WARNING: No sharing_link in Airalo response - branded portal may not be configured correctly');
+      if (!orderData.sharing?.link) {
+        console.warn('WARNING: No sharing link in Airalo response - branded portal may not be configured correctly');
       }
     } catch (airloError) {
       console.error('Error provisioning eSIM from Airalo:', airloError);
