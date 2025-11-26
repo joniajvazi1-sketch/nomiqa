@@ -586,65 +586,16 @@ serve(async (req) => {
         }
       }
 
-      // Send order confirmation email with eSIM Cloud portal link
-      console.log('=== SENDING ORDER CONFIRMATION EMAIL ===');
-      try {
-        console.log('Email recipient:', order.email);
-        console.log('Order ID:', order.id);
-        
-        const { data: productInfo, error: productFetchError } = await supabase
-          .from('products')
-          .select('country_name, name')
-          .eq('id', order.product_id)
-          .maybeSingle();
-
-        if (productFetchError) {
-          console.error('Error fetching product info for email:', productFetchError);
-        }
-
-        const emailData = {
-          country: productInfo?.country_name || 'Unknown',
-          dataAmount: order.data_amount,
-          validity: order.validity_days,
-          price: order.total_amount_usd.toFixed(2),
-          sharingLink: orderData.sharing?.link || null,
-          accessCode: orderData.sharing?.access_code || null
-        };
-
-        console.log('Email data:', JSON.stringify(emailData, null, 2));
-
-        if (!emailData.sharingLink) {
-          console.warn('⚠ WARNING: No sharing link available for email');
-        }
-        if (!emailData.accessCode) {
-          console.warn('⚠ WARNING: No access code available for email');
-        }
-
-        const emailResponse = await supabase.functions.invoke('send-email', {
-          body: {
-            type: 'order_confirmation',
-            to: order.email,
-            data: emailData
-          }
-        });
-
-        if (emailResponse.error) {
-          console.error('❌ Failed to send order confirmation email:', emailResponse.error);
-        } else {
-          console.log('✓ Order confirmation email sent successfully');
-        }
-      } catch (emailError: any) {
-        console.error('❌ Error sending order confirmation email:', emailError);
-        console.error('Email error details:', emailError.message || emailError);
-      }
-      console.log('=== EMAIL SENDING COMPLETE ===');
+      // Airalo sends the branded email directly to the customer
+      // No need to send emails from our side
+      console.log('✓ Airalo will send branded email to customer');
 
       console.log('=== ORDER PROCESSING COMPLETE ===');
       console.log('Order ID:', order.id);
       console.log('Status: completed');
       console.log('eSIM provisioned: ✓');
       console.log('Database updated: ✓');
-      console.log('Email sent: ✓');
+      console.log('Airalo branded email: ✓ (sent by Airalo)');
       console.log('Sharing link:', orderData.sharing?.link ? '✓ Available' : '❌ Missing');
       console.log('Access code:', orderData.sharing?.access_code ? '✓ Available' : '❌ Missing');
       console.log('================================');
