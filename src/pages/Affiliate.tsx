@@ -167,7 +167,7 @@ export default function Affiliate() {
       };
     }
     const remaining = nextTier.conversions - totalConversions;
-    const progress = totalConversions / nextTier.conversions * 100;
+    const progress = Math.min((totalConversions / nextTier.conversions) * 100, 100);
     return {
       currentTier,
       nextTier,
@@ -717,7 +717,7 @@ export default function Affiliate() {
                     
                     <div className="p-4 bg-card/80 backdrop-blur-sm rounded-lg border border-border/50">
                       <p className="text-sm md:text-base">
-                        <span className="font-bold text-primary">{getTierInfo()?.remaining}</span>{" "}
+                        <span className="font-bold text-primary">{Math.max(0, getTierInfo()?.remaining || 0)}</span>{" "}
                         <span className="text-muted-foreground">{t("moreConversionsToUnlock")}</span>{" "}
                         <span className="font-semibold text-foreground">{t("additionalOnSecondLevel")}</span>
                       </p>
