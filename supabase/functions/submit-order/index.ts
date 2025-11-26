@@ -86,6 +86,9 @@ serve(async (req) => {
     // Sync orders return eSIM data immediately
     const esimData = orderData.sims?.[0];
     
+    // Get sharing link and access code for branded eSIM Cloud portal
+    const sharingData = orderData.sharing;
+    
     // Get product details
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -117,7 +120,9 @@ serve(async (req) => {
         qrcode_installation: orderData.qrcode_installation,
         package_name: product?.name,
         data_amount: product?.data_amount,
-        validity_days: product?.validity_days
+        validity_days: product?.validity_days,
+        sharing_link: sharingData?.link,
+        sharing_access_code: sharingData?.access_code
       })
       .select()
       .single();
