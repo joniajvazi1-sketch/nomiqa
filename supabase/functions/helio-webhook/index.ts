@@ -429,23 +429,25 @@ serve(async (req) => {
         throw new Error('Product not found or missing Airalo package ID');
       }
 
-      // Submit sync order to Airalo with brand settings
+      // Submit sync order to Airalo with brand settings using FormData
       console.log('Submitting order with brand settings: nomiqa');
+      
+      const formData = new FormData();
+      formData.append('package_id', product.airlo_package_id);
+      formData.append('quantity', '1');
+      formData.append('type', 'sim');
+      formData.append('description', `Order ${order.id} for ${order.email}`);
+      formData.append('brand_settings_name', 'nomiqa');
+      formData.append('to_email', order.email);
+      formData.append('sharing_option[]', 'link');  // Form data format with []
+      
       const orderResponse = await fetch(`${baseUrl}/v2/orders`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${accessToken}`
+          // FormData sets Content-Type automatically with boundary
         },
-        body: JSON.stringify({
-          package_id: product.airlo_package_id,
-          quantity: 1,
-          type: 'sim',
-          description: `Order ${order.id} for ${order.email}`,
-          brand_settings_name: 'nomiqa',
-          to_email: order.email,
-          sharing_option: ['link']  // Must be lowercase: 'link' or 'pdf'
-        })
+        body: formData
       });
 
       if (!orderResponse.ok) {
