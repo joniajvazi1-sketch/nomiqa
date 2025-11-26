@@ -22,6 +22,7 @@ export default function Checkout() {
   const { referralCode } = useAffiliateTracking();
   const { t, formatPrice } = useTranslation();
   const [email, setEmail] = useState("");
+  const [fullName, setFullName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paylinkUrl, setPaylinkUrl] = useState<string | null>(null);
@@ -68,6 +69,12 @@ export default function Checkout() {
       return;
     }
 
+    // Validate full name
+    if (!fullName || fullName.trim().length < 2) {
+      toast.error("Please enter your full name");
+      return;
+    }
+
     if (items.length === 0) {
       toast.error("Your cart is empty");
       return;
@@ -90,6 +97,7 @@ export default function Checkout() {
         {
           body: {
             email,
+            fullName: fullName.trim(),
             productId: primaryItem.product.id,
             quantity: primaryItem.quantity,
             referralCode: referralCode || null,
@@ -243,6 +251,19 @@ export default function Checkout() {
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="fullName" className="text-base font-semibold">Full Name *</Label>
+                    <Input
+                      id="fullName"
+                      type="text"
+                      placeholder="Enter your full name"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      required
+                      className="text-base py-6"
+                    />
+                  </div>
+
                   <div className="space-y-2">
                     <Label htmlFor="email" className="text-base font-semibold">{t("checkoutEmailLabel")} *</Label>
                     {user ? (

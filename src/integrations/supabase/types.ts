@@ -203,6 +203,7 @@ export type Database = {
           created_at: string
           data_amount: string | null
           email: string
+          full_name: string | null
           iccid: string | null
           id: string
           lpa: string | null
@@ -233,6 +234,7 @@ export type Database = {
           created_at?: string
           data_amount?: string | null
           email: string
+          full_name?: string | null
           iccid?: string | null
           id?: string
           lpa?: string | null
@@ -263,6 +265,7 @@ export type Database = {
           created_at?: string
           data_amount?: string | null
           email?: string
+          full_name?: string | null
           iccid?: string | null
           id?: string
           lpa?: string | null
