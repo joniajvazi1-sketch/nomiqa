@@ -156,42 +156,28 @@ serve(async (req) => {
 
     const token = authHeader.replace('Bearer ', '');
     
-    // Check if using service role key (for automated syncs)
-    const isServiceRole = token === supabaseServiceKey;
+    // Verify user is authenticated and has admin role
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
     
-    if (!isServiceRole) {
-      // Verify user is authenticated and has admin role
-      const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-      
-      if (authError || !user) {
-        console.error('Authentication error:', authError);
-        return new Response(
-          JSON.stringify({ error: 'Invalid authentication token' }),
-          { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
+    if (authError || !user) {
+      console.error('Authentication error:', authError);
+      return new Response(
+        JSON.stringify({ error: 'Invalid authentication token' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
-      // Check if user has admin role
-      const { data: isAdmin, error: roleError } = await supabase
-        .rpc('has_role', { _user_id: user.id, _role: 'admin' });
+    const { data: isAdmin, error: roleError } = await supabase
+      .rpc('has_role', { _user_id: user.id, _role: 'admin' });
 
-      if (roleError) {
-        console.error('Role check error:', roleError);
-        return new Response(
-          JSON.stringify({ error: 'Failed to verify permissions' }),
-          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-
-      if (!isAdmin) {
-        return new Response(
-          JSON.stringify({ error: 'Forbidden - admin access required' }),
-          { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
+    if (roleError || !isAdmin) {
+      return new Response(
+        JSON.stringify({ error: 'Forbidden - admin access required' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
     
-    console.log(isServiceRole ? 'Sync initiated via service role' : 'Sync initiated by admin user');
+    console.log('Sync initiated by admin user');
 
 console.log('Preparing Airlo products sync...');
 
