@@ -642,7 +642,7 @@ export default function Affiliate() {
                   <CardContent>
                     <Select value={selectedAffiliateId} onValueChange={handleAffiliateChange}>
                       <SelectTrigger className="w-full bg-background/80 backdrop-blur-sm border-border/50 z-50">
-                        <SelectValue placeholder="Select an affiliate account" />
+                        <SelectValue placeholder={t("selectAnAffiliateAccount")} />
                       </SelectTrigger>
                       <SelectContent className="bg-card backdrop-blur-xl border-border/50 z-50">
                         {allAffiliates.map((aff) => (
