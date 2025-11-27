@@ -7,13 +7,18 @@ import { Footer } from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Loader2, User, Award, Package, Gift, Crown, Star, TrendingUp, Zap, Sparkles, RefreshCw } from "lucide-react";
+import { Loader2, User, Award, Package, Gift, Crown, Star, TrendingUp, Zap, Sparkles, RefreshCw, Wallet, DollarSign, Copy } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "@/contexts/TranslationContext";
 import { localizedPath } from "@/utils/localizedLinks";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Confetti } from "@/components/Confetti";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface UserProfile {
   username: string;
@@ -25,6 +30,12 @@ interface MembershipData {
   membership_tier: string;
   cashback_rate: number;
   cashback_balance?: number; // Calculated on frontend
+}
+
+interface AffiliateData {
+  total_earnings_usd: number;
+  total_conversions: number;
+  tier_level: number;
 }
 
 const TIER_COLORS = {
@@ -61,7 +72,12 @@ export default function MyAccount() {
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [membership, setMembership] = useState<MembershipData | null>(null);
+  const [affiliateData, setAffiliateData] = useState<AffiliateData | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [showClaimDialog, setShowClaimDialog] = useState(false);
+  const [walletAddress, setWalletAddress] = useState("");
+  const [claimMessage, setClaimMessage] = useState("");
+  const [submittingClaim, setSubmittingClaim] = useState(false);
 
   useEffect(() => {
     checkAuth();
@@ -216,7 +232,7 @@ export default function MyAccount() {
           </div>
 
           <Tabs defaultValue="info" className="w-full">
-            <TabsList className="grid w-full grid-cols-4 mb-8 h-auto bg-card/50 backdrop-blur-sm border border-border/50 p-1">
+            <TabsList className="grid w-full grid-cols-5 mb-8 h-auto bg-card/50 backdrop-blur-sm border border-border/50 p-1">
               <TabsTrigger 
                 value="info" 
                 className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-3 sm:py-3 px-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary transition-all duration-300 hover:scale-105"
@@ -237,6 +253,13 @@ export default function MyAccount() {
               >
                 <Package className="w-5 h-5 sm:w-4 sm:h-4" />
                 <span className="text-[10px] sm:text-sm font-medium">{t("myEsimsTab")}</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="earnings" 
+                className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-3 sm:py-3 px-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary transition-all duration-300 hover:scale-105"
+              >
+                <DollarSign className="w-5 h-5 sm:w-4 sm:h-4" />
+                <span className="text-[10px] sm:text-sm font-medium">{t("claimEarnings")}</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="earn" 
@@ -602,6 +625,170 @@ export default function MyAccount() {
                     <Package className="w-5 h-5 mr-2" />
                     {t("viewAllOrders")}
                   </Button>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="earnings" className="animate-fade-in">
+              <Card className="border-border/50 bg-card/80 backdrop-blur-xl shadow-xl hover:shadow-2xl transition-all duration-300">
+                <CardHeader className="bg-gradient-to-br from-primary/10 via-transparent to-accent/10 border-b border-border/50">
+                  <CardTitle className="flex items-center gap-3 text-2xl">
+                    <div className="p-2 bg-primary/10 rounded-lg">
+                      <DollarSign className="w-6 h-6 text-primary" />
+                    </div>
+                    {t("claimEarnings")}
+                  </CardTitle>
+                  <CardDescription className="mt-2 text-sm">
+                    {t("claimEarningsNote")}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pt-6 space-y-6">
+                  {/* Earnings Overview */}
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <Card className="border-border/30 bg-gradient-to-br from-primary/5 to-transparent">
+                      <CardHeader>
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <Gift className="w-5 h-5 text-primary" />
+                          {t("affiliateEarnings")}
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-3xl font-bold text-primary">
+                          ${affiliateData?.total_earnings_usd.toFixed(2) || "0.00"}
+                        </p>
+                      </CardContent>
+                    </Card>
+
+                    <Card className="border-border/30 bg-gradient-to-br from-accent/5 to-transparent">
+                      <CardHeader>
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <Award className="w-5 h-5 text-accent" />
+                          {t("cashbackEarnings")}
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-3xl font-bold text-accent">
+                          ${membership?.cashback_balance?.toFixed(2) || "0.00"}
+                        </p>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {/* Total Earnings */}
+                  <Card className="border-primary/50 bg-gradient-to-br from-primary/10 via-accent/5 to-transparent">
+                    <CardContent className="pt-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm text-muted-foreground mb-1">{t("totalEarningsLabel")}</p>
+                          <p className="text-4xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
+                            ${((affiliateData?.total_earnings_usd || 0) + (membership?.cashback_balance || 0)).toFixed(2)}
+                          </p>
+                        </div>
+                        <Dialog open={showClaimDialog} onOpenChange={setShowClaimDialog}>
+                          <DialogTrigger asChild>
+                            <Button
+                              size="lg"
+                              className="bg-gradient-to-r from-primary to-accent hover:opacity-90 shadow-lg"
+                              disabled={((affiliateData?.total_earnings_usd || 0) + (membership?.cashback_balance || 0)) < 5}
+                            >
+                              <Wallet className="w-5 h-5 mr-2" />
+                              {t("claimAll")}
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-md">
+                            <DialogHeader>
+                              <DialogTitle>{t("claimEarnings")}</DialogTitle>
+                              <DialogDescription>
+                                {t("enterSolanaWallet")}
+                              </DialogDescription>
+                            </DialogHeader>
+                            <div className="space-y-4">
+                              <div className="space-y-2">
+                                <Label htmlFor="wallet">{t("solanaWalletAddress")}</Label>
+                                <Input
+                                  id="wallet"
+                                  placeholder="Ex: 7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU"
+                                  value={walletAddress}
+                                  onChange={(e) => setWalletAddress(e.target.value)}
+                                  className="font-mono text-sm"
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                <Label htmlFor="message">{t("requestMessage")}</Label>
+                                <Textarea
+                                  id="message"
+                                  placeholder={t("requestMessage")}
+                                  value={claimMessage}
+                                  onChange={(e) => setClaimMessage(e.target.value)}
+                                  rows={3}
+                                />
+                              </div>
+                              {((affiliateData?.total_earnings_usd || 0) + (membership?.cashback_balance || 0)) < 5 && (
+                                <Alert>
+                                  <AlertDescription className="text-sm">
+                                    ⚠️ {t("minimumClaimAmount")}
+                                  </AlertDescription>
+                                </Alert>
+                              )}
+                              <Button
+                                className="w-full"
+                                disabled={
+                                  !walletAddress.trim() || 
+                                  submittingClaim ||
+                                  ((affiliateData?.total_earnings_usd || 0) + (membership?.cashback_balance || 0)) < 5
+                                }
+                                onClick={async () => {
+                                  if (!walletAddress.trim()) {
+                                    toast.error(t("walletAddressRequired"));
+                                    return;
+                                  }
+                                  
+                                  setSubmittingClaim(true);
+                                  try {
+                                    const { error } = await supabase.functions.invoke('submit-claim-request', {
+                                      body: {
+                                        walletAddress,
+                                        message: claimMessage,
+                                        affiliateEarnings: affiliateData?.total_earnings_usd || 0,
+                                        cashbackEarnings: membership?.cashback_balance || 0,
+                                        totalAmount: (affiliateData?.total_earnings_usd || 0) + (membership?.cashback_balance || 0),
+                                        userEmail: profile?.email,
+                                        username: profile?.username
+                                      }
+                                    });
+
+                                    if (error) throw error;
+
+                                    toast.success(t("claimRequestSubmitted"));
+                                    setShowClaimDialog(false);
+                                    setWalletAddress("");
+                                    setClaimMessage("");
+                                  } catch (error: any) {
+                                    console.error('Error submitting claim:', error);
+                                    toast.error("Failed to submit claim request");
+                                  } finally {
+                                    setSubmittingClaim(false);
+                                  }
+                                }}
+                              >
+                                {submittingClaim ? (
+                                  <>
+                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                    {t("checkoutProcessing")}
+                                  </>
+                                ) : (
+                                  <>
+                                    <Wallet className="w-4 h-4 mr-2" />
+                                    {t("submitClaimRequest")}
+                                  </>
+                                )}
+                              </Button>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+                      </div>
+                    </CardContent>
+                  </Card>
                 </CardContent>
               </Card>
             </TabsContent>
