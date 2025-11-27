@@ -239,21 +239,20 @@ export const Shop = () => {
                         e.stopPropagation();
                         handleAddToCart(product);
                       }}
-                      className="w-full sm:flex-1 bg-gradient-to-r from-neon-cyan to-neon-violet hover:from-neon-cyan/90 hover:to-neon-violet/90 text-white border-0 shadow-glow-cyan font-light h-11 rounded-xl transition-all duration-300"
+                      className="w-full sm:flex-1 bg-white/[0.05] backdrop-blur-xl border-2 border-neon-cyan/40 text-white hover:bg-neon-cyan/10 hover:border-neon-cyan/60 font-light h-12 rounded-xl transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-neon-cyan/20"
                     >
-                      <ShoppingCart className="mr-2 h-4 w-4" />
-                      {t('addToCart')}
+                      <ShoppingCart className="mr-2 h-4 w-4 shrink-0" />
+                      <span className="break-words">{t('addToCart')}</span>
                     </Button>
                     <Button 
                       onClick={(e) => {
                         e.stopPropagation();
                         handleReferEarn(product);
                       }}
-                      variant="outline"
-                      className="w-full sm:w-auto bg-white/[0.02] border-neon-coral/30 text-neon-coral hover:bg-neon-coral/10 hover:border-neon-coral/50 transition-all duration-300 font-light h-11 rounded-xl"
+                      className="w-full sm:flex-1 bg-white/[0.05] backdrop-blur-xl border-2 border-neon-coral/40 text-neon-coral hover:bg-neon-coral/10 hover:border-neon-coral/60 font-light h-12 rounded-xl transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-neon-coral/20"
                     >
-                      <HandCoins className="h-4 w-4 mr-2" />
-                      {t('referAndEarn')}
+                      <HandCoins className="mr-2 h-4 w-4 shrink-0" />
+                      <span className="break-words">{t('referAndEarn')}</span>
                     </Button>
                   </CardFooter>
                 </Card>

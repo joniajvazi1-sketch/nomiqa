@@ -73,19 +73,19 @@ export const Hero = () => {
             </Button>
           </div>
 
-          {/* Premium trust indicators */}
-          <div className="mt-16 md:mt-20 flex flex-wrap justify-center items-center gap-8 md:gap-12 text-white/60 text-sm animate-fade-in" style={{ animationDelay: "0.4s" }}>
+          {/* Premium trust indicators - 2 lines on mobile, more visible background */}
+          <div className="mt-24 md:mt-28 flex flex-wrap justify-center items-center gap-x-8 md:gap-x-12 gap-y-4 text-white/60 text-sm animate-fade-in" style={{ animationDelay: "0.4s" }}>
             <div className="flex items-center gap-2">
               <div className="w-1.5 h-1.5 rounded-full bg-neon-cyan"></div>
               <span className="font-light">{t("heroCountries")}</span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 break-keep">
               <div className="w-1.5 h-1.5 rounded-full bg-neon-violet"></div>
-              <span className="font-light">{t("heroNoKyc")}</span>
+              <span className="font-light whitespace-nowrap">{t("heroNoKyc")}</span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 w-full sm:w-auto justify-center">
               <div className="w-1.5 h-1.5 rounded-full bg-neon-coral"></div>
-              <span className="font-light">{t("heroCryptoOnly")}</span>
+              <span className="font-light whitespace-nowrap">{t("heroCryptoOnly")}</span>
             </div>
           </div>
         </div>

@@ -9,7 +9,7 @@ const corsHeaders = {
 };
 
 interface EmailRequest {
-  type: 'user_verification' | 'password_reset' | 'affiliate_verification' | 'order_confirmation' | 'affiliate_welcome' | 'tier_upgrade' | 'affiliate_tier_upgrade';
+  type: 'user_verification' | 'password_reset' | 'affiliate_verification' | 'order_confirmation' | 'affiliate_welcome' | 'tier_upgrade' | 'affiliate_tier_upgrade' | 'claim_request';
   to: string;
   language?: string;
   data: Record<string, any>;
@@ -657,6 +657,77 @@ const generateEmailHTML = (type: string, data: any): { html: string; subject: st
                   <div class="footer">
                     <p class="footer-text">© 2025 Nomiqa</p>
                     <p class="footer-subtext">Private. Borderless. Human.</p>
+                  </div>
+                </div>
+              </div>
+            </body>
+          </html>
+        `,
+      };
+
+    case 'claim_request':
+      return {
+        subject: `💰 Earnings Claim Request from ${data.username || data.userEmail}`,
+        html: `
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <meta charset="utf-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              ${baseStyle}
+            </head>
+            <body>
+              <div class="email-wrapper">
+                <div class="container">
+                  <div class="logo-section">
+                    <img src="${logoSrc}" alt="Nomiqa" />
+                  </div>
+                  <h1>💰 New Earnings Claim Request</h1>
+                  <p class="subtitle">A user has requested to claim their earnings</p>
+                  <div class="details-card">
+                    <div class="detail-row">
+                      <span class="detail-label">User ID</span>
+                      <span class="detail-value">${data.userId}</span>
+                    </div>
+                    <div class="detail-row">
+                      <span class="detail-label">Email</span>
+                      <span class="detail-value">${data.userEmail}</span>
+                    </div>
+                    <div class="detail-row">
+                      <span class="detail-label">Username</span>
+                      <span class="detail-value">${data.username || 'N/A'}</span>
+                    </div>
+                    <div class="detail-row">
+                      <span class="detail-label">Solana Wallet</span>
+                      <span class="detail-value" style="font-size: 14px; word-break: break-all;">${data.walletAddress}</span>
+                    </div>
+                    <div class="detail-row">
+                      <span class="detail-label">Affiliate Earnings</span>
+                      <span class="detail-value">$${data.affiliateEarnings}</span>
+                    </div>
+                    <div class="detail-row">
+                      <span class="detail-label">Cashback Earnings</span>
+                      <span class="detail-value">$${data.cashbackEarnings}</span>
+                    </div>
+                    <div class="detail-row total-row">
+                      <span class="total-label">Total Claim Amount</span>
+                      <span class="total-value">$${data.totalAmount}</span>
+                    </div>
+                  </div>
+                  ${data.message ? `
+                    <div style="background: rgba(6, 182, 212, 0.08); border: 1px solid rgba(6, 182, 212, 0.25); border-radius: 16px; padding: 20px; margin: 24px 0;">
+                      <p style="color: #67e8f9; font-size: 14px; margin-bottom: 8px; font-weight: 600;">USER MESSAGE:</p>
+                      <p style="color: #e2e8f0; font-size: 15px; line-height: 24px;">${data.message}</p>
+                    </div>
+                  ` : ''}
+                  <div style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 16px; padding: 16px; margin: 24px 0; text-align: center;">
+                    <p style="color: #fca5a5; font-size: 13px; margin: 0;">
+                      ⏰ Requested at: ${new Date(data.requestedAt).toLocaleString()}
+                    </p>
+                  </div>
+                  <div class="footer">
+                    <p class="footer-text">© 2025 Nomiqa Support System</p>
+                    <p class="footer-subtext">Process this claim manually</p>
                   </div>
                 </div>
               </div>

@@ -278,7 +278,7 @@ export default function Orders() {
                 : 0;
               
               return (
-              <Card key={order.id} className={`${order.status === 'completed' || order.status === 'paid' ? 'border-neon-cyan/50 shadow-lg shadow-neon-cyan/20 bg-card/60' : 'bg-card/40'} backdrop-blur-sm transition-all hover:shadow-xl`}>
+              <Card key={order.id} className={`${order.status === 'completed' || order.status === 'paid' ? 'border-2 border-neon-cyan/40 shadow-2xl shadow-neon-cyan/20 bg-white/[0.03]' : 'bg-white/[0.02] border border-white/10'} backdrop-blur-xl transition-all hover:shadow-2xl hover:scale-[1.01] duration-300`}>
                 <CardHeader>
                   <div className="flex justify-between items-start">
                     <div>

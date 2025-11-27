@@ -81,28 +81,6 @@ export default function Stake() {
               </div>
             </div>
 
-            {/* CTA */}
-            <Card className="bg-white/[0.02] backdrop-blur-xl border-neon-violet/30 max-w-2xl mx-auto overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-neon-violet/5 via-transparent to-neon-coral/5 pointer-events-none"></div>
-              <CardContent className="pt-8 pb-8 text-center relative">
-                <div className="relative inline-block mb-6">
-                  <div className="absolute inset-0 bg-neon-coral/20 rounded-full blur-2xl animate-pulse" style={{ animationDuration: '3s' }}></div>
-                  <Coins className="relative w-16 h-16 text-neon-coral mx-auto" />
-                </div>
-                <h3 className="text-2xl md:text-3xl font-bold mb-4 bg-gradient-to-r from-neon-cyan via-neon-violet to-neon-coral bg-clip-text text-transparent">
-                  {t("stakeBeFirstTitle")}
-                </h3>
-                <p className="text-foreground/80 mb-6 max-w-lg mx-auto">
-                  {t("stakeBeFirstDesc")}
-                </p>
-                <Button 
-                  size="lg"
-                  className="bg-gradient-to-r from-neon-coral to-neon-violet hover:from-neon-coral/90 hover:to-neon-violet/90 text-white shadow-lg font-semibold"
-                >
-                  {t("stakeNotifyButton")}
-                </Button>
-              </CardContent>
-            </Card>
           </div>
         </div>
       </section>

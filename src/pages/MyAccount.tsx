@@ -708,10 +708,10 @@ export default function MyAccount() {
                           <DialogTrigger asChild>
                             <Button
                               size="lg"
-                              className="w-full md:w-auto h-auto py-3 px-4 md:px-6 text-sm md:text-base font-light bg-white/[0.05] backdrop-blur-xl border-2 border-neon-violet/30 text-white hover:bg-neon-violet/10 hover:border-neon-violet/50 rounded-xl transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-neon-violet/20"
+                              className="w-full md:w-auto h-auto py-4 px-6 md:px-8 text-base md:text-lg font-light bg-white/[0.05] backdrop-blur-xl border-2 border-neon-violet/40 text-white hover:bg-neon-violet/10 hover:border-neon-violet/60 rounded-2xl transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-neon-violet/20"
                               disabled={((affiliateData?.total_earnings_usd || 0) + totalCashbackEarned) < 5}
                             >
-                              <Wallet className="w-4 h-4 md:w-5 md:h-5 mr-2 shrink-0" />
+                              <Wallet className="w-5 h-5 md:w-6 md:h-6 mr-2 shrink-0" />
                               <span className="break-words">{t("claimAll")}</span>
                             </Button>
                           </DialogTrigger>
