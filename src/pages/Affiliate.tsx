@@ -1274,10 +1274,12 @@ export default function Affiliate() {
                       const conversions = levelData?.conversions || 0;
                       const earnings = levelData?.earnings || 0;
                       const commissionRate = level === 1 ? '9%' : level === 2 ? '6%' : '3%';
+                      // Check if tier is unlocked based on affiliate tier_level
+                      const isUnlocked = level <= (selectedAffiliate?.tier_level || 1);
                       const isActive = conversions > 0;
                       const levelIcon = level === 1 ? '🥇' : level === 2 ? '🥈' : '🥉';
-                      return <Card key={level} className={`group relative overflow-hidden transition-all duration-300 ${isActive ? 'border-primary/50 bg-gradient-to-br from-primary/10 via-background to-background shadow-xl shadow-primary/20' : 'border-border/50 hover:border-primary/30 bg-gradient-to-br from-background to-muted/20'}`}>
-                                  {isActive && <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-primary/20 to-transparent rounded-bl-full" />}
+                      return <Card key={level} className={`group relative overflow-hidden transition-all duration-300 ${isUnlocked ? 'border-primary/50 bg-gradient-to-br from-primary/10 via-background to-background shadow-xl shadow-primary/20' : 'border-border/50 hover:border-primary/30 bg-gradient-to-br from-background to-muted/20'}`}>
+                                  {isUnlocked && <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-primary/20 to-transparent rounded-bl-full" />}
                                   <CardHeader className="pb-3 relative">
                                     <div className="flex items-center justify-between">
                                       <div className="flex items-center gap-2">
@@ -1302,25 +1304,31 @@ export default function Affiliate() {
                                     <div className="space-y-3">
                                       <div className="flex justify-between items-center p-3 rounded-lg bg-muted/30">
                                         <span className="text-xs md:text-sm text-muted-foreground font-medium">Conversions</span>
-                                        <span className={`text-2xl md:text-3xl font-bold ${isActive ? 'text-foreground' : 'text-muted-foreground/50'}`}>
+                                        <span className={`text-2xl md:text-3xl font-bold ${isUnlocked ? 'text-foreground' : 'text-muted-foreground/50'}`}>
                                           {conversions}
                                         </span>
                                       </div>
                                       <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
                                       <div className="flex justify-between items-center p-3 rounded-lg bg-primary/5">
                                         <span className="text-xs md:text-sm text-muted-foreground font-medium">Earnings</span>
-                                        <span className={`text-xl md:text-2xl font-bold ${isActive ? 'text-primary' : 'text-muted-foreground/50'}`}>
+                                        <span className={`text-xl md:text-2xl font-bold ${isUnlocked ? 'text-primary' : 'text-muted-foreground/50'}`}>
                                           ${earnings.toFixed(2)}
                                         </span>
                                       </div>
                                     </div>
-                                    {isActive && <div className="pt-3 border-t border-primary/20 bg-gradient-to-r from-primary/5 to-transparent rounded-lg p-2">
+                                    {isUnlocked && isActive && <div className="pt-3 border-t border-primary/20 bg-gradient-to-r from-primary/5 to-transparent rounded-lg p-2">
                                         <div className="flex items-center gap-1.5 text-xs text-primary">
                                           <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
                                           <span className="font-semibold">Active & Earning</span>
                                         </div>
                                       </div>}
-                                    {!isActive && <div className="pt-3 border-t border-dashed border-border/50">
+                                    {isUnlocked && !isActive && <div className="pt-3 border-t border-primary/20 bg-gradient-to-r from-green-500/5 to-transparent rounded-lg p-2">
+                                        <div className="flex items-center gap-1.5 text-xs text-green-600 dark:text-green-500">
+                                          <Unlock className="w-3 h-3" />
+                                          <span className="font-semibold">Unlocked - Ready to Earn</span>
+                                        </div>
+                                      </div>}
+                                    {!isUnlocked && <div className="pt-3 border-t border-dashed border-border/50">
                                         <div className="flex items-center gap-1.5 text-xs text-muted-foreground/70">
                                           <Lock className="w-3 h-3" />
                                           <span className="font-medium">Not yet unlocked</span>
