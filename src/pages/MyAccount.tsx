@@ -128,6 +128,17 @@ export default function MyAccount() {
 
       setMembership(membershipData);
 
+      // Fetch affiliate data
+      const { data: affiliateInfo } = await supabase
+        .from('affiliates')
+        .select('total_earnings_usd, total_conversions, tier_level')
+        .eq('user_id', session.user.id)
+        .maybeSingle();
+
+      if (affiliateInfo) {
+        setAffiliateData(affiliateInfo);
+      }
+
       // Check for tier upgrade
       const previousTier = localStorage.getItem('previousTier');
       if (previousTier && previousTier !== membershipData.membership_tier) {
@@ -668,7 +679,7 @@ export default function MyAccount() {
                       </CardHeader>
                       <CardContent>
                         <p className="text-3xl font-bold text-accent">
-                          ${membership?.cashback_balance?.toFixed(2) || "0.00"}
+                          ${totalCashbackEarned.toFixed(2)}
                         </p>
                       </CardContent>
                     </Card>
@@ -681,7 +692,7 @@ export default function MyAccount() {
                         <div>
                           <p className="text-sm text-muted-foreground mb-1">{t("totalEarningsLabel")}</p>
                           <p className="text-4xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
-                            ${((affiliateData?.total_earnings_usd || 0) + (membership?.cashback_balance || 0)).toFixed(2)}
+                            ${((affiliateData?.total_earnings_usd || 0) + totalCashbackEarned).toFixed(2)}
                           </p>
                         </div>
                         <Dialog open={showClaimDialog} onOpenChange={setShowClaimDialog}>
@@ -689,7 +700,7 @@ export default function MyAccount() {
                             <Button
                               size="lg"
                               className="bg-gradient-to-r from-primary to-accent hover:opacity-90 shadow-lg"
-                              disabled={((affiliateData?.total_earnings_usd || 0) + (membership?.cashback_balance || 0)) < 5}
+                              disabled={((affiliateData?.total_earnings_usd || 0) + totalCashbackEarned) < 5}
                             >
                               <Wallet className="w-5 h-5 mr-2" />
                               {t("claimAll")}
