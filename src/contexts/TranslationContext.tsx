@@ -9,7 +9,7 @@ interface TranslationContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
   t: (key: string) => string;
-  currency: "USD" | "EUR";
+  currency: "USD";
   formatPrice: (priceUSD: number) => string;
 }
 
@@ -866,20 +866,14 @@ export function TranslationProvider({ children }: { children: ReactNode }) {
   }, [language]);
 
   const currency = useMemo(() => {
-    return EUROPEAN_LANGUAGES.includes(language) ? "EUR" : "USD";
+    return "USD" as const;
   }, [language]);
 
   const formatPrice = useMemo(() => {
-    const USD_TO_EUR = 0.92; // Approximate conversion rate
-    
     return (priceUSD: number) => {
-      if (currency === "EUR") {
-        const priceEUR = priceUSD * USD_TO_EUR;
-        return `€${priceEUR.toFixed(2)}`;
-      }
       return `$${priceUSD.toFixed(2)}`;
     };
-  }, [currency]);
+  }, []);
 
   const value = useMemo<TranslationContextType>(() => ({
     language,
