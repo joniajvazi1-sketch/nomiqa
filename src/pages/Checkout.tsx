@@ -167,9 +167,9 @@ export default function Checkout() {
             </div>
             <Button 
               onClick={() => navigate('/')}
-              className="w-full h-12 text-base font-semibold bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-all duration-300 hover:scale-105"
+              className="w-full h-auto py-3 px-4 text-sm md:text-base font-light bg-white/[0.05] backdrop-blur-xl border-2 border-neon-cyan/30 text-white hover:bg-neon-cyan/10 hover:border-neon-cyan/50 rounded-xl transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-neon-cyan/20"
             >
-              {t("checkoutBrowsePackages")}
+              <span className="break-words">{t("checkoutBrowsePackages")}</span>
             </Button>
           </CardContent>
         </Card>
