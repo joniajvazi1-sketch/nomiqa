@@ -61,6 +61,10 @@ export default function Affiliate() {
   const [showVerification, setShowVerification] = useState(false);
   const [pendingEmail, setPendingEmail] = useState("");
   const [selectedAffiliateId, setSelectedAffiliateId] = useState<string>("");
+  
+  // Derived value: get the currently selected affiliate
+  const selectedAffiliate = allAffiliates.find(a => a.id === selectedAffiliateId) || affiliate;
+  
   useEffect(() => {
     checkUser();
   }, []);
@@ -810,22 +814,22 @@ export default function Affiliate() {
                   <div className="space-y-4 md:space-y-5">
                      {/* Tier 1 - Starter */}
                     <div className={`p-4 md:p-5 rounded-xl border-2 transition-all duration-300 ${
-                      affiliate.tier_level >= 1 
+                      (selectedAffiliate?.tier_level || 1) >= 1 
                         ? 'border-blue-500/50 bg-gradient-to-br from-blue-500/10 via-blue-500/5 to-transparent shadow-lg shadow-blue-500/10' 
                         : 'border-muted bg-muted/20 hover:bg-muted/30'
                     }`}>
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
                         <div className="flex items-center gap-3">
-                          <div className={`p-2 rounded-lg ${affiliate.tier_level >= 1 ? 'bg-blue-500/20' : 'bg-muted'}`}>
-                            {affiliate.tier_level >= 1 
+                          <div className={`p-2 rounded-lg ${(selectedAffiliate?.tier_level || 1) >= 1 ? 'bg-blue-500/20' : 'bg-muted'}`}>
+                            {(selectedAffiliate?.tier_level || 1) >= 1 
                               ? <Unlock className="w-5 h-5 md:w-6 md:h-6 text-blue-500" /> 
                               : <Lock className="w-5 h-5 md:w-6 md:h-6 text-muted-foreground" />
                             }
                           </div>
                           <h3 className="font-bold text-blue-500 text-base md:text-lg">{t("tierStarter")}</h3>
                         </div>
-                        <Badge variant={affiliate.tier_level >= 1 ? 'default' : 'secondary'} className="text-xs md:text-sm w-fit bg-blue-500/20 text-blue-600 dark:text-blue-400 border-blue-500/30">
-                          {affiliate.tier_level >= 1 ? t("unlocked") : t("startHere")}
+                        <Badge variant={(selectedAffiliate?.tier_level || 1) >= 1 ? 'default' : 'secondary'} className="text-xs md:text-sm w-fit bg-blue-500/20 text-blue-600 dark:text-blue-400 border-blue-500/30">
+                          {(selectedAffiliate?.tier_level || 1) >= 1 ? t("unlocked") : t("startHere")}
                         </Badge>
                       </div>
                       <p className="text-sm md:text-base text-muted-foreground mb-3 md:mb-4">
@@ -839,22 +843,22 @@ export default function Affiliate() {
 
                     {/* Tier 2 - Pro */}
                     <div className={`p-4 md:p-5 rounded-xl border-2 transition-all duration-300 ${
-                      affiliate.tier_level >= 2 
+                      (selectedAffiliate?.tier_level || 1) >= 2 
                         ? 'border-purple-500/50 bg-gradient-to-br from-purple-500/10 via-purple-500/5 to-transparent shadow-lg shadow-purple-500/10' 
                         : 'border-muted bg-muted/20 hover:bg-muted/30'
                     }`}>
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
                         <div className="flex items-center gap-3">
-                          <div className={`p-2 rounded-lg ${affiliate.tier_level >= 2 ? 'bg-purple-500/20' : 'bg-muted'}`}>
-                            {affiliate.tier_level >= 2 
+                          <div className={`p-2 rounded-lg ${(selectedAffiliate?.tier_level || 1) >= 2 ? 'bg-purple-500/20' : 'bg-muted'}`}>
+                            {(selectedAffiliate?.tier_level || 1) >= 2 
                               ? <Unlock className="w-5 h-5 md:w-6 md:h-6 text-purple-500" /> 
                               : <Lock className="w-5 h-5 md:w-6 md:h-6 text-muted-foreground" />
                             }
                           </div>
                           <h3 className="font-bold text-purple-500 text-base md:text-lg">{t("tierPro")}</h3>
                         </div>
-                        <Badge variant={affiliate.tier_level >= 2 ? 'default' : 'secondary'} className="text-xs md:text-sm w-fit bg-purple-500/20 text-purple-600 dark:text-purple-400 border-purple-500/30">
-                          {affiliate.tier_level >= 2 ? t("unlocked") : "10 conversions"}
+                        <Badge variant={(selectedAffiliate?.tier_level || 1) >= 2 ? 'default' : 'secondary'} className="text-xs md:text-sm w-fit bg-purple-500/20 text-purple-600 dark:text-purple-400 border-purple-500/30">
+                          {(selectedAffiliate?.tier_level || 1) >= 2 ? t("unlocked") : "10 conversions"}
                         </Badge>
                       </div>
                       <p className="text-sm md:text-base text-muted-foreground mb-3 md:mb-4">
@@ -877,22 +881,22 @@ export default function Affiliate() {
 
                     {/* Tier 3 - Elite */}
                     <div className={`p-4 md:p-5 rounded-xl border-2 transition-all duration-300 ${
-                      affiliate.tier_level >= 3 
+                      (selectedAffiliate?.tier_level || 1) >= 3 
                         ? 'border-amber-500/50 bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent shadow-lg shadow-amber-500/10' 
                         : 'border-muted bg-muted/20 hover:bg-muted/30'
                     }`}>
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
                         <div className="flex items-center gap-3">
-                          <div className={`p-2 rounded-lg ${affiliate.tier_level >= 3 ? 'bg-amber-500/20' : 'bg-muted'}`}>
-                            {affiliate.tier_level >= 3 
+                          <div className={`p-2 rounded-lg ${(selectedAffiliate?.tier_level || 1) >= 3 ? 'bg-amber-500/20' : 'bg-muted'}`}>
+                            {(selectedAffiliate?.tier_level || 1) >= 3 
                               ? <Unlock className="w-5 h-5 md:w-6 md:h-6 text-amber-500" /> 
                               : <Lock className="w-5 h-5 md:w-6 md:h-6 text-muted-foreground" />
                             }
                           </div>
                           <h3 className="font-bold text-amber-500 text-base md:text-lg">{t("tierElite")}</h3>
                         </div>
-                        <Badge variant={affiliate.tier_level >= 3 ? 'default' : 'secondary'} className="text-xs md:text-sm w-fit bg-amber-500/20 text-amber-600 dark:text-amber-400 border-amber-500/30">
-                          {affiliate.tier_level >= 3 ? t("unlocked") : "30 conversions"}
+                        <Badge variant={(selectedAffiliate?.tier_level || 1) >= 3 ? 'default' : 'secondary'} className="text-xs md:text-sm w-fit bg-amber-500/20 text-amber-600 dark:text-amber-400 border-amber-500/30">
+                          {(selectedAffiliate?.tier_level || 1) >= 3 ? t("unlocked") : "30 conversions"}
                         </Badge>
                       </div>
                       <p className="text-sm md:text-base text-muted-foreground mb-3 md:mb-4">
