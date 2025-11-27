@@ -154,8 +154,11 @@ export default function Affiliate() {
       description: 'Additional 3% on 3rd level',
       color: 'text-amber-500'
     }];
-    const currentTier = tiers.find(t => t.level === affiliate.tier_level) || tiers[0];
-    const nextTier = tiers.find(t => t.level === affiliate.tier_level + 1);
+    
+    // Use the highest tier level across all affiliate accounts
+    const highestTierLevel = Math.max(...allAffiliates.map(a => a.tier_level || 1));
+    const currentTier = tiers.find(t => t.level === highestTierLevel) || tiers[0];
+    const nextTier = tiers.find(t => t.level === highestTierLevel + 1);
     const totalConversions = allAffiliates.reduce((sum, aff) => sum + (aff.total_conversions || 0), 0);
     if (!nextTier) {
       return {
