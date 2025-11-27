@@ -128,15 +128,23 @@ export default function MyAccount() {
 
       setMembership(membershipData);
 
-      // Fetch affiliate data (query by both user_id and email since affiliate might be linked either way)
-      const { data: affiliateInfo } = await supabase
+      // Fetch ALL affiliate accounts for this user (query by both user_id and email)
+      const { data: affiliateAccounts } = await supabase
         .from('affiliates')
         .select('total_earnings_usd, total_conversions, tier_level')
-        .or(`user_id.eq.${session.user.id},email.eq.${session.user.email}`)
-        .maybeSingle();
+        .or(`user_id.eq.${session.user.id},email.eq.${session.user.email}`);
 
-      if (affiliateInfo) {
-        setAffiliateData(affiliateInfo);
+      // Calculate total earnings and conversions from all affiliate accounts
+      if (affiliateAccounts && affiliateAccounts.length > 0) {
+        const totalEarnings = affiliateAccounts.reduce((sum, acc) => sum + (acc.total_earnings_usd || 0), 0);
+        const totalConversions = affiliateAccounts.reduce((sum, acc) => sum + (acc.total_conversions || 0), 0);
+        const highestTier = Math.max(...affiliateAccounts.map(acc => acc.tier_level || 1));
+        
+        setAffiliateData({
+          total_earnings_usd: totalEarnings,
+          total_conversions: totalConversions,
+          tier_level: highestTier
+        });
       }
 
       // Check for tier upgrade
@@ -243,41 +251,41 @@ export default function MyAccount() {
           </div>
 
           <Tabs defaultValue="info" className="w-full">
-            <TabsList className="grid w-full grid-cols-5 mb-8 h-auto bg-card/50 backdrop-blur-sm border border-border/50 p-1">
+            <TabsList className="grid w-full grid-cols-3 md:grid-cols-5 mb-8 h-auto bg-card/50 backdrop-blur-sm border border-border/50 p-1 gap-1">
               <TabsTrigger 
                 value="info" 
-                className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-3 sm:py-3 px-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary transition-all duration-300 hover:scale-105"
+                className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2 sm:py-3 px-1 sm:px-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary transition-all duration-300 hover:scale-105"
               >
-                <User className="w-5 h-5 sm:w-4 sm:h-4" />
-                <span className="text-[10px] sm:text-sm font-medium">{t("accountInfo")}</span>
+                <User className="w-4 h-4" />
+                <span className="text-[9px] sm:text-sm font-medium leading-tight">{t("accountInfo")}</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="membership" 
-                className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-3 sm:py-3 px-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary transition-all duration-300 hover:scale-105"
+                className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2 sm:py-3 px-1 sm:px-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary transition-all duration-300 hover:scale-105"
               >
-                <Award className="w-5 h-5 sm:w-4 sm:h-4" />
-                <span className="text-[10px] sm:text-sm font-medium">{t("membershipTab")}</span>
+                <Award className="w-4 h-4" />
+                <span className="text-[9px] sm:text-sm font-medium leading-tight">{t("membershipTab")}</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="orders" 
-                className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-3 sm:py-3 px-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary transition-all duration-300 hover:scale-105"
+                className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2 sm:py-3 px-1 sm:px-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary transition-all duration-300 hover:scale-105"
               >
-                <Package className="w-5 h-5 sm:w-4 sm:h-4" />
-                <span className="text-[10px] sm:text-sm font-medium">{t("myEsimsTab")}</span>
+                <Package className="w-4 h-4" />
+                <span className="text-[9px] sm:text-sm font-medium leading-tight">{t("myEsimsTab")}</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="earnings" 
-                className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-3 sm:py-3 px-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary transition-all duration-300 hover:scale-105"
+                className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2 sm:py-3 px-1 sm:px-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary transition-all duration-300 hover:scale-105"
               >
-                <DollarSign className="w-5 h-5 sm:w-4 sm:h-4" />
-                <span className="text-[10px] sm:text-sm font-medium">{t("claimEarnings")}</span>
+                <DollarSign className="w-4 h-4" />
+                <span className="text-[9px] sm:text-sm font-medium leading-tight">{t("claimEarnings")}</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="earn" 
-                className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-3 sm:py-3 px-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary transition-all duration-300 hover:scale-105"
+                className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2 sm:py-3 px-1 sm:px-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary transition-all duration-300 hover:scale-105"
               >
-                <Gift className="w-5 h-5 sm:w-4 sm:h-4" />
-                <span className="text-[10px] sm:text-sm font-medium">{t("referEarnTab")}</span>
+                <Gift className="w-4 h-4" />
+                <span className="text-[9px] sm:text-sm font-medium leading-tight">{t("referEarnTab")}</span>
               </TabsTrigger>
             </TabsList>
 
@@ -688,10 +696,10 @@ export default function MyAccount() {
                   {/* Total Earnings */}
                   <Card className="border-primary/50 bg-gradient-to-br from-primary/10 via-accent/5 to-transparent">
                     <CardContent className="pt-6">
-                      <div className="flex items-center justify-between">
-                        <div>
+                      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                        <div className="flex-1">
                           <p className="text-sm text-muted-foreground mb-1">{t("totalEarningsLabel")}</p>
-                          <p className="text-4xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
+                          <p className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
                             ${((affiliateData?.total_earnings_usd || 0) + totalCashbackEarned).toFixed(2)}
                           </p>
                         </div>
@@ -699,7 +707,7 @@ export default function MyAccount() {
                           <DialogTrigger asChild>
                             <Button
                               size="lg"
-                              className="bg-gradient-to-r from-primary to-accent hover:opacity-90 shadow-lg"
+                              className="w-full md:w-auto bg-gradient-to-r from-primary to-accent hover:opacity-90 shadow-lg"
                               disabled={((affiliateData?.total_earnings_usd || 0) + totalCashbackEarned) < 5}
                             >
                               <Wallet className="w-5 h-5 mr-2" />
