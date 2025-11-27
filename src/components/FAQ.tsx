@@ -59,13 +59,19 @@ export const FAQ = memo(() => {
 
   return (
     <section className="py-12 md:py-20 relative overflow-hidden">
+      {/* Premium background decorations */}
+      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-neon-cyan/5 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-neon-violet/5 rounded-full blur-3xl"></div>
+      
       <div className="container px-4 relative z-10">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-8 md:mb-12">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-3 md:mb-4 bg-gradient-to-r from-neon-cyan via-neon-violet to-neon-coral bg-clip-text text-transparent">
-              {t("faqTitle")}
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-light mb-3 md:mb-4">
+              <span className="bg-gradient-to-r from-neon-cyan via-white to-neon-violet bg-clip-text text-transparent">
+                {t("faqTitle")}
+              </span>
             </h2>
-            <p className="text-base md:text-xl text-foreground/80">
+            <p className="text-base md:text-xl text-white/70 font-light">
               {t("faqSubtitle")}
             </p>
           </div>
@@ -91,7 +97,7 @@ export const FAQ = memo(() => {
             <Button
               onClick={() => navigate(localizedPath("/help", language))}
               size="lg"
-              className="bg-gradient-to-r from-neon-cyan to-neon-violet hover:from-neon-cyan/90 hover:to-neon-violet/90 text-white border-0 shadow-glow-cyan font-light px-8 rounded-xl transition-all duration-200"
+              className="group bg-white/[0.03] backdrop-blur-xl border-2 border-neon-cyan/30 text-white hover:bg-neon-cyan/10 hover:border-neon-cyan/50 px-10 py-7 text-base md:text-lg rounded-2xl font-light transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-neon-cyan/20"
             >
               {t("contactHelpCenter")}
             </Button>
