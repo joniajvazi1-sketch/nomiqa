@@ -217,7 +217,7 @@ export const Shop = () => {
                     {product.features?.coverage && (
                       <div className="flex items-center gap-2 text-sm p-3 rounded-lg bg-white/[0.02] border border-white/5">
                         <Globe className="h-4 w-4 text-neon-cyan shrink-0" />
-                        <span className="text-white/60 truncate font-light">{product.features.coverage}</span>
+                        <span className="text-white/60 break-words font-light flex-1 min-w-0">{product.features.coverage}</span>
                       </div>
                     )}
 
