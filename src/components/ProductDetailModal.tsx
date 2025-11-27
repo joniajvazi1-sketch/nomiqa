@@ -125,9 +125,9 @@ export const ProductDetailModal = ({
           {product.features?.coverage && (
             <div className="flex items-start gap-3 p-4 rounded-xl bg-white/[0.02] border border-white/10 hover:border-neon-cyan/30 transition-all duration-300">
               <Globe className="h-5 w-5 text-neon-cyan mt-0.5 shrink-0" />
-              <div>
-                <p className="font-normal text-white">{t('coverage')}</p>
-                <p className="text-sm text-white/60 font-light mt-1">{product.features.coverage}</p>
+              <div className="flex-1 min-w-0">
+                <p className="font-normal text-white break-words">{t('coverage')}</p>
+                <p className="text-sm text-white/60 font-light mt-1 break-words">{product.features.coverage}</p>
               </div>
             </div>
           )}
@@ -135,9 +135,9 @@ export const ProductDetailModal = ({
           {product.features?.speed && (
             <div className="flex items-start gap-3 p-4 rounded-xl bg-white/[0.02] border border-white/10 hover:border-neon-cyan/30 transition-all duration-300">
               <Zap className="h-5 w-5 text-neon-cyan mt-0.5 shrink-0" />
-              <div>
-                <p className="font-normal text-white">{t('networkSpeed')}</p>
-                <p className="text-sm text-white/60 font-light mt-1">{product.features.speed}</p>
+              <div className="flex-1 min-w-0">
+                <p className="font-normal text-white break-words">{t('networkSpeed')}</p>
+                <p className="text-sm text-white/60 font-light mt-1 break-words">{product.features.speed}</p>
               </div>
             </div>
           )}
@@ -145,9 +145,9 @@ export const ProductDetailModal = ({
           {product.features?.activation && (
             <div className="flex items-start gap-3 p-4 rounded-xl bg-white/[0.02] border border-white/10 hover:border-neon-cyan/30 transition-all duration-300">
               <Clock className="h-5 w-5 text-neon-cyan mt-0.5 shrink-0" />
-              <div>
-                <p className="font-normal text-white">{t('activation')}</p>
-                <p className="text-sm text-white/60 font-light mt-1">{product.features.activation}</p>
+              <div className="flex-1 min-w-0">
+                <p className="font-normal text-white break-words">{t('activation')}</p>
+                <p className="text-sm text-white/60 font-light mt-1 break-words">{product.features.activation}</p>
               </div>
             </div>
           )}
