@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, Download, QrCode, RefreshCw, ExternalLink } from "lucide-react";
+import { ArrowLeft, Download, QrCode, RefreshCw, ExternalLink, Copy } from "lucide-react";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -249,7 +249,7 @@ export default function Orders() {
         </Button>
 
         <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-foreground">{t("myOrders")}</h1>
+          <h1 className="text-3xl md:text-4xl font-bold text-foreground">{t("myEsims")}</h1>
           {new URLSearchParams(window.location.search).get('token') && (
             <p className="text-sm text-muted-foreground mt-2">
               {t("viewingOrderViaLink")}
@@ -285,7 +285,11 @@ export default function Orders() {
                       </CardDescription>
                     </div>
                     <Badge variant={getStatusColor(order.status)}>
-                      {order.status.toUpperCase()}
+                      {order.status === 'completed' ? t("orderStatusCompleted") :
+                       order.status === 'pending' ? t("orderStatusPending") :
+                       order.status === 'failed' ? t("orderStatusFailed") :
+                       order.status === 'paid' ? t("orderStatusPaid") :
+                       order.status.toUpperCase()}
                     </Badge>
                   </div>
                 </CardHeader>
@@ -423,28 +427,42 @@ export default function Orders() {
               </div>
               <div className="space-y-2">
                 <p className="text-sm font-medium">{t("activationCode")}</p>
-                <code 
-                  className="block p-2 bg-muted rounded text-xs break-all cursor-pointer hover:bg-muted/80 transition-colors"
-                  onClick={() => {
-                    navigator.clipboard.writeText(selectedOrder.matching_id || '');
-                    toast.success(t("copiedToClipboard"));
-                  }}
-                >
-                  {selectedOrder.matching_id}
-                </code>
+                <div className="flex items-center gap-2">
+                  <code className="flex-1 p-2 bg-muted rounded text-xs break-all">
+                    {selectedOrder.matching_id}
+                  </code>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="shrink-0"
+                    onClick={() => {
+                      navigator.clipboard.writeText(selectedOrder.matching_id || '');
+                      toast.success(t("copiedToClipboard"));
+                    }}
+                  >
+                    <Copy className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
               {selectedOrder.iccid && (
                 <div className="space-y-2">
                   <p className="text-sm font-medium">{t("iccid")}</p>
-                  <code 
-                    className="block p-2 bg-muted rounded text-xs break-all cursor-pointer hover:bg-muted/80 transition-colors"
-                    onClick={() => {
-                      navigator.clipboard.writeText(selectedOrder.iccid || '');
-                      toast.success(t("copiedToClipboard"));
-                    }}
-                  >
-                    {selectedOrder.iccid}
-                  </code>
+                  <div className="flex items-center gap-2">
+                    <code className="flex-1 p-2 bg-muted rounded text-xs break-all">
+                      {selectedOrder.iccid}
+                    </code>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="shrink-0"
+                      onClick={() => {
+                        navigator.clipboard.writeText(selectedOrder.iccid || '');
+                        toast.success(t("copiedToClipboard"));
+                      }}
+                    >
+                      <Copy className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
               )}
             </div>
