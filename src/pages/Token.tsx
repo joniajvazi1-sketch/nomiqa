@@ -89,7 +89,11 @@ const Token = () => {
             <div className="relative z-10 flex flex-col items-center gap-8">
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-r from-neon-cyan/30 to-neon-violet/30 rounded-full blur-xl animate-pulse" />
-                <Rocket className="w-32 h-32 text-neon-cyan relative z-10 animate-bounce" />
+                <img 
+                  src="/nomiqa-logo.jpg" 
+                  alt="Nomiqa" 
+                  className="w-32 h-32 relative z-10 rounded-2xl shadow-2xl shadow-neon-cyan/50 animate-pulse" 
+                />
               </div>
               <div className="flex items-center gap-2 text-white/60 font-light">
                 <Sparkles className="w-5 h-5 text-neon-cyan animate-pulse" />
@@ -129,17 +133,6 @@ const Token = () => {
             </p>
           </div>
 
-          {/* Coming Soon Badge */}
-          <div className={`text-center transition-all duration-1000 delay-600 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            <div className="inline-block relative group">
-              <div className="absolute inset-0 bg-gradient-to-r from-neon-cyan/20 to-neon-violet/20 rounded-full blur-xl group-hover:blur-2xl transition-all duration-500" />
-              <div className="relative px-8 py-4 rounded-full bg-white/[0.05] backdrop-blur-xl border border-white/20 hover:border-white/30 transition-all duration-300">
-                <p className="text-sm md:text-base font-light text-white/90 tracking-wider">
-                  {t("tokenLaunchAnnouncement")}
-                </p>
-              </div>
-            </div>
-          </div>
         </div>
       </main>
 

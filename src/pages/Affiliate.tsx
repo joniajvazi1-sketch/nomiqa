@@ -534,13 +534,14 @@ export default function Affiliate() {
       <div className="container mx-auto px-3 md:px-4 py-8 md:py-12 relative z-10">
         <div className="max-w-6xl mx-auto">
 
-          {!user ? <Card className="max-w-2xl mx-auto bg-white/[0.02] backdrop-blur-xl border-white/10 overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-neon-violet/5 via-transparent to-neon-cyan/5 pointer-events-none"></div>
-              <CardHeader className="pb-3 md:pb-4 relative">
-                <CardTitle className="text-center text-xl md:text-2xl bg-gradient-to-r from-neon-cyan via-neon-violet to-neon-coral bg-clip-text text-transparent font-bold">
+          {!user ? <Card className="max-w-2xl mx-auto bg-white/[0.03] backdrop-blur-2xl border border-white/20 shadow-2xl overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-neon-cyan/10 via-neon-violet/10 to-neon-coral/10 pointer-events-none"></div>
+              <div className="absolute top-0 right-0 w-48 h-48 bg-white/[0.05] rounded-full blur-3xl pointer-events-none"></div>
+              <CardHeader className="pb-6 md:pb-8 relative pt-8 md:pt-10">
+                <CardTitle className="text-center text-2xl md:text-3xl lg:text-4xl bg-gradient-to-r from-neon-cyan via-white to-neon-violet bg-clip-text text-transparent font-light">
                   {t("affiliateAuthTitle")}
                 </CardTitle>
-                <CardDescription className="text-center text-xs md:text-sm text-foreground/80">
+                <CardDescription className="text-center text-sm md:text-base text-foreground/80 font-light mt-3">
                   {t("affiliateAuthDesc")}
                 </CardDescription>
               </CardHeader>

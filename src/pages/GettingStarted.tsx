@@ -204,26 +204,27 @@ export default function GettingStarted() {
             </div>
           </div>
 
-          {/* Call to Action */}
-          <Card className="relative overflow-hidden bg-gradient-to-br from-neon-violet/10 via-neon-coral/10 to-neon-cyan/10 border border-neon-violet/30 backdrop-blur-xl shadow-glow-coral">
-            <div className="absolute inset-0 bg-gradient-to-br from-neon-cyan/5 via-transparent to-neon-violet/5 pointer-events-none"></div>
-            <CardContent className="pt-10 pb-10 md:pt-12 md:pb-12 relative z-10">
-              <div className="flex flex-col items-center justify-center text-center gap-6">
-                <div className="space-y-3">
-                  <h3 className="text-3xl md:text-4xl font-light bg-gradient-to-r from-neon-coral via-neon-orange to-neon-pink bg-clip-text text-transparent">
+          {/* Call to Action - Premium */}
+          <Card className="relative overflow-hidden bg-white/[0.03] backdrop-blur-2xl border border-white/20 shadow-2xl">
+            <div className="absolute inset-0 bg-gradient-to-br from-neon-cyan/10 via-neon-violet/10 to-neon-coral/10 pointer-events-none"></div>
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white/[0.05] rounded-full blur-3xl pointer-events-none"></div>
+            <CardContent className="pt-12 pb-12 md:pt-16 md:pb-16 relative z-10">
+              <div className="flex flex-col items-center justify-center text-center gap-8">
+                <div className="space-y-4">
+                  <h3 className="text-3xl md:text-4xl lg:text-5xl font-light bg-gradient-to-r from-neon-cyan via-white to-neon-violet bg-clip-text text-transparent">
                     {t("gettingStartedCtaTitle")}
                   </h3>
-                  <p className="text-white/70 text-base md:text-lg max-w-xl mx-auto font-light leading-relaxed">
+                  <p className="text-white/70 text-base md:text-lg lg:text-xl max-w-2xl mx-auto font-light leading-relaxed">
                     {t("gettingStartedCtaDesc")}
                   </p>
                 </div>
                 <Button 
                   size="lg" 
                   onClick={() => window.location.href = '/shop'}
-                  className="bg-gradient-to-r from-neon-cyan to-neon-violet hover:from-neon-cyan/90 hover:to-neon-violet/90 text-white shadow-glow-cyan text-base md:text-lg px-8 md:px-10 py-6 md:py-7 h-auto group rounded-xl font-light"
+                  className="w-full sm:w-auto h-auto py-4 px-10 md:py-5 md:px-14 text-base md:text-lg font-light bg-white/[0.05] backdrop-blur-xl border-2 border-neon-cyan/40 text-white hover:bg-neon-cyan/10 hover:border-neon-cyan/60 rounded-2xl transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-neon-cyan/20 group"
                 >
-                  {t("browsePlans")}
-                  <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                  <span className="break-words">{t("browsePlans")}</span>
+                  <ArrowRight className="w-5 h-5 md:w-6 md:h-6 ml-2 group-hover:translate-x-1 transition-transform shrink-0" />
                 </Button>
               </div>
             </CardContent>

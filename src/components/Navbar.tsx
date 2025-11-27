@@ -283,16 +283,16 @@ export const Navbar = () => {
               </Button>
             )}
 
-            {/* Mobile My Account Icon - Show only when logged in */}
+            {/* Mobile My Account Icon - Show only when logged in - Premium */}
             {user && (
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="flex lg:hidden relative hover:bg-neon-cyan/5 hover:border-neon-cyan/30 border border-white/5 transition-all duration-300 h-9 w-9" 
+                className="flex lg:hidden relative bg-white/[0.05] backdrop-blur-xl border border-neon-cyan/30 hover:bg-neon-cyan/10 hover:border-neon-cyan/50 transition-all duration-300 h-9 w-9 rounded-lg shadow-lg hover:shadow-neon-cyan/20 hover:scale-105" 
                 onClick={() => navigate(localizedPath('/account', language))} 
                 aria-label="My Account"
               >
-                <UserIcon className="w-4 h-4 text-white/80 hover:text-neon-cyan transition-colors duration-300" />
+                <UserIcon className="w-4 h-4 text-neon-cyan" />
               </Button>
             )}
 

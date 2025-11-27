@@ -163,30 +163,29 @@ export const ProductDetailModal = ({
 
         {/* Removed duplicate Check Compatibility Button - now in header */}
 
-        {/* Action Buttons */}
+        {/* Action Buttons - Premium & Bigger */}
         <div className="flex flex-col sm:flex-row gap-4 relative z-10">
           <Button 
             onClick={() => {
               onAddToCart(product);
               onOpenChange(false);
             }}
-            className="flex-1 bg-gradient-to-r from-neon-cyan to-neon-violet hover:from-neon-cyan/90 hover:to-neon-violet/90 text-white border-0 shadow-glow-cyan font-light h-16 sm:h-12 rounded-xl transition-all duration-300 text-lg sm:text-sm px-6"
+            className="flex-1 bg-white/[0.05] backdrop-blur-xl border-2 border-neon-cyan/40 text-neon-cyan hover:bg-neon-cyan/10 hover:border-neon-cyan/60 font-light h-20 sm:h-16 rounded-2xl transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-neon-cyan/20 text-lg sm:text-base px-8"
             size="lg"
           >
-            <ShoppingCart className="mr-2 h-6 w-6 sm:h-4 sm:w-4" />
-            {t('addToCart')}
+            <ShoppingCart className="mr-3 h-7 w-7 sm:h-6 sm:w-6 shrink-0" />
+            <span className="break-words">{t('addToCart')}</span>
           </Button>
           <Button 
             onClick={() => {
               onOpenChange(false);
               onReferEarn(product);
             }}
-            variant="outline"
+            className="flex-1 bg-white/[0.05] backdrop-blur-xl border-2 border-neon-coral/40 text-neon-coral hover:bg-neon-coral/10 hover:border-neon-coral/60 font-light h-20 sm:h-16 rounded-2xl transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-neon-coral/20 text-lg sm:text-base px-8"
             size="lg"
-            className="flex-1 bg-white/[0.02] border-neon-coral/30 text-neon-coral hover:bg-neon-coral/10 hover:border-neon-coral/50 transition-all duration-300 font-light h-16 sm:h-12 rounded-xl text-lg sm:text-sm px-6"
           >
-            <HandCoins className="h-6 w-6 mr-2 sm:h-4 sm:w-4" />
-            {t('referAndEarn')}
+            <HandCoins className="mr-3 h-7 w-7 sm:h-6 sm:w-6 shrink-0" />
+            <span className="break-words">{t('referAndEarn')}</span>
           </Button>
         </div>
         
