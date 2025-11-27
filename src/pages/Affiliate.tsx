@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Copy, TrendingUp, Users, DollarSign, CheckCircle2, Loader2, XCircle, AlertCircle, BarChart3, Share2, Award, Lock, Unlock } from "lucide-react";
@@ -59,6 +60,7 @@ export default function Affiliate() {
   const [loadingAnalytics, setLoadingAnalytics] = useState(false);
   const [showVerification, setShowVerification] = useState(false);
   const [pendingEmail, setPendingEmail] = useState("");
+  const [selectedAffiliateId, setSelectedAffiliateId] = useState<string>("");
   useEffect(() => {
     checkUser();
   }, []);
@@ -121,16 +123,22 @@ export default function Affiliate() {
     });
     if (!error && data && data.length > 0) {
       setAllAffiliates(data);
-      // Set the first (primary) affiliate as the main one
-      setAffiliate(data[0]);
-      setAffiliateLink(`${window.location.origin}/r/${data[0].affiliate_code}`);
-      setUsername(data[0].username || '');
-      if (data[0].username) {
-        setCustomLink(`${window.location.origin}/${data[0].username}`);
+      
+      // Find the affiliate with highest tier level as default
+      const highestTierAffiliate = data.reduce((prev, current) => 
+        (current.tier_level > prev.tier_level) ? current : prev
+      );
+      
+      setAffiliate(highestTierAffiliate);
+      setSelectedAffiliateId(highestTierAffiliate.id);
+      setAffiliateLink(`${window.location.origin}/r/${highestTierAffiliate.affiliate_code}`);
+      setUsername(highestTierAffiliate.username || '');
+      if (highestTierAffiliate.username) {
+        setCustomLink(`${window.location.origin}/${highestTierAffiliate.username}`);
       }
 
-      // Fetch analytics for primary affiliate
-      fetchAnalytics(data[0].id);
+      // Fetch analytics for selected affiliate
+      fetchAnalytics(highestTierAffiliate.id);
     }
   };
   const getTierInfo = () => {
@@ -155,11 +163,12 @@ export default function Affiliate() {
       color: 'text-amber-500'
     }];
     
-    // Use the highest tier level across all affiliate accounts
-    const highestTierLevel = Math.max(...allAffiliates.map(a => a.tier_level || 1));
-    const currentTier = tiers.find(t => t.level === highestTierLevel) || tiers[0];
-    const nextTier = tiers.find(t => t.level === highestTierLevel + 1);
-    const totalConversions = allAffiliates.reduce((sum, aff) => sum + (aff.total_conversions || 0), 0);
+    // Use the selected affiliate's tier level
+    const currentTier = tiers.find(t => t.level === affiliate.tier_level) || tiers[0];
+    const nextTier = tiers.find(t => t.level === affiliate.tier_level + 1);
+    
+    // Use only the selected affiliate's conversions
+    const totalConversions = affiliate.total_conversions || 0;
     if (!nextTier) {
       return {
         currentTier,
@@ -179,6 +188,21 @@ export default function Affiliate() {
       totalConversions
     };
   };
+  
+  const handleAffiliateChange = (affiliateId: string) => {
+    const selected = allAffiliates.find(a => a.id === affiliateId);
+    if (selected) {
+      setSelectedAffiliateId(affiliateId);
+      setAffiliate(selected);
+      setAffiliateLink(`${window.location.origin}/r/${selected.affiliate_code}`);
+      setUsername(selected.username || '');
+      if (selected.username) {
+        setCustomLink(`${window.location.origin}/${selected.username}`);
+      }
+      fetchAnalytics(selected.id);
+    }
+  };
+  
   const copyLink = (link: string) => {
     navigator.clipboard.writeText(link);
     toast.success("Link copied to clipboard!");
@@ -599,6 +623,45 @@ export default function Affiliate() {
                 </div>
               </CardContent>
             </Card> : <>
+              {/* Affiliate Account Selector */}
+              {allAffiliates.length > 1 && (
+                <Card className="mb-6 bg-card/80 backdrop-blur-xl border-border/50">
+                  <CardHeader className="pb-4">
+                    <CardTitle className="text-base md:text-lg flex items-center gap-2">
+                      <Users className="w-5 h-5 text-primary" />
+                      Select Affiliate Account
+                    </CardTitle>
+                    <CardDescription>
+                      You have {allAffiliates.length} affiliate accounts. Choose one to view its stats.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Select value={selectedAffiliateId} onValueChange={handleAffiliateChange}>
+                      <SelectTrigger className="w-full bg-background/80 backdrop-blur-sm border-border/50 z-50">
+                        <SelectValue placeholder="Select an affiliate account" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-card backdrop-blur-xl border-border/50 z-50">
+                        {allAffiliates.map((aff) => (
+                          <SelectItem key={aff.id} value={aff.id} className="hover:bg-muted/50">
+                            <div className="flex items-center justify-between gap-4 w-full">
+                              <span className="font-medium">
+                                {aff.username || aff.affiliate_code}
+                              </span>
+                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                <Badge variant="outline" className="text-xs">
+                                  Tier {aff.tier_level}
+                                </Badge>
+                                <span>{aff.total_conversions} conversions</span>
+                              </div>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </CardContent>
+                </Card>
+              )}
+
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8 text-center">
                 <Card className="group bg-gradient-to-br from-card/80 via-card/60 to-card/40 backdrop-blur-xl border border-border/50 hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:scale-105 relative overflow-hidden">
                   {/* Glow effect */}
@@ -612,7 +675,7 @@ export default function Affiliate() {
                   </CardHeader>
                   <CardContent className="relative z-10">
                     <div className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                      {allAffiliates.reduce((sum, aff) => sum + (aff.total_clicks || 0), 0)}
+                      {affiliate.total_clicks || 0}
                     </div>
                   </CardContent>
                 </Card>
@@ -629,7 +692,7 @@ export default function Affiliate() {
                   </CardHeader>
                   <CardContent className="relative z-10">
                     <div className="text-3xl md:text-4xl font-bold text-green-500">
-                      {allAffiliates.reduce((sum, aff) => sum + (aff.total_conversions || 0), 0)}
+                      {affiliate.total_conversions || 0}
                     </div>
                   </CardContent>
                 </Card>
@@ -646,7 +709,7 @@ export default function Affiliate() {
                   </CardHeader>
                   <CardContent className="relative z-10">
                     <div className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">
-                      ${allAffiliates.reduce((sum, aff) => sum + (aff.total_earnings_usd || 0), 0).toFixed(2)}
+                      ${(affiliate.total_earnings_usd || 0).toFixed(2)}
                     </div>
                   </CardContent>
                 </Card>
