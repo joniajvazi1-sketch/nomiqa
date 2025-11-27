@@ -47,7 +47,7 @@ export default function About() {
       <Navbar />
       
       {/* Hero Section with warm imagery */}
-      <section className="relative pt-32 md:pt-32 pb-20 px-4 overflow-hidden">
+      <section className="relative pt-40 md:pt-32 pb-20 px-4 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-deep-space/80 via-midnight-blue/60 to-deep-space/80 backdrop-blur-sm"></div>
         
         <div className="container max-w-6xl mx-auto relative z-10">
