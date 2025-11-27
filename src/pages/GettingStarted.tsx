@@ -1,7 +1,7 @@
 import { Navbar } from "@/components/Navbar";
 import { SiteNavigation } from "@/components/SiteNavigation";
 import { Footer } from "@/components/Footer";
-import { StickyCTA } from "@/components/StickyCTA";
+import { SupportChatbot } from "@/components/SupportChatbot";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Wallet, Shield, Coins, ArrowRight, ExternalLink, Download, TrendingUp, CheckCircle2 } from "lucide-react";
@@ -233,7 +233,7 @@ export default function GettingStarted() {
 
       <SiteNavigation />
       <Footer />
-      <StickyCTA />
+      <SupportChatbot />
     </div>
   );
 }

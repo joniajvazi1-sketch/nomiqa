@@ -4,7 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Navbar } from "@/components/Navbar";
 import { SiteNavigation } from "@/components/SiteNavigation";
 import { Footer } from "@/components/Footer";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { SupportChatbot } from "@/components/SupportChatbot";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Loader2, User, Award, Package, Gift, Crown, Star, TrendingUp, Zap, Sparkles, RefreshCw, Wallet, DollarSign, Copy } from "lucide-react";
@@ -839,6 +840,7 @@ export default function MyAccount() {
 
       <SiteNavigation />
       <Footer />
+      <SupportChatbot />
     </div>
   );
 }

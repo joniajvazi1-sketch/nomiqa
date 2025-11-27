@@ -1,7 +1,7 @@
 import { Navbar } from "@/components/Navbar";
 import { SiteNavigation } from "@/components/SiteNavigation";
 import { Footer } from "@/components/Footer";
-import { StickyCTA } from "@/components/StickyCTA";
+import { SupportChatbot } from "@/components/SupportChatbot";
 import { NetworkBackground } from "@/components/NetworkBackground";
 import { Shield, Eye, Lock, Globe, Fingerprint, Database } from "lucide-react";
 import { useTranslation } from "@/contexts/TranslationContext";
@@ -156,7 +156,7 @@ export default function Privacy() {
       
       <SiteNavigation />
       <Footer />
-      <StickyCTA />
+      <SupportChatbot />
     </div>
   );
 }

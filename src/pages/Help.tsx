@@ -2,6 +2,7 @@ import { Navbar } from "@/components/Navbar";
 import { FAQ } from "@/components/FAQ";
 import { SiteNavigation } from "@/components/SiteNavigation";
 import { Footer } from "@/components/Footer";
+import { SupportChatbot } from "@/components/SupportChatbot";
 import { NetworkBackground } from "@/components/NetworkBackground";
 import { MessageCircle, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -107,6 +108,7 @@ const Help = () => {
       
       <SiteNavigation />
       <Footer />
+      <SupportChatbot />
     </div>
   );
 };

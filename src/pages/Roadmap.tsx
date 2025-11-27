@@ -1,6 +1,7 @@
 import { Navbar } from "@/components/Navbar";
 import { SiteNavigation } from "@/components/SiteNavigation";
 import { Footer } from "@/components/Footer";
+import { SupportChatbot } from "@/components/SupportChatbot";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, Circle, Clock } from "lucide-react";
@@ -158,6 +159,7 @@ export default function Roadmap() {
 
       <SiteNavigation />
       <Footer />
+      <SupportChatbot />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { Navbar } from "@/components/Navbar";
 import { SiteNavigation } from "@/components/SiteNavigation";
 import { Footer } from "@/components/Footer";
+import { SupportChatbot } from "@/components/SupportChatbot";
 import { NetworkBackground } from "@/components/NetworkBackground";
 import { Coins, Rocket, Sparkles, TrendingUp, Lock, Zap } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
@@ -144,6 +145,7 @@ const Token = () => {
 
       <SiteNavigation />
       <Footer />
+      <SupportChatbot />
     </div>
   );
 };

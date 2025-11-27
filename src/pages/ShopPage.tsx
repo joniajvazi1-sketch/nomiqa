@@ -2,6 +2,7 @@ import { Navbar } from "@/components/Navbar";
 import { Shop } from "@/components/Shop";
 import { SiteNavigation } from "@/components/SiteNavigation";
 import { Footer } from "@/components/Footer";
+import { SupportChatbot } from "@/components/SupportChatbot";
 import { SEO } from "@/components/SEO";
 
 const ShopPage = () => {
@@ -14,6 +15,7 @@ const ShopPage = () => {
       </div>
       <SiteNavigation />
       <Footer />
+      <SupportChatbot />
     </div>
   );
 };

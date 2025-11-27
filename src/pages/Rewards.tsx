@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/Navbar";
 import { SiteNavigation } from "@/components/SiteNavigation";
 import { Footer } from "@/components/Footer";
+import { SupportChatbot } from "@/components/SupportChatbot";
 import { NetworkBackground } from "@/components/NetworkBackground";
 import { Plane, Compass, Mountain, Rocket, Wallet, Sparkles, Zap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -171,6 +172,7 @@ export default function Rewards() {
 
       <SiteNavigation />
       <Footer />
+      <SupportChatbot />
     </div>
   );
 }

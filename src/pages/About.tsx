@@ -1,7 +1,7 @@
 import { Navbar } from "@/components/Navbar";
 import { SiteNavigation } from "@/components/SiteNavigation";
 import { Footer } from "@/components/Footer";
-import { StickyCTA } from "@/components/StickyCTA";
+import { SupportChatbot } from "@/components/SupportChatbot";
 import { NetworkBackground } from "@/components/NetworkBackground";
 import { Globe, Heart, Users, Zap } from "lucide-react";
 import { useTranslation } from "@/contexts/TranslationContext";
@@ -174,7 +174,7 @@ export default function About() {
       
       <SiteNavigation />
       <Footer />
-      <StickyCTA />
+      <SupportChatbot />
     </div>
   );
 }
