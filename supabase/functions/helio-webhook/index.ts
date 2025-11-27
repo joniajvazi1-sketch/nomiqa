@@ -58,7 +58,8 @@ serve(async (req) => {
       
       console.log('Webhook signature verified successfully');
     } else {
-      console.warn('No signature provided - processing anyway for debugging');
+      console.error('Missing webhook signature - rejecting request');
+      return new Response('Signature required', { status: 401, headers: corsHeaders });
     }
 
     // Initialize Supabase client early for replay protection
