@@ -24,6 +24,7 @@ interface MembershipData {
   total_spent_usd: number;
   membership_tier: string;
   cashback_rate: number;
+  cashback_balance?: number; // Calculated on frontend
 }
 
 const TIER_COLORS = {
@@ -185,6 +186,11 @@ export default function MyAccount() {
 
   const nextTier = getNextTierInfo();
   const TierIcon = membership ? TIER_ICONS[membership.membership_tier as keyof typeof TIER_ICONS] : Star;
+  
+  // Calculate total cashback earned
+  const totalCashbackEarned = membership 
+    ? (membership.total_spent_usd * membership.cashback_rate) / 100 
+    : 0;
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
@@ -299,25 +305,45 @@ export default function MyAccount() {
                       </div>
                     </CardHeader>
                   
-                   <CardContent className="relative z-10 space-y-4 sm:space-y-6 pt-4 sm:pt-8">
-                    <div className="flex items-center justify-between gap-4 mb-4">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={refreshMembership}
-                        className="bg-white/20 hover:bg-white/30 text-white border-white/30"
-                      >
-                        <RefreshCw className="w-4 h-4 mr-2" />
-                        {t("refresh")}
-                      </Button>
-                    </div>
-                    
-                    <div className="bg-white/15 backdrop-blur-md rounded-xl p-4 sm:p-6 border border-white/30">
-                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-                        <p className="text-sm sm:text-base opacity-90 font-medium">{t("lifetimeSpending")}</p>
-                        <p className="text-2xl sm:text-3xl font-bold tracking-tight">${membership?.total_spent_usd.toFixed(2)}</p>
-                      </div>
-                    </div>
+                    <CardContent className="relative z-10 space-y-4 sm:space-y-6 pt-4 sm:pt-8">
+                     <div className="flex items-center justify-between gap-4 mb-4">
+                       <Button
+                         variant="ghost"
+                         size="sm"
+                         onClick={refreshMembership}
+                         className="bg-white/20 hover:bg-white/30 text-white border-white/30"
+                       >
+                         <RefreshCw className="w-4 h-4 mr-2" />
+                         {t("refresh")}
+                       </Button>
+                     </div>
+                     
+                     {/* Cashback Balance - Prominent Display */}
+                     <div className="bg-gradient-to-br from-white/25 via-white/20 to-white/15 backdrop-blur-lg rounded-2xl p-5 sm:p-8 border-2 border-white/40 shadow-2xl animate-fade-in">
+                       <div className="flex items-center justify-between mb-3">
+                         <div className="flex items-center gap-2">
+                           <div className="p-2 bg-white/30 rounded-lg backdrop-blur-sm">
+                             <Gift className="w-5 h-5 sm:w-6 sm:h-6 animate-pulse" />
+                           </div>
+                           <p className="text-sm sm:text-base font-bold uppercase tracking-wider opacity-95">{t("totalCashbackEarned")}</p>
+                         </div>
+                       </div>
+                       <div className="flex items-baseline gap-2">
+                         <span className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight drop-shadow-2xl">
+                           ${totalCashbackEarned.toFixed(2)}
+                         </span>
+                       </div>
+                       <p className="text-xs sm:text-sm mt-3 opacity-90 font-medium">
+                         💰 {t("earnedFromAllPurchases")}
+                       </p>
+                     </div>
+                     
+                     <div className="bg-white/15 backdrop-blur-md rounded-xl p-4 sm:p-6 border border-white/30">
+                       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                         <p className="text-sm sm:text-base opacity-90 font-medium">{t("lifetimeSpending")}</p>
+                         <p className="text-2xl sm:text-3xl font-bold tracking-tight">${membership?.total_spent_usd.toFixed(2)}</p>
+                       </div>
+                     </div>
 
                     {nextTier && (
                       <div className="space-y-3 animate-fade-in">
