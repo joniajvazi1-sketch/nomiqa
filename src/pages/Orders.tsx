@@ -245,14 +245,14 @@ export default function Orders() {
       <div className="container mx-auto px-4 py-8 max-w-6xl relative z-10">
         <Button variant="ghost" className="mb-6" onClick={() => navigate('/')}>
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Home
+          {t("backToHome")}
         </Button>
 
         <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-foreground">My Orders</h1>
+          <h1 className="text-3xl md:text-4xl font-bold text-foreground">{t("myOrders")}</h1>
           {new URLSearchParams(window.location.search).get('token') && (
             <p className="text-sm text-muted-foreground mt-2">
-              Viewing order via secure access link
+              {t("viewingOrderViaLink")}
             </p>
           )}
         </div>
@@ -260,9 +260,9 @@ export default function Orders() {
         {orders.length === 0 ? (
           <Card>
             <CardContent className="pt-6 text-center">
-              <p className="text-muted-foreground mb-4">No orders found</p>
+              <p className="text-muted-foreground mb-4">{t("noOrdersFound")}</p>
               <Button onClick={() => navigate('/')}>
-                Browse Packages
+                {t("checkoutBrowsePackages")}
               </Button>
             </CardContent>
           </Card>
@@ -292,14 +292,14 @@ export default function Orders() {
                 <CardContent>
                   <div className="grid md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <p className="text-sm text-muted-foreground">Package Details</p>
-                      <p className="font-medium">{order.data_amount} • {order.validity_days} days</p>
-                      <p className="text-sm">Total: ${order.total_amount_usd.toFixed(2)}</p>
+                      <p className="text-sm text-muted-foreground">{t("packageDetails")}</p>
+                      <p className="font-medium">{order.data_amount} • {order.validity_days} {t("productDetailDays")}</p>
+                      <p className="text-sm">{t("checkoutTotal")}: ${order.total_amount_usd.toFixed(2)}</p>
                       
                       {usage && (
                         <div className="mt-4 pt-4 border-t space-y-3">
                           <div className="flex items-center justify-between">
-                            <p className="text-sm font-medium">Data Usage</p>
+                            <p className="text-sm font-medium">{t("dataUsage")}</p>
                             {order.iccid && (
                               <Button
                                 variant="ghost"
@@ -315,7 +315,7 @@ export default function Orders() {
                           <div className="space-y-2">
                             <div className="flex justify-between text-sm">
                               <span className="text-muted-foreground">
-                                {(usage.remaining_mb / 1024).toFixed(2)} GB remaining
+                                {(usage.remaining_mb / 1024).toFixed(2)} GB {t("remaining")}
                               </span>
                               <span className="text-muted-foreground">
                                 {(usage.total_mb / 1024).toFixed(2)} GB total
@@ -326,19 +326,19 @@ export default function Orders() {
 
                           <div className="grid grid-cols-2 gap-2 text-sm">
                             <div>
-                              <p className="text-muted-foreground">Status</p>
+                              <p className="text-muted-foreground">{t("statusLabel")}</p>
                               <Badge 
                                 variant={usage.status === 'ACTIVE' ? 'default' : 'secondary'}
                                 className={usage.status === 'ACTIVE' ? 'bg-green-600' : ''}
                               >
-                                {usage.status === 'NOT_ACTIVE' ? 'Not Activated' : 
-                                 usage.status === 'ACTIVE' ? 'Active' : 
+                                {usage.status === 'NOT_ACTIVE' ? t("notActivated") : 
+                                 usage.status === 'ACTIVE' ? t("active") : 
                                  usage.status}
                               </Badge>
                             </div>
                             {usage.expired_at && (
                               <div>
-                                <p className="text-muted-foreground">Expires</p>
+                                <p className="text-muted-foreground">{t("expires")}</p>
                                 <p className="font-medium">{formatDate(usage.expired_at)}</p>
                               </div>
                             )}
@@ -347,7 +347,7 @@ export default function Orders() {
                           {usage.status !== 'ACTIVE' && (
                             <div className="mt-3 p-3 bg-muted/50 rounded-lg">
                               <p className="text-xs text-muted-foreground">
-                                💡 After installing and activating your eSIM, click the refresh button above to update the status.
+                                💡 {t("refreshUsageHint")}
                               </p>
                             </div>
                           )}
@@ -375,55 +375,29 @@ export default function Orders() {
                           </Button>
                         )}
                         
-                        {/* iOS Direct Install - Show on all devices but emphasize for iOS */}
-                        {order.lpa && (
-                          <Button
-                            variant="default"
-                            className="w-full md:w-auto"
-                            onClick={() => {
-                              // On iOS, this will open Settings and prompt to install eSIM
-                              window.location.href = order.lpa!;
-                            }}
-                          >
-                            <Download className="mr-2 h-4 w-4" />
-                            Install eSIM (Tap on iOS)
-                          </Button>
-                        )}
-                        
-                        <div className="flex gap-2">
-                          <Button
-                            variant="outline"
-                            onClick={() => {
-                              setSelectedOrder(order);
-                              setShowQR(true);
-                            }}
-                          >
-                            <QrCode className="mr-2 h-4 w-4" />
-                            View QR Code
-                          </Button>
-                          {order.qr_code_url && (
-                            <Button
-                              variant="outline"
-                              onClick={() => window.open(order.qr_code_url!, '_blank')}
-                            >
-                              <Download className="mr-2 h-4 w-4" />
-                              Download
-                            </Button>
-                          )}
-                        </div>
+                        <Button
+                          variant="outline"
+                          onClick={() => {
+                            setSelectedOrder(order);
+                            setShowQR(true);
+                          }}
+                        >
+                          <QrCode className="mr-2 h-4 w-4" />
+                          {t("viewQrCode")}
+                        </Button>
                       </div>
                     )}
                   </div>
 
                   {order.status === 'pending' && (
                     <p className="text-sm text-muted-foreground mt-4">
-                      Your eSIM is being processed. You'll receive an email when it's ready.
+                      {t("esimProcessing")}
                     </p>
                   )}
 
                   {order.status === 'paid' && !order.qrcode && (
                     <p className="text-sm text-muted-foreground mt-4">
-                      Payment confirmed! Your eSIM is being provisioned and will be ready shortly.
+                      {t("paymentConfirmedProvisioning")}
                     </p>
                   )}
                 </CardContent>
@@ -437,9 +411,9 @@ export default function Orders() {
       <Dialog open={showQR} onOpenChange={setShowQR}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>eSIM QR Code</DialogTitle>
+            <DialogTitle>{t("esimQrCodeTitle")}</DialogTitle>
             <DialogDescription>
-              Scan this QR code with your device to install the eSIM
+              {t("scanQrCodeDesc")}
             </DialogDescription>
           </DialogHeader>
           {selectedOrder?.qrcode && (
@@ -448,15 +422,27 @@ export default function Orders() {
                 <QRCode value={selectedOrder.qrcode} size={256} />
               </div>
               <div className="space-y-2">
-                <p className="text-sm font-medium">Activation Code</p>
-                <code className="block p-2 bg-muted rounded text-xs break-all">
+                <p className="text-sm font-medium">{t("activationCode")}</p>
+                <code 
+                  className="block p-2 bg-muted rounded text-xs break-all cursor-pointer hover:bg-muted/80 transition-colors"
+                  onClick={() => {
+                    navigator.clipboard.writeText(selectedOrder.matching_id || '');
+                    toast.success(t("copiedToClipboard"));
+                  }}
+                >
                   {selectedOrder.matching_id}
                 </code>
               </div>
               {selectedOrder.iccid && (
                 <div className="space-y-2">
-                  <p className="text-sm font-medium">ICCID</p>
-                  <code className="block p-2 bg-muted rounded text-xs break-all">
+                  <p className="text-sm font-medium">{t("iccid")}</p>
+                  <code 
+                    className="block p-2 bg-muted rounded text-xs break-all cursor-pointer hover:bg-muted/80 transition-colors"
+                    onClick={() => {
+                      navigator.clipboard.writeText(selectedOrder.iccid || '');
+                      toast.success(t("copiedToClipboard"));
+                    }}
+                  >
                     {selectedOrder.iccid}
                   </code>
                 </div>
