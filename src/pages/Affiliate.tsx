@@ -460,7 +460,7 @@ export default function Affiliate() {
 
       <Navbar />
       
-      <section className="pt-24 pb-12 md:pt-32 md:pb-16 relative overflow-hidden">
+      <section className="pt-32 md:pt-24 pb-12 md:pb-16 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-deep-space/80 via-midnight-blue/60 to-deep-space/80 backdrop-blur-sm"></div>
         
         {/* Subtle accent glows */}

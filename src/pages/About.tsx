@@ -47,7 +47,7 @@ export default function About() {
       <Navbar />
       
       {/* Hero Section with warm imagery */}
-      <section className="relative pt-32 pb-20 px-4 overflow-hidden">
+      <section className="relative pt-32 md:pt-32 pb-20 px-4 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-deep-space/80 via-midnight-blue/60 to-deep-space/80 backdrop-blur-sm"></div>
         
         <div className="container max-w-6xl mx-auto relative z-10">
@@ -63,23 +63,23 @@ export default function About() {
             </p>
           </div>
 
-          {/* Image Grid - Human Photography */}
-          <div className="grid md:grid-cols-3 gap-6 mb-16">
-            <div className="rounded-3xl overflow-hidden shadow-2xl animate-fade-in-up group">
+          {/* Image Grid - Human Photography - Horizontal Scroll on Mobile */}
+          <div className="flex md:grid md:grid-cols-3 gap-6 mb-16 overflow-x-auto md:overflow-x-visible pb-4 md:pb-0 snap-x snap-mandatory md:snap-none scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
+            <div className="min-w-[85vw] md:min-w-0 rounded-3xl overflow-hidden shadow-2xl animate-fade-in-up group snap-center">
               <img 
                 src={heroHappy} 
                 alt="Traveler with laptop" 
                 className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-700"
               />
             </div>
-            <div className="rounded-3xl overflow-hidden shadow-2xl animate-fade-in-up group" style={{ animationDelay: "0.1s" }}>
+            <div className="min-w-[85vw] md:min-w-0 rounded-3xl overflow-hidden shadow-2xl animate-fade-in-up group snap-center" style={{ animationDelay: "0.1s" }}>
               <img 
                 src={worldTravelers} 
                 alt="People traveling" 
                 className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-700"
               />
             </div>
-            <div className="rounded-3xl overflow-hidden shadow-2xl animate-fade-in-up group" style={{ animationDelay: "0.2s" }}>
+            <div className="min-w-[85vw] md:min-w-0 rounded-3xl overflow-hidden shadow-2xl animate-fade-in-up group snap-center" style={{ animationDelay: "0.2s" }}>
               <img 
                 src={teamCollaboration} 
                 alt="Team collaboration" 
