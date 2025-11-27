@@ -44,8 +44,11 @@ export const Hero = () => {
             <p className="text-lg md:text-xl lg:text-2xl text-white/95 font-light leading-relaxed mb-4">
               {t("heroDescription1")}
             </p>
-            <p className="text-base md:text-lg text-white/70 font-light leading-relaxed">
+            <p className="text-base md:text-lg text-white/70 font-light leading-relaxed mb-3">
               {t("heroDescription2")}
+            </p>
+            <p className="text-sm md:text-base text-neon-cyan/90 font-light leading-relaxed">
+              {t("heroTokenInfo")}
             </p>
           </div>
           
