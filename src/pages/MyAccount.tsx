@@ -128,11 +128,11 @@ export default function MyAccount() {
 
       setMembership(membershipData);
 
-      // Fetch affiliate data
+      // Fetch affiliate data (query by both user_id and email since affiliate might be linked either way)
       const { data: affiliateInfo } = await supabase
         .from('affiliates')
         .select('total_earnings_usd, total_conversions, tier_level')
-        .eq('user_id', session.user.id)
+        .or(`user_id.eq.${session.user.id},email.eq.${session.user.email}`)
         .maybeSingle();
 
       if (affiliateInfo) {
