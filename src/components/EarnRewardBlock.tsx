@@ -79,8 +79,12 @@ export const EarnRewardBlock = () => {
 
             {/* CTA Button */}
             <div className="pt-6 sm:pt-7 md:pt-8">
-              <Button size="lg" onClick={() => navigate('/token')} className="bg-white text-black hover:bg-white/90 font-light text-sm sm:text-base md:text-lg px-8 sm:px-10 md:px-12 py-5 sm:py-6 md:py-7 rounded-xl md:rounded-2xl shadow-lg hover:scale-105 transition-all duration-300 w-full sm:w-auto">
-                {t("discoverToken")}
+              <Button 
+                size="lg" 
+                onClick={() => navigate('/token')} 
+                className="h-auto py-3 px-4 sm:px-8 md:px-12 sm:py-5 md:py-7 text-sm sm:text-base md:text-lg font-light bg-white/[0.05] backdrop-blur-xl border-2 border-neon-violet/30 text-white hover:bg-neon-violet/10 hover:border-neon-violet/50 rounded-xl md:rounded-2xl transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-neon-violet/20 w-full sm:w-auto"
+              >
+                <span className="break-words">{t("discoverToken")}</span>
               </Button>
             </div>
           </div>

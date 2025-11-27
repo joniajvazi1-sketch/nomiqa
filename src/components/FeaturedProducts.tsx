@@ -153,10 +153,10 @@ export const FeaturedProducts = () => {
           <Button 
             size="lg"
             onClick={() => navigate('/shop')}
-            className="group bg-white hover:bg-white/95 text-deep-space font-semibold px-10 py-7 text-base md:text-lg rounded-2xl shadow-2xl hover:shadow-white/20 transition-all duration-300 hover:scale-105 border border-white/20"
+            className="h-auto py-3 px-6 md:px-10 md:py-7 text-sm md:text-base lg:text-lg font-light bg-white/[0.05] backdrop-blur-xl border-2 border-white/20 text-white hover:bg-white/10 hover:border-white/40 rounded-xl md:rounded-2xl transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-white/20"
           >
-            {t("viewAllPlans")}
-            <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            <span className="break-words">{t("viewAllPlans")}</span>
+            <ArrowRight className="ml-2 w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-1 transition-transform flex-shrink-0" />
           </Button>
         </div>
       </div>

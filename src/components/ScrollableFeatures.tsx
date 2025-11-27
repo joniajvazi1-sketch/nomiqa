@@ -151,9 +151,9 @@ export const ScrollableFeatures = () => {
                         {/* CTA Button */}
                         <Button 
                           onClick={() => navigate(localizedPath(feature.path, language))}
-                          className="w-full bg-white text-black hover:bg-white/90 font-light text-sm md:text-base py-6 rounded-xl shadow-lg hover:scale-105 transition-all duration-300"
+                          className="w-full h-auto py-3 px-4 md:py-6 text-sm md:text-base font-light bg-white/[0.05] backdrop-blur-xl border-2 border-neon-cyan/30 text-white hover:bg-neon-cyan/10 hover:border-neon-cyan/50 rounded-xl transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-neon-cyan/20"
                         >
-                          {feature.cta}
+                          <span className="break-words">{feature.cta}</span>
                         </Button>
                       </div>
                     </div>

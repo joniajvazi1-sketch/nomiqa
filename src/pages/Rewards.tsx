@@ -162,9 +162,9 @@ export default function Rewards() {
             <Button 
               onClick={() => navigate(localizedPath('/account', language))}
               size="lg"
-              className="bg-white text-black hover:bg-white/90 font-light text-lg px-12 py-7 rounded-2xl shadow-lg hover:scale-105 transition-all duration-300"
+              className="h-auto py-3 px-4 md:px-12 md:py-7 text-sm md:text-base lg:text-lg font-light bg-white/[0.05] backdrop-blur-xl border-2 border-neon-violet/30 text-white hover:bg-neon-violet/10 hover:border-neon-violet/50 rounded-xl md:rounded-2xl transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-neon-violet/20 w-full md:w-auto"
             >
-              {t("loyaltyViewRewards")}
+              <span className="break-words">{t("loyaltyViewRewards")}</span>
             </Button>
           </div>
         </div>
