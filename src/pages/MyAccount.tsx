@@ -236,7 +236,7 @@ export default function MyAccount() {
       <Confetti trigger={showConfetti} onComplete={() => setShowConfetti(false)} />
       <Navbar />
       
-      <main className="container mx-auto px-4 pt-24 pb-16 relative z-10">
+      <main className="container mx-auto px-4 pt-32 md:pt-24 pb-16 relative z-10">
         <div className="max-w-6xl mx-auto">
           {/* Premium Header with Gradient */}
           <div className="text-center mb-12 space-y-3 animate-fade-in">
