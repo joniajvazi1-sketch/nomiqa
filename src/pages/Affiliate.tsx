@@ -633,10 +633,10 @@ export default function Affiliate() {
                   <CardHeader className="pb-4">
                     <CardTitle className="text-base md:text-lg flex items-center gap-2">
                       <Users className="w-5 h-5 text-primary" />
-                      Select Affiliate Account
+                      {t("selectAffiliateAccount")}
                     </CardTitle>
                     <CardDescription>
-                      You have {allAffiliates.length} affiliate accounts. Choose one to view its stats.
+                      {t("youHave")} {allAffiliates.length} {allAffiliates.length === 1 ? t("affiliateAccount") : t("affiliateAccounts")}. {t("affiliateAccountsDesc")}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
