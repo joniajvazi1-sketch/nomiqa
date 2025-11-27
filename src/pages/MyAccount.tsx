@@ -640,10 +640,10 @@ export default function MyAccount() {
                 <CardContent className="pt-6">
                   <Button 
                     onClick={() => navigate(localizedPath('/orders', language))}
-                    className="w-full h-12 text-lg font-semibold bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-all duration-300 hover:scale-105 shadow-lg"
+                    className="w-full h-auto py-3 px-4 text-sm md:text-base lg:text-lg font-light bg-white/[0.05] backdrop-blur-xl border-2 border-neon-cyan/30 text-white hover:bg-neon-cyan/10 hover:border-neon-cyan/50 rounded-xl transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-neon-cyan/20"
                   >
-                    <Package className="w-5 h-5 mr-2" />
-                    {t("viewAllOrders")}
+                    <Package className="w-4 h-4 md:w-5 md:h-5 mr-2 shrink-0" />
+                    <span className="break-words">{t("viewAllOrders")}</span>
                   </Button>
                 </CardContent>
               </Card>
@@ -708,11 +708,11 @@ export default function MyAccount() {
                           <DialogTrigger asChild>
                             <Button
                               size="lg"
-                              className="w-full md:w-auto bg-gradient-to-r from-primary to-accent hover:opacity-90 shadow-lg"
+                              className="w-full md:w-auto h-auto py-3 px-4 md:px-6 text-sm md:text-base font-light bg-white/[0.05] backdrop-blur-xl border-2 border-neon-violet/30 text-white hover:bg-neon-violet/10 hover:border-neon-violet/50 rounded-xl transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-neon-violet/20"
                               disabled={((affiliateData?.total_earnings_usd || 0) + totalCashbackEarned) < 5}
                             >
-                              <Wallet className="w-5 h-5 mr-2" />
-                              {t("claimAll")}
+                              <Wallet className="w-4 h-4 md:w-5 md:h-5 mr-2 shrink-0" />
+                              <span className="break-words">{t("claimAll")}</span>
                             </Button>
                           </DialogTrigger>
                           <DialogContent className="max-w-md">
@@ -826,10 +826,10 @@ export default function MyAccount() {
                 <CardContent className="pt-6">
                   <Button 
                     onClick={() => navigate(localizedPath('/affiliate', language))}
-                    className="w-full h-12 text-lg font-semibold bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-all duration-300 hover:scale-105 shadow-lg"
+                    className="w-full h-auto py-3 px-4 text-sm md:text-base lg:text-lg font-light bg-white/[0.05] backdrop-blur-xl border-2 border-neon-coral/30 text-white hover:bg-neon-coral/10 hover:border-neon-coral/50 rounded-xl transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-neon-coral/20"
                   >
-                    <Gift className="w-5 h-5 mr-2" />
-                    {t("goToAffiliateProgram")}
+                    <Gift className="w-4 h-4 md:w-5 md:h-5 mr-2 shrink-0" />
+                    <span className="break-words">{t("goToAffiliateProgram")}</span>
                   </Button>
                 </CardContent>
               </Card>

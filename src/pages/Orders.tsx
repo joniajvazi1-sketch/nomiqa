@@ -261,8 +261,11 @@ export default function Orders() {
           <Card>
             <CardContent className="pt-6 text-center">
               <p className="text-muted-foreground mb-4">{t("noOrdersFound")}</p>
-              <Button onClick={() => navigate('/')}>
-                {t("checkoutBrowsePackages")}
+              <Button 
+                onClick={() => navigate('/')}
+                className="w-full h-auto py-3 px-4 text-sm md:text-base font-light bg-white/[0.05] backdrop-blur-xl border-2 border-neon-cyan/30 text-white hover:bg-neon-cyan/10 hover:border-neon-cyan/50 rounded-xl transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-neon-cyan/20"
+              >
+                <span className="break-words">{t("checkoutBrowsePackages")}</span>
               </Button>
             </CardContent>
           </Card>
