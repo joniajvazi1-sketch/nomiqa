@@ -345,7 +345,7 @@ export const Navbar = () => {
                       <>
                         <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent my-3" />
                         <button onClick={() => handleNavClick('/account')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-base tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
-                          <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">My Account</span>
+                          <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("myAccount")}</span>
                         </button>
                         <button onClick={() => handleNavClick('/orders')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-base tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
                           <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("myEsims")}</span>
@@ -421,7 +421,7 @@ export const Navbar = () => {
                       <>
                         <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent my-3" />
                         <button onClick={() => handleNavClick('/account')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-[15px] tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
-                          <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">My Account</span>
+                          <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("myAccount")}</span>
                         </button>
                         <button onClick={() => handleNavClick('/orders')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-[15px] tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
                           <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("myEsims")}</span>
