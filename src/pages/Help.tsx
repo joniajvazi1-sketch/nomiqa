@@ -31,22 +31,26 @@ const Help = () => {
       <Navbar />
       
       {/* Help Center Section */}
-      <section className="pt-32 md:pt-24 pb-12 md:pb-16 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-deep-space/80 via-midnight-blue/60 to-deep-space/80 backdrop-blur-sm"></div>
+      <section className="pt-32 md:pt-40 pb-12 md:pb-16 relative overflow-hidden">
+        {/* Premium background decorations */}
+        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-neon-cyan/5 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-neon-violet/5 rounded-full blur-3xl"></div>
         
         <div className="container px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6 bg-gradient-to-r from-neon-cyan via-neon-violet to-neon-coral bg-clip-text text-transparent">
-              {t("helpCenterTitle")}
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-light mb-4 md:mb-6">
+              <span className="bg-gradient-to-r from-neon-cyan via-white to-neon-violet bg-clip-text text-transparent">
+                {t("helpCenterTitle")}
+              </span>
             </h1>
-            <p className="text-base md:text-lg text-foreground/80 mb-10 md:mb-12 font-light">
+            <p className="text-base md:text-lg text-white/70 mb-10 md:mb-12 font-light">
               {t("helpCenterSubtitle")}
             </p>
 
             {/* Support Options */}
             <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
               {/* Ask Chatbot */}
-              <div className="group relative bg-white/[0.02] backdrop-blur-xl border border-white/10 hover:border-neon-cyan/30 rounded-2xl p-6 md:p-8 transition-all duration-300 hover:bg-white/[0.04]">
+              <div className="group relative bg-white/[0.03] backdrop-blur-xl border border-white/10 hover:border-neon-cyan/40 rounded-2xl p-6 md:p-8 transition-all duration-300 hover:bg-white/[0.05] hover:-translate-y-1">
                 <div className="absolute inset-0 bg-gradient-to-br from-neon-cyan/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 
                 <div className="relative z-10">
@@ -54,16 +58,16 @@ const Help = () => {
                     <MessageCircle className="w-7 h-7 md:w-8 md:h-8 text-neon-cyan" />
                   </div>
                   
-                  <h3 className="text-lg md:text-xl font-semibold text-white mb-3">
+                  <h3 className="text-lg md:text-xl font-light text-white mb-3">
                     {t("helpCenterChatbotTitle")}
                   </h3>
-                  <p className="text-foreground/70 mb-5 md:mb-6 font-light text-sm">
+                  <p className="text-white/60 mb-5 md:mb-6 font-light text-sm">
                     {t("helpCenterChatbotDesc")}
                   </p>
                   
                   <Button 
                     onClick={handleChatbotClick}
-                    className="w-full bg-gradient-to-r from-neon-cyan to-neon-cyan/80 hover:from-neon-cyan/90 hover:to-neon-cyan/70 text-white border-0"
+                    className="w-full bg-white/[0.05] backdrop-blur-xl border-2 border-neon-cyan/30 text-white hover:bg-neon-cyan/10 hover:border-neon-cyan/50 font-light rounded-xl transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-neon-cyan/20"
                   >
                     {t("helpCenterChatbotButton")}
                   </Button>
@@ -71,7 +75,7 @@ const Help = () => {
               </div>
 
               {/* Contact Us */}
-              <div className="group relative bg-white/[0.02] backdrop-blur-xl border border-white/10 hover:border-neon-violet/30 rounded-2xl p-6 md:p-8 transition-all duration-300 hover:bg-white/[0.04]">
+              <div className="group relative bg-white/[0.03] backdrop-blur-xl border border-white/10 hover:border-neon-violet/40 rounded-2xl p-6 md:p-8 transition-all duration-300 hover:bg-white/[0.05] hover:-translate-y-1">
                 <div className="absolute inset-0 bg-gradient-to-br from-neon-violet/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 
                 <div className="relative z-10">
@@ -79,21 +83,21 @@ const Help = () => {
                     <Mail className="w-7 h-7 md:w-8 md:h-8 text-neon-violet" />
                   </div>
                   
-                  <h3 className="text-lg md:text-xl font-semibold text-white mb-3">
+                  <h3 className="text-lg md:text-xl font-light text-white mb-3">
                     {t("helpCenterEmailTitle")}
                   </h3>
-                  <p className="text-foreground/70 mb-5 md:mb-6 font-light text-sm">
+                  <p className="text-white/60 mb-5 md:mb-6 font-light text-sm">
                     {t("helpCenterEmailDesc")}
                   </p>
                   
                   <a 
-                    href="mailto:support@nomiqa.com"
+                    href="mailto:support@nomiqa-esim.com"
                     className="block w-full"
                   >
                     <Button 
-                      className="w-full bg-gradient-to-r from-neon-violet to-neon-violet/80 hover:from-neon-violet/90 hover:to-neon-violet/70 text-white border-0"
+                      className="w-full bg-white/[0.05] backdrop-blur-xl border-2 border-neon-violet/30 text-white hover:bg-neon-violet/10 hover:border-neon-violet/50 font-light rounded-xl transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-neon-violet/20"
                     >
-                      support@nomiqa.com
+                      support@nomiqa-esim.com
                     </Button>
                   </a>
                 </div>
