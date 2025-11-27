@@ -7,7 +7,7 @@ verify_jwt = true
 verify_jwt = true
 
 [functions.provision-esim-manual]
-verify_jwt = false
+verify_jwt = true
 
 [functions.update-prices-from-csv]
 verify_jwt = true
@@ -44,3 +44,6 @@ verify_jwt = false
 
 [functions.reset-password]
 verify_jwt = false
+
+[functions.submit-claim-request]
+verify_jwt = true

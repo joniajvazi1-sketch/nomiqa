@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "https://esm.sh/resend@2.0.0";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
@@ -7,6 +8,18 @@ const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
+
+// Solana wallet address validation (base58, 32-44 characters)
+const claimRequestSchema = z.object({
+  walletAddress: z.string()
+    .regex(/^[1-9A-HJ-NP-Za-km-z]{32,44}$/, "Invalid Solana wallet address format"),
+  message: z.string().max(500).optional(),
+  affiliateEarnings: z.number().min(0),
+  cashbackEarnings: z.number().min(0),
+  totalAmount: z.number().min(5, "Minimum withdrawal is $5"),
+  userEmail: z.string().email(),
+  username: z.string().min(1).max(100)
+});
 
 interface ClaimRequest {
   walletAddress: string;
@@ -24,6 +37,20 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    const rawBody = await req.json();
+    
+    // Validate input with Zod schema
+    const validationResult = claimRequestSchema.safeParse(rawBody);
+    if (!validationResult.success) {
+      return new Response(
+        JSON.stringify({ 
+          error: "Invalid request data",
+          details: validationResult.error.issues 
+        }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const {
       walletAddress,
       message,
@@ -32,7 +59,7 @@ const handler = async (req: Request): Promise<Response> => {
       totalAmount,
       userEmail,
       username
-    }: ClaimRequest = await req.json();
+    } = validationResult.data;
 
     console.log("Processing claim request:", {
       username,
