@@ -47,101 +47,120 @@ export default function About() {
       <Navbar />
       
       {/* Hero Section with warm imagery */}
-      <section className="relative pt-40 md:pt-32 pb-20 px-4 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-deep-space/80 via-midnight-blue/60 to-deep-space/80 backdrop-blur-sm"></div>
+      <section className="relative pt-32 md:pt-40 pb-20 px-4 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-deep-space/40 to-black/60"></div>
         
         <div className="container max-w-6xl mx-auto relative z-10">
-          <div className="text-center mb-16 animate-fade-in-up">
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 font-display">
-              <span className="block bg-gradient-to-r from-neon-cyan via-neon-violet to-neon-coral bg-clip-text text-transparent">
+          <div className="text-center mb-12 md:mb-16 animate-fade-in-up">
+            {/* Premium badge */}
+            <div className="inline-block mb-6 md:mb-8">
+              <div className="relative group">
+                <div className="absolute -inset-1 bg-gradient-to-r from-neon-coral via-neon-violet to-neon-cyan rounded-full blur opacity-30 group-hover:opacity-50 transition duration-500"></div>
+                <span className="relative block px-6 md:px-8 py-2.5 md:py-3 bg-white/[0.03] backdrop-blur-2xl border border-white/20 rounded-full text-xs md:text-sm font-light tracking-widest uppercase">
+                  <span className="bg-gradient-to-r from-neon-coral via-neon-violet to-neon-cyan bg-clip-text text-transparent">
+                    {t("aboutUs")}
+                  </span>
+                </span>
+              </div>
+            </div>
+            
+            <h1 className="text-5xl md:text-7xl lg:text-8xl xl:text-9xl font-extralight tracking-tight mb-6 md:mb-8">
+              <span className="block bg-gradient-to-r from-white via-neon-cyan to-white bg-clip-text text-transparent">
                 {t("aboutTitle")}
               </span>
             </h1>
             
-            <p className="text-xl md:text-2xl text-foreground/80 max-w-3xl mx-auto mb-6">
+            <p className="text-lg md:text-xl lg:text-2xl text-white/70 max-w-4xl mx-auto font-light leading-relaxed">
               {t("aboutSubtitle")}
             </p>
           </div>
 
           {/* Image Grid - Human Photography - Horizontal Scroll on Mobile */}
-          <div className="flex md:grid md:grid-cols-3 gap-6 mb-16 overflow-x-auto md:overflow-x-visible pb-4 md:pb-0 snap-x snap-mandatory md:snap-none scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
-            <div className="min-w-[85vw] md:min-w-0 rounded-3xl overflow-hidden shadow-2xl animate-fade-in-up group snap-center">
+          <div className="flex md:grid md:grid-cols-3 gap-4 md:gap-6 mb-12 md:mb-16 overflow-x-auto md:overflow-x-visible pb-4 md:pb-0 snap-x snap-mandatory md:snap-none scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
+            <div className="min-w-[85vw] md:min-w-0 rounded-2xl overflow-hidden shadow-2xl animate-fade-in-up group snap-center relative">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10"></div>
               <img 
                 src={heroHappy} 
                 alt="Traveler with laptop" 
-                className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-700"
+                className="w-full h-56 md:h-64 object-cover group-hover:scale-110 transition-transform duration-700"
               />
             </div>
-            <div className="min-w-[85vw] md:min-w-0 rounded-3xl overflow-hidden shadow-2xl animate-fade-in-up group snap-center" style={{ animationDelay: "0.1s" }}>
+            <div className="min-w-[85vw] md:min-w-0 rounded-2xl overflow-hidden shadow-2xl animate-fade-in-up group snap-center relative" style={{ animationDelay: "0.1s" }}>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10"></div>
               <img 
                 src={worldTravelers} 
                 alt="People traveling" 
-                className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-700"
+                className="w-full h-56 md:h-64 object-cover group-hover:scale-110 transition-transform duration-700"
               />
             </div>
-            <div className="min-w-[85vw] md:min-w-0 rounded-3xl overflow-hidden shadow-2xl animate-fade-in-up group snap-center" style={{ animationDelay: "0.2s" }}>
+            <div className="min-w-[85vw] md:min-w-0 rounded-2xl overflow-hidden shadow-2xl animate-fade-in-up group snap-center relative" style={{ animationDelay: "0.2s" }}>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10"></div>
               <img 
                 src={teamCollaboration} 
                 alt="Team collaboration" 
-                className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-700"
+                className="w-full h-56 md:h-64 object-cover group-hover:scale-110 transition-transform duration-700"
               />
             </div>
           </div>
 
-          <div className="max-w-4xl mx-auto mb-16">
-            <div className="p-8 md:p-12 rounded-3xl bg-white/[0.02] backdrop-blur-xl border border-white/10 animate-fade-in-up">
-              <h2 className="text-3xl md:text-4xl font-bold mb-8 bg-gradient-to-r from-neon-cyan to-neon-violet bg-clip-text text-transparent">
-                {t("aboutStoryTitle")}
-              </h2>
-              <div className="space-y-4 text-foreground/80 leading-relaxed text-center md:text-left">
-                <p className="text-lg">
-                  {t("aboutStory1")}
-                </p>
-                <p className="text-lg">
-                  {t("aboutStory2")}
-                </p>
-                <p className="text-lg font-semibold">
-                  {t("aboutStory3")}
-                </p>
-                <p className="text-lg">
-                  {t("aboutStory4")}
-                </p>
-                <p className="text-lg">
-                  {t("aboutStory5")}
-                </p>
-                <p className="text-lg">
-                  {t("aboutStory6")}
-                </p>
-                <p className="text-lg font-semibold text-neon-coral">
-                  {t("aboutStory7")}
-                </p>
+          <div className="max-w-4xl mx-auto mb-12 md:mb-16">
+            <div className="relative group p-8 md:p-12 rounded-2xl bg-white/[0.02] backdrop-blur-xl border border-white/10 hover:border-white/20 animate-fade-in-up transition-all duration-500">
+              <div className="absolute inset-0 bg-gradient-to-br from-neon-cyan/5 via-transparent to-neon-violet/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="relative z-10">
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-light mb-6 md:mb-8 bg-gradient-to-r from-white via-neon-cyan to-white bg-clip-text text-transparent tracking-wide">
+                  {t("aboutStoryTitle")}
+                </h2>
+                <div className="space-y-4 md:space-y-5 text-white/70 leading-relaxed font-light">
+                  <p className="text-base md:text-lg">
+                    {t("aboutStory1")}
+                  </p>
+                  <p className="text-base md:text-lg">
+                    {t("aboutStory2")}
+                  </p>
+                  <p className="text-base md:text-lg text-white/90">
+                    {t("aboutStory3")}
+                  </p>
+                  <p className="text-base md:text-lg">
+                    {t("aboutStory4")}
+                  </p>
+                  <p className="text-base md:text-lg">
+                    {t("aboutStory5")}
+                  </p>
+                  <p className="text-base md:text-lg">
+                    {t("aboutStory6")}
+                  </p>
+                  <p className="text-base md:text-lg text-neon-coral">
+                    {t("aboutStory7")}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
 
           {/* Values Grid */}
-          <div className="mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center bg-gradient-to-r from-neon-violet to-neon-cyan bg-clip-text text-transparent">
+          <div className="mb-12 md:mb-16">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-light mb-8 md:mb-12 text-center bg-gradient-to-r from-white via-neon-violet to-white bg-clip-text text-transparent tracking-wide">
               {t("aboutValuesSubtitle")}
             </h2>
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid md:grid-cols-2 gap-4 md:gap-6">
               {values.map((value, index) => (
                 <div
                   key={index}
-                  className="group p-8 rounded-3xl bg-white/[0.02] backdrop-blur-xl border border-white/10 hover:border-neon-cyan/30 transition-all duration-500 hover:bg-white/[0.04] animate-fade-in-up"
+                  className="group relative p-6 md:p-8 rounded-2xl bg-white/[0.02] backdrop-blur-xl border border-white/10 hover:border-white/20 transition-all duration-500 hover:bg-white/[0.04] hover:scale-[1.02] animate-fade-in-up"
                   style={{ animationDelay: `${index * 0.1}s` }}
                 >
-                  <div className="flex flex-col items-center">
-                    <div className="relative inline-block mb-6">
-                      <div className="absolute inset-0 bg-neon-cyan/20 rounded-2xl blur-xl group-hover:bg-neon-cyan/30 transition-all"></div>
-                      <div className="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-neon-cyan/20 to-neon-coral/20 backdrop-blur-sm border border-white/10 flex items-center justify-center">
-                        <value.icon className="w-8 h-8 text-neon-cyan" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-neon-cyan/5 via-transparent to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  <div className="relative z-10 flex flex-col items-center">
+                    <div className="relative inline-block mb-4 md:mb-6">
+                      <div className="absolute inset-0 bg-neon-cyan/20 rounded-full blur-xl group-hover:bg-neon-cyan/30 transition-all"></div>
+                      <div className="relative w-12 h-12 md:w-14 md:h-14 rounded-full bg-white/[0.05] border border-white/10 flex items-center justify-center">
+                        <value.icon className="w-6 h-6 md:w-7 md:h-7 text-neon-cyan" />
                       </div>
                     </div>
-                    <h3 className="text-2xl font-bold mb-3 text-foreground text-center">
+                    <h3 className="text-xl md:text-2xl font-light mb-2 md:mb-3 text-white text-center tracking-wide">
                       {value.title}
                     </h3>
-                    <p className="text-foreground/70 leading-relaxed text-center">
+                    <p className="text-sm md:text-base text-white/60 font-light leading-relaxed text-center">
                       {value.description}
                     </p>
                   </div>
@@ -151,20 +170,20 @@ export default function About() {
           </div>
 
           {/* Vision Statement */}
-          <div className="relative p-12 rounded-3xl bg-white/[0.02] backdrop-blur-xl border border-neon-violet/30 text-center overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-neon-violet/5 via-transparent to-neon-coral/5 pointer-events-none"></div>
+          <div className="relative group p-8 md:p-12 rounded-2xl bg-white/[0.02] backdrop-blur-xl border border-white/10 hover:border-white/20 text-center overflow-hidden transition-all duration-500">
+            <div className="absolute inset-0 bg-gradient-to-br from-neon-violet/5 via-transparent to-neon-coral/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
             
             <div className="relative z-10">
-              <h2 className="text-3xl md:text-4xl font-bold mb-6 bg-gradient-to-r from-neon-cyan via-neon-violet to-neon-coral bg-clip-text text-transparent">
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-light mb-6 md:mb-8 bg-gradient-to-r from-white via-neon-violet to-white bg-clip-text text-transparent tracking-wide">
                 {t("aboutVisionTitle")}
               </h2>
-              <p className="text-xl md:text-2xl text-foreground/90 mb-6 leading-relaxed">
+              <p className="text-lg md:text-xl lg:text-2xl text-white/80 mb-4 md:mb-6 leading-relaxed font-light">
                 {t("aboutVision1")}
               </p>
-              <p className="text-lg text-foreground/70 max-w-3xl mx-auto mb-8">
+              <p className="text-base md:text-lg text-white/60 max-w-3xl mx-auto mb-6 md:mb-8 font-light leading-relaxed">
                 {t("aboutVision2")}
               </p>
-              <p className="text-2xl text-neon-coral font-semibold">
+              <p className="text-xl md:text-2xl text-neon-coral font-light">
                 {t("aboutVision3")}
               </p>
             </div>
