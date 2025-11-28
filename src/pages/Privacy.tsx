@@ -97,43 +97,43 @@ export default function Privacy() {
           </div>
 
           {/* How We Protect Section - Centered */}
-          <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in-up">
-            <h2 className="text-3xl md:text-4xl font-bold mb-6 bg-gradient-to-r from-neon-violet to-neon-cyan bg-clip-text text-transparent text-center">
+          <div className="text-center max-w-4xl mx-auto mb-16 animate-fade-in-up">
+            <h2 className="text-4xl md:text-5xl font-extralight mb-8 bg-gradient-to-r from-neon-violet via-neon-cyan to-neon-violet bg-clip-text text-transparent text-center">
               {t("privacyMethodsTitle")}
             </h2>
-            <div className="space-y-4 text-foreground/80 leading-relaxed text-center">
-              <p className="text-center">
+            <div className="space-y-4 text-foreground/70 leading-relaxed text-center">
+              <p className="text-lg md:text-xl font-light text-center">
                 {t("privacyMethodsIntro")}
               </p>
               
-              <div className="mt-8 space-y-6">
-                <div className="p-6 rounded-2xl bg-white/[0.02] backdrop-blur-xl border border-neon-cyan/20 hover:border-neon-cyan/40 transition-all">
-                  <h3 className="text-xl font-bold text-neon-cyan mb-3 text-center">{t("privacyMethod1Title")}</h3>
-                  <p className="text-center">{t("privacyMethod1Desc")}</p>
+              <div className="mt-12 space-y-6">
+                <div className="group p-8 rounded-3xl bg-white/[0.03] backdrop-blur-xl border border-white/10 hover:border-neon-cyan/40 hover:bg-white/[0.05] transition-all duration-500">
+                  <h3 className="text-2xl font-light text-neon-cyan mb-4 text-center">{t("privacyMethod1Title")}</h3>
+                  <p className="text-foreground/70 leading-relaxed text-center">{t("privacyMethod1Desc")}</p>
                 </div>
 
-                <div className="p-6 rounded-2xl bg-white/[0.02] backdrop-blur-xl border border-neon-violet/20 hover:border-neon-violet/40 transition-all">
-                  <h3 className="text-xl font-bold text-neon-violet mb-3 text-center">{t("privacyMethod2Title")}</h3>
-                  <p className="text-center">{t("privacyMethod2Desc")}</p>
+                <div className="group p-8 rounded-3xl bg-white/[0.03] backdrop-blur-xl border border-white/10 hover:border-neon-violet/40 hover:bg-white/[0.05] transition-all duration-500">
+                  <h3 className="text-2xl font-light text-neon-violet mb-4 text-center">{t("privacyMethod2Title")}</h3>
+                  <p className="text-foreground/70 leading-relaxed text-center">{t("privacyMethod2Desc")}</p>
                 </div>
 
-                <div className="p-6 rounded-2xl bg-white/[0.02] backdrop-blur-xl border border-neon-coral/20 hover:border-neon-coral/40 transition-all">
-                  <h3 className="text-xl font-bold text-neon-coral mb-3 text-center">{t("privacyMethod3Title")}</h3>
-                  <p className="text-center">{t("privacyMethod3Desc")}</p>
+                <div className="group p-8 rounded-3xl bg-white/[0.03] backdrop-blur-xl border border-white/10 hover:border-neon-coral/40 hover:bg-white/[0.05] transition-all duration-500">
+                  <h3 className="text-2xl font-light text-neon-coral mb-4 text-center">{t("privacyMethod3Title")}</h3>
+                  <p className="text-foreground/70 leading-relaxed text-center">{t("privacyMethod3Desc")}</p>
                 </div>
 
-                <div className="p-6 rounded-2xl bg-white/[0.02] backdrop-blur-xl border border-warm-sand/20 hover:border-warm-sand/40 transition-all">
-                  <h3 className="text-xl font-bold text-warm-sand mb-3 text-center">{t("privacyMethod4Title")}</h3>
-                  <p className="text-center">{t("privacyMethod4Desc")}</p>
+                <div className="group p-8 rounded-3xl bg-white/[0.03] backdrop-blur-xl border border-white/10 hover:border-warm-sand/40 hover:bg-white/[0.05] transition-all duration-500">
+                  <h3 className="text-2xl font-light text-warm-sand mb-4 text-center">{t("privacyMethod4Title")}</h3>
+                  <p className="text-foreground/70 leading-relaxed text-center">{t("privacyMethod4Desc")}</p>
                 </div>
 
-                <div className="p-6 rounded-2xl bg-white/[0.02] backdrop-blur-xl border border-neon-cyan/20 hover:border-neon-cyan/40 transition-all">
-                  <h3 className="text-xl font-bold text-neon-cyan mb-3 text-center">{t("privacyMethod5Title")}</h3>
-                  <p className="text-center">{t("privacyMethod5Desc")}</p>
+                <div className="group p-8 rounded-3xl bg-white/[0.03] backdrop-blur-xl border border-white/10 hover:border-neon-cyan/40 hover:bg-white/[0.05] transition-all duration-500">
+                  <h3 className="text-2xl font-light text-neon-cyan mb-4 text-center">{t("privacyMethod5Title")}</h3>
+                  <p className="text-foreground/70 leading-relaxed text-center">{t("privacyMethod5Desc")}</p>
                 </div>
               </div>
               
-              <p className="pt-6 text-lg font-semibold text-neon-coral text-center">
+              <p className="pt-8 text-xl font-light text-neon-coral text-center">
                 {t("privacyClosing")}
               </p>
             </div>
