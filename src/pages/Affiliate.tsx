@@ -473,18 +473,6 @@ export default function Affiliate() {
         <div className="container px-4 relative z-10">
           <div className="max-w-5xl mx-auto text-center">
             <div className="space-y-4 md:space-y-6 animate-fade-in">
-              {/* Premium badge */}
-              <div className="inline-block">
-                <div className="relative group">
-                  <div className="absolute -inset-1 bg-gradient-to-r from-neon-coral via-neon-violet to-neon-cyan rounded-full blur opacity-30 group-hover:opacity-50 transition duration-500"></div>
-                  <span className="relative block px-8 py-3 bg-gradient-to-r from-neon-coral/10 via-neon-violet/10 to-neon-cyan/10 backdrop-blur-2xl border border-white/20 rounded-full text-sm md:text-base font-bold tracking-widest uppercase">
-                    <span className="bg-gradient-to-r from-neon-coral via-neon-violet to-neon-cyan bg-clip-text text-transparent">
-                      {t("passiveIncomeUnlocked")}
-                    </span>
-                  </span>
-                </div>
-              </div>
-              
               {/* Premium headline */}
               <h1 className="text-4xl md:text-6xl lg:text-7xl font-black font-display leading-tight tracking-tight">
                 <span className="block bg-gradient-to-r from-white via-neon-violet to-white bg-clip-text text-transparent mb-2 md:mb-4">
