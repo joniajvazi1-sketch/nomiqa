@@ -92,20 +92,20 @@ const Token = () => {
                 <img 
                   src="/nomiqa-token-logo.gif" 
                   alt="Nomiqa Token" 
-                  className="w-32 h-32 relative z-10 rounded-2xl shadow-2xl shadow-neon-cyan/50" 
+                  className="w-32 h-auto relative z-10 rounded-2xl shadow-2xl shadow-neon-cyan/50 object-contain" 
                 />
               </div>
               <div className="flex items-center gap-3 text-white/60 font-light">
                 <img 
                   src="/nomiqa-token-logo.gif" 
                   alt="Nomiqa" 
-                  className="w-8 h-8 rounded-lg" 
+                  className="w-8 h-auto rounded-lg object-contain" 
                 />
                 <span>{t("tokenLaunchingOn")}</span>
                 <img 
                   src="/nomiqa-token-logo.gif" 
                   alt="Nomiqa" 
-                  className="w-8 h-8 rounded-lg" 
+                  className="w-8 h-auto rounded-lg object-contain" 
                 />
               </div>
             </div>
