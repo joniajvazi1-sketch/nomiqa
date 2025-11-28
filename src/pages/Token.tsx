@@ -58,22 +58,22 @@ const Token = () => {
       <NetworkBackground />
       <Navbar />
       
-      <main className="relative z-10 pt-32 pb-20 px-4" ref={sectionRef}>
+      <main className="relative z-10 pt-24 md:pt-32 pb-20 px-4" ref={sectionRef}>
         <div className="max-w-6xl mx-auto">
           {/* Hero Section */}
-          <div className={`text-center space-y-8 mb-20 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+          <div className={`text-center space-y-6 md:space-y-8 mb-12 md:mb-20 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
             <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-white/[0.03] backdrop-blur-xl border border-white/10 hover:border-white/20 transition-all duration-300">
-              <Coins className="w-6 h-6 text-neon-cyan animate-pulse" />
-              <span className="text-lg font-light tracking-wider text-white/90">{t("tokenBadge")}</span>
+              <Coins className="w-5 h-5 md:w-6 md:h-6 text-neon-cyan animate-pulse" />
+              <span className="text-base md:text-lg font-light tracking-wider text-white/90">{t("tokenBadge")}</span>
             </div>
             
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-extralight tracking-tight">
+            <h1 className="text-5xl md:text-7xl lg:text-8xl xl:text-9xl font-extralight tracking-tight">
               <span className="bg-gradient-to-r from-white via-neon-cyan to-white bg-clip-text text-transparent">
                 {t("tokenComingSoon")}
               </span>
             </h1>
             
-            <p className="text-xl md:text-2xl text-white/70 max-w-3xl mx-auto font-light leading-relaxed">
+            <p className="text-lg md:text-xl lg:text-2xl xl:text-3xl text-white/70 max-w-4xl mx-auto font-light leading-relaxed">
               {t("tokenSubtitle")}
               <br />
               <span className="text-neon-cyan">{t("tokenTagline")}</span>
@@ -81,31 +81,31 @@ const Token = () => {
           </div>
 
           {/* Visual Element */}
-          <div className={`relative py-20 transition-all duration-1000 delay-200 ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
+          <div className={`relative py-12 md:py-20 lg:py-24 transition-all duration-1000 delay-200 ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-96 h-96 bg-neon-cyan/10 rounded-full blur-3xl animate-pulse" />
-              <div className="absolute w-64 h-64 bg-neon-violet/10 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '1s' }} />
+              <div className="w-72 h-72 md:w-96 md:h-96 lg:w-[500px] lg:h-[500px] bg-neon-cyan/10 rounded-full blur-3xl animate-pulse" />
+              <div className="absolute w-48 h-48 md:w-64 md:h-64 lg:w-80 lg:h-80 bg-neon-violet/10 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '1s' }} />
             </div>
-            <div className="relative z-10 flex flex-col items-center gap-8">
+            <div className="relative z-10 flex flex-col items-center gap-6 md:gap-8">
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-r from-neon-cyan/30 to-neon-violet/30 rounded-full blur-xl animate-pulse" />
                 <img 
                   src="/nomiqa-token-logo.gif" 
                   alt="Nomiqa Token" 
-                  className="w-32 h-auto relative z-10 rounded-2xl shadow-2xl shadow-neon-cyan/50 object-contain" 
+                  className="w-32 md:w-40 lg:w-48 xl:w-56 h-auto relative z-10 rounded-2xl shadow-2xl shadow-neon-cyan/50 object-contain" 
                 />
               </div>
-              <div className="flex items-center gap-3 text-white/60 font-light">
+              <div className="flex items-center gap-3 text-white/60 font-light text-sm md:text-base lg:text-lg">
                 <img 
                   src="/nomiqa-token-logo.gif" 
                   alt="Nomiqa" 
-                  className="w-8 h-auto rounded-lg object-contain" 
+                  className="w-6 h-auto md:w-8 lg:w-10 rounded-lg object-contain" 
                 />
                 <span>{t("tokenLaunchingOn")}</span>
                 <img 
                   src="/nomiqa-token-logo.gif" 
                   alt="Nomiqa" 
-                  className="w-8 h-auto rounded-lg object-contain" 
+                  className="w-6 h-auto md:w-8 lg:w-10 rounded-lg object-contain" 
                 />
               </div>
             </div>
