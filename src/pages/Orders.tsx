@@ -277,7 +277,7 @@ export default function Orders() {
             {orders.map((order) => {
               const usage = usageData[order.id];
               const usagePercentage = usage 
-                ? ((usage.total_mb - usage.remaining_mb) / usage.total_mb) * 100 
+                ? (usage.remaining_mb / usage.total_mb) * 100 
                 : 0;
               
               return (
