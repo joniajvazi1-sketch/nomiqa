@@ -23,7 +23,7 @@ export default function Stake() {
       <Navbar />
       
       {/* Hero Section - Coming Soon */}
-      <section className="relative pt-24 md:pt-32 pb-20 px-4 overflow-hidden min-h-[80vh] flex items-center">
+      <section className="relative pt-32 md:pt-40 pb-20 px-4 overflow-hidden min-h-[80vh] flex items-center">
         <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-deep-space/40 to-black/60"></div>
         
         <div className="container max-w-6xl mx-auto relative z-10">
