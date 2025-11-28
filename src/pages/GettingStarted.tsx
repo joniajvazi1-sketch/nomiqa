@@ -96,7 +96,7 @@ export default function GettingStarted() {
           <div className="text-center mb-12 md:mb-16 animate-fade-in-up">
             <div className="inline-block mb-4 md:mb-5">
               <span className="text-neon-cyan text-xs md:text-sm font-light tracking-[0.25em] uppercase">
-                🚀 Your Journey Starts Here
+                {t("journeyStartsHere")}
               </span>
             </div>
             
