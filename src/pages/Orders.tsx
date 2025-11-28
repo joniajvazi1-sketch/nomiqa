@@ -234,36 +234,39 @@ export default function Orders() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-deep-space to-background relative overflow-hidden">
-      {/* Faint globe wireframe background */}
-      <div className="absolute inset-0 opacity-5">
-        <div className="absolute top-1/4 left-0 right-0 h-px bg-gradient-to-r from-transparent via-neon-cyan to-transparent"></div>
-        <div className="absolute top-1/2 left-0 right-0 h-px bg-gradient-to-r from-transparent via-neon-violet to-transparent"></div>
-        <div className="absolute top-3/4 left-0 right-0 h-px bg-gradient-to-r from-transparent via-neon-coral to-transparent"></div>
+    <div className="min-h-screen bg-gradient-to-br from-black/40 via-deep-space/60 to-black/40 relative overflow-hidden">
+      {/* Network Background */}
+      <div className="fixed inset-0 -z-10 overflow-hidden opacity-20">
+        <div className="absolute top-20 left-10 w-96 h-96 bg-neon-cyan/30 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-neon-violet/30 rounded-full blur-3xl"></div>
       </div>
       
       <div className="container mx-auto px-4 py-8 max-w-6xl relative z-10">
-        <Button variant="ghost" className="mb-6" onClick={() => navigate('/')}>
+        <Button 
+          variant="ghost" 
+          className="mb-6 text-foreground/70 hover:text-foreground hover:bg-white/[0.05]" 
+          onClick={() => navigate('/')}
+        >
           <ArrowLeft className="mr-2 h-4 w-4" />
           {t("backToHome")}
         </Button>
 
-        <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-foreground">{t("myEsims")}</h1>
+        <div className="mb-12 text-center">
+          <h1 className="text-4xl md:text-5xl font-extralight text-foreground mb-2">{t("myEsims")}</h1>
           {new URLSearchParams(window.location.search).get('token') && (
-            <p className="text-sm text-muted-foreground mt-2">
+            <p className="text-sm text-foreground/60 mt-2">
               {t("viewingOrderViaLink")}
             </p>
           )}
         </div>
 
         {orders.length === 0 ? (
-          <Card>
-            <CardContent className="pt-6 text-center">
-              <p className="text-muted-foreground mb-4">{t("noOrdersFound")}</p>
+          <Card className="bg-white/[0.03] backdrop-blur-xl border border-white/10">
+            <CardContent className="pt-8 pb-8 text-center">
+              <p className="text-foreground/60 mb-6 text-lg font-light">{t("noOrdersFound")}</p>
               <Button 
                 onClick={() => navigate('/')}
-                className="w-full h-auto py-3 px-4 text-sm md:text-base font-light bg-white/[0.05] backdrop-blur-xl border-2 border-neon-cyan/30 text-white hover:bg-neon-cyan/10 hover:border-neon-cyan/50 rounded-xl transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-neon-cyan/20"
+                className="bg-gradient-to-r from-neon-cyan to-neon-violet hover:from-neon-cyan/90 hover:to-neon-violet/90 text-white font-light shadow-lg shadow-neon-cyan/20"
               >
                 <span className="break-words">{t("checkoutBrowsePackages")}</span>
               </Button>
@@ -278,16 +281,19 @@ export default function Orders() {
                 : 0;
               
               return (
-              <Card key={order.id} className={`${order.status === 'completed' || order.status === 'paid' ? 'border-2 border-neon-cyan/40 shadow-2xl shadow-neon-cyan/20 bg-white/[0.03]' : 'bg-white/[0.02] border border-white/10'} backdrop-blur-xl transition-all hover:shadow-2xl hover:scale-[1.01] duration-300`}>
+              <Card key={order.id} className={`${order.status === 'completed' || order.status === 'paid' ? 'border border-neon-cyan/30 shadow-xl shadow-neon-cyan/10 bg-white/[0.04]' : 'bg-white/[0.03] border border-white/10'} backdrop-blur-xl transition-all hover:shadow-2xl hover:scale-[1.005] duration-500 rounded-2xl`}>
                 <CardHeader>
                   <div className="flex justify-between items-start">
                     <div>
-                      <CardTitle className="text-xl">{order.package_name}</CardTitle>
-                      <CardDescription>
+                      <CardTitle className="text-2xl font-light text-foreground">{order.package_name}</CardTitle>
+                      <CardDescription className="text-foreground/60 mt-2">
                         {formatDate(order.created_at)} • {order.email}
                       </CardDescription>
                     </div>
-                    <Badge variant={getStatusColor(order.status)}>
+                    <Badge 
+                      variant={getStatusColor(order.status)}
+                      className="bg-neon-cyan/20 text-neon-cyan border-neon-cyan/30 font-light"
+                    >
                       {order.status === 'completed' ? t("orderStatusCompleted") :
                        order.status === 'pending' ? t("orderStatusPending") :
                        order.status === 'failed' ? t("orderStatusFailed") :
@@ -297,20 +303,23 @@ export default function Orders() {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <p className="text-sm text-muted-foreground">{t("packageDetails")}</p>
-                      <p className="font-medium">{order.data_amount} • {order.validity_days} {t("productDetailDays")}</p>
-                      <p className="text-sm">{t("checkoutTotal")}: ${order.total_amount_usd.toFixed(2)}</p>
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <p className="text-sm text-foreground/50 font-light">{t("packageDetails")}</p>
+                        <p className="text-lg font-light text-foreground">{order.data_amount} • {order.validity_days} {t("productDetailDays")}</p>
+                        <p className="text-base text-foreground/70">{t("checkoutTotal")}: <span className="text-neon-cyan font-light">${order.total_amount_usd.toFixed(2)}</span></p>
+                      </div>
                       
                       {usage && (
-                        <div className="mt-4 pt-4 border-t space-y-3">
+                        <div className="mt-6 pt-6 border-t border-white/10 space-y-4">
                           <div className="flex items-center justify-between">
-                            <p className="text-sm font-medium">{t("dataUsage")}</p>
+                            <p className="text-base font-light text-foreground">{t("dataUsage")}</p>
                             {order.iccid && (
                               <Button
                                 variant="ghost"
                                 size="sm"
+                                className="hover:bg-white/[0.05] text-foreground/70 hover:text-foreground"
                                 onClick={() => refreshUsage(order.id, order.iccid!)}
                                 disabled={refreshingUsage[order.id]}
                               >
@@ -319,24 +328,24 @@ export default function Orders() {
                             )}
                           </div>
                           
-                          <div className="space-y-2">
+                          <div className="space-y-3">
                             <div className="flex justify-between text-sm">
-                              <span className="text-muted-foreground">
+                              <span className="text-foreground/60 font-light">
                                 {(usage.remaining_mb / 1024).toFixed(2)} GB {t("remaining")}
                               </span>
-                              <span className="text-muted-foreground">
+                              <span className="text-foreground/60 font-light">
                                 {(usage.total_mb / 1024).toFixed(2)} GB total
                               </span>
                             </div>
-                            <Progress value={usagePercentage} className="h-2" />
+                            <Progress value={usagePercentage} className="h-2 bg-white/10" />
                           </div>
 
-                          <div className="grid grid-cols-2 gap-2 text-sm">
-                            <div>
-                              <p className="text-muted-foreground">{t("statusLabel")}</p>
+                          <div className="grid grid-cols-2 gap-3 text-sm">
+                            <div className="space-y-1">
+                              <p className="text-foreground/50 font-light">{t("statusLabel")}</p>
                               <Badge 
                                 variant={usage.status === 'ACTIVE' ? 'default' : 'secondary'}
-                                className={usage.status === 'ACTIVE' ? 'bg-green-600' : ''}
+                                className={usage.status === 'ACTIVE' ? 'bg-green-500/20 text-green-400 border-green-500/30 font-light' : 'bg-white/10 text-foreground/70 border-white/20 font-light'}
                               >
                                 {usage.status === 'NOT_ACTIVE' ? t("notActivated") : 
                                  usage.status === 'ACTIVE' ? t("active") : 
@@ -344,16 +353,16 @@ export default function Orders() {
                               </Badge>
                             </div>
                             {usage.expired_at && (
-                              <div>
-                                <p className="text-muted-foreground">{t("expires")}</p>
-                                <p className="font-medium">{formatDate(usage.expired_at)}</p>
+                              <div className="space-y-1">
+                                <p className="text-foreground/50 font-light">{t("expires")}</p>
+                                <p className="font-light text-foreground/80">{formatDate(usage.expired_at)}</p>
                               </div>
                             )}
                           </div>
                           
                           {usage.status !== 'ACTIVE' && (
-                            <div className="mt-3 p-3 bg-muted/50 rounded-lg">
-                              <p className="text-xs text-muted-foreground">
+                            <div className="mt-4 p-4 bg-white/[0.03] backdrop-blur-xl rounded-xl border border-white/10">
+                              <p className="text-sm text-foreground/60 font-light">
                                 💡 {t("refreshUsageHint")}
                               </p>
                             </div>
@@ -363,19 +372,19 @@ export default function Orders() {
                     </div>
 
                     {(order.status === 'completed' || order.status === 'paid') && order.qrcode && (
-                      <div className="flex flex-col gap-2 md:justify-end items-stretch md:items-start">
+                      <div className="flex flex-col gap-3 md:justify-end items-stretch md:items-start">
                         {/* Branded eSIM Cloud Portal - Primary action */}
                         {order.sharing_link && (
                           <Button
                             variant="default"
                             size="lg"
-                            className="w-full md:w-auto bg-gradient-to-r from-neon-cyan to-neon-violet hover:from-neon-cyan/90 hover:to-neon-violet/90 shadow-lg shadow-neon-cyan/20"
+                            className="w-full md:w-auto bg-gradient-to-r from-neon-cyan to-neon-violet hover:from-neon-cyan/90 hover:to-neon-violet/90 shadow-lg shadow-neon-cyan/20 font-light"
                             onClick={() => window.open(order.sharing_link!, '_blank')}
                           >
                             <ExternalLink className="mr-2 h-4 w-4" />
                             {t('viewEsimDetails')}
                             {order.sharing_access_code && (
-                              <Badge variant="secondary" className="ml-2">
+                              <Badge variant="secondary" className="ml-2 bg-white/20 text-white border-white/30 font-light">
                                 {t('accessCode')}: {order.sharing_access_code}
                               </Badge>
                             )}
@@ -384,6 +393,7 @@ export default function Orders() {
                         
                         <Button
                           variant="outline"
+                          className="bg-white/[0.03] backdrop-blur-xl border-white/20 hover:bg-white/[0.05] hover:border-neon-cyan/40 text-foreground font-light"
                           onClick={() => {
                             setSelectedOrder(order);
                             setShowQR(true);
@@ -416,28 +426,28 @@ export default function Orders() {
 
       {/* QR Code Dialog */}
       <Dialog open={showQR} onOpenChange={setShowQR}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md bg-white/[0.03] backdrop-blur-xl border border-white/20">
           <DialogHeader>
-            <DialogTitle>{t("esimQrCodeTitle")}</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-2xl font-light text-foreground">{t("esimQrCodeTitle")}</DialogTitle>
+            <DialogDescription className="text-foreground/60 font-light">
               {t("scanQrCodeDesc")}
             </DialogDescription>
           </DialogHeader>
           {selectedOrder?.qrcode && (
-            <div className="space-y-4">
-              <div className="bg-white p-4 rounded-lg flex justify-center">
+            <div className="space-y-6">
+              <div className="bg-white p-6 rounded-2xl flex justify-center shadow-lg">
                 <QRCode value={selectedOrder.qrcode} size={256} />
               </div>
-              <div className="space-y-2">
-                <p className="text-sm font-medium">{t("activationCode")}</p>
+              <div className="space-y-3">
+                <p className="text-sm font-light text-foreground/70">{t("activationCode")}</p>
                 <div className="flex items-center gap-2">
-                  <code className="flex-1 p-2 bg-muted rounded text-xs break-all">
+                  <code className="flex-1 p-3 bg-white/[0.05] backdrop-blur-xl border border-white/10 rounded-xl text-xs break-all text-foreground font-light">
                     {selectedOrder.matching_id}
                   </code>
                   <Button
                     variant="outline"
                     size="icon"
-                    className="shrink-0"
+                    className="shrink-0 bg-white/[0.03] border-white/20 hover:bg-white/[0.05] hover:border-neon-cyan/40"
                     onClick={() => {
                       navigator.clipboard.writeText(selectedOrder.matching_id || '');
                       toast.success(t("copiedToClipboard"));
@@ -448,16 +458,16 @@ export default function Orders() {
                 </div>
               </div>
               {selectedOrder.iccid && (
-                <div className="space-y-2">
-                  <p className="text-sm font-medium">{t("iccid")}</p>
+                <div className="space-y-3">
+                  <p className="text-sm font-light text-foreground/70">{t("iccid")}</p>
                   <div className="flex items-center gap-2">
-                    <code className="flex-1 p-2 bg-muted rounded text-xs break-all">
+                    <code className="flex-1 p-3 bg-white/[0.05] backdrop-blur-xl border border-white/10 rounded-xl text-xs break-all text-foreground font-light">
                       {selectedOrder.iccid}
                     </code>
                     <Button
                       variant="outline"
                       size="icon"
-                      className="shrink-0"
+                      className="shrink-0 bg-white/[0.03] border-white/20 hover:bg-white/[0.05] hover:border-neon-cyan/40"
                       onClick={() => {
                         navigator.clipboard.writeText(selectedOrder.iccid || '');
                         toast.success(t("copiedToClipboard"));
