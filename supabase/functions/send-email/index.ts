@@ -1,5 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "https://esm.sh/resend@2.0.0";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
@@ -7,6 +9,14 @@ const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
+
+// Zod validation schema for email requests
+const emailRequestSchema = z.object({
+  type: z.enum(['user_verification', 'password_reset', 'affiliate_verification', 'order_confirmation', 'affiliate_welcome', 'tier_upgrade', 'affiliate_tier_upgrade', 'claim_request']),
+  to: z.string().email().max(255),
+  language: z.string().max(10).optional(),
+  data: z.record(z.any())
+});
 
 interface EmailRequest {
   type: 'user_verification' | 'password_reset' | 'affiliate_verification' | 'order_confirmation' | 'affiliate_welcome' | 'tier_upgrade' | 'affiliate_tier_upgrade' | 'claim_request';
@@ -747,7 +757,44 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { type, to, language = 'en', data }: EmailRequest = await req.json();
+    const rawBody = await req.json();
+    
+    // Validate input with Zod schema
+    const validationResult = emailRequestSchema.safeParse(rawBody);
+    if (!validationResult.success) {
+      console.error("Email validation error:", validationResult.error.issues);
+      return new Response(
+        JSON.stringify({ 
+          error: "Invalid email request format",
+          details: validationResult.error.issues 
+        }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const { type, to, language = 'en', data } = validationResult.data;
+    
+    // Rate limiting: Check recent email sends from this recipient
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+    const { data: recentEmails, error: rateLimitError } = await supabase
+      .from('webhook_logs')
+      .select('id')
+      .eq('event_type', 'email_sent')
+      .gte('created_at', oneHourAgo)
+      .like('payload->>to', `%${to}%`)
+      .limit(10);
+
+    if (!rateLimitError && recentEmails && recentEmails.length >= 10) {
+      console.log(`Rate limit exceeded for email: ${to}`);
+      return new Response(
+        JSON.stringify({ error: 'Too many email requests. Please try again later.' }),
+        { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     const { html, subject } = generateEmailHTML(type, data);
 
@@ -757,6 +804,14 @@ const handler = async (req: Request): Promise<Response> => {
       subject,
       html,
     });
+
+    // Log this email send for rate limiting
+    await supabase
+      .from('webhook_logs')
+      .insert({
+        event_type: 'email_sent',
+        payload: { type, to: to.substring(0, 20) + '...', timestamp: new Date().toISOString() }
+      });
 
     console.log(`Email sent successfully to ${to}:`, emailResponse);
 

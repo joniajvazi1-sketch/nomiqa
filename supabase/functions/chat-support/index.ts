@@ -1,9 +1,19 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
+
+// Zod validation schema for chat messages
+const chatRequestSchema = z.object({
+  messages: z.array(z.object({
+    role: z.enum(['user', 'assistant', 'system']),
+    content: z.string().min(1).max(2000)
+  })).min(1).max(20),
+  language: z.string().max(10).optional()
+});
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -11,7 +21,22 @@ serve(async (req) => {
   }
 
   try {
-    const { messages, language = "en" } = await req.json();
+    const rawBody = await req.json();
+    
+    // Validate input with Zod schema
+    const validationResult = chatRequestSchema.safeParse(rawBody);
+    if (!validationResult.success) {
+      console.error("Chat validation error:", validationResult.error.issues);
+      return new Response(
+        JSON.stringify({ 
+          error: "Invalid chat request format",
+          details: validationResult.error.issues 
+        }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const { messages, language = "en" } = validationResult.data;
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     
     if (!LOVABLE_API_KEY) {

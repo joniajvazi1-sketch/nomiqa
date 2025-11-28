@@ -1,10 +1,17 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
+
+// Zod validation schema
+const resendRequestSchema = z.object({
+  email: z.string().email().max(255),
+  type: z.enum(['registration', 'password_reset', 'affiliate'])
+});
 
 interface ResendRequest {
   email: string;
@@ -22,11 +29,44 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { email, type }: ResendRequest = await req.json();
+    const rawBody = await req.json();
+    
+    // Validate input with Zod schema
+    const validationResult = resendRequestSchema.safeParse(rawBody);
+    if (!validationResult.success) {
+      console.error("Resend validation error:", validationResult.error.issues);
+      return new Response(
+        JSON.stringify({ 
+          error: "Invalid request format",
+          details: validationResult.error.issues 
+        }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const { email, type } = validationResult.data;
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Rate limiting: max 3 resend requests per email per 15 minutes
+    const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+    const { data: recentResends, error: rateLimitError } = await supabase
+      .from('webhook_logs')
+      .select('id')
+      .eq('event_type', 'resend_verification')
+      .gte('created_at', fifteenMinutesAgo)
+      .like('payload->>email', `%${email}%`)
+      .limit(3);
+
+    if (!rateLimitError && recentResends && recentResends.length >= 3) {
+      console.log(`Rate limit exceeded for resend to: ${email}`);
+      return new Response(
+        JSON.stringify({ error: 'Too many resend requests. Please wait 15 minutes before trying again.' }),
+        { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     const code = generateCode();
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
@@ -108,6 +148,14 @@ const handler = async (req: Request): Promise<Response> => {
         },
       });
     }
+
+    // Log this resend attempt for rate limiting
+    await supabase
+      .from('webhook_logs')
+      .insert({
+        event_type: 'resend_verification',
+        payload: { type, email: email.substring(0, 20) + '...', timestamp: new Date().toISOString() }
+      });
 
     console.log(`Resent ${type} code to ${email}`);
 
