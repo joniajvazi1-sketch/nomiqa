@@ -90,20 +90,20 @@ const Token = () => {
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-r from-neon-cyan/30 to-neon-violet/30 rounded-full blur-xl animate-pulse" />
                 <img 
-                  src="/nomiqa-animated-logo.gif" 
-                  alt="Nomiqa" 
+                  src="/nomiqa-token-logo.gif" 
+                  alt="Nomiqa Token" 
                   className="w-32 h-32 relative z-10 rounded-2xl shadow-2xl shadow-neon-cyan/50" 
                 />
               </div>
               <div className="flex items-center gap-3 text-white/60 font-light">
                 <img 
-                  src="/nomiqa-animated-logo.gif" 
+                  src="/nomiqa-token-logo.gif" 
                   alt="Nomiqa" 
                   className="w-8 h-8 rounded-lg" 
                 />
                 <span>{t("tokenLaunchingOn")}</span>
                 <img 
-                  src="/nomiqa-animated-logo.gif" 
+                  src="/nomiqa-token-logo.gif" 
                   alt="Nomiqa" 
                   className="w-8 h-8 rounded-lg" 
                 />
