@@ -3,7 +3,7 @@ import { SiteNavigation } from "@/components/SiteNavigation";
 import { Footer } from "@/components/Footer";
 import { SupportChatbot } from "@/components/SupportChatbot";
 import { NetworkBackground } from "@/components/NetworkBackground";
-import { Coins, Rocket, Sparkles, TrendingUp, Lock, Zap } from "lucide-react";
+import { Coins, Rocket, TrendingUp, Lock, Zap } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import { useTranslation } from "@/contexts/TranslationContext";
 
@@ -90,15 +90,23 @@ const Token = () => {
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-r from-neon-cyan/30 to-neon-violet/30 rounded-full blur-xl animate-pulse" />
                 <img 
-                  src="/nomiqa-logo.jpg" 
+                  src="/nomiqa-animated-logo.gif" 
                   alt="Nomiqa" 
-                  className="w-32 h-32 relative z-10 rounded-2xl shadow-2xl shadow-neon-cyan/50 animate-pulse" 
+                  className="w-32 h-32 relative z-10 rounded-2xl shadow-2xl shadow-neon-cyan/50" 
                 />
               </div>
-              <div className="flex items-center gap-2 text-white/60 font-light">
-                <Sparkles className="w-5 h-5 text-neon-cyan animate-pulse" />
+              <div className="flex items-center gap-3 text-white/60 font-light">
+                <img 
+                  src="/nomiqa-animated-logo.gif" 
+                  alt="Nomiqa" 
+                  className="w-8 h-8 rounded-lg" 
+                />
                 <span>{t("tokenLaunchingOn")}</span>
-                <Sparkles className="w-5 h-5 text-neon-violet animate-pulse" />
+                <img 
+                  src="/nomiqa-animated-logo.gif" 
+                  alt="Nomiqa" 
+                  className="w-8 h-8 rounded-lg" 
+                />
               </div>
             </div>
           </div>
