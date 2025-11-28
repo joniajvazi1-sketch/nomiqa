@@ -98,6 +98,7 @@ export const countryTranslations: Record<string, Record<Language, string>> = {
   "PH": { EN: "Philippines", ES: "Filipinas", FR: "Philippines", DE: "Philippinen", IT: "Filippine", PT: "Filipinas", RU: "Филиппины", ZH: "菲律宾", JA: "フィリピン", AR: "الفلبين" },
   "PL": { EN: "Poland", ES: "Polonia", FR: "Pologne", DE: "Polen", IT: "Polonia", PT: "Polônia", RU: "Польша", ZH: "波兰", JA: "ポーランド", AR: "بولندا" },
   "PT": { EN: "Portugal", ES: "Portugal", FR: "Portugal", DE: "Portugal", IT: "Portogallo", PT: "Portugal", RU: "Португалия", ZH: "葡萄牙", JA: "ポルトガル", AR: "البرتغال" },
+  "USPR": { EN: "Puerto Rico", ES: "Puerto Rico", FR: "Porto Rico", DE: "Puerto Rico", IT: "Porto Rico", PT: "Porto Rico", RU: "Пуэрто-Рико", ZH: "波多黎各", JA: "プエルトリコ", AR: "بورتوريكو" },
   
   // Q
   "QA": { EN: "Qatar", ES: "Catar", FR: "Qatar", DE: "Katar", IT: "Qatar", PT: "Catar", RU: "Катар", ZH: "卡塔尔", JA: "カタール", AR: "قطر" },
