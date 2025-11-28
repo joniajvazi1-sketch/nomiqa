@@ -206,15 +206,15 @@ export const Navbar = () => {
 
           {/* Desktop Search Bar - Hidden on shop page */}
           {!isShopPage && (
-            <div className="hidden lg:flex flex-1 max-w-2xl">
+            <div className="hidden lg:flex flex-1 max-w-4xl">
               <form onSubmit={(e) => handleSearch(e, false)} className="w-full relative group">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 group-hover:text-neon-cyan transition-colors duration-300" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40 group-hover:text-neon-cyan transition-colors duration-300" />
                 <Input
                   type="text"
                   placeholder={t("searchEsims")}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-white/5 backdrop-blur-xl border border-white/10 hover:border-neon-cyan/30 focus:border-neon-cyan/50 text-white placeholder:text-white/40 pl-10 pr-4 py-2.5 rounded-lg font-light text-sm transition-all duration-300 focus-visible:ring-neon-cyan/20"
+                  className="w-full bg-white/5 backdrop-blur-xl border border-white/10 hover:border-neon-cyan/30 focus:border-neon-cyan/50 text-white placeholder:text-white/40 pl-12 pr-4 py-3 rounded-xl font-light text-base transition-all duration-300 focus-visible:ring-neon-cyan/20"
                 />
               </form>
             </div>
