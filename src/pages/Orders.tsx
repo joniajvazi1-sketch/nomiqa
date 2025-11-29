@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, Download, QrCode, RefreshCw, ExternalLink, Copy } from "lucide-react";
+import { ArrowLeft, RefreshCw, Copy, QrCode, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -94,32 +94,40 @@ export default function Orders() {
           return;
         }
 
-        // Authenticated user access - rely on RLS policies
+        // Authenticated user access - Only fetch completed/paid orders for better performance
         const result = await supabase
           .from('orders')
           .select('*')
-          .order('created_at', { ascending: false });
+          .in('status', ['completed', 'paid'])
+          .order('created_at', { ascending: false })
+          .limit(20);
 
         data = result.data;
         error = result.error;
       }
 
 
-      // Fetch usage data for each order (skip if using token as it's already fetched)
+      // Fetch usage data for each order in parallel (skip if using token as it's already fetched)
       if (!accessToken && data && data.length > 0) {
         const usageMap: Record<string, UsageData> = {};
         
-        for (const order of data) {
-          const { data: usage } = await supabase
+        // Fetch all usage data in parallel for better performance
+        const usagePromises = data.map(order => 
+          supabase
             .from('esim_usage')
             .select('remaining_mb, total_mb, status, expired_at')
             .eq('order_id', order.id)
-            .single();
-          
+            .single()
+            .then(({ data: usage }) => ({ orderId: order.id, usage }))
+        );
+        
+        const usageResults = await Promise.all(usagePromises);
+        
+        usageResults.forEach(({ orderId, usage }) => {
           if (usage) {
-            usageMap[order.id] = usage;
+            usageMap[orderId] = usage;
           }
-        }
+        });
         
         setUsageData(usageMap);
       }
@@ -273,7 +281,7 @@ export default function Orders() {
             </CardContent>
           </Card>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-4" style={{ contain: 'layout style paint' }}>
             {orders.map((order) => {
               const usage = usageData[order.id];
               const usagePercentage = usage 
@@ -281,7 +289,7 @@ export default function Orders() {
                 : 0;
               
               return (
-              <Card key={order.id} className={`${order.status === 'completed' || order.status === 'paid' ? 'border border-neon-cyan/30 shadow-xl shadow-neon-cyan/10 bg-white/[0.04]' : 'bg-white/[0.03] border border-white/10'} backdrop-blur-xl transition-all hover:shadow-2xl hover:scale-[1.005] duration-500 rounded-2xl`}>
+              <Card key={order.id} className={`${order.status === 'completed' || order.status === 'paid' ? 'border border-neon-cyan/30 shadow-xl shadow-neon-cyan/10 bg-white/[0.04]' : 'bg-white/[0.03] border border-white/10'} backdrop-blur-xl transition-all hover:shadow-2xl hover:scale-[1.002] duration-300 rounded-2xl will-change-auto`} style={{ contain: 'layout style' }}>
                 <CardHeader>
                   <div className="flex justify-between items-start">
                     <div>

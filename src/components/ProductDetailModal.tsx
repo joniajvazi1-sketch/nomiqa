@@ -76,6 +76,7 @@ export const ProductDetailModal = ({
                   src={product.operator_image_url} 
                   alt={product.operator_name || 'Operator'} 
                   className="relative h-16 md:h-20 object-contain rounded-lg"
+                  loading="lazy"
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
                   }}
@@ -92,7 +93,7 @@ export const ProductDetailModal = ({
             onClick={() => setCompatibilityOpen(true)}
             variant="outline"
             size="lg"
-            className="w-full mb-6 bg-gradient-to-br from-neon-cyan/10 to-neon-cyan/5 border-neon-cyan/40 text-neon-cyan hover:bg-neon-cyan/20 hover:border-neon-cyan/60 transition-all duration-300 font-light h-14 rounded-xl shadow-lg shadow-neon-cyan/10"
+            className="w-full mb-6 bg-gradient-to-br from-neon-cyan/10 to-neon-cyan/5 border-neon-cyan/40 text-neon-cyan hover:bg-neon-cyan/20 hover:border-neon-cyan/60 transition-all duration-200 font-light h-14 rounded-xl shadow-lg shadow-neon-cyan/10"
           >
             <Smartphone className="mr-2 h-5 w-5" />
             {t('checkDeviceCompatibility')}

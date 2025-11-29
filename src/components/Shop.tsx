@@ -164,21 +164,22 @@ export const Shop = () => {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8" style={{ contain: 'layout style paint' }}>
               {displayedProducts?.map((product) => (
                 <Card 
                   key={product.id} 
-                  className="group relative overflow-hidden bg-white/[0.02] backdrop-blur-xl border border-white/10 hover:border-neon-cyan/40 transition-all duration-500 hover:-translate-y-2 cursor-pointer hover-lift rounded-2xl"
+                  className="group relative overflow-hidden bg-white/[0.02] backdrop-blur-xl border border-white/10 hover:border-neon-cyan/40 transition-all duration-300 hover:-translate-y-1 cursor-pointer rounded-2xl will-change-auto"
+                  style={{ contain: 'layout style' }}
                   onClick={() => handleProductClick(product)}
                 >
                   {/* Hover glow effect */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-neon-cyan/5 via-transparent to-neon-violet/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+                  <div className="absolute inset-0 bg-gradient-to-br from-neon-cyan/5 via-transparent to-neon-violet/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                   
                   <CardHeader className="relative z-10">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center gap-3">
                         <div className="relative">
-                          <div className="absolute inset-0 bg-neon-cyan/20 rounded blur-sm group-hover:bg-neon-cyan/30 transition-all duration-500"></div>
+                          <div className="absolute inset-0 bg-neon-cyan/20 rounded blur-sm group-hover:bg-neon-cyan/30 transition-all duration-300"></div>
                           {getCountryFlag(product.country_code)}
                         </div>
                         <div>
@@ -228,7 +229,7 @@ export const Shop = () => {
                       <p className="text-xs text-white/50 mt-2 font-light">{t('oneTimePayment')}</p>
                     </div>
 
-                    <div className="flex items-center justify-center pt-2 text-sm text-white/50 group-hover:text-neon-cyan transition-colors duration-300 text-center">
+                    <div className="flex items-center justify-center pt-2 text-sm text-white/50 group-hover:text-neon-cyan transition-colors duration-200 text-center">
                       <span className="font-light">{t('clickForMoreInfo')}</span>
                     </div>
                   </CardContent>
@@ -239,7 +240,7 @@ export const Shop = () => {
                         e.stopPropagation();
                         handleAddToCart(product);
                       }}
-                      className="w-full sm:flex-1 bg-white/[0.05] backdrop-blur-xl border-2 border-neon-cyan/40 text-white hover:bg-neon-cyan/10 hover:border-neon-cyan/60 font-light h-12 rounded-xl transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-neon-cyan/20"
+                      className="w-full sm:flex-1 bg-white/[0.05] backdrop-blur-xl border-2 border-neon-cyan/40 text-white hover:bg-neon-cyan/10 hover:border-neon-cyan/60 font-light h-12 rounded-xl transition-all duration-200 hover:scale-[1.02] shadow-lg hover:shadow-neon-cyan/20"
                     >
                       <ShoppingCart className="mr-2 h-4 w-4 shrink-0" />
                       <span className="break-words">{t('addToCart')}</span>
@@ -249,7 +250,7 @@ export const Shop = () => {
                         e.stopPropagation();
                         handleReferEarn(product);
                       }}
-                      className="w-full sm:flex-1 bg-white/[0.05] backdrop-blur-xl border-2 border-neon-coral/40 text-neon-coral hover:bg-neon-coral/10 hover:border-neon-coral/60 font-light h-12 rounded-xl transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-neon-coral/20"
+                      className="w-full sm:flex-1 bg-white/[0.05] backdrop-blur-xl border-2 border-neon-coral/40 text-neon-coral hover:bg-neon-coral/10 hover:border-neon-coral/60 font-light h-12 rounded-xl transition-all duration-200 hover:scale-[1.02] shadow-lg hover:shadow-neon-coral/20"
                     >
                       <HandCoins className="mr-2 h-4 w-4 shrink-0" />
                       <span className="break-words">{t('referAndEarn')}</span>
