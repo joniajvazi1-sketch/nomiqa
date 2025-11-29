@@ -20,7 +20,7 @@ serve(async (req) => {
     console.log('Webhook headers:', Object.fromEntries(req.headers.entries()));
 
     // Verify MoonPay Commerce webhook signature
-    const signature = req.headers.get('x-webhook-signature') || req.headers.get('signature');
+    const signature = req.headers.get('x-signature') || req.headers.get('x-webhook-signature') || req.headers.get('signature');
     const webhookSecret = Deno.env.get('HELIO_WEBHOOK_SECRET');
 
     if (!webhookSecret) {
