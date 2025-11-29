@@ -76,14 +76,15 @@ export const FAQ = memo(() => {
             </p>
           </div>
 
-          <Accordion type="single" collapsible className="space-y-4">
+          <Accordion type="single" collapsible className="space-y-4" style={{ contain: 'layout style paint' }}>
             {faqs.slice(0, 5).map((faq, index) => (
               <AccordionItem 
                 key={index} 
                 value={`item-${index}`}
-                className="bg-white/[0.02] backdrop-blur-sm border border-white/10 hover:border-neon-cyan/30 rounded-xl px-4 md:px-6 transition-all duration-200 hover:bg-white/[0.04] transform-gpu will-change-transform"
+                className="bg-white/[0.02] backdrop-blur-sm border border-white/10 hover:border-neon-cyan/30 rounded-xl px-4 md:px-6 transition-all duration-150 hover:bg-white/[0.04] will-change-auto"
+                style={{ contain: 'layout style' }}
               >
-                <AccordionTrigger className="text-left text-base md:text-lg font-semibold text-foreground hover:text-neon-cyan transition-colors duration-200 py-4">
+                <AccordionTrigger className="text-left text-base md:text-lg font-semibold text-foreground hover:text-neon-cyan transition-colors duration-150 py-4">
                   {faq.question}
                 </AccordionTrigger>
                 <AccordionContent className="text-foreground/80 leading-relaxed text-sm md:text-base pb-4">
