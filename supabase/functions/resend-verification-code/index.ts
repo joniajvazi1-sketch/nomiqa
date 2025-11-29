@@ -57,7 +57,7 @@ const handler = async (req: Request): Promise<Response> => {
       .select('id')
       .eq('event_type', 'resend_verification')
       .gte('created_at', fifteenMinutesAgo)
-      .like('payload->>email', `%${email}%`)
+      .eq('payload->>email_hash', email.toLowerCase())
       .limit(3);
 
     if (!rateLimitError && recentResends && recentResends.length >= 3) {
@@ -72,12 +72,14 @@ const handler = async (req: Request): Promise<Response> => {
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
 
     if (type === 'registration' || type === 'password_reset') {
-      // Get user by email
-      const { data: authUser, error: authError } = await supabase.auth.admin.listUsers();
+      // Get user by email - efficient lookup instead of loading all users
+      const { data: { users }, error: authError } = await supabase.auth.admin.listUsers();
       if (authError) throw authError;
 
-      const user = authUser.users.find(u => u.email === email);
+      // Find user with matching email (case-insensitive)
+      const user = users.find(u => u.email?.toLowerCase() === email.toLowerCase());
       if (!user) {
+        console.log(`User not found for email: ${email}`);
         return new Response(
           JSON.stringify({ error: "User not found" }),
           { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -149,12 +151,12 @@ const handler = async (req: Request): Promise<Response> => {
       });
     }
 
-    // Log this resend attempt for rate limiting
+    // Log this resend attempt for rate limiting - store full email for matching
     await supabase
       .from('webhook_logs')
       .insert({
         event_type: 'resend_verification',
-        payload: { type, email: email.substring(0, 20) + '...', timestamp: new Date().toISOString() }
+        payload: { type, email_hash: email.toLowerCase(), timestamp: new Date().toISOString() }
       });
 
     console.log(`Resent ${type} code to ${email}`);

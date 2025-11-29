@@ -24,12 +24,13 @@ const handler = async (req: Request): Promise<Response> => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Get user by email
-    const { data: authUser, error: authError } = await supabase.auth.admin.listUsers();
+    // Get user by email - case-insensitive lookup
+    const { data: { users }, error: authError } = await supabase.auth.admin.listUsers();
     if (authError) throw authError;
 
-    const user = authUser.users.find(u => u.email === email);
+    const user = users.find(u => u.email?.toLowerCase() === email.toLowerCase());
     if (!user) {
+      console.log(`User not found for email: ${email}`);
       return new Response(
         JSON.stringify({ error: "User not found" }),
         { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }

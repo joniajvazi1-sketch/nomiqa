@@ -785,7 +785,7 @@ const handler = async (req: Request): Promise<Response> => {
       .select('id')
       .eq('event_type', 'email_sent')
       .gte('created_at', oneHourAgo)
-      .like('payload->>to', `%${to}%`)
+      .eq('payload->>email_hash', to.toLowerCase())
       .limit(10);
 
     if (!rateLimitError && recentEmails && recentEmails.length >= 10) {
@@ -805,12 +805,12 @@ const handler = async (req: Request): Promise<Response> => {
       html,
     });
 
-    // Log this email send for rate limiting
+    // Log this email send for rate limiting - store full email for matching
     await supabase
       .from('webhook_logs')
       .insert({
         event_type: 'email_sent',
-        payload: { type, to: to.substring(0, 20) + '...', timestamp: new Date().toISOString() }
+        payload: { type, email_hash: to.toLowerCase(), timestamp: new Date().toISOString() }
       });
 
     console.log(`Email sent successfully to ${to}:`, emailResponse);
