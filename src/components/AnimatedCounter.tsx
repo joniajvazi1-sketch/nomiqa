@@ -6,6 +6,8 @@ interface AnimatedCounterProps {
   suffix?: string;
   className?: string;
   delay?: number;
+  onTick?: () => void;
+  onComplete?: () => void;
 }
 
 export const AnimatedCounter = ({ 
@@ -13,11 +15,14 @@ export const AnimatedCounter = ({
   duration = 2000, 
   suffix = '', 
   className = '',
-  delay = 0 
+  delay = 0,
+  onTick,
+  onComplete
 }: AnimatedCounterProps) => {
   const [count, setCount] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
   const ref = useRef<HTMLSpanElement>(null);
+  const lastTickRef = useRef(0);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -55,15 +60,27 @@ export const AnimatedCounter = ({
         const progress = elapsed / duration;
         // Ease out cubic for smooth deceleration
         const easeProgress = 1 - Math.pow(1 - progress, 3);
-        setCount(Math.floor(easeProgress * endValue));
+        const newCount = Math.floor(easeProgress * endValue);
+        
+        // Play tick sound when count changes (throttled to avoid too many sounds)
+        if (newCount !== lastTickRef.current && onTick) {
+          lastTickRef.current = newCount;
+          onTick();
+        }
+        
+        setCount(newCount);
         requestAnimationFrame(animate);
       } else {
         setCount(endValue);
+        // Play completion sound
+        if (onComplete) {
+          onComplete();
+        }
       }
     };
 
     requestAnimationFrame(animate);
-  }, [isVisible, end, duration, delay]);
+  }, [isVisible, end, duration, delay, onTick, onComplete]);
 
   return (
     <span ref={ref} className={className}>
