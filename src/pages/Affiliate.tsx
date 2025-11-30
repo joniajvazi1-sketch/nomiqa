@@ -430,7 +430,7 @@ export default function Affiliate() {
   if (showVerification) {
     return (
       <div className="min-h-screen bg-background relative overflow-hidden">
-        <NetworkBackground />
+      <NetworkBackground color="rgb(251, 146, 60)" />
         <div className="relative z-10 flex items-center justify-center min-h-screen p-4 py-12">
           <EmailVerification
             email={pendingEmail}
@@ -455,8 +455,8 @@ export default function Affiliate() {
       
       {/* Subtle background glows */}
       <div className="fixed inset-0 -z-10 overflow-hidden opacity-20">
-        <div className="absolute top-20 left-10 w-96 h-96 bg-neon-violet/30 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 right-10 w-[500px] h-[500px] bg-neon-cyan/30 rounded-full blur-3xl"></div>
+        <div className="absolute top-20 left-10 w-96 h-96 bg-orange-500/30 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 right-10 w-[500px] h-[500px] bg-neon-coral/30 rounded-full blur-3xl"></div>
       </div>
 
       <Navbar />

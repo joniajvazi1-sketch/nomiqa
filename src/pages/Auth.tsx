@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { NetworkBackground } from "@/components/NetworkBackground";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { useTranslation } from "@/contexts/TranslationContext";
@@ -360,8 +361,14 @@ export default function Auth() {
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
+      <NetworkBackground color="rgb(34, 211, 238)" />
+      
       {/* Simple background */}
-      <div className="absolute inset-0 bg-muted/20"></div>
+      <div className="fixed inset-0 -z-10 overflow-hidden opacity-20">
+        <div className="absolute top-20 left-10 w-96 h-96 bg-cyan-500/30 rounded-full blur-3xl"></div>
+        <div className="absolute top-40 right-20 w-80 h-80 bg-blue-500/30 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-40 left-1/4 w-[500px] h-[500px] bg-neon-cyan/20 rounded-full blur-3xl"></div>
+      </div>
 
       <div className="relative z-10 flex items-center justify-center min-h-screen p-4 py-12">
         <Card className="w-full max-w-md bg-card backdrop-blur-xl border-border shadow-2xl overflow-hidden animate-fade-in">
