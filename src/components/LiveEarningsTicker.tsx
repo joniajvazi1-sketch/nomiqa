@@ -130,7 +130,7 @@ export const LiveEarningsTicker = () => {
   const displayConversions = [...conversions, ...conversions];
 
   return (
-    <div className="w-full bg-gradient-to-r from-black/40 via-black/60 to-black/40 backdrop-blur-xl border-y border-white/10 py-4 overflow-hidden relative">
+    <div className="w-full bg-gradient-to-r from-black/40 via-black/60 to-black/40 backdrop-blur-xl border-y border-white/10 py-4 overflow-hidden relative mt-20 md:mt-0">
       {/* Gradient overlays for fade effect */}
       <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-black/80 to-transparent z-10 pointer-events-none"></div>
       <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-black/80 to-transparent z-10 pointer-events-none"></div>
