@@ -1,7 +1,6 @@
 import { lazy, Suspense, memo } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Hero } from "@/components/Hero";
-import { SiteNavigation } from "@/components/SiteNavigation";
 import { Footer } from "@/components/Footer";
 import { SupportChatbot } from "@/components/SupportChatbot";
 
@@ -13,6 +12,7 @@ const HowItWorksSteps = lazy(() => import(/* webpackPrefetch: true */ "@/compone
 const ScrollableFeatures = lazy(() => import(/* webpackPrefetch: true */ "@/components/ScrollableFeatures").then(m => ({ default: m.ScrollableFeatures })));
 const CoverageSection = lazy(() => import(/* webpackPrefetch: true */ "@/components/CoverageSection").then(m => ({ default: m.CoverageSection })));
 const FAQ = lazy(() => import(/* webpackPrefetch: true */ "@/components/FAQ").then(m => ({ default: m.FAQ })));
+const SiteNavigation = lazy(() => import(/* webpackPrefetch: true */ "@/components/SiteNavigation").then(m => ({ default: m.SiteNavigation })));
 
 const LoadingSpinner = memo(() => (
   <div className="h-20 flex items-center justify-center">
@@ -34,8 +34,8 @@ const Index = () => {
         <ScrollableFeatures />
         <CoverageSection />
         <FAQ />
+        <SiteNavigation />
       </Suspense>
-      <SiteNavigation />
       <Footer />
       <SupportChatbot />
     </div>

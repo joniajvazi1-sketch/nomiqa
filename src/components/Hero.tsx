@@ -20,7 +20,6 @@ export const Hero = () => {
             alt="Sunset cityscape" 
             className="w-full h-full object-cover object-center md:object-center object-[70%_center]" 
             loading="eager"
-            fetchPriority="high"
             decoding="async"
           />
         </picture>
