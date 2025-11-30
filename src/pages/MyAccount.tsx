@@ -703,12 +703,15 @@ export default function MyAccount() {
                           <p className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
                             ${((affiliateData?.total_earnings_usd || 0) + totalCashbackEarned).toFixed(2)}
                           </p>
+                          <p className="text-xs text-muted-foreground mt-2">
+                            Minimum withdrawal: $5.00 USD
+                          </p>
                         </div>
                         <Dialog open={showClaimDialog} onOpenChange={setShowClaimDialog}>
-                          <DialogTrigger asChild>
+                           <DialogTrigger asChild>
                             <Button
                               size="lg"
-                              className="w-full md:w-auto h-auto py-4 px-6 md:px-8 text-base md:text-lg font-light bg-white/[0.05] backdrop-blur-xl border-2 border-neon-violet/40 text-white hover:bg-neon-violet/10 hover:border-neon-violet/60 rounded-2xl transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-neon-violet/20"
+                              className="w-full md:w-auto h-auto py-4 px-6 md:px-8 text-base md:text-lg font-light bg-white/[0.05] backdrop-blur-xl border-2 border-neon-violet/40 text-white hover:bg-neon-violet/10 hover:border-neon-violet/60 rounded-2xl transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-neon-violet/20 disabled:opacity-50 disabled:cursor-not-allowed"
                               disabled={((affiliateData?.total_earnings_usd || 0) + totalCashbackEarned) < 5}
                             >
                               <Wallet className="w-5 h-5 md:w-6 md:h-6 mr-2 shrink-0" />
@@ -723,6 +726,13 @@ export default function MyAccount() {
                               </DialogDescription>
                             </DialogHeader>
                             <div className="space-y-4">
+                              {/* Minimum Withdrawal Notice */}
+                              <Alert className="border-primary/20 bg-primary/5">
+                                <AlertDescription className="text-sm font-medium">
+                                  💰 Minimum withdrawal: $5.00 USD (combined affiliate + cashback earnings)
+                                </AlertDescription>
+                              </Alert>
+
                               <div className="space-y-2">
                                 <Label htmlFor="wallet">{t("solanaWalletAddress")}</Label>
                                 <Input
@@ -743,10 +753,10 @@ export default function MyAccount() {
                                   rows={3}
                                 />
                               </div>
-                              {((affiliateData?.total_earnings_usd || 0) + (membership?.cashback_balance || 0)) < 5 && (
-                                <Alert>
+                              {((affiliateData?.total_earnings_usd || 0) + totalCashbackEarned) < 5 && (
+                                <Alert variant="destructive">
                                   <AlertDescription className="text-sm">
-                                    ⚠️ {t("minimumClaimAmount")}
+                                    ⚠️ No withdrawal under $5. Current total: ${((affiliateData?.total_earnings_usd || 0) + totalCashbackEarned).toFixed(2)}
                                   </AlertDescription>
                                 </Alert>
                               )}
@@ -755,11 +765,18 @@ export default function MyAccount() {
                                 disabled={
                                   !walletAddress.trim() || 
                                   submittingClaim ||
-                                  ((affiliateData?.total_earnings_usd || 0) + (membership?.cashback_balance || 0)) < 5
+                                  ((affiliateData?.total_earnings_usd || 0) + totalCashbackEarned) < 5
                                 }
                                 onClick={async () => {
                                   if (!walletAddress.trim()) {
                                     toast.error(t("walletAddressRequired"));
+                                    return;
+                                  }
+                                  
+                                  const totalAmount = (affiliateData?.total_earnings_usd || 0) + totalCashbackEarned;
+                                  
+                                  if (totalAmount < 5) {
+                                    toast.error("Minimum withdrawal is $5.00");
                                     return;
                                   }
                                   
@@ -770,8 +787,8 @@ export default function MyAccount() {
                                         walletAddress,
                                         message: claimMessage,
                                         affiliateEarnings: affiliateData?.total_earnings_usd || 0,
-                                        cashbackEarnings: membership?.cashback_balance || 0,
-                                        totalAmount: (affiliateData?.total_earnings_usd || 0) + (membership?.cashback_balance || 0),
+                                        cashbackEarnings: totalCashbackEarned,
+                                        totalAmount: totalAmount,
                                         userEmail: profile?.email,
                                         username: profile?.username
                                       }
