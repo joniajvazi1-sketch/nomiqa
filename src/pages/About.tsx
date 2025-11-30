@@ -37,11 +37,12 @@ export default function About() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black/40 via-deep-space/60 to-black/40 relative">
-      <NetworkBackground />
+      <NetworkBackground color="rgb(251, 146, 60)" />
       
       <div className="fixed inset-0 -z-10 overflow-hidden opacity-20">
-        <div className="absolute top-20 left-10 w-96 h-96 bg-neon-coral/30 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 right-10 w-[500px] h-[500px] bg-neon-violet/30 rounded-full blur-3xl"></div>
+        <div className="absolute top-20 left-10 w-96 h-96 bg-orange-400/30 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 right-10 w-[500px] h-[500px] bg-neon-coral/30 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/3 w-80 h-80 bg-rose-500/20 rounded-full blur-3xl"></div>
       </div>
       
       <Navbar />

@@ -7,7 +7,11 @@ interface Node {
   vy: number;
 }
 
-export const NetworkBackground = () => {
+interface NetworkBackgroundProps {
+  color?: string;
+}
+
+export const NetworkBackground = ({ color }: NetworkBackgroundProps = {}) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -66,7 +70,7 @@ export const NetworkBackground = () => {
           if (distance < maxDistance) {
             const opacity = (1 - distance / maxDistance) * 0.3;
             ctx.beginPath();
-            ctx.strokeStyle = `rgba(147, 51, 234, ${opacity})`; // neon-violet
+            ctx.strokeStyle = color ? `${color.replace('rgb(', 'rgba(').replace(')', `, ${opacity})`)}` : `rgba(147, 51, 234, ${opacity})`;
             ctx.lineWidth = 1;
             ctx.moveTo(node.x, node.y);
             ctx.lineTo(otherNode.x, otherNode.y);
@@ -77,13 +81,13 @@ export const NetworkBackground = () => {
         // Draw node
         ctx.beginPath();
         ctx.arc(node.x, node.y, 2, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(147, 51, 234, 0.6)';
+        ctx.fillStyle = color ? `${color.replace('rgb(', 'rgba(').replace(')', ', 0.6)')}` : 'rgba(147, 51, 234, 0.6)';
         ctx.fill();
         
         // Add glow
         ctx.beginPath();
         ctx.arc(node.x, node.y, 4, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(147, 51, 234, 0.2)';
+        ctx.fillStyle = color ? `${color.replace('rgb(', 'rgba(').replace(')', ', 0.2)')}` : 'rgba(147, 51, 234, 0.2)';
         ctx.fill();
       });
 

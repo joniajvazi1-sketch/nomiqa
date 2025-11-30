@@ -5,6 +5,7 @@ import { Navbar } from "@/components/Navbar";
 import { SiteNavigation } from "@/components/SiteNavigation";
 import { Footer } from "@/components/Footer";
 import { SupportChatbot } from "@/components/SupportChatbot";
+import { NetworkBackground } from "@/components/NetworkBackground";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -231,9 +232,14 @@ export default function MyAccount() {
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
+      <NetworkBackground color="rgb(251, 146, 60)" />
+      
       {/* Premium Background Effects */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.15),transparent_50%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,hsl(var(--accent)/0.1),transparent_40%)]" />
+      <div className="fixed inset-0 -z-10 overflow-hidden opacity-20">
+        <div className="absolute top-20 left-10 w-96 h-96 bg-orange-500/30 rounded-full blur-3xl"></div>
+        <div className="absolute top-40 right-20 w-80 h-80 bg-neon-coral/30 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-40 left-1/4 w-[500px] h-[500px] bg-amber-500/20 rounded-full blur-3xl"></div>
+      </div>
       
       <Confetti trigger={showConfetti} onComplete={() => setShowConfetti(false)} />
       <Navbar />

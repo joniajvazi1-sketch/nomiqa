@@ -66,7 +66,14 @@ export default function Rewards() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-black via-deep-space to-black relative overflow-hidden">
-      <NetworkBackground />
+      <NetworkBackground color="rgb(251, 146, 60)" />
+      
+      <div className="fixed inset-0 -z-10 overflow-hidden opacity-20">
+        <div className="absolute top-20 left-10 w-96 h-96 bg-orange-500/30 rounded-full blur-3xl"></div>
+        <div className="absolute top-40 right-20 w-80 h-80 bg-neon-coral/30 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-40 left-1/4 w-[500px] h-[500px] bg-amber-500/20 rounded-full blur-3xl"></div>
+      </div>
+      
       <Navbar />
       
       <main ref={sectionRef} className="relative z-10 pt-32 pb-20 px-4 sm:px-6">
