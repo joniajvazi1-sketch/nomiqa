@@ -4,6 +4,7 @@ import { SiteNavigation } from "@/components/SiteNavigation";
 import { Footer } from "@/components/Footer";
 import { SupportChatbot } from "@/components/SupportChatbot";
 import { NetworkBackground } from "@/components/NetworkBackground";
+import { AnimatedCounter } from "@/components/AnimatedCounter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -461,12 +462,22 @@ export default function Affiliate() {
               Earn While They Travel
             </h2>
             <div className="text-[8vw] md:text-[6vw] font-black tracking-tight text-white/50">
-              18% Total Commission
+              <AnimatedCounter end={18} suffix="% " className="inline-block" />
+              Total Commission
             </div>
             <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8 text-[4vw] md:text-[3vw] font-bold">
-              <span className="text-neon-cyan">9% direct</span>
-              <span className="text-neon-violet">6% second level</span>
-              <span className="text-neon-coral">3% third level</span>
+              <span className="text-neon-cyan">
+                <AnimatedCounter end={9} suffix="% " delay={200} className="inline-block" />
+                direct
+              </span>
+              <span className="text-neon-violet">
+                <AnimatedCounter end={6} suffix="% " delay={400} className="inline-block" />
+                second level
+              </span>
+              <span className="text-neon-coral">
+                <AnimatedCounter end={3} suffix="% " delay={600} className="inline-block" />
+                third level
+              </span>
             </div>
             <p className="text-[3vw] md:text-[2vw] text-white/40 font-light max-w-4xl mx-auto px-4">
               One link. Infinite potential. Your network works for you — 24/7, worldwide.
@@ -508,7 +519,8 @@ export default function Affiliate() {
                   <div className="absolute -inset-2 bg-gradient-to-r from-neon-cyan via-neon-violet to-neon-coral rounded-3xl blur-xl opacity-20 group-hover:opacity-40 transition duration-500"></div>
                   <div className="relative px-10 py-5 bg-gradient-to-br from-white/[0.05] to-white/[0.02] backdrop-blur-3xl border border-white/30 rounded-3xl shadow-2xl">
                     <p className="text-3xl md:text-5xl lg:text-6xl font-black bg-gradient-to-r from-neon-cyan via-white to-neon-coral bg-clip-text text-transparent tracking-tight">
-                      {t("totalCommissionSplit")}
+                      <AnimatedCounter end={18} suffix="% " className="inline-block" />
+                      {t("totalCommissionSplit").replace('18%', '')}
                     </p>
                   </div>
                 </div>
@@ -516,15 +528,18 @@ export default function Affiliate() {
                 <div className="w-full flex justify-center">
                   <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4 text-sm md:text-base lg:text-lg px-4">
                     <span className="px-4 py-2 rounded-xl bg-neon-cyan/10 border border-neon-cyan/30 text-neon-cyan font-semibold backdrop-blur-sm">
-                      {t("commissionBreakdown").split(' • ')[0]}
+                      <AnimatedCounter end={9} suffix="% " delay={200} className="inline-block" />
+                      {t("commissionBreakdown").split(' • ')[0].replace('9%', '')}
                     </span>
                     
                     <span className="px-4 py-2 rounded-xl bg-neon-violet/10 border border-neon-violet/30 text-neon-violet font-semibold backdrop-blur-sm">
-                      {t("commissionBreakdown").split(' • ')[1]}
+                      <AnimatedCounter end={6} suffix="% " delay={400} className="inline-block" />
+                      {t("commissionBreakdown").split(' • ')[1].replace('6%', '')}
                     </span>
                     
                     <span className="px-4 py-2 rounded-xl bg-neon-coral/10 border border-neon-coral/30 text-neon-coral font-semibold backdrop-blur-sm">
-                      {t("commissionBreakdown").split(' • ')[2]}
+                      <AnimatedCounter end={3} suffix="% " delay={600} className="inline-block" />
+                      {t("commissionBreakdown").split(' • ')[2].replace('3%', '')}
                     </span>
                   </div>
                 </div>
