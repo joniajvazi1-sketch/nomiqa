@@ -79,6 +79,7 @@ export default function MyAccount() {
   const [walletAddress, setWalletAddress] = useState("");
   const [claimMessage, setClaimMessage] = useState("");
   const [submittingClaim, setSubmittingClaim] = useState(false);
+  const [walletError, setWalletError] = useState("");
 
   useEffect(() => {
     checkAuth();
@@ -739,9 +740,26 @@ export default function MyAccount() {
                                   id="wallet"
                                   placeholder="Ex: 7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU"
                                   value={walletAddress}
-                                  onChange={(e) => setWalletAddress(e.target.value)}
-                                  className="font-mono text-sm"
+                                  onChange={(e) => {
+                                    const value = e.target.value.trim();
+                                    setWalletAddress(value);
+                                    
+                                    // Validate Solana wallet address format (base58, 32-44 chars)
+                                    const solanaAddressRegex = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
+                                    if (value && !solanaAddressRegex.test(value)) {
+                                      setWalletError("Invalid Solana wallet address format. Must be 32-44 base58 characters.");
+                                    } else {
+                                      setWalletError("");
+                                    }
+                                  }}
+                                  className={`font-mono text-sm ${walletError ? 'border-red-500' : ''}`}
                                 />
+                                {walletError && (
+                                  <p className="text-xs text-red-500 mt-1">{walletError}</p>
+                                )}
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  Solana wallet addresses are 32-44 characters long and use base58 encoding.
+                                </p>
                               </div>
                               <div className="space-y-2">
                                 <Label htmlFor="message">{t("requestMessage")}</Label>
@@ -764,12 +782,21 @@ export default function MyAccount() {
                                 className="w-full"
                                 disabled={
                                   !walletAddress.trim() || 
+                                  walletError !== "" ||
                                   submittingClaim ||
                                   ((affiliateData?.total_earnings_usd || 0) + totalCashbackEarned) < 5
                                 }
                                 onClick={async () => {
+                                  // Validate wallet address format
+                                  const solanaAddressRegex = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
                                   if (!walletAddress.trim()) {
                                     toast.error(t("walletAddressRequired"));
+                                    return;
+                                  }
+                                  
+                                  if (!solanaAddressRegex.test(walletAddress.trim())) {
+                                    toast.error("Invalid Solana wallet address format");
+                                    setWalletError("Invalid Solana wallet address format. Must be 32-44 base58 characters.");
                                     return;
                                   }
                                   
@@ -784,7 +811,7 @@ export default function MyAccount() {
                                   try {
                                     const { error } = await supabase.functions.invoke('submit-claim-request', {
                                       body: {
-                                        walletAddress,
+                                        walletAddress: walletAddress.trim(),
                                         message: claimMessage,
                                         affiliateEarnings: affiliateData?.total_earnings_usd || 0,
                                         cashbackEarnings: totalCashbackEarned,
@@ -799,10 +826,12 @@ export default function MyAccount() {
                                     toast.success(t("claimRequestSubmitted"));
                                     setShowClaimDialog(false);
                                     setWalletAddress("");
+                                    setWalletError("");
                                     setClaimMessage("");
                                   } catch (error: any) {
                                     console.error('Error submitting claim:', error);
-                                    toast.error("Failed to submit claim request");
+                                    const errorMsg = error?.message || "Failed to submit claim request";
+                                    toast.error(errorMsg);
                                   } finally {
                                     setSubmittingClaim(false);
                                   }
