@@ -453,6 +453,28 @@ export default function Affiliate() {
       {/* Network Background */}
       <NetworkBackground />
       
+      {/* Decorative Background Text */}
+      <div className="fixed inset-0 -z-5 overflow-hidden pointer-events-none select-none">
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.03]">
+          <div className="text-center space-y-8">
+            <h2 className="text-[12vw] md:text-[10vw] font-black tracking-tighter bg-gradient-to-r from-white via-neon-violet to-white bg-clip-text text-transparent whitespace-nowrap">
+              Earn While They Travel
+            </h2>
+            <div className="text-[8vw] md:text-[6vw] font-black tracking-tight text-white/50">
+              18% Total Commission
+            </div>
+            <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8 text-[4vw] md:text-[3vw] font-bold">
+              <span className="text-neon-cyan">9% direct</span>
+              <span className="text-neon-violet">6% second level</span>
+              <span className="text-neon-coral">3% third level</span>
+            </div>
+            <p className="text-[3vw] md:text-[2vw] text-white/40 font-light max-w-4xl mx-auto px-4">
+              One link. Infinite potential. Your network works for you — 24/7, worldwide.
+            </p>
+          </div>
+        </div>
+      </div>
+      
       {/* Subtle background glows */}
       <div className="fixed inset-0 -z-10 overflow-hidden opacity-20">
         <div className="absolute top-20 left-10 w-96 h-96 bg-orange-500/30 rounded-full blur-3xl"></div>
