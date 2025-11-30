@@ -5,6 +5,7 @@ import { Footer } from "@/components/Footer";
 import { SupportChatbot } from "@/components/SupportChatbot";
 import { NetworkBackground } from "@/components/NetworkBackground";
 import { AnimatedCounter } from "@/components/AnimatedCounter";
+import { LiveEarningsTicker } from "@/components/LiveEarningsTicker";
 import { useSoundEffects } from "@/hooks/useSoundEffects";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -520,7 +521,12 @@ export default function Affiliate() {
 
       <Navbar />
       
-      <section className="pt-32 md:pt-24 pb-12 md:pb-16 relative overflow-hidden">
+      {/* Live Earnings Ticker */}
+      <div className="pt-20">
+        <LiveEarningsTicker />
+      </div>
+      
+      <section className="pt-12 md:pt-8 pb-12 md:pb-16 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-deep-space/80 via-midnight-blue/60 to-deep-space/80 backdrop-blur-sm"></div>
         
         {/* Subtle accent glows */}
