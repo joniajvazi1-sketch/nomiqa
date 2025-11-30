@@ -6,7 +6,6 @@ import { SupportChatbot } from "@/components/SupportChatbot";
 import { NetworkBackground } from "@/components/NetworkBackground";
 import { AnimatedCounter } from "@/components/AnimatedCounter";
 import { LiveEarningsTicker } from "@/components/LiveEarningsTicker";
-import { useSoundEffects } from "@/hooks/useSoundEffects";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -47,7 +46,6 @@ export default function Affiliate() {
   const {
     t
   } = useTranslation();
-  const { soundEnabled, toggleSound, playTick, playDing } = useSoundEffects();
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
@@ -457,30 +455,6 @@ export default function Affiliate() {
       {/* Network Background */}
       <NetworkBackground />
       
-      {/* Sound Toggle Button */}
-      <button
-        onClick={toggleSound}
-        className="fixed bottom-6 right-6 z-50 p-3 rounded-full bg-white/[0.05] backdrop-blur-xl border border-white/20 hover:bg-white/[0.1] transition-all duration-300 hover:scale-110 shadow-lg group"
-        aria-label="Toggle sound effects"
-      >
-        {soundEnabled ? (
-          <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-neon-cyan" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
-          </svg>
-        ) : (
-          <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-white/50" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-            <line x1="23" y1="9" x2="17" y2="15"></line>
-            <line x1="17" y1="9" x2="23" y2="15"></line>
-          </svg>
-        )}
-        <span className="absolute -top-8 right-0 px-3 py-1 bg-black/80 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-          {soundEnabled ? 'Sound ON' : 'Sound OFF'}
-        </span>
-      </button>
-      
       {/* Decorative Background Text */}
       <div className="fixed inset-0 -z-5 overflow-hidden pointer-events-none select-none">
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.03]">
@@ -489,20 +463,20 @@ export default function Affiliate() {
               Earn While They Travel
             </h2>
             <div className="text-[8vw] md:text-[6vw] font-black tracking-tight text-white/50">
-              <AnimatedCounter end={18} suffix="% " className="inline-block" onTick={playTick} onComplete={playDing} />
+              <AnimatedCounter end={18} suffix="% " className="inline-block" />
               Total Commission
             </div>
             <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8 text-[4vw] md:text-[3vw] font-bold">
               <span className="text-neon-cyan">
-                <AnimatedCounter end={9} suffix="% " delay={200} className="inline-block" onTick={playTick} onComplete={playDing} />
+                <AnimatedCounter end={9} suffix="% " delay={200} className="inline-block" />
                 direct
               </span>
               <span className="text-neon-violet">
-                <AnimatedCounter end={6} suffix="% " delay={400} className="inline-block" onTick={playTick} onComplete={playDing} />
+                <AnimatedCounter end={6} suffix="% " delay={400} className="inline-block" />
                 second level
               </span>
               <span className="text-neon-coral">
-                <AnimatedCounter end={3} suffix="% " delay={600} className="inline-block" onTick={playTick} onComplete={playDing} />
+                <AnimatedCounter end={3} suffix="% " delay={600} className="inline-block" />
                 third level
               </span>
             </div>
@@ -551,7 +525,7 @@ export default function Affiliate() {
                   <div className="absolute -inset-2 bg-gradient-to-r from-neon-cyan via-neon-violet to-neon-coral rounded-3xl blur-xl opacity-20 group-hover:opacity-40 transition duration-500"></div>
                   <div className="relative px-10 py-5 bg-gradient-to-br from-white/[0.05] to-white/[0.02] backdrop-blur-3xl border border-white/30 rounded-3xl shadow-2xl">
                     <p className="text-3xl md:text-5xl lg:text-6xl font-black bg-gradient-to-r from-neon-cyan via-white to-neon-coral bg-clip-text text-transparent tracking-tight">
-                      <AnimatedCounter end={18} suffix="% " className="inline-block" onTick={playTick} onComplete={playDing} />
+                      <AnimatedCounter end={18} suffix="% " className="inline-block" />
                       {t("totalCommissionSplit").replace('18%', '')}
                     </p>
                   </div>
@@ -560,17 +534,17 @@ export default function Affiliate() {
                 <div className="w-full flex justify-center">
                   <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4 text-sm md:text-base lg:text-lg px-4">
                     <span className="px-4 py-2 rounded-xl bg-neon-cyan/10 border border-neon-cyan/30 text-neon-cyan font-semibold backdrop-blur-sm">
-                      <AnimatedCounter end={9} suffix="% " delay={200} className="inline-block" onTick={playTick} onComplete={playDing} />
+                      <AnimatedCounter end={9} suffix="% " delay={200} className="inline-block" />
                       {t("commissionBreakdown").split(' • ')[0].replace('9%', '')}
                     </span>
                     
                     <span className="px-4 py-2 rounded-xl bg-neon-violet/10 border border-neon-violet/30 text-neon-violet font-semibold backdrop-blur-sm">
-                      <AnimatedCounter end={6} suffix="% " delay={400} className="inline-block" onTick={playTick} onComplete={playDing} />
+                      <AnimatedCounter end={6} suffix="% " delay={400} className="inline-block" />
                       {t("commissionBreakdown").split(' • ')[1].replace('6%', '')}
                     </span>
                     
                     <span className="px-4 py-2 rounded-xl bg-neon-coral/10 border border-neon-coral/30 text-neon-coral font-semibold backdrop-blur-sm">
-                      <AnimatedCounter end={3} suffix="% " delay={600} className="inline-block" onTick={playTick} onComplete={playDing} />
+                      <AnimatedCounter end={3} suffix="% " delay={600} className="inline-block" />
                       {t("commissionBreakdown").split(' • ')[2].replace('3%', '')}
                     </span>
                   </div>
