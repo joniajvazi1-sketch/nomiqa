@@ -85,14 +85,16 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Verify affiliate earnings ownership
-    const { data: affiliate, error: affiliateError } = await supabase
+    // Verify affiliate earnings ownership - query ALL affiliate accounts (by user_id OR email)
+    const { data: affiliateAccounts } = await supabase
       .from('affiliates')
       .select('total_earnings_usd')
-      .eq('user_id', user.id)
-      .maybeSingle();
+      .or(`user_id.eq.${user.id},email.eq.${user.email}`);
 
-    const actualAffiliateEarnings = affiliate?.total_earnings_usd || 0;
+    // Sum total earnings from all affiliate accounts
+    const actualAffiliateEarnings = affiliateAccounts 
+      ? affiliateAccounts.reduce((sum, acc) => sum + (acc.total_earnings_usd || 0), 0)
+      : 0;
 
     // Verify cashback earnings from user_spending
     const { data: userSpending, error: spendingError } = await supabase
