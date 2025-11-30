@@ -56,6 +56,14 @@ const Token = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-black via-deep-space to-black relative overflow-hidden">
       <NetworkBackground />
+      
+      {/* Premium glowing orbs background */}
+      <div className="fixed inset-0 -z-10 overflow-hidden opacity-20">
+        <div className="absolute top-20 left-10 w-96 h-96 bg-neon-violet/30 rounded-full blur-3xl"></div>
+        <div className="absolute top-60 right-20 w-[500px] h-[500px] bg-neon-cyan/30 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-40 left-1/3 w-80 h-80 bg-neon-coral/20 rounded-full blur-3xl"></div>
+      </div>
+      
       <Navbar />
       
       <main className="relative z-10 pt-24 md:pt-32 pb-20 px-4" ref={sectionRef}>

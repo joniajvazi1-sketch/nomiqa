@@ -16,9 +16,16 @@ export default function Terms() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-gradient-to-br from-black/40 via-deep-space/60 to-black/40 relative overflow-hidden">
       <SEO page="terms" />
       <NetworkBackground />
+      
+      {/* Premium glowing orbs background */}
+      <div className="fixed inset-0 -z-10 overflow-hidden opacity-20">
+        <div className="absolute top-40 left-20 w-96 h-96 bg-neon-cyan/30 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 right-20 w-[500px] h-[500px] bg-neon-violet/30 rounded-full blur-3xl"></div>
+      </div>
+      
       <Navbar />
       
       <div className="pt-24 pb-20 px-4">

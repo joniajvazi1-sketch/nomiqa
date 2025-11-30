@@ -2,6 +2,7 @@ import { Navbar } from "@/components/Navbar";
 import { SiteNavigation } from "@/components/SiteNavigation";
 import { Footer } from "@/components/Footer";
 import { SupportChatbot } from "@/components/SupportChatbot";
+import { NetworkBackground } from "@/components/NetworkBackground";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, Circle, Clock } from "lucide-react";
@@ -81,33 +82,42 @@ export default function Roadmap() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-black/40 via-deep-space/60 to-black/40 relative overflow-hidden">
+      <NetworkBackground />
+      
+      {/* Premium glowing orbs background */}
+      <div className="fixed inset-0 -z-10 overflow-hidden opacity-20">
+        <div className="absolute top-20 right-20 w-96 h-96 bg-neon-violet/30 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-40 left-20 w-[500px] h-[500px] bg-neon-cyan/30 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 right-1/4 w-80 h-80 bg-neon-coral/20 rounded-full blur-3xl"></div>
+      </div>
+      
       <Navbar />
       
-      <div className="container mx-auto px-4 py-20">
+      <div className="container mx-auto px-4 py-20 relative z-10">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">Roadmap</h1>
-            <p className="text-xl text-muted-foreground">
+          <div className="text-center mb-12 animate-fade-in">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-light mb-4 bg-gradient-to-r from-white via-neon-cyan to-white bg-clip-text text-transparent">Roadmap</h1>
+            <p className="text-lg md:text-xl text-white/70 font-light">
               Our journey to revolutionize global connectivity with crypto
             </p>
           </div>
 
           <div className="relative">
             {/* Timeline line */}
-            <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-gradient-to-b from-primary via-primary/50 to-primary/20 hidden md:block" />
+            <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-gradient-to-b from-neon-cyan via-neon-violet/50 to-neon-violet/20 hidden md:block" />
 
             <div className="space-y-8">
               {phases.map((phase, index) => (
-                <Card key={index} className="relative">
+                <Card key={index} className="relative bg-white/[0.03] backdrop-blur-xl border-white/10 hover:border-white/20 transition-all duration-300">
                   {/* Timeline dot */}
-                  <div className="absolute -left-4 top-8 w-8 h-8 bg-background border-4 border-primary rounded-full hidden md:flex items-center justify-center">
+                  <div className="absolute -left-4 top-8 w-8 h-8 bg-gradient-to-br from-neon-cyan to-neon-violet border-4 border-background rounded-full hidden md:flex items-center justify-center shadow-lg shadow-neon-cyan/30">
                     {phase.status === "completed" ? (
-                      <CheckCircle2 className="w-4 h-4 text-primary" />
+                      <CheckCircle2 className="w-4 h-4 text-white" />
                     ) : phase.status === "in-progress" ? (
-                      <Clock className="w-4 h-4 text-primary" />
+                      <Clock className="w-4 h-4 text-white" />
                     ) : (
-                      <Circle className="w-4 h-4 text-primary" />
+                      <Circle className="w-4 h-4 text-white" />
                     )}
                   </div>
 
