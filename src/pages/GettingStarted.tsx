@@ -2,6 +2,7 @@ import { Navbar } from "@/components/Navbar";
 import { SiteNavigation } from "@/components/SiteNavigation";
 import { Footer } from "@/components/Footer";
 import { SupportChatbot } from "@/components/SupportChatbot";
+import { NetworkBackground } from "@/components/NetworkBackground";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Wallet, Shield, Coins, ArrowRight, ExternalLink, Download, TrendingUp, CheckCircle2 } from "lucide-react";
@@ -81,6 +82,8 @@ export default function GettingStarted() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black/40 via-deep-space/60 to-black/40 relative overflow-hidden">
+      <NetworkBackground />
+      
       {/* Premium background decorations */}
       <div className="absolute inset-0 opacity-10 pointer-events-none">
         <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-neon-cyan rounded-full blur-3xl animate-pulse"></div>
