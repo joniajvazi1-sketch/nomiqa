@@ -88,7 +88,8 @@ export const ScrollableFeatures = () => {
 
         {/* Scrollable Cards Container */}
         <div className={`transition-all duration-1000 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-          <div className="overflow-x-auto overflow-y-visible pb-6 -mx-4 px-4 md:-mx-6 md:px-6 scrollbar-glass">
+          {/* Mobile: Scrollable | Desktop: Grid */}
+          <div className="lg:hidden overflow-x-auto overflow-y-visible pb-6 -mx-4 px-4 md:-mx-6 md:px-6 scrollbar-glass">
             <div className="flex gap-6 min-w-min">
               {features.map((feature, index) => {
                 const Icon = feature.icon;
@@ -162,9 +163,83 @@ export const ScrollableFeatures = () => {
               })}
             </div>
           </div>
+
+          {/* Desktop: Grid Layout */}
+          <div className="hidden lg:grid lg:grid-cols-3 gap-5">
+            {features.map((feature, index) => {
+              const Icon = feature.icon;
+              return (
+                <div 
+                  key={index}
+                  className="group"
+                  style={{ animationDelay: `${index * 150}ms` }}
+                >
+                  <div className="relative h-full overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] p-6 xl:p-8 backdrop-blur-xl hover:border-white/20 hover:bg-white/[0.05] transition-all duration-500 hover:scale-[1.02]">
+                    {/* Premium decorative glow */}
+                    <div className="absolute -top-16 -right-16 w-32 h-32 bg-neon-violet/20 rounded-full blur-3xl" />
+                    <div className="absolute -bottom-16 -left-16 w-32 h-32 bg-neon-coral/20 rounded-full blur-3xl" />
+                    
+                    <div className="relative z-10 flex flex-col h-full">
+                      {/* Icon or Image */}
+                      <div className="mb-4">
+                        {feature.showImage ? (
+                          <img 
+                            src={tokenLogo} 
+                            alt="NOMIQA Token" 
+                            className="w-auto h-14 xl:h-16 object-contain" 
+                            loading="lazy"
+                          />
+                        ) : (
+                          <div className="w-12 h-12 xl:w-14 xl:h-14 rounded-xl bg-white/[0.05] border border-white/10 flex items-center justify-center group-hover:bg-white/[0.08] transition-all duration-300">
+                            <Icon className="w-6 h-6 xl:w-7 xl:h-7 text-neon-cyan" />
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Title & Description */}
+                      <div className="mb-4">
+                        <h3 className="text-xl xl:text-2xl font-light text-white mb-2">
+                          {feature.title}
+                        </h3>
+                        <p className="text-sm text-white/70 font-light leading-relaxed">
+                          {feature.description}
+                        </p>
+                      </div>
+
+                      {/* Highlights */}
+                      <div className="space-y-2 mb-6 flex-grow">
+                        {feature.highlights.map((highlight, idx) => {
+                          const HighlightIcon = highlight.icon;
+                          return (
+                            <div 
+                              key={idx}
+                              className="flex items-center gap-2 text-white/80 text-sm font-light"
+                            >
+                              <div className={`w-6 h-6 rounded-full bg-gradient-to-r ${highlight.gradient} flex items-center justify-center flex-shrink-0`}>
+                                <HighlightIcon className="w-3 h-3 text-white" />
+                              </div>
+                              <span className="text-xs xl:text-sm">{highlight.text}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {/* CTA Button */}
+                      <Button 
+                        onClick={() => navigate(localizedPath(feature.path, language))}
+                        className="w-full h-auto py-3 px-4 text-sm font-light bg-white/[0.05] backdrop-blur-xl border-2 border-neon-cyan/30 text-white hover:bg-neon-cyan/10 hover:border-neon-cyan/50 rounded-xl transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-neon-cyan/20"
+                      >
+                        <span className="break-words">{feature.cta}</span>
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
           
-          {/* Scroll Indicator */}
-          <div className="flex justify-center mt-6 md:hidden">
+          {/* Scroll Indicator - Mobile only */}
+          <div className="flex justify-center mt-6 lg:hidden">
             <div className="flex gap-2 items-center text-white/40 text-xs font-light">
               <span>Swipe to explore</span>
               <div className="flex gap-1">
