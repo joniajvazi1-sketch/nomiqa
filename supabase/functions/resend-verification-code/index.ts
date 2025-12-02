@@ -108,16 +108,40 @@ const handler = async (req: Request): Promise<Response> => {
         });
 
       } else {
-        // Update profile with reset code
-        const { error: updateError } = await supabase
+        // Check if profile exists
+        const { data: existingProfile } = await supabase
           .from('profiles')
-          .update({
-            password_reset_code: code,
-            password_reset_expires_at: expiresAt.toISOString(),
-          })
-          .eq('user_id', user.id);
+          .select('id')
+          .eq('user_id', user.id)
+          .maybeSingle();
 
-        if (updateError) throw updateError;
+        if (existingProfile) {
+          // Update existing profile with reset code
+          const { error: updateError } = await supabase
+            .from('profiles')
+            .update({
+              password_reset_code: code,
+              password_reset_expires_at: expiresAt.toISOString(),
+            })
+            .eq('user_id', user.id);
+
+          if (updateError) throw updateError;
+        } else {
+          // Create profile for legacy user (pre-verification system)
+          const username = email.split('@')[0].toLowerCase().replace(/[^a-z0-9_]/g, '_').slice(0, 20);
+          const { error: insertError } = await supabase
+            .from('profiles')
+            .insert({
+              user_id: user.id,
+              username: `${username}_${Date.now().toString(36).slice(-4)}`,
+              email_verified: true, // Legacy users are considered verified
+              password_reset_code: code,
+              password_reset_expires_at: expiresAt.toISOString(),
+            });
+
+          if (insertError) throw insertError;
+          console.log(`Created profile for legacy user: ${email}`);
+        }
 
         // Send password reset email
         await supabase.functions.invoke('send-email', {
