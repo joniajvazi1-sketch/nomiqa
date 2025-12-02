@@ -56,6 +56,26 @@ export default function Orders() {
   const [showQR, setShowQR] = useState(false);
   const [usageData, setUsageData] = useState<Record<string, UsageData>>({});
   const [refreshingUsage, setRefreshingUsage] = useState<Record<string, boolean>>({});
+  const [cooldowns, setCooldowns] = useState<Record<string, number>>({});
+
+  // Countdown timer effect
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCooldowns(prev => {
+        const updated = { ...prev };
+        let hasChanges = false;
+        for (const key in updated) {
+          if (updated[key] > 0) {
+            updated[key] = updated[key] - 1;
+            hasChanges = true;
+          }
+        }
+        return hasChanges ? updated : prev;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const fetchOrders = async () => {
     try {
@@ -195,6 +215,12 @@ export default function Orders() {
   }, []);
 
   const refreshUsage = async (orderId: string, iccid: string) => {
+    // Check if still in cooldown
+    if (cooldowns[orderId] && cooldowns[orderId] > 0) {
+      toast.error(`Please wait ${cooldowns[orderId]} seconds`);
+      return;
+    }
+    
     setRefreshingUsage(prev => ({ ...prev, [orderId]: true }));
     try {
       const { data, error } = await supabase.functions.invoke('get-esim-usage', {
@@ -215,12 +241,16 @@ export default function Orders() {
       }
 
       toast.success("Usage data refreshed");
+      // Start 60 second cooldown after successful refresh
+      setCooldowns(prev => ({ ...prev, [orderId]: 60 }));
     } catch (error: any) {
       console.error('Error refreshing usage:', error);
       // Check for rate limit error
       const errorMessage = error?.message || error?.error || 'Failed to refresh usage data';
       if (errorMessage.includes('wait') || errorMessage.includes('rate') || error?.status === 429) {
         toast.error("Please wait 1 minute before refreshing again");
+        // Start cooldown even on rate limit error
+        setCooldowns(prev => ({ ...prev, [orderId]: 60 }));
       } else {
         toast.error(errorMessage);
       }
@@ -353,11 +383,15 @@ export default function Orders() {
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                className="hover:bg-white/[0.05] text-foreground/70 hover:text-foreground"
+                                className="hover:bg-white/[0.05] text-foreground/70 hover:text-foreground min-w-[60px]"
                                 onClick={() => refreshUsage(order.id, order.iccid!)}
-                                disabled={refreshingUsage[order.id]}
+                                disabled={refreshingUsage[order.id] || (cooldowns[order.id] && cooldowns[order.id] > 0)}
                               >
-                                <RefreshCw className={`h-4 w-4 ${refreshingUsage[order.id] ? 'animate-spin' : ''}`} />
+                                {cooldowns[order.id] && cooldowns[order.id] > 0 ? (
+                                  <span className="text-xs font-mono">0:{cooldowns[order.id].toString().padStart(2, '0')}</span>
+                                ) : (
+                                  <RefreshCw className={`h-4 w-4 ${refreshingUsage[order.id] ? 'animate-spin' : ''}`} />
+                                )}
                               </Button>
                             )}
                           </div>
