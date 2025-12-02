@@ -50,17 +50,21 @@ serve(async (req) => {
         .join('');
       
       if (computedSignature !== signature) {
-        // TEMPORARY: Log mismatch but continue processing
-        // The webhook secret may need updating in Helio dashboard
-        console.warn('⚠️ Webhook signature mismatch - processing anyway');
-        console.warn('Expected signature:', signature);
-        console.warn('Computed signature:', computedSignature);
-        console.warn('IMPORTANT: Please verify HELIO_WEBHOOK_SECRET matches Helio dashboard');
-      } else {
-        console.log('✓ Webhook signature verified successfully');
+        console.error('❌ Webhook signature mismatch - rejecting request');
+        console.error('Received signature:', signature);
+        console.error('Computed signature:', computedSignature);
+        return new Response('Invalid webhook signature', { 
+          status: 401, 
+          headers: corsHeaders 
+        });
       }
+      console.log('✓ Webhook signature verified successfully');
     } else {
-      console.warn('⚠️ No webhook signature provided - processing anyway');
+      console.error('❌ No webhook signature provided - rejecting request');
+      return new Response('Missing webhook signature', { 
+        status: 401, 
+        headers: corsHeaders 
+      });
     }
 
     // Initialize Supabase client early for replay protection
