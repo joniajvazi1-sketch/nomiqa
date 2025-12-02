@@ -42,6 +42,9 @@ interface Order {
   qrcode_installation: string | null;
   sharing_link: string | null;
   sharing_access_code: string | null;
+  product_id: string | null;
+  country_name?: string;
+  country_code?: string;
 }
 
 export default function Orders() {
@@ -94,15 +97,27 @@ export default function Orders() {
           return;
         }
 
-        // Authenticated user access - Only fetch completed/paid orders for better performance
+        // Authenticated user access - Only fetch completed/paid orders with product info
         const result = await supabase
           .from('orders')
-          .select('*')
+          .select(`
+            *,
+            products:product_id (
+              country_name,
+              country_code
+            )
+          `)
           .in('status', ['completed', 'paid'])
           .order('created_at', { ascending: false })
           .limit(20);
 
-        data = result.data;
+        // Flatten product data into order
+        data = result.data?.map(order => ({
+          ...order,
+          country_name: (order.products as any)?.country_name,
+          country_code: (order.products as any)?.country_code,
+          products: undefined
+        })) || [];
         error = result.error;
       }
 
@@ -299,7 +314,12 @@ export default function Orders() {
                 <CardHeader>
                   <div className="flex justify-between items-start">
                     <div>
-                      <CardTitle className="text-2xl font-light text-foreground">{order.package_name}</CardTitle>
+                      <CardTitle className="text-2xl font-light text-foreground">
+                        {order.country_name && (
+                          <span className="text-neon-cyan">{order.country_name} • </span>
+                        )}
+                        {order.package_name}
+                      </CardTitle>
                       <CardDescription className="text-foreground/60 mt-2">
                         {formatDate(order.created_at)} • {order.email}
                       </CardDescription>
