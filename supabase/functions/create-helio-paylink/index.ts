@@ -203,6 +203,13 @@ serve(async (req) => {
     // Configure webhook URL for payment completion callback
     const webhookUrl = `${supabaseUrl}/functions/v1/helio-webhook`;
     
+    // Get the origin from the request or use a default
+    const origin = req.headers.get('origin') || 'https://nomiqa-esim.com';
+    
+    // Success and cancel URLs for redirect after payment
+    const successUrl = `${origin}/payment-success?orderId=${orderId}`;
+    const cancelUrl = `${origin}/checkout`;
+    
     const paylinkData = {
       template: 'OTHER',
       name: paylinkTitle,
@@ -223,6 +230,8 @@ serve(async (req) => {
         }
       ],
       webhookUrl: webhookUrl,
+      successUrl: successUrl,
+      cancelUrl: cancelUrl,
     };
     
     console.log('Webhook URL configured:', webhookUrl);
