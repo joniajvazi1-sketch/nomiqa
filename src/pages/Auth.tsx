@@ -159,13 +159,17 @@ export default function Auth() {
           if (profileError) throw profileError;
 
           // Send verification email
-          await supabase.functions.invoke('send-email', {
+          const { error: emailError } = await supabase.functions.invoke('send-email', {
             body: {
               type: 'user_verification',
               to: email,
               data: { code },
             },
           });
+          
+          if (emailError) {
+            console.error('Failed to send verification email:', emailError);
+          }
 
           // CRITICAL: Sign out immediately - no session until email verified
           await supabase.auth.signOut();

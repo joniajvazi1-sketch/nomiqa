@@ -98,14 +98,27 @@ const handler = async (req: Request): Promise<Response> => {
 
         if (updateError) throw updateError;
 
-        // Send verification email
-        await supabase.functions.invoke('send-email', {
-          body: {
+        // Send verification email using direct HTTP call
+        console.log(`Sending verification email to ${email}`);
+        const sendEmailResponse = await fetch(`${supabaseUrl}/functions/v1/send-email`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${supabaseServiceKey}`,
+          },
+          body: JSON.stringify({
             type: 'user_verification',
             to: email,
             data: { code },
-          },
+          }),
         });
+        
+        if (!sendEmailResponse.ok) {
+          const errorText = await sendEmailResponse.text();
+          console.error(`Failed to send verification email: ${sendEmailResponse.status} - ${errorText}`);
+        } else {
+          console.log(`✓ Verification email sent to ${email}`);
+        }
 
       } else {
         // Check if profile exists
@@ -143,14 +156,27 @@ const handler = async (req: Request): Promise<Response> => {
           console.log(`Created profile for legacy user: ${email}`);
         }
 
-        // Send password reset email
-        await supabase.functions.invoke('send-email', {
-          body: {
+        // Send password reset email using direct HTTP call
+        console.log(`Sending password reset email to ${email}`);
+        const sendEmailResponse = await fetch(`${supabaseUrl}/functions/v1/send-email`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${supabaseServiceKey}`,
+          },
+          body: JSON.stringify({
             type: 'password_reset',
             to: email,
             data: { code },
-          },
+          }),
         });
+        
+        if (!sendEmailResponse.ok) {
+          const errorText = await sendEmailResponse.text();
+          console.error(`Failed to send password reset email: ${sendEmailResponse.status} - ${errorText}`);
+        } else {
+          console.log(`✓ Password reset email sent to ${email}`);
+        }
       }
 
     } else if (type === 'affiliate') {
@@ -165,14 +191,27 @@ const handler = async (req: Request): Promise<Response> => {
 
       if (updateError) throw updateError;
 
-      // Send affiliate verification email
-      await supabase.functions.invoke('send-email', {
-        body: {
+      // Send affiliate verification email using direct HTTP call
+      console.log(`Sending affiliate verification email to ${email}`);
+      const sendEmailResponse = await fetch(`${supabaseUrl}/functions/v1/send-email`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${supabaseServiceKey}`,
+        },
+        body: JSON.stringify({
           type: 'affiliate_verification',
           to: email,
           data: { code },
-        },
+        }),
       });
+      
+      if (!sendEmailResponse.ok) {
+        const errorText = await sendEmailResponse.text();
+        console.error(`Failed to send affiliate verification email: ${sendEmailResponse.status} - ${errorText}`);
+      } else {
+        console.log(`✓ Affiliate verification email sent to ${email}`);
+      }
     }
 
     // Log this resend attempt for rate limiting - store full email for matching

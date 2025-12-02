@@ -149,17 +149,33 @@ const handler = async (req: Request): Promise<Response> => {
 
       if (updateError) throw updateError;
 
-      // Send welcome email
-      await supabase.functions.invoke('send-email', {
-        body: {
+      // Send welcome email using direct HTTP call
+      const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+      const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+      
+      console.log(`Sending affiliate welcome email to ${email}`);
+      const sendEmailResponse = await fetch(`${supabaseUrl}/functions/v1/send-email`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${supabaseServiceKey}`,
+        },
+        body: JSON.stringify({
           type: 'affiliate_welcome',
           to: email,
           data: {
             username: affiliate.username || 'Affiliate',
             affiliateCode: affiliate.affiliate_code,
           },
-        },
+        }),
       });
+      
+      if (!sendEmailResponse.ok) {
+        const errorText = await sendEmailResponse.text();
+        console.error(`Failed to send affiliate welcome email: ${sendEmailResponse.status} - ${errorText}`);
+      } else {
+        console.log(`✓ Affiliate welcome email sent to ${email}`);
+      }
 
       return new Response(
         JSON.stringify({ success: true, message: "Affiliate verified successfully" }),

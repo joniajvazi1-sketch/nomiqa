@@ -388,8 +388,17 @@ serve(async (req) => {
           console.log(`✓ Membership tier upgraded: ${oldTier} -> ${updatedSpending.membership_tier} (${updatedSpending.cashback_rate}% cashback)`);
           
           try {
-            await supabase.functions.invoke('send-email', {
-              body: {
+            const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+            const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+            
+            console.log(`Sending tier upgrade email to ${order.email}`);
+            const sendEmailResponse = await fetch(`${supabaseUrl}/functions/v1/send-email`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${supabaseServiceKey}`,
+              },
+              body: JSON.stringify({
                 type: 'tier_upgrade',
                 to: order.email,
                 data: {
@@ -397,9 +406,15 @@ serve(async (req) => {
                   newTier: updatedSpending.membership_tier,
                   totalSpent: newTotalSpent.toFixed(2)
                 }
-              }
+              }),
             });
-            console.log('✓ Tier upgrade celebration email sent');
+            
+            if (!sendEmailResponse.ok) {
+              const errorText = await sendEmailResponse.text();
+              console.error(`Failed to send tier upgrade email: ${sendEmailResponse.status} - ${errorText}`);
+            } else {
+              console.log('✓ Tier upgrade celebration email sent');
+            }
           } catch (emailError) {
             console.error('Failed to send tier upgrade email:', emailError);
           }
@@ -498,8 +513,17 @@ serve(async (req) => {
               console.log(`✓ Affiliate tier upgraded: ${oldTierLevel} -> ${updatedAffiliate.tier_level}`);
               
               try {
-                await supabase.functions.invoke('send-email', {
-                  body: {
+                const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+                const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+                
+                console.log(`Sending affiliate tier upgrade email to ${updatedAffiliate.email}`);
+                const sendEmailResponse = await fetch(`${supabaseUrl}/functions/v1/send-email`, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${supabaseServiceKey}`,
+                  },
+                  body: JSON.stringify({
                     type: 'affiliate_tier_upgrade',
                     to: updatedAffiliate.email,
                     data: {
@@ -507,9 +531,15 @@ serve(async (req) => {
                       newTier: updatedAffiliate.tier_level,
                       totalConversions: newTotalConversions
                     }
-                  }
+                  }),
                 });
-                console.log('✓ Affiliate tier upgrade email sent');
+                
+                if (!sendEmailResponse.ok) {
+                  const errorText = await sendEmailResponse.text();
+                  console.error(`Failed to send affiliate tier upgrade email: ${sendEmailResponse.status} - ${errorText}`);
+                } else {
+                  console.log('✓ Affiliate tier upgrade email sent');
+                }
               } catch (emailError) {
                 console.error('Failed to send affiliate tier upgrade email:', emailError);
               }
