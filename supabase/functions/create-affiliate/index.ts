@@ -64,20 +64,21 @@ serve(async (req) => {
       );
     }
 
-    // Check if email already has an affiliate account
-    const { data: existing } = await supabase
-      .from('affiliates')
-      .select('*')
-      .eq('email', email)
-      .maybeSingle();
+    // Check if there are any unverified affiliates for this email without user_id that we can link
+    if (userId) {
+      const { data: unlinkedAffiliate } = await supabase
+        .from('affiliates')
+        .select('*')
+        .eq('email', email)
+        .is('user_id', null)
+        .maybeSingle();
 
-    if (existing) {
-      // If affiliate exists but has no user_id linked, link it now
-      if (!existing.user_id && userId) {
+      if (unlinkedAffiliate) {
+        // Link the unverified affiliate to this user
         const { error: updateError } = await supabase
           .from('affiliates')
           .update({ user_id: userId })
-          .eq('id', existing.id);
+          .eq('id', unlinkedAffiliate.id);
         
         if (updateError) {
           console.error('Error linking user_id to affiliate:', updateError);
@@ -85,20 +86,16 @@ serve(async (req) => {
         
         return new Response(
           JSON.stringify({ 
-            affiliate: { ...existing, user_id: userId },
-            requiresVerification: !existing.email_verified,
+            affiliate: { ...unlinkedAffiliate, user_id: userId },
+            requiresVerification: !unlinkedAffiliate.email_verified,
             message: 'Existing affiliate account linked to your user profile'
           }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
-      
-      // Already exists and has user_id
-      return new Response(
-        JSON.stringify({ error: 'An affiliate account already exists for this email' }),
-        { status: 409, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
     }
+
+    // Allow multiple affiliate accounts per user - no blocking based on email existence
 
     // Generate secure affiliate code
     let affiliateCode = generateSecureCode();
