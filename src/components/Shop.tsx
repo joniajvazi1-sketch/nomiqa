@@ -17,19 +17,6 @@ import { getTranslatedCountryName, getAllTranslatedNames } from "@/utils/country
 
 type CoverageType = "all" | "local" | "regional";
 
-// Regional package identifiers based on Airalo's naming
-const REGIONAL_PACKAGES = {
-  africa: ['hello africa', 'hello-africa'],
-  asia: ['asialink'],
-  oceania: ['oceanlink'],
-  europe: ['eurolink'],
-  latinAmerica: ['latamlink'],
-  mena: ['menalink'],
-  northAmerica: ['american mex', 'american-mex']
-};
-
-const ALL_REGIONAL_IDENTIFIERS = Object.values(REGIONAL_PACKAGES).flat();
-
 export const Shop = () => {
   const navigate = useNavigate();
   const { data: products, isLoading } = useProducts();
@@ -42,6 +29,7 @@ export const Shop = () => {
   const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
   const [displayCount, setDisplayCount] = useState(9);
   const [showConfetti, setShowConfetti] = useState(false);
+  
   // Check for URL search parameter on mount
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -50,27 +38,6 @@ export const Shop = () => {
       setSearchQuery(decodeURIComponent(searchParam));
     }
   }, [products]);
-
-  // Classify products by coverage type
-  const getProductCoverageType = (product: any): CoverageType => {
-    const countryCode = product.country_code?.toLowerCase() || "";
-    const countryName = product.country_name?.toLowerCase() || "";
-    const packageName = product.name?.toLowerCase() || "";
-    
-    // Check if it's a regional package by name
-    const isRegional = ALL_REGIONAL_IDENTIFIERS.some(identifier => 
-      countryCode.includes(identifier) || 
-      countryName.includes(identifier) ||
-      packageName.includes(identifier)
-    );
-    
-    if (isRegional) {
-      return "regional";
-    }
-    
-    // Everything else is local (single country)
-    return "local";
-  };
 
   const filteredProducts = products?.filter(product => {
     // Get all possible country names for this product (in all languages)
@@ -86,7 +53,8 @@ export const Shop = () => {
       return matchesSearch;
     }
     
-    const productType = getProductCoverageType(product);
+    // Use package_type from database
+    const productType = (product as any).package_type || 'local';
     return matchesSearch && productType === coverageFilter;
   });
 
@@ -139,8 +107,8 @@ export const Shop = () => {
           </p>
         </div>
 
-        {/* Search Bar */}
-        <div className="mb-10 md:mb-12 max-w-2xl mx-auto">
+        {/* Search and Filters */}
+        <div className="mb-10 md:mb-12 max-w-3xl mx-auto space-y-4">
           <div className="relative">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-neon-cyan z-10 pointer-events-none" />
             <Input
@@ -149,6 +117,49 @@ export const Shop = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-11 h-12 md:h-14 bg-white/[0.02] backdrop-blur-xl border-white/10 hover:border-neon-cyan/30 focus:border-neon-cyan/50 text-white placeholder:text-white/40 rounded-xl transition-all duration-300 text-left relative z-0"
             />
+          </div>
+          
+          {/* Coverage Type Filter */}
+          <div className="flex flex-wrap justify-center gap-2 md:gap-3">
+            <Button
+              onClick={() => setCoverageFilter("all")}
+              variant="outline"
+              size="sm"
+              className={`rounded-full px-4 md:px-6 transition-all duration-300 ${
+                coverageFilter === "all"
+                  ? "bg-neon-cyan/20 border-neon-cyan text-neon-cyan"
+                  : "bg-white/[0.02] border-white/10 text-white/60 hover:border-white/30 hover:text-white"
+              }`}
+            >
+              <Globe className="mr-2 h-4 w-4" />
+              {t('allPlans') || 'All Plans'}
+            </Button>
+            <Button
+              onClick={() => setCoverageFilter("local")}
+              variant="outline"
+              size="sm"
+              className={`rounded-full px-4 md:px-6 transition-all duration-300 ${
+                coverageFilter === "local"
+                  ? "bg-neon-violet/20 border-neon-violet text-neon-violet"
+                  : "bg-white/[0.02] border-white/10 text-white/60 hover:border-white/30 hover:text-white"
+              }`}
+            >
+              <MapPin className="mr-2 h-4 w-4" />
+              {t('localPlans') || 'Local'}
+            </Button>
+            <Button
+              onClick={() => setCoverageFilter("regional")}
+              variant="outline"
+              size="sm"
+              className={`rounded-full px-4 md:px-6 transition-all duration-300 ${
+                coverageFilter === "regional"
+                  ? "bg-neon-coral/20 border-neon-coral text-neon-coral"
+                  : "bg-white/[0.02] border-white/10 text-white/60 hover:border-white/30 hover:text-white"
+              }`}
+            >
+              <Globe className="mr-2 h-4 w-4" />
+              {t('regionalPlans') || 'Regional'}
+            </Button>
           </div>
         </div>
 

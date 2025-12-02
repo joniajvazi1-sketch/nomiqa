@@ -13,6 +13,8 @@ export interface Product {
   data_amount: string;
   validity_days: number;
   price_usd: number;
+  package_type: 'local' | 'regional';
+  coverages: Array<{ name: string; code: string }> | null;
   features: {
     coverage?: string;
     speed?: string;
