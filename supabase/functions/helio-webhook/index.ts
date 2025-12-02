@@ -261,6 +261,9 @@ serve(async (req) => {
       formData.append('description', `Order ${order.id} for ${order.email}`);
       formData.append('brand_settings_name', 'Nomiqa');
       formData.append('to_email', order.email);
+      if (order.full_name) {
+        formData.append('to_name', order.full_name);
+      }
       formData.append('sharing_option[]', 'link');  // Form data format with []
       
       const orderResponse = await fetch(`${baseUrl}/v2/orders`, {
