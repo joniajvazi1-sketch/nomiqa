@@ -326,6 +326,7 @@ export type Database = {
           country_code: string
           country_image_url: string | null
           country_name: string
+          coverages: Json | null
           created_at: string
           data_amount: string
           features: Json | null
@@ -334,6 +335,7 @@ export type Database = {
           name: string
           operator_image_url: string | null
           operator_name: string | null
+          package_type: string | null
           price_usd: number
           updated_at: string
           validity_days: number
@@ -343,6 +345,7 @@ export type Database = {
           country_code: string
           country_image_url?: string | null
           country_name: string
+          coverages?: Json | null
           created_at?: string
           data_amount: string
           features?: Json | null
@@ -351,6 +354,7 @@ export type Database = {
           name: string
           operator_image_url?: string | null
           operator_name?: string | null
+          package_type?: string | null
           price_usd: number
           updated_at?: string
           validity_days: number
@@ -360,6 +364,7 @@ export type Database = {
           country_code?: string
           country_image_url?: string | null
           country_name?: string
+          coverages?: Json | null
           created_at?: string
           data_amount?: string
           features?: Json | null
@@ -368,6 +373,7 @@ export type Database = {
           name?: string
           operator_image_url?: string | null
           operator_name?: string | null
+          package_type?: string | null
           price_usd?: number
           updated_at?: string
           validity_days?: number

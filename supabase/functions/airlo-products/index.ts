@@ -29,14 +29,22 @@ interface AirloCountry {
   operators: AirloOperator[];
 }
 
+interface AirloCoverage {
+  name: string;
+  code: string;
+  networks?: Array<{ name: string; types: string[] }>;
+}
+
 interface AirloOperator {
   id: number;
+  type: 'local' | 'global';
   title: string;
   image?: {
     url: string;
     width: number;
     height: number;
   };
+  coverages?: AirloCoverage[];
   packages: AirloPackage[];
 }
 
@@ -179,40 +187,40 @@ serve(async (req) => {
     
     console.log('Sync initiated by admin user');
 
-console.log('Preparing Airlo products sync...');
+    console.log('Preparing Airlo products sync...');
 
-const preferredEnv = (Deno.env.get('AIRLO_ENV')?.toLowerCase() === 'sandbox') ? 'sandbox' : 'prod';
-const envs = [preferredEnv, preferredEnv === 'prod' ? 'sandbox' : 'prod'];
+    const preferredEnv = (Deno.env.get('AIRLO_ENV')?.toLowerCase() === 'sandbox') ? 'sandbox' : 'prod';
+    const envs = [preferredEnv, preferredEnv === 'prod' ? 'sandbox' : 'prod'];
 
-let packages: AirloCountry[] = [];
-let lastError: any = null;
+    let packages: AirloCountry[] = [];
+    let lastError: any = null;
 
-for (const env of envs) {
-  const baseUrl = env === 'sandbox' 
-    ? 'https://sandbox-partners-api.airalo.com' 
-    : 'https://partners-api.airalo.com';
+    for (const env of envs) {
+      const baseUrl = env === 'sandbox' 
+        ? 'https://sandbox-partners-api.airalo.com' 
+        : 'https://partners-api.airalo.com';
 
-  console.log(`Starting Airlo products sync from ${baseUrl} (${env})...`);
+      console.log(`Starting Airlo products sync from ${baseUrl} (${env})...`);
 
-  try {
-    const { accessToken, tokenType } = await getAirloAccessToken(baseUrl);
-    try {
-      packages = await fetchAirloPackages(baseUrl, accessToken, tokenType);
-      console.log(`Fetched ${packages.length} countries from ${env}`);
-      break;
-    } catch (pkgErr) {
-      const msg = pkgErr instanceof Error ? pkgErr.message : String(pkgErr);
-      console.warn(`First package fetch failed on ${env}: ${msg}. Retrying with a fresh token...`);
-      const { accessToken: atk2, tokenType: tt2 } = await getAirloAccessToken(baseUrl);
-      packages = await fetchAirloPackages(baseUrl, atk2, tt2);
-      console.log(`Fetched ${packages.length} countries from ${env} on retry`);
-      break;
+      try {
+        const { accessToken, tokenType } = await getAirloAccessToken(baseUrl);
+        try {
+          packages = await fetchAirloPackages(baseUrl, accessToken, tokenType);
+          console.log(`Fetched ${packages.length} countries from ${env}`);
+          break;
+        } catch (pkgErr) {
+          const msg = pkgErr instanceof Error ? pkgErr.message : String(pkgErr);
+          console.warn(`First package fetch failed on ${env}: ${msg}. Retrying with a fresh token...`);
+          const { accessToken: atk2, tokenType: tt2 } = await getAirloAccessToken(baseUrl);
+          packages = await fetchAirloPackages(baseUrl, atk2, tt2);
+          console.log(`Fetched ${packages.length} countries from ${env} on retry`);
+          break;
+        }
+      } catch (e) {
+        lastError = e;
+        console.error(`Sync attempt with ${env} failed:`, e);
+      }
     }
-  } catch (e) {
-    lastError = e;
-    console.error(`Sync attempt with ${env} failed:`, e);
-  }
-}
 
     if (packages.length === 0) {
       throw lastError || new Error('Failed to fetch packages from all environments');
@@ -220,9 +228,13 @@ for (const env of envs) {
 
     // Extract packages from nested operators structure with operator info
     const allPackages: any[] = [];
+    let localCount = 0;
+    let regionalCount = 0;
     
     for (const country of packages) {
-      const countryCode = country.country_code;
+      // For regional/global packages, country_code is empty - use slug instead
+      const isRegional = !country.country_code || country.country_code === '';
+      const countryCode = country.country_code || country.slug?.toUpperCase() || 'GLOBAL';
       const countryName = country.title;
       const countryImageUrl = country.image?.url || null;
       
@@ -234,7 +246,22 @@ for (const env of envs) {
         const operatorName = operator.title || null;
         const operatorImageUrl = operator.image?.url || null;
         
+        // Determine package type from operator type or regional detection
+        const packageType = isRegional || operator.type === 'global' ? 'regional' : 'local';
+        
+        // Extract coverages for regional packages
+        const coverages = operator.coverages?.map(c => ({
+          name: c.name,
+          code: c.code,
+        })) || null;
+        
         for (const pkg of operator.packages) {
+          if (packageType === 'regional') {
+            regionalCount++;
+          } else {
+            localCount++;
+          }
+          
           allPackages.push({
             id: pkg.id,
             name: pkg.title || pkg.data,
@@ -246,25 +273,33 @@ for (const env of envs) {
             data_amount: pkg.data || `${pkg.amount}MB`,
             validity_days: pkg.day,
             price_usd: pkg.price,
+            package_type: packageType,
+            coverages: coverages,
           });
         }
       }
     }
 
+    console.log(`Extracted packages: ${localCount} local, ${regionalCount} regional`);
+
     const valid = allPackages.filter(pkg => 
       pkg.id && pkg.country_code && pkg.country_name && pkg.data_amount && pkg.validity_days && pkg.price_usd
     ).map(pkg => ({
       ...pkg,
-      // Ensure all new fields are included in upsert
       country_image_url: pkg.country_image_url || null,
       operator_name: pkg.operator_name || null,
       operator_image_url: pkg.operator_image_url || null,
     }));
 
-    console.log(`Preparing to upsert ${valid.length} valid packages (skipped ${packages.length - valid.length})`);
+    console.log(`Preparing to upsert ${valid.length} valid packages (skipped ${allPackages.length - valid.length})`);
 
     if (valid.length > 0) {
       console.log('Normalized sample:', valid[0]);
+      // Log a regional sample if available
+      const regionalSample = valid.find(p => p.package_type === 'regional');
+      if (regionalSample) {
+        console.log('Regional sample:', regionalSample);
+      }
     }
 
     const products = valid.map((n) => ({
@@ -275,6 +310,11 @@ for (const env of envs) {
       data_amount: n.data_amount,
       validity_days: n.validity_days,
       price_usd: n.price_usd,
+      package_type: n.package_type,
+      coverages: n.coverages,
+      country_image_url: n.country_image_url,
+      operator_name: n.operator_name,
+      operator_image_url: n.operator_image_url,
       features: {
         coverage: n.country_name,
         speed: '4G/5G',
@@ -299,12 +339,17 @@ for (const env of envs) {
       throw error;
     }
 
-    console.log(`Successfully synced ${upsertedData?.length || 0} products`);
+    const upsertedLocal = upsertedData?.filter(p => p.package_type === 'local').length || 0;
+    const upsertedRegional = upsertedData?.filter(p => p.package_type === 'regional').length || 0;
+
+    console.log(`Successfully synced ${upsertedData?.length || 0} products (${upsertedLocal} local, ${upsertedRegional} regional)`);
 
     return new Response(
       JSON.stringify({ 
         success: true, 
         count: upsertedData?.length || 0,
+        local: upsertedLocal,
+        regional: upsertedRegional,
         products: upsertedData 
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
