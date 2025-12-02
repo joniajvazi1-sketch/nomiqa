@@ -22,11 +22,6 @@ const generateSecureCode = (): string => {
   ).join('').toUpperCase().substring(0, 10);
 };
 
-// Generate verification token
-const generateVerificationToken = (): string => {
-  return crypto.randomUUID();
-};
-
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -49,6 +44,22 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+    // Check if username already exists in affiliates (if provided)
+    if (username) {
+      const { data: existingUsername } = await supabase
+        .from('affiliates')
+        .select('id')
+        .eq('username', username.toLowerCase())
+        .maybeSingle();
+
+      if (existingUsername) {
+        return new Response(
+          JSON.stringify({ error: 'This username is already taken. Please choose a different one.' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+    }
+
     // Rate limiting: max 3 affiliate creation attempts per email per day
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
     const { data: recentAttempts, error: rateLimitError } = await supabase
@@ -64,8 +75,37 @@ serve(async (req) => {
       );
     }
 
-    // Check if there are any unverified affiliates for this email without user_id that we can link
+    // Check if user is already verified (either via profile or existing verified affiliate)
+    let isUserVerified = false;
+
     if (userId) {
+      // Check if user's profile email is verified
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('email_verified')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (profile?.email_verified) {
+        isUserVerified = true;
+      }
+
+      // Also check if user has any verified affiliate account
+      if (!isUserVerified) {
+        const { data: verifiedAffiliate } = await supabase
+          .from('affiliates')
+          .select('id')
+          .eq('user_id', userId)
+          .eq('email_verified', true)
+          .limit(1)
+          .maybeSingle();
+
+        if (verifiedAffiliate) {
+          isUserVerified = true;
+        }
+      }
+
+      // Check if there are any unverified affiliates for this email without user_id that we can link
       const { data: unlinkedAffiliate } = await supabase
         .from('affiliates')
         .select('*')
@@ -77,7 +117,11 @@ serve(async (req) => {
         // Link the unverified affiliate to this user
         const { error: updateError } = await supabase
           .from('affiliates')
-          .update({ user_id: userId })
+          .update({ 
+            user_id: userId,
+            // If user is verified, also verify this affiliate
+            ...(isUserVerified ? { email_verified: true, status: 'active' } : {})
+          })
           .eq('id', unlinkedAffiliate.id);
         
         if (updateError) {
@@ -86,16 +130,18 @@ serve(async (req) => {
         
         return new Response(
           JSON.stringify({ 
-            affiliate: { ...unlinkedAffiliate, user_id: userId },
-            requiresVerification: !unlinkedAffiliate.email_verified,
+            affiliate: { 
+              ...unlinkedAffiliate, 
+              user_id: userId,
+              ...(isUserVerified ? { email_verified: true, status: 'active' } : {})
+            },
+            requiresVerification: !isUserVerified && !unlinkedAffiliate.email_verified,
             message: 'Existing affiliate account linked to your user profile'
           }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
     }
-
-    // Allow multiple affiliate accounts per user - no blocking based on email existence
 
     // Generate secure affiliate code
     let affiliateCode = generateSecureCode();
@@ -108,7 +154,7 @@ serve(async (req) => {
         .from('affiliates')
         .select('id')
         .eq('affiliate_code', affiliateCode)
-        .single();
+        .maybeSingle();
       
       if (!data) {
         codeExists = false;
@@ -125,17 +171,55 @@ serve(async (req) => {
       );
     }
 
-    // Generate 6-digit verification code
+    // If user is already verified, skip verification process
+    if (isUserVerified) {
+      // Create affiliate account directly without verification
+      const { data: affiliate, error: createError } = await supabase
+        .from('affiliates')
+        .insert({
+          email,
+          affiliate_code: affiliateCode,
+          username: username ? username.toLowerCase() : null,
+          user_id: userId || null,
+          email_verified: true,
+          status: 'active',
+          verification_token: null,
+          verification_code_expires_at: null,
+          verification_sent_at: null,
+        })
+        .select()
+        .single();
+
+      if (createError) {
+        console.error('Error creating affiliate:', createError);
+        return new Response(
+          JSON.stringify({ error: 'Failed to create affiliate account' }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      console.log('Created verified affiliate for already-verified user:', affiliate.id);
+
+      return new Response(
+        JSON.stringify({ 
+          affiliate,
+          requiresVerification: false,
+          message: 'Affiliate account created successfully!'
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // User not verified - create with verification flow
     const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
 
-    // Create affiliate account
     const { data: affiliate, error: createError } = await supabase
       .from('affiliates')
       .insert({
         email,
         affiliate_code: affiliateCode,
-        username: username || null,
+        username: username ? username.toLowerCase() : null,
         user_id: userId || null,
         email_verified: false,
         verification_token: verificationCode,
@@ -168,9 +252,7 @@ serve(async (req) => {
 
     return new Response(
       JSON.stringify({ 
-        affiliate: {
-          ...affiliate,
-        },
+        affiliate,
         requiresVerification: true,
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
