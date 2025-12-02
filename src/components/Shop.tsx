@@ -77,7 +77,33 @@ export const Shop = () => {
     setReferEarnModalOpen(true);
   };
 
-  const getCountryFlag = (countryCode: string) => {
+  // Continent emoji mapping for regional packages
+  const getContinentEmoji = (countryCode: string): string => {
+    const continentMap: Record<string, string> = {
+      'AFRICA': '🌍',
+      'ASIA': '🌏',
+      'EUROPE': '🇪🇺',
+      'EU-PLUS-UK': '🇪🇺',
+      'NORTH-AMERICA': '🌎',
+      'LATIN-AMERICA': '🌎',
+      'CARIBBEAN-ISLANDS': '🏝️',
+      'MIDDLE-EAST-AND-NORTH-AFRICA': '🌍',
+      'OCEANIA': '🌏',
+      'WORLD': '🌐',
+    };
+    return continentMap[countryCode] || '🌐';
+  };
+
+  const getCountryFlag = (countryCode: string, packageType?: string) => {
+    // For regional packages, show continent emoji
+    if (packageType === 'regional') {
+      return (
+        <div className="w-8 h-6 flex items-center justify-center text-2xl">
+          {getContinentEmoji(countryCode)}
+        </div>
+      );
+    }
+    // For local packages, show country flag
     const FlagComponent = (CountryFlags as any)[countryCode];
     return FlagComponent ? <FlagComponent className="w-8 h-6 rounded shadow" /> : null;
   };
@@ -191,20 +217,29 @@ export const Shop = () => {
                       <div className="flex items-center gap-3">
                         <div className="relative">
                           <div className="absolute inset-0 bg-neon-cyan/20 rounded blur-sm group-hover:bg-neon-cyan/30 transition-all duration-300"></div>
-                          {getCountryFlag(product.country_code)}
+                          {getCountryFlag(product.country_code, (product as any).package_type)}
                         </div>
                         <div>
                           <CardTitle className="text-lg md:text-xl text-white group-hover:text-neon-cyan transition-colors duration-300 font-light">
-                            {getTranslatedCountryName(product.country_code, language)}
+                            {(product as any).package_type === 'regional' 
+                              ? product.country_name 
+                              : getTranslatedCountryName(product.country_code, language)}
                           </CardTitle>
                           <CardDescription className="text-sm text-white/60 font-light">{product.name}</CardDescription>
                         </div>
                       </div>
-                      {product.is_popular && (
-                        <Badge className="bg-gradient-to-r from-neon-coral to-neon-orange text-white border-0 shadow-glow-coral font-light">
-                          {t('popular')}
-                        </Badge>
-                      )}
+                      <div className="flex flex-col gap-1 items-end">
+                        {(product as any).package_type === 'regional' && (
+                          <Badge className="bg-gradient-to-r from-neon-violet to-neon-coral text-white border-0 shadow-glow-violet font-light text-xs">
+                            Regional
+                          </Badge>
+                        )}
+                        {product.is_popular && (
+                          <Badge className="bg-gradient-to-r from-neon-coral to-neon-orange text-white border-0 shadow-glow-coral font-light">
+                            {t('popular')}
+                          </Badge>
+                        )}
+                      </div>
                     </div>
                   </CardHeader>
 
