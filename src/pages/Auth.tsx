@@ -42,8 +42,29 @@ export default function Auth() {
   const [showResendVerification, setShowResendVerification] = useState(false);
 
   useEffect(() => {
-    // Check if user is already logged in
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    // Set up auth state listener FIRST (critical for proper session handling)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      // Handle auth events
+      if (event === 'SIGNED_IN' && session && !showVerification) {
+        const params = new URLSearchParams(window.location.search);
+        const redirectUrl = params.get('redirect') || '/';
+        navigate(redirectUrl);
+      } else if (event === 'TOKEN_REFRESHED') {
+        console.log('Token refreshed successfully');
+      } else if (event === 'SIGNED_OUT') {
+        // Clear any stale state
+        console.log('User signed out');
+      }
+    });
+
+    // THEN check for existing session
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      if (error) {
+        console.error('Session error:', error);
+        // Clear corrupted session
+        supabase.auth.signOut();
+        return;
+      }
       // Don't redirect if we're showing verification
       if (session && !showVerification) {
         navigate('/');
@@ -58,6 +79,8 @@ export default function Auth() {
     } else if (mode === 'login') {
       setIsSignUp(false);
     }
+
+    return () => subscription.unsubscribe();
   }, [navigate, showVerification]);
 
   const handleAuth = async (e: React.FormEvent) => {
