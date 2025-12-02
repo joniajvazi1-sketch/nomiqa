@@ -67,11 +67,33 @@ serve(async (req) => {
     // Check if email already has an affiliate account
     const { data: existing } = await supabase
       .from('affiliates')
-      .select('id')
+      .select('*')
       .eq('email', email)
-      .single();
+      .maybeSingle();
 
     if (existing) {
+      // If affiliate exists but has no user_id linked, link it now
+      if (!existing.user_id && userId) {
+        const { error: updateError } = await supabase
+          .from('affiliates')
+          .update({ user_id: userId })
+          .eq('id', existing.id);
+        
+        if (updateError) {
+          console.error('Error linking user_id to affiliate:', updateError);
+        }
+        
+        return new Response(
+          JSON.stringify({ 
+            affiliate: { ...existing, user_id: userId },
+            requiresVerification: !existing.email_verified,
+            message: 'Existing affiliate account linked to your user profile'
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      
+      // Already exists and has user_id
       return new Response(
         JSON.stringify({ error: 'An affiliate account already exists for this email' }),
         { status: 409, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
