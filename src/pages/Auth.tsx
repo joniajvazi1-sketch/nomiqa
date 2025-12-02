@@ -222,11 +222,37 @@ export default function Auth() {
 
   const handleVerified = async (token?: string) => {
     if (verificationType === 'registration') {
-      toast.success("Email verified! You can now log in.");
+      // Auto-login after successful email verification
       setShowVerification(false);
-      setIsSignUp(false);
-      setEmail("");
-      setPassword("");
+      
+      if (email && password) {
+        setLoading(true);
+        try {
+          const { error } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+          });
+          
+          if (error) {
+            toast.error("Email verified! Please login with your credentials.");
+            setIsSignUp(false);
+          } else {
+            toast.success("Email verified! Logging you in...");
+            const params = new URLSearchParams(window.location.search);
+            const redirectUrl = params.get('redirect') || '/';
+            navigate(redirectUrl);
+          }
+        } catch (err) {
+          toast.error("Email verified! Please login with your credentials.");
+          setIsSignUp(false);
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        toast.success("Email verified! You can now log in.");
+        setIsSignUp(false);
+      }
+      
       setUsername("");
     } else {
       // Password reset verified, now show new password input form
