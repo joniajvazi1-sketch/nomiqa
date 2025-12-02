@@ -9,7 +9,7 @@ import { NetworkBackground } from "@/components/NetworkBackground";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Loader2, User, Award, Package, Gift, Crown, Star, TrendingUp, Zap, Sparkles, RefreshCw, Wallet, DollarSign, Copy } from "lucide-react";
+import { Loader2, User, Award, Package, Gift, Crown, Star, TrendingUp, Zap, Sparkles, RefreshCw, Wallet, DollarSign, Copy, Pencil, Check, X } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "@/contexts/TranslationContext";
 import { localizedPath } from "@/utils/localizedLinks";
@@ -81,6 +81,9 @@ export default function MyAccount() {
   const [claimMessage, setClaimMessage] = useState("");
   const [submittingClaim, setSubmittingClaim] = useState(false);
   const [walletError, setWalletError] = useState("");
+  const [isEditingUsername, setIsEditingUsername] = useState(false);
+  const [editedUsername, setEditedUsername] = useState("");
+  const [savingUsername, setSavingUsername] = useState(false);
 
   useEffect(() => {
     checkAuth();
@@ -100,12 +103,14 @@ export default function MyAccount() {
         .from('profiles')
         .select('username')
         .eq('user_id', session.user.id)
-        .single();
+        .maybeSingle();
 
+      const username = profileData?.username || session.user.email?.split('@')[0] || 'User';
       setProfile({
-        username: profileData?.username || 'User',
+        username,
         email: session.user.email || ''
       });
+      setEditedUsername(username);
 
       // Fetch or create membership data
       let { data: membershipData } = await supabase
@@ -214,6 +219,54 @@ export default function MyAccount() {
     }
   };
 
+  const handleSaveUsername = async () => {
+    if (!editedUsername.trim() || editedUsername.length < 3) {
+      toast.error('Username must be at least 3 characters');
+      return;
+    }
+
+    setSavingUsername(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      // Check if username is already taken
+      const { data: existingUser } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('username', editedUsername.trim())
+        .neq('user_id', session.user.id)
+        .maybeSingle();
+
+      if (existingUser) {
+        toast.error('Username is already taken');
+        setSavingUsername(false);
+        return;
+      }
+
+      const { error } = await supabase
+        .from('profiles')
+        .update({ username: editedUsername.trim() })
+        .eq('user_id', session.user.id);
+
+      if (error) throw error;
+
+      setProfile(prev => prev ? { ...prev, username: editedUsername.trim() } : null);
+      setIsEditingUsername(false);
+      toast.success('Username updated successfully');
+    } catch (error: any) {
+      console.error('Error updating username:', error);
+      toast.error('Failed to update username');
+    } finally {
+      setSavingUsername(false);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditedUsername(profile?.username || '');
+    setIsEditingUsername(false);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -308,9 +361,49 @@ export default function MyAccount() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6 pt-6">
-                  <div className="group p-4 rounded-xl border border-border/50 bg-muted/30 hover:bg-muted/50 transition-all duration-300 hover:scale-[1.02]">
+                  <div className="group p-4 rounded-xl border border-border/50 bg-muted/30 hover:bg-muted/50 transition-all duration-300">
                     <p className="text-sm text-muted-foreground mb-2 font-medium">{t("username")}</p>
-                    <p className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">{profile?.username}</p>
+                    {isEditingUsername ? (
+                      <div className="flex items-center gap-2">
+                        <Input
+                          value={editedUsername}
+                          onChange={(e) => setEditedUsername(e.target.value)}
+                          className="text-lg font-bold max-w-xs"
+                          placeholder="Enter username"
+                          autoFocus
+                        />
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={handleSaveUsername}
+                          disabled={savingUsername}
+                          className="text-green-500 hover:text-green-600 hover:bg-green-500/10"
+                        >
+                          {savingUsername ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={handleCancelEdit}
+                          disabled={savingUsername}
+                          className="text-red-500 hover:text-red-600 hover:bg-red-500/10"
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-3">
+                        <p className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">{profile?.username}</p>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => setIsEditingUsername(true)}
+                          className="text-muted-foreground hover:text-foreground"
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    )}
                   </div>
                   <div className="group p-4 rounded-xl border border-border/50 bg-muted/30 hover:bg-muted/50 transition-all duration-300 hover:scale-[1.02]">
                     <p className="text-sm text-muted-foreground mb-2 font-medium">{t("emailLabel")}</p>
