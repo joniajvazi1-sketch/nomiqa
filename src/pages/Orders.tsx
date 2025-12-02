@@ -202,7 +202,13 @@ export default function Orders() {
       toast.success("Usage data refreshed");
     } catch (error: any) {
       console.error('Error refreshing usage:', error);
-      toast.error("Failed to refresh usage data");
+      // Check for rate limit error
+      const errorMessage = error?.message || error?.error || 'Failed to refresh usage data';
+      if (errorMessage.includes('wait') || errorMessage.includes('rate') || error?.status === 429) {
+        toast.error("Please wait 1 minute before refreshing again");
+      } else {
+        toast.error(errorMessage);
+      }
     } finally {
       setRefreshingUsage(prev => ({ ...prev, [orderId]: false }));
     }
