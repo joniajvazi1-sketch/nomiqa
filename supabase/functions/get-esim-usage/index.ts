@@ -113,21 +113,35 @@ serve(async (req) => {
       ? 'https://partners-api.airalo.com'
       : 'https://sandbox-partners-api.airalo.com';
 
-    // Get access token
+    // Get access token using FormData (required by Airalo API)
+    const tokenFormData = new FormData();
+    tokenFormData.append('client_id', airloClientId!);
+    tokenFormData.append('client_secret', airloClientSecret!);
+    tokenFormData.append('grant_type', 'client_credentials');
+
     const authResponse = await fetch(`${baseUrl}/v2/token`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        client_id: airloClientId,
-        client_secret: airloClientSecret,
-        grant_type: 'client_credentials'
-      })
+      body: tokenFormData
     });
 
-    const { data: authData } = await authResponse.json();
-    const accessToken = authData.access_token;
+    if (!authResponse.ok) {
+      const authErrorText = await authResponse.text();
+      console.error('Airalo auth error:', authErrorText);
+      throw new Error('Failed to authenticate with Airalo');
+    }
 
-    // Get usage data from Airlo
+    const authJson = await authResponse.json();
+    const accessToken = authJson.data?.access_token;
+    
+    if (!accessToken) {
+      console.error('No access token in response:', authJson);
+      throw new Error('No access token received from Airalo');
+    }
+    
+    console.log('Successfully got Airalo access token');
+
+    // Get usage data from Airalo
+    console.log(`Fetching usage for ICCID: ${iccid}`);
     const usageResponse = await fetch(`${baseUrl}/v2/sims/${iccid}/usage`, {
       headers: {
         'Authorization': `Bearer ${accessToken}`
@@ -135,10 +149,14 @@ serve(async (req) => {
     });
 
     if (!usageResponse.ok) {
-      throw new Error('Failed to fetch usage data');
+      const usageErrorText = await usageResponse.text();
+      console.error('Airalo usage error:', usageResponse.status, usageErrorText);
+      throw new Error(`Failed to fetch usage data: ${usageResponse.status}`);
     }
 
-    const { data: usageData } = await usageResponse.json();
+    const usageJson = await usageResponse.json();
+    const usageData = usageJson.data;
+    console.log('Airalo usage response:', JSON.stringify(usageData));
 
     // Update local database using the service client already initialized
     await supabase
