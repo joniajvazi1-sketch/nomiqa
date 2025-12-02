@@ -200,6 +200,9 @@ serve(async (req) => {
     const countryName = order.products?.country_name || '';
     const paylinkTitle = countryName ? `${countryName} - ${productName}` : productName;
     
+    // Configure webhook URL for payment completion callback
+    const webhookUrl = `${supabaseUrl}/functions/v1/helio-webhook`;
+    
     const paylinkData = {
       template: 'OTHER',
       name: paylinkTitle,
@@ -219,7 +222,10 @@ serve(async (req) => {
           walletId: helioWalletId,
         }
       ],
+      webhookUrl: webhookUrl,
     };
+    
+    console.log('Webhook URL configured:', webhookUrl);
 
     console.log('Creating paylink with data:', JSON.stringify(paylinkData, null, 2));
 
