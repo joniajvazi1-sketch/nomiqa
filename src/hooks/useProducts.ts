@@ -36,7 +36,14 @@ export const useProducts = () => {
         .order('is_popular', { ascending: false });
 
       if (error) throw error;
-      return data as Product[];
+      
+      // Filter out packages with SMS or Voice (keep data-only)
+      const filteredData = (data as Product[]).filter(product => {
+        const name = product.name.toLowerCase();
+        return !name.includes('sms') && !name.includes('mins');
+      });
+      
+      return filteredData;
     },
   });
 };
