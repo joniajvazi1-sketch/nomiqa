@@ -133,6 +133,18 @@ export const countryTranslations: Record<string, Record<Language, string>> = {
   
   // V
   "VN": { EN: "Vietnam", ES: "Vietnam", FR: "Viêt Nam", DE: "Vietnam", IT: "Vietnam", PT: "Vietnã", RU: "Вьетнам", ZH: "越南", JA: "ベトナム", AR: "فيتنام" },
+
+  // Regional/Continental eSIMs
+  "AFRICA": { EN: "Africa", ES: "África", FR: "Afrique", DE: "Afrika", IT: "Africa", PT: "África", RU: "Африка", ZH: "非洲", JA: "アフリカ", AR: "أفريقيا" },
+  "ASIA": { EN: "Asia", ES: "Asia", FR: "Asie", DE: "Asien", IT: "Asia", PT: "Ásia", RU: "Азия", ZH: "亚洲", JA: "アジア", AR: "آسيا" },
+  "EUROPE": { EN: "Europe", ES: "Europa", FR: "Europe", DE: "Europa", IT: "Europa", PT: "Europa", RU: "Европа", ZH: "欧洲", JA: "ヨーロッパ", AR: "أوروبا" },
+  "EU-PLUS-UK": { EN: "European Union & UK", ES: "Unión Europea y Reino Unido", FR: "Union Européenne et Royaume-Uni", DE: "Europäische Union & UK", IT: "Unione Europea e Regno Unito", PT: "União Europeia e Reino Unido", RU: "ЕС и Великобритания", ZH: "欧盟和英国", JA: "EU・イギリス", AR: "الاتحاد الأوروبي والمملكة المتحدة" },
+  "NORTH-AMERICA": { EN: "North America", ES: "América del Norte", FR: "Amérique du Nord", DE: "Nordamerika", IT: "Nord America", PT: "América do Norte", RU: "Северная Америка", ZH: "北美洲", JA: "北米", AR: "أمريكا الشمالية" },
+  "LATIN-AMERICA": { EN: "Latin America", ES: "América Latina", FR: "Amérique Latine", DE: "Lateinamerika", IT: "America Latina", PT: "América Latina", RU: "Латинская Америка", ZH: "拉丁美洲", JA: "ラテンアメリカ", AR: "أمريكا اللاتينية" },
+  "CARIBBEAN-ISLANDS": { EN: "Caribbean Islands", ES: "Islas del Caribe", FR: "Îles des Caraïbes", DE: "Karibische Inseln", IT: "Isole Caraibiche", PT: "Ilhas do Caribe", RU: "Карибские острова", ZH: "加勒比群岛", JA: "カリブ諸島", AR: "جزر الكاريبي" },
+  "MIDDLE-EAST-AND-NORTH-AFRICA": { EN: "Middle East & North Africa", ES: "Oriente Medio y Norte de África", FR: "Moyen-Orient et Afrique du Nord", DE: "Naher Osten & Nordafrika", IT: "Medio Oriente e Nord Africa", PT: "Oriente Médio e Norte da África", RU: "Ближний Восток и Северная Африка", ZH: "中东和北非", JA: "中東・北アフリカ", AR: "الشرق الأوسط وشمال أفريقيا" },
+  "OCEANIA": { EN: "Oceania", ES: "Oceanía", FR: "Océanie", DE: "Ozeanien", IT: "Oceania", PT: "Oceania", RU: "Океания", ZH: "大洋洲", JA: "オセアニア", AR: "أوقيانوسيا" },
+  "WORLD": { EN: "Global", ES: "Global", FR: "Mondial", DE: "Weltweit", IT: "Globale", PT: "Global", RU: "Глобальный", ZH: "全球", JA: "グローバル", AR: "عالمي" },
 };
 
 // Get translated country name

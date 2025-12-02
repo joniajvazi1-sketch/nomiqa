@@ -221,9 +221,7 @@ export const Shop = () => {
                         </div>
                         <div>
                           <CardTitle className="text-lg md:text-xl text-white group-hover:text-neon-cyan transition-colors duration-300 font-light">
-                            {(product as any).package_type === 'regional' 
-                              ? product.country_name 
-                              : getTranslatedCountryName(product.country_code, language)}
+                            {getTranslatedCountryName(product.country_code, language)}
                           </CardTitle>
                           <CardDescription className="text-sm text-white/60 font-light">{product.name}</CardDescription>
                         </div>
