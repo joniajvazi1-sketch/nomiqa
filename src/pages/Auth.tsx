@@ -40,12 +40,13 @@ export default function Auth() {
   const [showNewPasswordForm, setShowNewPasswordForm] = useState(false);
   const [resetToken, setResetToken] = useState("");
   const [showResendVerification, setShowResendVerification] = useState(false);
+  const [isProcessingAuth, setIsProcessingAuth] = useState(false);
 
   useEffect(() => {
     // Set up auth state listener FIRST (critical for proper session handling)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      // Handle auth events
-      if (event === 'SIGNED_IN' && session && !showVerification) {
+      // Handle auth events - but don't navigate during auth processing or verification
+      if (event === 'SIGNED_IN' && session && !showVerification && !isProcessingAuth) {
         const params = new URLSearchParams(window.location.search);
         const redirectUrl = params.get('redirect') || '/';
         navigate(redirectUrl);
@@ -81,7 +82,7 @@ export default function Auth() {
     }
 
     return () => subscription.unsubscribe();
-  }, [navigate, showVerification]);
+  }, [navigate, showVerification, isProcessingAuth]);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -120,6 +121,9 @@ export default function Auth() {
       }
 
       if (isSignUp) {
+        // Prevent auth listener from navigating during signup
+        setIsProcessingAuth(true);
+        
         // Check if username already exists
         const { data: existingProfile } = await supabase
           .from('profiles')
@@ -128,6 +132,7 @@ export default function Auth() {
           .maybeSingle();
 
         if (existingProfile) {
+          setIsProcessingAuth(false);
           throw new Error('Username already taken');
         }
 
@@ -139,7 +144,10 @@ export default function Auth() {
           }
         });
 
-        if (error) throw error;
+        if (error) {
+          setIsProcessingAuth(false);
+          throw error;
+        }
 
         // Create profile with username and verification code
         if (authData.user) {
@@ -156,7 +164,10 @@ export default function Auth() {
               verification_code_expires_at: expiresAt,
             });
 
-          if (profileError) throw profileError;
+          if (profileError) {
+            setIsProcessingAuth(false);
+            throw profileError;
+          }
 
           // Send verification email
           const { error: emailError } = await supabase.functions.invoke('send-email', {
@@ -174,9 +185,11 @@ export default function Auth() {
           // CRITICAL: Sign out immediately - no session until email verified
           await supabase.auth.signOut();
           
-          toast.success("Verification code sent! Check your email to activate your account.");
+          // Show verification screen immediately
           setVerificationType('registration');
           setShowVerification(true);
+          setIsProcessingAuth(false);
+          toast.success("Verification code sent! Check your email.");
         }
       } else {
         // Try to sign in
