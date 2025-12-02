@@ -329,8 +329,8 @@ serve(async (req) => {
       const { error: usageError } = await supabase.from('esim_usage').insert({
         order_id: order.id,
         iccid: sim.iccid,
-        total_mb: parseInt(order.data_amount) * 1024 || 0,
-        remaining_mb: parseInt(order.data_amount) * 1024 || 0,
+        total_mb: parseInt(order.data_amount) || 0,
+        remaining_mb: parseInt(order.data_amount) || 0,
         status: 'NOT_ACTIVE'
       });
 
