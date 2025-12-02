@@ -155,8 +155,8 @@ export default {
         },
       },
       animation: {
-        "accordion-down": "accordion-down 0.15s cubic-bezier(0.4, 0, 0.2, 1)",
-        "accordion-up": "accordion-up 0.15s cubic-bezier(0.4, 0, 0.2, 1)",
+        "accordion-down": "accordion-down 0.1s ease-out",
+        "accordion-up": "accordion-up 0.1s ease-out",
         "fade-in": "fade-in 0.6s ease-out",
         "fade-in-up": "fade-in-up 0.8s ease-out",
         "scale-in": "scale-in 0.4s ease-out",
