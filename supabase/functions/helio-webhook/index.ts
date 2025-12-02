@@ -288,9 +288,11 @@ serve(async (req) => {
       const { data: orderData } = orderJson;
       
       console.log('Airalo response:', JSON.stringify(orderData, null, 2));
-      console.log('Sharing object:', orderData.sharing);
-      console.log('Sharing link:', orderData.sharing?.link);
-      console.log('Access code:', orderData.sharing?.access_code);
+      // Sharing data is inside sims[0].sharing, not orderData.sharing
+      const simData = orderData.sims?.[0];
+      console.log('Sharing object:', simData?.sharing);
+      console.log('Sharing link:', simData?.sharing?.link);
+      console.log('Access code:', simData?.sharing?.access_code);
 
       // Extract eSIM details from sync response
       const sim = orderData.sims?.[0];
@@ -613,12 +615,12 @@ serve(async (req) => {
       console.log('eSIM provisioned: ✓');
       console.log('Database updated: ✓');
       console.log('Airalo branded email: ✓ (sent by Airalo)');
-      console.log('Sharing link:', orderData.sharing?.link ? '✓ Available' : '❌ Missing');
-      console.log('Access code:', orderData.sharing?.access_code ? '✓ Available' : '❌ Missing');
+      console.log('Sharing link:', sim.sharing?.link ? '✓ Available' : '❌ Missing');
+      console.log('Access code:', sim.sharing?.access_code ? '✓ Available' : '❌ Missing');
       console.log('================================');
       
       // Log critical warning if sharing link is missing
-      if (!orderData.sharing?.link) {
+      if (!sim.sharing?.link) {
         console.error('⚠️ CRITICAL: No sharing link in Airalo response - customer cannot access eSIM portal!');
         console.error('Check Airalo Partner Dashboard brand settings configuration for "nomiqa"');
       }
