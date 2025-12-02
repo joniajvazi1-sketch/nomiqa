@@ -142,6 +142,30 @@ export type Database = {
           },
         ]
       }
+      email_rate_limits: {
+        Row: {
+          created_at: string
+          email: string
+          email_type: string
+          id: string
+          sent_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          email_type: string
+          id?: string
+          sent_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          email_type?: string
+          id?: string
+          sent_at?: string
+        }
+        Relationships: []
+      }
       esim_usage: {
         Row: {
           created_at: string | null
@@ -502,6 +526,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      cleanup_old_email_rate_limits: { Args: never; Returns: undefined }
       cleanup_old_webhook_requests: { Args: never; Returns: undefined }
       get_user_email: { Args: never; Returns: string }
       has_role: {

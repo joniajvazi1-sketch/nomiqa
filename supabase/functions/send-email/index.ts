@@ -10,6 +10,10 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Rate limit configuration: 5 emails per hour per recipient
+const RATE_LIMIT_WINDOW_HOURS = 1;
+const RATE_LIMIT_MAX_EMAILS = 5;
+
 // Zod validation schema for email requests
 const emailRequestSchema = z.object({
   type: z.enum(['user_verification', 'password_reset', 'affiliate_verification', 'order_confirmation', 'affiliate_welcome', 'tier_upgrade', 'affiliate_tier_upgrade', 'claim_request']),
@@ -333,6 +337,60 @@ const generateEmailHTML = (type: string, data: any): { html: string; subject: st
         `,
       };
 
+    case 'claim_request':
+      return {
+        subject: "New Claim Request from Nomiqa User",
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <div style="text-align: center; margin-bottom: 30px;">
+              <img src="${logoUrl}" alt="Nomiqa" style="width: 120px; height: 120px; border-radius: 20px; border: 2px solid #f59e0b; box-shadow: 0 4px 16px rgba(245, 158, 11, 0.3);" />
+            </div>
+            
+            <h1 style="color: #333; border-bottom: 2px solid #f59e0b; padding-bottom: 10px;">
+              💰 New Claim Request
+            </h1>
+            
+            <div style="background: #fef3c7; border: 2px solid #f59e0b; border-radius: 8px; padding: 16px; margin: 20px 0;">
+              <p style="margin: 0; color: #92400e; font-weight: bold;">A user has submitted a claim request</p>
+            </div>
+            
+            <div style="margin: 20px 0;">
+              <h2 style="color: #666; font-size: 18px;">Claim Details</h2>
+              <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                  <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>User Email:</strong></td>
+                  <td style="padding: 8px; border-bottom: 1px solid #eee;">${data.userEmail || 'N/A'}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Wallet Address:</strong></td>
+                  <td style="padding: 8px; border-bottom: 1px solid #eee; word-break: break-all;">${data.walletAddress || 'N/A'}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Affiliate Earnings:</strong></td>
+                  <td style="padding: 8px; border-bottom: 1px solid #eee; color: #10b981; font-weight: bold;">$${data.affiliateEarnings?.toFixed(2) || '0.00'}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px; border-bottom: 2px solid #333;"><strong>Total to Pay:</strong></td>
+                  <td style="padding: 8px; border-bottom: 2px solid #333; font-size: 20px; font-weight: bold; color: #f59e0b;">$${data.totalAmount?.toFixed(2) || '0.00'}</td>
+                </tr>
+              </table>
+            </div>
+
+            ${data.notes ? `
+            <div style="margin: 20px 0; padding: 15px; background: #f9f9f9; border-radius: 8px;">
+              <p style="margin: 0 0 10px 0; color: #666; font-weight: bold;">📝 User Notes:</p>
+              <p style="margin: 0; color: #666;">${data.notes}</p>
+            </div>
+            ` : ''}
+
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; color: #999; font-size: 12px;">
+              <p>© 2025 Nomiqa - Private. Borderless. Human.</p>
+              <p style="margin: 8px 0 0 0;">This is an automated message from Nomiqa eSIM platform.</p>
+            </div>
+          </div>
+        `,
+      };
+
     default:
       return {
         subject: "Nomiqa Notification",
@@ -360,6 +418,66 @@ const generateEmailHTML = (type: string, data: any): { html: string; subject: st
   }
 };
 
+// Check rate limit for email recipient
+async function checkRateLimit(supabase: any, email: string, emailType: string): Promise<{ allowed: boolean; retryAfter?: number }> {
+  const windowStart = new Date();
+  windowStart.setHours(windowStart.getHours() - RATE_LIMIT_WINDOW_HOURS);
+
+  // Count emails sent to this recipient in the rate limit window
+  const { data, error } = await supabase
+    .from('email_rate_limits')
+    .select('id', { count: 'exact' })
+    .eq('email', email.toLowerCase())
+    .gte('sent_at', windowStart.toISOString());
+
+  if (error) {
+    console.error('Rate limit check error:', error);
+    // Allow on error to avoid blocking legitimate emails
+    return { allowed: true };
+  }
+
+  const count = data?.length || 0;
+  
+  if (count >= RATE_LIMIT_MAX_EMAILS) {
+    // Get oldest email in window to calculate retry time
+    const { data: oldestEmail } = await supabase
+      .from('email_rate_limits')
+      .select('sent_at')
+      .eq('email', email.toLowerCase())
+      .gte('sent_at', windowStart.toISOString())
+      .order('sent_at', { ascending: true })
+      .limit(1);
+
+    const retryAfter = oldestEmail?.[0]?.sent_at 
+      ? Math.ceil((new Date(oldestEmail[0].sent_at).getTime() + RATE_LIMIT_WINDOW_HOURS * 3600000 - Date.now()) / 1000)
+      : 3600;
+
+    return { allowed: false, retryAfter: Math.max(retryAfter, 60) };
+  }
+
+  return { allowed: true };
+}
+
+// Record email send for rate limiting
+async function recordEmailSend(supabase: any, email: string, emailType: string): Promise<void> {
+  const { error } = await supabase
+    .from('email_rate_limits')
+    .insert({
+      email: email.toLowerCase(),
+      email_type: emailType,
+      sent_at: new Date().toISOString()
+    });
+
+  if (error) {
+    console.error('Failed to record email send:', error);
+  }
+
+  // Clean up old records periodically (1% chance per request)
+  if (Math.random() < 0.01) {
+    await supabase.rpc('cleanup_old_email_rate_limits').catch(() => {});
+  }
+}
+
 const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -383,6 +501,31 @@ const handler = async (req: Request): Promise<Response> => {
 
     const { type, to, data } = validationResult.data;
 
+    // Initialize Supabase client with service role for rate limiting
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Check rate limit before sending
+    const rateLimit = await checkRateLimit(supabase, to, type);
+    if (!rateLimit.allowed) {
+      console.warn(`Rate limit exceeded for ${to} - ${type}`);
+      return new Response(
+        JSON.stringify({ 
+          error: "Too many emails sent to this address. Please try again later.",
+          retryAfter: rateLimit.retryAfter
+        }),
+        { 
+          status: 429, 
+          headers: { 
+            ...corsHeaders, 
+            "Content-Type": "application/json",
+            "Retry-After": String(rateLimit.retryAfter || 3600)
+          } 
+        }
+      );
+    }
+
     console.log(`Sending ${type} email to ${to}`);
 
     const { html, subject } = generateEmailHTML(type, data);
@@ -395,6 +538,9 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
     console.log("Email sent successfully:", emailResponse);
+
+    // Record successful email send for rate limiting
+    await recordEmailSend(supabase, to, type);
 
     return new Response(
       JSON.stringify({ success: true, emailId: emailResponse.data?.id }),
