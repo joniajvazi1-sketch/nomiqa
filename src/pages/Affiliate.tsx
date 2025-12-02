@@ -113,7 +113,7 @@ export default function Affiliate() {
       } = await supabase.auth.getUser();
       if (user) {
         setUser(user);
-        await fetchAffiliates(user.id);
+        await fetchAffiliates(user.id, user.email || undefined);
       }
     } catch (error) {
       console.error('Error checking user:', error);
@@ -121,13 +121,17 @@ export default function Affiliate() {
       setLoading(false);
     }
   };
-  const fetchAffiliates = async (userId: string) => {
-    const {
-      data,
-      error
-    } = await supabase.from('affiliates').select('*').eq('user_id', userId).order('created_at', {
-      ascending: true
-    });
+  const fetchAffiliates = async (userId: string, userEmail?: string) => {
+    // Query by both user_id and email to find all affiliates belonging to this user
+    let query = supabase.from('affiliates').select('*');
+    
+    if (userEmail) {
+      query = query.or(`user_id.eq.${userId},email.eq.${userEmail}`);
+    } else {
+      query = query.eq('user_id', userId);
+    }
+    
+    const { data, error } = await query.order('created_at', { ascending: true });
     if (!error && data && data.length > 0) {
       setAllAffiliates(data);
       
@@ -410,7 +414,7 @@ export default function Affiliate() {
       setShowNewLinkInput(false);
       setNewLinkUsername('');
       setUsernameAvailability('idle');
-      await fetchAffiliates(user.id);
+      await fetchAffiliates(user.id, user.email || undefined);
       toast.success(`Affiliate link ${existingAffiliates.length + 1} created!`);
     } catch (error: any) {
       toast.error(error.message || "Failed to create affiliate link");
@@ -441,7 +445,7 @@ export default function Affiliate() {
               setShowVerification(false);
               toast.success("Affiliate account verified! Refreshing...");
               if (user) {
-                fetchAffiliates(user.id);
+                fetchAffiliates(user.id, user.email || undefined);
               }
             }}
             onBack={() => setShowVerification(false)}
