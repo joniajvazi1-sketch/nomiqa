@@ -76,9 +76,7 @@ export const ProductDetailModal = ({
             </div>
             <div className="flex-1">
               <DialogTitle className="text-2xl md:text-3xl mb-2 bg-gradient-to-r from-neon-cyan via-white to-neon-violet bg-clip-text text-transparent font-light">
-                {product.package_type === 'regional' 
-                  ? product.country_name 
-                  : getTranslatedCountryName(product.country_code, language)}
+                {getTranslatedCountryName(product.country_code, language)}
               </DialogTitle>
               <p className="text-white/60 font-light">{product.name}</p>
               <div className="flex gap-2 mt-3">
