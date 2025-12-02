@@ -310,8 +310,8 @@ serve(async (req) => {
           activation_code: sim.matching_id,
           manual_installation: orderData.manual_installation,
           qrcode_installation: orderData.qrcode_installation,
-          sharing_link: orderData.sharing?.link,
-          sharing_access_code: orderData.sharing?.access_code,
+          sharing_link: sim.sharing?.link,
+          sharing_access_code: sim.sharing?.access_code,
           updated_at: new Date().toISOString()
         })
         .eq('id', order.id);
