@@ -122,16 +122,17 @@ serve(async (req) => {
 
     console.log('Airalo environment:', airloEnv);
 
-    // Get access token
+    // Get access token using FormData (required by Airalo API)
     console.log('Getting Airalo access token...');
+    const tokenFormData = new FormData();
+    tokenFormData.append('client_id', airloClientId!);
+    tokenFormData.append('client_secret', airloClientSecret!);
+    tokenFormData.append('grant_type', 'client_credentials');
+    
     const authResponse = await fetch(`${baseUrl}/v2/token`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        client_id: airloClientId,
-        client_secret: airloClientSecret,
-        grant_type: 'client_credentials',
-      }),
+      headers: { 'Accept': 'application/json' },
+      body: tokenFormData
     });
 
     if (!authResponse.ok) {
@@ -141,54 +142,90 @@ serve(async (req) => {
     }
 
     const authData = await authResponse.json();
+    const accessToken = authData.data.access_token;
     console.log('Access token obtained');
 
-    // Submit order
+    // Submit order using sync API with FormData
     const packageId = order.products?.airlo_package_id;
     if (!packageId) {
       throw new Error('Product package ID not found');
     }
 
-    console.log('Submitting Airalo order for package:', packageId);
+    console.log('Submitting Airalo sync order for package:', packageId);
     
-    const airloOrderResponse = await fetch(`${baseUrl}/v2/orders-async`, {
+    const formData = new FormData();
+    formData.append('package_id', packageId);
+    formData.append('quantity', '1');
+    formData.append('type', 'sim');
+    formData.append('description', `Manual recovery - ${order.id}`);
+    formData.append('brand_settings_name', 'Nomiqa');
+    formData.append('to_email', order.email);
+    
+    const airloOrderResponse = await fetch(`${baseUrl}/v2/orders`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${authData.data.access_token}`,
+        'Authorization': `Bearer ${accessToken}`,
+        'Accept': 'application/json'
       },
-      body: JSON.stringify({
-        quantity: 1,
-        package_id: packageId,
-        type: 'sim',
-        description: `Manual recovery - ${order.id}`,
-      }),
+      body: formData
     });
 
+    const airloResponseText = await airloOrderResponse.text();
+    console.log('Airalo response:', airloResponseText);
+
     if (!airloOrderResponse.ok) {
-      const errorText = await airloOrderResponse.text();
-      console.error('Airalo order failed:', errorText);
-      throw new Error(`Airalo order failed: ${errorText}`);
+      console.error('Airalo order failed:', airloResponseText);
+      throw new Error(`Airalo order failed: ${airloResponseText}`);
     }
 
-    const airloOrderData = await airloOrderResponse.json();
-    console.log('Airalo order submitted successfully');
-    console.log('Airalo request ID:', airloOrderData.data.id);
+    const airloOrderData = JSON.parse(airloResponseText);
+    const orderData = airloOrderData.data;
+    console.log('Airalo order successful:', orderData.id);
 
-    // Update order status
+    // Extract eSIM details from sync response
+    const sim = orderData.sims?.[0];
+    if (!sim) {
+      throw new Error('No eSIM data in Airalo response');
+    }
+
+    // Update order with complete eSIM details
     await supabase
       .from('orders')
       .update({ 
-        status: 'processing',
+        status: 'completed',
+        airlo_order_id: orderData.id?.toString(),
+        iccid: sim.iccid,
+        lpa: sim.lpa,
+        matching_id: sim.matching_id,
+        qrcode: sim.qrcode,
+        qr_code_url: sim.qrcode_url,
+        activation_code: sim.matching_id,
+        manual_installation: orderData.manual_installation,
+        qrcode_installation: orderData.qrcode_installation,
+        sharing_link: orderData.sharing?.link,
+        sharing_access_code: orderData.sharing?.access_code,
         updated_at: new Date().toISOString()
       })
       .eq('id', orderId);
 
+    // Create eSIM usage record
+    await supabase.from('esim_usage').insert({
+      order_id: order.id,
+      iccid: sim.iccid,
+      total_mb: parseInt(order.data_amount) * 1024 || 0,
+      remaining_mb: parseInt(order.data_amount) * 1024 || 0,
+      status: 'NOT_ACTIVE'
+    });
+
+    console.log('Order completed successfully');
+    console.log('ICCID:', sim.iccid);
+
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: 'eSIM provisioning initiated! Airalo will send eSIM details via webhook within 1-2 minutes. Customer will receive email automatically.',
-        airlo_request_id: airloOrderData.data.id
+        message: 'eSIM provisioned successfully! Airalo has sent the eSIM details to your email.',
+        iccid: sim.iccid,
+        sharing_link: orderData.sharing?.link
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
