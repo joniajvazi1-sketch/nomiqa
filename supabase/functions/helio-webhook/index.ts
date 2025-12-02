@@ -19,8 +19,9 @@ serve(async (req) => {
     console.log('Received webhook payload:', JSON.stringify(payload, null, 2));
     console.log('Webhook headers:', Object.fromEntries(req.headers.entries()));
 
-    // Verify MoonPay Commerce webhook signature
+    // Verify Helio webhook - supports both Bearer token and HMAC signature
     const signature = req.headers.get('x-signature') || req.headers.get('x-webhook-signature') || req.headers.get('signature');
+    const authHeader = req.headers.get('authorization');
     const webhookSecret = Deno.env.get('HELIO_WEBHOOK_SECRET');
 
     if (!webhookSecret) {
@@ -28,8 +29,19 @@ serve(async (req) => {
       return new Response('Server configuration error', { status: 500 });
     }
 
-    // Verify HMAC-SHA256 signature if present
-    if (signature) {
+    let isVerified = false;
+
+    // Method 1: Verify using Bearer token (Helio uses this)
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const bearerToken = authHeader.substring(7);
+      if (bearerToken === webhookSecret) {
+        console.log('✓ Webhook verified via Bearer token');
+        isVerified = true;
+      }
+    }
+
+    // Method 2: Verify HMAC-SHA256 signature if present
+    if (!isVerified && signature) {
       const encoder = new TextEncoder();
       const key = await crypto.subtle.importKey(
         'raw',
@@ -49,19 +61,19 @@ serve(async (req) => {
         .map(b => b.toString(16).padStart(2, '0'))
         .join('');
       
-      if (computedSignature !== signature) {
-        console.error('❌ Webhook signature mismatch - rejecting request');
-        console.error('Received signature:', signature);
-        console.error('Computed signature:', computedSignature);
-        return new Response('Invalid webhook signature', { 
-          status: 401, 
-          headers: corsHeaders 
-        });
+      if (computedSignature === signature) {
+        console.log('✓ Webhook signature verified via HMAC');
+        isVerified = true;
+      } else {
+        console.log('HMAC signature mismatch (will try other methods)');
       }
-      console.log('✓ Webhook signature verified successfully');
-    } else {
-      console.error('❌ No webhook signature provided - rejecting request');
-      return new Response('Missing webhook signature', { 
+    }
+
+    if (!isVerified) {
+      console.error('❌ Webhook verification failed - no valid auth method');
+      console.error('Authorization header present:', !!authHeader);
+      console.error('Signature header present:', !!signature);
+      return new Response('Invalid webhook authentication', { 
         status: 401, 
         headers: corsHeaders 
       });
