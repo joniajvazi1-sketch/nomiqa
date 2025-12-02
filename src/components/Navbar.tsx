@@ -271,6 +271,19 @@ export const Navbar = () => {
               )}
             </Button>
 
+            {/* Desktop My Account Icon - Show only when logged in */}
+            {user && (
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="hidden lg:flex relative bg-white/[0.05] backdrop-blur-xl border border-neon-cyan/30 hover:bg-neon-cyan/10 hover:border-neon-cyan/50 transition-all duration-300 h-10 w-10 rounded-lg shadow-lg hover:shadow-neon-cyan/20 hover:scale-105" 
+                onClick={() => navigate(localizedPath('/account', language))} 
+                aria-label="My Account"
+              >
+                <UserIcon className="w-5 h-5 text-neon-cyan" />
+              </Button>
+            )}
+
             {/* Mobile Register Button - Show only when NOT logged in */}
             {!user && (
               <Button 
