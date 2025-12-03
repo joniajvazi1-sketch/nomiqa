@@ -19,9 +19,10 @@ serve(async (req) => {
     console.log('Received webhook payload:', JSON.stringify(payload, null, 2));
     console.log('Webhook headers:', Object.fromEntries(req.headers.entries()));
 
-    // Verify Helio webhook - supports both Bearer token and HMAC signature
+    // Verify Helio webhook - multiple methods supported
     const signature = req.headers.get('x-signature') || req.headers.get('x-webhook-signature') || req.headers.get('signature');
     const authHeader = req.headers.get('authorization');
+    const helioApiKey = req.headers.get('helio-api-key') || req.headers.get('x-helio-secret') || req.headers.get('x-api-key');
     const webhookSecret = Deno.env.get('HELIO_WEBHOOK_SECRET');
 
     if (!webhookSecret) {
@@ -31,7 +32,7 @@ serve(async (req) => {
 
     let isVerified = false;
 
-    // Method 1: Verify using Bearer token (Helio uses this)
+    // Method 1: Verify using Bearer token
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const bearerToken = authHeader.substring(7);
       if (bearerToken === webhookSecret) {
@@ -40,7 +41,23 @@ serve(async (req) => {
       }
     }
 
-    // Method 2: Verify HMAC-SHA256 signature if present
+    // Method 2: Direct API key header (Helio commonly uses this)
+    if (!isVerified && helioApiKey) {
+      if (helioApiKey === webhookSecret) {
+        console.log('✓ Webhook verified via API key header');
+        isVerified = true;
+      }
+    }
+
+    // Method 3: Check if webhook secret is in the payload itself
+    if (!isVerified && payload.secret) {
+      if (payload.secret === webhookSecret) {
+        console.log('✓ Webhook verified via payload secret');
+        isVerified = true;
+      }
+    }
+
+    // Method 4: Verify HMAC-SHA256 signature if present
     if (!isVerified && signature) {
       const encoder = new TextEncoder();
       const key = await crypto.subtle.importKey(
@@ -65,14 +82,24 @@ serve(async (req) => {
         console.log('✓ Webhook signature verified via HMAC');
         isVerified = true;
       } else {
-        console.log('HMAC signature mismatch (will try other methods)');
+        console.log('HMAC signature mismatch');
+      }
+    }
+
+    // Method 5: Check payload transactionObject meta for validation
+    if (!isVerified && payload.transactionObject?.meta?.apiSecret) {
+      if (payload.transactionObject.meta.apiSecret === webhookSecret) {
+        console.log('✓ Webhook verified via transaction meta secret');
+        isVerified = true;
       }
     }
 
     if (!isVerified) {
       console.error('❌ Webhook verification failed - no valid auth method');
-      console.error('Authorization header present:', !!authHeader);
-      console.error('Signature header present:', !!signature);
+      console.error('Auth header:', authHeader ? authHeader.substring(0, 20) + '...' : 'none');
+      console.error('API key header:', helioApiKey ? 'present' : 'none');
+      console.error('Signature:', signature ? 'present' : 'none');
+      console.error('Payload has secret:', !!payload.secret);
       return new Response('Invalid webhook authentication', { 
         status: 401, 
         headers: corsHeaders 
