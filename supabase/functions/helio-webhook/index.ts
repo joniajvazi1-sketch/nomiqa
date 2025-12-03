@@ -34,6 +34,11 @@ serve(async (req) => {
     // Method 1: Verify using Bearer token (Helio uses this)
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const bearerToken = authHeader.substring(7);
+      console.log('Bearer token length:', bearerToken.length);
+      console.log('Secret length:', webhookSecret.length);
+      console.log('Token first 20 chars:', bearerToken.substring(0, 20));
+      console.log('Secret first 20 chars:', webhookSecret.substring(0, 20));
+      console.log('Tokens match:', bearerToken === webhookSecret);
       if (bearerToken === webhookSecret) {
         console.log('✓ Webhook verified via Bearer token');
         isVerified = true;
