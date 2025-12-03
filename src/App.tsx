@@ -28,8 +28,6 @@ const Token = lazy(() => import("./pages/Token"));
 const MyAccount = lazy(() => import("./pages/MyAccount"));
 const Help = lazy(() => import("./pages/Help"));
 const Rewards = lazy(() => import("./pages/Rewards"));
-const AdminRecovery = lazy(() => import("./pages/AdminRecovery"));
-const AdminProductSync = lazy(() => import("./pages/AdminProductSync"));
 const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
 
 
@@ -104,8 +102,6 @@ const App = () => (
             <Route path="/help" element={<Help />} />
             <Route path="/rewards" element={<Rewards />} />
             <Route path="/payment-success" element={<PaymentSuccess />} />
-            <Route path="/admin/recovery" element={<AdminRecovery />} />
-            <Route path="/admin/sync" element={<AdminProductSync />} />
             
 
             {/* Localized route groups */}
