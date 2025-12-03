@@ -280,7 +280,8 @@ serve(async (req) => {
       if (order.full_name) {
         formData.append('to_name', order.full_name);
       }
-      formData.append('sharing_option[]', 'link');  // Form data format with []
+      formData.append('sharing_option[]', 'link');
+      formData.append('sharing_option[]', 'pdf');
       
       const orderResponse = await fetch(`${baseUrl}/v2/orders`, {
         method: 'POST',
