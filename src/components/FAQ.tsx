@@ -10,7 +10,11 @@ import { useNavigate } from "react-router-dom";
 import { localizedPath } from "@/utils/localizedLinks";
 import { memo, useMemo } from "react";
 
-export const FAQ = memo(() => {
+interface FAQProps {
+  showAll?: boolean;
+}
+
+export const FAQ = memo(({ showAll = false }: FAQProps) => {
   const { t, language } = useTranslation();
   const navigate = useNavigate();
   
@@ -77,7 +81,7 @@ export const FAQ = memo(() => {
           </div>
 
           <Accordion type="single" collapsible className="space-y-4">
-            {faqs.slice(0, 5).map((faq, index) => (
+            {(showAll ? faqs : faqs.slice(0, 5)).map((faq, index) => (
               <AccordionItem 
                 key={index} 
                 value={`item-${index}`}
@@ -93,15 +97,17 @@ export const FAQ = memo(() => {
             ))}
           </Accordion>
           
-          <div className="flex justify-center mt-8 md:mt-12">
-            <Button
-              onClick={() => navigate(localizedPath("/help", language))}
-              size="lg"
-              className="group bg-white/[0.03] backdrop-blur-xl border-2 border-neon-cyan/30 text-white hover:bg-neon-cyan/10 hover:border-neon-cyan/50 px-10 py-7 text-base md:text-lg rounded-2xl font-light transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-neon-cyan/20"
-            >
-              {t("contactHelpCenter")}
-            </Button>
-          </div>
+          {!showAll && (
+            <div className="flex justify-center mt-8 md:mt-12">
+              <Button
+                onClick={() => navigate(localizedPath("/help", language))}
+                size="lg"
+                className="group bg-white/[0.03] backdrop-blur-xl border-2 border-neon-cyan/30 text-white hover:bg-neon-cyan/10 hover:border-neon-cyan/50 px-10 py-7 text-base md:text-lg rounded-2xl font-light transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-neon-cyan/20"
+              >
+                {t("contactHelpCenter")}
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </section>
