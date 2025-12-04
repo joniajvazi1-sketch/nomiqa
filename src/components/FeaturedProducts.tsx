@@ -30,8 +30,15 @@ export const FeaturedProducts = () => {
   const { language, t, formatPrice } = useTranslation();
 
   const handleProductClick = (product: any) => {
-    const translatedCountryName = getTranslatedCountryName(product.country_code, language);
-    navigate(`/shop?search=${encodeURIComponent(translatedCountryName)}`);
+    const isRegional = product.package_type === 'regional';
+    if (isRegional) {
+      // For regional products, go to shop with regional filter
+      navigate(`/shop?type=regional`);
+    } else {
+      // For local products, search by country name
+      const translatedCountryName = getTranslatedCountryName(product.country_code, language);
+      navigate(`/shop?search=${encodeURIComponent(translatedCountryName)}`);
+    }
   };
 
   const getCountryFlag = (countryCode: string) => {
@@ -96,7 +103,9 @@ export const FeaturedProducts = () => {
                         <h3 className="text-lg font-semibold group-hover:text-neon-cyan transition-colors">
                           {translatedCountryName}
                         </h3>
-                        <p className="text-xs text-muted-foreground">{product.data_amount}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {product.package_type === 'regional' ? t("regionalData") : product.data_amount}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -132,7 +141,9 @@ export const FeaturedProducts = () => {
                       <h3 className="text-base font-semibold group-hover:text-neon-cyan transition-colors truncate">
                         {translatedCountryName}
                       </h3>
-                      <p className="text-xs text-muted-foreground">{product.data_amount}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {product.package_type === 'regional' ? t("regionalData") : product.data_amount}
+                      </p>
                     </div>
                   </div>
                   
