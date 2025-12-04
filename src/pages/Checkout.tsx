@@ -27,6 +27,7 @@ export default function Checkout() {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paylinkUrl, setPaylinkUrl] = useState<string | null>(null);
   const [currentOrderId, setCurrentOrderId] = useState<string | null>(null);
+  const [paymentCompleted, setPaymentCompleted] = useState(false);
   const [user, setUser] = useState<any>(null);
 
   // Check authentication status without redirecting
@@ -171,11 +172,9 @@ export default function Checkout() {
           const newStatus = payload.new?.status;
           
           if (newStatus === 'completed' || newStatus === 'paid') {
-            console.log('Order completed! Auto-closing payment modal...');
-            setShowPaymentModal(false);
-            clearCart();
+            console.log('Order completed! Showing success UI...');
+            setPaymentCompleted(true);
             toast.success('Payment successful! Your eSIM is ready.');
-            navigate('/orders');
           }
         }
       )
@@ -193,11 +192,9 @@ export default function Checkout() {
         if (error || !data) return;
 
         if (data.status === 'completed' || data.status === 'paid') {
-          console.log('Order completed (via polling)! Auto-closing...');
-          setShowPaymentModal(false);
-          clearCart();
+          console.log('Order completed (via polling)! Showing success UI...');
+          setPaymentCompleted(true);
           toast.success('Payment successful! Your eSIM is ready.');
-          navigate('/orders');
         }
       } catch (err) {
         console.error('Error polling order status:', err);
@@ -429,22 +426,24 @@ export default function Checkout() {
               allow="payment"
             />
           )}
-          <div className="p-4 border-t bg-muted/30 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <p className="text-sm text-muted-foreground text-center sm:text-left">
-              {t("checkoutPaymentCompleted") || "Already paid? Click the button to check your order."}
-            </p>
-            <Button 
-              variant="outline" 
-              onClick={() => {
-                setShowPaymentModal(false);
-                clearCart();
-                navigate('/orders');
-              }}
-              className="w-full sm:w-auto"
-            >
-              {t("checkoutCloseAndCheck") || "Close & Check My eSIMs"}
-            </Button>
-          </div>
+          {paymentCompleted && (
+            <div className="p-4 border-t bg-green-500/10 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <p className="text-sm text-green-400 text-center sm:text-left font-medium">
+                ✓ {t("checkoutPaymentSuccess") || "Payment successful! Your eSIM is ready."}
+              </p>
+              <Button 
+                onClick={() => {
+                  setShowPaymentModal(false);
+                  setPaymentCompleted(false);
+                  clearCart();
+                  navigate('/orders');
+                }}
+                className="w-full sm:w-auto bg-green-600 hover:bg-green-700"
+              >
+                {t("checkoutViewMyEsims") || "View My eSIMs"}
+              </Button>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>
