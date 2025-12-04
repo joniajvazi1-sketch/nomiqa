@@ -264,7 +264,7 @@ serve(async (req) => {
     // Affiliate conversions will be processed AFTER successful eSIM provisioning
     // (moved to line ~730 to ensure they only count when order completes successfully)
 
-    // Provision eSIM from Airalo
+    // Provision eSIM from Airalo with retry logic
     try {
       const airloClientId = Deno.env.get('AIRLO_CLIENT_ID');
       const airloClientSecret = Deno.env.get('AIRLO_CLIENT_SECRET');
@@ -278,6 +278,35 @@ serve(async (req) => {
         ? 'https://partners-api.airalo.com'
         : 'https://sandbox-partners-api.airalo.com';
 
+      // Helper function for retrying fetch requests with exponential backoff
+      const fetchWithRetry = async (url: string, options: RequestInit, maxRetries = 3): Promise<Response> => {
+        let lastError: Error | null = null;
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+          try {
+            console.log(`Fetch attempt ${attempt}/${maxRetries} to ${url}`);
+            const response = await fetch(url, options);
+            
+            // Retry on 5xx errors (server errors, timeouts)
+            if (response.status >= 500 && attempt < maxRetries) {
+              const waitTime = Math.pow(2, attempt) * 1000; // 2s, 4s, 8s
+              console.log(`Got ${response.status}, retrying in ${waitTime}ms...`);
+              await new Promise(resolve => setTimeout(resolve, waitTime));
+              continue;
+            }
+            
+            return response;
+          } catch (err) {
+            lastError = err as Error;
+            if (attempt < maxRetries) {
+              const waitTime = Math.pow(2, attempt) * 1000;
+              console.log(`Fetch error: ${err}, retrying in ${waitTime}ms...`);
+              await new Promise(resolve => setTimeout(resolve, waitTime));
+            }
+          }
+        }
+        throw lastError || new Error('Max retries exceeded');
+      };
+
       console.log('Getting Airalo access token...');
       
       // Get access token using FormData (required by Airalo API)
@@ -286,7 +315,7 @@ serve(async (req) => {
       tokenFormData.append('client_secret', airloClientSecret);
       tokenFormData.append('grant_type', 'client_credentials');
       
-      const authResponse = await fetch(`${baseUrl}/v2/token`, {
+      const authResponse = await fetchWithRetry(`${baseUrl}/v2/token`, {
         method: 'POST',
         headers: { 'Accept': 'application/json' },
         body: tokenFormData
@@ -333,7 +362,7 @@ serve(async (req) => {
       formData.append('sharing_option[]', 'link');
       formData.append('sharing_option[]', 'pdf');
       
-      const orderResponse = await fetch(`${baseUrl}/v2/orders`, {
+      const orderResponse = await fetchWithRetry(`${baseUrl}/v2/orders`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${accessToken}`
