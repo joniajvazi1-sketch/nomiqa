@@ -428,10 +428,10 @@ export default function Checkout() {
             />
           )}
           {/* Always visible footer - fixed at bottom */}
-          <div className={`p-4 border-t flex-shrink-0 flex flex-col sm:flex-row items-center justify-between gap-3 ${paymentCompleted ? 'bg-green-500/10' : 'bg-muted/30'}`}>
+          <div className={`px-6 py-4 border-t flex-shrink-0 flex items-center justify-center md:justify-end gap-4 ${paymentCompleted ? 'bg-green-500/10' : 'bg-background/80 backdrop-blur-sm'}`}>
             {paymentCompleted ? (
               <>
-                <p className="text-sm text-green-400 text-center sm:text-left font-medium">
+                <p className="text-sm text-green-400 font-medium hidden md:block">
                   ✓ {t("checkoutPaymentSuccess") || "Payment successful! Your eSIM is ready."}
                 </p>
                 <Button 
@@ -441,14 +441,14 @@ export default function Checkout() {
                     clearCart();
                     navigate('/orders');
                   }}
-                  className="w-full sm:w-auto bg-green-600 hover:bg-green-700"
+                  className="bg-green-600 hover:bg-green-700 px-6"
                 >
                   {t("checkoutViewMyEsims") || "View My eSIMs"}
                 </Button>
               </>
             ) : (
               <>
-                <p className="text-sm text-muted-foreground text-center sm:text-left">
+                <p className="text-sm text-muted-foreground hidden md:block">
                   {t("checkoutAlreadyPaid") || "Already paid? Go check your eSIMs."}
                 </p>
                 <Button 
@@ -457,7 +457,7 @@ export default function Checkout() {
                     setShowPaymentModal(false);
                     navigate('/orders');
                   }}
-                  className="w-full sm:w-auto"
+                  className="px-6 border-primary/30 hover:bg-primary/10"
                 >
                   {t("checkoutGoToMyEsims") || "Go to My eSIMs"}
                 </Button>
