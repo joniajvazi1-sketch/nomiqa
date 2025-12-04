@@ -148,25 +148,27 @@ export default function Checkout() {
     return () => window.removeEventListener('message', handleMessage);
   }, [navigate, clearCart]);
 
-  // Poll order status while payment modal is open
+  // Real-time subscription to detect payment completion instantly
   useEffect(() => {
     if (!showPaymentModal || !currentOrderId) return;
 
-    let isCancelled = false;
-    
-    const checkOrderStatus = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('orders')
-          .select('status')
-          .eq('id', currentOrderId)
-          .single();
+    console.log('Setting up realtime subscription for order:', currentOrderId);
 
-        if (error || !data) return;
-
-        // If order is completed or paid, close modal and redirect
-        if (data.status === 'completed' || data.status === 'paid') {
-          if (!isCancelled) {
+    const channel = supabase
+      .channel(`order-${currentOrderId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'orders',
+          filter: `id=eq.${currentOrderId}`
+        },
+        (payload) => {
+          console.log('Order update received:', payload);
+          const newStatus = payload.new?.status;
+          
+          if (newStatus === 'completed' || newStatus === 'paid') {
             console.log('Order completed! Auto-closing payment modal...');
             setShowPaymentModal(false);
             clearCart();
@@ -174,18 +176,12 @@ export default function Checkout() {
             navigate('/orders');
           }
         }
-      } catch (err) {
-        console.error('Error checking order status:', err);
-      }
-    };
-
-    // Check immediately then poll every 3 seconds
-    checkOrderStatus();
-    const interval = setInterval(checkOrderStatus, 3000);
+      )
+      .subscribe();
 
     return () => {
-      isCancelled = true;
-      clearInterval(interval);
+      console.log('Cleaning up realtime subscription');
+      supabase.removeChannel(channel);
     };
   }, [showPaymentModal, currentOrderId, navigate, clearCart]);
 
