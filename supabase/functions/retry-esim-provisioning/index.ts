@@ -44,6 +44,35 @@ Deno.serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+    // Get client IP for rate limiting
+    const clientIp = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 
+                     req.headers.get('cf-connecting-ip') || 
+                     'unknown';
+    
+    console.log('Retry request from IP:', clientIp);
+
+    // Rate limiting: max 3 calls per hour per IP
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+    const { count: recentCalls } = await supabase
+      .from('processed_webhook_requests')
+      .select('*', { count: 'exact', head: true })
+      .eq('webhook_type', `retry_ip_${clientIp}`)
+      .gte('created_at', oneHourAgo);
+
+    if ((recentCalls || 0) >= 3) {
+      console.log(`Rate limited: IP ${clientIp} has made ${recentCalls} calls in the last hour`);
+      return new Response(
+        JSON.stringify({ error: 'Rate limit exceeded. Maximum 3 retry attempts per hour.' }),
+        { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Record this attempt for rate limiting
+    await supabase.from('processed_webhook_requests').insert({
+      transaction_id: `retry_${Date.now()}_${clientIp}`,
+      webhook_type: `retry_ip_${clientIp}`,
+    });
+
     const { orderId } = await req.json();
     
     if (!orderId) {
