@@ -108,7 +108,7 @@ export default function About() {
             <div className="relative group p-8 md:p-12 rounded-2xl bg-white/[0.02] backdrop-blur-xl border border-white/10 hover:border-white/20 animate-fade-in-up transition-all duration-500">
               <div className="absolute inset-0 bg-gradient-to-br from-neon-cyan/5 via-transparent to-neon-violet/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
               <div className="relative z-10">
-                <h2 className="text-3xl md:text-4xl lg:text-5xl font-light mb-6 md:mb-8 bg-gradient-to-r from-white via-neon-cyan to-white bg-clip-text text-transparent tracking-wide">
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-light mb-6 md:mb-8 bg-gradient-to-r from-white via-neon-cyan to-white bg-clip-text text-transparent tracking-wide text-center">
                   {t("aboutStoryTitle")}
                 </h2>
                 <div className="space-y-4 md:space-y-5 text-white/70 leading-relaxed font-light">
