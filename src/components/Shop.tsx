@@ -34,8 +34,12 @@ export const Shop = () => {
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const searchParam = urlParams.get('search');
+    const typeParam = urlParams.get('type');
     if (searchParam) {
       setSearchQuery(decodeURIComponent(searchParam));
+    }
+    if (typeParam && (typeParam === 'local' || typeParam === 'regional')) {
+      setCoverageFilter(typeParam);
     }
   }, [products]);
 
