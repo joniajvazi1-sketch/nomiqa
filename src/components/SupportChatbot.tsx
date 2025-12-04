@@ -36,6 +36,42 @@ export const SupportChatbot = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  // Render markdown links as clickable
+  const renderMessageWithLinks = (content: string) => {
+    // Match markdown links: [text](url)
+    const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+    const parts: (string | JSX.Element)[] = [];
+    let lastIndex = 0;
+    let match;
+
+    while ((match = linkRegex.exec(content)) !== null) {
+      // Add text before the link
+      if (match.index > lastIndex) {
+        parts.push(content.slice(lastIndex, match.index));
+      }
+      // Add the clickable link
+      parts.push(
+        <a
+          key={match.index}
+          href={match[2]}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-neon-cyan hover:text-neon-cyan/80 underline underline-offset-2"
+        >
+          {match[1]}
+        </a>
+      );
+      lastIndex = match.index + match[0].length;
+    }
+
+    // Add remaining text
+    if (lastIndex < content.length) {
+      parts.push(content.slice(lastIndex));
+    }
+
+    return parts.length > 0 ? parts : content;
+  };
+
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
@@ -213,7 +249,9 @@ export const SupportChatbot = () => {
                       : "bg-white/5 border border-white/10 text-foreground/90"
                   }`}
                 >
-                  <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                  <p className="text-sm whitespace-pre-wrap">
+                    {renderMessageWithLinks(msg.content)}
+                  </p>
                 </div>
               </div>
             ))}
