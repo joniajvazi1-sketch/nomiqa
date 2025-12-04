@@ -333,28 +333,15 @@ export default function Checkout() {
 
                   <div className="space-y-2">
                     <Label htmlFor="email" className="text-base font-semibold">{t("checkoutEmailLabel")} *</Label>
-                    {user ? (
-                      <Input
-                        id="email"
-                        type="email"
-                        placeholder={t("checkoutEmailPlaceholder")}
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                        readOnly
-                        className="text-base py-6 bg-muted/50 cursor-not-allowed"
-                      />
-                    ) : (
-                      <Input
-                        id="email"
-                        type="email"
-                        placeholder={t("checkoutEmailPlaceholder")}
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                        className="text-base py-6"
-                      />
-                    )}
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder={t("checkoutEmailPlaceholder")}
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      className="text-base py-6"
+                    />
                     <div className="bg-primary/10 border border-primary/20 rounded-lg p-4 mt-3">
                       {user ? (
                         <>
