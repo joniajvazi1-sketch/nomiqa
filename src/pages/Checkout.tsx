@@ -245,11 +245,17 @@ export default function Checkout() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5">
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
+    <div className="min-h-screen bg-gradient-to-br from-black/40 via-deep-space/60 to-black/40 relative">
+      {/* Premium background decorations */}
+      <div className="fixed inset-0 -z-10 overflow-hidden opacity-20">
+        <div className="absolute top-20 left-10 w-96 h-96 bg-neon-cyan/30 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 right-10 w-80 h-80 bg-neon-violet/30 rounded-full blur-3xl"></div>
+      </div>
+      
+      <div className="container mx-auto px-4 py-8 max-w-6xl relative z-10">
         <Button
           variant="ghost"
-          className="mb-6"
+          className="mb-6 text-white/70 hover:text-white hover:bg-white/10"
           onClick={() => navigate('/')}
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
@@ -259,17 +265,21 @@ export default function Checkout() {
         <div className="grid md:grid-cols-3 gap-8">
           {/* Cart Items */}
           <div className="md:col-span-2 space-y-4">
-            <h1 className="text-3xl font-bold mb-6 text-center md:text-left">{t("checkoutTitle")}</h1>
+            <h1 className="text-3xl md:text-4xl font-light mb-6 text-center md:text-left">
+              <span className="bg-gradient-to-r from-neon-cyan via-white to-neon-violet bg-clip-text text-transparent">
+                {t("checkoutTitle")}
+              </span>
+            </h1>
             
             {items.map((item) => (
-              <Card key={item.product.id}>
+              <Card key={item.product.id} className="bg-white/[0.03] backdrop-blur-xl border border-white/10 hover:border-neon-cyan/30 transition-all duration-300">
                 <CardContent className="p-6">
-                  <div className="flex justify-between items-start">
+                  <div className="flex flex-col md:flex-row justify-between items-start gap-4">
                     <div className="flex-1">
-                      <h3 className="font-semibold text-lg mb-1">
+                      <h3 className="font-semibold text-lg mb-1 text-white">
                         {item.product.country_name} - {item.product.data_amount} - {item.product.validity_days} days
                       </h3>
-                      <p className="text-sm text-muted-foreground mb-2">
+                      <p className="text-sm text-white/60 mb-4">
                         {item.product.country_name} • {item.product.data_amount} • {item.product.validity_days} days
                       </p>
                       <div className="flex items-center gap-4">
@@ -278,14 +288,16 @@ export default function Checkout() {
                             variant="outline"
                             size="sm"
                             onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
+                            className="bg-white/5 border-white/20 hover:bg-white/10 hover:border-neon-cyan/40 text-white h-8 w-8 p-0"
                           >
                             -
                           </Button>
-                          <span className="w-8 text-center">{item.quantity}</span>
+                          <span className="w-8 text-center text-white font-medium">{item.quantity}</span>
                           <Button
                             variant="outline"
                             size="sm"
                             onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
+                            className="bg-white/5 border-white/20 hover:bg-white/10 hover:border-neon-cyan/40 text-white h-8 w-8 p-0"
                           >
                             +
                           </Button>
@@ -294,14 +306,17 @@ export default function Checkout() {
                           variant="ghost"
                           size="sm"
                           onClick={() => removeItem(item.product.id)}
+                          className="text-white/60 hover:text-red-400 hover:bg-red-500/10"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                     </div>
-                    <div className="text-center md:text-right w-full md:w-auto">
-                      <p className="text-xl font-bold">{formatPrice(item.product.price_usd * item.quantity)}</p>
-                      <p className="text-sm text-muted-foreground">{formatPrice(item.product.price_usd)} {t("checkoutEach")}</p>
+                    <div className="text-left md:text-right w-full md:w-auto">
+                      <p className="text-xl font-bold bg-gradient-to-r from-neon-cyan to-neon-violet bg-clip-text text-transparent">
+                        {formatPrice(item.product.price_usd * item.quantity)}
+                      </p>
+                      <p className="text-sm text-white/50">{formatPrice(item.product.price_usd)} {t("checkoutEach")}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -311,15 +326,15 @@ export default function Checkout() {
 
           {/* Order Summary */}
           <div>
-            <Card className="sticky top-4">
-              <CardHeader>
-                <CardTitle>{t("checkoutOrderSummary")}</CardTitle>
-                <CardDescription>{t("checkoutOrderSummaryDesc")}</CardDescription>
+            <Card className="sticky top-4 bg-white/[0.03] backdrop-blur-xl border border-white/10">
+              <CardHeader className="border-b border-white/10">
+                <CardTitle className="text-white">{t("checkoutOrderSummary")}</CardTitle>
+                <CardDescription className="text-white/60">{t("checkoutOrderSummaryDesc")}</CardDescription>
               </CardHeader>
-              <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-4">
+              <CardContent className="pt-6">
+                <form onSubmit={handleSubmit} className="space-y-5">
                   <div className="space-y-2">
-                    <Label htmlFor="fullName" className="text-base font-semibold">{t("checkoutFullNameLabel")}</Label>
+                    <Label htmlFor="fullName" className="text-sm font-medium text-white/80">{t("checkoutFullNameLabel")}</Label>
                     <Input
                       id="fullName"
                       type="text"
@@ -327,12 +342,12 @@ export default function Checkout() {
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
                       required
-                      className="text-base py-6"
+                      className="text-base py-6 bg-white/5 border-white/20 focus:border-neon-cyan/50 text-white placeholder:text-white/40"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="email" className="text-base font-semibold">{t("checkoutEmailLabel")} *</Label>
+                    <Label htmlFor="email" className="text-sm font-medium text-white/80">{t("checkoutEmailLabel")} *</Label>
                     <Input
                       id="email"
                       type="email"
@@ -340,24 +355,24 @@ export default function Checkout() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
-                      className="text-base py-6"
+                      className="text-base py-6 bg-white/5 border-white/20 focus:border-neon-cyan/50 text-white placeholder:text-white/40"
                     />
-                    <div className="bg-primary/10 border border-primary/20 rounded-lg p-4 mt-3">
+                    <div className="bg-neon-cyan/5 border border-neon-cyan/20 rounded-xl p-4 mt-3">
                       {user ? (
                         <>
-                          <p className="text-sm md:text-base font-medium text-foreground">
+                          <p className="text-sm font-medium text-white">
                             {t("checkoutEmailInfo")}
                           </p>
-                          <p className="text-xs md:text-sm text-muted-foreground mt-1">
+                          <p className="text-xs text-white/60 mt-1">
                             {t("checkoutEmailFromAccount")} • {t("checkoutEmailWarning")}
                           </p>
                         </>
                       ) : (
                         <>
-                          <p className="text-sm md:text-base font-medium text-foreground">
+                          <p className="text-sm font-medium text-white">
                             ⚠️ Login Required to Purchase
                           </p>
-                          <p className="text-xs md:text-sm text-muted-foreground mt-1">
+                          <p className="text-xs text-white/60 mt-1">
                             You must be logged in to complete your purchase. Click checkout to continue.
                           </p>
                         </>
@@ -365,29 +380,31 @@ export default function Checkout() {
                     </div>
                   </div>
 
-                  <Separator />
+                  <Separator className="bg-white/10" />
 
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
+                  <div className="space-y-3">
+                    <div className="flex justify-between text-sm text-white/70">
                       <span>{t("checkoutSubtotal")} ({items.reduce((sum, item) => sum + item.quantity, 0)} {t("checkoutItems")})</span>
                       <span>{formatPrice(total)}</span>
                     </div>
-                    <div className="flex justify-between font-bold text-lg pt-2">
+                    <div className="flex justify-between font-semibold text-lg pt-2 text-white">
                       <span>{t("checkoutTotal")}</span>
-                      <span>{formatPrice(total)}</span>
+                      <span className="bg-gradient-to-r from-neon-cyan to-neon-violet bg-clip-text text-transparent">
+                        {formatPrice(total)}
+                      </span>
                     </div>
                   </div>
 
                   <Button
                     type="submit"
-                    className="w-full"
                     size="lg"
                     disabled={isSubmitting}
+                    className="w-full bg-gradient-to-r from-neon-cyan/20 to-neon-violet/20 hover:from-neon-cyan/30 hover:to-neon-violet/30 border-2 border-neon-cyan/40 hover:border-neon-cyan/60 text-white font-medium py-6 rounded-xl transition-all duration-300 hover:scale-[1.02] shadow-lg hover:shadow-neon-cyan/20"
                   >
                     {isSubmitting ? t("checkoutProcessing") : t("checkoutCompleteOrder")}
                   </Button>
 
-                  <p className="text-xs text-center text-muted-foreground">
+                  <p className="text-xs text-center text-white/50">
                     {t("checkoutTerms")}
                   </p>
                 </form>
