@@ -172,8 +172,9 @@ export default function Checkout() {
           const newStatus = payload.new?.status;
           
           if (newStatus === 'completed' || newStatus === 'paid') {
-            console.log('Order completed! Showing success UI...');
+            console.log('Order completed! Clearing cart and showing success UI...');
             setPaymentCompleted(true);
+            clearCart();
             toast.success('Payment successful! Your eSIM is ready.');
           }
         }
@@ -192,8 +193,9 @@ export default function Checkout() {
         if (error || !data) return;
 
         if (data.status === 'completed' || data.status === 'paid') {
-          console.log('Order completed (via polling)! Showing success UI...');
+          console.log('Order completed (via polling)! Clearing cart and showing success UI...');
           setPaymentCompleted(true);
+          clearCart();
           toast.success('Payment successful! Your eSIM is ready.');
         }
       } catch (err) {
