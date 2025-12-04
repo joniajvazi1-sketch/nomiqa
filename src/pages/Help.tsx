@@ -108,7 +108,7 @@ const Help = () => {
       </section>
       
       {/* FAQ Section */}
-      <FAQ />
+      <FAQ showAll />
       
       <SiteNavigation />
       <Footer />
