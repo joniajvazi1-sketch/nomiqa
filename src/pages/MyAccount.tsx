@@ -351,24 +351,24 @@ export default function MyAccount() {
             </TabsList>
 
             <TabsContent value="info" className="animate-fade-in">
-              <Card className="border-border/50 bg-card/80 backdrop-blur-xl shadow-xl hover:shadow-2xl transition-all duration-300">
-                <CardHeader className="bg-gradient-to-br from-primary/10 via-transparent to-accent/10 border-b border-border/50">
-                  <CardTitle className="flex items-center gap-3 text-2xl">
-                    <div className="p-2 bg-primary/10 rounded-lg">
-                      <User className="w-6 h-6 text-primary" />
+              <Card className="bg-white/[0.03] backdrop-blur-xl border border-white/10 shadow-xl hover:shadow-2xl transition-all duration-300">
+                <CardHeader className="bg-gradient-to-br from-neon-cyan/10 via-transparent to-neon-violet/10 border-b border-white/10">
+                  <CardTitle className="flex items-center gap-3 text-2xl text-white">
+                    <div className="p-2 bg-neon-cyan/10 rounded-lg border border-neon-cyan/20">
+                      <User className="w-6 h-6 text-neon-cyan" />
                     </div>
                     {t("accountInformation")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6 pt-6">
-                  <div className="group p-4 rounded-xl border border-border/50 bg-muted/30 hover:bg-muted/50 transition-all duration-300">
-                    <p className="text-sm text-muted-foreground mb-2 font-medium">{t("username")}</p>
+                  <div className="group p-4 rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] transition-all duration-300">
+                    <p className="text-sm text-white/60 mb-2 font-medium">{t("username")}</p>
                     {isEditingUsername ? (
                       <div className="flex items-center gap-2">
                         <Input
                           value={editedUsername}
                           onChange={(e) => setEditedUsername(e.target.value)}
-                          className="text-lg font-bold max-w-xs"
+                          className="text-lg font-bold max-w-xs bg-white/[0.05] border-white/20 text-white placeholder:text-white/40 focus:border-neon-cyan/50"
                           placeholder="Enter username"
                           autoFocus
                         />
@@ -377,7 +377,7 @@ export default function MyAccount() {
                           variant="ghost"
                           onClick={handleSaveUsername}
                           disabled={savingUsername}
-                          className="text-green-500 hover:text-green-600 hover:bg-green-500/10"
+                          className="text-green-400 hover:text-green-300 hover:bg-green-500/10"
                         >
                           {savingUsername ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                         </Button>
@@ -386,28 +386,28 @@ export default function MyAccount() {
                           variant="ghost"
                           onClick={handleCancelEdit}
                           disabled={savingUsername}
-                          className="text-red-500 hover:text-red-600 hover:bg-red-500/10"
+                          className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
                         >
                           <X className="w-4 h-4" />
                         </Button>
                       </div>
                     ) : (
                       <div className="flex items-center gap-3">
-                        <p className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">{profile?.username}</p>
+                        <p className="text-2xl font-bold text-neon-cyan">{profile?.username}</p>
                         <Button
                           size="icon"
                           variant="ghost"
                           onClick={() => setIsEditingUsername(true)}
-                          className="text-muted-foreground hover:text-foreground"
+                          className="text-white/50 hover:text-neon-cyan hover:bg-neon-cyan/10"
                         >
                           <Pencil className="w-4 h-4" />
                         </Button>
                       </div>
                     )}
                   </div>
-                  <div className="group p-4 rounded-xl border border-border/50 bg-muted/30 hover:bg-muted/50 transition-all duration-300 hover:scale-[1.02]">
-                    <p className="text-sm text-muted-foreground mb-2 font-medium">{t("emailLabel")}</p>
-                    <p className="text-lg font-medium text-foreground/90">{profile?.email}</p>
+                  <div className="group p-4 rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] transition-all duration-300 hover:scale-[1.02]">
+                    <p className="text-sm text-white/60 mb-2 font-medium">{t("emailLabel")}</p>
+                    <p className="text-lg font-medium text-white/90">{profile?.email}</p>
                   </div>
                 </CardContent>
               </Card>
