@@ -148,12 +148,14 @@ export default function Checkout() {
     return () => window.removeEventListener('message', handleMessage);
   }, [navigate, clearCart]);
 
-  // Real-time subscription to detect payment completion instantly
+  // Real-time subscription + fallback polling to detect payment completion
   useEffect(() => {
     if (!showPaymentModal || !currentOrderId) return;
 
     console.log('Setting up realtime subscription for order:', currentOrderId);
+    let pollInterval: NodeJS.Timeout | null = null;
 
+    // Realtime subscription for instant updates
     const channel = supabase
       .channel(`order-${currentOrderId}`)
       .on(
@@ -165,7 +167,7 @@ export default function Checkout() {
           filter: `id=eq.${currentOrderId}`
         },
         (payload) => {
-          console.log('Order update received:', payload);
+          console.log('Order update received via realtime:', payload);
           const newStatus = payload.new?.status;
           
           if (newStatus === 'completed' || newStatus === 'paid') {
@@ -179,9 +181,35 @@ export default function Checkout() {
       )
       .subscribe();
 
+    // Fallback polling every 5 seconds in case realtime fails
+    const checkOrderStatus = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('orders')
+          .select('status')
+          .eq('id', currentOrderId)
+          .single();
+
+        if (error || !data) return;
+
+        if (data.status === 'completed' || data.status === 'paid') {
+          console.log('Order completed (via polling)! Auto-closing...');
+          setShowPaymentModal(false);
+          clearCart();
+          toast.success('Payment successful! Your eSIM is ready.');
+          navigate('/orders');
+        }
+      } catch (err) {
+        console.error('Error polling order status:', err);
+      }
+    };
+
+    pollInterval = setInterval(checkOrderStatus, 5000);
+
     return () => {
-      console.log('Cleaning up realtime subscription');
+      console.log('Cleaning up realtime subscription and polling');
       supabase.removeChannel(channel);
+      if (pollInterval) clearInterval(pollInterval);
     };
   }, [showPaymentModal, currentOrderId, navigate, clearCart]);
 
@@ -386,21 +414,37 @@ export default function Checkout() {
       <Dialog open={showPaymentModal} onOpenChange={(open) => {
         setShowPaymentModal(open);
         if (!open) {
-          toast.info('You can check your order status in Orders page');
+          toast.info('You can check your order status in My eSIMs page');
         }
       }}>
         <DialogContent className="max-w-4xl h-[85vh] md:h-auto md:max-h-[90vh] p-0 overflow-hidden flex flex-col">
           <DialogHeader className="p-4 md:p-6 pb-2 md:pb-4 flex-shrink-0">
-            <DialogTitle>Complete Your Payment</DialogTitle>
+            <DialogTitle>{t("checkoutCompletePayment") || "Complete Your Payment"}</DialogTitle>
           </DialogHeader>
           {paylinkUrl && (
             <iframe
               src={paylinkUrl}
-              className="w-full flex-1 md:h-[650px] border-0"
+              className="w-full flex-1 md:h-[600px] border-0"
               title="Helio Payment"
               allow="payment"
             />
           )}
+          <div className="p-4 border-t bg-muted/30 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <p className="text-sm text-muted-foreground text-center sm:text-left">
+              {t("checkoutPaymentCompleted") || "Already paid? Click the button to check your order."}
+            </p>
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                setShowPaymentModal(false);
+                clearCart();
+                navigate('/orders');
+              }}
+              className="w-full sm:w-auto"
+            >
+              {t("checkoutCloseAndCheck") || "Close & Check My eSIMs"}
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
