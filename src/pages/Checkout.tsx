@@ -414,7 +414,7 @@ export default function Checkout() {
           toast.info('You can check your order status in My eSIMs page');
         }
       }}>
-        <DialogContent className="max-w-4xl h-[85vh] md:h-auto md:max-h-[90vh] p-0 overflow-hidden flex flex-col">
+        <DialogContent className="max-w-5xl w-[95vw] h-[90vh] md:h-[85vh] p-0 overflow-hidden flex flex-col">
           <DialogHeader className="p-4 md:p-6 pb-2 md:pb-4 flex-shrink-0 flex flex-row items-center justify-between">
             <DialogTitle>{t("checkoutCompletePayment") || "Complete Your Payment"}</DialogTitle>
           </DialogHeader>
@@ -422,7 +422,7 @@ export default function Checkout() {
             <iframe
               src={paylinkUrl}
               className="w-full flex-1 min-h-0 border-0"
-              style={{ maxHeight: 'calc(85vh - 140px)' }}
+              style={{ minHeight: '500px' }}
               title="Helio Payment"
               allow="payment"
             />
