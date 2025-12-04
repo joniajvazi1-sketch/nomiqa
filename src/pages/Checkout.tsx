@@ -421,13 +421,14 @@ export default function Checkout() {
           {paylinkUrl && (
             <iframe
               src={paylinkUrl}
-              className="w-full flex-1 md:h-[550px] border-0"
+              className="w-full flex-1 min-h-0 border-0"
+              style={{ maxHeight: 'calc(85vh - 140px)' }}
               title="Helio Payment"
               allow="payment"
             />
           )}
-          {/* Always visible footer - either success or navigation option */}
-          <div className={`p-4 border-t flex flex-col sm:flex-row items-center justify-between gap-3 ${paymentCompleted ? 'bg-green-500/10' : 'bg-muted/30'}`}>
+          {/* Always visible footer - fixed at bottom */}
+          <div className={`p-4 border-t flex-shrink-0 flex flex-col sm:flex-row items-center justify-between gap-3 ${paymentCompleted ? 'bg-green-500/10' : 'bg-muted/30'}`}>
             {paymentCompleted ? (
               <>
                 <p className="text-sm text-green-400 text-center sm:text-left font-medium">
