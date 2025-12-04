@@ -111,7 +111,7 @@ export default function About() {
                 <h2 className="text-3xl md:text-4xl lg:text-5xl font-light mb-6 md:mb-8 bg-gradient-to-r from-white via-neon-cyan to-white bg-clip-text text-transparent tracking-wide text-center">
                   {t("aboutStoryTitle")}
                 </h2>
-                <div className="space-y-4 md:space-y-5 text-white/70 leading-relaxed font-light">
+                <div className="space-y-4 md:space-y-5 text-white/70 leading-relaxed font-light text-center">
                   <p className="text-base md:text-lg">
                     {t("aboutStory1")}
                   </p>
