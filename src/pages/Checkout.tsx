@@ -26,6 +26,7 @@ export default function Checkout() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paylinkUrl, setPaylinkUrl] = useState<string | null>(null);
+  const [currentOrderId, setCurrentOrderId] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
 
   // Check authentication status without redirecting
@@ -112,7 +113,10 @@ export default function Checkout() {
         throw new Error('Failed to create payment link');
       }
 
-      console.log('Paylink created:', paylinkData.paylinkUrl);
+      console.log('Paylink created:', paylinkData.paylinkUrl, 'Order ID:', paylinkData.orderId);
+      
+      // Store order ID for status polling
+      setCurrentOrderId(paylinkData.orderId);
       
       // Show embedded payment modal with iframe
       setPaylinkUrl(paylinkData.paylinkUrl);
@@ -126,14 +130,13 @@ export default function Checkout() {
     }
   };
 
+  // Listen for payment completion from MoonPay/Helio (backup method)
   useEffect(() => {
-    // Listen for payment completion from MoonPay/Helio
     const handleMessage = (event: MessageEvent) => {
-      // Accept messages from both Helio and MoonPay
       if (!event.origin.includes('hel.io') && !event.origin.includes('moonpay.com')) return;
       
       if (event.data?.status === 'success' || event.data?.type === 'payment_success') {
-        console.log('Payment successful! Clearing cart and redirecting...');
+        console.log('Payment successful via postMessage! Clearing cart and redirecting...');
         setShowPaymentModal(false);
         clearCart();
         toast.success('Payment successful! Your eSIM will arrive shortly.');
@@ -144,6 +147,47 @@ export default function Checkout() {
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
   }, [navigate, clearCart]);
+
+  // Poll order status while payment modal is open
+  useEffect(() => {
+    if (!showPaymentModal || !currentOrderId) return;
+
+    let isCancelled = false;
+    
+    const checkOrderStatus = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('orders')
+          .select('status')
+          .eq('id', currentOrderId)
+          .single();
+
+        if (error || !data) return;
+
+        // If order is completed or paid, close modal and redirect
+        if (data.status === 'completed' || data.status === 'paid') {
+          if (!isCancelled) {
+            console.log('Order completed! Auto-closing payment modal...');
+            setShowPaymentModal(false);
+            clearCart();
+            toast.success('Payment successful! Your eSIM is ready.');
+            navigate('/orders');
+          }
+        }
+      } catch (err) {
+        console.error('Error checking order status:', err);
+      }
+    };
+
+    // Check immediately then poll every 3 seconds
+    checkOrderStatus();
+    const interval = setInterval(checkOrderStatus, 3000);
+
+    return () => {
+      isCancelled = true;
+      clearInterval(interval);
+    };
+  }, [showPaymentModal, currentOrderId, navigate, clearCart]);
 
   if (items.length === 0) {
     return (
