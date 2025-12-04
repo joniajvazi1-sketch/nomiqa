@@ -81,7 +81,8 @@ Your eSIM journey begins in seconds. No queues, no paperwork, no compromises.
 3. Connect instantly (one click on newer iPhones and Androids)
 
 💳 PAYMENT & CHECKOUT:
-- Payment Methods: SOL, USDC, and $NOMIQA token (Solana blockchain only)
+- Payment Methods: SOL and USDC ONLY (Solana blockchain)
+- $NOMIQA token payments coming soon (token not yet launched)
 - NO credit cards, NO bank transfers - crypto only for privacy
 - Instant activation after crypto payment confirmation
 - Powered by MoonPay Commerce (Helio) for secure crypto transactions
@@ -145,22 +146,21 @@ Benefits:
 - Track clicks, conversions, and earnings in real-time
 - Sign up at nomiqa.com/affiliate
 
-🪙 $NOMIQA TOKEN:
-"Earn as You Connect."
-Get rewarded with NOMIQA Tokens every time you activate or share your eSIM — powering the world's first crypto-enabled travel network.
+🪙 $NOMIQA TOKEN - COMING SOON (NOT YET LIVE):
+⚠️ IMPORTANT: The $NOMIQA token is NOT YET LAUNCHED. It is COMING SOON.
+The token does NOT exist yet - it will be launching on Solana blockchain in the future.
 
-Token Benefits:
+When launched, token benefits will include:
 - Redeem tokens for extra data
 - Earn rewards for referrals
 - Grow your private travel network
-
-Coming Soon Features:
-- Launching on Solana blockchain
-- Stake & Grow: Stake your tokens to earn passive rewards and unlock exclusive benefits
+- Stake & Grow: Stake your tokens to earn passive rewards
 - True Ownership: Your tokens, your control. Built on Solana for security and speed
 - Instant Utility: Redeem tokens for extra data, discounts, and premium features
 
-Vision: "$NOMIQA tokens will power the future of private, borderless connectivity — giving you more control, more rewards, and more freedom. Be part of a decentralized network where your privacy is protected, your data is yours, and your participation is rewarded."
+Current payment methods: SOL and USDC only (NOT $NOMIQA token yet)
+
+Vision: "$NOMIQA tokens will power the future of private, borderless connectivity — giving you more control, more rewards, and more freedom."
 
 🌐 GLOBAL COVERAGE:
 "Connected. Everywhere."
