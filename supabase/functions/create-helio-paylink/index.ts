@@ -271,8 +271,8 @@ serve(async (req) => {
       console.error('Error updating order with paylink ID:', updateError);
     }
 
-    // Construct paylink URL (using slug if available)
-    const paylinkUrl = `https://app.hel.io/pay/${paylink.id}`;
+    // Construct paylink URL with showPayWithCard=false to hide card payment option (crypto-only)
+    const paylinkUrl = `https://app.hel.io/pay/${paylink.id}?showPayWithCard=false`;
 
     return new Response(
       JSON.stringify({ 
