@@ -415,35 +415,54 @@ export default function Checkout() {
         }
       }}>
         <DialogContent className="max-w-4xl h-[85vh] md:h-auto md:max-h-[90vh] p-0 overflow-hidden flex flex-col">
-          <DialogHeader className="p-4 md:p-6 pb-2 md:pb-4 flex-shrink-0">
+          <DialogHeader className="p-4 md:p-6 pb-2 md:pb-4 flex-shrink-0 flex flex-row items-center justify-between">
             <DialogTitle>{t("checkoutCompletePayment") || "Complete Your Payment"}</DialogTitle>
           </DialogHeader>
           {paylinkUrl && (
             <iframe
               src={paylinkUrl}
-              className="w-full flex-1 md:h-[600px] border-0"
+              className="w-full flex-1 md:h-[550px] border-0"
               title="Helio Payment"
               allow="payment"
             />
           )}
-          {paymentCompleted && (
-            <div className="p-4 border-t bg-green-500/10 flex flex-col sm:flex-row items-center justify-between gap-3">
-              <p className="text-sm text-green-400 text-center sm:text-left font-medium">
-                ✓ {t("checkoutPaymentSuccess") || "Payment successful! Your eSIM is ready."}
-              </p>
-              <Button 
-                onClick={() => {
-                  setShowPaymentModal(false);
-                  setPaymentCompleted(false);
-                  clearCart();
-                  navigate('/orders');
-                }}
-                className="w-full sm:w-auto bg-green-600 hover:bg-green-700"
-              >
-                {t("checkoutViewMyEsims") || "View My eSIMs"}
-              </Button>
-            </div>
-          )}
+          {/* Always visible footer - either success or navigation option */}
+          <div className={`p-4 border-t flex flex-col sm:flex-row items-center justify-between gap-3 ${paymentCompleted ? 'bg-green-500/10' : 'bg-muted/30'}`}>
+            {paymentCompleted ? (
+              <>
+                <p className="text-sm text-green-400 text-center sm:text-left font-medium">
+                  ✓ {t("checkoutPaymentSuccess") || "Payment successful! Your eSIM is ready."}
+                </p>
+                <Button 
+                  onClick={() => {
+                    setShowPaymentModal(false);
+                    setPaymentCompleted(false);
+                    clearCart();
+                    navigate('/orders');
+                  }}
+                  className="w-full sm:w-auto bg-green-600 hover:bg-green-700"
+                >
+                  {t("checkoutViewMyEsims") || "View My eSIMs"}
+                </Button>
+              </>
+            ) : (
+              <>
+                <p className="text-sm text-muted-foreground text-center sm:text-left">
+                  {t("checkoutAlreadyPaid") || "Already paid? Go check your eSIMs."}
+                </p>
+                <Button 
+                  variant="outline"
+                  onClick={() => {
+                    setShowPaymentModal(false);
+                    navigate('/orders');
+                  }}
+                  className="w-full sm:w-auto"
+                >
+                  {t("checkoutGoToMyEsims") || "Go to My eSIMs"}
+                </Button>
+              </>
+            )}
+          </div>
         </DialogContent>
       </Dialog>
     </div>
