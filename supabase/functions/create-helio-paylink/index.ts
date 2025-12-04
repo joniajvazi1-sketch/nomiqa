@@ -278,6 +278,7 @@ serve(async (req) => {
       JSON.stringify({ 
         paylinkId: paylink.id,
         paylinkUrl,
+        orderId: orderId,
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
