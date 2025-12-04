@@ -1,7 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Input } from "./ui/input";
 import { useState } from "react";
-import { Search } from "lucide-react";
+import { Search, Smartphone, Tablet, CheckCircle2, Info, Sparkles } from "lucide-react";
 import { useTranslation } from "@/contexts/TranslationContext";
 
 interface CompatibilityCheckerProps {
@@ -294,75 +294,132 @@ export const CompatibilityChecker = ({ open, onOpenChange }: CompatibilityChecke
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-2xl">{t('checkDeviceCompatibility')}</DialogTitle>
+      <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto bg-gradient-to-br from-deep-space via-black to-deep-space/95 border border-white/10 backdrop-blur-xl">
+        {/* Decorative background elements */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-32 -right-32 w-64 h-64 bg-neon-cyan/10 rounded-full blur-3xl" />
+          <div className="absolute -bottom-32 -left-32 w-64 h-64 bg-neon-violet/10 rounded-full blur-3xl" />
+        </div>
+
+        <DialogHeader className="relative">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2.5 rounded-xl bg-gradient-to-br from-neon-cyan/20 to-neon-violet/20 border border-white/10">
+              <Sparkles className="w-6 h-6 text-neon-cyan" />
+            </div>
+            <DialogTitle className="text-2xl md:text-3xl font-display bg-gradient-to-r from-white via-neon-cyan to-white bg-clip-text text-transparent">
+              {t('checkDeviceCompatibility')}
+            </DialogTitle>
+          </div>
         </DialogHeader>
 
-        <div className="space-y-6">
-          <div className="p-4 rounded-lg bg-muted/50 space-y-2">
-            <p className="text-sm leading-relaxed">
-              {t('compatibilityIntro')}
-            </p>
-            <ul className="list-disc list-inside text-sm space-y-1 text-muted-foreground">
-              <li>{t('compatibilityCondition1')}</li>
-              <li>{t('compatibilityCondition2')}</li>
-              <li>{t('compatibilityCondition3')}</li>
-            </ul>
-            <p className="text-sm text-muted-foreground mt-3">
-              {t('compatibilityNote1')}
-            </p>
-            <p className="text-sm font-medium mt-2">
-              {t('compatibilityNote2')}
-            </p>
+        <div className="space-y-6 relative">
+          {/* Info Card */}
+          <div className="relative p-5 rounded-2xl bg-white/[0.03] backdrop-blur-sm border border-white/10 overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-neon-cyan/5 via-transparent to-neon-violet/5" />
+            <div className="relative space-y-4">
+              <div className="flex items-start gap-3">
+                <div className="p-2 rounded-lg bg-neon-cyan/10 border border-neon-cyan/20 mt-0.5">
+                  <Info className="w-4 h-4 text-neon-cyan" />
+                </div>
+                <p className="text-sm md:text-base text-white/80 leading-relaxed">
+                  {t('compatibilityIntro')}
+                </p>
+              </div>
+              
+              <div className="grid gap-2 pl-2">
+                {[t('compatibilityCondition1'), t('compatibilityCondition2'), t('compatibilityCondition3')].map((condition, idx) => (
+                  <div key={idx} className="flex items-center gap-3 group">
+                    <CheckCircle2 className="w-4 h-4 text-neon-cyan/70 group-hover:text-neon-cyan transition-colors flex-shrink-0" />
+                    <span className="text-sm text-white/60 group-hover:text-white/80 transition-colors">{condition}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="pt-3 border-t border-white/5 space-y-2">
+                <p className="text-sm text-white/50 italic">
+                  {t('compatibilityNote1')}
+                </p>
+                <p className="text-sm text-neon-cyan/80 font-medium">
+                  {t('compatibilityNote2')}
+                </p>
+              </div>
+            </div>
           </div>
 
-          {/* iOS Devices */}
-          <div className="space-y-3">
-            <h3 className="font-semibold text-lg">{t('iosModels')}</h3>
+          {/* iOS Devices Section */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-gradient-to-br from-white/10 to-white/5 border border-white/10">
+                <Tablet className="w-5 h-5 text-white/80" />
+              </div>
+              <h3 className="font-display text-lg md:text-xl text-white">{t('iosModels')}</h3>
+              <span className="text-xs text-white/40 bg-white/5 px-2 py-1 rounded-full">
+                {filteredIosDevices.length} devices
+              </span>
+            </div>
+            
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
               <Input
                 placeholder={t('searchDevices')}
                 value={iosSearch}
                 onChange={(e) => setIosSearch(e.target.value)}
-                className="pl-9"
+                className="pl-11 bg-white/[0.03] border-white/10 text-white placeholder:text-white/30 focus:border-neon-cyan/50 focus:ring-neon-cyan/20 rounded-xl h-12"
               />
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-64 overflow-y-auto p-4 rounded-lg bg-muted/30 border">
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 max-h-64 overflow-y-auto p-4 rounded-xl bg-white/[0.02] border border-white/5 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
               {filteredIosDevices.length > 0 ? (
                 filteredIosDevices.map((device, index) => (
-                  <div key={index} className="text-sm p-2 rounded bg-background/50">
+                  <div 
+                    key={index} 
+                    className="text-sm p-3 rounded-lg bg-white/[0.03] border border-white/5 hover:border-neon-cyan/30 hover:bg-white/[0.05] transition-all duration-200 text-white/70 hover:text-white"
+                  >
                     {device}
                   </div>
                 ))
               ) : (
-                <p className="text-sm text-muted-foreground col-span-2">No devices found</p>
+                <p className="text-sm text-white/40 col-span-full text-center py-4">No devices found</p>
               )}
             </div>
           </div>
 
-          {/* Android Devices */}
-          <div className="space-y-3">
-            <h3 className="font-semibold text-lg">{t('androidModels')}</h3>
+          {/* Android Devices Section */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-gradient-to-br from-neon-violet/20 to-neon-violet/5 border border-neon-violet/20">
+                <Smartphone className="w-5 h-5 text-neon-violet" />
+              </div>
+              <h3 className="font-display text-lg md:text-xl text-white">{t('androidModels')}</h3>
+              <span className="text-xs text-white/40 bg-white/5 px-2 py-1 rounded-full">
+                {filteredAndroidDevices.length} devices
+              </span>
+            </div>
+            
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
               <Input
                 placeholder={t('searchDevices')}
                 value={androidSearch}
                 onChange={(e) => setAndroidSearch(e.target.value)}
-                className="pl-9"
+                className="pl-11 bg-white/[0.03] border-white/10 text-white placeholder:text-white/30 focus:border-neon-violet/50 focus:ring-neon-violet/20 rounded-xl h-12"
               />
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-64 overflow-y-auto p-4 rounded-lg bg-muted/30 border">
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 max-h-64 overflow-y-auto p-4 rounded-xl bg-white/[0.02] border border-white/5 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
               {filteredAndroidDevices.length > 0 ? (
                 filteredAndroidDevices.map((device, index) => (
-                  <div key={index} className="text-sm p-2 rounded bg-background/50">
-                    <span className="font-medium">{device.brand}</span> - {device.model}
+                  <div 
+                    key={index} 
+                    className="text-sm p-3 rounded-lg bg-white/[0.03] border border-white/5 hover:border-neon-violet/30 hover:bg-white/[0.05] transition-all duration-200"
+                  >
+                    <span className="font-medium text-neon-violet/80">{device.brand}</span>
+                    <span className="text-white/40 mx-1.5">—</span>
+                    <span className="text-white/70">{device.model}</span>
                   </div>
                 ))
               ) : (
-                <p className="text-sm text-muted-foreground col-span-2">No devices found</p>
+                <p className="text-sm text-white/40 col-span-full text-center py-4">No devices found</p>
               )}
             </div>
           </div>
