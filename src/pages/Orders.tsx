@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -49,6 +49,7 @@ interface Order {
 
 export default function Orders() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { t } = useTranslation();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -57,6 +58,18 @@ export default function Orders() {
   const [usageData, setUsageData] = useState<Record<string, UsageData>>({});
   const [refreshingUsage, setRefreshingUsage] = useState<Record<string, boolean>>({});
   const [cooldowns, setCooldowns] = useState<Record<string, number>>({});
+
+  // Handle payment success redirect from Helio/Phantom
+  useEffect(() => {
+    const paymentSuccess = searchParams.get('paymentSuccess');
+    if (paymentSuccess === 'true') {
+      toast.success('Payment successful! Your eSIM is ready.');
+      // Clean up the URL parameter
+      searchParams.delete('paymentSuccess');
+      searchParams.delete('orderId');
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   // Countdown timer effect
   useEffect(() => {

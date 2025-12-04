@@ -206,9 +206,10 @@ serve(async (req) => {
     // Get the origin from the request or use a default
     const origin = req.headers.get('origin') || 'https://nomiqa-esim.com';
     
-    // Success and cancel URLs for redirect after payment
-    const successUrl = `${origin}/payment-success?orderId=${orderId}`;
-    const cancelUrl = `${origin}/checkout`;
+    // Success URL redirects directly to My eSIMs page (orders) after payment
+    // This is critical for Phantom wallet flow where user leaves app and returns
+    const successUrl = `${origin}/orders?paymentSuccess=true&orderId=${orderId}`;
+    const cancelUrl = `${origin}/checkout?cancelled=true`;
     
     const paylinkData = {
       template: 'OTHER',
