@@ -389,7 +389,7 @@ export default function Checkout() {
                     </div>
                     <div className="flex justify-between font-semibold text-lg pt-2 text-white">
                       <span>{t("checkoutTotal")}</span>
-                      <span className="bg-gradient-to-r from-neon-cyan to-neon-violet bg-clip-text text-transparent">
+                      <span className="text-neon-cyan">
                         {formatPrice(total)}
                       </span>
                     </div>
@@ -399,7 +399,7 @@ export default function Checkout() {
                     type="submit"
                     size="lg"
                     disabled={isSubmitting}
-                    className="w-full bg-gradient-to-r from-neon-cyan/20 to-neon-violet/20 hover:from-neon-cyan/30 hover:to-neon-violet/30 border-2 border-neon-cyan/40 hover:border-neon-cyan/60 text-white font-medium py-6 rounded-xl transition-all duration-300 hover:scale-[1.02] shadow-lg hover:shadow-neon-cyan/20"
+                    className="w-full bg-white/[0.08] hover:bg-white/[0.12] backdrop-blur-xl border border-white/20 hover:border-neon-cyan/40 text-white font-medium py-6 rounded-xl transition-all duration-300 hover:scale-[1.02] shadow-lg hover:shadow-neon-cyan/10"
                   >
                     {isSubmitting ? t("checkoutProcessing") : t("checkoutCompleteOrder")}
                   </Button>
