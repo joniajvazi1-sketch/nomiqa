@@ -349,7 +349,7 @@ export default function Checkout() {
                             {t("checkoutEmailInfo")}
                           </p>
                           <p className="text-xs md:text-sm text-muted-foreground mt-1">
-                            Email from your account • {t("checkoutEmailWarning")}
+                            {t("checkoutEmailFromAccount")} • {t("checkoutEmailWarning")}
                           </p>
                         </>
                       ) : (
