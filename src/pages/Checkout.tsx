@@ -265,8 +265,8 @@ export default function Checkout() {
         <div className="grid md:grid-cols-3 gap-8">
           {/* Cart Items */}
           <div className="md:col-span-2 space-y-4">
-            <h1 className="text-3xl md:text-4xl font-light mb-6 text-center md:text-left">
-              <span className="bg-gradient-to-r from-neon-cyan via-white to-neon-violet bg-clip-text text-transparent">
+            <h1 className="text-3xl md:text-4xl font-semibold mb-6 text-center md:text-left">
+              <span className="text-white">
                 {t("checkoutTitle")}
               </span>
             </h1>
@@ -313,7 +313,7 @@ export default function Checkout() {
                       </div>
                     </div>
                     <div className="text-left md:text-right w-full md:w-auto">
-                      <p className="text-xl font-bold bg-gradient-to-r from-neon-cyan to-neon-violet bg-clip-text text-transparent">
+                      <p className="text-xl font-bold text-neon-cyan">
                         {formatPrice(item.product.price_usd * item.quantity)}
                       </p>
                       <p className="text-sm text-white/50">{formatPrice(item.product.price_usd)} {t("checkoutEach")}</p>
