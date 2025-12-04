@@ -428,20 +428,21 @@ export default function Checkout() {
             />
           )}
           {/* Always visible footer - fixed at bottom */}
-          <div className={`px-6 py-4 border-t flex-shrink-0 flex items-center justify-center md:justify-end gap-4 ${paymentCompleted ? 'bg-green-500/10' : 'bg-background/80 backdrop-blur-sm'}`}>
+          <div className={`px-6 py-5 border-t flex-shrink-0 flex items-center justify-center md:justify-end gap-4 ${paymentCompleted ? 'bg-green-500/10' : 'bg-card'}`}>
             {paymentCompleted ? (
               <>
                 <p className="text-sm text-green-400 font-medium hidden md:block">
                   ✓ {t("checkoutPaymentSuccess") || "Payment successful! Your eSIM is ready."}
                 </p>
                 <Button 
+                  size="lg"
                   onClick={() => {
                     setShowPaymentModal(false);
                     setPaymentCompleted(false);
                     clearCart();
                     navigate('/orders');
                   }}
-                  className="bg-green-600 hover:bg-green-700 px-6"
+                  className="bg-green-600 hover:bg-green-700 px-8 py-3 text-base"
                 >
                   {t("checkoutViewMyEsims") || "View My eSIMs"}
                 </Button>
@@ -452,12 +453,13 @@ export default function Checkout() {
                   {t("checkoutAlreadyPaid") || "Already paid? Go check your eSIMs."}
                 </p>
                 <Button 
+                  size="lg"
                   variant="outline"
                   onClick={() => {
                     setShowPaymentModal(false);
                     navigate('/orders');
                   }}
-                  className="px-6 border-primary/30 hover:bg-primary/10"
+                  className="px-8 py-3 text-base border-primary/40 hover:bg-primary/10"
                 >
                   {t("checkoutGoToMyEsims") || "Go to My eSIMs"}
                 </Button>
