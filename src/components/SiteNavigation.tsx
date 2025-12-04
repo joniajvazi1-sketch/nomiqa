@@ -30,7 +30,7 @@ export const SiteNavigation = memo(() => {
               <AccordionContent className="pb-8">
                 <ul className="space-y-4 text-white/60 text-sm md:text-base pl-0">
                   <li><a href="/shop" className="hover:text-neon-cyan transition-colors duration-200 font-light block">{t("footerStore")}</a></li>
-                  <li><a href="/shop" className="hover:text-neon-cyan transition-colors duration-200 font-light block">{t("footerUnlimitedData")}</a></li>
+                  <li><a href="/shop?type=regional" className="hover:text-neon-cyan transition-colors duration-200 font-light block">{t("footerRegionalData")}</a></li>
                   <li><a href="/affiliate" className="hover:text-neon-cyan transition-colors duration-200 font-light block">{t("footerReferEarn")}</a></li>
                   <li><a href="/rewards" className="hover:text-neon-cyan transition-colors duration-200 font-light block">{t("footerLoyaltyPrograms")}</a></li>
                 </ul>
