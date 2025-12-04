@@ -319,11 +319,11 @@ export default function Checkout() {
               <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="fullName" className="text-base font-semibold">Full Name *</Label>
+                    <Label htmlFor="fullName" className="text-base font-semibold">{t("checkoutFullNameLabel")}</Label>
                     <Input
                       id="fullName"
                       type="text"
-                      placeholder="Enter your full name"
+                      placeholder={t("checkoutFullNamePlaceholder")}
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
                       required
