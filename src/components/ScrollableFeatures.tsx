@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Trophy, Users, Coins, Gift } from "lucide-react";
+import { Users, Coins, Gift } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "@/contexts/TranslationContext";
 import { localizedPath } from "@/utils/localizedLinks";
@@ -27,20 +27,6 @@ export const ScrollableFeatures = () => {
   }, []);
 
   const features = [
-    {
-      icon: Trophy,
-      title: t("loyaltyTitle"),
-      description: t("loyaltySubtitle"),
-      highlights: [
-        { text: t("beginnerCashback"), gradient: "from-amber-600 to-amber-800", icon: Trophy },
-        { text: t("travelerCashback"), gradient: "from-gray-400 to-gray-600", icon: Trophy },
-        { text: t("adventurerCashback"), gradient: "from-yellow-400 to-yellow-600", icon: Trophy },
-        { text: t("explorerCashback"), gradient: "from-purple-400 to-purple-600", icon: Trophy },
-      ],
-      cta: t("loyaltyViewRewards"),
-      path: "/rewards",
-      showImage: false
-    },
     {
       icon: Users,
       title: t("referEarnTitle"),
@@ -165,7 +151,7 @@ export const ScrollableFeatures = () => {
           </div>
 
           {/* Desktop: Grid Layout */}
-          <div className="hidden lg:grid lg:grid-cols-3 gap-5">
+          <div className="hidden lg:grid lg:grid-cols-2 gap-5 max-w-4xl mx-auto">
             {features.map((feature, index) => {
               const Icon = feature.icon;
               return (
