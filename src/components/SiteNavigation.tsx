@@ -5,10 +5,12 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { useTranslation } from "@/contexts/TranslationContext";
-import { memo } from "react";
+import { memo, useState } from "react";
+import { CompatibilityChecker } from "./CompatibilityChecker";
 
 export const SiteNavigation = memo(() => {
   const { t } = useTranslation();
+  const [compatibilityOpen, setCompatibilityOpen] = useState(false);
 
   return (
     <section className="relative bg-gradient-to-b from-black/60 via-deep-space/80 to-black/90 text-white overflow-hidden border-t border-white/10">
@@ -31,7 +33,14 @@ export const SiteNavigation = memo(() => {
                 <ul className="space-y-4 text-white/60 text-sm md:text-base pl-0">
                   <li><a href="/shop" className="hover:text-neon-cyan transition-colors duration-200 font-light block">{t("footerStore")}</a></li>
                   <li><a href="/shop?type=regional" className="hover:text-neon-cyan transition-colors duration-200 font-light block">{t("footerRegionalData")}</a></li>
-                  <li><a href="/getting-started" className="hover:text-neon-cyan transition-colors duration-200 font-light block">{t("footerDeviceCompatibility")}</a></li>
+                  <li>
+                    <button 
+                      onClick={() => setCompatibilityOpen(true)} 
+                      className="hover:text-neon-cyan transition-colors duration-200 font-light block text-left"
+                    >
+                      {t("footerDeviceCompatibility")}
+                    </button>
+                  </li>
                 </ul>
               </AccordionContent>
             </AccordionItem>
@@ -79,6 +88,8 @@ export const SiteNavigation = memo(() => {
           </Accordion>
         </div>
       </div>
+
+      <CompatibilityChecker open={compatibilityOpen} onOpenChange={setCompatibilityOpen} />
     </section>
   );
 });
