@@ -137,10 +137,11 @@ export default function Checkout() {
       if (!event.origin.includes('hel.io') && !event.origin.includes('moonpay.com')) return;
       
       if (event.data?.status === 'success' || event.data?.type === 'payment_success') {
-        console.log('Payment successful via postMessage! Clearing cart and redirecting...');
+        console.log('Payment successful via postMessage! Clearing cart and redirecting to My eSIMs...');
         setShowPaymentModal(false);
         clearCart();
         toast.success('Payment successful! Your eSIM will arrive shortly.');
+        // Redirect to My eSIMs page
         navigate('/orders');
       }
     };
@@ -172,10 +173,12 @@ export default function Checkout() {
           const newStatus = payload.new?.status;
           
           if (newStatus === 'completed' || newStatus === 'paid') {
-            console.log('Order completed! Clearing cart and showing success UI...');
+            console.log('Order completed! Clearing cart and redirecting to My eSIMs...');
             setPaymentCompleted(true);
             clearCart();
             toast.success('Payment successful! Your eSIM is ready.');
+            // Redirect to My eSIMs page
+            navigate('/orders');
           }
         }
       )
@@ -193,10 +196,12 @@ export default function Checkout() {
         if (error || !data) return;
 
         if (data.status === 'completed' || data.status === 'paid') {
-          console.log('Order completed (via polling)! Clearing cart and showing success UI...');
+          console.log('Order completed (via polling)! Clearing cart and redirecting to My eSIMs...');
           setPaymentCompleted(true);
           clearCart();
           toast.success('Payment successful! Your eSIM is ready.');
+          // Redirect to My eSIMs page
+          navigate('/orders');
         }
       } catch (err) {
         console.error('Error polling order status:', err);
