@@ -41,3 +41,6 @@ verify_jwt = false
 
 [functions.submit-claim-request]
 verify_jwt = true
+
+[functions.retry-esim-provisioning]
+verify_jwt = false
