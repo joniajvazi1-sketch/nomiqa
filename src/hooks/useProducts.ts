@@ -48,19 +48,20 @@ export const useProducts = () => {
   });
 };
 
-// Optimized hook for featured products - only fetches 12 products instead of all
-export const useFeaturedProducts = (countryCodes: string[]) => {
+// Optimized hook for featured products - fetches both local and regional packages
+export const useFeaturedProducts = (localCountryCodes: string[], regionalCodes: string[]) => {
   return useQuery({
-    queryKey: ['featured-products', countryCodes],
+    queryKey: ['featured-products', localCountryCodes, regionalCodes],
     queryFn: async () => {
-      // Fetch cheapest product for each country using a more efficient query
       const products: Product[] = [];
       
-      for (const countryCode of countryCodes) {
+      // Fetch cheapest local product for each country
+      for (const countryCode of localCountryCodes) {
         const { data, error } = await supabase
           .from('products')
           .select('*')
           .eq('country_code', countryCode)
+          .eq('package_type', 'local')
           .order('price_usd', { ascending: true })
           .limit(1)
           .maybeSingle();
@@ -75,7 +76,29 @@ export const useFeaturedProducts = (countryCodes: string[]) => {
         }
       }
       
-      return products;
+      // Fetch cheapest regional product for each region
+      for (const regionCode of regionalCodes) {
+        const { data, error } = await supabase
+          .from('products')
+          .select('*')
+          .eq('country_code', regionCode)
+          .eq('package_type', 'regional')
+          .order('price_usd', { ascending: true })
+          .limit(1)
+          .maybeSingle();
+
+        if (error) {
+          console.error(`Error fetching regional product for ${regionCode}:`, error);
+          continue;
+        }
+        
+        if (data) {
+          products.push(data as Product);
+        }
+      }
+      
+      // Sort all products by price
+      return products.sort((a, b) => a.price_usd - b.price_usd);
     },
     staleTime: 1000 * 60 * 5, // Cache for 5 minutes
   });
