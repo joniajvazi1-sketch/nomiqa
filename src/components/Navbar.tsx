@@ -467,33 +467,36 @@ export const Navbar = () => {
           </div>
         </div>
 
-        {/* Mobile Search Bar - Subtle and always visible, hidden on shop page */}
+        {/* Mobile Search Bar - Enhanced styling, hidden on shop page */}
         {!isShopPage && (
-          <div className="lg:hidden pb-2">
-            <form onSubmit={(e) => handleSearch(e, true)} className="w-full relative">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/30" />
-              <Input
-                type="text"
-                placeholder={t("searchEsims")}
-                value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  setShowSearchResults(e.target.value.trim().length > 0);
-                }}
-                onFocus={() => setShowSearchResults(searchQuery.trim().length > 0)}
-                onBlur={() => setTimeout(() => setShowSearchResults(false), 200)}
-                className="w-full pl-8 pr-3 h-9 bg-white/[0.02] backdrop-blur-xl border-white/[0.08] hover:border-white/[0.12] focus:border-neon-cyan/20 text-white placeholder:text-white/25 rounded-lg transition-all duration-300 text-xs"
-              />
+          <div className="lg:hidden pb-3">
+            <form onSubmit={(e) => handleSearch(e, true)} className="w-full relative group">
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-neon-cyan/20 via-neon-violet/10 to-neon-cyan/20 rounded-xl blur-sm opacity-60 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="relative">
+                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neon-cyan/70" />
+                <Input
+                  type="text"
+                  placeholder={t("searchEsims")}
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setShowSearchResults(e.target.value.trim().length > 0);
+                  }}
+                  onFocus={() => setShowSearchResults(searchQuery.trim().length > 0)}
+                  onBlur={() => setTimeout(() => setShowSearchResults(false), 200)}
+                  className="w-full pl-10 pr-4 h-11 bg-white/10 backdrop-blur-xl border-2 border-white/20 hover:border-neon-cyan/40 focus:border-neon-cyan/60 text-white placeholder:text-white/50 rounded-xl transition-all duration-300 text-sm font-light shadow-lg shadow-black/20"
+                />
+              </div>
               
               {/* Search Results Dropdown - Shows unique countries only */}
               {showSearchResults && searchResults.length > 0 && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-black/95 backdrop-blur-xl border border-white/10 rounded-lg overflow-hidden z-50 shadow-2xl">
+                <div className="absolute top-full left-0 right-0 mt-2 bg-black/95 backdrop-blur-xl border border-white/10 rounded-xl overflow-hidden z-50 shadow-2xl">
                   {searchResults.map(({ countryCode, countryName }) => (
                     <button
                       key={countryCode}
                       type="button"
                       onClick={() => handleResultClick(countryName)}
-                      className="w-full px-3 py-2.5 flex items-center gap-2.5 hover:bg-neon-cyan/10 transition-colors duration-200 border-b border-white/5 last:border-0"
+                      className="w-full px-4 py-3 flex items-center gap-3 hover:bg-neon-cyan/10 transition-colors duration-200 border-b border-white/5 last:border-0"
                     >
                       <div className="shrink-0">
                         {getCountryFlag(countryCode)}
@@ -501,7 +504,7 @@ export const Navbar = () => {
                       <div className="flex-1 text-left">
                         <div className="text-white text-sm font-light">{countryName}</div>
                       </div>
-                      <MapPin className="w-3.5 h-3.5 text-neon-cyan/50" />
+                      <MapPin className="w-4 h-4 text-neon-cyan/50" />
                     </button>
                   ))}
                 </div>
