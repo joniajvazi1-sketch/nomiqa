@@ -67,19 +67,19 @@ export const FeaturedProducts = () => {
           <img 
             src={regionImage} 
             alt={countryCode} 
-            className="w-10 h-7 rounded shadow-sm object-cover"
+            className="w-10 h-7 rounded object-cover"
           />
         );
       }
       return (
-        <div className="w-10 h-7 rounded shadow-sm bg-gradient-to-br from-neon-cyan/20 to-neon-violet/20 flex items-center justify-center text-base">
+        <div className="w-10 h-7 rounded bg-white/5 flex items-center justify-center text-base">
           🌐
         </div>
       );
     }
     const code = countryCode?.toUpperCase();
     const FlagComponent = (CountryFlags as any)[code];
-    return FlagComponent ? <FlagComponent className="w-10 h-7 rounded shadow-sm" /> : null;
+    return FlagComponent ? <FlagComponent className="w-10 h-7 rounded" /> : null;
   };
 
   if (isLoading) {

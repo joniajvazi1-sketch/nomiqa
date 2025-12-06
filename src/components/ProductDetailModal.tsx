@@ -54,19 +54,19 @@ export const ProductDetailModal = ({
           <img 
             src={regionImage} 
             alt={countryCode} 
-            className="w-16 h-11 rounded-lg shadow-lg object-cover"
+            className="w-16 h-11 rounded-lg object-cover"
           />
         );
       }
       return (
-        <div className="w-16 h-11 flex items-center justify-center text-4xl bg-gradient-to-br from-neon-cyan/20 to-neon-violet/20 rounded-lg">
+        <div className="w-16 h-11 flex items-center justify-center text-4xl bg-white/5 rounded-lg">
           🌐
         </div>
       );
     }
     // For local packages, show country flag
     const FlagComponent = (CountryFlags as any)[countryCode];
-    return FlagComponent ? <FlagComponent className="w-16 h-11 rounded-lg shadow-lg" /> : null;
+    return FlagComponent ? <FlagComponent className="w-16 h-11 rounded-lg" /> : null;
   };
 
   return (

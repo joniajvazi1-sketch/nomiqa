@@ -188,12 +188,12 @@ export const Navbar = () => {
     if (isRegional) {
       const regionImage = getRegionImage(code);
       if (regionImage) {
-        return <img src={regionImage} alt={code} className="w-6 h-4 rounded shadow object-cover" />;
+        return <img src={regionImage} alt={code} className="w-6 h-4 rounded object-cover" />;
       }
-      return <div className="w-6 h-4 flex items-center justify-center text-sm bg-gradient-to-br from-neon-cyan/20 to-neon-violet/20 rounded">🌐</div>;
+      return <div className="w-6 h-4 flex items-center justify-center text-sm bg-white/5 rounded">🌐</div>;
     }
     const FlagComponent = (CountryFlags as any)[code];
-    return FlagComponent ? <FlagComponent className="w-6 h-4 rounded shadow" /> : null;
+    return FlagComponent ? <FlagComponent className="w-6 h-4 rounded" /> : null;
   };
 
   return (

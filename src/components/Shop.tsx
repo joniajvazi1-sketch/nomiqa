@@ -99,7 +99,7 @@ export const Shop = () => {
   };
 
   const getCountryFlag = (countryCode: string, packageType?: string) => {
-    // For regional packages, show region map image
+    // For regional packages, show region map image - same size as country flags
     if (packageType === 'regional') {
       const regionImage = getRegionImage(countryCode);
       if (regionImage) {
@@ -107,19 +107,19 @@ export const Shop = () => {
           <img 
             src={regionImage} 
             alt={countryCode} 
-            className="w-10 h-7 rounded shadow object-cover"
+            className="w-12 h-8 rounded object-cover"
           />
         );
       }
       return (
-        <div className="w-10 h-7 flex items-center justify-center text-xl bg-gradient-to-br from-neon-cyan/20 to-neon-violet/20 rounded">
+        <div className="w-12 h-8 flex items-center justify-center text-xl bg-white/5 rounded">
           🌐
         </div>
       );
     }
     // For local packages, show country flag
     const FlagComponent = (CountryFlags as any)[countryCode];
-    return FlagComponent ? <FlagComponent className="w-10 h-7 rounded shadow" /> : null;
+    return FlagComponent ? <FlagComponent className="w-12 h-8 rounded" /> : null;
   };
 
   return (
@@ -229,8 +229,7 @@ export const Shop = () => {
                   <CardHeader className="relative z-10">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center gap-3">
-                        <div className="relative">
-                          <div className="absolute inset-0 bg-neon-cyan/20 rounded blur-sm group-hover:bg-neon-cyan/30 transition-all duration-300"></div>
+                        <div className="shrink-0">
                           {getCountryFlag(product.country_code, (product as any).package_type)}
                         </div>
                         <div>
