@@ -1,36 +1,67 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
+
+// Detect mobile device
+const isMobile = () => {
+  return typeof window !== 'undefined' && (
+    window.innerWidth < 768 || 
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+  );
+};
 
 const MiniGlobe: React.FC = () => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const globeRef = useRef<THREE.Mesh | null>(null);
-  const autoRotateRef = useRef(true);
   const frameIdRef = useRef<number>();
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
-  const sceneRef = useRef<THREE.Scene | null>(null);
-  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
+  const isVisibleRef = useRef(false);
+  const isPausedRef = useRef(false);
+  const isInitializedRef = useRef(false);
+  const [isInView, setIsInView] = useState(false);
 
+  // Lazy initialization with IntersectionObserver
   useEffect(() => {
     if (!containerRef.current) return;
 
-    const width = containerRef.current.clientWidth;
-    const height = containerRef.current.clientHeight;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsInView(entry.isIntersecting);
+        isVisibleRef.current = entry.isIntersecting;
+      },
+      { threshold: 0.01, rootMargin: '50px' }
+    );
+    observer.observe(containerRef.current);
+
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!isInView || !containerRef.current || isInitializedRef.current) return;
+    
+    isInitializedRef.current = true;
+    const container = containerRef.current;
+    const mobile = isMobile();
+
+    const width = container.clientWidth;
+    const height = container.clientHeight;
 
     // Scene
     const scene = new THREE.Scene();
-    sceneRef.current = scene;
 
     // Camera
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
     camera.position.set(0, 0, 3);
-    cameraRef.current = camera;
 
-    // Renderer (transparent background)
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    // Renderer with optimized settings
+    const renderer = new THREE.WebGLRenderer({ 
+      antialias: !mobile, 
+      alpha: true,
+      powerPreference: 'low-power'
+    });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, mobile ? 1.5 : 2));
     renderer.setSize(width, height);
-    renderer.setClearColor(0x000000, 0); // fully transparent
-    containerRef.current.appendChild(renderer.domElement);
+    renderer.setClearColor(0x000000, 0);
+    container.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
     // Lights
@@ -41,13 +72,10 @@ const MiniGlobe: React.FC = () => {
     keyLight.position.set(3, 3, 3);
     scene.add(keyLight);
 
-    const rimLight = new THREE.PointLight(0xb388ff, 0.6);
-    rimLight.position.set(-3, -3, -3);
-    scene.add(rimLight);
-
-    // Small wireframe globe
+    // Wireframe globe (reduced segments on mobile)
     const globeRadius = 0.8;
-    const geometry = new THREE.SphereGeometry(globeRadius, 32, 32);
+    const segments = mobile ? 20 : 32;
+    const geometry = new THREE.SphereGeometry(globeRadius, segments, segments);
     const material = new THREE.MeshPhongMaterial({
       color: new THREE.Color('#0ea5e9'),
       emissive: new THREE.Color('#06b6d4'),
@@ -61,7 +89,7 @@ const MiniGlobe: React.FC = () => {
     globeRef.current = globe;
 
     // Atmosphere glow
-    const atmosphereGeometry = new THREE.SphereGeometry(globeRadius + 0.08, 32, 32);
+    const atmosphereGeometry = new THREE.SphereGeometry(globeRadius + 0.08, segments, segments);
     const atmosphereMaterial = new THREE.MeshBasicMaterial({
       color: new THREE.Color('#06b6d4'),
       transparent: true,
@@ -71,13 +99,16 @@ const MiniGlobe: React.FC = () => {
     const atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
     scene.add(atmosphere);
 
-    // Add latitude lines
-    const latLines: THREE.Line[] = [];
-    for (let lat = -60; lat <= 60; lat += 30) {
+    // Grid lines (reduced on mobile)
+    const linesToCleanup: THREE.Line[] = [];
+    const latStep = mobile ? 60 : 30;
+    const lonStep = mobile ? 60 : 30;
+
+    for (let lat = -60; lat <= 60; lat += latStep) {
       const phi = (90 - lat) * (Math.PI / 180);
       const points = [];
       
-      for (let lon = 0; lon <= 360; lon += 10) {
+      for (let lon = 0; lon <= 360; lon += 15) {
         const theta = lon * (Math.PI / 180);
         const x = (globeRadius + 0.01) * Math.sin(phi) * Math.cos(theta);
         const y = (globeRadius + 0.01) * Math.cos(phi);
@@ -93,16 +124,14 @@ const MiniGlobe: React.FC = () => {
       });
       const line = new THREE.Line(lineGeometry, lineMaterial);
       scene.add(line);
-      latLines.push(line);
+      linesToCleanup.push(line);
     }
 
-    // Add longitude lines
-    const lonLines: THREE.Line[] = [];
-    for (let lon = 0; lon < 360; lon += 30) {
+    for (let lon = 0; lon < 360; lon += lonStep) {
       const theta = lon * (Math.PI / 180);
       const points = [];
       
-      for (let lat = -90; lat <= 90; lat += 10) {
+      for (let lat = -90; lat <= 90; lat += 15) {
         const phi = (90 - lat) * (Math.PI / 180);
         const x = (globeRadius + 0.01) * Math.sin(phi) * Math.cos(theta);
         const y = (globeRadius + 0.01) * Math.cos(phi);
@@ -118,17 +147,23 @@ const MiniGlobe: React.FC = () => {
       });
       const line = new THREE.Line(lineGeometry, lineMaterial);
       scene.add(line);
-      lonLines.push(line);
+      linesToCleanup.push(line);
     }
+
+    // Visibility change handler
+    const handleVisibility = () => {
+      isPausedRef.current = document.hidden;
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
 
     // Resize handling
     const onResize = () => {
-      if (!containerRef.current || !cameraRef.current || !rendererRef.current) return;
-      const w = containerRef.current.clientWidth;
-      const h = containerRef.current.clientHeight;
-      cameraRef.current.aspect = w / h;
-      cameraRef.current.updateProjectionMatrix();
-      rendererRef.current.setSize(w, h);
+      if (!container) return;
+      const w = container.clientWidth;
+      const h = container.clientHeight;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
     };
     window.addEventListener('resize', onResize);
 
@@ -136,8 +171,13 @@ const MiniGlobe: React.FC = () => {
     const animate = () => {
       frameIdRef.current = requestAnimationFrame(animate);
       
+      // Skip rendering if paused or not visible
+      if (isPausedRef.current || !isVisibleRef.current) {
+        return;
+      }
+      
       // Auto-rotate globe
-      if (autoRotateRef.current && globeRef.current) {
+      if (globeRef.current) {
         globeRef.current.rotation.y += 0.003;
         globeRef.current.rotation.x = Math.sin(Date.now() * 0.0002) * 0.1;
       }
@@ -149,21 +189,22 @@ const MiniGlobe: React.FC = () => {
     // Cleanup
     return () => {
       cancelAnimationFrame(frameIdRef.current!);
+      document.removeEventListener('visibilitychange', handleVisibility);
       window.removeEventListener('resize', onResize);
       geometry.dispose();
       atmosphereGeometry.dispose();
       material.dispose();
       atmosphereMaterial.dispose();
-      [...latLines, ...lonLines].forEach(line => {
+      linesToCleanup.forEach(line => {
         line.geometry.dispose();
         (line.material as THREE.Material).dispose();
       });
       renderer.dispose();
-      if (containerRef.current && renderer.domElement.parentNode === containerRef.current) {
-        containerRef.current.removeChild(renderer.domElement);
+      if (container.contains(renderer.domElement)) {
+        container.removeChild(renderer.domElement);
       }
     };
-  }, []);
+  }, [isInView]);
 
   return (
     <div ref={containerRef} className="absolute inset-0" />
