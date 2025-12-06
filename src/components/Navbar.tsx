@@ -214,7 +214,7 @@ export const Navbar = () => {
                   placeholder={t("searchEsims")}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 h-11 bg-white/[0.03] backdrop-blur-xl border border-white/15 hover:border-white/25 focus:border-neon-cyan/30 text-white placeholder:text-white/35 rounded-xl transition-all duration-300 text-sm font-light"
+                  className="w-full pl-10 pr-4 h-11 bg-white/[0.03] backdrop-blur-xl border border-white/20 hover:border-white/30 focus:border-neon-cyan/40 text-white placeholder:text-white/40 rounded-xl transition-all duration-300 text-sm font-light"
                 />
               </form>
             </div>
@@ -479,7 +479,7 @@ export const Navbar = () => {
                 }}
                 onFocus={() => setShowSearchResults(searchQuery.trim().length > 0)}
                 onBlur={() => setTimeout(() => setShowSearchResults(false), 200)}
-                className="w-full pl-9 pr-3 h-9 bg-white/[0.03] backdrop-blur-xl border border-white/15 hover:border-white/25 focus:border-neon-cyan/30 text-white placeholder:text-white/35 rounded-lg transition-all duration-300 text-xs"
+                className="w-full pl-9 pr-3 h-9 bg-white/[0.03] backdrop-blur-xl border border-white/20 hover:border-white/30 focus:border-neon-cyan/40 text-white placeholder:text-white/40 rounded-lg transition-all duration-300 text-xs"
               />
               
               {/* Search Results Dropdown - Shows unique countries only */}
