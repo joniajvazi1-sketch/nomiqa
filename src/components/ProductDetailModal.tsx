@@ -197,17 +197,17 @@ export const ProductDetailModal = ({
 
         {/* Removed duplicate Check Compatibility Button - now in header */}
 
-        {/* Action Buttons - Premium & Bigger */}
-        <div className="flex flex-col sm:flex-row gap-4 relative z-10">
+        {/* Action Buttons - Premium & Much Bigger */}
+        <div className="flex flex-col gap-4 relative z-10">
           <Button 
             onClick={() => {
               onAddToCart(product);
               onOpenChange(false);
             }}
-            className="flex-1 bg-white/[0.05] backdrop-blur-xl border-2 border-neon-cyan/40 text-neon-cyan hover:bg-neon-cyan/10 hover:border-neon-cyan/60 font-light h-20 sm:h-16 rounded-2xl transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-neon-cyan/20 text-lg sm:text-base px-8"
+            className="w-full bg-white/[0.05] backdrop-blur-xl border-2 border-neon-cyan/40 text-neon-cyan hover:bg-neon-cyan/10 hover:border-neon-cyan/60 font-light h-16 rounded-2xl transition-all duration-300 hover:scale-[1.02] shadow-lg hover:shadow-neon-cyan/20 text-lg px-8"
             size="lg"
           >
-            <ShoppingCart className="mr-3 h-7 w-7 sm:h-6 sm:w-6 shrink-0" />
+            <ShoppingCart className="mr-3 h-6 w-6 shrink-0" />
             <span className="break-words">{t('addToCart')}</span>
           </Button>
           <Button 
@@ -215,10 +215,10 @@ export const ProductDetailModal = ({
               onOpenChange(false);
               onReferEarn(product);
             }}
-            className="flex-1 bg-white/[0.05] backdrop-blur-xl border-2 border-neon-coral/40 text-neon-coral hover:bg-neon-coral/10 hover:border-neon-coral/60 font-light h-20 sm:h-16 rounded-2xl transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-neon-coral/20 text-lg sm:text-base px-8"
+            className="w-full bg-white/[0.05] backdrop-blur-xl border-2 border-neon-coral/40 text-neon-coral hover:bg-neon-coral/10 hover:border-neon-coral/60 font-light h-16 rounded-2xl transition-all duration-300 hover:scale-[1.02] shadow-lg hover:shadow-neon-coral/20 text-lg px-8"
             size="lg"
           >
-            <HandCoins className="mr-3 h-7 w-7 sm:h-6 sm:w-6 shrink-0" />
+            <HandCoins className="mr-3 h-6 w-6 shrink-0" />
             <span className="break-words">{t('referAndEarn')}</span>
           </Button>
         </div>
