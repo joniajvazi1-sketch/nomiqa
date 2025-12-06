@@ -39,7 +39,7 @@ const REGION_IMAGES: Record<string, string> = {
   'AFRICA': '/regions/middle-east-africa.png',
   'NORTH-AMERICA': '/regions/north-america.png',
   'OCEANIA': '/regions/oceania.png',
-  'WORLD': '/regions/europe.png',
+  'WORLD': '/regions/world.png',
 };
 
 export const FeaturedProducts = () => {
@@ -50,8 +50,8 @@ export const FeaturedProducts = () => {
   const handleProductClick = (product: any) => {
     const isRegional = product.package_type === 'regional';
     if (isRegional) {
-      // For regional products, go to shop with regional filter
-      navigate(`/shop?type=regional`);
+      // For regional products, search by region name
+      navigate(`/shop?type=regional&search=${encodeURIComponent(product.country_name)}`);
     } else {
       // For local products, search by country name
       const translatedCountryName = getTranslatedCountryName(product.country_code, language);

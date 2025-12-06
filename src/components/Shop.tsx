@@ -93,7 +93,7 @@ export const Shop = () => {
       'AFRICA': '/regions/middle-east-africa.png',
       'NORTH-AMERICA': '/regions/north-america.png',
       'OCEANIA': '/regions/oceania.png',
-      'WORLD': '/regions/europe.png', // fallback to Europe for World
+      'WORLD': '/regions/world.png',
     };
     return regionImageMap[countryCode] || null;
   };
