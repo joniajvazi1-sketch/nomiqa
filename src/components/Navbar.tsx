@@ -101,43 +101,47 @@ export const Navbar = () => {
     return matches / maxLength;
   };
 
-  // Get search results with fuzzy matching - show unique countries only
+  // Get search results with fuzzy matching - show unique countries AND regions
   const getSearchResults = () => {
     if (!searchQuery.trim() || !products) return [];
     
     const searchLower = searchQuery.toLowerCase();
     
-    // Group products by country and calculate best score for each country
-    const countryMap = new Map<string, { countryCode: string; countryName: string; score: number }>();
+    // Group products by country/region and calculate best score for each
+    const resultMap = new Map<string, { code: string; name: string; score: number; isRegional: boolean }>();
     
     products.forEach(product => {
-      const allCountryNames = getAllTranslatedNames(product.country_code);
-      const currentCountryName = getTranslatedCountryName(product.country_code, language);
+      const isRegional = (product as any).package_type === 'regional';
+      const allNames = getAllTranslatedNames(product.country_code);
+      const currentName = isRegional ? product.country_name : getTranslatedCountryName(product.country_code, language);
       
       // Calculate similarity scores
       const scores = [
-        calculateSimilarity(searchLower, currentCountryName.toLowerCase()),
-        ...allCountryNames.map(name => calculateSimilarity(searchLower, name.toLowerCase())),
+        calculateSimilarity(searchLower, currentName.toLowerCase()),
+        calculateSimilarity(searchLower, product.country_name.toLowerCase()),
+        ...allNames.map(name => calculateSimilarity(searchLower, name.toLowerCase())),
       ];
       
       const maxScore = Math.max(...scores);
       
-      // Only keep the best score for each country
-      const existing = countryMap.get(product.country_code);
+      // Use a unique key combining code and type
+      const key = `${product.country_code}-${isRegional ? 'regional' : 'local'}`;
+      const existing = resultMap.get(key);
       if (!existing || maxScore > existing.score) {
-        countryMap.set(product.country_code, {
-          countryCode: product.country_code,
-          countryName: currentCountryName,
-          score: maxScore
+        resultMap.set(key, {
+          code: product.country_code,
+          name: currentName,
+          score: maxScore,
+          isRegional
         });
       }
     });
     
     // Convert to array, filter, sort and limit
-    const results = Array.from(countryMap.values())
+    const results = Array.from(resultMap.values())
       .filter(item => item.score > 0.4)
       .sort((a, b) => b.score - a.score)
-      .slice(0, 5);
+      .slice(0, 6);
     
     return results;
   };
@@ -155,15 +159,40 @@ export const Navbar = () => {
     }
   };
 
-  const handleResultClick = (countryName: string) => {
-    navigate(localizedPath(`/shop?search=${encodeURIComponent(countryName)}`, language));
+  const handleResultClick = (name: string, isRegional: boolean) => {
+    const typeParam = isRegional ? '&type=regional' : '';
+    navigate(localizedPath(`/shop?search=${encodeURIComponent(name)}${typeParam}`, language));
     setSearchQuery("");
     setShowSearchResults(false);
     setMobileMenuOpen(false);
   };
 
-  const getCountryFlag = (countryCode: string) => {
-    const FlagComponent = (CountryFlags as any)[countryCode];
+  // Region image mapping for search results
+  const getRegionImage = (code: string): string | null => {
+    const regionImageMap: Record<string, string> = {
+      'EUROPE': '/regions/europe.png',
+      'EU-PLUS-UK': '/regions/europe.png',
+      'ASIA': '/regions/asia.png',
+      'CARIBBEAN-ISLANDS': '/regions/caribbean.png',
+      'LATIN-AMERICA': '/regions/latin-america.png',
+      'MIDDLE-EAST-AND-NORTH-AFRICA': '/regions/middle-east-africa.png',
+      'AFRICA': '/regions/middle-east-africa.png',
+      'NORTH-AMERICA': '/regions/north-america.png',
+      'OCEANIA': '/regions/oceania.png',
+      'WORLD': '/regions/world.png',
+    };
+    return regionImageMap[code] || null;
+  };
+
+  const getCountryFlag = (code: string, isRegional: boolean) => {
+    if (isRegional) {
+      const regionImage = getRegionImage(code);
+      if (regionImage) {
+        return <img src={regionImage} alt={code} className="w-6 h-4 rounded shadow object-cover" />;
+      }
+      return <div className="w-6 h-4 flex items-center justify-center text-sm bg-gradient-to-br from-neon-cyan/20 to-neon-violet/20 rounded">🌐</div>;
+    }
+    const FlagComponent = (CountryFlags as any)[code];
     return FlagComponent ? <FlagComponent className="w-6 h-4 rounded shadow" /> : null;
   };
 
@@ -482,23 +511,24 @@ export const Navbar = () => {
                 className="w-full pl-9 pr-3 h-9 bg-white/[0.03] backdrop-blur-xl border border-white/20 hover:border-white/30 focus:border-neon-cyan/40 text-white placeholder:text-white/40 rounded-lg transition-all duration-300 text-xs"
               />
               
-              {/* Search Results Dropdown - Shows unique countries only */}
+              {/* Search Results Dropdown - Shows unique countries and regions */}
               {showSearchResults && searchResults.length > 0 && (
                 <div className="absolute top-full left-0 right-0 mt-1 bg-black/95 backdrop-blur-xl border border-white/10 rounded-lg overflow-hidden z-50 shadow-2xl">
-                  {searchResults.map(({ countryCode, countryName }) => (
+                  {searchResults.map(({ code, name, isRegional }) => (
                     <button
-                      key={countryCode}
+                      key={`${code}-${isRegional ? 'regional' : 'local'}`}
                       type="button"
-                      onClick={() => handleResultClick(countryName)}
+                      onClick={() => handleResultClick(name, isRegional)}
                       className="w-full px-3 py-2.5 flex items-center gap-2.5 hover:bg-neon-cyan/10 transition-colors duration-200 border-b border-white/5 last:border-0"
                     >
                       <div className="shrink-0">
-                        {getCountryFlag(countryCode)}
+                        {getCountryFlag(code, isRegional)}
                       </div>
                       <div className="flex-1 text-left">
-                        <div className="text-white text-sm font-light">{countryName}</div>
+                        <div className="text-white text-sm font-light">{name}</div>
+                        {isRegional && <div className="text-neon-violet text-[10px]">Regional</div>}
                       </div>
-                      <MapPin className="w-3.5 h-3.5 text-neon-cyan/50" />
+                      {isRegional ? <Globe className="w-3.5 h-3.5 text-neon-violet/50" /> : <MapPin className="w-3.5 h-3.5 text-neon-cyan/50" />}
                     </button>
                   ))}
                 </div>
