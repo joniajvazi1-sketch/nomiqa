@@ -81,35 +81,45 @@ export const Shop = () => {
     setReferEarnModalOpen(true);
   };
 
-  // Continent emoji mapping for regional packages
-  const getContinentEmoji = (countryCode: string): string => {
-    const continentMap: Record<string, string> = {
-      'AFRICA': '🌍',
-      'ASIA': '🌏',
-      'EUROPE': '🌍',
-      'EU-PLUS-UK': '🌍',
-      'NORTH-AMERICA': '🌎',
-      'LATIN-AMERICA': '🌎',
-      'CARIBBEAN-ISLANDS': '🌎',
-      'MIDDLE-EAST-AND-NORTH-AFRICA': '🌍',
-      'OCEANIA': '🌏',
-      'WORLD': '🌐',
+  // Regional map images mapping
+  const getRegionImage = (countryCode: string): string | null => {
+    const regionImageMap: Record<string, string> = {
+      'EUROPE': '/regions/europe.png',
+      'EU-PLUS-UK': '/regions/europe.png',
+      'ASIA': '/regions/asia.png',
+      'CARIBBEAN-ISLANDS': '/regions/caribbean.png',
+      'LATIN-AMERICA': '/regions/latin-america.png',
+      'MIDDLE-EAST-AND-NORTH-AFRICA': '/regions/middle-east-africa.png',
+      'AFRICA': '/regions/middle-east-africa.png',
+      'NORTH-AMERICA': '/regions/north-america.png',
+      'OCEANIA': '/regions/oceania.png',
+      'WORLD': '/regions/europe.png', // fallback to Europe for World
     };
-    return continentMap[countryCode] || '🌐';
+    return regionImageMap[countryCode] || null;
   };
 
   const getCountryFlag = (countryCode: string, packageType?: string) => {
-    // For regional packages, show continent emoji
+    // For regional packages, show region map image
     if (packageType === 'regional') {
+      const regionImage = getRegionImage(countryCode);
+      if (regionImage) {
+        return (
+          <img 
+            src={regionImage} 
+            alt={countryCode} 
+            className="w-10 h-7 rounded shadow object-cover"
+          />
+        );
+      }
       return (
-        <div className="w-8 h-6 flex items-center justify-center text-2xl">
-          {getContinentEmoji(countryCode)}
+        <div className="w-10 h-7 flex items-center justify-center text-xl bg-gradient-to-br from-neon-cyan/20 to-neon-violet/20 rounded">
+          🌐
         </div>
       );
     }
     // For local packages, show country flag
     const FlagComponent = (CountryFlags as any)[countryCode];
-    return FlagComponent ? <FlagComponent className="w-8 h-6 rounded shadow" /> : null;
+    return FlagComponent ? <FlagComponent className="w-10 h-7 rounded shadow" /> : null;
   };
 
   return (
