@@ -42,5 +42,11 @@ verify_jwt = false
 [functions.submit-claim-request]
 verify_jwt = true
 
-[functions.retry-esim-provisioning]
+[functions.submit-order]
+verify_jwt = true
+
+[functions.notify-tier-upgrade]
 verify_jwt = false
+
+[functions.get-esim-usage]
+verify_jwt = true
