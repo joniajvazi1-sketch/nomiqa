@@ -8,25 +8,29 @@ import * as CountryFlags from 'country-flag-icons/react/3x2';
 import { useTranslation } from "@/contexts/TranslationContext";
 import { getTranslatedCountryName } from "@/utils/countryTranslations";
 
-// Featured country codes - showing cheapest packages
-const FEATURED_COUNTRIES = [
+// Featured country codes - showing cheapest packages (mix of local and regional)
+const FEATURED_LOCAL_COUNTRIES = [
   'TR', // Turkey
   'CN', // China
   'TH', // Thailand
-  'US', // USA
   'ID', // Indonesia
   'SG', // Singapore
-  'SA', // Saudi Arabia
   'JP', // Japan
-  'BR', // Brazil
-  'IE', // Ireland
   'AE', // UAE
   'MX'  // Mexico
 ];
 
+// Regional package codes for cheaper multi-country options
+const FEATURED_REGIONAL_CODES = [
+  'ASIA',    // Asia - $1.50
+  'WORLD',   // Global - $2.50
+  'EUROPE',  // Europe - $3.00
+  'NORTH-AMERICA', // North America - $6.50
+];
+
 export const FeaturedProducts = () => {
   const navigate = useNavigate();
-  const { data: featuredProducts, isLoading } = useFeaturedProducts(FEATURED_COUNTRIES);
+  const { data: featuredProducts, isLoading } = useFeaturedProducts(FEATURED_LOCAL_COUNTRIES, FEATURED_REGIONAL_CODES);
   const { language, t, formatPrice } = useTranslation();
 
   const handleProductClick = (product: any) => {
@@ -41,7 +45,15 @@ export const FeaturedProducts = () => {
     }
   };
 
-  const getCountryFlag = (countryCode: string) => {
+  const getCountryFlag = (countryCode: string, isRegional: boolean) => {
+    if (isRegional) {
+      // Show globe icon for regional packages
+      return (
+        <div className="w-8 h-6 rounded shadow-sm bg-gradient-to-br from-neon-cyan/30 to-neon-violet/30 flex items-center justify-center">
+          <Wifi className="w-4 h-4 text-neon-cyan" />
+        </div>
+      );
+    }
     const code = countryCode?.toUpperCase();
     const FlagComponent = (CountryFlags as any)[code];
     return FlagComponent ? <FlagComponent className="w-8 h-6 rounded shadow-sm" /> : null;
@@ -86,7 +98,8 @@ export const FeaturedProducts = () => {
         {/* Desktop Grid */}
         <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
           {featuredProducts.map((product, index) => {
-            const translatedCountryName = getTranslatedCountryName(product.country_code, language);
+            const isRegional = product.package_type === 'regional';
+            const displayName = isRegional ? product.country_name : getTranslatedCountryName(product.country_code, language);
             
             return (
               <Card 
@@ -98,10 +111,10 @@ export const FeaturedProducts = () => {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-3">
-                      {getCountryFlag(product.country_code)}
+                      {getCountryFlag(product.country_code, isRegional)}
                       <div>
                         <h3 className="text-lg font-semibold group-hover:text-neon-cyan transition-colors">
-                          {translatedCountryName}
+                          {displayName}
                         </h3>
                         <p className="text-xs text-muted-foreground">
                           {product.package_type === 'regional' ? t("regionalData") : product.data_amount}
@@ -125,7 +138,8 @@ export const FeaturedProducts = () => {
         {/* Mobile Compact List */}
         <div className="md:hidden space-y-3 mb-12">
           {featuredProducts.map((product, index) => {
-            const translatedCountryName = getTranslatedCountryName(product.country_code, language);
+            const isRegional = product.package_type === 'regional';
+            const displayName = isRegional ? product.country_name : getTranslatedCountryName(product.country_code, language);
             
             return (
               <div
@@ -136,10 +150,10 @@ export const FeaturedProducts = () => {
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3 flex-1 min-w-0">
-                    {getCountryFlag(product.country_code)}
+                    {getCountryFlag(product.country_code, isRegional)}
                     <div className="flex-1 min-w-0">
                       <h3 className="text-base font-semibold group-hover:text-neon-cyan transition-colors truncate">
-                        {translatedCountryName}
+                        {displayName}
                       </h3>
                       <p className="text-xs text-muted-foreground">
                         {product.package_type === 'regional' ? t("regionalData") : product.data_amount}
