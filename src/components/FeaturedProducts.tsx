@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useFeaturedProducts } from "@/hooks/useProducts";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
-import { Loader2, ArrowRight, Wifi, Calendar } from "lucide-react";
+import { Loader2, ArrowRight, Globe, Map } from "lucide-react";
 import { Card, CardContent } from "./ui/card";
 import * as CountryFlags from 'country-flag-icons/react/3x2';
 import { useTranslation } from "@/contexts/TranslationContext";
@@ -28,6 +28,19 @@ const FEATURED_REGIONAL_CODES = [
   'NORTH-AMERICA', // North America - $6.50
 ];
 
+// Region icons config
+const REGION_ICONS: Record<string, { emoji: string; gradient: string }> = {
+  'ASIA': { emoji: '🌏', gradient: 'from-orange-400/40 to-rose-500/40' },
+  'WORLD': { emoji: '🌐', gradient: 'from-neon-cyan/40 to-neon-violet/40' },
+  'EUROPE': { emoji: '🇪🇺', gradient: 'from-blue-500/40 to-yellow-400/40' },
+  'NORTH-AMERICA': { emoji: '🌎', gradient: 'from-red-500/40 to-blue-500/40' },
+  'OCEANIA': { emoji: '🌊', gradient: 'from-cyan-400/40 to-blue-500/40' },
+  'AFRICA': { emoji: '🌍', gradient: 'from-green-500/40 to-yellow-500/40' },
+  'LATIN-AMERICA': { emoji: '🌎', gradient: 'from-green-400/40 to-yellow-400/40' },
+  'MIDDLE-EAST-AND-NORTH-AFRICA': { emoji: '🏜️', gradient: 'from-amber-500/40 to-orange-500/40' },
+  'CARIBBEAN-ISLANDS': { emoji: '🏝️', gradient: 'from-teal-400/40 to-blue-400/40' },
+};
+
 export const FeaturedProducts = () => {
   const navigate = useNavigate();
   const { data: featuredProducts, isLoading } = useFeaturedProducts(FEATURED_LOCAL_COUNTRIES, FEATURED_REGIONAL_CODES);
@@ -47,10 +60,10 @@ export const FeaturedProducts = () => {
 
   const getCountryFlag = (countryCode: string, isRegional: boolean) => {
     if (isRegional) {
-      // Show globe icon for regional packages
+      const regionConfig = REGION_ICONS[countryCode] || { emoji: '🌐', gradient: 'from-neon-cyan/40 to-neon-violet/40' };
       return (
-        <div className="w-8 h-6 rounded shadow-sm bg-gradient-to-br from-neon-cyan/30 to-neon-violet/30 flex items-center justify-center">
-          <Wifi className="w-4 h-4 text-neon-cyan" />
+        <div className={`w-8 h-6 rounded shadow-sm bg-gradient-to-br ${regionConfig.gradient} flex items-center justify-center text-base`}>
+          {regionConfig.emoji}
         </div>
       );
     }
