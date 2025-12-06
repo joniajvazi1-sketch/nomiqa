@@ -1,5 +1,13 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
+
+// Detect mobile device
+const isMobile = () => {
+  return typeof window !== 'undefined' && (
+    window.innerWidth < 768 || 
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+  );
+};
 
 const InteractiveGlobe: React.FC = () => {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -9,30 +17,54 @@ const InteractiveGlobe: React.FC = () => {
   const autoRotateRef = useRef(true);
   const frameIdRef = useRef<number>();
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
-  const sceneRef = useRef<THREE.Scene | null>(null);
-  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
+  const isVisibleRef = useRef(false);
+  const isPausedRef = useRef(false);
+  const isInitializedRef = useRef(false);
+  const [isInView, setIsInView] = useState(false);
 
+  // Lazy initialization with IntersectionObserver
   useEffect(() => {
     if (!containerRef.current) return;
 
-    const width = containerRef.current.clientWidth;
-    const height = containerRef.current.clientHeight;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsInView(entry.isIntersecting);
+        isVisibleRef.current = entry.isIntersecting;
+      },
+      { threshold: 0.01, rootMargin: '100px' }
+    );
+    observer.observe(containerRef.current);
+
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!isInView || !containerRef.current || isInitializedRef.current) return;
+    
+    isInitializedRef.current = true;
+    const container = containerRef.current;
+    const mobile = isMobile();
+
+    const width = container.clientWidth;
+    const height = container.clientHeight;
 
     // Scene
     const scene = new THREE.Scene();
-    sceneRef.current = scene;
 
     // Camera - positioned further back for smaller globe
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
     camera.position.set(0, 0, 8.5);
-    cameraRef.current = camera;
 
-    // Renderer (transparent background)
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    // Renderer with optimized settings
+    const renderer = new THREE.WebGLRenderer({ 
+      antialias: !mobile, 
+      alpha: true,
+      powerPreference: 'low-power'
+    });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, mobile ? 1.5 : 2));
     renderer.setSize(width, height);
-    renderer.setClearColor(0x000000, 0); // fully transparent
-    containerRef.current.appendChild(renderer.domElement);
+    renderer.setClearColor(0x000000, 0);
+    container.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
     // Lights
@@ -47,9 +79,10 @@ const InteractiveGlobe: React.FC = () => {
     rimLight.position.set(-6, -6, -6);
     scene.add(rimLight);
 
-    // Glowy wireframe globe (bigger)
+    // Glowy wireframe globe (reduced segments on mobile)
     const globeRadius = 2.0;
-    const geometry = new THREE.SphereGeometry(globeRadius, 48, 48);
+    const segments = mobile ? 24 : 48;
+    const geometry = new THREE.SphereGeometry(globeRadius, segments, segments);
     const material = new THREE.MeshPhongMaterial({
       color: new THREE.Color('#0ea5e9'),
       emissive: new THREE.Color('#06b6d4'),
@@ -63,7 +96,7 @@ const InteractiveGlobe: React.FC = () => {
     globeRef.current = globe;
 
     // Atmosphere glow
-    const atmosphereGeometry = new THREE.SphereGeometry(globeRadius + 0.15, 48, 48);
+    const atmosphereGeometry = new THREE.SphereGeometry(globeRadius + 0.15, segments, segments);
     const atmosphereMaterial = new THREE.MeshBasicMaterial({
       color: new THREE.Color('#06b6d4'),
       transparent: true,
@@ -73,13 +106,14 @@ const InteractiveGlobe: React.FC = () => {
     const atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
     scene.add(atmosphere);
 
-    // Add latitude lines (parallels)
+    // Grid lines (reduced on mobile)
     const latLines: THREE.Line[] = [];
-    for (let lat = -80; lat <= 80; lat += 20) {
+    const latStep = mobile ? 40 : 20;
+    for (let lat = -80; lat <= 80; lat += latStep) {
       const phi = (90 - lat) * (Math.PI / 180);
       const points = [];
       
-      for (let lon = 0; lon <= 360; lon += 5) {
+      for (let lon = 0; lon <= 360; lon += 10) {
         const theta = lon * (Math.PI / 180);
         const x = (globeRadius + 0.02) * Math.sin(phi) * Math.cos(theta);
         const y = (globeRadius + 0.02) * Math.cos(phi);
@@ -98,13 +132,14 @@ const InteractiveGlobe: React.FC = () => {
       latLines.push(line);
     }
 
-    // Add longitude lines (meridians)
+    // Longitude lines (reduced on mobile)
     const lonLines: THREE.Line[] = [];
-    for (let lon = 0; lon < 360; lon += 20) {
+    const lonStep = mobile ? 40 : 20;
+    for (let lon = 0; lon < 360; lon += lonStep) {
       const theta = lon * (Math.PI / 180);
       const points = [];
       
-      for (let lat = -90; lat <= 90; lat += 5) {
+      for (let lat = -90; lat <= 90; lat += 10) {
         const phi = (90 - lat) * (Math.PI / 180);
         const x = (globeRadius + 0.02) * Math.sin(phi) * Math.cos(theta);
         const y = (globeRadius + 0.02) * Math.cos(phi);
@@ -123,18 +158,14 @@ const InteractiveGlobe: React.FC = () => {
       lonLines.push(line);
     }
 
-    // Major continent/city positions (approximate lat/long)
+    // Major locations (reduced set for connections)
     const locations = [
-      { lat: 40.7, lon: -74.0, name: 'North America' },    // New York
-      { lat: 51.5, lon: -0.1, name: 'Europe' },            // London
-      { lat: 35.7, lon: 139.7, name: 'Asia East' },        // Tokyo
-      { lat: -33.9, lon: 18.4, name: 'Africa' },           // Cape Town
-      { lat: -33.9, lon: 151.2, name: 'Australia' },       // Sydney
-      { lat: -23.5, lon: -46.6, name: 'South America' },   // Sao Paulo
-      { lat: 55.8, lon: 37.6, name: 'Russia' },            // Moscow
-      { lat: 1.3, lon: 103.8, name: 'Asia Southeast' },    // Singapore
-      { lat: 19.4, lon: -99.1, name: 'Central America' },  // Mexico City
-      { lat: 28.6, lon: 77.2, name: 'India' },             // Delhi
+      { lat: 40.7, lon: -74.0 },    // New York
+      { lat: 51.5, lon: -0.1 },     // London
+      { lat: 35.7, lon: 139.7 },    // Tokyo
+      { lat: -33.9, lon: 18.4 },    // Cape Town
+      { lat: -33.9, lon: 151.2 },   // Sydney
+      { lat: 1.3, lon: 103.8 },     // Singapore
     ];
 
     // Convert to 3D positions
@@ -148,26 +179,21 @@ const InteractiveGlobe: React.FC = () => {
       );
     });
 
-    // Create connection lines between continents with particles - many more connections
+    // Connection lines (reduced: 8 connections instead of 30)
     const connectionLines: THREE.Line[] = [];
     const particles: Array<{ mesh: THREE.Mesh; curve: THREE.QuadraticBezierCurve3; progress: number; speed: number }> = [];
-    const connections = [
-      [0, 1], [1, 2], [1, 6], [2, 7], [3, 5], 
-      [4, 7], [0, 8], [8, 5], [6, 9], [7, 9],
-      [0, 6], [1, 3], [2, 9], [5, 3], [4, 2],
-      [0, 2], [0, 4], [0, 9], [1, 7], [1, 9],
-      [2, 3], [2, 5], [3, 6], [3, 9], [4, 5],
-      [4, 6], [5, 7], [6, 8], [7, 8], [8, 9]
-    ];
+    const connections = mobile 
+      ? [[0, 1], [1, 2], [2, 5], [3, 4]] 
+      : [[0, 1], [1, 2], [2, 5], [3, 4], [0, 2], [1, 5], [4, 5], [0, 3]];
     
     connections.forEach(([i, j]) => {
       const start = locationPoints[i];
       const end = locationPoints[j];
       const mid = new THREE.Vector3().addVectors(start, end).multiplyScalar(0.5);
-      mid.normalize().multiplyScalar(globeRadius + 0.45); // Arc outward
+      mid.normalize().multiplyScalar(globeRadius + 0.45);
       
       const curve = new THREE.QuadraticBezierCurve3(start, mid, end);
-      const curvePoints = curve.getPoints(40);
+      const curvePoints = curve.getPoints(30);
       
       const lineGeometry = new THREE.BufferGeometry().setFromPoints(curvePoints);
       const lineMaterial = new THREE.LineBasicMaterial({
@@ -180,29 +206,27 @@ const InteractiveGlobe: React.FC = () => {
       scene.add(line);
       connectionLines.push(line);
 
-      // Add 2-3 particles per line with faster speeds
-      for (let p = 0; p < 2; p++) {
-        const particleGeometry = new THREE.SphereGeometry(0.02, 16, 16);
-        const particleMaterial = new THREE.MeshBasicMaterial({
-          color: new THREE.Color('#e879f9'),
-          transparent: true,
-          opacity: 0.5,
-        });
-        const particle = new THREE.Mesh(particleGeometry, particleMaterial);
-        scene.add(particle);
-        particles.push({
-          mesh: particle,
-          curve: curve,
-          progress: Math.random(),
-          speed: 0.005 + Math.random() * 0.007,
-        });
-      }
+      // One particle per line (reduced from 2-3)
+      const particleGeometry = new THREE.SphereGeometry(0.02, 8, 8);
+      const particleMaterial = new THREE.MeshBasicMaterial({
+        color: new THREE.Color('#e879f9'),
+        transparent: true,
+        opacity: 0.5,
+      });
+      const particle = new THREE.Mesh(particleGeometry, particleMaterial);
+      scene.add(particle);
+      particles.push({
+        mesh: particle,
+        curve: curve,
+        progress: Math.random(),
+        speed: 0.005 + Math.random() * 0.005,
+      });
     });
 
-    // Add glowing dots at major locations with pulse speeds
-    const dotGeometry = new THREE.SphereGeometry(0.035, 16, 16);
-    const dots: Array<{ mesh: THREE.Mesh; pulseSpeed: number; baseScale: number }> = [];
-    locationPoints.forEach((point, i) => {
+    // Location dots
+    const dotGeometry = new THREE.SphereGeometry(0.035, 8, 8);
+    const dots: Array<{ mesh: THREE.Mesh; pulseSpeed: number }> = [];
+    locationPoints.forEach((point) => {
       const dotMaterial = new THREE.MeshBasicMaterial({
         color: new THREE.Color('#06b6d4'),
         transparent: true,
@@ -213,11 +237,10 @@ const InteractiveGlobe: React.FC = () => {
       dots.push({
         mesh: dot,
         pulseSpeed: 0.5 + Math.random() * 1.5,
-        baseScale: 1.0,
       });
     });
 
-    // Drag controls (simple custom)
+    // Drag controls
     const onPointerDown = (e: PointerEvent) => {
       isDraggingRef.current = true;
       autoRotateRef.current = false;
@@ -233,30 +256,38 @@ const InteractiveGlobe: React.FC = () => {
     };
     const onPointerUp = () => {
       isDraggingRef.current = false;
-      // resume gentle auto-rotate after a short moment
       setTimeout(() => (autoRotateRef.current = true), 800);
     };
 
-
-    const container = containerRef.current;
     container.addEventListener('pointerdown', onPointerDown);
     window.addEventListener('pointermove', onPointerMove);
     window.addEventListener('pointerup', onPointerUp);
 
+    // Visibility change handler
+    const handleVisibility = () => {
+      isPausedRef.current = document.hidden;
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+
     // Resize handling
     const onResize = () => {
-      if (!containerRef.current || !cameraRef.current || !rendererRef.current) return;
-      const w = containerRef.current.clientWidth;
-      const h = containerRef.current.clientHeight;
-      cameraRef.current.aspect = w / h;
-      cameraRef.current.updateProjectionMatrix();
-      rendererRef.current.setSize(w, h);
+      if (!container) return;
+      const w = container.clientWidth;
+      const h = container.clientHeight;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
     };
     window.addEventListener('resize', onResize);
 
     // Animate
     const animate = () => {
       frameIdRef.current = requestAnimationFrame(animate);
+      
+      // Skip rendering if paused or not visible
+      if (isPausedRef.current || !isVisibleRef.current) {
+        return;
+      }
       
       const time = Date.now() * 0.001;
       
@@ -265,12 +296,12 @@ const InteractiveGlobe: React.FC = () => {
         globeRef.current.rotation.y += 0.002;
       }
 
-      // Pulse dots with different speeds
+      // Pulse dots
       dots.forEach(dotData => {
         const scale = 1.0 + Math.sin(time * dotData.pulseSpeed) * 0.3;
         dotData.mesh.scale.set(scale, scale, scale);
-        const material = dotData.mesh.material as THREE.MeshBasicMaterial;
-        material.opacity = 0.7 + Math.sin(time * dotData.pulseSpeed) * 0.3;
+        const mat = dotData.mesh.material as THREE.MeshBasicMaterial;
+        mat.opacity = 0.7 + Math.sin(time * dotData.pulseSpeed) * 0.3;
       });
 
       // Move particles along curves
@@ -288,6 +319,7 @@ const InteractiveGlobe: React.FC = () => {
     // Cleanup
     return () => {
       cancelAnimationFrame(frameIdRef.current!);
+      document.removeEventListener('visibilitychange', handleVisibility);
       window.removeEventListener('resize', onResize);
       container.removeEventListener('pointerdown', onPointerDown);
       window.removeEventListener('pointermove', onPointerMove);
@@ -310,9 +342,11 @@ const InteractiveGlobe: React.FC = () => {
         (particleData.mesh.material as THREE.Material).dispose();
       });
       renderer.dispose();
-      container.removeChild(renderer.domElement);
+      if (container.contains(renderer.domElement)) {
+        container.removeChild(renderer.domElement);
+      }
     };
-  }, []);
+  }, [isInView]);
 
   return (
     <div className="relative w-full h-[200px] md:h-[280px] lg:h-[320px]">

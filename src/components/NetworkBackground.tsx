@@ -11,8 +11,19 @@ interface NetworkBackgroundProps {
   color?: string;
 }
 
+// Detect mobile device
+const isMobile = () => {
+  return typeof window !== 'undefined' && (
+    window.innerWidth < 768 || 
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+  );
+};
+
 export const NetworkBackground = ({ color }: NetworkBackgroundProps = {}) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const animationRef = useRef<number>();
+  const isVisibleRef = useRef(true);
+  const isPausedRef = useRef(false);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -29,8 +40,8 @@ export const NetworkBackground = ({ color }: NetworkBackgroundProps = {}) => {
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
-    // Create nodes
-    const nodeCount = 60;
+    // Optimized node count based on device
+    const nodeCount = isMobile() ? 25 : 35;
     const nodes: Node[] = [];
     const maxDistance = 150;
 
@@ -43,8 +54,35 @@ export const NetworkBackground = ({ color }: NetworkBackgroundProps = {}) => {
       });
     }
 
+    // Visibility change handler - pause when tab is hidden
+    const handleVisibilityChange = () => {
+      isPausedRef.current = document.hidden;
+      if (!document.hidden && isVisibleRef.current) {
+        // Resume animation when tab becomes visible
+        animate();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    // IntersectionObserver - pause when off-screen
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isVisibleRef.current = entry.isIntersecting;
+        if (entry.isIntersecting && !isPausedRef.current) {
+          animate();
+        }
+      },
+      { threshold: 0.01 }
+    );
+    observer.observe(canvas);
+
     // Animation loop
     const animate = () => {
+      // Don't animate if paused or not visible
+      if (isPausedRef.current || !isVisibleRef.current) {
+        return;
+      }
+
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       // Update and draw nodes
@@ -91,15 +129,20 @@ export const NetworkBackground = ({ color }: NetworkBackgroundProps = {}) => {
         ctx.fill();
       });
 
-      requestAnimationFrame(animate);
+      animationRef.current = requestAnimationFrame(animate);
     };
 
     animate();
 
     return () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
       window.removeEventListener('resize', resizeCanvas);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      observer.disconnect();
     };
-  }, []);
+  }, [color]);
 
   return (
     <canvas
