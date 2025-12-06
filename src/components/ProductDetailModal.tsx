@@ -40,7 +40,7 @@ export const ProductDetailModal = ({
       'AFRICA': '/regions/middle-east-africa.png',
       'NORTH-AMERICA': '/regions/north-america.png',
       'OCEANIA': '/regions/oceania.png',
-      'WORLD': '/regions/europe.png',
+      'WORLD': '/regions/world.png',
     };
     return regionImageMap[countryCode] || null;
   };
