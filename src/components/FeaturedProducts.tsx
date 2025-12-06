@@ -28,17 +28,18 @@ const FEATURED_REGIONAL_CODES = [
   'NORTH-AMERICA', // North America - $6.50
 ];
 
-// Region icons config
-const REGION_ICONS: Record<string, { emoji: string; gradient: string }> = {
-  'ASIA': { emoji: '🌏', gradient: 'from-orange-400/40 to-rose-500/40' },
-  'WORLD': { emoji: '🌐', gradient: 'from-neon-cyan/40 to-neon-violet/40' },
-  'EUROPE': { emoji: '🇪🇺', gradient: 'from-blue-500/40 to-yellow-400/40' },
-  'NORTH-AMERICA': { emoji: '🌎', gradient: 'from-red-500/40 to-blue-500/40' },
-  'OCEANIA': { emoji: '🌊', gradient: 'from-cyan-400/40 to-blue-500/40' },
-  'AFRICA': { emoji: '🌍', gradient: 'from-green-500/40 to-yellow-500/40' },
-  'LATIN-AMERICA': { emoji: '🌎', gradient: 'from-green-400/40 to-yellow-400/40' },
-  'MIDDLE-EAST-AND-NORTH-AFRICA': { emoji: '🏜️', gradient: 'from-amber-500/40 to-orange-500/40' },
-  'CARIBBEAN-ISLANDS': { emoji: '🏝️', gradient: 'from-teal-400/40 to-blue-400/40' },
+// Region image mapping
+const REGION_IMAGES: Record<string, string> = {
+  'EUROPE': '/regions/europe.png',
+  'EU-PLUS-UK': '/regions/europe.png',
+  'ASIA': '/regions/asia.png',
+  'CARIBBEAN-ISLANDS': '/regions/caribbean.png',
+  'LATIN-AMERICA': '/regions/latin-america.png',
+  'MIDDLE-EAST-AND-NORTH-AFRICA': '/regions/middle-east-africa.png',
+  'AFRICA': '/regions/middle-east-africa.png',
+  'NORTH-AMERICA': '/regions/north-america.png',
+  'OCEANIA': '/regions/oceania.png',
+  'WORLD': '/regions/europe.png',
 };
 
 export const FeaturedProducts = () => {
@@ -60,16 +61,25 @@ export const FeaturedProducts = () => {
 
   const getCountryFlag = (countryCode: string, isRegional: boolean) => {
     if (isRegional) {
-      const regionConfig = REGION_ICONS[countryCode] || { emoji: '🌐', gradient: 'from-neon-cyan/40 to-neon-violet/40' };
+      const regionImage = REGION_IMAGES[countryCode];
+      if (regionImage) {
+        return (
+          <img 
+            src={regionImage} 
+            alt={countryCode} 
+            className="w-10 h-7 rounded shadow-sm object-cover"
+          />
+        );
+      }
       return (
-        <div className={`w-8 h-6 rounded shadow-sm bg-gradient-to-br ${regionConfig.gradient} flex items-center justify-center text-base`}>
-          {regionConfig.emoji}
+        <div className="w-10 h-7 rounded shadow-sm bg-gradient-to-br from-neon-cyan/20 to-neon-violet/20 flex items-center justify-center text-base">
+          🌐
         </div>
       );
     }
     const code = countryCode?.toUpperCase();
     const FlagComponent = (CountryFlags as any)[code];
-    return FlagComponent ? <FlagComponent className="w-8 h-6 rounded shadow-sm" /> : null;
+    return FlagComponent ? <FlagComponent className="w-10 h-7 rounded shadow-sm" /> : null;
   };
 
   if (isLoading) {
