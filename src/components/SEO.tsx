@@ -308,6 +308,7 @@ export const SEO = ({ page = "home" }: SEOProps) => {
   
   // Site URL and logo for social sharing
   const siteUrl = "https://nomiqa-esim.com";
+  const ogImageUrl = `${siteUrl}/nomiqa-og-image.jpg`;
   const logoUrl = `${siteUrl}/nomiqa-logo.jpg`;
   const currentUrl = `${siteUrl}${window.location.pathname}`;
 
@@ -335,16 +336,16 @@ export const SEO = ({ page = "home" }: SEOProps) => {
       <meta property="og:description" content={data.description} />
       <meta property="og:type" content="website" />
       <meta property="og:url" content={currentUrl} />
-      <meta property="og:image" content={logoUrl} />
-      <meta property="og:image:width" content="1200" />
-      <meta property="og:image:height" content="630" />
+      <meta property="og:image" content={ogImageUrl} />
+      <meta property="og:image:width" content="1080" />
+      <meta property="og:image:height" content="1080" />
       <meta property="og:site_name" content="Nomiqa" />
       
       {/* Twitter Card Meta Tags */}
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={data.title} />
       <meta name="twitter:description" content={data.description} />
-      <meta name="twitter:image" content={logoUrl} />
+      <meta name="twitter:image" content={ogImageUrl} />
       <meta name="twitter:site" content="@nomiqa_esim" />
       
       {/* Structured Data */}
