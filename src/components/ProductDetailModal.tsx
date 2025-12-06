@@ -69,34 +69,44 @@ export const ProductDetailModal = ({
         </div>
 
         <DialogHeader className="relative z-10">
-          <div className="flex items-start gap-4 mb-6">
-            <div className="relative">
-              <div className="absolute inset-0 bg-neon-cyan/20 rounded blur-md"></div>
-              {getCountryFlag(product.country_code, product.package_type)}
-            </div>
-            <div className="flex-1">
-              <DialogTitle className="text-2xl md:text-3xl mb-2 bg-gradient-to-r from-neon-cyan via-white to-neon-violet bg-clip-text text-transparent font-light">
-                {getTranslatedCountryName(product.country_code, language)}
-              </DialogTitle>
-              <p className="text-white/60 font-light">{product.name}</p>
-              <div className="flex gap-2 mt-3">
-                {product.package_type === 'regional' && (
-                  <Badge className="bg-gradient-to-r from-neon-violet to-neon-coral text-white border-0 shadow-glow-violet font-light">
-                    Regional
-                  </Badge>
-                )}
-                {product.is_popular && (
-                  <Badge className="bg-gradient-to-r from-neon-coral to-neon-orange text-white border-0 shadow-glow-coral font-light">
-                    {t('popular')}
-                  </Badge>
-                )}
+          {/* Clean Header Layout */}
+          <div className="flex flex-col items-center text-center mb-6">
+            {/* Flag */}
+            <div className="relative mb-4">
+              <div className="absolute inset-0 bg-neon-cyan/20 rounded-xl blur-lg"></div>
+              <div className="relative">
+                {getCountryFlag(product.country_code, product.package_type)}
               </div>
             </div>
-            <div className="text-right">
-              <div className="text-3xl md:text-4xl font-semibold bg-gradient-to-r from-white via-neon-cyan to-white bg-clip-text text-transparent drop-shadow-[0_0_12px_rgba(6,182,212,0.4)]">
+            
+            {/* Country Name */}
+            <DialogTitle className="text-2xl md:text-3xl mb-1 bg-gradient-to-r from-neon-cyan via-white to-neon-violet bg-clip-text text-transparent font-light">
+              {getTranslatedCountryName(product.country_code, language)}
+            </DialogTitle>
+            
+            {/* Package Info */}
+            <p className="text-white/50 font-light text-sm mb-3">{product.name}</p>
+            
+            {/* Badges */}
+            <div className="flex gap-2 mb-4">
+              {product.package_type === 'regional' && (
+                <Badge className="bg-gradient-to-r from-neon-violet to-neon-coral text-white border-0 shadow-glow-violet font-light text-xs px-3">
+                  Regional
+                </Badge>
+              )}
+              {product.is_popular && (
+                <Badge className="bg-gradient-to-r from-neon-coral to-neon-orange text-white border-0 shadow-glow-coral font-light text-xs px-3">
+                  {t('popular')}
+                </Badge>
+              )}
+            </div>
+            
+            {/* Price */}
+            <div className="bg-white/[0.03] border border-white/10 rounded-2xl px-8 py-4">
+              <div className="text-4xl md:text-5xl font-semibold bg-gradient-to-r from-white via-neon-cyan to-white bg-clip-text text-transparent drop-shadow-[0_0_12px_rgba(6,182,212,0.4)]">
                 {formatPrice(product.price_usd)}
               </div>
-              <p className="text-xs text-white/50 mt-2 font-light">{t('oneTimePayment')}</p>
+              <p className="text-xs text-white/40 mt-1 font-light">{t('oneTimePayment')}</p>
             </div>
           </div>
 
