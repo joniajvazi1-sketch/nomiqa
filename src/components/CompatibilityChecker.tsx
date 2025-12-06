@@ -294,7 +294,10 @@ export const CompatibilityChecker = ({ open, onOpenChange }: CompatibilityChecke
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto bg-gradient-to-br from-deep-space via-black to-deep-space/95 border border-white/10 backdrop-blur-xl">
+      <DialogContent 
+        className="sm:max-w-4xl max-h-[90vh] overflow-y-auto bg-gradient-to-br from-deep-space via-black to-deep-space/95 border border-white/10 backdrop-blur-xl"
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
         {/* Decorative background elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute -top-32 -right-32 w-64 h-64 bg-neon-cyan/10 rounded-full blur-3xl" />
