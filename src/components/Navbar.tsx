@@ -208,14 +208,17 @@ export const Navbar = () => {
           {!isShopPage && (
             <div className="hidden lg:flex flex-1 max-w-4xl">
               <form onSubmit={(e) => handleSearch(e, false)} className="w-full relative group">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40 group-hover:text-neon-cyan transition-colors duration-300" />
-                <Input
-                  type="text"
-                  placeholder={t("searchEsims")}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-white/5 backdrop-blur-xl border border-white/10 hover:border-neon-cyan/30 focus:border-neon-cyan/50 text-white placeholder:text-white/40 pl-12 pr-4 py-3 rounded-xl font-light text-base transition-all duration-300 focus-visible:ring-neon-cyan/20"
-                />
+                <div className="absolute -inset-1 bg-gradient-to-r from-neon-cyan/20 via-neon-violet/10 to-neon-cyan/20 rounded-2xl blur-md opacity-60 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="relative">
+                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neon-cyan/70 group-hover:text-neon-cyan transition-colors duration-300" />
+                  <Input
+                    type="text"
+                    placeholder={t("searchEsims")}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full bg-white/10 backdrop-blur-xl border-2 border-white/20 hover:border-neon-cyan/40 focus:border-neon-cyan/60 text-white placeholder:text-white/50 pl-12 pr-4 py-3 h-12 rounded-xl font-light text-base transition-all duration-300 focus-visible:ring-2 focus-visible:ring-neon-cyan/30 shadow-lg shadow-black/20"
+                  />
+                </div>
               </form>
             </div>
           )}
