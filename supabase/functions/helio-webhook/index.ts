@@ -16,8 +16,10 @@ serve(async (req) => {
     const rawBody = await req.text();
     const payload = JSON.parse(rawBody);
     
-    console.log('Received webhook payload:', JSON.stringify(payload, null, 2));
-    console.log('Webhook headers:', Object.fromEntries(req.headers.entries()));
+    // Minimal logging - mask sensitive data
+    const paylinkId = payload.transactionObject?.paylinkId;
+    const eventType = payload.event;
+    console.log('Webhook received:', { event: eventType, paylinkId: paylinkId ? paylinkId.substring(0, 8) + '...' : 'none' });
 
     // Verify Helio webhook - multiple methods supported
     const signature = req.headers.get('x-signature') || req.headers.get('x-webhook-signature') || req.headers.get('signature');
@@ -25,13 +27,9 @@ serve(async (req) => {
     const helioApiKey = req.headers.get('helio-api-key') || req.headers.get('x-helio-secret') || req.headers.get('x-api-key');
     const webhookSecret = Deno.env.get('HELIO_WEBHOOK_SECRET');
 
-    // Log all headers for debugging
-    console.log('=== HELIO WEBHOOK DEBUG ===');
-    console.log('All headers:', JSON.stringify(Object.fromEntries(req.headers.entries()), null, 2));
-    console.log('Auth header:', authHeader);
-    console.log('Helio API key header:', helioApiKey);
-    console.log('Signature header:', signature);
-    console.log('Webhook secret configured:', webhookSecret ? 'YES (length: ' + webhookSecret.length + ')' : 'NO');
+    // Security: Only log verification status, never log actual secrets or tokens
+    const hasAuth = !!(authHeader || helioApiKey || signature);
+    console.log('Webhook auth check:', { hasAuthHeader: !!authHeader, hasApiKey: !!helioApiKey, hasSignature: !!signature, secretConfigured: !!webhookSecret });
 
     if (!webhookSecret) {
       console.error('Missing webhook secret configuration');
@@ -43,29 +41,24 @@ serve(async (req) => {
     // Method 1: Verify using Bearer token
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const bearerToken = authHeader.substring(7);
-      console.log('Bearer token length:', bearerToken.length);
-      console.log('Secret length:', webhookSecret.length);
-      console.log('Bearer matches secret:', bearerToken === webhookSecret);
       if (bearerToken === webhookSecret) {
-        console.log('✓ Webhook verified via Bearer token');
+        console.log('Webhook verified: Bearer token');
         isVerified = true;
       }
     }
 
     // Method 2: Direct API key header (Helio commonly uses this)
     if (!isVerified && helioApiKey) {
-      console.log('API key header matches secret:', helioApiKey === webhookSecret);
       if (helioApiKey === webhookSecret) {
-        console.log('✓ Webhook verified via API key header');
+        console.log('Webhook verified: API key header');
         isVerified = true;
       }
     }
 
     // Method 3: Check if webhook secret is in the payload itself
     if (!isVerified && payload.secret) {
-      console.log('Payload secret matches:', payload.secret === webhookSecret);
       if (payload.secret === webhookSecret) {
-        console.log('✓ Webhook verified via payload secret');
+        console.log('Webhook verified: payload secret');
         isVerified = true;
       }
     }
@@ -91,21 +84,16 @@ serve(async (req) => {
         .map(b => b.toString(16).padStart(2, '0'))
         .join('');
       
-      console.log('Computed HMAC:', computedSignature.substring(0, 20) + '...');
-      console.log('Received signature:', signature.substring(0, 20) + '...');
-      
       if (computedSignature === signature) {
-        console.log('✓ Webhook signature verified via HMAC');
+        console.log('Webhook verified: HMAC signature');
         isVerified = true;
-      } else {
-        console.log('HMAC signature mismatch');
       }
     }
 
     // Method 5: Check payload transactionObject meta for validation
     if (!isVerified && payload.transactionObject?.meta?.apiSecret) {
       if (payload.transactionObject.meta.apiSecret === webhookSecret) {
-        console.log('✓ Webhook verified via transaction meta secret');
+        console.log('Webhook verified: transaction meta');
         isVerified = true;
       }
     }
@@ -116,13 +104,12 @@ serve(async (req) => {
     // 2. Replay protection prevents duplicate processing
     // 3. Order must exist in our database to be processed
     if (!isVerified && payload.transactionObject?.paylinkId) {
-      console.log('⚠️ Webhook not cryptographically verified, but has valid paylinkId structure');
-      console.log('Security: Order-based validation will be performed');
+      console.log('Webhook using order-based validation');
       isVerified = true; // Allow through - order validation below provides security
     }
 
     if (!isVerified) {
-      console.error('❌ Webhook rejected - no valid auth and no paylinkId');
+      console.warn('Webhook rejected: no valid auth');
       return new Response('Invalid webhook', { 
         status: 401, 
         headers: corsHeaders 
@@ -184,16 +171,16 @@ serve(async (req) => {
     }
 
     // Find order by paylink ID (stored in airlo_request_id)
-    const paylinkId = transactionObject.paylinkId;
+    const orderPaylinkId = transactionObject.paylinkId;
     
     const { data: order, error: orderError } = await supabase
       .from('orders')
       .select('*')
-      .eq('airlo_request_id', paylinkId)
+      .eq('airlo_request_id', orderPaylinkId)
       .single();
 
     if (orderError || !order) {
-      console.error('Order not found for paylink:', paylinkId, orderError);
+      console.error('Order not found for paylink:', orderPaylinkId?.substring(0, 8) + '...');
       return new Response(
         JSON.stringify({ error: 'Order not found' }),
         { 
