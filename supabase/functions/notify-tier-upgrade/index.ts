@@ -25,13 +25,26 @@ serve(async (req) => {
   }
 
   try {
+    // Verify internal call - this endpoint is called by database triggers via pg_net
+    // Validate the apikey header matches our anon key (triggers use anon key)
+    const apiKey = req.headers.get('apikey');
+    const expectedAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
+    
+    if (!apiKey || apiKey !== expectedAnonKey) {
+      console.warn("Unauthorized access attempt to notify-tier-upgrade");
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     
     const supabase = createClient(supabaseUrl, serviceRoleKey);
     
     const payload: TierUpgradeRequest = await req.json();
-    console.log("Tier upgrade notification request:", payload);
+    console.log("Tier upgrade notification request:", { type: payload.type, email: payload.email?.substring(0, 3) + '***' });
 
     // Call send-email edge function
     const emailType = payload.type === 'affiliate' ? 'affiliate_tier_upgrade' : 'tier_upgrade';

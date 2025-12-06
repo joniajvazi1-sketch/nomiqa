@@ -484,6 +484,26 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    // Verify internal call - this endpoint should only be called by other edge functions
+    // Check for valid authorization header with service role key or anon key
+    const authHeader = req.headers.get('authorization');
+    const apiKey = req.headers.get('apikey');
+    const expectedServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    const expectedAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
+    
+    // Allow calls from internal edge functions (with service role bearer token) or database triggers (with apikey)
+    const isInternalCall = 
+      (authHeader && authHeader === `Bearer ${expectedServiceKey}`) ||
+      (apiKey && (apiKey === expectedServiceKey || apiKey === expectedAnonKey));
+    
+    if (!isInternalCall) {
+      console.warn("Unauthorized access attempt to send-email endpoint");
+      return new Response(
+        JSON.stringify({ error: "Unauthorized - internal endpoint only" }),
+        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
     const rawBody = await req.json();
     
     // Validate input with Zod schema
@@ -526,7 +546,9 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    console.log(`Sending ${type} email to ${to}`);
+    // Mask email for logging
+    const maskedEmail = to.replace(/(.{2}).*@/, '$1***@');
+    console.log(`Sending ${type} email to ${maskedEmail}`);
 
     const { html, subject } = generateEmailHTML(type, data);
 
@@ -537,7 +559,7 @@ const handler = async (req: Request): Promise<Response> => {
       html,
     });
 
-    console.log("Email sent successfully:", emailResponse);
+    console.log("Email sent successfully:", { id: emailResponse.data?.id, type });
 
     // Record successful email send for rate limiting
     await recordEmailSend(supabase, to, type);
