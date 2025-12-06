@@ -1,7 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Input } from "./ui/input";
 import { useState } from "react";
-import { Search, Smartphone, Tablet, CheckCircle2, Info, Sparkles } from "lucide-react";
+import { Search, Smartphone, Tablet, CheckCircle2, Info } from "lucide-react";
 import { useTranslation } from "@/contexts/TranslationContext";
 
 interface CompatibilityCheckerProps {
@@ -302,14 +302,9 @@ export const CompatibilityChecker = ({ open, onOpenChange }: CompatibilityChecke
         </div>
 
         <DialogHeader className="relative">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-2.5 rounded-xl bg-gradient-to-br from-neon-cyan/20 to-neon-violet/20 border border-white/10">
-              <Sparkles className="w-6 h-6 text-neon-cyan" />
-            </div>
-            <DialogTitle className="text-2xl md:text-3xl font-display bg-gradient-to-r from-white via-neon-cyan to-white bg-clip-text text-transparent">
-              {t('checkDeviceCompatibility')}
-            </DialogTitle>
-          </div>
+          <DialogTitle className="text-2xl md:text-3xl font-display bg-gradient-to-r from-white via-neon-cyan to-white bg-clip-text text-transparent">
+            {t('checkDeviceCompatibility')}
+          </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6 relative">
