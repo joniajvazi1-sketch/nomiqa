@@ -1,7 +1,13 @@
 import { useState } from "react";
 import { useTranslation } from "@/contexts/TranslationContext";
-import { Twitter, Instagram, Music, Facebook } from "lucide-react";
 import { localizedPath } from "@/utils/localizedLinks";
+import socialFacebook from "@/assets/social-facebook.png";
+import socialInstagram from "@/assets/social-instagram.png";
+import socialPinterest from "@/assets/social-pinterest.png";
+import socialTiktok from "@/assets/social-tiktok.png";
+import socialX from "@/assets/social-x.png";
+import socialYoutube from "@/assets/social-youtube.png";
+
 export const Footer = () => {
   const { t, language } = useTranslation();
   const [openSections, setOpenSections] = useState<string[]>([]);
@@ -13,6 +19,15 @@ export const Footer = () => {
         : [...prev, section]
     );
   };
+
+  const socialLinks = [
+    { href: "https://www.facebook.com/share/1ZfyMXTQfP/?mibextid=wwXIfr", icon: socialFacebook, label: "Facebook" },
+    { href: "https://www.instagram.com/nomiqaesim?igsh=MWtjMDFkM3BjZ2t2aA%3D%3D&utm_source=qr", icon: socialInstagram, label: "Instagram" },
+    { href: "https://pin.it/45dyQhPNk", icon: socialPinterest, label: "Pinterest" },
+    { href: "https://www.tiktok.com/@nomiqaesim?_r=1&_t=ZN-91m8zWG0IVC", icon: socialTiktok, label: "TikTok" },
+    { href: "https://x.com/nomiqaesim?s=11", icon: socialX, label: "X" },
+    { href: "https://youtube.com/@nomiqaesim?si=zCWrU1r-I1sOR4C9", icon: socialYoutube, label: "YouTube" },
+  ];
   
   return <footer className="relative bg-gradient-to-b from-black/60 via-deep-space/80 to-black/90 text-white overflow-hidden border-t border-white/10">
       {/* Premium decorative glows */}
@@ -33,18 +48,22 @@ export const Footer = () => {
         <div className="mb-12 md:mb-16 text-center">
           <h4 className="font-normal mb-4 text-white text-xl md:text-2xl">{t("footerFollowUs")}</h4>
           <div className="flex flex-wrap gap-3 justify-center mb-4">
-            <a href="https://x.com/nomiqaesim?s=11" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-white/[0.02] backdrop-blur-xl border border-white/10 flex items-center justify-center hover:border-neon-cyan/50 hover:bg-neon-cyan/10 hover:scale-110 transition-all duration-300 group" aria-label="X">
-              <Twitter className="w-4 h-4 text-white/60 group-hover:text-neon-cyan transition-colors duration-300" />
-            </a>
-            <a href="https://www.instagram.com/nomiqaesim?igsh=MWtjMDFkM3BjZ2t2aA%3D%3D&utm_source=qr" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-white/[0.02] backdrop-blur-xl border border-white/10 flex items-center justify-center hover:border-neon-coral/50 hover:bg-neon-coral/10 hover:scale-110 transition-all duration-300 group" aria-label="Instagram">
-              <Instagram className="w-4 h-4 text-white/60 group-hover:text-neon-coral transition-colors duration-300" />
-            </a>
-            <a href="https://www.tiktok.com/@nomiqaesim?_r=1&_t=ZN-91m8zWG0IVC" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-white/[0.02] backdrop-blur-xl border border-white/10 flex items-center justify-center hover:border-neon-violet/50 hover:bg-neon-violet/10 hover:scale-110 transition-all duration-300 group" aria-label="TikTok">
-              <Music className="w-4 h-4 text-white/60 group-hover:text-neon-violet transition-colors duration-300" />
-            </a>
-            <a href="https://www.facebook.com/share/1ZfyMXTQfP/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-white/[0.02] backdrop-blur-xl border border-white/10 flex items-center justify-center hover:border-blue-500/50 hover:bg-blue-500/10 hover:scale-110 transition-all duration-300 group" aria-label="Facebook">
-              <Facebook className="w-4 h-4 text-white/60 group-hover:text-blue-500 transition-colors duration-300" />
-            </a>
+            {socialLinks.map((social) => (
+              <a 
+                key={social.label}
+                href={social.href} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="w-10 h-10 rounded-full flex items-center justify-center hover:scale-110 transition-all duration-300 overflow-hidden" 
+                aria-label={social.label}
+              >
+                <img 
+                  src={social.icon} 
+                  alt={social.label} 
+                  className="w-10 h-10 object-cover"
+                />
+              </a>
+            ))}
           </div>
           <a href={localizedPath("/terms", language)} className="text-white/60 hover:text-neon-cyan transition-colors duration-300 font-light text-xs md:text-sm inline-block">
             {t("footerTermsConditions")}
