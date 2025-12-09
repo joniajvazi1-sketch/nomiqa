@@ -59,80 +59,92 @@ serve(async (req) => {
     console.log('Reading CSV file from disk...');
     
     // Read the CSV file from the function directory
-    const csvPath = new URL('./prices.csv', import.meta.url).pathname;
+    const csvPath = new URL('./updated-prices.csv', import.meta.url).pathname;
     const csvContent = await Deno.readTextFile(csvPath);
     
-    console.log('Parsing CSV data...');
+    console.log('Parsing CSV data (semicolon-separated)...');
     const lines = csvContent.trim().split('\n');
-    const updates: Array<{package_id: string, price: number, country: string}> = [];
+    
+    // Parse CSV - semicolon separated with columns:
+    // id;airlo_package_id;name;country_code;country_name;data_amount;validity_days;price_usd;...
+    const csvPrices: Map<string, number> = new Map();
     
     // Skip header row
     for (let i = 1; i < lines.length; i++) {
       const line = lines[i].trim();
       if (!line) continue;
       
-      // Parse CSV line (handle quoted fields)
-      const matches = line.match(/(?:^|,)("(?:[^"]|"")*"|[^,]*)/g);
-      if (!matches || matches.length < 5) continue;
+      const fields = line.split(';');
+      if (fields.length < 8) continue;
       
-      const fields = matches.map(m => m.replace(/^,?"?|"?$/g, '').replace(/""/g, '"'));
+      const airloPackageId = fields[1]?.trim();
+      const priceUsd = parseFloat(fields[7]?.trim());
       
-      const country = fields[0]?.trim();
-      const packageId = fields[1]?.trim();
-      const type = fields[2]?.trim();
-      const recommendedPrice = fields[4]?.trim();
-      
-      // Only process 'sim' type packages (not topups)
-      if (type === 'sim' && packageId && recommendedPrice) {
-        const price = parseFloat(recommendedPrice);
-        if (!isNaN(price)) {
-          updates.push({ package_id: packageId, price, country });
+      if (airloPackageId && !isNaN(priceUsd)) {
+        csvPrices.set(airloPackageId, priceUsd);
+      }
+    }
+    
+    console.log(`Parsed ${csvPrices.size} products from CSV`);
+    
+    // Fetch all current prices from database
+    const { data: dbProducts, error: fetchError } = await supabase
+      .from('products')
+      .select('airlo_package_id, price_usd');
+    
+    if (fetchError) {
+      throw new Error(`Failed to fetch products: ${fetchError.message}`);
+    }
+    
+    // Find price differences
+    const priceChanges: Array<{
+      package_id: string;
+      old_price: number;
+      new_price: number;
+    }> = [];
+    
+    for (const product of dbProducts || []) {
+      const csvPrice = csvPrices.get(product.airlo_package_id);
+      if (csvPrice !== undefined) {
+        const dbPrice = parseFloat(product.price_usd);
+        if (Math.abs(csvPrice - dbPrice) > 0.001) {
+          priceChanges.push({
+            package_id: product.airlo_package_id,
+            old_price: dbPrice,
+            new_price: csvPrice
+          });
         }
       }
     }
     
-    console.log(`Parsed ${updates.length} price updates from ${new Set(updates.map(u => u.country)).size} countries`);
+    console.log(`Found ${priceChanges.length} price changes`);
     
-    // Update prices in batches
+    // Apply updates
     let updatedCount = 0;
-    let notFoundCount = 0;
-    const batchSize = 50;
-    
-    for (let i = 0; i < updates.length; i += batchSize) {
-      const batch = updates.slice(i, i + batchSize);
+    for (const change of priceChanges) {
+      const { error } = await supabase
+        .from('products')
+        .update({ price_usd: change.new_price, updated_at: new Date().toISOString() })
+        .eq('airlo_package_id', change.package_id);
       
-      for (const update of batch) {
-        const { data, error } = await supabase
-          .from('products')
-          .update({ price_usd: update.price })
-          .eq('airlo_package_id', update.package_id)
-          .select();
-        
-        if (!error && data && data.length > 0) {
-          updatedCount++;
-          console.log(`✓ ${update.country}: ${update.package_id} → $${update.price}`);
-        } else if (!error && (!data || data.length === 0)) {
-          notFoundCount++;
-          console.log(`⊘ Not in DB: ${update.package_id}`);
-        } else {
-          console.error(`✗ Failed ${update.package_id}:`, error);
-        }
+      if (!error) {
+        updatedCount++;
+        console.log(`✓ ${change.package_id}: $${change.old_price} → $${change.new_price}`);
+      } else {
+        console.error(`✗ Failed ${change.package_id}:`, error);
       }
-      
-      console.log(`Progress: ${Math.min(i + batchSize, updates.length)} / ${updates.length}`);
     }
     
     console.log(`\n=== SUMMARY ===`);
-    console.log(`Successfully updated: ${updatedCount} products`);
-    console.log(`Not found in DB: ${notFoundCount} products`);
-    console.log(`Total processed: ${updates.length} updates`);
+    console.log(`Price changes found: ${priceChanges.length}`);
+    console.log(`Successfully updated: ${updatedCount}`);
     
     return new Response(
       JSON.stringify({ 
-        success: true, 
+        success: true,
+        changes_found: priceChanges.length,
         updated: updatedCount,
-        not_found: notFoundCount,
-        total: updates.length 
+        details: priceChanges.slice(0, 50) // Return first 50 for visibility
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
