@@ -98,15 +98,8 @@ serve(async (req) => {
       }
     }
 
-    // Security fallback: Accept webhook if it has a valid paylinkId structure
-    // This is secure because:
-    // 1. PaylinkIds are unique UUIDs only Helio knows after we create them
-    // 2. Replay protection prevents duplicate processing
-    // 3. Order must exist in our database to be processed
-    if (!isVerified && payload.transactionObject?.paylinkId) {
-      console.log('Webhook using order-based validation');
-      isVerified = true; // Allow through - order validation below provides security
-    }
+    // SECURITY: Removed weak fallback - signature/auth verification is now mandatory
+    // All webhooks must pass one of the cryptographic verification methods above
 
     if (!isVerified) {
       console.warn('Webhook rejected: no valid auth');
