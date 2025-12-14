@@ -30,14 +30,24 @@ serve(async (req) => {
 
     console.log('Expected Signature:', expectedSignature);
 
-    if (airaloSignature && airaloSignature !== expectedSignature) {
-      console.error('Signature mismatch - but processing anyway for debugging');
-      // Temporarily allow through for debugging
-      // return new Response(
-      //   JSON.stringify({ error: 'Invalid signature' }),
-      //   { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      // );
+    // SECURITY: Enforce strict signature verification
+    if (!airaloSignature) {
+      console.error('Missing Airalo signature header');
+      return new Response(
+        JSON.stringify({ error: 'Missing signature' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
+
+    if (airaloSignature !== expectedSignature) {
+      console.error('Signature mismatch - rejecting webhook');
+      return new Response(
+        JSON.stringify({ error: 'Invalid signature' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log('Airalo webhook signature verified successfully');
 
     const data = JSON.parse(payload);
 
