@@ -3,6 +3,9 @@ import { Navbar } from "@/components/Navbar";
 import { Hero } from "@/components/Hero";
 import { Footer } from "@/components/Footer";
 import { SupportChatbot } from "@/components/SupportChatbot";
+import { DePINAdvantage } from "@/components/DePINAdvantage";
+import { HowYouEarn } from "@/components/HowYouEarn";
+import { GlobalNetworkMap } from "@/components/GlobalNetworkMap";
 
 // Lazy load below-the-fold components with prefetch
 const TrustPartners = lazy(() => import(/* webpackPrefetch: true */ "@/components/TrustPartners").then(m => ({ default: m.TrustPartners })));
@@ -26,6 +29,10 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
       <Hero />
+      {/* Network First Strategy Sections */}
+      <DePINAdvantage />
+      <HowYouEarn />
+      <GlobalNetworkMap />
       <Suspense fallback={<LoadingSpinner />}>
         <TrustPartners />
         <FeaturedProducts />
