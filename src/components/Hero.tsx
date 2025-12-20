@@ -46,6 +46,16 @@ export const Hero = () => {
         return;
       }
 
+      // Check if email was already registered
+      if (data?.alreadyRegistered) {
+        toast({
+          title: t("heroNetworkAlreadyRegisteredTitle"),
+          description: t("heroNetworkAlreadyRegisteredDescription"),
+        });
+        setIsRegistered(true);
+        return;
+      }
+
       setIsRegistered(true);
       toast({
         title: t("heroNetworkSuccessTitle"),
