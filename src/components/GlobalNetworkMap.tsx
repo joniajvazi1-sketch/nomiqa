@@ -15,23 +15,23 @@ export const GlobalNetworkMap = () => {
 
   // Sample node positions for the map
   const nodes = [
-    { x: 25, y: 35, size: 'lg', pulse: true }, // North America
+    { x: 25, y: 35, size: 'lg', pulse: true },
     { x: 28, y: 45, size: 'md', pulse: false },
     { x: 22, y: 55, size: 'sm', pulse: true },
-    { x: 35, y: 70, size: 'md', pulse: false }, // South America
+    { x: 35, y: 70, size: 'md', pulse: false },
     { x: 38, y: 80, size: 'sm', pulse: true },
-    { x: 48, y: 30, size: 'lg', pulse: true }, // Europe
+    { x: 48, y: 30, size: 'lg', pulse: true },
     { x: 50, y: 35, size: 'md', pulse: false },
     { x: 52, y: 38, size: 'sm', pulse: true },
     { x: 45, y: 42, size: 'md', pulse: false },
-    { x: 55, y: 50, size: 'lg', pulse: true }, // Africa
+    { x: 55, y: 50, size: 'lg', pulse: true },
     { x: 58, y: 60, size: 'sm', pulse: false },
-    { x: 65, y: 35, size: 'lg', pulse: true }, // Asia
+    { x: 65, y: 35, size: 'lg', pulse: true },
     { x: 70, y: 40, size: 'md', pulse: false },
     { x: 75, y: 45, size: 'lg', pulse: true },
-    { x: 80, y: 35, size: 'md', pulse: true }, // East Asia
+    { x: 80, y: 35, size: 'md', pulse: true },
     { x: 82, y: 42, size: 'sm', pulse: false },
-    { x: 85, y: 70, size: 'md', pulse: true }, // Oceania
+    { x: 85, y: 70, size: 'md', pulse: true },
     { x: 88, y: 75, size: 'sm', pulse: false },
   ];
 
@@ -45,41 +45,51 @@ export const GlobalNetworkMap = () => {
   };
 
   return (
-    <section className="py-20 bg-background relative overflow-hidden">
-      {/* Dark gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-card/50 via-background to-background" />
+    <section className="py-24 relative overflow-hidden">
+      {/* Premium gradient background */}
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-card/30 to-background" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(0,255,200,0.05),transparent_60%)]" />
       
       <div className="container px-4 relative z-10">
-        <div className="text-center mb-12">
-          <span className="inline-block px-4 py-1.5 rounded-full bg-neon-cyan/10 text-neon-cyan text-sm font-medium mb-4 border border-neon-cyan/20">
+        <div className="text-center mb-14 animate-fade-in">
+          <span className="inline-block px-5 py-2 rounded-full bg-white/[0.03] backdrop-blur-xl text-neon-cyan text-sm font-medium mb-6 border border-white/10 shadow-lg shadow-neon-cyan/5">
             Global Coverage
           </span>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
-            Building Coverage Together
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-light font-display mb-6">
+            <span className="bg-gradient-to-r from-neon-cyan via-white to-neon-violet bg-clip-text text-transparent font-semibold">
+              Building Coverage Together
+            </span>
           </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto font-light">
             Join thousands of pioneers already expanding the network. Every node strengthens our global mesh.
           </p>
         </div>
 
         {/* Stats bar */}
-        <div className="flex justify-center gap-8 mb-12">
-          <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-neon-cyan/10 border border-neon-cyan/20">
-            <Users className="w-5 h-5 text-neon-cyan" />
-            <span className="text-foreground font-semibold">{nodeCount.toLocaleString()}</span>
-            <span className="text-muted-foreground">nodes active</span>
+        <div className="flex justify-center gap-6 mb-14 animate-fade-in" style={{ animationDelay: '0.1s' }}>
+          <div className="flex items-center gap-3 px-6 py-3 rounded-full backdrop-blur-xl bg-white/[0.03] border border-white/10 shadow-lg">
+            <div className="w-8 h-8 rounded-full bg-neon-cyan/10 flex items-center justify-center">
+              <Users className="w-4 h-4 text-neon-cyan" />
+            </div>
+            <span className="text-foreground font-semibold text-lg">{nodeCount.toLocaleString()}</span>
+            <span className="text-muted-foreground font-light">nodes active</span>
           </div>
-          <div className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-full bg-nomiqa-teal/10 border border-nomiqa-teal/20">
-            <MapPin className="w-5 h-5 text-nomiqa-teal" />
-            <span className="text-foreground font-semibold">47</span>
-            <span className="text-muted-foreground">countries</span>
+          <div className="hidden sm:flex items-center gap-3 px-6 py-3 rounded-full backdrop-blur-xl bg-white/[0.03] border border-white/10 shadow-lg">
+            <div className="w-8 h-8 rounded-full bg-nomiqa-teal/10 flex items-center justify-center">
+              <MapPin className="w-4 h-4 text-nomiqa-teal" />
+            </div>
+            <span className="text-foreground font-semibold text-lg">47</span>
+            <span className="text-muted-foreground font-light">countries</span>
           </div>
         </div>
 
         {/* World map container */}
-        <div className="relative max-w-5xl mx-auto aspect-[2/1] rounded-2xl overflow-hidden border border-border/50 bg-card/30 backdrop-blur-sm">
+        <div className="relative max-w-5xl mx-auto aspect-[2/1] rounded-3xl overflow-hidden backdrop-blur-xl bg-white/[0.02] border border-white/10 shadow-2xl shadow-black/20 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+          {/* Inner glow */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(0,255,200,0.03),transparent_70%)]" />
+          
           {/* Grid overlay */}
-          <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,200,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,200,0.03)_1px,transparent_1px)] bg-[size:40px_40px]" />
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,200,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,200,0.02)_1px,transparent_1px)] bg-[size:40px_40px]" />
           
           {/* Simplified world map outline */}
           <svg 
@@ -88,7 +98,7 @@ export const GlobalNetworkMap = () => {
             preserveAspectRatio="xMidYMid meet"
           >
             {/* Continents as simplified paths */}
-            <g className="fill-muted/20 stroke-muted/30" strokeWidth="0.2">
+            <g className="fill-white/5 stroke-white/10" strokeWidth="0.15">
               {/* North America */}
               <path d="M15,15 Q20,12 28,14 L30,20 Q32,25 28,30 L25,35 Q22,38 20,35 L18,30 Q15,25 15,20 Z" />
               {/* South America */}
@@ -117,18 +127,18 @@ export const GlobalNetworkMap = () => {
             >
               <div 
                 className={`
-                  rounded-full bg-neon-cyan shadow-lg shadow-neon-cyan/50
-                  ${node.size === 'lg' ? 'w-3 h-3' : node.size === 'md' ? 'w-2 h-2' : 'w-1.5 h-1.5'}
+                  rounded-full bg-gradient-to-br from-neon-cyan to-nomiqa-teal shadow-lg
+                  ${node.size === 'lg' ? 'w-3 h-3 shadow-neon-cyan/50' : node.size === 'md' ? 'w-2 h-2 shadow-neon-cyan/40' : 'w-1.5 h-1.5 shadow-neon-cyan/30'}
                   ${node.pulse ? 'animate-pulse' : ''}
                 `}
               >
-                {node.pulse && (
-                  <div className="absolute inset-0 rounded-full bg-neon-cyan animate-ping opacity-40" />
+                {node.pulse && node.size === 'lg' && (
+                  <div className="absolute inset-0 rounded-full bg-neon-cyan animate-ping opacity-30" />
                 )}
               </div>
-              {/* Glow effect */}
+              {/* Glow effect for large nodes */}
               {node.size === 'lg' && (
-                <div className="absolute inset-0 w-8 h-8 -translate-x-1/2 -translate-y-1/2 bg-neon-cyan/20 rounded-full blur-md" 
+                <div className="absolute inset-0 w-10 h-10 -translate-x-1/2 -translate-y-1/2 bg-neon-cyan/10 rounded-full blur-lg" 
                   style={{ left: '50%', top: '50%' }}
                 />
               )}
@@ -137,6 +147,13 @@ export const GlobalNetworkMap = () => {
 
           {/* Connection lines between nearby nodes */}
           <svg className="absolute inset-0 w-full h-full pointer-events-none">
+            <defs>
+              <linearGradient id="connectionGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="rgba(0,255,200,0.2)" />
+                <stop offset="50%" stopColor="rgba(0,255,200,0.1)" />
+                <stop offset="100%" stopColor="rgba(0,255,200,0.2)" />
+              </linearGradient>
+            </defs>
             {nodes.slice(0, -1).map((node, i) => {
               const nextNode = nodes[i + 1];
               if (Math.abs(node.x - nextNode.x) < 15 && Math.abs(node.y - nextNode.y) < 20) {
@@ -147,7 +164,7 @@ export const GlobalNetworkMap = () => {
                     y1={`${node.y}%`}
                     x2={`${nextNode.x}%`}
                     y2={`${nextNode.y}%`}
-                    stroke="rgba(0,255,200,0.15)"
+                    stroke="url(#connectionGradient)"
                     strokeWidth="0.5"
                   />
                 );
@@ -156,22 +173,23 @@ export const GlobalNetworkMap = () => {
             })}
           </svg>
 
-          {/* Radial gradient overlay for depth */}
-          <div className="absolute inset-0 bg-radial-gradient from-transparent via-transparent to-background/80 pointer-events-none" />
+          {/* Edge vignette */}
+          <div className="absolute inset-0 bg-gradient-to-b from-background/20 via-transparent to-background/40 pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-r from-background/30 via-transparent to-background/30 pointer-events-none" />
         </div>
 
         {/* CTA */}
-        <div className="text-center mt-12">
+        <div className="text-center mt-14 animate-fade-in" style={{ animationDelay: '0.3s' }}>
           <Button 
             onClick={scrollToRegistration}
             size="lg"
-            className="bg-gradient-to-r from-neon-cyan to-nomiqa-teal hover:from-neon-cyan/90 hover:to-nomiqa-teal/90 text-background font-semibold px-8 py-6 text-lg rounded-xl shadow-lg shadow-neon-cyan/20 transition-all duration-300 hover:shadow-neon-cyan/40 hover:-translate-y-0.5"
+            className="h-auto py-4 px-10 text-lg font-light bg-gradient-to-r from-neon-cyan to-nomiqa-teal hover:from-neon-cyan/90 hover:to-nomiqa-teal/90 text-background rounded-2xl shadow-xl shadow-neon-cyan/20 transition-all duration-300 hover:shadow-neon-cyan/40 hover:-translate-y-0.5 border border-white/20"
           >
             <MapPin className="w-5 h-5 mr-2" />
             Add Your City to the Network
           </Button>
-          <p className="text-muted-foreground text-sm mt-4">
-            Be among the first in your area. Early supporters get bonus rewards.
+          <p className="text-muted-foreground text-sm mt-5 font-light">
+            Be among the first in your area. <span className="text-neon-cyan">Early supporters get bonus rewards.</span>
           </p>
         </div>
       </div>
