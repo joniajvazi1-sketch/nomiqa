@@ -105,16 +105,16 @@ export const FeaturedProducts = () => {
         <div className="text-center mb-16 animate-fade-in">
           <div className="inline-block mb-4">
             <Badge variant="outline" className="border-neon-cyan/20 text-neon-cyan bg-neon-cyan/5 px-4 py-2">
-              {t("shop")}
+              {t("instantAccess")}
             </Badge>
           </div>
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-light font-display mb-6">
             <span className="bg-gradient-to-r from-neon-cyan via-white to-neon-violet bg-clip-text text-transparent font-semibold">
-              {t("featuredPlans")}
+              {t("instantGlobalDataAccess")}
             </span>
           </h2>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto font-light">
-            {t("featuredPlansDesc")}
+            {t("instantGlobalDataAccessDesc")}
           </p>
         </div>
 
