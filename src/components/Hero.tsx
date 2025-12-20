@@ -1,14 +1,68 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
 import heroSunsetBg from "@/assets/hero-sunset-background.png";
 import heroMobileSunset from "@/assets/hero-mobile-sunset.png";
 import { useTranslation } from "@/contexts/TranslationContext";
-import { ArrowRight, Globe } from "lucide-react";
+import { ArrowRight, Check, Loader2, Wifi } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 export const Hero = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { toast } = useToast();
+  const [email, setEmail] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isRegistered, setIsRegistered] = useState(false);
   
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!email || !email.includes("@")) {
+      toast({
+        title: t("heroNetworkErrorTitle"),
+        description: t("heroNetworkErrorInvalidEmail"),
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke("register-network", {
+        body: { email: email.trim().toLowerCase(), source: "hero" },
+      });
+
+      if (error) {
+        console.error("Registration error:", error);
+        toast({
+          title: t("heroNetworkErrorTitle"),
+          description: t("heroNetworkErrorGeneric"),
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setIsRegistered(true);
+      toast({
+        title: t("heroNetworkSuccessTitle"),
+        description: t("heroNetworkSuccessDescription"),
+      });
+    } catch (err) {
+      console.error("Unexpected error:", err);
+      toast({
+        title: t("heroNetworkErrorTitle"),
+        description: t("heroNetworkErrorGeneric"),
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden">
       {/* Premium background with elegant overlay */}
@@ -24,69 +78,115 @@ export const Hero = () => {
           />
         </picture>
         {/* Ultra minimal overlay - maximum background visibility */}
-        <div className="absolute inset-0 bg-black/10"></div>
+        <div className="absolute inset-0 bg-black/20"></div>
       </div>
       
-      <div className="container relative z-10 px-6 md:px-8 py-32 md:py-40">
-        <div className="max-w-6xl mx-auto">
-          {/* Hero headline - Premium typography */}
-          <div className="text-center mb-10 md:mb-12 animate-fade-in" style={{ animationDelay: "0.1s" }}>
-            <h1 className="text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-light font-display leading-[1.1] tracking-tight">
-              <span className="block bg-gradient-to-r from-neon-cyan via-white to-neon-violet bg-clip-text text-transparent font-semibold">
-                {t("heroPrivate")} {t("heroBorderless")} {t("heroHuman")}
+      <div className="container relative z-10 px-6 md:px-8 py-24 md:py-32">
+        <div className="max-w-4xl mx-auto">
+          
+          {/* DePIN Trust Badge */}
+          <div className="flex justify-center mb-6 animate-fade-in" style={{ animationDelay: "0.05s" }}>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-neon-cyan/30 text-neon-cyan text-xs md:text-sm font-medium">
+              <Wifi className="w-3.5 h-3.5" />
+              <span>{t("heroNetworkBadge")}</span>
+            </div>
+          </div>
+
+          {/* Main Headline */}
+          <div className="text-center mb-6 md:mb-8 animate-fade-in" style={{ animationDelay: "0.1s" }}>
+            <h1 className="text-3xl md:text-5xl lg:text-6xl xl:text-7xl font-semibold font-display leading-[1.1] tracking-tight">
+              <span className="block bg-gradient-to-r from-neon-cyan via-white to-neon-violet bg-clip-text text-transparent">
+                {t("heroNetworkHeadline")}
               </span>
             </h1>
           </div>
           
-          {/* Premium description */}
-          <div className="text-center mb-12 md:mb-16 max-w-3xl mx-auto animate-fade-in" style={{ animationDelay: "0.2s" }}>
-            <p className="text-lg md:text-xl lg:text-2xl text-white/95 font-light leading-relaxed mb-4">
-              {t("heroDescription1")}
+          {/* Subheadline */}
+          <div className="text-center mb-8 md:mb-10 max-w-2xl mx-auto animate-fade-in" style={{ animationDelay: "0.15s" }}>
+            <p className="text-base md:text-lg lg:text-xl text-white/90 font-light leading-relaxed">
+              {t("heroNetworkSubheadline")}
             </p>
-            <p className="text-base md:text-lg text-white/70 font-light leading-relaxed mb-3">
-              {t("heroDescription2")}
-            </p>
-            <p className="text-sm md:text-base text-neon-cyan/90 font-light leading-relaxed">
-              {t("heroTokenInfo")}
-            </p>
-          </div>
-          
-          {/* Premium CTAs */}
-          <div className="flex flex-col sm:flex-row gap-4 sm:gap-5 justify-center items-center animate-fade-in" style={{ animationDelay: "0.3s" }}>
-            <Button 
-              size="lg" 
-              onClick={() => navigate('/shop')} 
-              className="group h-auto py-3 px-6 md:px-10 md:py-7 text-sm md:text-base lg:text-lg font-light bg-white hover:bg-white/95 text-deep-space rounded-xl md:rounded-2xl shadow-2xl hover:shadow-white/20 transition-all duration-300 hover:scale-105 border border-white/20 w-full sm:w-auto"
-            >
-              <span className="break-words">{t("heroBuyNow")}</span>
-              <ArrowRight className="ml-2 w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-1 transition-transform flex-shrink-0" />
-            </Button>
-            <Button 
-              variant="ghost" 
-              size="lg" 
-              onClick={() => navigate('/getting-started')} 
-              className="group h-auto py-3 px-6 md:px-10 md:py-7 text-sm md:text-base lg:text-lg font-light backdrop-blur-xl bg-white/5 hover:bg-white/10 text-white border-2 border-white/20 hover:border-white/40 rounded-xl md:rounded-2xl transition-all duration-300 w-full sm:w-auto"
-            >
-              <span className="break-words">{t("heroWatchHow")}</span>
-              <Globe className="ml-2 w-4 h-4 md:w-5 md:h-5 group-hover:rotate-12 transition-transform flex-shrink-0" />
-            </Button>
           </div>
 
-          {/* Premium trust indicators - 2 lines on mobile, more visible background */}
-          <div className="mt-24 md:mt-28 flex flex-wrap justify-center items-center gap-x-8 md:gap-x-12 gap-y-4 text-white/60 text-sm animate-fade-in" style={{ animationDelay: "0.4s" }}>
-            <div className="flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-neon-cyan"></div>
-              <span className="font-light">{t("heroCountries")}</span>
+          {/* Benefits List */}
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-6 mb-8 md:mb-10 animate-fade-in" style={{ animationDelay: "0.2s" }}>
+            <div className="flex items-center gap-2 text-white/80 text-sm md:text-base">
+              <div className="w-5 h-5 rounded-full bg-neon-cyan/20 flex items-center justify-center">
+                <Check className="w-3 h-3 text-neon-cyan" />
+              </div>
+              <span>{t("heroNetworkBenefit1")}</span>
             </div>
-            <div className="flex items-center gap-2 break-keep">
-              <div className="w-1.5 h-1.5 rounded-full bg-neon-violet"></div>
-              <span className="font-light whitespace-nowrap">{t("heroNoKyc")}</span>
+            <div className="flex items-center gap-2 text-white/80 text-sm md:text-base">
+              <div className="w-5 h-5 rounded-full bg-neon-violet/20 flex items-center justify-center">
+                <Check className="w-3 h-3 text-neon-violet" />
+              </div>
+              <span>{t("heroNetworkBenefit2")}</span>
             </div>
-            <div className="flex items-center gap-2 w-full sm:w-auto justify-center">
-              <div className="w-1.5 h-1.5 rounded-full bg-neon-coral"></div>
-              <span className="font-light whitespace-nowrap">{t("heroCryptoOnly")}</span>
+            <div className="flex items-center gap-2 text-white/80 text-sm md:text-base">
+              <div className="w-5 h-5 rounded-full bg-neon-coral/20 flex items-center justify-center">
+                <Check className="w-3 h-3 text-neon-coral" />
+              </div>
+              <span>{t("heroNetworkBenefit3")}</span>
             </div>
           </div>
+          
+          {/* Registration Form or Success State */}
+          <div className="max-w-md mx-auto animate-fade-in" style={{ animationDelay: "0.25s" }}>
+            {!isRegistered ? (
+              <form onSubmit={handleRegister} className="space-y-4">
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Input
+                    type="email"
+                    placeholder={t("heroNetworkEmailPlaceholder")}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="flex-1 h-12 md:h-14 bg-white/10 backdrop-blur-md border-white/20 text-white placeholder:text-white/50 rounded-xl focus:border-neon-cyan focus:ring-neon-cyan/20"
+                    disabled={isLoading}
+                  />
+                  <Button 
+                    type="submit"
+                    size="lg" 
+                    disabled={isLoading}
+                    className="h-12 md:h-14 px-6 md:px-8 text-sm md:text-base font-medium bg-white hover:bg-white/95 text-deep-space rounded-xl shadow-2xl hover:shadow-white/20 transition-all duration-300 hover:scale-105 whitespace-nowrap"
+                  >
+                    {isLoading ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                      <>
+                        <span className="hidden sm:inline">{t("heroNetworkCta")}</span>
+                        <span className="sm:hidden">{t("heroNetworkCtaShort")}</span>
+                        <ArrowRight className="ml-2 w-4 h-4" />
+                      </>
+                    )}
+                  </Button>
+                </div>
+                
+                {/* Microcopy */}
+                <p className="text-center text-white/60 text-xs md:text-sm">
+                  {t("heroNetworkMicrocopy")}
+                </p>
+              </form>
+            ) : (
+              <div className="text-center p-6 rounded-2xl bg-white/10 backdrop-blur-md border border-neon-cyan/30">
+                <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-neon-cyan/20 flex items-center justify-center">
+                  <Check className="w-6 h-6 text-neon-cyan" />
+                </div>
+                <h3 className="text-xl font-semibold text-white mb-2">{t("heroNetworkRegisteredTitle")}</h3>
+                <p className="text-white/70 text-sm">{t("heroNetworkRegisteredDescription")}</p>
+              </div>
+            )}
+          </div>
+
+          {/* Secondary Action */}
+          <div className="text-center mt-6 animate-fade-in" style={{ animationDelay: "0.3s" }}>
+            <button 
+              onClick={() => navigate('/shop')} 
+              className="text-white/60 hover:text-white text-sm md:text-base font-light transition-colors duration-200 hover:underline underline-offset-4"
+            >
+              {t("heroNetworkSecondary")}
+            </button>
+          </div>
+
         </div>
       </div>
 

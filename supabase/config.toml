@@ -50,3 +50,6 @@ verify_jwt = false
 
 [functions.get-esim-usage]
 verify_jwt = true
+
+[functions.register-network]
+verify_jwt = false
