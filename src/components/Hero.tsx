@@ -86,9 +86,9 @@ export const Hero = () => {
           
           {/* DePIN Trust Badge */}
           <div className="flex justify-center mb-6 animate-fade-in" style={{ animationDelay: "0.05s" }}>
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-neon-cyan/30 text-neon-cyan text-xs md:text-sm font-medium">
-              <Wifi className="w-3.5 h-3.5" />
-              <span>{t("heroNetworkBadge")}</span>
+            <div className="inline-flex items-center justify-center gap-2 px-3 md:px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-neon-cyan/30 text-neon-cyan text-[10px] md:text-sm font-medium text-center">
+              <Wifi className="w-3 h-3 md:w-3.5 md:h-3.5 flex-shrink-0" />
+              <span className="whitespace-nowrap">{t("heroNetworkBadge")}</span>
             </div>
           </div>
 
