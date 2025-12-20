@@ -439,6 +439,7 @@ export type Database = {
           created_at: string
           email_verified: boolean | null
           id: string
+          is_early_member: boolean
           password_reset_code: string | null
           password_reset_expires_at: string | null
           updated_at: string
@@ -451,6 +452,7 @@ export type Database = {
           created_at?: string
           email_verified?: boolean | null
           id?: string
+          is_early_member?: boolean
           password_reset_code?: string | null
           password_reset_expires_at?: string | null
           updated_at?: string
@@ -463,6 +465,7 @@ export type Database = {
           created_at?: string
           email_verified?: boolean | null
           id?: string
+          is_early_member?: boolean
           password_reset_code?: string | null
           password_reset_expires_at?: string | null
           updated_at?: string
