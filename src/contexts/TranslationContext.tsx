@@ -1,3 +1,4 @@
+// TranslationContext - provides i18n for the entire app
 import { createContext, useContext, useEffect, useMemo, useState, ReactNode } from "react";
 import { termsTranslations } from "@/translations/termsTranslations";
 
