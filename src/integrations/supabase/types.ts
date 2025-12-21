@@ -216,36 +216,6 @@ export type Database = {
           },
         ]
       }
-      network_registrations: {
-        Row: {
-          created_at: string
-          email: string
-          id: string
-          ip_country: string | null
-          referral_code: string | null
-          source: string | null
-          status: string
-        }
-        Insert: {
-          created_at?: string
-          email: string
-          id?: string
-          ip_country?: string | null
-          referral_code?: string | null
-          source?: string | null
-          status?: string
-        }
-        Update: {
-          created_at?: string
-          email?: string
-          id?: string
-          ip_country?: string | null
-          referral_code?: string | null
-          source?: string | null
-          status?: string
-        }
-        Relationships: []
-      }
       orders: {
         Row: {
           access_token: string | null
