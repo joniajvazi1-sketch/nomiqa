@@ -96,14 +96,20 @@ export const Hero = () => {
           {/* CTA Buttons */}
           <div className="max-w-md mx-auto animate-fade-in text-center" style={{ animationDelay: "0.25s" }}>
             {isLoggedIn ? (
-              <Button 
-                onClick={() => navigate('/affiliate')}
-                size="lg" 
-                className="h-12 md:h-14 px-8 md:px-12 text-sm md:text-base font-medium bg-gradient-to-r from-neon-cyan to-neon-violet hover:opacity-90 text-white rounded-xl shadow-2xl hover:shadow-neon-cyan/20 transition-all duration-300 hover:scale-105"
-              >
-                <Users className="mr-2 w-4 h-4" />
-                {t("heroStartReferring")}
-              </Button>
+              <div className="space-y-3">
+                <p className="text-neon-cyan text-xs md:text-sm font-medium animate-pulse">
+                  {t("heroWelcomeBack")}
+                </p>
+                <Button 
+                  onClick={() => navigate('/affiliate')}
+                  size="lg" 
+                  className="h-12 md:h-14 px-8 md:px-12 text-sm md:text-base font-medium bg-white hover:bg-white/95 text-deep-space rounded-xl shadow-2xl hover:shadow-white/20 transition-all duration-300 hover:scale-105"
+                >
+                  <Users className="mr-2 w-4 h-4" />
+                  {t("heroStartReferring")}
+                  <ArrowRight className="ml-2 w-4 h-4" />
+                </Button>
+              </div>
             ) : (
               <Button 
                 onClick={() => navigate('/auth')}
