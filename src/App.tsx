@@ -73,13 +73,14 @@ function AffiliateTracker() {
   return null;
 }
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TranslationProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
+const App = () => {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TranslationProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
           <AffiliateTracker />
           <Suspense fallback={<PageLoader />}>
             <Routes>
@@ -323,6 +324,7 @@ const App = () => (
       </TooltipProvider>
     </TranslationProvider>
   </QueryClientProvider>
-);
+  );
+};
 
 export default App;
