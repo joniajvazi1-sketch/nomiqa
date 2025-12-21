@@ -19,6 +19,34 @@ serve(async (req) => {
   }
 
   try {
+    // Authentication check - require valid JWT
+    const authHeader = req.headers.get('authorization');
+    if (!authHeader) {
+      console.error('No authorization header provided');
+      return new Response(
+        JSON.stringify({ error: 'Authentication required' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Create authenticated Supabase client to verify the user
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    
+    const authClient = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+
+    const { data: { user }, error: authError } = await authClient.auth.getUser();
+    if (authError || !user) {
+      console.error('Invalid authentication:', authError?.message);
+      return new Response(
+        JSON.stringify({ error: 'Invalid authentication' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     // Validate input
     const rawBody = await req.json();
     const validationResult = submitOrderSchema.safeParse(rawBody);
@@ -31,6 +59,18 @@ serve(async (req) => {
     }
 
     const { packageId, email, userId } = validationResult.data;
+
+    // Verify userId matches authenticated user if provided
+    if (userId && userId !== user.id) {
+      console.error(`User ID mismatch: provided ${userId}, authenticated ${user.id}`);
+      return new Response(
+        JSON.stringify({ error: 'User ID mismatch' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Use authenticated user's ID
+    const authenticatedUserId = user.id;
 
     const airloClientId = Deno.env.get('AIRLO_CLIENT_ID');
     const airloClientSecret = Deno.env.get('AIRLO_CLIENT_SECRET');
@@ -89,10 +129,8 @@ serve(async (req) => {
     // Get sharing link and access code for branded eSIM Cloud portal
     const sharingData = orderData.sharing;
     
-    // Get product details
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    // Use service role for database operations
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     const { data: product } = await supabase
       .from('products')
@@ -100,11 +138,11 @@ serve(async (req) => {
       .eq('airlo_package_id', packageId)
       .single();
 
-    // Create order record with eSIM details
+    // Create order record with eSIM details - always use authenticated user ID
     const { data: order, error: orderError } = await supabase
       .from('orders')
       .insert({
-        user_id: userId || null,
+        user_id: authenticatedUserId,
         product_id: product?.id,
         email,
         total_amount_usd: product?.price_usd || 0,
@@ -240,11 +278,11 @@ serve(async (req) => {
     }
 
     // Update user spending for membership tier tracking
-    if (userId && product?.price_usd) {
+    if (product?.price_usd) {
       const { data: existingSpending } = await supabase
         .from('user_spending')
         .select('*')
-        .eq('user_id', userId)
+        .eq('user_id', authenticatedUserId)
         .single();
 
       if (existingSpending) {
@@ -253,16 +291,18 @@ serve(async (req) => {
           .update({
             total_spent_usd: existingSpending.total_spent_usd + product.price_usd
           })
-          .eq('user_id', userId);
+          .eq('user_id', authenticatedUserId);
       } else {
         await supabase
           .from('user_spending')
           .insert({
-            user_id: userId,
+            user_id: authenticatedUserId,
             total_spent_usd: product.price_usd
           });
       }
     }
+
+    console.log(`Order created successfully for user ${authenticatedUserId}`);
 
     return new Response(
       JSON.stringify({
