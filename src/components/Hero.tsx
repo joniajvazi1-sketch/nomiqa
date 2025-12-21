@@ -11,20 +11,56 @@ export const Hero = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [username, setUsername] = useState<string | null>(null);
 
   useEffect(() => {
-    const checkAuth = async () => {
+    const checkAuthAndFetchProfile = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       setIsLoggedIn(!!session);
+      
+      if (session?.user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('username')
+          .eq('user_id', session.user.id)
+          .maybeSingle();
+        
+        if (profile?.username) {
+          setUsername(profile.username);
+        }
+      }
     };
-    checkAuth();
+    checkAuthAndFetchProfile();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_, session) => {
       setIsLoggedIn(!!session);
+      
+      if (session?.user) {
+        setTimeout(async () => {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('username')
+            .eq('user_id', session.user.id)
+            .maybeSingle();
+          
+          if (profile?.username) {
+            setUsername(profile.username);
+          }
+        }, 0);
+      } else {
+        setUsername(null);
+      }
     });
 
     return () => subscription.unsubscribe();
   }, []);
+
+  const getGreeting = () => {
+    if (username) {
+      return t("heroWelcomeBackUser").replace("{name}", username);
+    }
+    return t("heroWelcomeBack");
+  };
 
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden">
@@ -98,7 +134,7 @@ export const Hero = () => {
             {isLoggedIn ? (
               <div className="space-y-3">
                 <p className="text-neon-cyan text-xs md:text-sm font-medium animate-pulse">
-                  {t("heroWelcomeBack")}
+                  {getGreeting()}
                 </p>
                 <Button 
                   onClick={() => navigate('/affiliate')}
