@@ -1,77 +1,13 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
 import heroSunsetBg from "@/assets/hero-sunset-background.png";
 import heroMobileSunset from "@/assets/hero-mobile-sunset.png";
 import { useTranslation } from "@/contexts/TranslationContext";
-import { ArrowRight, Check, Loader2, Wifi } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { ArrowRight, Check, Wifi } from "lucide-react";
 
 export const Hero = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { toast } = useToast();
-  const [email, setEmail] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [isRegistered, setIsRegistered] = useState(false);
-  
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!email || !email.includes("@")) {
-      toast({
-        title: t("heroNetworkErrorTitle"),
-        description: t("heroNetworkErrorInvalidEmail"),
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsLoading(true);
-
-    try {
-      const { data, error } = await supabase.functions.invoke("register-network", {
-        body: { email: email.trim().toLowerCase(), source: "hero" },
-      });
-
-      if (error) {
-        console.error("Registration error:", error);
-        toast({
-          title: t("heroNetworkErrorTitle"),
-          description: t("heroNetworkErrorGeneric"),
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Check if email was already registered
-      if (data?.alreadyRegistered) {
-        toast({
-          title: t("heroNetworkAlreadyRegisteredTitle"),
-          description: t("heroNetworkAlreadyRegisteredDescription"),
-        });
-        setIsRegistered(true);
-        return;
-      }
-
-      setIsRegistered(true);
-      toast({
-        title: t("heroNetworkSuccessTitle"),
-        description: t("heroNetworkSuccessDescription"),
-      });
-    } catch (err) {
-      console.error("Unexpected error:", err);
-      toast({
-        title: t("heroNetworkErrorTitle"),
-        description: t("heroNetworkErrorGeneric"),
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden">
@@ -140,51 +76,21 @@ export const Hero = () => {
             </div>
           </div>
           
-          {/* Registration Form or Success State */}
-          <div className="max-w-md mx-auto animate-fade-in" style={{ animationDelay: "0.25s" }}>
-            {!isRegistered ? (
-              <form onSubmit={handleRegister} className="space-y-4">
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <Input
-                    type="email"
-                    placeholder={t("heroNetworkEmailPlaceholder")}
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="flex-1 h-12 md:h-14 bg-white/10 backdrop-blur-md border-white/20 text-white placeholder:text-white/50 rounded-xl focus:border-neon-cyan focus:ring-neon-cyan/20"
-                    disabled={isLoading}
-                  />
-                  <Button 
-                    type="submit"
-                    size="lg" 
-                    disabled={isLoading}
-                    className="h-12 md:h-14 px-6 md:px-8 text-sm md:text-base font-medium bg-white hover:bg-white/95 text-deep-space rounded-xl shadow-2xl hover:shadow-white/20 transition-all duration-300 hover:scale-105 whitespace-nowrap"
-                  >
-                    {isLoading ? (
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                    ) : (
-                      <>
-                        <span className="hidden sm:inline">{t("heroNetworkCta")}</span>
-                        <span className="sm:hidden">{t("heroNetworkCtaShort")}</span>
-                        <ArrowRight className="ml-2 w-4 h-4" />
-                      </>
-                    )}
-                  </Button>
-                </div>
-                
-                {/* Microcopy */}
-                <p className="text-center text-white/60 text-xs md:text-sm">
-                  {t("heroNetworkMicrocopy")}
-                </p>
-              </form>
-            ) : (
-              <div className="text-center p-6 rounded-2xl bg-white/10 backdrop-blur-md border border-neon-cyan/30">
-                <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-neon-cyan/20 flex items-center justify-center">
-                  <Check className="w-6 h-6 text-neon-cyan" />
-                </div>
-                <h3 className="text-xl font-semibold text-white mb-2">{t("heroNetworkRegisteredTitle")}</h3>
-                <p className="text-white/70 text-sm">{t("heroNetworkRegisteredDescription")}</p>
-              </div>
-            )}
+          {/* Register CTA Button */}
+          <div className="max-w-md mx-auto animate-fade-in text-center" style={{ animationDelay: "0.25s" }}>
+            <Button 
+              onClick={() => navigate('/auth')}
+              size="lg" 
+              className="h-12 md:h-14 px-8 md:px-12 text-sm md:text-base font-medium bg-white hover:bg-white/95 text-deep-space rounded-xl shadow-2xl hover:shadow-white/20 transition-all duration-300 hover:scale-105"
+            >
+              {t("heroRegisterCta")}
+              <ArrowRight className="ml-2 w-4 h-4" />
+            </Button>
+            
+            {/* Microcopy */}
+            <p className="mt-4 text-white/60 text-xs md:text-sm">
+              {t("heroRegisterMicrocopy")}
+            </p>
           </div>
 
           {/* Secondary Action */}

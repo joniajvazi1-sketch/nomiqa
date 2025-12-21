@@ -156,15 +156,6 @@ export default function Auth() {
           const code = Math.floor(100000 + Math.random() * 900000).toString();
           const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
 
-          // Check if user registered for the network (early member)
-          const { data: networkReg } = await supabase
-            .from('network_registrations')
-            .select('email')
-            .eq('email', email.toLowerCase())
-            .maybeSingle();
-
-          const isEarlyMember = !!networkReg;
-
           const { error: profileError } = await supabase
             .from('profiles')
             .insert({
@@ -173,7 +164,7 @@ export default function Auth() {
               email_verified: false,
               verification_code: code,
               verification_code_expires_at: expiresAt,
-              is_early_member: isEarlyMember,
+              is_early_member: true, // All new registrations are early members
             });
 
           if (profileError) {
@@ -181,9 +172,6 @@ export default function Auth() {
             throw profileError;
           }
 
-          if (isEarlyMember) {
-            console.log('Early member detected - benefits applied');
-          }
 
           // Send verification email
           const { error: emailError } = await supabase.functions.invoke('send-email', {
