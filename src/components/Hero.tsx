@@ -1,13 +1,30 @@
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import heroSunsetBg from "@/assets/hero-sunset-background.png";
 import heroMobileSunset from "@/assets/hero-mobile-sunset.png";
 import { useTranslation } from "@/contexts/TranslationContext";
-import { ArrowRight, Check, Wifi } from "lucide-react";
+import { ArrowRight, Check, Wifi, Users } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Hero = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setIsLoggedIn(!!session);
+    };
+    checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+      setIsLoggedIn(!!session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden">
@@ -76,31 +93,44 @@ export const Hero = () => {
             </div>
           </div>
           
-          {/* Register CTA Button */}
+          {/* CTA Buttons */}
           <div className="max-w-md mx-auto animate-fade-in text-center" style={{ animationDelay: "0.25s" }}>
-            <Button 
-              onClick={() => navigate('/auth')}
-              size="lg" 
-              className="h-12 md:h-14 px-8 md:px-12 text-sm md:text-base font-medium bg-white hover:bg-white/95 text-deep-space rounded-xl shadow-2xl hover:shadow-white/20 transition-all duration-300 hover:scale-105"
-            >
-              {t("heroRegisterCta")}
-              <ArrowRight className="ml-2 w-4 h-4" />
-            </Button>
+            {isLoggedIn ? (
+              <Button 
+                onClick={() => navigate('/affiliate')}
+                size="lg" 
+                className="h-12 md:h-14 px-8 md:px-12 text-sm md:text-base font-medium bg-gradient-to-r from-neon-cyan to-neon-violet hover:opacity-90 text-white rounded-xl shadow-2xl hover:shadow-neon-cyan/20 transition-all duration-300 hover:scale-105"
+              >
+                <Users className="mr-2 w-4 h-4" />
+                {t("heroStartReferring")}
+              </Button>
+            ) : (
+              <Button 
+                onClick={() => navigate('/auth')}
+                size="lg" 
+                className="h-12 md:h-14 px-8 md:px-12 text-sm md:text-base font-medium bg-white hover:bg-white/95 text-deep-space rounded-xl shadow-2xl hover:shadow-white/20 transition-all duration-300 hover:scale-105"
+              >
+                {t("heroRegisterCta")}
+                <ArrowRight className="ml-2 w-4 h-4" />
+              </Button>
+            )}
             
             {/* Microcopy */}
             <p className="mt-4 text-white/60 text-xs md:text-sm">
-              {t("heroRegisterMicrocopy")}
+              {isLoggedIn ? t("heroReferringMicrocopy") : t("heroRegisterMicrocopy")}
             </p>
           </div>
 
-          {/* Secondary Action */}
+          {/* Secondary Action - View eSIM Plans Button */}
           <div className="text-center mt-6 animate-fade-in" style={{ animationDelay: "0.3s" }}>
-            <button 
+            <Button 
               onClick={() => navigate('/shop')} 
-              className="text-white/60 hover:text-white text-sm md:text-base font-light transition-colors duration-200 hover:underline underline-offset-4"
+              variant="outline"
+              className="bg-white/10 backdrop-blur-md border-white/20 text-white hover:bg-white/20 hover:text-white rounded-xl transition-all duration-300"
             >
-              {t("heroNetworkSecondary")}
-            </button>
+              {t("heroViewEsimPlans")}
+              <ArrowRight className="ml-2 w-4 h-4" />
+            </Button>
           </div>
 
         </div>
