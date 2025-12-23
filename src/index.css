@@ -98,6 +98,16 @@ All colors MUST be HSL.
     @apply border-border;
   }
 
+  /* Performance: Enable GPU acceleration for common animations */
+  .animate-fade-in,
+  .animate-fade-out,
+  .animate-scale-in,
+  .animate-slide-in-right,
+  [class*="animate-"] {
+    will-change: transform, opacity;
+    backface-visibility: hidden;
+  }
+
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -105,6 +115,20 @@ All colors MUST be HSL.
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    /* Improve scroll performance */
+    scroll-behavior: smooth;
+  }
+
+  /* Reduce motion for users who prefer it */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -222,6 +246,28 @@ All colors MUST be HSL.
 
   .hover-lift:hover {
     transform: translateY(-4px);
+  }
+
+  /* Content visibility optimization for off-screen content */
+  .content-auto {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 500px;
+  }
+
+  /* GPU-accelerated transitions */
+  .gpu-accelerated {
+    transform: translateZ(0);
+    will-change: transform;
+  }
+
+  /* Optimized card hover - prevent layout shifts */
+  .card-hover-optimized {
+    transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+    transform: translateZ(0);
+  }
+  
+  .card-hover-optimized:hover {
+    transform: translateY(-2px) translateZ(0);
   }
 }
 
