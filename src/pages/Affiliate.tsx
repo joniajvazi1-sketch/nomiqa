@@ -5,6 +5,7 @@ import { Footer } from "@/components/Footer";
 import { SupportChatbot } from "@/components/SupportChatbot";
 import { NetworkBackground } from "@/components/NetworkBackground";
 import { AnimatedCounter } from "@/components/AnimatedCounter";
+import { MiningRewardsSection } from "@/components/MiningRewardsSection";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,6 +28,8 @@ interface AffiliateData {
   commission_rate: number;
   status: string;
   tier_level: number;
+  registration_milestone_level: number;
+  miner_boost_percentage: number;
 }
 interface AnalyticsData {
   sourceBreakdown: {
@@ -825,6 +828,13 @@ export default function Affiliate() {
                     </div>
                   </CardContent>
                 </Card>}
+
+              {/* Mining Rewards Section */}
+              <MiningRewardsSection
+                totalRegistrations={affiliate.total_registrations || 0}
+                currentMilestoneLevel={affiliate.registration_milestone_level || 0}
+                minerBoostPercentage={affiliate.miner_boost_percentage || 0}
+              />
 
               {/* Tier System Explanation - Premium */}
               <Card className="mb-6 md:mb-8 bg-card/80 backdrop-blur-xl border-border/50 shadow-xl hover:shadow-2xl transition-all duration-500">

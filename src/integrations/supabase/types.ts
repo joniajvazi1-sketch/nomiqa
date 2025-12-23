@@ -85,7 +85,9 @@ export type Database = {
           email: string
           email_verified: boolean | null
           id: string
+          miner_boost_percentage: number | null
           parent_affiliate_id: string | null
+          registration_milestone_level: number | null
           status: string | null
           tier_level: number
           total_conversions: number | null
@@ -105,7 +107,9 @@ export type Database = {
           email: string
           email_verified?: boolean | null
           id?: string
+          miner_boost_percentage?: number | null
           parent_affiliate_id?: string | null
+          registration_milestone_level?: number | null
           status?: string | null
           tier_level?: number
           total_conversions?: number | null
@@ -125,7 +129,9 @@ export type Database = {
           email?: string
           email_verified?: boolean | null
           id?: string
+          miner_boost_percentage?: number | null
           parent_affiliate_id?: string | null
+          registration_milestone_level?: number | null
           status?: string | null
           tier_level?: number
           total_conversions?: number | null

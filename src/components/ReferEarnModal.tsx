@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { supabase } from "@/integrations/supabase/client";
-import { Copy, CheckCircle2, Loader2, Users, DollarSign, TrendingUp } from "lucide-react";
+import { Copy, CheckCircle2, Loader2, Users, DollarSign, TrendingUp, Pickaxe, Zap } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "@/contexts/TranslationContext";
 
@@ -266,6 +266,28 @@ export const ReferEarnModal = ({ open, onOpenChange, product }: ReferEarnModalPr
                   <strong>Tip:</strong> When someone uses this link, they'll be taken directly to this product. 
                   You'll earn a 9% commission on their purchase!
                 </p>
+              </div>
+
+              {/* Mining Rewards Info */}
+              <div className="p-4 bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-yellow-500/10 border border-amber-500/20 rounded-lg space-y-3">
+                <div className="flex items-center gap-2">
+                  <Pickaxe className="w-5 h-5 text-amber-500" />
+                  <h4 className="font-semibold text-amber-400">Mining Rewards</h4>
+                </div>
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-start gap-2">
+                    <Zap className="w-4 h-4 text-amber-400 mt-0.5 flex-shrink-0" />
+                    <p className="text-muted-foreground">
+                      <strong className="text-foreground">Unlock miner boosts</strong> by getting friends to sign up — up to +50% mining speed!
+                    </p>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Users className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
+                    <p className="text-muted-foreground">
+                      <strong className="text-foreground">Earn 5%</strong> of what your referrals mine — they don't lose anything!
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           )}
