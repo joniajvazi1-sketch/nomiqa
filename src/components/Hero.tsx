@@ -148,7 +148,7 @@ export const Hero = () => {
               </div>
             ) : (
               <Button 
-                onClick={() => navigate('/auth')}
+                onClick={() => navigate('/auth?mode=register')}
                 size="lg" 
                 className="h-12 md:h-14 px-8 md:px-12 text-sm md:text-base font-medium bg-white hover:bg-white/95 text-deep-space rounded-xl shadow-2xl hover:shadow-white/20 transition-all duration-300 hover:scale-105"
               >

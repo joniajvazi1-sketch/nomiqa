@@ -78,7 +78,7 @@ export default function Auth() {
     // Check if URL has mode parameter for register/login
     const params = new URLSearchParams(window.location.search);
     const mode = params.get('mode');
-    if (mode === 'register') {
+    if (mode === 'register' || mode === 'signup') {
       setIsSignUp(true);
     } else if (mode === 'login') {
       setIsSignUp(false);
