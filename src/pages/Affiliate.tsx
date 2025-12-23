@@ -521,34 +521,61 @@ export default function Affiliate() {
                 </span>
               </h1>
               
-              {/* Premium commission display */}
-              <div className="pt-6 md:pt-8 space-y-4 md:space-y-6">
-                <div className="inline-block relative group">
-                  <div className="absolute -inset-2 bg-gradient-to-r from-neon-cyan via-neon-violet to-neon-coral rounded-3xl blur-xl opacity-20 group-hover:opacity-40 transition duration-500"></div>
-                  <div className="relative px-10 py-5 bg-gradient-to-br from-white/[0.05] to-white/[0.02] backdrop-blur-3xl border border-white/30 rounded-3xl shadow-2xl">
-                    <p className="text-3xl md:text-5xl lg:text-6xl font-black bg-gradient-to-r from-neon-cyan via-white to-neon-coral bg-clip-text text-transparent tracking-tight">
-                      <AnimatedCounter end={18} suffix="% " className="inline-block" />
-                      {t("totalCommissionSplit").replace('18%', '')}
-                    </p>
+              {/* Dual earning paths display */}
+              <div className="pt-6 md:pt-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 max-w-4xl mx-auto px-4">
+                  {/* Sell & Earn Card */}
+                  <div className="relative group">
+                    <div className="absolute -inset-1 bg-gradient-to-r from-neon-cyan to-neon-violet rounded-2xl blur-lg opacity-20 group-hover:opacity-40 transition duration-500"></div>
+                    <div className="relative p-5 md:p-6 bg-gradient-to-br from-white/[0.08] to-white/[0.02] backdrop-blur-xl border border-white/20 rounded-2xl shadow-xl h-full">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="p-2.5 bg-neon-cyan/20 rounded-xl border border-neon-cyan/30">
+                          <DollarSign className="w-5 h-5 md:w-6 md:h-6 text-neon-cyan" />
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-base md:text-lg text-white">Sell & Earn</h3>
+                          <p className="text-xs md:text-sm text-white/60">from eSIM sales</p>
+                        </div>
+                      </div>
+                      <div className="text-center mb-4">
+                        <p className="text-3xl md:text-4xl lg:text-5xl font-black bg-gradient-to-r from-neon-cyan via-white to-neon-violet bg-clip-text text-transparent">
+                          <AnimatedCounter end={18} suffix="%" className="inline-block" />
+                        </p>
+                        <p className="text-sm text-white/50 mt-1">Commission Split</p>
+                      </div>
+                      <div className="flex flex-wrap items-center justify-center gap-2 text-xs md:text-sm">
+                        <span className="px-3 py-1.5 rounded-lg bg-neon-cyan/10 border border-neon-cyan/30 text-neon-cyan font-semibold">9% direct</span>
+                        <span className="px-3 py-1.5 rounded-lg bg-neon-violet/10 border border-neon-violet/30 text-neon-violet font-semibold">6% L2</span>
+                        <span className="px-3 py-1.5 rounded-lg bg-neon-coral/10 border border-neon-coral/30 text-neon-coral font-semibold">3% L3</span>
+                      </div>
+                    </div>
                   </div>
-                </div>
-                
-                <div className="w-full flex justify-center">
-                  <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4 text-sm md:text-base lg:text-lg px-4">
-                    <span className="px-4 py-2 rounded-xl bg-neon-cyan/10 border border-neon-cyan/30 text-neon-cyan font-semibold backdrop-blur-sm">
-                      <AnimatedCounter end={9} suffix="% " delay={200} className="inline-block" />
-                      {t("commissionBreakdown").split(' • ')[0].replace('9%', '')}
-                    </span>
-                    
-                    <span className="px-4 py-2 rounded-xl bg-neon-violet/10 border border-neon-violet/30 text-neon-violet font-semibold backdrop-blur-sm">
-                      <AnimatedCounter end={6} suffix="% " delay={400} className="inline-block" />
-                      {t("commissionBreakdown").split(' • ')[1].replace('6%', '')}
-                    </span>
-                    
-                    <span className="px-4 py-2 rounded-xl bg-neon-coral/10 border border-neon-coral/30 text-neon-coral font-semibold backdrop-blur-sm">
-                      <AnimatedCounter end={3} suffix="% " delay={600} className="inline-block" />
-                      {t("commissionBreakdown").split(' • ')[2].replace('3%', '')}
-                    </span>
+                  
+                  {/* Grow & Mine Card */}
+                  <div className="relative group">
+                    <div className="absolute -inset-1 bg-gradient-to-r from-amber-500 to-orange-500 rounded-2xl blur-lg opacity-20 group-hover:opacity-40 transition duration-500"></div>
+                    <div className="relative p-5 md:p-6 bg-gradient-to-br from-white/[0.08] to-white/[0.02] backdrop-blur-xl border border-white/20 rounded-2xl shadow-xl h-full">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="p-2.5 bg-amber-500/20 rounded-xl border border-amber-500/30">
+                          <Award className="w-5 h-5 md:w-6 md:h-6 text-amber-400" />
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-base md:text-lg text-white">Grow & Mine</h3>
+                          <p className="text-xs md:text-sm text-white/60">from registrations</p>
+                        </div>
+                      </div>
+                      <div className="text-center mb-4">
+                        <p className="text-3xl md:text-4xl lg:text-5xl font-black bg-gradient-to-r from-amber-400 via-orange-400 to-yellow-400 bg-clip-text text-transparent">
+                          +<AnimatedCounter end={50} suffix="%" delay={200} className="inline-block" />
+                        </p>
+                        <p className="text-sm text-white/50 mt-1">Mining Boost</p>
+                      </div>
+                      <div className="flex flex-wrap items-center justify-center gap-2 text-xs md:text-sm">
+                        <span className="px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-semibold">Recruiter</span>
+                        <span className="px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-semibold">→</span>
+                        <span className="px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-semibold">Legend</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -556,7 +583,7 @@ export default function Affiliate() {
               {/* Premium tagline */}
               <div className="pt-4 md:pt-6">
                 <p className="text-base md:text-xl lg:text-2xl text-white/70 max-w-4xl mx-auto leading-relaxed px-4 font-light tracking-wide">
-                  {t("infinitePotential")}
+                  One link. Earn from sales AND mining — 24/7, worldwide.
                 </p>
               </div>
             </div>
@@ -702,10 +729,9 @@ export default function Affiliate() {
               )}
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8 text-center">
+                {/* Registrations */}
                 <Card className="group bg-gradient-to-br from-card/80 via-card/60 to-card/40 backdrop-blur-xl border border-border/50 hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:scale-105 relative overflow-hidden">
-                  {/* Glow effect */}
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/0 via-primary/5 to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  
                   <CardHeader className="pb-3 md:pb-4 relative z-10">
                     <CardDescription className="text-xs md:text-sm font-medium flex items-center justify-center gap-2">
                       <UserPlus className="w-4 h-4 text-primary" />
@@ -719,10 +745,9 @@ export default function Affiliate() {
                   </CardContent>
                 </Card>
                 
+                {/* Conversions */}
                 <Card className="group bg-gradient-to-br from-card/80 via-card/60 to-card/40 backdrop-blur-xl border border-border/50 hover:border-green-500/50 transition-all duration-300 hover:shadow-xl hover:scale-105 relative overflow-hidden">
-                  {/* Glow effect */}
                   <div className="absolute inset-0 bg-gradient-to-br from-green-500/0 via-green-500/5 to-green-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  
                   <CardHeader className="pb-3 md:pb-4 relative z-10">
                     <CardDescription className="text-xs md:text-sm font-medium flex items-center justify-center gap-2">
                       <CheckCircle2 className="w-4 h-4 text-green-500" />
@@ -736,39 +761,50 @@ export default function Affiliate() {
                   </CardContent>
                 </Card>
                 
-                <Card className="group bg-gradient-to-br from-card/80 via-card/60 to-card/40 backdrop-blur-xl border border-border/50 hover:border-accent/50 transition-all duration-300 hover:shadow-xl hover:scale-105 relative overflow-hidden">
-                  {/* Glow effect */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-accent/0 via-accent/5 to-accent/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  
+                {/* Mining Tier */}
+                <Card className="group bg-gradient-to-br from-card/80 via-card/60 to-card/40 backdrop-blur-xl border border-border/50 hover:border-amber-500/50 transition-all duration-300 hover:shadow-xl hover:scale-105 relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-amber-500/0 via-amber-500/5 to-amber-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   <CardHeader className="pb-3 md:pb-4 relative z-10">
                     <CardDescription className="text-xs md:text-sm font-medium flex items-center justify-center gap-2">
-                      <DollarSign className="w-4 h-4 text-accent" />
-                      {t("totalEarnings")}
+                      <Award className="w-4 h-4 text-amber-500" />
+                      Mining Tier
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="relative z-10">
-                    <div className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">
-                      ${(affiliate.total_earnings_usd || 0).toFixed(2)}
+                  <CardContent className="relative z-10 space-y-1">
+                    <div className="text-lg md:text-xl font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">
+                      {(() => {
+                        const MILESTONES = [
+                          { level: 0, name: 'Starter' },
+                          { level: 1, name: 'Recruiter' },
+                          { level: 2, name: 'Influencer' },
+                          { level: 3, name: 'Ambassador' },
+                          { level: 4, name: 'Champion' },
+                          { level: 5, name: 'Legend' },
+                        ];
+                        return MILESTONES.find(m => m.level === (affiliate.registration_milestone_level || 0))?.name || 'Starter';
+                      })()}
+                    </div>
+                    <div className="text-sm font-semibold text-amber-500">
+                      +{affiliate.miner_boost_percentage || 0}% boost
                     </div>
                   </CardContent>
                 </Card>
                 
-                <Card className="group bg-gradient-to-br from-card/80 via-card/60 to-card/40 backdrop-blur-xl border border-border/50 hover:border-blue-500/50 transition-all duration-300 hover:shadow-xl hover:scale-105 relative overflow-hidden">
-                  {/* Glow effect */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 via-blue-500/5 to-blue-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  
+{/* Sales Tier */}
+                <Card className="group bg-gradient-to-br from-card/80 via-card/60 to-card/40 backdrop-blur-xl border border-border/50 hover:border-neon-violet/50 transition-all duration-300 hover:shadow-xl hover:scale-105 relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-neon-violet/0 via-neon-violet/5 to-neon-violet/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   <CardHeader className="pb-3 md:pb-4 relative z-10">
                     <CardDescription className="text-xs md:text-sm font-medium flex items-center justify-center gap-2">
-                      <Award className="w-4 h-4 text-blue-500" />
-                      {t("currentTier")}
+                      <TrendingUp className="w-4 h-4 text-neon-violet" />
+                      Sales Tier
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="relative z-10">
-                    <div className="space-y-1">
-                      <div className={`text-2xl md:text-3xl font-bold ${getTierInfo()?.currentTier.color}`}>
-                        {getTierInfo()?.currentTier.name}
-                      </div>
-                      <div className="text-[10px] md:text-xs text-muted-foreground font-medium">Tier {getTierInfo()?.currentTier.level}</div>
+                  <CardContent className="relative z-10 space-y-1">
+                    <div className="text-lg md:text-xl font-bold text-neon-violet">
+                      {getTierInfo()?.currentTier.name || 'Starter'}
+                    </div>
+                    <div className="text-sm font-semibold text-neon-violet/80">
+                      Tier {affiliate.tier_level || 1}
                     </div>
                   </CardContent>
                 </Card>
@@ -1124,11 +1160,97 @@ export default function Affiliate() {
                           </div>}
                       </div>
 
+                      {/* Network Mining Rewards */}
+                      <div className="pt-6 border-t border-border/50 space-y-4">
+                        <div className="flex items-center gap-2">
+                          <div className="p-1.5 rounded bg-amber-500/10">
+                            <Award className="w-4 h-4 text-amber-500" />
+                          </div>
+                          <h3 className="font-semibold text-base md:text-lg bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">Network Mining Rewards</h3>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          {/* Network Size Card */}
+                          <Card className="bg-gradient-to-br from-amber-500/10 via-background to-background border-amber-500/30 shadow-lg">
+                            <CardHeader className="pb-3">
+                              <div className="flex items-center gap-2">
+                                <div className="p-2 bg-amber-500/20 rounded-lg">
+                                  <Users className="w-5 h-5 text-amber-400" />
+                                </div>
+                                <div>
+                                  <CardTitle className="text-sm md:text-base">Your Network</CardTitle>
+                                  <p className="text-[10px] md:text-xs text-muted-foreground">Total registrations</p>
+                                </div>
+                              </div>
+                            </CardHeader>
+                            <CardContent>
+                              <div className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">
+                                {affiliate.total_registrations || 0}
+                              </div>
+                              <p className="text-xs text-muted-foreground mt-1">people in your network</p>
+                            </CardContent>
+                          </Card>
+                          
+                          {/* Mining Boost Card */}
+                          <Card className="bg-gradient-to-br from-amber-500/10 via-background to-background border-amber-500/30 shadow-lg">
+                            <CardHeader className="pb-3">
+                              <div className="flex items-center gap-2">
+                                <div className="p-2 bg-amber-500/20 rounded-lg">
+                                  <Award className="w-5 h-5 text-amber-400" />
+                                </div>
+                                <div>
+                                  <CardTitle className="text-sm md:text-base">Mining Boost</CardTitle>
+                                  <p className="text-[10px] md:text-xs text-muted-foreground">
+                                    {(() => {
+                                      const MILESTONES = [
+                                        { level: 0, name: 'Starter' },
+                                        { level: 1, name: 'Recruiter' },
+                                        { level: 2, name: 'Influencer' },
+                                        { level: 3, name: 'Ambassador' },
+                                        { level: 4, name: 'Champion' },
+                                        { level: 5, name: 'Legend' },
+                                      ];
+                                      return MILESTONES.find(m => m.level === (affiliate.registration_milestone_level || 0))?.name || 'Starter';
+                                    })()}
+                                  </p>
+                                </div>
+                              </div>
+                            </CardHeader>
+                            <CardContent>
+                              <div className="text-3xl md:text-4xl font-bold text-amber-400">
+                                +{affiliate.miner_boost_percentage || 0}%
+                              </div>
+                              <p className="text-xs text-muted-foreground mt-1">active mining boost</p>
+                            </CardContent>
+                          </Card>
+                        </div>
+                        
+                        {/* Referral Mining Bonus */}
+                        <div className="p-5 bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-yellow-500/5 rounded-xl border border-amber-500/20 space-y-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-500/20 to-emerald-500/20 flex items-center justify-center border border-green-500/30">
+                              <span className="text-xl font-bold text-green-400">5%</span>
+                            </div>
+                            <div>
+                              <h4 className="font-bold text-base">Referral Mining Bonus</h4>
+                              <p className="text-sm text-muted-foreground">Earn 5% of what your {affiliate.total_registrations || 0} referrals mine</p>
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center gap-2 p-3 bg-amber-500/10 rounded-lg border border-amber-500/20">
+                            <TrendingUp className="w-5 h-5 text-amber-400 flex-shrink-0" />
+                            <p className="text-sm text-amber-200/80">
+                              <strong className="text-amber-400">Coming Soon:</strong> Mining rewards activate at network launch!
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
                       {/* Commission Levels */}
                       <div className="pt-6 border-t border-border/50 space-y-4">
                         <div className="flex items-center gap-2">
                           <div className="p-1.5 rounded bg-primary/10">
-                            <TrendingUp className="w-4 h-4 text-primary" />
+                            <DollarSign className="w-4 h-4 text-primary" />
                           </div>
                           <h3 className="font-semibold text-base md:text-lg">{t("multiLevelEarnings")}</h3>
                         </div>
