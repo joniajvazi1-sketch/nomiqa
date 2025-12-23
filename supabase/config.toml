@@ -9,7 +9,7 @@ verify_jwt = true
 [functions.webhook-async-order]
 verify_jwt = false
 
-[functions.track-affiliate-click]
+[functions.track-affiliate-registration]
 verify_jwt = false
 
 [functions.create-helio-paylink]

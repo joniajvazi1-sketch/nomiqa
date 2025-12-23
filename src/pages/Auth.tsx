@@ -12,6 +12,7 @@ import { useTranslation } from "@/contexts/TranslationContext";
 import { z } from "zod";
 import nomiqaAnimatedLogo from "@/assets/nomiqa-animated-logo.gif";
 import { EmailVerification } from "@/components/EmailVerification";
+import { useAffiliateTracking } from "@/hooks/useAffiliateTracking";
 
 const authSchema = z.object({
   email: z.string().trim().email('Invalid email address').max(255, 'Email too long'),
@@ -249,7 +250,7 @@ export default function Auth() {
       if (email && password) {
         setLoading(true);
         try {
-          const { error } = await supabase.auth.signInWithPassword({
+          const { data: authData, error } = await supabase.auth.signInWithPassword({
             email,
             password,
           });
@@ -258,6 +259,24 @@ export default function Auth() {
             toast.error("Email verified! Please login with your credentials.");
             setIsSignUp(false);
           } else {
+            // Track affiliate registration if there's a referral code
+            const { referralCode, clearReferralCode } = useAffiliateTracking.getState();
+            if (referralCode && authData.user) {
+              try {
+                await supabase.functions.invoke('track-affiliate-registration', {
+                  body: {
+                    referralCode,
+                    userId: authData.user.id,
+                    referrer: document.referrer
+                  }
+                });
+                console.log('Affiliate registration tracked');
+                clearReferralCode(); // Clear after successful tracking
+              } catch (trackError) {
+                console.error('Error tracking affiliate registration:', trackError);
+              }
+            }
+            
             toast.success("Email verified! Logging you in...");
             const params = new URLSearchParams(window.location.search);
             const redirectUrl = params.get('redirect') || '/';
