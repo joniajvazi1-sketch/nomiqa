@@ -528,14 +528,9 @@ export default function Affiliate() {
                   <div className="relative group">
                     <div className="absolute -inset-1 bg-gradient-to-r from-neon-cyan to-neon-violet rounded-2xl blur-lg opacity-20 group-hover:opacity-40 transition duration-500"></div>
                     <div className="relative p-5 md:p-6 bg-gradient-to-br from-white/[0.08] to-white/[0.02] backdrop-blur-xl border border-white/20 rounded-2xl shadow-xl h-full">
-                      <div className="flex items-center gap-3 mb-4">
-                        <div className="p-2.5 bg-neon-cyan/20 rounded-xl border border-neon-cyan/30">
-                          <DollarSign className="w-5 h-5 md:w-6 md:h-6 text-neon-cyan" />
-                        </div>
-                        <div>
-                          <h3 className="font-bold text-base md:text-lg text-white">Sell & Earn</h3>
-                          <p className="text-xs md:text-sm text-white/60">from eSIM sales</p>
-                        </div>
+                      <div className="text-center mb-4">
+                        <h3 className="font-bold text-base md:text-lg text-white">Sell & Earn</h3>
+                        <p className="text-xs md:text-sm text-white/60">from eSIM sales</p>
                       </div>
                       <div className="text-center mb-4">
                         <p className="text-3xl md:text-4xl lg:text-5xl font-black bg-gradient-to-r from-neon-cyan via-white to-neon-violet bg-clip-text text-transparent">
@@ -555,14 +550,9 @@ export default function Affiliate() {
                   <div className="relative group">
                     <div className="absolute -inset-1 bg-gradient-to-r from-amber-500 to-orange-500 rounded-2xl blur-lg opacity-20 group-hover:opacity-40 transition duration-500"></div>
                     <div className="relative p-5 md:p-6 bg-gradient-to-br from-white/[0.08] to-white/[0.02] backdrop-blur-xl border border-white/20 rounded-2xl shadow-xl h-full">
-                      <div className="flex items-center gap-3 mb-4">
-                        <div className="p-2.5 bg-amber-500/20 rounded-xl border border-amber-500/30">
-                          <Award className="w-5 h-5 md:w-6 md:h-6 text-amber-400" />
-                        </div>
-                        <div>
-                          <h3 className="font-bold text-base md:text-lg text-white">Grow & Mine</h3>
-                          <p className="text-xs md:text-sm text-white/60">from registrations</p>
-                        </div>
+                      <div className="text-center mb-4">
+                        <h3 className="font-bold text-base md:text-lg text-white">Grow & Mine</h3>
+                        <p className="text-xs md:text-sm text-white/60">from registrations</p>
                       </div>
                       <div className="text-center mb-4">
                         <p className="text-3xl md:text-4xl lg:text-5xl font-black bg-gradient-to-r from-amber-400 via-orange-400 to-yellow-400 bg-clip-text text-transparent">
