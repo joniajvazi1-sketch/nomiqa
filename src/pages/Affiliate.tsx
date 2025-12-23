@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { Navbar } from "@/components/Navbar";
 import { SiteNavigation } from "@/components/SiteNavigation";
 import { Footer } from "@/components/Footer";
@@ -14,7 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Copy, TrendingUp, Users, DollarSign, CheckCircle2, Loader2, XCircle, AlertCircle, BarChart3, Share2, Award, Lock, Unlock, UserPlus } from "lucide-react";
+import { Copy, TrendingUp, Users, DollarSign, CheckCircle2, Loader2, XCircle, AlertCircle, Award, UserPlus, Share2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAffiliateTracking } from "@/hooks/useAffiliateTracking";
 import { useTranslation } from "@/contexts/TranslationContext";
@@ -155,7 +155,8 @@ export default function Affiliate() {
       fetchAnalytics(highestTierAffiliate.id);
     }
   };
-  const getTierInfo = () => {
+  // Memoized tier info calculation for performance
+  const tierInfo = useMemo(() => {
     if (!affiliate) return null;
     const tiers = [{
       level: 1,
@@ -177,33 +178,23 @@ export default function Affiliate() {
       color: 'text-amber-500'
     }];
     
-    // Use the selected affiliate's tier level
     const currentTier = tiers.find(t => t.level === affiliate.tier_level) || tiers[0];
     const nextTier = tiers.find(t => t.level === affiliate.tier_level + 1);
-    
-    // Use only the selected affiliate's conversions
     const totalConversions = affiliate.total_conversions || 0;
+    
     if (!nextTier) {
-      return {
-        currentTier,
-        nextTier: null,
-        progress: 100,
-        remaining: 0,
-        totalConversions
-      };
+      return { currentTier, nextTier: null, progress: 100, remaining: 0, totalConversions };
     }
+    
     const remaining = nextTier.conversions - totalConversions;
     const progress = Math.min((totalConversions / nextTier.conversions) * 100, 100);
-    return {
-      currentTier,
-      nextTier,
-      progress,
-      remaining,
-      totalConversions
-    };
-  };
+    return { currentTier, nextTier, progress, remaining, totalConversions };
+  }, [affiliate]);
+
+  // Keep getTierInfo for backward compatibility but use memoized value
+  const getTierInfo = useCallback(() => tierInfo, [tierInfo]);
   
-  const handleAffiliateChange = (affiliateId: string) => {
+  const handleAffiliateChange = useCallback((affiliateId: string) => {
     const selected = allAffiliates.find(a => a.id === affiliateId);
     if (selected) {
       setSelectedAffiliateId(affiliateId);
@@ -213,14 +204,13 @@ export default function Affiliate() {
       if (selected.username) {
         setCustomLink(`${window.location.origin}/${selected.username}`);
       }
-      fetchAnalytics(selected.id);
     }
-  };
+  }, [allAffiliates]);
   
-  const copyLink = (link: string) => {
+  const copyLink = useCallback((link: string) => {
     navigator.clipboard.writeText(link);
     toast.success("Link copied to clipboard!");
-  };
+  }, []);
   const fetchAnalytics = async (affiliateId: string) => {
     setLoadingAnalytics(true);
     try {
