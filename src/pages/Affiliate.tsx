@@ -6,6 +6,7 @@ import { SupportChatbot } from "@/components/SupportChatbot";
 import { NetworkBackground } from "@/components/NetworkBackground";
 import { AnimatedCounter } from "@/components/AnimatedCounter";
 import { MiningRewardsSection } from "@/components/MiningRewardsSection";
+import { ConversionRewardsSection } from "@/components/ConversionRewardsSection";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -773,62 +774,6 @@ export default function Affiliate() {
                 </Card>
               </div>
 
-              {/* Tier Progress Card - Premium */}
-              {getTierInfo()?.nextTier && <Card className="mb-6 md:mb-8 bg-gradient-to-br from-primary/10 via-accent/5 to-primary/10 backdrop-blur-xl border border-primary/30 shadow-xl hover:shadow-2xl transition-all duration-500 relative overflow-hidden group">
-                  {/* Premium glow effect */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/10 to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  
-                  <CardHeader className="pb-4 relative z-10">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="space-y-2 flex-1">
-                        <CardTitle className="flex items-center gap-3 text-lg md:text-xl">
-                          <div className="p-2 bg-primary/20 rounded-lg backdrop-blur-sm">
-                            <Award className="w-5 h-5 md:w-6 md:h-6 text-primary" />
-                          </div>
-                          <span className="bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent font-bold">
-                            {t("unlockNextTier")}
-                          </span>
-                        </CardTitle>
-                        <CardDescription className="text-sm md:text-base text-muted-foreground">
-                          {t("completeMoreConversions")}
-                        </CardDescription>
-                      </div>
-                      <Badge className="bg-primary/20 text-primary border-primary/30 backdrop-blur-sm font-bold">
-                        {Math.round(getTierInfo()?.progress || 0)}%
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-4 md:space-y-5 relative z-10">
-                    <div>
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="text-sm md:text-base font-semibold text-foreground">
-                          {t("progressToPro")}
-                        </span>
-                        <span className="text-xs md:text-sm font-medium text-muted-foreground">
-                          {getTierInfo()?.totalConversions} / {getTierInfo()?.nextTier?.conversions}
-                        </span>
-                      </div>
-                      
-                      <div className="relative h-3 md:h-4 bg-muted/50 rounded-full overflow-hidden backdrop-blur-sm border border-border/50">
-                        <div 
-                          className="h-full bg-gradient-to-r from-primary via-accent to-primary bg-[length:200%_100%] animate-gradient transition-all duration-500 relative shadow-lg"
-                          style={{ width: `${getTierInfo()?.progress}%` }}
-                        >
-                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="p-4 bg-card/80 backdrop-blur-sm rounded-lg border border-border/50">
-                      <p className="text-sm md:text-base">
-                        <span className="font-bold text-primary">{Math.max(0, getTierInfo()?.remaining || 0)}</span>{" "}
-                        <span className="text-muted-foreground">{t("moreConversionsToUnlock")}</span>{" "}
-                        <span className="font-semibold text-foreground">{t("additionalOnSecondLevel")}</span>
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>}
-
               {/* Mining Rewards Section */}
               <MiningRewardsSection
                 totalRegistrations={affiliate.total_registrations || 0}
@@ -836,134 +781,12 @@ export default function Affiliate() {
                 minerBoostPercentage={affiliate.miner_boost_percentage || 0}
               />
 
-              {/* Tier System Explanation - Premium */}
-              <Card className="mb-6 md:mb-8 bg-card/80 backdrop-blur-xl border-border/50 shadow-xl hover:shadow-2xl transition-all duration-500">
-                <CardHeader className="pb-4 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 border-b border-border/50">
-                  <CardTitle className="flex items-center gap-3 text-lg md:text-xl">
-                    <div className="p-2 bg-primary/10 rounded-lg">
-                      <TrendingUp className="w-5 h-5 md:w-6 md:h-6 text-primary" />
-                    </div>
-                    <span className="bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent font-bold">
-                      {t("threeTierCommissionSystem")}
-                    </span>
-                  </CardTitle>
-                  <CardDescription className="text-sm md:text-base pl-11">
-                    {t("unlockMoreEarningPotential")}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="pt-6">
-                  <div className="space-y-4 md:space-y-5">
-                     {/* Tier 1 - Starter */}
-                    <div className={`p-4 md:p-5 rounded-xl border-2 transition-all duration-300 ${
-                      (selectedAffiliate?.tier_level || 1) >= 1 
-                        ? 'border-blue-500/50 bg-gradient-to-br from-blue-500/10 via-blue-500/5 to-transparent shadow-lg shadow-blue-500/10' 
-                        : 'border-muted bg-muted/20 hover:bg-muted/30'
-                    }`}>
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
-                        <div className="flex items-center gap-3">
-                          <div className={`p-2 rounded-lg ${(selectedAffiliate?.tier_level || 1) >= 1 ? 'bg-blue-500/20' : 'bg-muted'}`}>
-                            {(selectedAffiliate?.tier_level || 1) >= 1 
-                              ? <Unlock className="w-5 h-5 md:w-6 md:h-6 text-blue-500" /> 
-                              : <Lock className="w-5 h-5 md:w-6 md:h-6 text-muted-foreground" />
-                            }
-                          </div>
-                          <h3 className="font-bold text-blue-500 text-base md:text-lg">{t("tierStarter")}</h3>
-                        </div>
-                        <Badge variant={(selectedAffiliate?.tier_level || 1) >= 1 ? 'default' : 'secondary'} className="text-xs md:text-sm w-fit bg-blue-500/20 text-blue-600 dark:text-blue-400 border-blue-500/30">
-                          {(selectedAffiliate?.tier_level || 1) >= 1 ? t("unlocked") : t("startHere")}
-                        </Badge>
-                      </div>
-                      <p className="text-sm md:text-base text-muted-foreground mb-3 md:mb-4">
-                        {t("everyoneStartsHere")}
-                      </p>
-                      <div className="flex items-center gap-2 p-3 bg-green-500/10 rounded-lg border border-green-500/20">
-                        <DollarSign className="w-4 h-4 md:w-5 md:h-5 text-green-500 flex-shrink-0" />
-                        <span className="text-sm md:text-base font-medium">{t("ninePercentDirectCommission")}</span>
-                      </div>
-                    </div>
-
-                    {/* Tier 2 - Pro */}
-                    <div className={`p-4 md:p-5 rounded-xl border-2 transition-all duration-300 ${
-                      (selectedAffiliate?.tier_level || 1) >= 2 
-                        ? 'border-purple-500/50 bg-gradient-to-br from-purple-500/10 via-purple-500/5 to-transparent shadow-lg shadow-purple-500/10' 
-                        : 'border-muted bg-muted/20 hover:bg-muted/30'
-                    }`}>
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
-                        <div className="flex items-center gap-3">
-                          <div className={`p-2 rounded-lg ${(selectedAffiliate?.tier_level || 1) >= 2 ? 'bg-purple-500/20' : 'bg-muted'}`}>
-                            {(selectedAffiliate?.tier_level || 1) >= 2 
-                              ? <Unlock className="w-5 h-5 md:w-6 md:h-6 text-purple-500" /> 
-                              : <Lock className="w-5 h-5 md:w-6 md:h-6 text-muted-foreground" />
-                            }
-                          </div>
-                          <h3 className="font-bold text-purple-500 text-base md:text-lg">{t("tierPro")}</h3>
-                        </div>
-                        <Badge variant={(selectedAffiliate?.tier_level || 1) >= 2 ? 'default' : 'secondary'} className="text-xs md:text-sm w-fit bg-purple-500/20 text-purple-600 dark:text-purple-400 border-purple-500/30">
-                          {(selectedAffiliate?.tier_level || 1) >= 2 ? t("unlocked") : "10 conversions"}
-                        </Badge>
-                      </div>
-                      <p className="text-sm md:text-base text-muted-foreground mb-3 md:mb-4">
-                        {t("unlockAtConversions").replace("{count}", "10")}
-                      </p>
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2 p-3 bg-green-500/10 rounded-lg border border-green-500/20">
-                          <DollarSign className="w-4 h-4 md:w-5 md:h-5 text-green-500 flex-shrink-0" />
-                          <span className="text-sm md:text-base font-medium">{t("onYourDirectReferrals")}</span>
-                        </div>
-                        <div className="flex items-center gap-2 p-3 bg-purple-500/10 rounded-lg border border-purple-500/20">
-                          <DollarSign className="w-4 h-4 md:w-5 md:h-5 text-purple-500 flex-shrink-0" />
-                          <span className="text-sm md:text-base font-medium">{t("whenYourReferralsRefer")}</span>
-                        </div>
-                        <p className="text-xs md:text-sm text-muted-foreground pt-2 pl-4 md:pl-6 border-l-2 border-purple-500/30 italic">
-                          {t("level2Explanation")}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Tier 3 - Elite */}
-                    <div className={`p-4 md:p-5 rounded-xl border-2 transition-all duration-300 ${
-                      (selectedAffiliate?.tier_level || 1) >= 3 
-                        ? 'border-amber-500/50 bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent shadow-lg shadow-amber-500/10' 
-                        : 'border-muted bg-muted/20 hover:bg-muted/30'
-                    }`}>
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
-                        <div className="flex items-center gap-3">
-                          <div className={`p-2 rounded-lg ${(selectedAffiliate?.tier_level || 1) >= 3 ? 'bg-amber-500/20' : 'bg-muted'}`}>
-                            {(selectedAffiliate?.tier_level || 1) >= 3 
-                              ? <Unlock className="w-5 h-5 md:w-6 md:h-6 text-amber-500" /> 
-                              : <Lock className="w-5 h-5 md:w-6 md:h-6 text-muted-foreground" />
-                            }
-                          </div>
-                          <h3 className="font-bold text-amber-500 text-base md:text-lg">{t("tierElite")}</h3>
-                        </div>
-                        <Badge variant={(selectedAffiliate?.tier_level || 1) >= 3 ? 'default' : 'secondary'} className="text-xs md:text-sm w-fit bg-amber-500/20 text-amber-600 dark:text-amber-400 border-amber-500/30">
-                          {(selectedAffiliate?.tier_level || 1) >= 3 ? t("unlocked") : "30 conversions"}
-                        </Badge>
-                      </div>
-                      <p className="text-sm md:text-base text-muted-foreground mb-3 md:mb-4">
-                        {t("unlockAtConversions").replace("{count}", "30")}
-                      </p>
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2 p-3 bg-green-500/10 rounded-lg border border-green-500/20">
-                          <DollarSign className="w-4 h-4 md:w-5 md:h-5 text-green-500 flex-shrink-0" />
-                          <span className="text-sm md:text-base font-medium">{t("onYourDirectReferrals")}</span>
-                        </div>
-                        <div className="flex items-center gap-2 p-3 bg-purple-500/10 rounded-lg border border-purple-500/20">
-                          <DollarSign className="w-4 h-4 md:w-5 md:h-5 text-purple-500 flex-shrink-0" />
-                          <span className="text-sm md:text-base font-medium">{t("whenYourReferralsRefer")}</span>
-                        </div>
-                        <div className="flex items-center gap-2 p-3 bg-amber-500/10 rounded-lg border border-amber-500/20">
-                          <DollarSign className="w-4 h-4 md:w-5 md:h-5 text-amber-500 flex-shrink-0" />
-                          <span className="text-sm md:text-base font-medium">{t("whenTheirReferralsRefer")}</span>
-                        </div>
-                        <p className="text-xs md:text-sm text-muted-foreground pt-2 pl-4 md:pl-6 border-l-2 border-amber-500/30 italic">
-                          {t("level3Explanation")}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              {/* Conversion Rewards Section */}
+              <ConversionRewardsSection
+                totalConversions={affiliate.total_conversions || 0}
+                currentTierLevel={selectedAffiliate?.tier_level || 1}
+                totalEarnings={affiliate.total_earnings_usd || 0}
+              />
 
               {/* All Affiliate Links Section - Premium */}
               <Card className="mb-6 md:mb-8 bg-card/80 backdrop-blur-xl border-border/50 shadow-xl hover:shadow-2xl transition-all duration-500">
@@ -1392,127 +1215,6 @@ export default function Affiliate() {
                 </CardContent>
               </Card>
 
-              <Card className="bg-white/[0.02] backdrop-blur-xl border-white/10">
-                <CardHeader>
-                  <CardTitle className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-neon-cyan via-neon-violet to-neon-coral bg-clip-text text-transparent">
-                    {t("howItWorks")}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ol className="space-y-8">
-                    {/* Step 1 */}
-                    <li className="group relative">
-                      <div className="flex flex-col md:flex-row gap-6 items-center md:items-start">
-                        {/* Number Badge */}
-                        <div className="relative flex-shrink-0">
-                          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-neon-cyan/20 to-neon-violet/20 backdrop-blur-xl border border-neon-cyan/30 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-neon-cyan/50">
-                            <span className="text-2xl font-black bg-gradient-to-br from-neon-cyan to-neon-violet bg-clip-text text-transparent">1</span>
-                          </div>
-                          <div className="absolute -inset-1 bg-gradient-to-r from-neon-cyan to-neon-violet rounded-2xl blur opacity-0 group-hover:opacity-30 transition duration-300"></div>
-                        </div>
-                        
-                        {/* Content */}
-                        <div className="flex-1 space-y-3 text-center md:text-left">
-                          <h4 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent group-hover:from-neon-cyan group-hover:to-neon-violet transition-all duration-300">
-                            {t("shareYourLink")}
-                          </h4>
-                          <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
-                            {t("shareYourLinkDesc")}
-                          </p>
-                        </div>
-                      </div>
-                    </li>
-
-                    {/* Step 2 */}
-                    <li className="group relative">
-                      <div className="flex flex-col md:flex-row gap-6 items-center md:items-start">
-                        {/* Number Badge */}
-                        <div className="relative flex-shrink-0">
-                          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-neon-violet/20 to-neon-coral/20 backdrop-blur-xl border border-neon-violet/30 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-neon-violet/50">
-                            <span className="text-2xl font-black bg-gradient-to-br from-neon-violet to-neon-coral bg-clip-text text-transparent">2</span>
-                          </div>
-                          <div className="absolute -inset-1 bg-gradient-to-r from-neon-violet to-neon-coral rounded-2xl blur opacity-0 group-hover:opacity-30 transition duration-300"></div>
-                        </div>
-                        
-                        {/* Content */}
-                        <div className="flex-1 space-y-3 text-center md:text-left">
-                          <h4 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent group-hover:from-neon-violet group-hover:to-neon-coral transition-all duration-300">
-                            {t("theyPurchase")}
-                          </h4>
-                          <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
-                            {t("theyPurchaseDesc")}
-                          </p>
-                        </div>
-                      </div>
-                    </li>
-
-                    {/* Step 3 */}
-                    <li className="group relative">
-                      <div className="flex flex-col md:flex-row gap-6 items-center md:items-start">
-                        {/* Number Badge */}
-                        <div className="relative flex-shrink-0">
-                          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-neon-coral/20 to-neon-cyan/20 backdrop-blur-xl border border-neon-coral/30 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-neon-coral/50">
-                            <span className="text-2xl font-black bg-gradient-to-br from-neon-coral to-neon-cyan bg-clip-text text-transparent">3</span>
-                          </div>
-                          <div className="absolute -inset-1 bg-gradient-to-r from-neon-coral to-neon-cyan rounded-2xl blur opacity-0 group-hover:opacity-30 transition duration-300"></div>
-                        </div>
-                        
-                        {/* Content */}
-                        <div className="flex-1 space-y-4 text-center md:text-left">
-                          <h4 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent group-hover:from-neon-coral group-hover:to-neon-cyan transition-all duration-300">
-                            {t("earnMultiLevelCommissions")}
-                          </h4>
-                          <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-4">
-                            {t("buildYourNetworkDesc")}
-                          </p>
-                          
-                          {/* Tier Examples */}
-                          <div className="space-y-4 pl-0 md:pl-4">
-                            {/* Tier 1 */}
-                            <div className="p-4 rounded-xl bg-gradient-to-r from-blue-500/5 to-blue-500/10 border border-blue-500/20 backdrop-blur-sm hover:border-blue-500/40 transition-all duration-300">
-                              <div className="flex items-start gap-3 mb-2">
-                                <Unlock className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
-                                <span className="text-sm md:text-base font-semibold text-foreground">
-                                  {t("tierStarterEarn")}
-                                </span>
-                              </div>
-                              <p className="text-xs md:text-sm text-muted-foreground pl-8">
-                                {t("tierStarterExample")}
-                              </p>
-                            </div>
-
-                            {/* Tier 2 */}
-                            <div className="p-4 rounded-xl bg-gradient-to-r from-purple-500/5 to-purple-500/10 border border-purple-500/20 backdrop-blur-sm hover:border-purple-500/40 transition-all duration-300">
-                              <div className="flex items-start gap-3 mb-2">
-                                <Lock className="w-5 h-5 text-purple-500 flex-shrink-0 mt-0.5" />
-                                <span className="text-sm md:text-base font-semibold text-foreground">
-                                  {t("tierProEarn")}
-                                </span>
-                              </div>
-                              <p className="text-xs md:text-sm text-muted-foreground pl-8">
-                                {t("tierProExample")}
-                              </p>
-                            </div>
-
-                            {/* Tier 3 */}
-                            <div className="p-4 rounded-xl bg-gradient-to-r from-amber-500/5 to-amber-500/10 border border-amber-500/20 backdrop-blur-sm hover:border-amber-500/40 transition-all duration-300">
-                              <div className="flex items-start gap-3 mb-2">
-                                <Lock className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
-                                <span className="text-sm md:text-base font-semibold text-foreground">
-                                  {t("tierEliteEarn")}
-                                </span>
-                              </div>
-                              <p className="text-xs md:text-sm text-muted-foreground pl-8">
-                                {t("tierEliteExample")}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </li>
-                  </ol>
-                </CardContent>
-              </Card>
             </>}
         </div>
       </div>
