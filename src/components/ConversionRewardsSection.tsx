@@ -117,9 +117,9 @@ export const ConversionRewardsSection = ({
         {/* Progress to next tier */}
         {nextTier && (
           <div className="space-y-3">
-            <div className="flex items-center justify-between text-sm">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2 text-sm">
               <span className="text-muted-foreground">Progress to {nextTier.name}</span>
-              <span className="font-semibold text-foreground">{remainingToNext} more conversions needed</span>
+              <span className="font-semibold text-foreground text-xs sm:text-sm">{remainingToNext} more conversions needed</span>
             </div>
             <Progress value={getProgressToNext()} className="h-3 bg-muted/50" />
             <div className="flex items-center justify-between text-xs text-muted-foreground">
@@ -145,49 +145,49 @@ export const ConversionRewardsSection = ({
               return (
                 <div
                   key={tier.level}
-                  className={`relative p-4 rounded-xl border transition-all duration-300 ${colors.bg} ${colors.border} ${
+                  className={`relative p-3 sm:p-4 rounded-xl border transition-all duration-300 ${colors.bg} ${colors.border} ${
                     isUnlocked ? 'shadow-lg' : 'opacity-70'
                   } ${isCurrent ? 'ring-2 ring-purple-500/50 ring-offset-2 ring-offset-background' : ''}`}
                 >
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-4">
+                  <div className="flex items-start sm:items-center justify-between gap-3">
+                    <div className="flex items-start sm:items-center gap-3 sm:gap-4 flex-1 min-w-0">
                       {/* Icon */}
-                      <div className={`p-2.5 rounded-xl ${colors.icon}`}>
+                      <div className={`p-2 sm:p-2.5 rounded-xl flex-shrink-0 ${colors.icon}`}>
                         {isUnlocked ? (
-                          <Unlock className={`w-5 h-5 ${colors.text}`} />
+                          <Unlock className={`w-4 h-4 sm:w-5 sm:h-5 ${colors.text}`} />
                         ) : (
-                          <Lock className="w-5 h-5 text-muted-foreground" />
+                          <Lock className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground" />
                         )}
                       </div>
                       
                       {/* Info */}
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className={`font-bold ${isUnlocked ? colors.text : 'text-muted-foreground'}`}>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                          <span className={`font-bold text-sm sm:text-base ${isUnlocked ? colors.text : 'text-muted-foreground'}`}>
                             {tier.name}
                           </span>
                           {isUnlocked && (
-                            <Badge variant="outline" className={`text-xs ${colors.badge}`}>
-                              <Unlock className="w-3 h-3 mr-1" />
+                            <Badge variant="outline" className={`text-[10px] sm:text-xs px-1.5 py-0 sm:px-2 ${colors.badge}`}>
+                              <Unlock className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />
                               Unlocked
                             </Badge>
                           )}
                           {isCurrent && (
-                            <Badge className="text-xs bg-purple-500 text-white">
+                            <Badge className="text-[10px] sm:text-xs px-1.5 py-0 sm:px-2 bg-purple-500 text-white">
                               Current
                             </Badge>
                           )}
                         </div>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-xs sm:text-sm text-muted-foreground">
                           {tier.conversions === 0 ? 'Start here' : `${tier.conversions} conversions`}
                         </p>
                       </div>
                     </div>
                     
                     {/* Commission */}
-                    <div className={`text-right ${isUnlocked ? colors.text : 'text-muted-foreground'}`}>
-                      <div className="font-bold text-lg">{tier.level === 1 ? '' : '+'}{tier.commission}%</div>
-                      <div className="text-xs">{tier.description}</div>
+                    <div className={`text-right flex-shrink-0 ${isUnlocked ? colors.text : 'text-muted-foreground'}`}>
+                      <div className="font-bold text-base sm:text-lg">{tier.level === 1 ? '' : '+'}{tier.commission}%</div>
+                      <div className="text-[10px] sm:text-xs">{tier.description}</div>
                     </div>
                   </div>
                 </div>
@@ -197,91 +197,91 @@ export const ConversionRewardsSection = ({
         </div>
         
         {/* Multi-Level Commission Explainer */}
-        <div className="p-5 bg-gradient-to-br from-primary/10 via-accent/5 to-primary/5 rounded-xl border border-primary/20 space-y-4">
+        <div className="p-4 sm:p-5 bg-gradient-to-br from-primary/10 via-accent/5 to-primary/5 rounded-xl border border-primary/20 space-y-4">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-primary/20 rounded-xl">
-              <Users className="w-5 h-5 text-primary" />
+            <div className="p-2 sm:p-2.5 bg-primary/20 rounded-xl flex-shrink-0">
+              <Users className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
             </div>
             <div>
-              <h3 className="font-bold text-base">Multi-Level Commissions</h3>
-              <p className="text-sm text-muted-foreground">Build your network and earn from multiple levels</p>
+              <h3 className="font-bold text-sm sm:text-base">Multi-Level Commissions</h3>
+              <p className="text-xs sm:text-sm text-muted-foreground">Build your network and earn from multiple levels</p>
             </div>
           </div>
           
-          <div className="space-y-3">
+          <div className="space-y-2 sm:space-y-3">
             {/* Level 1 */}
-            <div className="flex items-center gap-3 p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
-              <div className="flex items-center gap-2 text-sm flex-1">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 p-2.5 sm:p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
+              <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm flex-1 flex-wrap">
                 <span className="font-semibold text-blue-400">Level 1:</span>
                 <span className="text-muted-foreground">You</span>
-                <ArrowRight className="w-4 h-4 text-muted-foreground" />
+                <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground" />
                 <span className="text-foreground">Customer</span>
               </div>
-              <Badge variant="outline" className="bg-blue-500/10 text-blue-400 border-blue-500/30">
-                <DollarSign className="w-3 h-3 mr-1" />
+              <Badge variant="outline" className="bg-blue-500/10 text-blue-400 border-blue-500/30 text-xs w-fit">
+                <DollarSign className="w-3 h-3 mr-0.5" />
                 9%
               </Badge>
             </div>
             
             {/* Level 2 */}
-            <div className={`flex items-center gap-3 p-3 rounded-lg border ${
+            <div className={`flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-lg border ${
               currentTierLevel >= 2 
                 ? 'bg-purple-500/10 border-purple-500/20' 
                 : 'bg-muted/20 border-border/50'
             }`}>
-              <div className="flex items-center gap-2 text-sm flex-1">
+              <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm flex-1 flex-wrap">
                 <span className={`font-semibold ${currentTierLevel >= 2 ? 'text-purple-400' : 'text-muted-foreground'}`}>
                   Level 2:
                 </span>
                 <span className="text-muted-foreground">You</span>
-                <ArrowRight className="w-4 h-4 text-muted-foreground" />
+                <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground" />
                 <span className="text-muted-foreground">Referral</span>
-                <ArrowRight className="w-4 h-4 text-muted-foreground" />
+                <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground" />
                 <span className="text-foreground">Customer</span>
               </div>
-              <Badge variant="outline" className={
+              <Badge variant="outline" className={`text-xs w-fit ${
                 currentTierLevel >= 2 
                   ? 'bg-purple-500/10 text-purple-400 border-purple-500/30'
                   : 'bg-muted/50 text-muted-foreground border-border/50'
-              }>
-                {currentTierLevel >= 2 ? <DollarSign className="w-3 h-3 mr-1" /> : <Lock className="w-3 h-3 mr-1" />}
+              }`}>
+                {currentTierLevel >= 2 ? <DollarSign className="w-3 h-3 mr-0.5" /> : <Lock className="w-3 h-3 mr-0.5" />}
                 +6%
               </Badge>
             </div>
             
             {/* Level 3 */}
-            <div className={`flex items-center gap-3 p-3 rounded-lg border ${
+            <div className={`flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-lg border ${
               currentTierLevel >= 3 
                 ? 'bg-amber-500/10 border-amber-500/20' 
                 : 'bg-muted/20 border-border/50'
             }`}>
-              <div className="flex items-center gap-2 text-sm flex-1 flex-wrap">
+              <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm flex-1 flex-wrap">
                 <span className={`font-semibold ${currentTierLevel >= 3 ? 'text-amber-400' : 'text-muted-foreground'}`}>
                   Level 3:
                 </span>
                 <span className="text-muted-foreground">You</span>
-                <ArrowRight className="w-4 h-4 text-muted-foreground" />
-                <span className="text-muted-foreground">Referral</span>
-                <ArrowRight className="w-4 h-4 text-muted-foreground" />
-                <span className="text-muted-foreground">Their Referral</span>
-                <ArrowRight className="w-4 h-4 text-muted-foreground" />
+                <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground" />
+                <span className="text-muted-foreground">Ref</span>
+                <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground" />
+                <span className="text-muted-foreground">Their Ref</span>
+                <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground" />
                 <span className="text-foreground">Customer</span>
               </div>
-              <Badge variant="outline" className={
+              <Badge variant="outline" className={`text-xs w-fit ${
                 currentTierLevel >= 3 
                   ? 'bg-amber-500/10 text-amber-400 border-amber-500/30'
                   : 'bg-muted/50 text-muted-foreground border-border/50'
-              }>
-                {currentTierLevel >= 3 ? <DollarSign className="w-3 h-3 mr-1" /> : <Lock className="w-3 h-3 mr-1" />}
+              }`}>
+                {currentTierLevel >= 3 ? <DollarSign className="w-3 h-3 mr-0.5" /> : <Lock className="w-3 h-3 mr-0.5" />}
                 +3%
               </Badge>
             </div>
           </div>
           
           {/* Total earnings display */}
-          <div className="flex items-center justify-between p-3 bg-background/50 rounded-lg border border-border/50">
-            <span className="text-sm font-medium text-muted-foreground">Total Lifetime Earnings</span>
-            <span className="text-lg font-bold text-primary">${totalEarnings.toFixed(2)}</span>
+          <div className="flex items-center justify-between p-2.5 sm:p-3 bg-background/50 rounded-lg border border-border/50">
+            <span className="text-xs sm:text-sm font-medium text-muted-foreground">Total Lifetime Earnings</span>
+            <span className="text-base sm:text-lg font-bold text-primary">${totalEarnings.toFixed(2)}</span>
           </div>
         </div>
       </CardContent>
