@@ -1,13 +1,15 @@
-import { useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useAffiliateTracking } from "@/hooks/useAffiliateTracking";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
 
 export default function AffiliateRedirect() {
   const { code, username } = useParams<{ code?: string; username?: string }>();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { setReferralCode } = useAffiliateTracking();
+  const { setReferralCode, clearReferralCode } = useAffiliateTracking();
+  const [isProcessing, setIsProcessing] = useState(true);
 
   useEffect(() => {
     const handleRedirect = async () => {
@@ -19,10 +21,26 @@ export default function AffiliateRedirect() {
       }
 
       try {
-        // Look up the affiliate by code or username to get the affiliate_code
-        let affiliateCode = code;
+        // Clear any existing referral code first to ensure we use the new one
+        clearReferralCode();
         
-        if (username) {
+        // Look up the affiliate by code or username to get the affiliate_code
+        let affiliateCode: string | null = null;
+        
+        if (code) {
+          // Verify the code exists in the database
+          const { data: affiliate } = await supabase
+            .from('affiliates')
+            .select('affiliate_code')
+            .eq('affiliate_code', code.toUpperCase())
+            .maybeSingle();
+          
+          if (affiliate) {
+            affiliateCode = affiliate.affiliate_code;
+          } else {
+            console.warn('Invalid referral code:', code);
+          }
+        } else if (username) {
           // If redirected via username, look up the affiliate_code
           const { data: affiliate } = await supabase
             .from('affiliates')
@@ -32,6 +50,8 @@ export default function AffiliateRedirect() {
           
           if (affiliate) {
             affiliateCode = affiliate.affiliate_code;
+          } else {
+            console.warn('Invalid username:', username);
           }
         }
 
@@ -44,12 +64,19 @@ export default function AffiliateRedirect() {
         console.error('Error looking up affiliate:', error);
       }
 
-      // Redirect to home page
-      navigate('/', { replace: true });
+      setIsProcessing(false);
+      
+      // Preserve any destination parameter
+      const destination = searchParams.get('dest') || '/';
+      navigate(destination, { replace: true });
     };
 
     handleRedirect();
-  }, [code, username, navigate, setReferralCode]);
+  }, [code, username, navigate, setReferralCode, clearReferralCode, searchParams]);
+
+  if (!isProcessing) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center">
