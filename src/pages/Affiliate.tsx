@@ -1314,12 +1314,6 @@ export default function Affiliate() {
                                           <span className="font-semibold">Unlocked - Ready to Earn</span>
                                         </div>
                                       </div>}
-                                    {!isUnlocked && <div className="pt-3 border-t border-dashed border-border/50">
-                                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground/70">
-                                          <Lock className="w-3 h-3" />
-                                          <span className="font-medium">Not yet unlocked</span>
-                                        </div>
-                                      </div>}
                                   </CardContent>
                                 </Card>;
                     })}
