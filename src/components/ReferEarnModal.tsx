@@ -12,7 +12,7 @@ interface AffiliateData {
   id: string;
   affiliate_code: string;
   username: string | null;
-  total_clicks: number;
+  total_registrations: number;
   total_conversions: number;
   total_earnings_usd: number;
 }
@@ -232,7 +232,7 @@ export const ReferEarnModal = ({ open, onOpenChange, product }: ReferEarnModalPr
                     )}
                   </div>
                   <div className="grid grid-cols-3 gap-2 text-xs text-muted-foreground">
-                    <span>{affiliate.total_clicks} clicks</span>
+                    <span>{affiliate.total_registrations} registrations</span>
                     <span>{affiliate.total_conversions} conversions</span>
                     <span>${affiliate.total_earnings_usd.toFixed(2)} earned</span>
                   </div>

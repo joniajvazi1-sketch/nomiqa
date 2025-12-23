@@ -19,28 +19,29 @@ export default function AffiliateRedirect() {
       }
 
       try {
-        // Get current user if logged in
-        const { data: { user } } = await supabase.auth.getUser();
-
-        // Track the click via edge function (works for everyone - logged in or anonymous)
-        const { data, error } = await supabase.functions.invoke('track-affiliate-click', {
-          body: {
-            referralCode: code,
-            username: username,
-            userId: user?.id || user?.email,
-            referrer: document.referrer
+        // Look up the affiliate by code or username to get the affiliate_code
+        let affiliateCode = code;
+        
+        if (username) {
+          // If redirected via username, look up the affiliate_code
+          const { data: affiliate } = await supabase
+            .from('affiliates')
+            .select('affiliate_code')
+            .eq('username', username.toLowerCase())
+            .maybeSingle();
+          
+          if (affiliate) {
+            affiliateCode = affiliate.affiliate_code;
           }
-        });
+        }
 
-        if (!error && data?.affiliateCode) {
-          // Set the referral code for future purchase tracking
-          setReferralCode(data.affiliateCode);
-          console.log('Affiliate click tracked:', data);
-        } else if (error) {
-          console.error('Error tracking affiliate click:', error);
+        // Store the referral code for use during registration/purchase
+        if (affiliateCode) {
+          setReferralCode(affiliateCode);
+          console.log('Referral code stored:', affiliateCode);
         }
       } catch (error) {
-        console.error('Error tracking affiliate click:', error);
+        console.error('Error looking up affiliate:', error);
       }
 
       // Redirect to home page

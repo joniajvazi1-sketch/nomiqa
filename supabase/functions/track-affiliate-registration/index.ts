@@ -7,13 +7,10 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const clickSchema = z.object({
-  referralCode: z.string().min(1).max(50).optional(),
-  username: z.string().min(1).max(50).optional(),
-  userId: z.string().optional(),
+const registrationSchema = z.object({
+  referralCode: z.string().min(1).max(50),
+  userId: z.string().uuid(),
   referrer: z.string().optional(),
-}).refine(data => data.referralCode || data.username, {
-  message: "Either referralCode or username must be provided"
 });
 
 // Detect traffic source from referrer
@@ -45,89 +42,76 @@ serve(async (req) => {
   try {
     // Validate input
     const rawBody = await req.json();
-    const validationResult = clickSchema.safeParse(rawBody);
+    const validationResult = registrationSchema.safeParse(rawBody);
     
     if (!validationResult.success) {
+      console.error('Validation error:', validationResult.error.issues);
       return new Response(
         JSON.stringify({ error: 'Invalid input', details: validationResult.error.issues }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    const { referralCode, username, userId, referrer } = validationResult.data;
+    const { referralCode, userId, referrer } = validationResult.data;
     const source = detectSource(referrer || null);
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Find affiliate by code or username
-    let affiliate;
-    if (username) {
-      const { data, error } = await supabase
-        .from('affiliates')
-        .select('id, affiliate_code, total_clicks')
-        .eq('username', username.toLowerCase())
-        .maybeSingle();
-      
-      if (error) throw error;
-      affiliate = data;
-    } else if (referralCode) {
-      const { data, error } = await supabase
-        .from('affiliates')
-        .select('id, affiliate_code, total_clicks')
-        .eq('affiliate_code', referralCode)
-        .maybeSingle();
-      
-      if (error) throw error;
-      affiliate = data;
+    console.log(`Tracking registration for referral code: ${referralCode}, user: ${userId}`);
+
+    // Find affiliate by code
+    const { data: affiliate, error: affError } = await supabase
+      .from('affiliates')
+      .select('id, affiliate_code, total_registrations')
+      .eq('affiliate_code', referralCode)
+      .maybeSingle();
+
+    if (affError) {
+      console.error('Error finding affiliate:', affError);
+      throw affError;
     }
 
     if (!affiliate) {
+      console.log('Invalid referral code:', referralCode);
       return new Response(
-        JSON.stringify({ error: 'Invalid referral code or username' }),
+        JSON.stringify({ error: 'Invalid referral code' }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Get visitor identifier (user ID if available, otherwise IP)
-    const clientIP = req.headers.get('x-forwarded-for')?.split(',')[0] || 
-                     req.headers.get('x-real-ip') || 
-                     'unknown';
-    const visitorId = userId || clientIP;
-
-    // Rate limiting: Check if this visitor clicked this affiliate in the last hour
-    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
-    const { data: recentClicks } = await supabase
+    // Check if this user already has a referral record
+    const { data: existingReferral } = await supabase
       .from('affiliate_referrals')
       .select('id')
-      .eq('affiliate_id', affiliate.id)
-      .eq('visitor_id', visitorId)
-      .gte('clicked_at', oneHourAgo)
+      .eq('registered_user_id', userId)
       .limit(1);
 
-    if (recentClicks && recentClicks.length > 0) {
+    if (existingReferral && existingReferral.length > 0) {
+      console.log('User already has a referral record:', userId);
       return new Response(
         JSON.stringify({ 
           success: true, 
-          message: 'Click already recorded recently',
-          rateLimited: true,
-          affiliateCode: affiliate.affiliate_code 
+          message: 'User already registered via referral',
+          alreadyRegistered: true
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Record the click
+    // Create the referral record with 'registered' status
     const { error: insertError } = await supabase
       .from('affiliate_referrals')
       .insert({
         affiliate_id: affiliate.id,
-        visitor_id: visitorId,
-        status: 'pending',
+        visitor_id: userId,
+        registered_user_id: userId,
+        status: 'registered',
         source: source,
         commission_level: 1,
-        clicked_at: new Date().toISOString()
+        clicked_at: new Date().toISOString(),
+        registered_at: new Date().toISOString()
       });
 
     if (insertError) {
@@ -135,30 +119,32 @@ serve(async (req) => {
       throw insertError;
     }
 
-    // Update total clicks count
+    // Update total registrations count
     const { error: updateError } = await supabase
       .from('affiliates')
       .update({ 
-        total_clicks: (affiliate.total_clicks || 0) + 1,
+        total_registrations: (affiliate.total_registrations || 0) + 1,
         updated_at: new Date().toISOString()
       })
       .eq('id', affiliate.id);
 
     if (updateError) {
-      console.error('Error updating click count:', updateError);
+      console.error('Error updating registration count:', updateError);
     }
+
+    console.log(`Registration tracked successfully for affiliate ${affiliate.affiliate_code}`);
 
     return new Response(
       JSON.stringify({ 
         success: true,
-        message: 'Click tracked successfully',
+        message: 'Registration tracked successfully',
         affiliateCode: affiliate.affiliate_code
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (error) {
-    console.error('Error tracking click:', error);
+    console.error('Error tracking registration:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return new Response(
       JSON.stringify({ error: errorMessage }),

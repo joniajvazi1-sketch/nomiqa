@@ -5,7 +5,6 @@ import { Footer } from "@/components/Footer";
 import { SupportChatbot } from "@/components/SupportChatbot";
 import { NetworkBackground } from "@/components/NetworkBackground";
 import { AnimatedCounter } from "@/components/AnimatedCounter";
-import { LiveEarningsTicker } from "@/components/LiveEarningsTicker";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Copy, TrendingUp, Users, DollarSign, CheckCircle2, Loader2, XCircle, AlertCircle, BarChart3, Share2, Award, Lock, Unlock } from "lucide-react";
+import { Copy, TrendingUp, Users, DollarSign, CheckCircle2, Loader2, XCircle, AlertCircle, BarChart3, Share2, Award, Lock, Unlock, UserPlus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAffiliateTracking } from "@/hooks/useAffiliateTracking";
 import { useTranslation } from "@/contexts/TranslationContext";
@@ -22,7 +21,7 @@ interface AffiliateData {
   id: string;
   affiliate_code: string;
   username: string | null;
-  total_clicks: number;
+  total_registrations: number;
   total_conversions: number;
   total_earnings_usd: number;
   commission_rate: number;
@@ -32,7 +31,7 @@ interface AffiliateData {
 interface AnalyticsData {
   sourceBreakdown: {
     source: string;
-    clicks: number;
+    registrations: number;
     conversions: number;
   }[];
   levelBreakdown: {
@@ -228,23 +227,23 @@ export default function Affiliate() {
       if (referrals) {
         // Group by source
         const sourceMap = new Map<string, {
-          clicks: number;
+          registrations: number;
           conversions: number;
         }>();
         referrals.forEach(ref => {
           const current = sourceMap.get(ref.source) || {
-            clicks: 0,
+            registrations: 0,
             conversions: 0
           };
-          current.clicks += 1;
+          if (ref.status === 'registered' || ref.status === 'converted') current.registrations += 1;
           if (ref.status === 'converted') current.conversions += 1;
           sourceMap.set(ref.source, current);
         });
         const sourceBreakdown = Array.from(sourceMap.entries()).map(([source, data]) => ({
           source,
-          clicks: data.clicks,
+          registrations: data.registrations,
           conversions: data.conversions
-        })).sort((a, b) => b.clicks - a.clicks);
+        })).sort((a, b) => b.registrations - a.registrations);
 
         // Group by level
         const levelMap = new Map<number, {
@@ -499,12 +498,7 @@ export default function Affiliate() {
 
       <Navbar />
       
-      {/* Live Earnings Ticker */}
-      <div className="pt-20">
-        <LiveEarningsTicker />
-      </div>
-      
-      <section className="pt-12 md:pt-8 pb-12 md:pb-16 relative overflow-hidden">
+      <section className="pt-28 md:pt-24 pb-12 md:pb-16 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-deep-space/80 via-midnight-blue/60 to-deep-space/80 backdrop-blur-sm"></div>
         
         {/* Subtle accent glows */}
@@ -710,13 +704,13 @@ export default function Affiliate() {
                   
                   <CardHeader className="pb-3 md:pb-4 relative z-10">
                     <CardDescription className="text-xs md:text-sm font-medium flex items-center justify-center gap-2">
-                      <Users className="w-4 h-4 text-primary" />
-                      {t("totalClicks")}
+                      <UserPlus className="w-4 h-4 text-primary" />
+                      Registrations
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="relative z-10">
                     <div className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                      {affiliate.total_clicks || 0}
+                      {affiliate.total_registrations || 0}
                     </div>
                   </CardContent>
                 </Card>
@@ -1006,8 +1000,8 @@ export default function Affiliate() {
                         {/* Stats - Premium Grid */}
                         <div className="grid grid-cols-3 gap-3 py-3">
                           <div className="p-3 bg-card/50 backdrop-blur-sm rounded-lg border border-border/30 text-center hover:scale-105 transition-transform">
-                            <div className="text-xs text-muted-foreground mb-1.5 font-medium">{t("clicks")}</div>
-                            <div className="font-bold text-base md:text-lg">{aff.total_clicks}</div>
+                            <div className="text-xs text-muted-foreground mb-1.5 font-medium">Registrations</div>
+                            <div className="font-bold text-base md:text-lg">{aff.total_registrations}</div>
                           </div>
                           <div className="p-3 bg-card/50 backdrop-blur-sm rounded-lg border border-border/30 text-center hover:scale-105 transition-transform">
                             <div className="text-xs text-muted-foreground mb-1.5 font-medium">{t("conversions")}</div>
@@ -1239,10 +1233,10 @@ export default function Affiliate() {
                           </h3>
                         </div>
                         {analytics.sourceBreakdown.length > 0 ? (() => {
-                    const significantSources = analytics.sourceBreakdown.filter(source => source.clicks >= 3 || source.conversions > 0);
+                    const significantSources = analytics.sourceBreakdown.filter(source => source.registrations >= 1 || source.conversions > 0);
                     return significantSources.length > 0 ? <div className="space-y-4">
                                 {significantSources.map(source => {
-                        const conversionRate = source.clicks > 0 ? (source.conversions / source.clicks * 100).toFixed(1) : '0.0';
+                        const conversionRate = source.registrations > 0 ? (source.conversions / source.registrations * 100).toFixed(1) : '0.0';
                         return <div 
                           key={source.source} 
                           className="group p-5 md:p-6 bg-gradient-to-br from-muted/60 via-muted/40 to-transparent backdrop-blur-sm rounded-xl border border-border/50 hover:border-primary/30 hover:shadow-lg transition-all duration-300 space-y-4"
@@ -1257,8 +1251,8 @@ export default function Affiliate() {
                                           </Badge>
                                           <div className="flex flex-wrap items-center gap-3 text-sm md:text-base">
                                             <div className="flex items-center gap-1.5">
-                                              <span className="font-bold text-foreground">{source.clicks}</span>
-                                              <span className="text-muted-foreground">clicks</span>
+                                              <span className="font-bold text-foreground">{source.registrations}</span>
+                                              <span className="text-muted-foreground">registrations</span>
                                             </div>
                                             <span className="text-muted-foreground/40">•</span>
                                             <div className="flex items-center gap-1.5">

@@ -170,10 +170,12 @@ serve(async (req) => {
     }
 
     // Handle multi-level affiliate commissions
-    // Get the most recent referral for this order's visitor
+    // Get the most recent referral for this user (registered or pending status)
     const { data: referrals } = await supabase
       .from('affiliate_referrals')
-      .select('affiliate_id')
+      .select('id, affiliate_id, status')
+      .eq('registered_user_id', authenticatedUserId)
+      .in('status', ['registered', 'pending'])
       .is('order_id', null)
       .order('clicked_at', { ascending: false })
       .limit(1);
@@ -198,8 +200,7 @@ serve(async (req) => {
           commission_amount_usd: totalPrice * commissionRates[0],
           commission_level: 1
         })
-        .eq('affiliate_id', referral.affiliate_id)
-        .is('order_id', null);
+        .eq('id', referral.id);
 
       // Get level 1 affiliate details
       const { data: level1Aff } = await supabase

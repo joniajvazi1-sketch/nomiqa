@@ -24,6 +24,8 @@ export type Database = {
           created_at: string
           id: string
           order_id: string | null
+          registered_at: string | null
+          registered_user_id: string | null
           source: string | null
           status: string | null
           visitor_id: string | null
@@ -37,6 +39,8 @@ export type Database = {
           created_at?: string
           id?: string
           order_id?: string | null
+          registered_at?: string | null
+          registered_user_id?: string | null
           source?: string | null
           status?: string | null
           visitor_id?: string | null
@@ -50,6 +54,8 @@ export type Database = {
           created_at?: string
           id?: string
           order_id?: string | null
+          registered_at?: string | null
+          registered_user_id?: string | null
           source?: string | null
           status?: string | null
           visitor_id?: string | null
@@ -82,9 +88,9 @@ export type Database = {
           parent_affiliate_id: string | null
           status: string | null
           tier_level: number
-          total_clicks: number | null
           total_conversions: number | null
           total_earnings_usd: number | null
+          total_registrations: number | null
           updated_at: string
           user_id: string | null
           username: string | null
@@ -102,9 +108,9 @@ export type Database = {
           parent_affiliate_id?: string | null
           status?: string | null
           tier_level?: number
-          total_clicks?: number | null
           total_conversions?: number | null
           total_earnings_usd?: number | null
+          total_registrations?: number | null
           updated_at?: string
           user_id?: string | null
           username?: string | null
@@ -122,9 +128,9 @@ export type Database = {
           parent_affiliate_id?: string | null
           status?: string | null
           tier_level?: number
-          total_clicks?: number | null
           total_conversions?: number | null
           total_earnings_usd?: number | null
+          total_registrations?: number | null
           updated_at?: string
           user_id?: string | null
           username?: string | null
