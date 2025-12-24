@@ -152,10 +152,17 @@ export default function Auth() {
           throw error;
         }
 
-        // Create profile with username and verification code
+        // Create profile with username and verification code (hashed for security)
         if (authData.user) {
           const code = Math.floor(100000 + Math.random() * 900000).toString();
           const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
+          
+          // Hash the code before storing using SHA-256
+          const encoder = new TextEncoder();
+          const data = encoder.encode(code);
+          const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+          const hashArray = Array.from(new Uint8Array(hashBuffer));
+          const hashedCode = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 
           const { error: profileError } = await supabase
             .from('profiles')
@@ -163,7 +170,7 @@ export default function Auth() {
               user_id: authData.user.id,
               username: username.toLowerCase(),
               email_verified: false,
-              verification_code: code,
+              verification_code: hashedCode,
               verification_code_expires_at: expiresAt,
               is_early_member: true, // All new registrations are early members
             });

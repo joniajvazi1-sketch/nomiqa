@@ -18,6 +18,15 @@ const generateCode = (): string => {
   return Math.floor(100000 + Math.random() * 900000).toString();
 };
 
+// Hash a code using SHA-256
+async function hashCode(code: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(code);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
 const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -63,7 +72,9 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
+    // Generate code and hash it for secure storage
     const code = generateCode();
+    const hashedCode = await hashCode(code);
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
 
     if (type === 'registration' || type === 'password_reset') {
@@ -103,18 +114,18 @@ const handler = async (req: Request): Promise<Response> => {
           );
         }
 
-        // Update profile with new code
+        // Update profile with new hashed code
         const { error: updateError } = await supabase
           .from('profiles')
           .update({
-            verification_code: code,
+            verification_code: hashedCode,
             verification_code_expires_at: expiresAt.toISOString(),
           })
           .eq('user_id', profile.user_id);
 
         if (updateError) throw updateError;
 
-        // Send verification email
+        // Send verification email with original (unhashed) code
         console.log(`Sending verification email to ${normalizedEmail}`);
         const sendEmailResponse = await fetch(`${supabaseUrl}/functions/v1/send-email`, {
           method: 'POST',
@@ -125,7 +136,7 @@ const handler = async (req: Request): Promise<Response> => {
           body: JSON.stringify({
             type: 'user_verification',
             to: normalizedEmail,
-            data: { code },
+            data: { code }, // Send original code in email
           }),
         });
         
@@ -139,15 +150,6 @@ const handler = async (req: Request): Promise<Response> => {
       } else {
         // Password reset
         if (!profile) {
-          // User might exist in auth but not have a profile yet - check auth
-          // Use listUsers with filter - this is still O(1) with proper pagination
-          const { data: authData, error: authError } = await supabase.auth.admin.listUsers({
-            page: 1,
-            perPage: 1,
-          });
-          
-          // Unfortunately Supabase admin API doesn't support email filter, so we need to search
-          // But we can limit the damage by returning a generic message to prevent enumeration
           console.log(`No profile found for password reset: ${normalizedEmail}`);
           // Return success to prevent email enumeration attacks
           return new Response(
@@ -156,18 +158,18 @@ const handler = async (req: Request): Promise<Response> => {
           );
         }
 
-        // Update profile with reset code
+        // Update profile with hashed reset code
         const { error: updateError } = await supabase
           .from('profiles')
           .update({
-            password_reset_code: code,
+            password_reset_code: hashedCode,
             password_reset_expires_at: expiresAt.toISOString(),
           })
           .eq('user_id', profile.user_id);
 
         if (updateError) throw updateError;
 
-        // Send password reset email
+        // Send password reset email with original (unhashed) code
         console.log(`Sending password reset email to ${normalizedEmail}`);
         const sendEmailResponse = await fetch(`${supabaseUrl}/functions/v1/send-email`, {
           method: 'POST',
@@ -178,7 +180,7 @@ const handler = async (req: Request): Promise<Response> => {
           body: JSON.stringify({
             type: 'password_reset',
             to: normalizedEmail,
-            data: { code },
+            data: { code }, // Send original code in email
           }),
         });
         
@@ -207,18 +209,18 @@ const handler = async (req: Request): Promise<Response> => {
         );
       }
 
-      // Update affiliate with new code
+      // Update affiliate with hashed code
       const { error: updateError } = await supabase
         .from('affiliates')
         .update({
-          verification_token: code,
+          verification_token: hashedCode,
           verification_code_expires_at: expiresAt.toISOString(),
         })
         .eq('email', normalizedEmail);
 
       if (updateError) throw updateError;
 
-      // Send affiliate verification email
+      // Send affiliate verification email with original code
       console.log(`Sending affiliate verification email to ${normalizedEmail}`);
       const sendEmailResponse = await fetch(`${supabaseUrl}/functions/v1/send-email`, {
         method: 'POST',
@@ -229,7 +231,7 @@ const handler = async (req: Request): Promise<Response> => {
         body: JSON.stringify({
           type: 'affiliate_verification',
           to: normalizedEmail,
-          data: { code },
+          data: { code }, // Send original code in email
         }),
       });
       
