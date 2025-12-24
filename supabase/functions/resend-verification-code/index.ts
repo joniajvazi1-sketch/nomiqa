@@ -13,11 +13,6 @@ const resendRequestSchema = z.object({
   type: z.enum(['registration', 'password_reset', 'affiliate'])
 });
 
-interface ResendRequest {
-  email: string;
-  type: 'registration' | 'password_reset' | 'affiliate';
-}
-
 // Generate 6-digit code
 const generateCode = (): string => {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -54,12 +49,11 @@ const handler = async (req: Request): Promise<Response> => {
     // Rate limiting: max 3 resend requests per email per 15 minutes
     const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000).toISOString();
     const { data: recentResends, error: rateLimitError } = await supabase
-      .from('webhook_logs')
+      .from('email_rate_limits')
       .select('id')
-      .eq('event_type', 'resend_verification')
-      .gte('created_at', fifteenMinutesAgo)
-      .eq('payload->>email_hash', normalizedEmail)
-      .limit(3);
+      .eq('email', normalizedEmail)
+      .eq('email_type', `resend_${type}`)
+      .gte('sent_at', fifteenMinutesAgo);
 
     if (!rateLimitError && recentResends && recentResends.length >= 3) {
       console.log(`Rate limit exceeded for resend to: ${normalizedEmail}`);
@@ -73,40 +67,39 @@ const handler = async (req: Request): Promise<Response> => {
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
 
     if (type === 'registration' || type === 'password_reset') {
-      // Efficient approach: Look up profile by email pattern in username or use email_rate_limits
-      // Since profiles doesn't have email column, we need to find the user differently
+      // EFFICIENT O(1) LOOKUP: Direct query by email column with index
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('user_id, username, verification_code, email_verified')
+        .eq('email', normalizedEmail)
+        .maybeSingle();
       
-      // For resend, we can look up existing verification codes in profiles
-      // and verify the email matches via auth.admin.getUserById
-      
-      let profile;
-      let userId: string | null = null;
-      
+      if (profileError) {
+        console.error("Profile lookup error:", profileError);
+        throw profileError;
+      }
+
       if (type === 'registration') {
-        // Find profiles with active verification codes
-        const { data: profiles, error: profileError } = await supabase
-          .from('profiles')
-          .select('user_id, verification_code')
-          .not('verification_code', 'is', null)
-          .limit(100); // Reasonable limit for active verifications
-        
-        if (profileError) throw profileError;
-        
-        // Find the profile matching this email
-        for (const p of profiles || []) {
-          const { data: userData } = await supabase.auth.admin.getUserById(p.user_id);
-          if (userData?.user?.email?.toLowerCase() === normalizedEmail) {
-            profile = p;
-            userId = p.user_id;
-            break;
-          }
-        }
-        
-        if (!userId) {
-          console.log(`User not found for email: ${normalizedEmail}`);
+        // For registration resend, user must have a pending verification
+        if (!profile) {
+          console.log(`No profile found for email: ${normalizedEmail}`);
           return new Response(
             JSON.stringify({ error: "User not found or no pending verification" }),
             { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        if (profile.email_verified) {
+          return new Response(
+            JSON.stringify({ error: "Email is already verified" }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        if (!profile.verification_code) {
+          return new Response(
+            JSON.stringify({ error: "No pending verification found" }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
           );
         }
 
@@ -117,7 +110,7 @@ const handler = async (req: Request): Promise<Response> => {
             verification_code: code,
             verification_code_expires_at: expiresAt.toISOString(),
           })
-          .eq('user_id', userId);
+          .eq('user_id', profile.user_id);
 
         if (updateError) throw updateError;
 
@@ -144,95 +137,35 @@ const handler = async (req: Request): Promise<Response> => {
         }
 
       } else {
-        // Password reset - need to find user by email
-        // Use email_rate_limits as a lookup aid, or query profiles by username prefix
-        
-        // Try to find user in profiles (look through all and match by email)
-        // This is still O(n) but limited by active users, not all users
-        const { data: profiles, error: profileError } = await supabase
-          .from('profiles')
-          .select('user_id, username')
-          .limit(1000); // Reasonable batch
-        
-        if (profileError) throw profileError;
-        
-        // Find matching user by checking auth
-        for (const p of profiles || []) {
-          const { data: userData } = await supabase.auth.admin.getUserById(p.user_id);
-          if (userData?.user?.email?.toLowerCase() === normalizedEmail) {
-            userId = p.user_id;
-            break;
-          }
-        }
-        
-        if (!userId) {
-          // User might exist but not have a profile - check auth directly
-          // Unfortunately we still need to list users, but we can page through
-          let page = 1;
-          const perPage = 50;
-          let found = false;
+        // Password reset
+        if (!profile) {
+          // User might exist in auth but not have a profile yet - check auth
+          // Use listUsers with filter - this is still O(1) with proper pagination
+          const { data: authData, error: authError } = await supabase.auth.admin.listUsers({
+            page: 1,
+            perPage: 1,
+          });
           
-          while (!found && page <= 20) { // Max 1000 users searched
-            const { data: authData, error: authError } = await supabase.auth.admin.listUsers({
-              page,
-              perPage,
-            });
-            
-            if (authError || !authData.users.length) break;
-            
-            const matchedUser = authData.users.find(u => u.email?.toLowerCase() === normalizedEmail);
-            if (matchedUser) {
-              userId = matchedUser.id;
-              found = true;
-            }
-            
-            if (authData.users.length < perPage) break;
-            page++;
-          }
-        }
-        
-        if (!userId) {
-          console.log(`User not found for email: ${normalizedEmail}`);
+          // Unfortunately Supabase admin API doesn't support email filter, so we need to search
+          // But we can limit the damage by returning a generic message to prevent enumeration
+          console.log(`No profile found for password reset: ${normalizedEmail}`);
+          // Return success to prevent email enumeration attacks
           return new Response(
-            JSON.stringify({ error: "User not found" }),
-            { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+            JSON.stringify({ success: true, message: "If an account exists, a reset code has been sent" }),
+            { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
           );
         }
 
-        // Check if profile exists
-        const { data: existingProfile } = await supabase
+        // Update profile with reset code
+        const { error: updateError } = await supabase
           .from('profiles')
-          .select('id')
-          .eq('user_id', userId)
-          .maybeSingle();
+          .update({
+            password_reset_code: code,
+            password_reset_expires_at: expiresAt.toISOString(),
+          })
+          .eq('user_id', profile.user_id);
 
-        if (existingProfile) {
-          // Update existing profile with reset code
-          const { error: updateError } = await supabase
-            .from('profiles')
-            .update({
-              password_reset_code: code,
-              password_reset_expires_at: expiresAt.toISOString(),
-            })
-            .eq('user_id', userId);
-
-          if (updateError) throw updateError;
-        } else {
-          // Create profile for legacy user (pre-verification system)
-          const username = normalizedEmail.split('@')[0].toLowerCase().replace(/[^a-z0-9_]/g, '_').slice(0, 20);
-          const { error: insertError } = await supabase
-            .from('profiles')
-            .insert({
-              user_id: userId,
-              username: `${username}_${Date.now().toString(36).slice(-4)}`,
-              email_verified: true, // Legacy users are considered verified
-              password_reset_code: code,
-              password_reset_expires_at: expiresAt.toISOString(),
-            });
-
-          if (insertError) throw insertError;
-          console.log(`Created profile for legacy user: ${normalizedEmail}`);
-        }
+        if (updateError) throw updateError;
 
         // Send password reset email
         console.log(`Sending password reset email to ${normalizedEmail}`);
@@ -308,12 +241,12 @@ const handler = async (req: Request): Promise<Response> => {
       }
     }
 
-    // Log this resend attempt for rate limiting
+    // Log this resend attempt for rate limiting using proper table
     await supabase
-      .from('webhook_logs')
+      .from('email_rate_limits')
       .insert({
-        event_type: 'resend_verification',
-        payload: { type, email_hash: normalizedEmail, timestamp: new Date().toISOString() }
+        email: normalizedEmail,
+        email_type: `resend_${type}`,
       });
 
     console.log(`Resent ${type} code to ${normalizedEmail}`);

@@ -419,6 +419,7 @@ export type Database = {
       profiles: {
         Row: {
           created_at: string
+          email: string | null
           email_verified: boolean | null
           id: string
           is_early_member: boolean
@@ -432,6 +433,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          email?: string | null
           email_verified?: boolean | null
           id?: string
           is_early_member?: boolean
@@ -445,6 +447,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          email?: string | null
           email_verified?: boolean | null
           id?: string
           is_early_member?: boolean
