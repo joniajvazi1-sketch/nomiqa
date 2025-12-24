@@ -16,14 +16,14 @@ const RATE_LIMIT_MAX_EMAILS = 5;
 
 // Zod validation schema for email requests
 const emailRequestSchema = z.object({
-  type: z.enum(['user_verification', 'password_reset', 'affiliate_verification', 'order_confirmation', 'affiliate_welcome', 'tier_upgrade', 'affiliate_tier_upgrade', 'claim_request']),
+  type: z.enum(['user_verification', 'password_reset', 'affiliate_verification', 'order_confirmation', 'affiliate_welcome', 'tier_upgrade', 'affiliate_tier_upgrade', 'claim_request', 'early_member_welcome']),
   to: z.string().email().max(255),
   language: z.string().max(10).optional(),
   data: z.record(z.any())
 });
 
 interface EmailRequest {
-  type: 'user_verification' | 'password_reset' | 'affiliate_verification' | 'order_confirmation' | 'affiliate_welcome' | 'tier_upgrade' | 'affiliate_tier_upgrade' | 'claim_request';
+  type: 'user_verification' | 'password_reset' | 'affiliate_verification' | 'order_confirmation' | 'affiliate_welcome' | 'tier_upgrade' | 'affiliate_tier_upgrade' | 'claim_request' | 'early_member_welcome';
   to: string;
   language?: string;
   data: Record<string, any>;
@@ -386,6 +386,69 @@ const generateEmailHTML = (type: string, data: any): { html: string; subject: st
             <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; color: #999; font-size: 12px;">
               <p>© 2025 Nomiqa - Private. Borderless. Human.</p>
               <p style="margin: 8px 0 0 0;">This is an automated message from Nomiqa eSIM platform.</p>
+            </div>
+          </div>
+        `,
+      };
+
+    case 'early_member_welcome':
+      return {
+        subject: "🎉 You're In! Welcome to the Nomiqa Network",
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0a0a0f;">
+            <div style="background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%); padding: 40px 20px; border-radius: 12px;">
+              <div style="text-align: center; margin-bottom: 30px;">
+                <img src="${logoUrl}" alt="Nomiqa" style="width: 100px; height: 100px; border-radius: 20px; border: 2px solid #22d3ee; box-shadow: 0 4px 20px rgba(34, 211, 238, 0.4);" />
+              </div>
+              
+              <div style="text-align: center; margin-bottom: 30px;">
+                <span style="font-size: 48px;">🎉</span>
+                <h1 style="color: #22d3ee; font-size: 32px; margin: 15px 0 5px 0; font-weight: 300;">You're In!</h1>
+                <p style="color: #e2e8f0; font-size: 18px; margin: 0;">Welcome to the Nomiqa Network</p>
+              </div>
+              
+              <div style="background: rgba(34, 211, 238, 0.1); border: 1px solid rgba(34, 211, 238, 0.3); border-radius: 12px; padding: 24px; margin: 24px 0;">
+                <p style="color: #e2e8f0; font-size: 16px; line-height: 1.6; margin: 0; text-align: center;">
+                  You've secured your spot as an <span style="color: #22d3ee; font-weight: bold;">early member</span> of the world's first community-owned DePIN mobile network.
+                </p>
+              </div>
+              
+              <div style="margin: 30px 0;">
+                <h2 style="color: #a78bfa; font-size: 18px; margin-bottom: 20px; font-weight: 400;">✨ What happens next?</h2>
+                <div style="space-y: 16px;">
+                  <div style="display: flex; align-items: flex-start; margin-bottom: 16px;">
+                    <span style="color: #22d3ee; margin-right: 12px; font-size: 18px;">🔧</span>
+                    <p style="color: #cbd5e1; margin: 0; font-size: 15px;">We're building the network infrastructure</p>
+                  </div>
+                  <div style="display: flex; align-items: flex-start; margin-bottom: 16px;">
+                    <span style="color: #22d3ee; margin-right: 12px; font-size: 18px;">📧</span>
+                    <p style="color: #cbd5e1; margin: 0; font-size: 15px;">You'll receive updates on our progress</p>
+                  </div>
+                  <div style="display: flex; align-items: flex-start; margin-bottom: 16px;">
+                    <span style="color: #22d3ee; margin-right: 12px; font-size: 18px;">⭐</span>
+                    <p style="color: #cbd5e1; margin: 0; font-size: 15px;">Early members get priority access to rewards</p>
+                  </div>
+                  <div style="display: flex; align-items: flex-start; margin-bottom: 16px;">
+                    <span style="color: #22d3ee; margin-right: 12px; font-size: 18px;">🚀</span>
+                    <p style="color: #cbd5e1; margin: 0; font-size: 15px;">When we launch, you'll be first in line</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div style="background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 12px; padding: 20px; margin: 24px 0; text-align: center;">
+                <p style="color: #4ade80; font-size: 15px; margin: 0;">
+                  <span style="font-size: 18px;">✓</span> <strong>No action needed</strong> — we'll email you when it's time to activate
+                </p>
+              </div>
+              
+              <div style="text-align: center; margin-top: 30px;">
+                <a href="https://nomiqa-esim.com" style="display: inline-block; background: linear-gradient(135deg, #22d3ee 0%, #a78bfa 100%); color: #0f172a; text-decoration: none; padding: 14px 36px; border-radius: 8px; font-weight: bold; font-size: 15px;">Explore Nomiqa</a>
+              </div>
+              
+              <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); text-align: center;">
+                <p style="color: #64748b; font-size: 12px; margin: 0;">© 2025 Nomiqa - Private. Borderless. Human.</p>
+                <p style="color: #475569; font-size: 11px; margin: 8px 0 0 0;">The world's first community-owned DePIN mobile network</p>
+              </div>
             </div>
           </div>
         `,
