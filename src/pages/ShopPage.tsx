@@ -1,10 +1,13 @@
+import { lazy, Suspense } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Shop } from "@/components/Shop";
 import { SiteNavigation } from "@/components/SiteNavigation";
 import { Footer } from "@/components/Footer";
-import { SupportChatbot } from "@/components/SupportChatbot";
 import { SEO } from "@/components/SEO";
 import { NetworkBackground } from "@/components/NetworkBackground";
+
+// Lazy load chatbot - not needed until user interaction
+const SupportChatbot = lazy(() => import(/* webpackPrefetch: true */ "@/components/SupportChatbot").then(m => ({ default: m.SupportChatbot })));
 
 const ShopPage = () => {
   return (
@@ -25,7 +28,9 @@ const ShopPage = () => {
       </div>
       <SiteNavigation />
       <Footer />
-      <SupportChatbot />
+      <Suspense fallback={null}>
+        <SupportChatbot />
+      </Suspense>
     </div>
   );
 };
