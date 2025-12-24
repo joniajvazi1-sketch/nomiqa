@@ -10,11 +10,11 @@ interface MiningRewardsSectionProps {
 }
 
 const MILESTONES = [
-  { level: 1, name: 'Recruiter', registrations: 5, boost: 5, icon: Users },
-  { level: 2, name: 'Influencer', registrations: 15, boost: 10, icon: Zap },
-  { level: 3, name: 'Ambassador', registrations: 30, boost: 20, icon: Star },
-  { level: 4, name: 'Champion', registrations: 50, boost: 35, icon: Rocket },
-  { level: 5, name: 'Legend', registrations: 100, boost: 50, icon: Crown },
+  { level: 1, name: 'Recruiter', registrations: 5, boost: 10, icon: Users },
+  { level: 2, name: 'Influencer', registrations: 15, boost: 20, icon: Zap },
+  { level: 3, name: 'Ambassador', registrations: 30, boost: 40, icon: Star },
+  { level: 4, name: 'Champion', registrations: 50, boost: 70, icon: Rocket },
+  { level: 5, name: 'Legend', registrations: 100, boost: 100, icon: Crown },
 ];
 
 export const MiningRewardsSection = ({ 
