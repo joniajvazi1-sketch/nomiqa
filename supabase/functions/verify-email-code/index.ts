@@ -12,6 +12,15 @@ interface VerifyRequest {
   type: 'registration' | 'password_reset' | 'affiliate';
 }
 
+// Hash a code using SHA-256
+async function hashCode(code: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(code);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
 const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -33,34 +42,20 @@ const handler = async (req: Request): Promise<Response> => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     const normalizedEmail = email.toLowerCase().trim();
+    
+    // Hash the submitted code to compare with stored hash
+    const hashedCode = await hashCode(code);
 
     if (type === 'registration' || type === 'password_reset') {
-      // Efficient lookup: Get profile by joining with auth.users email
-      // First, get user ID from auth.users using RPC or direct query via service role
-      const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers({
-        page: 1,
-        perPage: 1,
-      });
-      
-      // Use getUserByEmail approach via filtered query - more efficient
-      // Unfortunately Supabase Admin API doesn't have getUserByEmail, so we query profiles
-      // But profiles doesn't have email - we need to find user first
-      // Best approach: Query profiles and filter by verification data, not by loading all users
-      
-      // For registration/password_reset, we look up the profile directly
-      // The profile table has user_id, which we need to map from email
-      // Since we can't efficiently query auth.users by email, we'll use a different approach:
-      // Query all profiles and use the code to verify (the code is unique per verification attempt)
-      
       let profile;
       let userId: string | null = null;
       
       if (type === 'registration') {
-        // Find profile with matching verification code (codes are unique and time-limited)
+        // Find profile with matching hashed verification code
         const { data: profiles, error: profileError } = await supabase
           .from('profiles')
           .select('*')
-          .eq('verification_code', code)
+          .eq('verification_code', hashedCode)
           .limit(1);
         
         if (profileError) throw profileError;
@@ -142,11 +137,11 @@ const handler = async (req: Request): Promise<Response> => {
         );
 
       } else {
-        // Password reset - find profile with matching reset code
+        // Password reset - find profile with matching hashed reset code
         const { data: profiles, error: profileError } = await supabase
           .from('profiles')
           .select('*')
-          .eq('password_reset_code', code)
+          .eq('password_reset_code', hashedCode)
           .limit(1);
         
         if (profileError) throw profileError;
@@ -185,7 +180,8 @@ const handler = async (req: Request): Promise<Response> => {
           );
         }
 
-        // Return success with token for password reset
+        // Return success with the original code (not hash) for password reset flow
+        // The code acts as a short-lived token for the next step
         console.log(`Password reset code verified for user ${userId}`);
         return new Response(
           JSON.stringify({ 
@@ -213,7 +209,8 @@ const handler = async (req: Request): Promise<Response> => {
         );
       }
 
-      if (!affiliate.verification_token || affiliate.verification_token !== code) {
+      // Hash submitted code and compare with stored hash
+      if (!affiliate.verification_token || affiliate.verification_token !== hashedCode) {
         return new Response(
           JSON.stringify({ error: "Invalid verification code" }),
           { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }

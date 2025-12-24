@@ -14,6 +14,15 @@ const resetPasswordSchema = z.object({
   newPassword: z.string().min(8).max(128),
 });
 
+// Hash a code using SHA-256
+async function hashCode(code: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(code);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
 const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -38,11 +47,14 @@ const handler = async (req: Request): Promise<Response> => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Efficient lookup: Find profile by reset token (tokens are unique per reset attempt)
+    // Hash the submitted token to compare with stored hash
+    const hashedToken = await hashCode(resetToken);
+
+    // Efficient lookup: Find profile by hashed reset token
     const { data: profiles, error: profileError } = await supabase
       .from('profiles')
       .select('user_id, password_reset_code, password_reset_expires_at')
-      .eq('password_reset_code', resetToken)
+      .eq('password_reset_code', hashedToken)
       .limit(1);
 
     if (profileError) throw profileError;

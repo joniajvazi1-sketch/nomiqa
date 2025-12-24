@@ -22,6 +22,15 @@ const generateSecureCode = (): string => {
   ).join('').toUpperCase().substring(0, 10);
 };
 
+// Hash a code using SHA-256
+async function hashCode(code: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(code);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -212,6 +221,7 @@ serve(async (req) => {
 
     // User not verified - create with verification flow
     const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const hashedVerificationCode = await hashCode(verificationCode);
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
 
     const { data: affiliate, error: createError } = await supabase
@@ -222,7 +232,7 @@ serve(async (req) => {
         username: username ? username.toLowerCase() : null,
         user_id: userId || null,
         email_verified: false,
-        verification_token: verificationCode,
+        verification_token: hashedVerificationCode,
         verification_code_expires_at: expiresAt,
         verification_sent_at: new Date().toISOString(),
       })
