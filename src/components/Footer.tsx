@@ -46,7 +46,7 @@ export const Footer = () => {
 
         {/* Follow Us - Centered */}
         <div className="mb-12 md:mb-16 text-center">
-          <h4 className="font-normal mb-4 text-white text-xl md:text-2xl">{t("footerFollowUs")}</h4>
+          <h3 className="font-normal mb-4 text-white text-xl md:text-2xl bg-black/40 inline-block px-4 py-1 rounded-md">{t("footerFollowUs")}</h3>
           <div className="flex flex-wrap gap-3 justify-center mb-4">
             {socialLinks.map((social) => (
               <a 
@@ -65,7 +65,7 @@ export const Footer = () => {
               </a>
             ))}
           </div>
-          <a href={localizedPath("/terms", language)} className="text-white/60 hover:text-neon-cyan transition-colors duration-300 font-light text-xs md:text-sm inline-block">
+          <a href={localizedPath("/terms", language)} className="text-white hover:text-neon-cyan transition-colors duration-300 font-light text-xs md:text-sm inline-block bg-black/40 px-3 py-1 rounded-md">
             {t("footerTermsConditions")}
           </a>
         </div>
