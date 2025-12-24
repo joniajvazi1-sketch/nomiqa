@@ -67,13 +67,16 @@ export const Hero = () => {
       {/* Premium background with elegant overlay */}
       <div className="absolute inset-0">
         <picture>
-          <source media="(min-width: 768px)" srcSet={heroSunsetBg} />
+          <source media="(min-width: 768px)" srcSet={heroSunsetBg} type="image/png" />
           <img 
             src={heroMobileSunset} 
             alt="Sunset cityscape" 
+            width={1080}
+            height={1920}
             className="w-full h-full object-cover object-center md:object-center object-[70%_center]" 
             loading="eager"
             decoding="async"
+            fetchPriority="high"
           />
         </picture>
         {/* Ultra minimal overlay - maximum background visibility */}
