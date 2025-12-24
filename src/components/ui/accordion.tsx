@@ -41,10 +41,14 @@ const AccordionContent = React.forwardRef<
   <AccordionPrimitive.Content
     ref={ref}
     className="overflow-hidden text-sm data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down transform-gpu"
-    style={{ willChange: 'height' }}
+    style={{ 
+      willChange: 'height, opacity',
+      contain: 'layout style paint',
+      contentVisibility: 'auto'
+    }}
     {...props}
   >
-    <div className={cn("pb-4 pt-0", className)}>{children}</div>
+    <div className={cn("pb-4 pt-0", className)} style={{ contain: 'content' }}>{children}</div>
   </AccordionPrimitive.Content>
 ));
 
