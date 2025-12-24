@@ -35,9 +35,28 @@ const ChartContainer = React.forwardRef<
     config: ChartConfig;
     children: React.ComponentProps<typeof RechartsPrimitive.ResponsiveContainer>["children"];
   }
->(({ id, className, children, config, ...props }, ref) => {
+>(({ id, className, children, config, style, ...props }, ref) => {
   const uniqueId = React.useId();
   const chartId = `chart-${id || uniqueId.replace(/:/g, "")}`;
+
+  // Build CSS variables as inline styles - safe from CSS injection
+  const chartStyles = React.useMemo(() => {
+    const cssVars: Record<string, string> = {};
+    Object.entries(config).forEach(([key, itemConfig]) => {
+      if (itemConfig.theme || itemConfig.color) {
+        const sanitizedKey = key.replace(/[^a-zA-Z0-9_-]/g, '');
+        const color = itemConfig.color;
+        if (color) {
+          // Validate color format
+          const validColorPattern = /^(#[0-9A-Fa-f]{3,8}|rgb\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*\)|rgba\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*[\d.]+\s*\)|hsl\(\s*[\d.]+\s*,\s*[\d.]+%?\s*,\s*[\d.]+%?\s*\)|hsla\(\s*[\d.]+\s*,\s*[\d.]+%?\s*,\s*[\d.]+%?\s*,\s*[\d.]+\s*\)|var\(--[a-zA-Z0-9-]+\)|[a-zA-Z]+)$/;
+          if (validColorPattern.test(color.trim())) {
+            cssVars[`--color-${sanitizedKey}`] = color.trim();
+          }
+        }
+      }
+    });
+    return cssVars;
+  }, [config]);
 
   return (
     <ChartContext.Provider value={{ config }}>
@@ -48,9 +67,9 @@ const ChartContainer = React.forwardRef<
           "flex aspect-video justify-center text-xs [&_.recharts-cartesian-axis-tick_text]:fill-muted-foreground [&_.recharts-cartesian-grid_line[stroke='#ccc']]:stroke-border/50 [&_.recharts-curve.recharts-tooltip-cursor]:stroke-border [&_.recharts-dot[stroke='#fff']]:stroke-transparent [&_.recharts-layer]:outline-none [&_.recharts-polar-grid_[stroke='#ccc']]:stroke-border [&_.recharts-radial-bar-background-sector]:fill-muted [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-muted [&_.recharts-reference-line_[stroke='#ccc']]:stroke-border [&_.recharts-sector[stroke='#fff']]:stroke-transparent [&_.recharts-sector]:outline-none [&_.recharts-surface]:outline-none",
           className,
         )}
+        style={{ ...chartStyles, ...style } as React.CSSProperties}
         {...props}
       >
-        <ChartStyle id={chartId} config={config} />
         <RechartsPrimitive.ResponsiveContainer>{children}</RechartsPrimitive.ResponsiveContainer>
       </div>
     </ChartContext.Provider>
@@ -58,54 +77,6 @@ const ChartContainer = React.forwardRef<
 });
 ChartContainer.displayName = "Chart";
 
-// Sanitize color values to prevent CSS injection
-const sanitizeColor = (color: string | undefined): string | null => {
-  if (!color) return null;
-  // Allow only valid CSS color formats: hex, rgb, rgba, hsl, hsla, and named colors
-  const validColorPattern = /^(#[0-9A-Fa-f]{3,8}|rgb\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*\)|rgba\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*[\d.]+\s*\)|hsl\(\s*[\d.]+\s*,\s*[\d.]+%?\s*,\s*[\d.]+%?\s*\)|hsla\(\s*[\d.]+\s*,\s*[\d.]+%?\s*,\s*[\d.]+%?\s*,\s*[\d.]+\s*\)|[a-zA-Z]+)$/;
-  return validColorPattern.test(color.trim()) ? color.trim() : null;
-};
-
-// Sanitize CSS key names to prevent injection
-const sanitizeKey = (key: string): string => {
-  // Only allow alphanumeric characters, hyphens, and underscores
-  return key.replace(/[^a-zA-Z0-9_-]/g, '');
-};
-
-const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
-  const colorConfig = Object.entries(config).filter(([_, config]) => config.theme || config.color);
-
-  if (!colorConfig.length) {
-    return null;
-  }
-
-  // Build CSS safely with sanitized values
-  const cssContent = Object.entries(THEMES)
-    .map(([theme, prefix]) => {
-      const cssVars = colorConfig
-        .map(([key, itemConfig]) => {
-          const color = itemConfig.theme?.[theme as keyof typeof itemConfig.theme] || itemConfig.color;
-          const sanitizedColor = sanitizeColor(color);
-          const sanitizedKey = sanitizeKey(key);
-          return sanitizedColor ? `  --color-${sanitizedKey}: ${sanitizedColor};` : null;
-        })
-        .filter(Boolean)
-        .join("\n");
-      
-      // Sanitize the id as well
-      const sanitizedId = id.replace(/[^a-zA-Z0-9_-]/g, '');
-      return `${prefix} [data-chart=${sanitizedId}] {\n${cssVars}\n}`;
-    })
-    .join("\n");
-
-  return (
-    <style
-      dangerouslySetInnerHTML={{
-        __html: cssContent,
-      }}
-    />
-  );
-};
 
 const ChartTooltip = RechartsPrimitive.Tooltip;
 
@@ -320,4 +291,4 @@ function getPayloadConfigFromPayload(config: ChartConfig, payload: unknown, key:
   return configLabelKey in config ? config[configLabelKey] : config[key as keyof typeof config];
 }
 
-export { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent, ChartStyle };
+export { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent };
