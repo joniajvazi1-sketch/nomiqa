@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import heroSunsetBg from "@/assets/hero-sunset-background.png";
-import heroMobileSunset from "@/assets/hero-mobile-sunset.png";
+import heroMobileSunsetWebp from "@/assets/hero-mobile-sunset.webp";
+import heroMobileSunsetPng from "@/assets/hero-mobile-sunset.png";
 import { useTranslation } from "@/contexts/TranslationContext";
 import { ArrowRight, Check, Wifi, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -68,8 +69,9 @@ export const Hero = () => {
       <div className="absolute inset-0">
         <picture>
           <source media="(min-width: 768px)" srcSet={heroSunsetBg} type="image/png" />
+          <source srcSet={heroMobileSunsetWebp} type="image/webp" />
           <img 
-            src={heroMobileSunset} 
+            src={heroMobileSunsetPng} 
             alt="Sunset cityscape" 
             width={1080}
             height={1920}
