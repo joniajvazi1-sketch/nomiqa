@@ -48,55 +48,50 @@ export const useProducts = () => {
   });
 };
 
-// Optimized hook for featured products - fetches both local and regional packages
+// Optimized hook for featured products - batches queries to reduce network waterfall
 export const useFeaturedProducts = (localCountryCodes: string[], regionalCodes: string[]) => {
   return useQuery({
     queryKey: ['featured-products', localCountryCodes, regionalCodes],
     queryFn: async () => {
-      const products: Product[] = [];
-      
-      // Fetch cheapest local product for each country
-      for (const countryCode of localCountryCodes) {
-        const { data, error } = await supabase
+      // Batch fetch all local products for featured countries in ONE query
+      const [localResult, regionalResult] = await Promise.all([
+        supabase
           .from('products')
           .select('*')
-          .eq('country_code', countryCode)
+          .in('country_code', localCountryCodes)
           .eq('package_type', 'local')
-          .order('price_usd', { ascending: true })
-          .limit(1)
-          .maybeSingle();
-
-        if (error) {
-          console.error(`Error fetching product for ${countryCode}:`, error);
-          continue;
-        }
-        
-        if (data) {
-          products.push(data as Product);
-        }
-      }
-      
-      // Fetch cheapest regional product for each region
-      for (const regionCode of regionalCodes) {
-        const { data, error } = await supabase
+          .order('price_usd', { ascending: true }),
+        supabase
           .from('products')
           .select('*')
-          .eq('country_code', regionCode)
+          .in('country_code', regionalCodes)
           .eq('package_type', 'regional')
           .order('price_usd', { ascending: true })
-          .limit(1)
-          .maybeSingle();
+      ]);
 
-        if (error) {
-          console.error(`Error fetching regional product for ${regionCode}:`, error);
-          continue;
-        }
-        
-        if (data) {
-          products.push(data as Product);
+      if (localResult.error) throw localResult.error;
+      if (regionalResult.error) throw regionalResult.error;
+
+      const products: Product[] = [];
+      
+      // Get cheapest local product per country
+      const localByCountry = new Map<string, Product>();
+      for (const product of (localResult.data || []) as Product[]) {
+        if (!localByCountry.has(product.country_code)) {
+          localByCountry.set(product.country_code, product);
         }
       }
-      
+      products.push(...localByCountry.values());
+
+      // Get cheapest regional product per region
+      const regionalByCode = new Map<string, Product>();
+      for (const product of (regionalResult.data || []) as Product[]) {
+        if (!regionalByCode.has(product.country_code)) {
+          regionalByCode.set(product.country_code, product);
+        }
+      }
+      products.push(...regionalByCode.values());
+
       // Sort all products by price
       return products.sort((a, b) => a.price_usd - b.price_usd);
     },
