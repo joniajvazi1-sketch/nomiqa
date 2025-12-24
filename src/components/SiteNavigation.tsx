@@ -26,7 +26,7 @@ export const SiteNavigation = memo(() => {
             {/* Our eSIMs */}
             <AccordionItem value="esims" className="border-0 will-change-auto" style={{ contain: 'layout style' }}>
               <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mb-4"></div>
-              <AccordionTrigger className="text-left text-lg md:text-xl font-normal text-white hover:text-neon-cyan transition-colors duration-200 py-4 hover:no-underline">
+              <AccordionTrigger className="text-left text-lg md:text-xl font-normal text-white hover:text-neon-cyan transition-colors duration-200 py-4 hover:no-underline bg-black/40 px-3 rounded-md">
                 {t("footerOurEsims")}
               </AccordionTrigger>
               <AccordionContent className="pb-8">
@@ -48,7 +48,7 @@ export const SiteNavigation = memo(() => {
             {/* Explore */}
             <AccordionItem value="explore" className="border-0 will-change-auto" style={{ contain: 'layout style' }}>
               <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mb-4"></div>
-              <AccordionTrigger className="text-left text-lg md:text-xl font-normal text-white hover:text-neon-cyan transition-colors duration-200 py-4 hover:no-underline">
+              <AccordionTrigger className="text-left text-lg md:text-xl font-normal text-white hover:text-neon-cyan transition-colors duration-200 py-4 hover:no-underline bg-black/40 px-3 rounded-md">
                 {t("footerExplore")}
               </AccordionTrigger>
               <AccordionContent className="pb-8">
@@ -62,7 +62,7 @@ export const SiteNavigation = memo(() => {
             {/* Get Help */}
             <AccordionItem value="help" className="border-0 will-change-auto" style={{ contain: 'layout style' }}>
               <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mb-4"></div>
-              <AccordionTrigger className="text-left text-lg md:text-xl font-normal text-white hover:text-neon-cyan transition-colors duration-200 py-4 hover:no-underline">
+              <AccordionTrigger className="text-left text-lg md:text-xl font-normal text-white hover:text-neon-cyan transition-colors duration-200 py-4 hover:no-underline bg-black/40 px-3 rounded-md">
                 {t("footerGetHelp")}
               </AccordionTrigger>
               <AccordionContent className="pb-8">
@@ -75,7 +75,7 @@ export const SiteNavigation = memo(() => {
             {/* About */}
             <AccordionItem value="about" className="border-0 will-change-auto" style={{ contain: 'layout style' }}>
               <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mb-4"></div>
-              <AccordionTrigger className="text-left text-lg md:text-xl font-normal text-white hover:text-neon-cyan transition-colors duration-200 py-4 hover:no-underline">
+              <AccordionTrigger className="text-left text-lg md:text-xl font-normal text-white hover:text-neon-cyan transition-colors duration-200 py-4 hover:no-underline bg-black/40 px-3 rounded-md">
                 {t("footerAbout")}
               </AccordionTrigger>
               <AccordionContent className="pb-8">
