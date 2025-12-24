@@ -111,6 +111,30 @@ const handler = async (req: Request): Promise<Response> => {
 
         if (updateError) throw updateError;
 
+        // Send early member welcome email
+        console.log(`Sending early member welcome email to ${normalizedEmail}`);
+        const sendEmailResponse = await fetch(`${supabaseUrl}/functions/v1/send-email`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${supabaseServiceKey}`,
+          },
+          body: JSON.stringify({
+            type: 'early_member_welcome',
+            to: normalizedEmail,
+            data: {
+              username: profile.username || 'Early Member',
+            },
+          }),
+        });
+        
+        if (!sendEmailResponse.ok) {
+          const errorText = await sendEmailResponse.text();
+          console.error(`Failed to send early member welcome email: ${sendEmailResponse.status} - ${errorText}`);
+        } else {
+          console.log(`✓ Early member welcome email sent to ${normalizedEmail}`);
+        }
+
         console.log(`Email verified for user ${userId}`);
         return new Response(
           JSON.stringify({ success: true, message: "Email verified successfully" }),
