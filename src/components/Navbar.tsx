@@ -419,7 +419,7 @@ export const Navbar = () => {
             <div className="lg:hidden">
               <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
                 <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon" className="text-white/90 hover:text-neon-cyan hover:bg-neon-cyan/5 border border-white/5 hover:border-neon-cyan/30 h-10 w-10 transition-all duration-300">
+                  <Button variant="ghost" size="icon" className="text-white/90 hover:text-neon-cyan hover:bg-neon-cyan/5 border border-white/5 hover:border-neon-cyan/30 h-10 w-10 transition-all duration-300" aria-label="Open menu">
                     <Menu className="w-5 h-5" />
                   </Button>
                 </SheetTrigger>
