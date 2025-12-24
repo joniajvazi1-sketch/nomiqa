@@ -2,7 +2,9 @@ import { lazy, Suspense, memo } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Hero } from "@/components/Hero";
 import { Footer } from "@/components/Footer";
-import { SupportChatbot } from "@/components/SupportChatbot";
+
+// Lazy load chatbot - not needed until user interaction
+const SupportChatbot = lazy(() => import(/* webpackPrefetch: true */ "@/components/SupportChatbot").then(m => ({ default: m.SupportChatbot })));
 import { DePINAdvantage } from "@/components/DePINAdvantage";
 import { HowYouEarn } from "@/components/HowYouEarn";
 import { GlobalNetworkMap } from "@/components/GlobalNetworkMap";
@@ -44,7 +46,9 @@ const Index = () => {
         <SiteNavigation />
       </Suspense>
       <Footer />
-      <SupportChatbot />
+      <Suspense fallback={null}>
+        <SupportChatbot />
+      </Suspense>
     </div>
   );
 };
