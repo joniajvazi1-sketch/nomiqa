@@ -14,7 +14,7 @@ import { toast } from "sonner";
 import { Language, useTranslation } from "@/contexts/TranslationContext";
 import { localizedPath } from "@/utils/localizedLinks";
 import { getTranslatedCountryName, getAllTranslatedNames } from "@/utils/countryTranslations";
-import * as CountryFlags from 'country-flag-icons/react/3x2';
+// Country flags now use emoji for performance (removed country-flag-icons library - 53KB savings)
 
 export const Navbar = () => {
   const navigate = useNavigate();
@@ -184,6 +184,13 @@ export const Navbar = () => {
     return regionImageMap[code] || null;
   };
 
+  // Country code to emoji flag mapping
+  const getCountryEmoji = (code: string): string => {
+    if (!code || code.length !== 2) return '🏳️';
+    const codePoints = code.toUpperCase().split('').map(char => 127397 + char.charCodeAt(0));
+    return String.fromCodePoint(...codePoints);
+  };
+
   const getCountryFlag = (code: string, isRegional: boolean) => {
     if (isRegional) {
       const regionImage = getRegionImage(code);
@@ -192,8 +199,7 @@ export const Navbar = () => {
       }
       return <div className="w-6 h-4 flex items-center justify-center text-sm bg-white/5 rounded">🌐</div>;
     }
-    const FlagComponent = (CountryFlags as any)[code];
-    return FlagComponent ? <FlagComponent className="w-6 h-4 rounded" /> : null;
+    return <span className="text-lg leading-none">{getCountryEmoji(code)}</span>;
   };
 
   return (
