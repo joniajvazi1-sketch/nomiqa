@@ -183,7 +183,7 @@ serve(async (req) => {
       );
     }
 
-    console.log('Found order:', order.id);
+    console.log('Found order:', order.id.substring(0, 8) + '...');
 
     // Check transaction status
     const transactionStatus = transactionObject.meta?.transactionStatus;
@@ -209,8 +209,8 @@ serve(async (req) => {
     const customerDetails = transactionObject.meta?.customerDetails || {};
     const transactionSignature = transactionObject.meta?.transactionSignature;
 
-    console.log('Payment successful for order:', order.id);
-    console.log('Transaction signature:', transactionSignature);
+    console.log('Payment successful for order:', order.id.substring(0, 8) + '...');
+    console.log('Transaction signature:', transactionSignature ? transactionSignature.substring(0, 12) + '...' : 'none');
 
     // Mark transaction as processed to prevent replay attacks
     if (transactionId) {
@@ -363,18 +363,18 @@ serve(async (req) => {
       const orderJson = JSON.parse(orderResponseText);
       const { data: orderData } = orderJson;
       
-      console.log('Airalo response:', JSON.stringify(orderData, null, 2));
-      // Sharing data is inside sims[0].sharing, not orderData.sharing
-      const simData = orderData.sims?.[0];
-      console.log('Sharing object:', simData?.sharing);
-      console.log('Sharing link:', simData?.sharing?.link);
-      console.log('Access code:', simData?.sharing?.access_code);
-
       // Extract eSIM details from sync response
       const sim = orderData.sims?.[0];
       if (!sim) {
         throw new Error('No eSIM data in Airalo response');
       }
+      
+      // SECURITY: Log only non-sensitive order metadata, mask PII
+      console.log('Airalo order created:', { 
+        orderId: orderData.id, 
+        simsCount: orderData.sims?.length || 0,
+        hasSharingLink: !!sim?.sharing?.link
+      });
 
       // Update order with complete eSIM details and branded sharing info
       console.log('Updating order in database...');

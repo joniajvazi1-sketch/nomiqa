@@ -21,7 +21,20 @@ async function hashCode(code: string): Promise<string> {
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
+// SECURITY: Add artificial delay to mitigate timing attacks
+// This ensures all verification attempts take similar time regardless of validity
+const addSecurityDelay = async (startTime: number): Promise<void> => {
+  const minResponseTime = 300; // Minimum 300ms response time
+  const elapsed = Date.now() - startTime;
+  const remainingDelay = Math.max(0, minResponseTime - elapsed);
+  if (remainingDelay > 0) {
+    await new Promise(resolve => setTimeout(resolve, remainingDelay));
+  }
+};
+
 const handler = async (req: Request): Promise<Response> => {
+  const startTime = Date.now();
+  
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -31,6 +44,7 @@ const handler = async (req: Request): Promise<Response> => {
     
     // Validate inputs
     if (!email || !code || !type) {
+      await addSecurityDelay(startTime);
       return new Response(
         JSON.stringify({ error: "Missing required fields" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -61,6 +75,7 @@ const handler = async (req: Request): Promise<Response> => {
         if (profileError) throw profileError;
         
         if (!profiles || profiles.length === 0) {
+          await addSecurityDelay(startTime);
           return new Response(
             JSON.stringify({ error: "Invalid verification code" }),
             { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -80,6 +95,7 @@ const handler = async (req: Request): Promise<Response> => {
         // Verify email matches by checking auth.users for this user_id
         const { data: userData, error: userError } = await supabase.auth.admin.getUserById(userId);
         if (userError || !userData.user || userData.user.email?.toLowerCase() !== normalizedEmail) {
+          await addSecurityDelay(startTime);
           return new Response(
             JSON.stringify({ error: "Email mismatch or user not found" }),
             { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -88,6 +104,7 @@ const handler = async (req: Request): Promise<Response> => {
         
         // Check expiration
         if (new Date(profile.verification_code_expires_at) < new Date()) {
+          await addSecurityDelay(startTime);
           return new Response(
             JSON.stringify({ error: "Verification code has expired" }),
             { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -147,6 +164,7 @@ const handler = async (req: Request): Promise<Response> => {
         if (profileError) throw profileError;
         
         if (!profiles || profiles.length === 0) {
+          await addSecurityDelay(startTime);
           return new Response(
             JSON.stringify({ error: "Invalid reset code" }),
             { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -157,6 +175,7 @@ const handler = async (req: Request): Promise<Response> => {
         userId = profile.user_id;
         
         if (!userId) {
+          await addSecurityDelay(startTime);
           return new Response(
             JSON.stringify({ error: "Invalid profile data" }),
             { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -166,6 +185,7 @@ const handler = async (req: Request): Promise<Response> => {
         // Verify email matches by checking auth.users for this user_id
         const { data: userData, error: userError } = await supabase.auth.admin.getUserById(userId);
         if (userError || !userData.user || userData.user.email?.toLowerCase() !== normalizedEmail) {
+          await addSecurityDelay(startTime);
           return new Response(
             JSON.stringify({ error: "Email mismatch or user not found" }),
             { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -174,6 +194,7 @@ const handler = async (req: Request): Promise<Response> => {
 
         // Check expiration
         if (new Date(profile.password_reset_expires_at) < new Date()) {
+          await addSecurityDelay(startTime);
           return new Response(
             JSON.stringify({ error: "Reset code has expired" }),
             { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -203,6 +224,7 @@ const handler = async (req: Request): Promise<Response> => {
         .single();
 
       if (affiliateError || !affiliate) {
+        await addSecurityDelay(startTime);
         return new Response(
           JSON.stringify({ error: "Affiliate not found" }),
           { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -211,6 +233,7 @@ const handler = async (req: Request): Promise<Response> => {
 
       // Hash submitted code and compare with stored hash
       if (!affiliate.verification_token || affiliate.verification_token !== hashedCode) {
+        await addSecurityDelay(startTime);
         return new Response(
           JSON.stringify({ error: "Invalid verification code" }),
           { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -218,6 +241,7 @@ const handler = async (req: Request): Promise<Response> => {
       }
 
       if (affiliate.verification_code_expires_at && new Date(affiliate.verification_code_expires_at) < new Date()) {
+        await addSecurityDelay(startTime);
         return new Response(
           JSON.stringify({ error: "Verification code has expired" }),
           { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
