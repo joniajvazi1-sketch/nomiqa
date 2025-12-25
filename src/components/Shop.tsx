@@ -9,11 +9,20 @@ import { Loader2, ShoppingCart, Search, Wifi, Calendar, Globe, MapPin, Share2, H
 import { toast } from "sonner";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import { ProductDetailModal } from "./ProductDetailModal";
-import * as CountryFlags from 'country-flag-icons/react/3x2';
 import { ReferEarnModal } from "./ReferEarnModal";
 import { Confetti } from "./Confetti";
 import { useTranslation } from "@/contexts/TranslationContext";
 import { getTranslatedCountryName, getAllTranslatedNames } from "@/utils/countryTranslations";
+
+// Convert country code to emoji flag (53KB+ savings by removing country-flag-icons library)
+const getEmojiFlag = (countryCode: string): string => {
+  if (!countryCode || countryCode.length !== 2) return '🌐';
+  const codePoints = countryCode
+    .toUpperCase()
+    .split('')
+    .map(char => 127397 + char.charCodeAt(0));
+  return String.fromCodePoint(...codePoints);
+};
 
 type CoverageType = "all" | "local" | "regional";
 
@@ -117,9 +126,12 @@ export const Shop = () => {
         </div>
       );
     }
-    // For local packages, show country flag
-    const FlagComponent = (CountryFlags as any)[countryCode];
-    return FlagComponent ? <FlagComponent className="w-12 h-8 rounded" /> : null;
+    // For local packages, use emoji flag
+    return (
+      <div className="w-12 h-8 rounded bg-white/5 flex items-center justify-center text-xl">
+        {getEmojiFlag(countryCode)}
+      </div>
+    );
   };
 
   return (
