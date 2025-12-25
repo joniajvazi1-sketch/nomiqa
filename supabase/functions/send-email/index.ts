@@ -547,17 +547,24 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    // Verify internal call - this endpoint should only be called by other edge functions
-    // Check for valid authorization header with service role key or anon key
+    // SECURITY: Verify internal call - this endpoint should ONLY be called by other edge functions
+    // Require service role key - anon key is NOT allowed for this privileged operation
     const authHeader = req.headers.get('authorization');
     const apiKey = req.headers.get('apikey');
     const expectedServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-    const expectedAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
     
-    // Allow calls from internal edge functions (with service role bearer token) or database triggers (with apikey)
+    if (!expectedServiceKey) {
+      console.error("Missing SUPABASE_SERVICE_ROLE_KEY configuration");
+      return new Response(
+        JSON.stringify({ error: "Server configuration error" }),
+        { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+    
+    // SECURITY: Only allow service role key - no anon key to prevent client-side abuse
     const isInternalCall = 
       (authHeader && authHeader === `Bearer ${expectedServiceKey}`) ||
-      (apiKey && (apiKey === expectedServiceKey || apiKey === expectedAnonKey));
+      (apiKey && apiKey === expectedServiceKey);
     
     if (!isInternalCall) {
       console.warn("Unauthorized access attempt to send-email endpoint");
