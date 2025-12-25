@@ -188,7 +188,7 @@ export const Navbar = () => {
     if (isRegional) {
       const regionImage = getRegionImage(code);
       if (regionImage) {
-        return <img src={regionImage} alt={code} className="w-6 h-4 rounded object-cover" />;
+        return <img src={regionImage} alt={code} width={24} height={16} className="w-6 h-4 rounded object-cover" />;
       }
       return <div className="w-6 h-4 flex items-center justify-center text-sm bg-white/5 rounded">🌐</div>;
     }
@@ -220,6 +220,8 @@ export const Navbar = () => {
                 <img 
                   src="/nomiqa-logo.jpg" 
                   alt="nomiqa" 
+                  width={40}
+                  height={40}
                   className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg relative z-10 opacity-95 group-hover:opacity-100 transition-all duration-500 group-hover:scale-110 group-hover:rotate-2 shadow-lg group-hover:shadow-neon-cyan/50" 
                 />
                 

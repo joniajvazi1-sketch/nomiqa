@@ -54,12 +54,16 @@ export const WhyNomiqa = () => {
         <img 
           src={whyNomiqaDesktop} 
           alt="Happy travelers at sunset" 
+          width={1920}
+          height={1080}
           className="hidden md:block w-full h-full object-cover object-center" 
           loading="lazy"
         />
         <img 
           src={whyNomiqaMobile} 
           alt="Connected travelers at sunset" 
+          width={1080}
+          height={1920}
           className="md:hidden w-full h-full object-cover object-center" 
           loading="lazy"
         />
