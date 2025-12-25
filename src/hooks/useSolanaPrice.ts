@@ -35,12 +35,18 @@ export const useSolanaPrice = () => {
       }
     };
 
-    fetchPrice();
+    // Defer fetch to after initial render to avoid blocking LCP
+    let intervalId: ReturnType<typeof setInterval>;
+    const timeoutId = setTimeout(() => {
+      fetchPrice();
+      // Refresh every 60 seconds
+      intervalId = setInterval(fetchPrice, 60000);
+    }, 2000); // Delay 2s after mount to prioritize LCP
     
-    // Refresh every 60 seconds
-    const interval = setInterval(fetchPrice, 60000);
-    
-    return () => clearInterval(interval);
+    return () => {
+      clearTimeout(timeoutId);
+      if (intervalId) clearInterval(intervalId);
+    };
   }, []);
 
   return { price, isLoading, error };
