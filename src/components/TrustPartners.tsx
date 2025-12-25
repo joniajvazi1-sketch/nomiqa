@@ -56,7 +56,7 @@ export const TrustPartners = () => {
           {/* Solana */}
           <div className="group flex flex-col items-center justify-center p-6 sm:p-8 md:p-10 rounded-2xl md:rounded-3xl bg-white/[0.02] backdrop-blur-xl border border-white/5 hover:border-white/10 transition-all duration-500 hover:bg-white/[0.04] hover-lift">
             <div className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-xl md:rounded-2xl bg-gradient-to-br from-white/5 to-transparent flex items-center justify-center mb-4 md:mb-5 group-hover:scale-110 transition-transform duration-500">
-              <img src={solanaLogo} alt="Solana" className="w-9 h-9 sm:w-11 sm:h-11 md:w-14 md:h-14" loading="lazy" />
+              <img src={solanaLogo} alt="Solana" width={56} height={56} className="w-9 h-9 sm:w-11 sm:h-11 md:w-14 md:h-14" loading="lazy" />
             </div>
             <span className="text-white font-light text-base sm:text-lg md:text-xl mb-1">Solana</span>
             {!isLoading && price ? (
@@ -72,7 +72,7 @@ export const TrustPartners = () => {
           {/* Phantom */}
           <div className="group flex flex-col items-center justify-center p-6 sm:p-8 md:p-10 rounded-2xl md:rounded-3xl bg-white/[0.02] backdrop-blur-xl border border-white/5 hover:border-white/10 transition-all duration-500 hover:bg-white/[0.04] hover-lift">
             <div className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-xl md:rounded-2xl bg-gradient-to-br from-white/5 to-transparent flex items-center justify-center mb-4 md:mb-5 group-hover:scale-110 transition-transform duration-500">
-              <img src={phantomLogo} alt="Phantom Wallet" className="w-9 h-9 sm:w-11 sm:h-11 md:w-14 md:h-14 rounded-xl" loading="lazy" />
+              <img src={phantomLogo} alt="Phantom Wallet" width={56} height={56} className="w-9 h-9 sm:w-11 sm:h-11 md:w-14 md:h-14 rounded-xl" loading="lazy" />
             </div>
             <span className="text-white font-light text-base sm:text-lg md:text-xl mb-1">Phantom</span>
             <span className="text-white/40 text-[10px] sm:text-xs md:text-sm mt-1 md:mt-2 font-light text-center">{t("trustTrustedWallet")}</span>
@@ -81,7 +81,7 @@ export const TrustPartners = () => {
           {/* Meteora */}
           <div className="group flex flex-col items-center justify-center p-6 sm:p-8 md:p-10 rounded-2xl md:rounded-3xl bg-white/[0.02] backdrop-blur-xl border border-white/5 hover:border-white/10 transition-all duration-500 hover:bg-white/[0.04] hover-lift">
             <div className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-xl md:rounded-2xl bg-gradient-to-br from-white/5 to-transparent flex items-center justify-center mb-4 md:mb-5 group-hover:scale-110 transition-transform duration-500">
-              <img src={meteoraLogo} alt="Meteora" className="w-9 h-9 sm:w-11 sm:h-11 md:w-14 md:h-14 rounded-xl" loading="lazy" />
+              <img src={meteoraLogo} alt="Meteora" width={56} height={56} className="w-9 h-9 sm:w-11 sm:h-11 md:w-14 md:h-14 rounded-xl" loading="lazy" />
             </div>
             <span className="text-white font-light text-base sm:text-lg md:text-xl mb-1">Meteora</span>
             <span className="text-white/40 text-[10px] sm:text-xs md:text-sm mt-1 md:mt-2 font-light text-center">{t("trustDefiProtocol")}</span>
@@ -90,7 +90,7 @@ export const TrustPartners = () => {
           {/* MoonPay */}
           <div className="group flex flex-col items-center justify-center p-6 sm:p-8 md:p-10 rounded-2xl md:rounded-3xl bg-white/[0.02] backdrop-blur-xl border border-white/5 hover:border-white/10 transition-all duration-500 hover:bg-white/[0.04] hover-lift">
             <div className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-xl md:rounded-2xl bg-gradient-to-br from-white/5 to-transparent flex items-center justify-center mb-4 md:mb-5 group-hover:scale-110 transition-transform duration-500">
-              <img src={moonpayLogo} alt="MoonPay" className="w-9 h-9 sm:w-11 sm:h-11 md:w-14 md:h-14 rounded-xl" loading="lazy" />
+              <img src={moonpayLogo} alt="MoonPay" width={56} height={56} className="w-9 h-9 sm:w-11 sm:h-11 md:w-14 md:h-14 rounded-xl" loading="lazy" />
             </div>
             <span className="text-white font-light text-base sm:text-lg md:text-xl mb-1">MoonPay</span>
             <span className="text-white/40 text-[10px] sm:text-xs md:text-sm mt-1 md:mt-2 font-light text-center">{t("trustCryptoGateway")}</span>
