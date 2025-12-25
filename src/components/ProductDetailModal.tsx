@@ -4,9 +4,18 @@ import { Badge } from "./ui/badge";
 import { ShoppingCart, HandCoins, Wifi, Calendar, Globe, Zap, Shield, Clock, Smartphone } from "lucide-react";
 import { useTranslation } from "@/contexts/TranslationContext";
 import { getTranslatedCountryName } from "@/utils/countryTranslations";
-import * as CountryFlags from 'country-flag-icons/react/3x2';
 import { CompatibilityChecker } from "./CompatibilityChecker";
 import { useState } from "react";
+
+// Convert country code to emoji flag (53KB+ savings by removing country-flag-icons library)
+const getEmojiFlag = (countryCode: string): string => {
+  if (!countryCode || countryCode.length !== 2) return '🌐';
+  const codePoints = countryCode
+    .toUpperCase()
+    .split('')
+    .map(char => 127397 + char.charCodeAt(0));
+  return String.fromCodePoint(...codePoints);
+};
 
 interface ProductDetailModalProps {
   open: boolean;
@@ -64,9 +73,12 @@ export const ProductDetailModal = ({
         </div>
       );
     }
-    // For local packages, show country flag
-    const FlagComponent = (CountryFlags as any)[countryCode];
-    return FlagComponent ? <FlagComponent className="w-16 h-11 rounded-lg" /> : null;
+    // For local packages, use emoji flag
+    return (
+      <div className="w-16 h-11 rounded-lg bg-white/5 flex items-center justify-center text-3xl">
+        {getEmojiFlag(countryCode)}
+      </div>
+    );
   };
 
   return (
