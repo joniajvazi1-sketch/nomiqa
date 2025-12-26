@@ -472,6 +472,7 @@ const translations: Record<string, Partial<Record<Language | 'HI', string>>> = {
   shareProduct: { EN: "Share", ES: "Compartir", FR: "Partager", DE: "Teilen", RU: "Поделиться", ZH: "分享", JA: "共有", PT: "Compartilhar", AR: "مشاركة", IT: "Condividi" },
   loadMore: { EN: "Load More Plans", ES: "Cargar más planes", FR: "Charger plus de plans", DE: "Mehr Pläne laden", RU: "Загрузить больше планов", ZH: "加载更多计划", JA: "さらにプランを読み込む", PT: "Carregar mais planos", AR: "تحميل المزيد من الخطط", IT: "Carica più piani" },
   loading: { EN: "Loading...", ES: "Cargando...", FR: "Chargement...", DE: "Laden...", RU: "Загрузка...", ZH: "加载中...", JA: "読み込み中...", PT: "Carregando...", AR: "جار التحميل...", IT: "Caricamento..." },
+  continueWithGoogle: { EN: "Continue with Google", ES: "Continuar con Google", FR: "Continuer avec Google", DE: "Mit Google fortfahren", RU: "Продолжить с Google", ZH: "使用 Google 继续", JA: "Google で続行", PT: "Continuar com o Google", AR: "المتابعة مع Google", IT: "Continua con Google" },
   noPlansFound: { EN: "No plans found matching your search.", ES: "No se encontraron planes que coincidan con tu búsqueda.", FR: "Aucun plan trouvé correspondant à votre recherche.", DE: "Keine Pläne gefunden, die deiner Suche entsprechen.", RU: "Не найдено планов, соответствующих вашему поиску.", ZH: "未找到匹配您搜索的计划。", JA: "検索に一致するプランが見つかりませんでした。", PT: "Nenhum plano encontrado correspondente à sua pesquisa.", AR: "لم يتم العثور على خطط تطابق بحثك.", IT: "Nessun piano trovato corrispondente alla tua ricerca." },
 
   // My Account Page
