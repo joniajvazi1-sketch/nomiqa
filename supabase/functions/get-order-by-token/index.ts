@@ -105,15 +105,15 @@ serve(async (req) => {
       }
     });
 
-    // Fetch order PII using access token from orders_pii (service role bypasses RLS)
-    const { data: orderPii, error: piiError } = await supabase
-      .from('orders_pii')
-      .select('*')
+    // Fetch order using service role to bypass RLS
+    const { data: order, error } = await supabase
+      .from('orders')
+      .select('*, products:product_id(*)')
       .eq('access_token', accessToken)
       .single();
 
-    if (piiError || !orderPii) {
-      console.log(`Order PII not found for token: ${tokenHash}`);
+    if (error || !order) {
+      console.log(`Order not found for token: ${tokenHash}`);
       
       // Log failed lookup (potential enumeration attempt)
       await supabase.from('webhook_logs').insert({
@@ -127,24 +127,8 @@ serve(async (req) => {
       );
     }
 
-    // Fetch the non-PII order data
-    const { data: order, error } = await supabase
-      .from('orders')
-      .select('id, user_id, product_id, status, total_amount_usd, validity_days, package_name, data_amount, created_at, updated_at, products:product_id(*)')
-      .eq('id', orderPii.id)
-      .single();
-
-    if (error || !order) {
-      console.log(`Order not found for id: ${orderPii.id}`);
-      
-      return new Response(
-        JSON.stringify({ error: 'Order not found' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // Check if token is expired or invalidated (from PII table now)
-    if (orderPii.access_token_invalidated) {
+    // Check if token is expired or invalidated
+    if (order.access_token_invalidated) {
       await supabase.from('webhook_logs').insert({
         event_type: 'order_access_invalidated',
         payload: { ip: clientIP, tokenHash, orderId: order.id }
@@ -156,7 +140,7 @@ serve(async (req) => {
       );
     }
 
-    if (orderPii.access_token_expires_at && new Date(orderPii.access_token_expires_at) < new Date()) {
+    if (order.access_token_expires_at && new Date(order.access_token_expires_at) < new Date()) {
       await supabase.from('webhook_logs').insert({
         event_type: 'order_access_expired',
         payload: { ip: clientIP, tokenHash, orderId: order.id }
@@ -171,11 +155,11 @@ serve(async (req) => {
     // Email verification check (optional but recommended for enhanced security)
     // If emailHint is provided, verify it matches the order email (case-insensitive)
     if (emailHint) {
-      const orderEmailLower = orderPii.email.toLowerCase();
+      const orderEmailLower = order.email.toLowerCase();
       const hintEmailLower = emailHint.toLowerCase();
       
       if (orderEmailLower !== hintEmailLower) {
-        console.log(`Email mismatch for order ${order.id}: expected ${maskEmail(orderPii.email)}, got ${maskEmail(emailHint)}`);
+        console.log(`Email mismatch for order ${order.id}: expected ${maskEmail(order.email)}, got ${maskEmail(emailHint)}`);
         
         await supabase.from('webhook_logs').insert({
           event_type: 'order_access_email_mismatch',
@@ -196,7 +180,7 @@ serve(async (req) => {
 
     // Fetch eSIM usage data if available
     let usageData = null;
-    if (orderPii.iccid) {
+    if (order.iccid) {
       const { data: usage } = await supabase
         .from('esim_usage')
         .select('*')
@@ -219,25 +203,8 @@ serve(async (req) => {
 
     console.log(`Order ${order.id} accessed successfully from IP ${clientIP}`);
 
-    // Merge order with PII data for response
-    const enrichedOrder = {
-      ...order,
-      email: orderPii.email,
-      full_name: orderPii.full_name,
-      iccid: orderPii.iccid,
-      lpa: orderPii.lpa,
-      qrcode: orderPii.qrcode,
-      qr_code_url: orderPii.qr_code_url,
-      activation_code: orderPii.activation_code,
-      matching_id: orderPii.matching_id,
-      manual_installation: orderPii.manual_installation,
-      qrcode_installation: orderPii.qrcode_installation,
-      sharing_link: orderPii.sharing_link,
-      sharing_access_code: orderPii.sharing_access_code,
-    };
-
     return new Response(
-      JSON.stringify({ order: enrichedOrder, usage: usageData }),
+      JSON.stringify({ order, usage: usageData }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 

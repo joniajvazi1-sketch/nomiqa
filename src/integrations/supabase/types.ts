@@ -75,6 +75,13 @@ export type Database = {
             referencedRelation: "orders"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "affiliate_referrals_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders_secure"
+            referencedColumns: ["id"]
+          },
         ]
       }
       affiliates: {
@@ -226,6 +233,13 @@ export type Database = {
             referencedRelation: "orders"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "esim_usage_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders_secure"
+            referencedColumns: ["id"]
+          },
         ]
       }
       mining_logs: {
@@ -364,77 +378,6 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "products"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      orders_pii: {
-        Row: {
-          access_token: string | null
-          access_token_expires_at: string | null
-          access_token_invalidated: boolean | null
-          activation_code: string | null
-          created_at: string
-          email: string
-          full_name: string | null
-          iccid: string | null
-          id: string
-          lpa: string | null
-          manual_installation: string | null
-          matching_id: string | null
-          qr_code_url: string | null
-          qrcode: string | null
-          qrcode_installation: string | null
-          sharing_access_code: string | null
-          sharing_link: string | null
-          updated_at: string
-        }
-        Insert: {
-          access_token?: string | null
-          access_token_expires_at?: string | null
-          access_token_invalidated?: boolean | null
-          activation_code?: string | null
-          created_at?: string
-          email: string
-          full_name?: string | null
-          iccid?: string | null
-          id: string
-          lpa?: string | null
-          manual_installation?: string | null
-          matching_id?: string | null
-          qr_code_url?: string | null
-          qrcode?: string | null
-          qrcode_installation?: string | null
-          sharing_access_code?: string | null
-          sharing_link?: string | null
-          updated_at?: string
-        }
-        Update: {
-          access_token?: string | null
-          access_token_expires_at?: string | null
-          access_token_invalidated?: boolean | null
-          activation_code?: string | null
-          created_at?: string
-          email?: string
-          full_name?: string | null
-          iccid?: string | null
-          id?: string
-          lpa?: string | null
-          manual_installation?: string | null
-          matching_id?: string | null
-          qr_code_url?: string | null
-          qrcode?: string | null
-          qrcode_installation?: string | null
-          sharing_access_code?: string | null
-          sharing_link?: string | null
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "orders_pii_id_fkey"
-            columns: ["id"]
-            isOneToOne: true
-            referencedRelation: "orders"
             referencedColumns: ["id"]
           },
         ]
@@ -648,7 +591,122 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      orders_secure: {
+        Row: {
+          activation_code: string | null
+          created_at: string | null
+          data_amount: string | null
+          email: string | null
+          full_name: string | null
+          iccid: string | null
+          id: string | null
+          lpa: string | null
+          manual_installation: string | null
+          matching_id: string | null
+          package_name: string | null
+          product_id: string | null
+          qr_code_url: string | null
+          qrcode: string | null
+          qrcode_installation: string | null
+          sharing_access_code: string | null
+          sharing_link: string | null
+          status: string | null
+          total_amount_usd: number | null
+          updated_at: string | null
+          user_id: string | null
+          validity_days: number | null
+        }
+        Insert: {
+          activation_code?: string | null
+          created_at?: string | null
+          data_amount?: string | null
+          email?: string | null
+          full_name?: string | null
+          iccid?: string | null
+          id?: string | null
+          lpa?: string | null
+          manual_installation?: string | null
+          matching_id?: string | null
+          package_name?: string | null
+          product_id?: string | null
+          qr_code_url?: string | null
+          qrcode?: string | null
+          qrcode_installation?: string | null
+          sharing_access_code?: string | null
+          sharing_link?: string | null
+          status?: string | null
+          total_amount_usd?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+          validity_days?: number | null
+        }
+        Update: {
+          activation_code?: string | null
+          created_at?: string | null
+          data_amount?: string | null
+          email?: string | null
+          full_name?: string | null
+          iccid?: string | null
+          id?: string | null
+          lpa?: string | null
+          manual_installation?: string | null
+          matching_id?: string | null
+          package_name?: string | null
+          product_id?: string | null
+          qr_code_url?: string | null
+          qrcode?: string | null
+          qrcode_installation?: string | null
+          sharing_access_code?: string | null
+          sharing_link?: string | null
+          status?: string | null
+          total_amount_usd?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+          validity_days?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles_secure: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          email_verified: boolean | null
+          id: string | null
+          is_early_member: boolean | null
+          updated_at: string | null
+          user_id: string | null
+          username: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          email_verified?: boolean | null
+          id?: string | null
+          is_early_member?: boolean | null
+          updated_at?: string | null
+          user_id?: string | null
+          username?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          email_verified?: boolean | null
+          id?: string | null
+          is_early_member?: boolean | null
+          updated_at?: string | null
+          user_id?: string | null
+          username?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       cleanup_expired_order_pii: { Args: never; Returns: number }
