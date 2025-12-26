@@ -653,6 +653,7 @@ export type Database = {
     Functions: {
       cleanup_expired_order_pii: { Args: never; Returns: number }
       cleanup_old_email_rate_limits: { Args: never; Returns: undefined }
+      cleanup_old_mining_logs: { Args: never; Returns: number }
       cleanup_old_webhook_requests: { Args: never; Returns: undefined }
       get_user_email: { Args: never; Returns: string }
       has_role: {
