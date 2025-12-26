@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface Node {
   x: number;
@@ -19,46 +19,76 @@ const isMobile = () => {
   );
 };
 
+// Check for reduced motion preference
+const prefersReducedMotion = () => {
+  return typeof window !== 'undefined' && 
+    window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+};
+
 export const NetworkBackground = ({ color }: NetworkBackgroundProps = {}) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>();
   const isVisibleRef = useRef(true);
   const isPausedRef = useRef(false);
+  const nodesRef = useRef<Node[]>([]);
+  const [shouldRender, setShouldRender] = useState(true);
 
   useEffect(() => {
+    // Skip on mobile for performance - use CSS gradient fallback
+    if (isMobile() || prefersReducedMotion()) {
+      setShouldRender(false);
+      return;
+    }
+
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d', { alpha: true });
     if (!ctx) return;
 
-    // Set canvas size
+    // Set canvas size with device pixel ratio consideration
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const resizeCanvas = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+      ctx.scale(dpr, dpr);
     };
     resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
+    
+    // Debounced resize handler
+    let resizeTimeout: number;
+    const handleResize = () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = window.setTimeout(resizeCanvas, 150);
+    };
+    window.addEventListener('resize', handleResize, { passive: true });
 
-    // Optimized node count based on device
-    const nodeCount = isMobile() ? 25 : 35;
-    const nodes: Node[] = [];
-    const maxDistance = 150;
+    // Reduced node count for better performance
+    const nodeCount = 20;
+    const maxDistance = 120;
 
-    for (let i = 0; i < nodeCount; i++) {
-      nodes.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        vx: (Math.random() - 0.5) * 0.5,
-        vy: (Math.random() - 0.5) * 0.5,
-      });
+    // Initialize nodes only once
+    if (nodesRef.current.length === 0) {
+      for (let i = 0; i < nodeCount; i++) {
+        nodesRef.current.push({
+          x: Math.random() * window.innerWidth,
+          y: Math.random() * window.innerHeight,
+          vx: (Math.random() - 0.5) * 0.3,
+          vy: (Math.random() - 0.5) * 0.3,
+        });
+      }
     }
+
+    const nodes = nodesRef.current;
 
     // Visibility change handler - pause when tab is hidden
     const handleVisibilityChange = () => {
       isPausedRef.current = document.hidden;
       if (!document.hidden && isVisibleRef.current) {
-        // Resume animation when tab becomes visible
         animate();
       }
     };
@@ -76,58 +106,73 @@ export const NetworkBackground = ({ color }: NetworkBackgroundProps = {}) => {
     );
     observer.observe(canvas);
 
-    // Animation loop
-    const animate = () => {
-      // Don't animate if paused or not visible
+    // Throttled animation loop (30fps instead of 60fps)
+    let lastTime = 0;
+    const frameInterval = 1000 / 30;
+
+    const animate = (currentTime?: number) => {
       if (isPausedRef.current || !isVisibleRef.current) {
         return;
       }
 
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (currentTime && currentTime - lastTime < frameInterval) {
+        animationRef.current = requestAnimationFrame(animate);
+        return;
+      }
+      lastTime = currentTime || 0;
+
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      
+      ctx.clearRect(0, 0, width, height);
+
+      // Batch all drawing operations
+      const nodeColor = color ? color.replace('rgb(', 'rgba(').replace(')', ', 0.5)') : 'rgba(147, 51, 234, 0.5)';
+      const glowColor = color ? color.replace('rgb(', 'rgba(').replace(')', ', 0.15)') : 'rgba(147, 51, 234, 0.15)';
 
       // Update and draw nodes
-      nodes.forEach((node, i) => {
+      for (let i = 0; i < nodes.length; i++) {
+        const node = nodes[i];
+        
         // Update position
         node.x += node.vx;
         node.y += node.vy;
 
         // Bounce off edges
-        if (node.x < 0 || node.x > canvas.width) node.vx *= -1;
-        if (node.y < 0 || node.y > canvas.height) node.vy *= -1;
+        if (node.x < 0 || node.x > width) node.vx *= -1;
+        if (node.y < 0 || node.y > height) node.vy *= -1;
 
         // Keep within bounds
-        node.x = Math.max(0, Math.min(canvas.width, node.x));
-        node.y = Math.max(0, Math.min(canvas.height, node.y));
+        node.x = Math.max(0, Math.min(width, node.x));
+        node.y = Math.max(0, Math.min(height, node.y));
 
-        // Draw connections
-        nodes.slice(i + 1).forEach((otherNode) => {
+        // Draw connections (check fewer pairs)
+        for (let j = i + 1; j < nodes.length; j++) {
+          const otherNode = nodes[j];
           const dx = node.x - otherNode.x;
           const dy = node.y - otherNode.y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
+          const distSq = dx * dx + dy * dy;
+          const maxDistSq = maxDistance * maxDistance;
 
-          if (distance < maxDistance) {
-            const opacity = (1 - distance / maxDistance) * 0.3;
+          if (distSq < maxDistSq) {
+            const opacity = (1 - Math.sqrt(distSq) / maxDistance) * 0.25;
             ctx.beginPath();
-            ctx.strokeStyle = color ? `${color.replace('rgb(', 'rgba(').replace(')', `, ${opacity})`)}` : `rgba(147, 51, 234, ${opacity})`;
+            ctx.strokeStyle = color 
+              ? `${color.replace('rgb(', 'rgba(').replace(')', `, ${opacity})`)}` 
+              : `rgba(147, 51, 234, ${opacity})`;
             ctx.lineWidth = 1;
             ctx.moveTo(node.x, node.y);
             ctx.lineTo(otherNode.x, otherNode.y);
             ctx.stroke();
           }
-        });
+        }
 
-        // Draw node
+        // Draw node (simplified - no glow for performance)
         ctx.beginPath();
         ctx.arc(node.x, node.y, 2, 0, Math.PI * 2);
-        ctx.fillStyle = color ? `${color.replace('rgb(', 'rgba(').replace(')', ', 0.6)')}` : 'rgba(147, 51, 234, 0.6)';
+        ctx.fillStyle = nodeColor;
         ctx.fill();
-        
-        // Add glow
-        ctx.beginPath();
-        ctx.arc(node.x, node.y, 4, 0, Math.PI * 2);
-        ctx.fillStyle = color ? `${color.replace('rgb(', 'rgba(').replace(')', ', 0.2)')}` : 'rgba(147, 51, 234, 0.2)';
-        ctx.fill();
-      });
+      }
 
       animationRef.current = requestAnimationFrame(animate);
     };
@@ -138,17 +183,30 @@ export const NetworkBackground = ({ color }: NetworkBackgroundProps = {}) => {
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
       }
-      window.removeEventListener('resize', resizeCanvas);
+      clearTimeout(resizeTimeout);
+      window.removeEventListener('resize', handleResize);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       observer.disconnect();
     };
   }, [color]);
 
+  // Mobile fallback - simple CSS gradient instead of canvas
+  if (!shouldRender) {
+    return (
+      <div 
+        className="fixed inset-0 -z-10 opacity-20 pointer-events-none"
+        style={{
+          background: 'radial-gradient(ellipse at 30% 20%, rgba(147, 51, 234, 0.15) 0%, transparent 50%), radial-gradient(ellipse at 70% 80%, rgba(6, 182, 212, 0.1) 0%, transparent 50%)'
+        }}
+      />
+    );
+  }
+
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 -z-10 opacity-40"
-      style={{ pointerEvents: 'none' }}
+      className="fixed inset-0 -z-10 opacity-30"
+      style={{ pointerEvents: 'none', willChange: 'auto' }}
     />
   );
 };

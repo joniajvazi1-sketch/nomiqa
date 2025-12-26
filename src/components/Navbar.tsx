@@ -213,14 +213,14 @@ export const Navbar = () => {
   };
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-300 ${
       scrolled 
-        ? 'bg-black/40 backdrop-blur-xl border-b border-white/10 shadow-2xl shadow-black/30' 
-        : 'bg-gradient-to-b from-black/70 via-black/40 to-transparent backdrop-blur-md border-b border-white/5'
+        ? 'bg-black/80 border-b border-white/10 shadow-xl' 
+        : 'bg-gradient-to-b from-black/70 via-black/40 to-transparent border-b border-white/5'
     }`}>
-      {/* Decorative glow effects */}
-      <div className={`absolute inset-0 bg-gradient-to-r from-neon-violet/5 via-transparent to-neon-cyan/5 pointer-events-none transition-opacity duration-500 ${scrolled ? 'opacity-50' : 'opacity-100'}`} />
-      <div className={`absolute top-0 left-1/4 w-96 h-px bg-gradient-to-r from-transparent via-neon-cyan/30 to-transparent transition-opacity duration-500 ${scrolled ? 'opacity-30' : 'opacity-100'}`} />
+      {/* Simplified decorative effects */}
+      <div className={`absolute inset-0 bg-gradient-to-r from-neon-violet/5 via-transparent to-neon-cyan/5 pointer-events-none transition-opacity duration-300 ${scrolled ? 'opacity-30' : 'opacity-60'}`} />
+      <div className={`absolute top-0 left-1/4 w-96 h-px bg-gradient-to-r from-transparent via-neon-cyan/20 to-transparent transition-opacity duration-300 ${scrolled ? 'opacity-20' : 'opacity-60'}`} />
       
       <div className="container mx-auto px-4 sm:px-6 relative">
         <div className="flex items-center justify-between gap-4 h-16 sm:h-18 md:h-20">
@@ -261,7 +261,7 @@ export const Navbar = () => {
                   placeholder={t("searchEsims")}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 h-11 bg-white/[0.03] backdrop-blur-xl border border-white/20 hover:border-white/30 focus:border-neon-cyan/40 text-white placeholder:text-white/40 rounded-xl transition-all duration-300 text-sm font-light"
+                  className="w-full pl-10 pr-4 h-11 bg-white/[0.05] border border-white/20 hover:border-white/30 focus:border-neon-cyan/40 text-white placeholder:text-white/40 rounded-xl transition-colors duration-200 text-sm font-light"
                 />
               </form>
             </div>
@@ -365,9 +365,9 @@ export const Navbar = () => {
                     <span className="text-sm">{t("menu")}</span>
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="right" className="w-[85vw] max-w-[380px] bg-white/[0.03] backdrop-blur-2xl border-l border-white/20 shadow-2xl">
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/[0.08] via-white/[0.02] to-transparent pointer-events-none" />
-                  <div className="absolute inset-0 bg-gradient-to-tl from-neon-cyan/[0.05] via-transparent to-neon-violet/[0.03] pointer-events-none" />
+                <SheetContent side="right" className="w-[85vw] max-w-[380px] bg-deep-space/95 border-l border-white/20 shadow-2xl">
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/[0.05] via-white/[0.02] to-transparent pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-tl from-neon-cyan/[0.03] via-transparent to-neon-violet/[0.02] pointer-events-none" />
                   <div className="absolute top-0 right-0 w-32 h-32 bg-white/[0.05] rounded-full blur-3xl pointer-events-none" />
                   
                   <SheetHeader className="relative z-10 border-b border-white/20 pb-5 mb-1">

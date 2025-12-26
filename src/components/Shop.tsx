@@ -137,11 +137,10 @@ export const Shop = () => {
   };
 
   return (
-    <section id="shop" className="py-16 md:py-24 px-4 relative overflow-hidden bg-gradient-to-br from-black/40 via-deep-space/60 to-black/40">
-      {/* Premium background decorations */}
-      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-neon-cyan/5 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-neon-violet/5 rounded-full blur-3xl"></div>
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-neon-coral/3 rounded-full blur-3xl"></div>
+    <section id="shop" className="py-16 md:py-24 px-4 relative overflow-hidden">
+      {/* Simplified background decorations - reduced blur for performance */}
+      <div className="absolute top-0 left-1/4 w-[400px] h-[400px] bg-neon-cyan/5 rounded-full blur-2xl pointer-events-none"></div>
+      <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-neon-violet/5 rounded-full blur-2xl pointer-events-none"></div>
       
       <div className="container mx-auto max-w-7xl relative z-10">
         {/* Hero Header */}
@@ -169,7 +168,7 @@ export const Shop = () => {
               placeholder={t('searchPlaceholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-11 h-12 md:h-14 bg-white/[0.02] backdrop-blur-xl border-white/10 hover:border-neon-cyan/30 focus:border-neon-cyan/50 text-white placeholder:text-white/40 rounded-xl transition-all duration-300 text-left relative z-0"
+              className="pl-11 h-12 md:h-14 bg-white/[0.03] border-white/10 hover:border-neon-cyan/30 focus:border-neon-cyan/50 text-white placeholder:text-white/40 rounded-xl transition-colors duration-200 text-left relative z-0"
             />
           </div>
           
@@ -233,12 +232,12 @@ export const Shop = () => {
               {displayedProducts?.map((product) => (
                 <Card 
                   key={product.id} 
-                  className="group relative overflow-hidden bg-white/[0.02] backdrop-blur-xl border border-white/10 hover:border-neon-cyan/40 transition-all duration-300 hover:-translate-y-1 cursor-pointer rounded-2xl will-change-auto"
+                  className="group relative overflow-hidden bg-white/[0.03] border border-white/10 hover:border-neon-cyan/40 transition-colors duration-200 cursor-pointer rounded-2xl"
                   style={{ contain: 'layout style' }}
                   onClick={() => handleProductClick(product)}
                 >
-                  {/* Hover glow effect */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-neon-cyan/5 via-transparent to-neon-violet/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                  {/* Simplified hover effect */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-neon-cyan/5 via-transparent to-neon-violet/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"></div>
                   
                   <CardHeader className="relative z-10">
                     <div className="flex items-start justify-between mb-4">
@@ -311,7 +310,7 @@ export const Shop = () => {
                         e.stopPropagation();
                         handleAddToCart(product);
                       }}
-                      className="w-full sm:flex-1 bg-white/[0.05] backdrop-blur-xl border-2 border-neon-cyan/40 text-white hover:bg-neon-cyan/10 hover:border-neon-cyan/60 font-light h-12 rounded-xl transition-all duration-200 hover:scale-[1.02] shadow-lg hover:shadow-neon-cyan/20"
+                      className="w-full sm:flex-1 bg-white/[0.05] border-2 border-neon-cyan/40 text-white hover:bg-neon-cyan/10 hover:border-neon-cyan/60 font-light h-12 rounded-xl transition-colors duration-200"
                     >
                       <ShoppingCart className="mr-2 h-4 w-4 shrink-0" />
                       <span className="break-words">{t('addToCart')}</span>
@@ -321,7 +320,7 @@ export const Shop = () => {
                         e.stopPropagation();
                         handleReferEarn(product);
                       }}
-                      className="w-full sm:flex-1 bg-white/[0.05] backdrop-blur-xl border-2 border-neon-coral/40 text-neon-coral hover:bg-neon-coral/10 hover:border-neon-coral/60 font-light h-12 rounded-xl transition-all duration-200 hover:scale-[1.02] shadow-lg hover:shadow-neon-coral/20"
+                      className="w-full sm:flex-1 bg-white/[0.05] border-2 border-neon-coral/40 text-neon-coral hover:bg-neon-coral/10 hover:border-neon-coral/60 font-light h-12 rounded-xl transition-colors duration-200"
                     >
                       <HandCoins className="mr-2 h-4 w-4 shrink-0" />
                       <span className="break-words">{t('referAndEarn')}</span>
