@@ -58,6 +58,18 @@ export const FAQ = memo(({ showAll = false }: FAQProps) => {
     {
       question: t("faq10Q"),
       answer: t("faq10A")
+    },
+    {
+      question: t("faq11Q"),
+      answer: t("faq11A")
+    },
+    {
+      question: t("faq12Q"),
+      answer: t("faq12A")
+    },
+    {
+      question: t("faq13Q"),
+      answer: t("faq13A")
     }
   ], [t]);
 
