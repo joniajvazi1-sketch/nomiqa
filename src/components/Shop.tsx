@@ -14,16 +14,6 @@ import { Confetti } from "./Confetti";
 import { useTranslation } from "@/contexts/TranslationContext";
 import { getTranslatedCountryName, getAllTranslatedNames } from "@/utils/countryTranslations";
 
-// Convert country code to emoji flag (53KB+ savings by removing country-flag-icons library)
-const getEmojiFlag = (countryCode: string): string => {
-  if (!countryCode || countryCode.length !== 2) return '🌐';
-  const codePoints = countryCode
-    .toUpperCase()
-    .split('')
-    .map(char => 127397 + char.charCodeAt(0));
-  return String.fromCodePoint(...codePoints);
-};
-
 type CoverageType = "all" | "local" | "regional";
 
 export const Shop = () => {
@@ -107,8 +97,8 @@ export const Shop = () => {
     return regionImageMap[countryCode] || null;
   };
 
-  const getCountryFlag = (countryCode: string, packageType?: string) => {
-    // For regional packages, show region map image - same size as country flags
+  const getCountryFlag = (countryCode: string, packageType?: string, countryImageUrl?: string | null) => {
+    // For regional packages, show region map image
     if (packageType === 'regional') {
       const regionImage = getRegionImage(countryCode);
       if (regionImage) {
@@ -116,20 +106,32 @@ export const Shop = () => {
           <img 
             src={regionImage} 
             alt={countryCode} 
-            className="w-12 h-8 rounded object-cover"
+            className="w-14 h-10 rounded-lg object-cover shadow-lg"
+            loading="lazy"
           />
         );
       }
       return (
-        <div className="w-12 h-8 flex items-center justify-center text-xl bg-white/5 rounded">
+        <div className="w-14 h-10 flex items-center justify-center text-2xl bg-white/5 rounded-lg">
           🌐
         </div>
       );
     }
-    // For local packages, use emoji flag
+    // For local packages, use country flag image from database
+    if (countryImageUrl) {
+      return (
+        <img 
+          src={countryImageUrl} 
+          alt={`${countryCode} flag`} 
+          className="w-14 h-10 rounded-lg object-cover shadow-lg"
+          loading="lazy"
+        />
+      );
+    }
+    // Fallback to globe icon if no image
     return (
-      <div className="w-12 h-8 rounded bg-white/5 flex items-center justify-center text-xl">
-        {getEmojiFlag(countryCode)}
+      <div className="w-14 h-10 flex items-center justify-center text-2xl bg-white/5 rounded-lg">
+        🌐
       </div>
     );
   };
@@ -242,7 +244,7 @@ export const Shop = () => {
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center gap-3">
                         <div className="shrink-0">
-                          {getCountryFlag(product.country_code, (product as any).package_type)}
+                          {getCountryFlag(product.country_code, (product as any).package_type, product.country_image_url)}
                         </div>
                         <div>
                           <CardTitle className="text-lg md:text-xl text-white group-hover:text-neon-cyan transition-colors duration-300 font-light">
