@@ -1,9 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Coins, Gift, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import tokenLogo from "@/assets/nomiqa-token-logo.gif";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "@/contexts/TranslationContext";
+
+// Use static image path instead of importing large GIF
+const tokenLogoUrl = "/nomiqa-token-logo.gif";
 
 export const EarnRewardBlock = () => {
   const navigate = useNavigate();
@@ -47,12 +49,14 @@ export const EarnRewardBlock = () => {
             <div className="space-y-4 sm:space-y-5">
               <div className="flex items-center justify-center gap-4 mb-2">
                 <img 
-                  src={tokenLogo} 
+                  src={tokenLogoUrl} 
                   alt="NOMIQA Token" 
                   width="80"
                   height="80"
                   className="w-auto h-14 sm:h-16 md:h-20 object-contain" 
                   loading="lazy"
+                  decoding="async"
+                  fetchPriority="low"
                 />
               </div>
               <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light bg-gradient-to-r from-white via-white/95 to-white/90 bg-clip-text text-transparent px-4">

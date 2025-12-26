@@ -4,7 +4,9 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "@/contexts/TranslationContext";
 import { localizedPath } from "@/utils/localizedLinks";
 import { useEffect, useRef, useState } from "react";
-import tokenLogo from "@/assets/nomiqa-token-logo.gif";
+
+// Use static path instead of importing large GIF to avoid bundling
+const tokenLogoUrl = "/nomiqa-token-logo.gif";
 
 export const ScrollableFeatures = () => {
   const navigate = useNavigate();
@@ -109,12 +111,14 @@ export const ScrollableFeatures = () => {
                         <div className="mb-6 text-center md:text-left">
                           {feature.showImage ? (
                             <img 
-                              src={tokenLogo} 
+                              src={tokenLogoUrl} 
                               alt="NOMIQA Token" 
                               width="80"
                               height="80"
                               className="w-auto h-16 md:h-20 object-contain mx-auto md:mx-0" 
                               loading="lazy"
+                              decoding="async"
+                              fetchPriority="low"
                             />
                           ) : (
                             <div className="w-16 h-16 rounded-2xl bg-white/[0.05] border border-white/10 flex items-center justify-center group-hover:bg-white/[0.08] transition-all duration-300 mx-auto md:mx-0">
@@ -186,12 +190,14 @@ export const ScrollableFeatures = () => {
                       <div className="mb-4">
                         {feature.showImage ? (
                           <img 
-                            src={tokenLogo} 
+                            src={tokenLogoUrl} 
                             alt="NOMIQA Token" 
                             width="64"
                             height="64"
                             className="w-auto h-14 xl:h-16 object-contain" 
                             loading="lazy"
+                            decoding="async"
+                            fetchPriority="low"
                           />
                         ) : (
                           <div className="w-12 h-12 xl:w-14 xl:h-14 rounded-xl bg-white/[0.05] border border-white/10 flex items-center justify-center group-hover:bg-white/[0.08] transition-all duration-300">
