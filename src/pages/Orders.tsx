@@ -96,7 +96,8 @@ export default function Orders() {
       const urlParams = new URLSearchParams(window.location.search);
       const accessToken = urlParams.get('token');
 
-      let data, error;
+      let ordersData: Order[] = [];
+      let usageMap: Record<string, UsageData> = {};
 
       if (accessToken) {
         // Guest access using token
@@ -112,12 +113,11 @@ export default function Orders() {
         }
 
         // Transform single order response to array format
-        data = response.order ? [response.order] : [];
-        error = null;
+        ordersData = response.order ? [response.order] : [];
 
         // Set usage data if available
         if (response.usage) {
-          setUsageData({ [response.order.id]: response.usage });
+          usageMap[response.order.id] = response.usage;
         }
       } else {
         // Check if user is authenticated
@@ -130,61 +130,26 @@ export default function Orders() {
           return;
         }
 
-        // Authenticated user access - Only fetch completed/paid orders with product info
-        const result = await supabase
-          .from('orders')
-          .select(`
-            *,
-            products:product_id (
-              country_name,
-              country_code
-            )
-          `)
-          .in('status', ['completed', 'paid'])
-          .order('created_at', { ascending: false })
-          .limit(20);
-
-        // Flatten product data into order
-        data = result.data?.map(order => ({
-          ...order,
-          country_name: (order.products as any)?.country_name,
-          country_code: (order.products as any)?.country_code,
-          products: undefined
-        })) || [];
-        error = result.error;
-      }
-
-
-      // Fetch usage data for each order in parallel (skip if using token as it's already fetched)
-      if (!accessToken && data && data.length > 0) {
-        const usageMap: Record<string, UsageData> = {};
-        
-        // Fetch all usage data in parallel for better performance
-        const usagePromises = data.map(order => 
-          supabase
-            .from('esim_usage')
-            .select('remaining_mb, total_mb, status, expired_at')
-            .eq('order_id', order.id)
-            .single()
-            .then(({ data: usage }) => ({ orderId: order.id, usage }))
-        );
-        
-        const usageResults = await Promise.all(usagePromises);
-        
-        usageResults.forEach(({ orderId, usage }) => {
-          if (usage) {
-            usageMap[orderId] = usage;
+        // Fetch orders via secure backend function (fetches from orders_pii)
+        const { data: response, error: fetchError } = await supabase.functions.invoke('get-user-orders', {
+          headers: {
+            Authorization: `Bearer ${session.access_token}`
           }
         });
-        
-        setUsageData(usageMap);
+
+        if (fetchError) {
+          console.error('Error fetching orders:', fetchError);
+          toast.error("Failed to load orders");
+          setLoading(false);
+          return;
+        }
+
+        ordersData = response.orders || [];
+        usageMap = response.usage || {};
       }
 
-      if (error) {
-        throw error;
-      }
-
-      setOrders(data || []);
+      setOrders(ordersData);
+      setUsageData(usageMap);
     } catch (error: any) {
       console.error('Error fetching orders:', error);
       toast.error("Failed to load orders");

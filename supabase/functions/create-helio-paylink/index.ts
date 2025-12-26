@@ -25,6 +25,34 @@ serve(async (req) => {
   }
 
   try {
+    // SECURITY: Require authentication for all checkout requests
+    const authHeader = req.headers.get('authorization');
+    if (!authHeader) {
+      console.error('No authorization header provided');
+      return new Response(
+        JSON.stringify({ error: 'Authentication required for checkout' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    
+    // Verify the user's JWT
+    const authClient = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+
+    const { data: { user }, error: authError } = await authClient.auth.getUser();
+    if (authError || !user) {
+      console.error('Invalid authentication:', authError?.message);
+      return new Response(
+        JSON.stringify({ error: 'Invalid authentication' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const body = await req.json();
     
     // Validate input
@@ -50,23 +78,22 @@ serve(async (req) => {
     const { email, visitorId } = validatedData;
     const identifier = email || visitorId;
     
-    if (identifier && !orderId) {
-      const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-      const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-      const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    // Create Supabase admin client once
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+    if (identifier && !orderId) {
       const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
       
-      const query = email 
-        ? supabase.from('orders').select('id').eq('email', email)
-        : supabase.from('orders').select('id').eq('visitor_id', visitorId);
-      
-      const { data: recentOrders } = await query
+      // Rate limiting based on user ID instead of email (more secure)
+      const { data: recentOrders } = await supabase
+        .from('orders')
+        .select('id')
+        .eq('user_id', user.id)
         .gte('created_at', oneHourAgo)
         .limit(10);
 
       if (recentOrders && recentOrders.length >= 10) {
-        console.log(`Rate limit exceeded for ${identifier}`);
+        console.log(`Rate limit exceeded for user ${user.id}`);
         return new Response(
           JSON.stringify({ 
             error: 'Too many payment requests. Please try again later.' 
@@ -85,15 +112,10 @@ serve(async (req) => {
     const helioPublicKey = Deno.env.get('HELIO_PUBLIC_API_KEY');
     const helioSecretKey = Deno.env.get('HELIO_SECRET_API_KEY');
     const helioWalletId = Deno.env.get('HELIO_WALLET_ID');
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
     if (!helioPublicKey || !helioSecretKey || !helioWalletId) {
       throw new Error('Missing Helio API credentials');
     }
-
-    // Initialize Supabase client (reuse if already initialized for rate limiting)
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     let order: any = null;
 
@@ -132,10 +154,11 @@ serve(async (req) => {
 
       const totalUsd = Number(product.price_usd) * Number(quantity);
 
+      // SECURITY: Always use authenticated user's ID, not the one from body
       const { data: createdOrder, error: createError } = await supabase
         .from('orders')
         .insert({
-          user_id: userId,
+          user_id: user.id,  // Always use authenticated user
           email,
           full_name: fullName || 'Customer',
           product_id: product.id,
