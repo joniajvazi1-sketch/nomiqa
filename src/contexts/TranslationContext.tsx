@@ -364,7 +364,8 @@ const translations: Record<string, Partial<Record<Language | 'HI', string>>> = {
 
   // Footer (old entries - keeping for compatibility)
   footerTagline: { EN: "Nomiqa — where privacy meets connection.", ES: "Nomiqa — donde la privacidad se encuentra con la conexión.", FR: "Nomiqa — où la vie privée rencontre la connexion.", DE: "Nomiqa — wo Privatsphäre auf Verbindung trifft.", RU: "Nomiqa — где конфиденциальность встречается со связью.", ZH: "Nomiqa — 隐私与连接相遇的地方。", JA: "Nomiqa — プライバシーと接続が出会う場所。", PT: "Nomiqa — onde a privacidade encontra a conexão.", AR: "Nomiqa — حيث تلتقي الخصوصية بالاتصال.", HI: "Nomiqa — जहां गोपनीयता कनेक्शन से मिलती है।" },
-  footerPoweredBy: { EN: "Powered by Nomiqa.", ES: "Impulsado por Nomiqa.", FR: "Propulsé par Nomiqa.", DE: "Angetrieben von Nomiqa.", RU: "Работает на Nomiqa.", ZH: "由 Nomiqa 提供支持。", JA: "Nomiqaで駆動されます。", PT: "Desenvolvido por Nomiqa.", AR: "مدعوم من Nomiqa.", HI: "Nomiqa द्वारा संचालित।" },
+  footerPoweredBy: { EN: "Powered by Nomiqa.", ES: "Impulsado por Nomiqa.", FR: "Propulsé par Nomiqa.", DE: "Angetrieben von Nomiqa.", RU: "Работает на Nomiqa.", ZH: "由 Nomiqa 提供支持。", JA: "Nomiqaで駆動されます。", PT: "Desenvolvido por Nomiqa.", AR: "مدعوم من Nomiqa.", HI: "Nomiqa द्वारा संचालित。" },
+  poweredBy: { EN: "Powered by", ES: "Desarrollado por", FR: "Propulsé par", DE: "Angetrieben von", RU: "Работает на", ZH: "由...提供支持", JA: "搭載：", PT: "Desenvolvido por", AR: "مدعوم من", IT: "Powered by" },
   products: { EN: "Products", ES: "Productos", FR: "Produits", DE: "Produkte", RU: "Продукты", ZH: "产品", JA: "製品", PT: "Produtos", AR: "المنتجات", HI: "उत्पाद" },
   company: { EN: "Company", ES: "Empresa", FR: "Entreprise", DE: "Unternehmen", RU: "Компания", ZH: "公司", JA: "会社", PT: "Empresa", AR: "الشركة", HI: "कंपनी" },
   support: { EN: "Support", ES: "Soporte", FR: "Support", DE: "Support", RU: "Поддержка", ZH: "支持", JA: "サポート", PT: "Suporte", AR: "الدعم", HI: "समर्थन" },
