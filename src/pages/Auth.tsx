@@ -295,14 +295,14 @@ export default function Auth() {
 
               <div className="pt-4 border-t border-border text-center">
                 <p className="text-sm text-muted-foreground mb-3">
-                  {isSignup ? t("alreadyHaveAccount") : t("dontHaveAccount")}
+                  {isSignup ? t("alreadyHaveAccount") : t("noAccountYet")}
                 </p>
                 <Button 
                   variant="outline" 
                   onClick={() => navigate(isSignup ? '/auth' : '/auth?mode=signup')}
                   className="w-full"
                 >
-                  {isSignup ? t("signIn") : t("createAccount")}
+                  {isSignup ? t("login") : t("createAccount")}
                 </Button>
               </div>
 
