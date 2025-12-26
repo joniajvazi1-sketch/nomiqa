@@ -39,8 +39,8 @@ export const EarnSection = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center animate-bounce-in px-4" style={{
           animationDelay: "0.3s"
         }}>
-            <Button variant="neon" size="lg" className="w-full sm:w-auto hover:scale-105 transition-transform duration-300" onClick={() => navigate('/stake')}>
-              {t("earnStartStaking")}
+            <Button variant="neon" size="lg" className="w-full sm:w-auto hover:scale-105 transition-transform duration-300" onClick={() => navigate('/token')}>
+              {t("earnLearnMore")}
             </Button>
             <Button variant="cyber" size="lg" className="w-full sm:w-auto hover:scale-105 transition-transform duration-300" onClick={() => navigate('/affiliate')}>
               {t("earnJoinAffiliate")}

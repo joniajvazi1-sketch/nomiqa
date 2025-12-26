@@ -17,7 +17,6 @@ const Checkout = lazy(() => import("./pages/Checkout"));
 const Orders = lazy(() => import("./pages/Orders"));
 const Auth = lazy(() => import("./pages/Auth"));
 const GettingStarted = lazy(() => import("./pages/GettingStarted"));
-const Stake = lazy(() => import("./pages/Stake"));
 const Roadmap = lazy(() => import("./pages/Roadmap"));
 const Affiliate = lazy(() => import("./pages/Affiliate"));
 const AffiliateRedirect = lazy(() => import("./pages/AffiliateRedirect"));
@@ -92,7 +91,6 @@ const App = () => {
             <Route path="/orders" element={<Orders />} />
             <Route path="/account" element={<MyAccount />} />
             <Route path="/getting-started" element={<GettingStarted />} />
-            <Route path="/stake" element={<Stake />} />
             <Route path="/roadmap" element={<Roadmap />} />
             <Route path="/affiliate" element={<Affiliate />} />
             <Route path="/r/:code" element={<AffiliateRedirect />} />
@@ -115,7 +113,6 @@ const App = () => {
               <Route path="orders" element={<Orders />} />
               <Route path="account" element={<MyAccount />} />
               <Route path="getting-started" element={<GettingStarted />} />
-              <Route path="stake" element={<Stake />} />
               <Route path="roadmap" element={<Roadmap />} />
               <Route path="affiliate" element={<Affiliate />} />
               <Route path="privacy" element={<Privacy />} />
@@ -134,7 +131,6 @@ const App = () => {
               <Route path="orders" element={<Orders />} />
               <Route path="account" element={<MyAccount />} />
               <Route path="getting-started" element={<GettingStarted />} />
-              <Route path="stake" element={<Stake />} />
               <Route path="roadmap" element={<Roadmap />} />
               <Route path="affiliate" element={<Affiliate />} />
               <Route path="privacy" element={<Privacy />} />
@@ -153,7 +149,6 @@ const App = () => {
               <Route path="orders" element={<Orders />} />
               <Route path="account" element={<MyAccount />} />
               <Route path="getting-started" element={<GettingStarted />} />
-              <Route path="stake" element={<Stake />} />
               <Route path="roadmap" element={<Roadmap />} />
               <Route path="affiliate" element={<Affiliate />} />
               <Route path="privacy" element={<Privacy />} />
@@ -172,7 +167,6 @@ const App = () => {
               <Route path="orders" element={<Orders />} />
               <Route path="account" element={<MyAccount />} />
               <Route path="getting-started" element={<GettingStarted />} />
-              <Route path="stake" element={<Stake />} />
               <Route path="roadmap" element={<Roadmap />} />
               <Route path="affiliate" element={<Affiliate />} />
               <Route path="privacy" element={<Privacy />} />
@@ -191,7 +185,6 @@ const App = () => {
               <Route path="orders" element={<Orders />} />
               <Route path="account" element={<MyAccount />} />
               <Route path="getting-started" element={<GettingStarted />} />
-              <Route path="stake" element={<Stake />} />
               <Route path="roadmap" element={<Roadmap />} />
               <Route path="affiliate" element={<Affiliate />} />
               <Route path="privacy" element={<Privacy />} />
@@ -210,7 +203,6 @@ const App = () => {
               <Route path="orders" element={<Orders />} />
               <Route path="account" element={<MyAccount />} />
               <Route path="getting-started" element={<GettingStarted />} />
-              <Route path="stake" element={<Stake />} />
               <Route path="roadmap" element={<Roadmap />} />
               <Route path="affiliate" element={<Affiliate />} />
               <Route path="privacy" element={<Privacy />} />
@@ -229,7 +221,6 @@ const App = () => {
               <Route path="orders" element={<Orders />} />
               <Route path="account" element={<MyAccount />} />
               <Route path="getting-started" element={<GettingStarted />} />
-              <Route path="stake" element={<Stake />} />
               <Route path="roadmap" element={<Roadmap />} />
               <Route path="affiliate" element={<Affiliate />} />
               <Route path="privacy" element={<Privacy />} />
@@ -248,7 +239,6 @@ const App = () => {
               <Route path="orders" element={<Orders />} />
               <Route path="account" element={<MyAccount />} />
               <Route path="getting-started" element={<GettingStarted />} />
-              <Route path="stake" element={<Stake />} />
               <Route path="roadmap" element={<Roadmap />} />
               <Route path="affiliate" element={<Affiliate />} />
               <Route path="privacy" element={<Privacy />} />
@@ -266,7 +256,6 @@ const App = () => {
               <Route path="orders" element={<Orders />} />
               <Route path="account" element={<MyAccount />} />
               <Route path="getting-started" element={<GettingStarted />} />
-              <Route path="stake" element={<Stake />} />
               <Route path="roadmap" element={<Roadmap />} />
               <Route path="affiliate" element={<Affiliate />} />
               <Route path="privacy" element={<Privacy />} />
@@ -284,25 +273,6 @@ const App = () => {
               <Route path="orders" element={<Orders />} />
               <Route path="account" element={<MyAccount />} />
               <Route path="getting-started" element={<GettingStarted />} />
-              <Route path="stake" element={<Stake />} />
-              <Route path="roadmap" element={<Roadmap />} />
-              <Route path="affiliate" element={<Affiliate />} />
-              <Route path="privacy" element={<Privacy />} />
-              <Route path="terms" element={<Terms />} />
-              <Route path="about" element={<About />} />
-              <Route path="token" element={<Token />} />
-              <Route path="help" element={<Help />} />
-            </Route>
-            {/** Italian */}
-            <Route path="/italiano">
-              <Route index element={<Index />} />
-              <Route path="shop" element={<ShopPage />} />
-              <Route path="auth" element={<Auth />} />
-              <Route path="checkout" element={<Checkout />} />
-              <Route path="orders" element={<Orders />} />
-              <Route path="account" element={<MyAccount />} />
-              <Route path="getting-started" element={<GettingStarted />} />
-              <Route path="stake" element={<Stake />} />
               <Route path="roadmap" element={<Roadmap />} />
               <Route path="affiliate" element={<Affiliate />} />
               <Route path="privacy" element={<Privacy />} />
@@ -311,7 +281,6 @@ const App = () => {
               <Route path="token" element={<Token />} />
               <Route path="help" element={<Help />} />
               <Route path="rewards" element={<Rewards />} />
-              
             </Route>
 
             {/* Username-based affiliate links - must be last before catch-all */}
