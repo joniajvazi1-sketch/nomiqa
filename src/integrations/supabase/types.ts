@@ -242,6 +242,42 @@ export type Database = {
           },
         ]
       }
+      mining_logs: {
+        Row: {
+          carrier: string | null
+          device_type: string | null
+          id: number
+          latitude: number
+          longitude: number
+          network_type: string | null
+          signal_dbm: number | null
+          timestamp: string
+          user_id: string
+        }
+        Insert: {
+          carrier?: string | null
+          device_type?: string | null
+          id?: never
+          latitude: number
+          longitude: number
+          network_type?: string | null
+          signal_dbm?: number | null
+          timestamp?: string
+          user_id: string
+        }
+        Update: {
+          carrier?: string | null
+          device_type?: string | null
+          id?: never
+          latitude?: number
+          longitude?: number
+          network_type?: string | null
+          signal_dbm?: number | null
+          timestamp?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           access_token: string | null
