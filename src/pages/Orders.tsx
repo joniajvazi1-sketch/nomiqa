@@ -130,28 +130,16 @@ export default function Orders() {
           return;
         }
 
-        // Authenticated user access - Only fetch completed/paid orders with product info
-        const result = await supabase
-          .from('orders')
-          .select(`
-            *,
-            products:product_id (
-              country_name,
-              country_code
-            )
-          `)
-          .in('status', ['completed', 'paid'])
-          .order('created_at', { ascending: false })
-          .limit(20);
+        // Authenticated user access - Use edge function to get orders with PII
+        const { data: response, error: funcError } = await supabase.functions.invoke('get-my-orders');
 
-        // Flatten product data into order
-        data = result.data?.map(order => ({
-          ...order,
-          country_name: (order.products as any)?.country_name,
-          country_code: (order.products as any)?.country_code,
-          products: undefined
-        })) || [];
-        error = result.error;
+        if (funcError) {
+          console.error('Error fetching orders:', funcError);
+          throw funcError;
+        }
+
+        data = response?.orders || [];
+        error = null;
       }
 
 
