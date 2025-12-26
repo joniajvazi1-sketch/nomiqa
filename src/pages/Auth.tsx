@@ -18,6 +18,8 @@ export default function Auth() {
   useEffect(() => {
     // Set up auth state listener FIRST (critical for proper session handling)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('Auth event:', event, 'Session:', !!session);
+      
       if (event === 'SIGNED_IN' && session) {
         // Track affiliate registration if there's a referral code
         const { referralCode, clearReferralCode } = useAffiliateTracking.getState();
@@ -66,6 +68,7 @@ export default function Auth() {
           }
         }, 0);
 
+        toast.success("Successfully signed in!");
         const params = new URLSearchParams(window.location.search);
         const redirectUrl = params.get('redirect') || '/';
         navigate(redirectUrl);
@@ -73,6 +76,7 @@ export default function Auth() {
         console.log('Token refreshed successfully');
       } else if (event === 'SIGNED_OUT') {
         console.log('User signed out');
+        setLoading(false);
       }
     });
 
@@ -80,7 +84,7 @@ export default function Auth() {
     supabase.auth.getSession().then(({ data: { session }, error }) => {
       if (error) {
         console.error('Session error:', error);
-        supabase.auth.signOut();
+        // Don't sign out here - just clear the error state
         return;
       }
       if (session) {
