@@ -90,7 +90,7 @@ export const Hero = () => {
           
           {/* DePIN Trust Badge */}
           <div className="flex justify-center mb-6 animate-fade-in" style={{ animationDelay: "0.05s" }}>
-            <div className="inline-flex items-center justify-center gap-2 px-3 md:px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-neon-cyan/30 text-neon-cyan text-[10px] md:text-sm font-medium text-center">
+            <div className="inline-flex items-center justify-center gap-2 px-3 md:px-4 py-2 rounded-full bg-white/15 border border-neon-cyan/30 text-neon-cyan text-[10px] md:text-sm font-medium text-center">
               <Wifi className="w-3 h-3 md:w-3.5 md:h-3.5 flex-shrink-0" />
               <span className="whitespace-nowrap">{t("heroNetworkBadge")}</span>
             </div>
@@ -173,7 +173,7 @@ export const Hero = () => {
             <Button 
               onClick={() => navigate('/shop')} 
               variant="outline"
-              className="bg-white/10 backdrop-blur-md border-white/20 text-white hover:bg-white/20 hover:text-white rounded-xl transition-all duration-300"
+              className="bg-white/15 border-white/20 text-white hover:bg-white/25 hover:text-white rounded-xl transition-colors duration-200"
             >
               {t("heroViewEsimPlans")}
               <ArrowRight className="ml-2 w-4 h-4" />
@@ -183,8 +183,8 @@ export const Hero = () => {
         </div>
       </div>
 
-      {/* Elegant scroll indicator */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
+      {/* Simplified scroll indicator - removed continuous animation */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2">
         <div className="w-6 h-10 rounded-full border-2 border-white/20 flex items-start justify-center p-2">
           <div className="w-1 h-3 rounded-full bg-white/40"></div>
         </div>
