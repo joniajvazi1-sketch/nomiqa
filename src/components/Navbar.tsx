@@ -67,7 +67,17 @@ export const Navbar = () => {
   }, []);
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error('Sign out error:', error);
+        // Even if there's an error, clear local state
+      }
+    } catch (err) {
+      console.error('Sign out exception:', err);
+    }
+    // Always clear UI state and navigate
+    setUser(null);
     toast.success("Signed out successfully");
     setMobileMenuOpen(false);
     setDesktopMenuOpen(false);
