@@ -17,6 +17,7 @@ export default function Auth() {
   const [searchParams] = useSearchParams();
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
+  const [checkingSession, setCheckingSession] = useState(true);
   const [showUsernameSelection, setShowUsernameSelection] = useState(false);
   const [currentUser, setCurrentUser] = useState<{ id: string; email: string } | null>(null);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
@@ -24,15 +25,40 @@ export default function Auth() {
   const isSignup = searchParams.get('mode') === 'signup' || searchParams.get('mode') === 'register';
 
   useEffect(() => {
-    // Set up auth state listener FIRST (critical for proper session handling)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log('Auth event:', event, 'Session:', !!session);
-      
-      if (event === 'SIGNED_IN' && session) {
-        // Track affiliate registration if there's a referral code
-        const { referralCode, clearReferralCode } = useAffiliateTracking.getState();
-        if (referralCode && session.user) {
-          setTimeout(async () => {
+    let isMounted = true;
+
+    const handleSession = async (session: any, isNewSignIn = false) => {
+      if (!session || !isMounted) {
+        setCheckingSession(false);
+        return;
+      }
+
+      try {
+        // Check if user has a profile with proper username
+        const { data: existingProfile } = await supabase
+          .from('profiles')
+          .select('id, username')
+          .eq('user_id', session.user.id)
+          .maybeSingle();
+
+        if (!isMounted) return;
+
+        if (!existingProfile) {
+          // New user - create temporary profile
+          const email = session.user.email || '';
+          const tempUsername = `temp_${Date.now()}`;
+          
+          await supabase.from('profiles').insert({
+            user_id: session.user.id,
+            username: tempUsername,
+            email: email,
+            email_verified: true,
+            is_early_member: true,
+          });
+
+          // Track affiliate if applicable
+          const { referralCode, clearReferralCode } = useAffiliateTracking.getState();
+          if (referralCode) {
             try {
               await supabase.functions.invoke('track-affiliate-registration', {
                 body: {
@@ -41,89 +67,67 @@ export default function Auth() {
                   referrer: document.referrer
                 }
               });
-              console.log('Affiliate registration tracked');
               clearReferralCode();
             } catch (trackError) {
-              console.error('Error tracking affiliate registration:', trackError);
+              console.error('Error tracking affiliate:', trackError);
             }
-          }, 0);
-        }
-
-        // Check if user needs to set username (new user)
-        setTimeout(async () => {
-          try {
-            const { data: existingProfile } = await supabase
-              .from('profiles')
-              .select('id, username')
-              .eq('user_id', session.user.id)
-              .maybeSingle();
-
-            if (!existingProfile) {
-              // New user - create temporary profile and show username selection
-              const email = session.user.email || '';
-              const tempUsername = `temp_${Date.now()}`;
-              
-              await supabase.from('profiles').insert({
-                user_id: session.user.id,
-                username: tempUsername,
-                email: email,
-                email_verified: true,
-                is_early_member: true,
-              });
-
-              // Show username selection for new users
-              setCurrentUser({ id: session.user.id, email });
-              setShowUsernameSelection(true);
-            } else {
-              // Existing user - redirect normally
-              toast.success("Successfully signed in!");
-              const params = new URLSearchParams(window.location.search);
-              const redirectUrl = params.get('redirect') || '/';
-              navigate(redirectUrl);
-            }
-          } catch (profileError) {
-            console.error('Error handling profile:', profileError);
-            // Still redirect on error
-            navigate('/');
           }
-        }, 0);
-      } else if (event === 'TOKEN_REFRESHED') {
-        console.log('Token refreshed successfully');
-      } else if (event === 'SIGNED_OUT') {
-        console.log('User signed out');
-        setLoading(false);
-        setShowUsernameSelection(false);
-        setCurrentUser(null);
-      }
-    });
 
-    // THEN check for existing session
+          // Show username selection
+          setCurrentUser({ id: session.user.id, email });
+          setShowUsernameSelection(true);
+          setCheckingSession(false);
+        } else if (existingProfile.username?.startsWith('temp_')) {
+          // User has temp username - show selection
+          setCurrentUser({ id: session.user.id, email: session.user.email || '' });
+          setShowUsernameSelection(true);
+          setCheckingSession(false);
+        } else {
+          // Existing user with proper username - redirect
+          if (isNewSignIn) {
+            toast.success("Successfully signed in!");
+          }
+          const redirectUrl = searchParams.get('redirect') || '/';
+          navigate(redirectUrl);
+        }
+      } catch (error) {
+        console.error('Error handling session:', error);
+        if (isMounted) {
+          setCheckingSession(false);
+          navigate('/');
+        }
+      }
+    };
+
+    // Check for existing session first
     supabase.auth.getSession().then(({ data: { session }, error }) => {
       if (error) {
         console.error('Session error:', error);
+        setCheckingSession(false);
         return;
       }
-      if (session) {
-        // Check if user has a proper username
-        supabase
-          .from('profiles')
-          .select('username')
-          .eq('user_id', session.user.id)
-          .maybeSingle()
-          .then(({ data }) => {
-            if (data?.username?.startsWith('temp_')) {
-              // User needs to set username
-              setCurrentUser({ id: session.user.id, email: session.user.email || '' });
-              setShowUsernameSelection(true);
-            } else {
-              navigate('/');
-            }
-          });
+      handleSession(session, false);
+    });
+
+    // Set up auth state listener for new sign-ins
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('Auth event:', event);
+      
+      if (event === 'SIGNED_IN' && session) {
+        handleSession(session, true);
+      } else if (event === 'SIGNED_OUT') {
+        setLoading(false);
+        setShowUsernameSelection(false);
+        setCurrentUser(null);
+        setCheckingSession(false);
       }
     });
 
-    return () => subscription.unsubscribe();
-  }, [navigate]);
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
+  }, [navigate, searchParams]);
 
   const handleUsernameComplete = () => {
     toast.success("Welcome to Nomiqa!");
@@ -166,7 +170,12 @@ export default function Auth() {
       </div>
 
       <div className="relative z-10 flex items-center justify-center min-h-screen p-4 py-12">
-        {showUsernameSelection && currentUser ? (
+        {checkingSession ? (
+          <div className="flex flex-col items-center gap-4">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="text-muted-foreground">{t("loading") || "Loading..."}</p>
+          </div>
+        ) : showUsernameSelection && currentUser ? (
           <UsernameSelection 
             userId={currentUser.id}
             email={currentUser.email}
