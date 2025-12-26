@@ -55,6 +55,7 @@ export const SiteNavigation = memo(() => {
                 <ul className="space-y-4 text-white/60 text-sm md:text-base pl-0">
                   <li><a href="/affiliate" className="hover:text-neon-cyan transition-colors duration-200 font-light block">{t("footerReferEarn")}</a></li>
                   <li><a href="/rewards" className="hover:text-neon-cyan transition-colors duration-200 font-light block">{t("footerLoyaltyPrograms")}</a></li>
+                  <li><a href="/token" className="hover:text-neon-cyan transition-colors duration-200 font-light block">{t("footerDePINNetwork")}</a></li>
                 </ul>
               </AccordionContent>
             </AccordionItem>
