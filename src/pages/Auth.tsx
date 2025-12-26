@@ -26,101 +26,129 @@ export default function Auth() {
 
   useEffect(() => {
     let isMounted = true;
+    let handlingUserId: string | null = null;
+    let handledUserId: string | null = null;
 
     const handleSession = async (session: any, isNewSignIn = false) => {
-      if (!session || !isMounted) {
+      if (!isMounted) return;
+
+      if (!session) {
         setCheckingSession(false);
         return;
       }
 
+      const userId = session.user?.id as string | undefined;
+      if (!userId) {
+        setCheckingSession(false);
+        return;
+      }
+
+      // Prevent duplicate processing (OAuth redirect can trigger multiple events quickly)
+      if (handledUserId === userId || handlingUserId === userId) return;
+      handlingUserId = userId;
+
       try {
+        const email = session.user.email || "";
+
         // Check if user has a profile with proper username
-        const { data: existingProfile } = await supabase
-          .from('profiles')
-          .select('id, username')
-          .eq('user_id', session.user.id)
+        const { data: existingProfile, error: profileError } = await supabase
+          .from("profiles")
+          .select("id, username")
+          .eq("user_id", userId)
           .maybeSingle();
 
+        if (profileError) throw profileError;
         if (!isMounted) return;
 
         if (!existingProfile) {
-          // New user - create temporary profile
-          const email = session.user.email || '';
+          // New user - create temporary profile (idempotent enough via user_id uniqueness)
           const tempUsername = `temp_${Date.now()}`;
-          
-          await supabase.from('profiles').insert({
-            user_id: session.user.id,
+
+          const { error: insertError } = await supabase.from("profiles").insert({
+            user_id: userId,
             username: tempUsername,
-            email: email,
+            email,
             email_verified: true,
             is_early_member: true,
           });
+
+          if (insertError) throw insertError;
 
           // Track affiliate if applicable
           const { referralCode, clearReferralCode } = useAffiliateTracking.getState();
           if (referralCode) {
             try {
-              await supabase.functions.invoke('track-affiliate-registration', {
+              await supabase.functions.invoke("track-affiliate-registration", {
                 body: {
                   referralCode,
-                  userId: session.user.id,
-                  referrer: document.referrer
-                }
+                  userId,
+                  referrer: document.referrer,
+                },
               });
               clearReferralCode();
             } catch (trackError) {
-              console.error('Error tracking affiliate:', trackError);
+              console.error("Error tracking affiliate:", trackError);
             }
           }
 
-          // Show username selection
-          setCurrentUser({ id: session.user.id, email });
+          toast.success("Successfully registered — choose a username.");
+          setCurrentUser({ id: userId, email });
           setShowUsernameSelection(true);
           setCheckingSession(false);
-        } else if (existingProfile.username?.startsWith('temp_')) {
-          // User has temp username - show selection
-          setCurrentUser({ id: session.user.id, email: session.user.email || '' });
+        } else if (existingProfile.username?.startsWith("temp_")) {
+          toast.success("Welcome — choose your username to finish setup.");
+          setCurrentUser({ id: userId, email });
           setShowUsernameSelection(true);
           setCheckingSession(false);
         } else {
-          // Existing user with proper username - redirect
-          if (isNewSignIn) {
-            toast.success("Successfully signed in!");
-          }
-          const redirectUrl = searchParams.get('redirect') || '/';
+          if (isNewSignIn) toast.success("Successfully signed in!");
+          const redirectUrl = searchParams.get("redirect") || "/";
           navigate(redirectUrl);
         }
+
+        handledUserId = userId;
       } catch (error) {
-        console.error('Error handling session:', error);
+        console.error("Error handling session:", error);
         if (isMounted) {
           setCheckingSession(false);
-          navigate('/');
+          // Fall back to auth page so user can try again
+          setShowUsernameSelection(false);
+          setCurrentUser(null);
+        }
+      } finally {
+        if (handlingUserId === (session?.user?.id as string | undefined)) {
+          handlingUserId = null;
         }
       }
     };
 
-    // Check for existing session first
-    supabase.auth.getSession().then(({ data: { session }, error }) => {
-      if (error) {
-        console.error('Session error:', error);
-        setCheckingSession(false);
-        return;
-      }
-      handleSession(session, false);
-    });
+    // Set up auth state listener FIRST (prevents missing OAuth session events)
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!isMounted) return;
 
-    // Set up auth state listener for new sign-ins
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log('Auth event:', event);
-      
-      if (event === 'SIGNED_IN' && session) {
-        handleSession(session, true);
-      } else if (event === 'SIGNED_OUT') {
+      // OAuth redirects frequently come back as INITIAL_SESSION
+      if ((event === "SIGNED_IN" || event === "INITIAL_SESSION") && session) {
+        handleSession(session, event === "SIGNED_IN");
+      }
+
+      if (event === "SIGNED_OUT") {
         setLoading(false);
         setShowUsernameSelection(false);
         setCurrentUser(null);
         setCheckingSession(false);
       }
+    });
+
+    // THEN check for any already-persisted session
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      if (error) {
+        console.error("Session error:", error);
+        setCheckingSession(false);
+        return;
+      }
+      handleSession(session, false);
     });
 
     return () => {
