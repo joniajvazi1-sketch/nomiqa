@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { useTranslation } from "@/contexts/TranslationContext";
 import { localizedPath } from "@/utils/localizedLinks";
-import socialFacebook from "@/assets/social-facebook.png";
-import socialInstagram from "@/assets/social-instagram.png";
-import socialPinterest from "@/assets/social-pinterest.png";
-import socialTiktok from "@/assets/social-tiktok.png";
-import socialX from "@/assets/social-x.png";
-import socialYoutube from "@/assets/social-youtube.png";
+import socialFacebook from "@/assets/social-facebook.webp";
+import socialInstagram from "@/assets/social-instagram.webp";
+import socialPinterest from "@/assets/social-pinterest.webp";
+import socialTiktok from "@/assets/social-tiktok.webp";
+import socialX from "@/assets/social-x.webp";
+import socialYoutube from "@/assets/social-youtube.webp";
 
 export const Footer = () => {
   const { t, language } = useTranslation();
@@ -60,6 +60,8 @@ export const Footer = () => {
                 <img 
                   src={social.icon} 
                   alt={social.label} 
+                  width="40"
+                  height="40"
                   className="w-10 h-10 object-cover"
                 />
               </a>

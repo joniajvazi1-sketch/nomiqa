@@ -111,6 +111,8 @@ export const ScrollableFeatures = () => {
                             <img 
                               src={tokenLogo} 
                               alt="NOMIQA Token" 
+                              width="80"
+                              height="80"
                               className="w-auto h-16 md:h-20 object-contain mx-auto md:mx-0" 
                               loading="lazy"
                             />
@@ -186,6 +188,8 @@ export const ScrollableFeatures = () => {
                           <img 
                             src={tokenLogo} 
                             alt="NOMIQA Token" 
+                            width="64"
+                            height="64"
                             className="w-auto h-14 xl:h-16 object-contain" 
                             loading="lazy"
                           />

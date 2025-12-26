@@ -49,6 +49,8 @@ export const EarnRewardBlock = () => {
                 <img 
                   src={tokenLogo} 
                   alt="NOMIQA Token" 
+                  width="80"
+                  height="80"
                   className="w-auto h-14 sm:h-16 md:h-20 object-contain" 
                   loading="lazy"
                 />

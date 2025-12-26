@@ -100,6 +100,8 @@ const Token = () => {
                 <img 
                   src="/nomiqa-token-logo.gif" 
                   alt="Nomiqa Token" 
+                  width="224"
+                  height="224"
                   className="w-32 md:w-40 lg:w-48 xl:w-56 h-auto relative z-10 rounded-2xl shadow-2xl shadow-neon-cyan/50 object-contain" 
                 />
               </div>
@@ -107,12 +109,16 @@ const Token = () => {
                 <img 
                   src="/nomiqa-token-logo.gif" 
                   alt="Nomiqa" 
+                  width="40"
+                  height="40"
                   className="w-6 h-auto md:w-8 lg:w-10 rounded-lg object-contain" 
                 />
                 <span>{t("tokenLaunchingOn")}</span>
                 <img 
                   src="/nomiqa-token-logo.gif" 
                   alt="Nomiqa" 
+                  width="40"
+                  height="40"
                   className="w-6 h-auto md:w-8 lg:w-10 rounded-lg object-contain" 
                 />
               </div>
