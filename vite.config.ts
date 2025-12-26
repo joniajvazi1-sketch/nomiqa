@@ -10,7 +10,7 @@ export default defineConfig(({ mode }) => ({
     port: 8080,
   },
   build: {
-    sourcemap: true,
+    sourcemap: 'hidden', // Generate source maps but don't reference them in bundles
   },
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
   resolve: {
