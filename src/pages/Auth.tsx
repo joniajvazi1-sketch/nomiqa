@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { NetworkBackground } from "@/components/NetworkBackground";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
@@ -13,10 +14,14 @@ import { UsernameSelection } from "@/components/UsernameSelection";
 
 export default function Auth() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [showUsernameSelection, setShowUsernameSelection] = useState(false);
   const [currentUser, setCurrentUser] = useState<{ id: string; email: string } | null>(null);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
+  
+  const isSignup = searchParams.get('mode') === 'signup' || searchParams.get('mode') === 'register';
 
   useEffect(() => {
     // Set up auth state listener FIRST (critical for proper session handling)
@@ -128,6 +133,11 @@ export default function Auth() {
   };
 
   const handleGoogleSignIn = async () => {
+    if (isSignup && !agreedToTerms) {
+      toast.error(t("pleaseAgreeToTerms") || "Please agree to our Terms and Privacy Policy");
+      return;
+    }
+    
     setLoading(true);
     try {
       const { error } = await supabase.auth.signInWithOAuth({
@@ -176,18 +186,50 @@ export default function Auth() {
               </div>
               
               <CardTitle className="text-3xl md:text-4xl font-black text-foreground mb-2">
-                {t("welcomeBack")}
+                {isSignup ? t("createAccount") : t("welcomeBack")}
               </CardTitle>
               <CardDescription className="text-sm md:text-base text-muted-foreground">
-                {t("loginSubtitle")}
+                {isSignup ? t("signupSubtitle") : t("loginSubtitle")}
               </CardDescription>
             </CardHeader>
 
-            <CardContent className="relative">
+            <CardContent className="relative space-y-4">
+              {isSignup && (
+                <div className="flex items-start space-x-3 p-3 bg-muted/50 rounded-lg">
+                  <Checkbox 
+                    id="terms" 
+                    checked={agreedToTerms}
+                    onCheckedChange={(checked) => setAgreedToTerms(checked === true)}
+                    className="mt-0.5"
+                  />
+                  <label 
+                    htmlFor="terms" 
+                    className="text-sm text-muted-foreground leading-relaxed cursor-pointer"
+                  >
+                    {t("agreeToTerms") || "I agree to the"}{" "}
+                    <a 
+                      href="/terms" 
+                      target="_blank" 
+                      className="text-primary hover:underline font-medium"
+                    >
+                      {t("termsOfService") || "Terms of Service"}
+                    </a>{" "}
+                    {t("andWord") || "and"}{" "}
+                    <a 
+                      href="/privacy" 
+                      target="_blank" 
+                      className="text-primary hover:underline font-medium"
+                    >
+                      {t("privacyPolicy") || "Privacy Policy"}
+                    </a>
+                  </label>
+                </div>
+              )}
+
               <Button 
                 onClick={handleGoogleSignIn}
                 className="w-full h-12 text-base font-medium bg-white text-gray-800 hover:bg-gray-100 border border-gray-300 rounded-xl transition-all duration-300 hover:scale-105 shadow-lg flex items-center justify-center gap-3" 
-                disabled={loading}
+                disabled={loading || (isSignup && !agreedToTerms)}
               >
                 {loading ? (
                   <Loader2 className="h-5 w-5 animate-spin" />
@@ -211,10 +253,23 @@ export default function Auth() {
                     />
                   </svg>
                 )}
-                {loading ? t("loading") : t("continueWithGoogle")}
+                {loading ? t("loading") : (isSignup ? t("signUpWithGoogle") : t("continueWithGoogle"))}
               </Button>
 
-              <div className="mt-6 pt-6 border-t border-border">
+              <div className="pt-4 border-t border-border text-center">
+                <p className="text-sm text-muted-foreground mb-3">
+                  {isSignup ? t("alreadyHaveAccount") : t("dontHaveAccount")}
+                </p>
+                <Button 
+                  variant="outline" 
+                  onClick={() => navigate(isSignup ? '/auth' : '/auth?mode=signup')}
+                  className="w-full"
+                >
+                  {isSignup ? t("signIn") : t("createAccount")}
+                </Button>
+              </div>
+
+              <div className="pt-2">
                 <Button 
                   variant="ghost" 
                   onClick={() => navigate('/')}
