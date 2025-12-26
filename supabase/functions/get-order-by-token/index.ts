@@ -127,6 +127,29 @@ serve(async (req) => {
       );
     }
 
+    // Fetch PII from the protected orders_pii table (service role access)
+    const { data: orderPii } = await supabase
+      .from('orders_pii')
+      .select('email, full_name, iccid, lpa, qrcode, qr_code_url, activation_code, matching_id, manual_installation, qrcode_installation, sharing_link, sharing_access_code')
+      .eq('id', order.id)
+      .single();
+
+    // Merge PII data back into order object for response
+    if (orderPii) {
+      order.email = orderPii.email;
+      order.full_name = orderPii.full_name;
+      order.iccid = orderPii.iccid;
+      order.lpa = orderPii.lpa;
+      order.qrcode = orderPii.qrcode;
+      order.qr_code_url = orderPii.qr_code_url;
+      order.activation_code = orderPii.activation_code;
+      order.matching_id = orderPii.matching_id;
+      order.manual_installation = orderPii.manual_installation;
+      order.qrcode_installation = orderPii.qrcode_installation;
+      order.sharing_link = orderPii.sharing_link;
+      order.sharing_access_code = orderPii.sharing_access_code;
+    }
+
     // Check if token is expired or invalidated
     if (order.access_token_invalidated) {
       await supabase.from('webhook_logs').insert({

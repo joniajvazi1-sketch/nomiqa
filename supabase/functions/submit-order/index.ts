@@ -169,6 +169,18 @@ serve(async (req) => {
       throw orderError;
     }
 
+    // Fetch PII back from orders_pii for the response (trigger clears it from orders)
+    const { data: orderPii } = await supabase
+      .from('orders_pii')
+      .select('email, full_name, iccid, lpa, qrcode, qr_code_url, activation_code, matching_id, manual_installation, qrcode_installation, sharing_link, sharing_access_code')
+      .eq('id', order.id)
+      .single();
+
+    // Merge PII back into order for response
+    if (orderPii) {
+      Object.assign(order, orderPii);
+    }
+
     // Handle multi-level affiliate commissions
     // Get the most recent referral for this user (registered or pending status)
     const { data: referrals } = await supabase
