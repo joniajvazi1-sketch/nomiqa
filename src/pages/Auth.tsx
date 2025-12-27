@@ -281,7 +281,7 @@ export default function Auth() {
           if (error.message.includes("Invalid login credentials")) {
             toast.error("Invalid email or password. Please try again.");
           } else if (error.message.includes("Email not confirmed")) {
-            // Use resend-verification-code edge function
+            // Try to resend verification code
             const { data: resendData, error: resendError } = await supabase.functions.invoke('resend-verification-code', {
               body: {
                 email: email.toLowerCase(),
@@ -289,12 +289,21 @@ export default function Auth() {
               }
             });
 
-            if (!resendError && resendData?.success) {
-              // Get user ID for verification flow - we can try to sign in to get the user
-              // but since email is not confirmed, we'll use the email as identifier
+            if (resendError) {
+              const errorData = resendError as any;
+              // If email is already verified, just tell user to try signing in again
+              if (errorData?.message?.includes("already verified") || 
+                  (typeof errorData?.context?.body === 'string' && errorData.context.body.includes("already verified"))) {
+                toast.info("Your email is verified. Please try signing in again.");
+              } else {
+                toast.error("Please check your email to confirm your account before signing in.");
+              }
+            } else if (resendData?.success) {
               setCurrentUser({ id: 'pending', email: email.toLowerCase() });
               setShowEmailVerification(true);
               toast.info("Please verify your email first. Check your inbox!");
+            } else if (resendData?.error?.includes("already verified")) {
+              toast.info("Your email is verified. Please try signing in again.");
             } else {
               toast.error("Please check your email to confirm your account before signing in.");
             }
