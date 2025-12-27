@@ -1,12 +1,12 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "https://esm.sh/resend@2.0.0";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { Webhook } from "https://esm.sh/standardwebhooks@1.0.0";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, webhook-id, webhook-timestamp, webhook-signature",
 };
 
 interface AuthEmailPayload {
@@ -21,12 +21,14 @@ interface AuthEmailPayload {
     redirect_to: string;
     email_action_type: string;
     site_url: string;
+    token_new?: string;
+    token_hash_new?: string;
   };
 }
 
-const generateAuthEmailHTML = (type: string, data: { email: string; confirmLink: string; token?: string }): { html: string; subject: string } => {
+const generateAuthEmailHTML = (type: string, data: { email: string; confirmLink: string; token: string; siteUrl: string }): { html: string; subject: string } => {
   const logoUrl = "https://nomiqa-esim.com/nomiqa-logo.jpg";
-  const { email, confirmLink, token } = data;
+  const { email, confirmLink, token, siteUrl } = data;
 
   switch (type) {
     case 'recovery':
@@ -55,7 +57,7 @@ const generateAuthEmailHTML = (type: string, data: { email: string; confirmLink:
                     <!-- Title -->
                     <tr>
                       <td align="center" style="padding: 0 40px 10px;">
-                        <h1 style="margin: 0; font-size: 28px; font-weight: 700; background: linear-gradient(135deg, #06b6d4 0%, #22d3ee 50%, #67e8f9 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                        <h1 style="margin: 0; font-size: 28px; font-weight: 700; color: #22d3ee;">
                           Password Reset Request
                         </h1>
                       </td>
@@ -70,19 +72,27 @@ const generateAuthEmailHTML = (type: string, data: { email: string; confirmLink:
                       </td>
                     </tr>
                     
-                    <!-- Email Badge -->
+                    <!-- OTP Code Box -->
                     <tr>
-                      <td align="center" style="padding: 0 40px 30px;">
-                        <div style="display: inline-block; background: rgba(6, 182, 212, 0.1); border: 1px solid rgba(6, 182, 212, 0.3); border-radius: 12px; padding: 12px 24px;">
-                          <span style="color: #67e8f9; font-size: 14px;">🔐 Account: ${email}</span>
+                      <td align="center" style="padding: 0 40px 20px;">
+                        <div style="background: rgba(6, 182, 212, 0.1); border: 2px solid rgba(6, 182, 212, 0.4); border-radius: 16px; padding: 24px;">
+                          <p style="margin: 0 0 12px; color: #67e8f9; font-size: 14px; font-weight: 600;">YOUR RESET CODE</p>
+                          <p style="margin: 0; font-size: 42px; font-weight: 800; letter-spacing: 12px; color: #22d3ee; font-family: 'Courier New', monospace;">${token}</p>
                         </div>
+                      </td>
+                    </tr>
+                    
+                    <!-- OR Divider -->
+                    <tr>
+                      <td align="center" style="padding: 10px 40px;">
+                        <p style="margin: 0; color: #64748b; font-size: 14px;">— OR —</p>
                       </td>
                     </tr>
                     
                     <!-- CTA Button -->
                     <tr>
-                      <td align="center" style="padding: 0 40px 30px;">
-                        <a href="${confirmLink}" style="display: inline-block; background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%); color: #ffffff; text-decoration: none; padding: 16px 48px; border-radius: 12px; font-weight: 600; font-size: 16px; box-shadow: 0 10px 30px rgba(6, 182, 212, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);">
+                      <td align="center" style="padding: 10px 40px 30px;">
+                        <a href="${confirmLink}" style="display: inline-block; background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%); color: #ffffff; text-decoration: none; padding: 16px 48px; border-radius: 12px; font-weight: 600; font-size: 16px; box-shadow: 0 10px 30px rgba(6, 182, 212, 0.3);">
                           Reset Password
                         </a>
                       </td>
@@ -93,17 +103,9 @@ const generateAuthEmailHTML = (type: string, data: { email: string; confirmLink:
                       <td align="center" style="padding: 0 40px 30px;">
                         <div style="background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.3); border-radius: 12px; padding: 16px 24px;">
                           <p style="margin: 0; color: #fbbf24; font-size: 14px;">
-                            ⏱️ This link expires in 1 hour
+                            ⏱️ This code expires in 1 hour
                           </p>
                         </div>
-                      </td>
-                    </tr>
-                    
-                    <!-- Alternative Link -->
-                    <tr>
-                      <td style="padding: 0 40px 30px;">
-                        <p style="margin: 0 0 10px; color: #64748b; font-size: 13px;">If the button doesn't work, copy and paste this link:</p>
-                        <p style="margin: 0; word-break: break-all; color: #06b6d4; font-size: 12px; background: rgba(6, 182, 212, 0.05); padding: 12px; border-radius: 8px; border: 1px solid rgba(6, 182, 212, 0.2);">${confirmLink}</p>
                       </td>
                     </tr>
                     
@@ -165,7 +167,7 @@ const generateAuthEmailHTML = (type: string, data: { email: string; confirmLink:
                     <!-- Title -->
                     <tr>
                       <td align="center" style="padding: 0 40px 10px;">
-                        <h1 style="margin: 0; font-size: 28px; font-weight: 700; background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 50%, #c084fc 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                        <h1 style="margin: 0; font-size: 28px; font-weight: 700; color: #a855f7;">
                           Confirm Your Email
                         </h1>
                       </td>
@@ -175,15 +177,32 @@ const generateAuthEmailHTML = (type: string, data: { email: string; confirmLink:
                     <tr>
                       <td align="center" style="padding: 0 40px 30px;">
                         <p style="margin: 0; color: #94a3b8; font-size: 16px;">
-                          Click below to verify your email and join the world's first<br/>community-owned DePIN mobile network
+                          Use the code below to verify your email
                         </p>
+                      </td>
+                    </tr>
+                    
+                    <!-- OTP Code Box -->
+                    <tr>
+                      <td align="center" style="padding: 0 40px 20px;">
+                        <div style="background: rgba(139, 92, 246, 0.1); border: 2px solid rgba(139, 92, 246, 0.4); border-radius: 16px; padding: 24px;">
+                          <p style="margin: 0 0 12px; color: #c084fc; font-size: 14px; font-weight: 600;">YOUR VERIFICATION CODE</p>
+                          <p style="margin: 0; font-size: 42px; font-weight: 800; letter-spacing: 12px; color: #a855f7; font-family: 'Courier New', monospace;">${token}</p>
+                        </div>
+                      </td>
+                    </tr>
+                    
+                    <!-- OR Divider -->
+                    <tr>
+                      <td align="center" style="padding: 10px 40px;">
+                        <p style="margin: 0; color: #64748b; font-size: 14px;">— OR —</p>
                       </td>
                     </tr>
                     
                     <!-- CTA Button -->
                     <tr>
-                      <td align="center" style="padding: 0 40px 30px;">
-                        <a href="${confirmLink}" style="display: inline-block; background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: #ffffff; text-decoration: none; padding: 16px 48px; border-radius: 12px; font-weight: 600; font-size: 16px; box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);">
+                      <td align="center" style="padding: 10px 40px 30px;">
+                        <a href="${confirmLink}" style="display: inline-block; background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: #ffffff; text-decoration: none; padding: 16px 48px; border-radius: 12px; font-weight: 600; font-size: 16px; box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);">
                           Confirm Email
                         </a>
                       </td>
@@ -206,14 +225,6 @@ const generateAuthEmailHTML = (type: string, data: { email: string; confirmLink:
                             </tr>
                           </table>
                         </div>
-                      </td>
-                    </tr>
-                    
-                    <!-- Alternative Link -->
-                    <tr>
-                      <td style="padding: 0 40px 30px;">
-                        <p style="margin: 0 0 10px; color: #64748b; font-size: 13px;">If the button doesn't work, copy and paste this link:</p>
-                        <p style="margin: 0; word-break: break-all; color: #8b5cf6; font-size: 12px; background: rgba(139, 92, 246, 0.05); padding: 12px; border-radius: 8px; border: 1px solid rgba(139, 92, 246, 0.2);">${confirmLink}</p>
                       </td>
                     </tr>
                     
@@ -264,7 +275,7 @@ const generateAuthEmailHTML = (type: string, data: { email: string; confirmLink:
                     <!-- Title -->
                     <tr>
                       <td align="center" style="padding: 0 40px 10px;">
-                        <h1 style="margin: 0; font-size: 28px; font-weight: 700; background: linear-gradient(135deg, #10b981 0%, #34d399 50%, #6ee7b7 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                        <h1 style="margin: 0; font-size: 28px; font-weight: 700; color: #34d399;">
                           Sign In to Nomiqa
                         </h1>
                       </td>
@@ -274,15 +285,32 @@ const generateAuthEmailHTML = (type: string, data: { email: string; confirmLink:
                     <tr>
                       <td align="center" style="padding: 0 40px 30px;">
                         <p style="margin: 0; color: #94a3b8; font-size: 16px;">
-                          Click the magic link below to sign in instantly
+                          Use your magic code or click the button below
                         </p>
+                      </td>
+                    </tr>
+                    
+                    <!-- OTP Code Box -->
+                    <tr>
+                      <td align="center" style="padding: 0 40px 20px;">
+                        <div style="background: rgba(16, 185, 129, 0.1); border: 2px solid rgba(16, 185, 129, 0.4); border-radius: 16px; padding: 24px;">
+                          <p style="margin: 0 0 12px; color: #6ee7b7; font-size: 14px; font-weight: 600;">YOUR MAGIC CODE</p>
+                          <p style="margin: 0; font-size: 42px; font-weight: 800; letter-spacing: 12px; color: #34d399; font-family: 'Courier New', monospace;">${token}</p>
+                        </div>
+                      </td>
+                    </tr>
+                    
+                    <!-- OR Divider -->
+                    <tr>
+                      <td align="center" style="padding: 10px 40px;">
+                        <p style="margin: 0; color: #64748b; font-size: 14px;">— OR —</p>
                       </td>
                     </tr>
                     
                     <!-- CTA Button -->
                     <tr>
-                      <td align="center" style="padding: 0 40px 30px;">
-                        <a href="${confirmLink}" style="display: inline-block; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #ffffff; text-decoration: none; padding: 16px 48px; border-radius: 12px; font-weight: 600; font-size: 16px; box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);">
+                      <td align="center" style="padding: 10px 40px 30px;">
+                        <a href="${confirmLink}" style="display: inline-block; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #ffffff; text-decoration: none; padding: 16px 48px; border-radius: 12px; font-weight: 600; font-size: 16px; box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);">
                           ✨ Sign In Now
                         </a>
                       </td>
@@ -293,17 +321,9 @@ const generateAuthEmailHTML = (type: string, data: { email: string; confirmLink:
                       <td align="center" style="padding: 0 40px 30px;">
                         <div style="background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.3); border-radius: 12px; padding: 16px 24px;">
                           <p style="margin: 0; color: #fbbf24; font-size: 14px;">
-                            ⏱️ This link expires in 1 hour
+                            ⏱️ This code expires in 1 hour
                           </p>
                         </div>
-                      </td>
-                    </tr>
-                    
-                    <!-- Alternative Link -->
-                    <tr>
-                      <td style="padding: 0 40px 30px;">
-                        <p style="margin: 0 0 10px; color: #64748b; font-size: 13px;">If the button doesn't work, copy and paste this link:</p>
-                        <p style="margin: 0; word-break: break-all; color: #10b981; font-size: 12px; background: rgba(16, 185, 129, 0.05); padding: 12px; border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.2);">${confirmLink}</p>
                       </td>
                     </tr>
                     
@@ -351,14 +371,23 @@ const generateAuthEmailHTML = (type: string, data: { email: string; confirmLink:
                     </tr>
                     
                     <tr>
-                      <td align="center" style="padding: 0 40px 30px;">
+                      <td align="center" style="padding: 0 40px 20px;">
                         <h1 style="margin: 0; font-size: 24px; color: #f1f5f9;">Nomiqa Notification</h1>
-                        <p style="margin: 15px 0 0; color: #94a3b8; font-size: 16px;">Click below to continue:</p>
+                      </td>
+                    </tr>
+                    
+                    <!-- OTP Code Box -->
+                    <tr>
+                      <td align="center" style="padding: 0 40px 20px;">
+                        <div style="background: rgba(6, 182, 212, 0.1); border: 2px solid rgba(6, 182, 212, 0.4); border-radius: 16px; padding: 24px;">
+                          <p style="margin: 0 0 12px; color: #67e8f9; font-size: 14px; font-weight: 600;">YOUR CODE</p>
+                          <p style="margin: 0; font-size: 42px; font-weight: 800; letter-spacing: 12px; color: #22d3ee; font-family: 'Courier New', monospace;">${token}</p>
+                        </div>
                       </td>
                     </tr>
                     
                     <tr>
-                      <td align="center" style="padding: 0 40px 40px;">
+                      <td align="center" style="padding: 10px 40px 40px;">
                         <a href="${confirmLink}" style="display: inline-block; background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%); color: #ffffff; text-decoration: none; padding: 16px 48px; border-radius: 12px; font-weight: 600; font-size: 16px;">
                           Continue
                         </a>
@@ -390,14 +419,39 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const payload = await req.json() as AuthEmailPayload;
+    const hookSecret = Deno.env.get("AUTH_SEND_EMAIL_HOOK_SECRET");
+    
+    if (!hookSecret) {
+      console.error("AUTH_SEND_EMAIL_HOOK_SECRET not configured");
+      return new Response(
+        JSON.stringify({ error: "Hook secret not configured" }),
+        { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    const payload = await req.text();
+    const headers = Object.fromEntries(req.headers);
+    
+    // Verify webhook signature
+    const wh = new Webhook(hookSecret);
+    let data: AuthEmailPayload;
+    
+    try {
+      data = wh.verify(payload, headers) as AuthEmailPayload;
+    } catch (err) {
+      console.error("Webhook signature verification failed:", err);
+      return new Response(
+        JSON.stringify({ error: "Invalid webhook signature" }),
+        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
     
     console.log("Auth email hook triggered:", {
-      email: payload.user?.email?.replace(/(.{2}).*@/, '$1***@'),
-      type: payload.email_data?.email_action_type
+      email: data.user?.email?.replace(/(.{2}).*@/, '$1***@'),
+      type: data.email_data?.email_action_type
     });
 
-    const { user, email_data } = payload;
+    const { user, email_data } = data;
     
     if (!user?.email || !email_data) {
       console.error("Invalid payload - missing user email or email_data");
@@ -410,12 +464,14 @@ const handler = async (req: Request): Promise<Response> => {
     const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
     
     // Construct the confirmation link
-    const confirmLink = `${supabaseUrl}/auth/v1/verify?token=${email_data.token_hash}&type=${email_data.email_action_type}&redirect_to=${encodeURIComponent(email_data.redirect_to || email_data.site_url)}`;
+    const redirectTo = email_data.redirect_to || email_data.site_url || supabaseUrl;
+    const confirmLink = `${supabaseUrl}/auth/v1/verify?token=${email_data.token_hash}&type=${email_data.email_action_type}&redirect_to=${encodeURIComponent(redirectTo)}`;
 
     const { html, subject } = generateAuthEmailHTML(email_data.email_action_type, {
       email: user.email,
       confirmLink,
-      token: email_data.token
+      token: email_data.token,
+      siteUrl: email_data.site_url
     });
 
     const emailResponse = await resend.emails.send({
@@ -425,13 +481,22 @@ const handler = async (req: Request): Promise<Response> => {
       html,
     });
 
+    if (emailResponse.error) {
+      console.error("Resend error:", emailResponse.error);
+      return new Response(
+        JSON.stringify({ error: emailResponse.error.message }),
+        { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
     console.log("Custom auth email sent successfully:", { 
       id: emailResponse.data?.id, 
       type: email_data.email_action_type 
     });
 
+    // Return empty object to indicate success to Supabase
     return new Response(
-      JSON.stringify({ success: true }),
+      JSON.stringify({}),
       {
         status: 200,
         headers: { "Content-Type": "application/json", ...corsHeaders },
@@ -440,7 +505,12 @@ const handler = async (req: Request): Promise<Response> => {
   } catch (error: any) {
     console.error("Error in auth-email-hook function:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: { 
+          http_code: 500,
+          message: error.message 
+        }
+      }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },
