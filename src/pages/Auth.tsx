@@ -82,7 +82,7 @@ export default function Auth() {
         // Check if user has a profile with proper username
         const { data: existingProfile, error: profileError } = await supabase
           .from("profiles")
-          .select("id, username")
+          .select("id, username, email_verified")
           .eq("user_id", userId)
           .maybeSingle();
 
@@ -90,7 +90,8 @@ export default function Auth() {
         if (!isMounted) return;
 
         if (!existingProfile) {
-          // New user - create temporary profile (idempotent enough via user_id uniqueness)
+          // This is an OAuth sign-in for a new user (Google, etc.)
+          // Create profile with temp username - they need to choose one
           const tempUsername = `temp_${Date.now()}`;
 
           const { error: insertError } = await supabase.from("profiles").insert({
@@ -120,19 +121,20 @@ export default function Auth() {
             }
           }
 
-          // Welcome email is sent via database trigger or can be done server-side
-          console.log("New user registered:", email);
+          console.log("New OAuth user registered:", email);
 
           toast.success("Successfully registered — choose a username.");
           setCurrentUser({ id: userId, email });
           setShowUsernameSelection(true);
           setCheckingSession(false);
         } else if (existingProfile.username?.startsWith("temp_")) {
+          // User has incomplete profile - needs to choose username
           toast.success("Welcome — choose your username to finish setup.");
           setCurrentUser({ id: userId, email });
           setShowUsernameSelection(true);
           setCheckingSession(false);
         } else {
+          // Existing user with proper profile - just redirect
           if (isNewSignIn) toast.success("Successfully signed in!");
           const redirectUrl = searchParams.get("redirect") || "/";
           navigate(redirectUrl);
@@ -143,7 +145,6 @@ export default function Auth() {
         console.error("Error handling session:", error);
         if (isMounted) {
           setCheckingSession(false);
-          // Fall back to auth page so user can try again
           setShowUsernameSelection(false);
           setCurrentUser(null);
         }
@@ -309,39 +310,14 @@ export default function Auth() {
           if (error.message.includes("Invalid login credentials")) {
             toast.error("Invalid email or password. Please try again.");
           } else if (error.message.includes("Email not confirmed")) {
-            // Try to resend verification code
-            const { data: resendData, error: resendError } = await supabase.functions.invoke('resend-verification-code', {
-              body: {
-                email: email.toLowerCase(),
-                type: 'registration'
-              }
-            });
-
-            if (resendError) {
-              const errorData = resendError as any;
-              // If email is already verified, just tell user to try signing in again
-              if (errorData?.message?.includes("already verified") ||
-                  (typeof errorData?.context?.body === 'string' && errorData.context.body.includes("already verified"))) {
-                toast.info("Your email is verified. Please sign in.");
-              } else {
-                toast.error("Please check your email to confirm your account before signing in.");
-              }
-            } else if (resendData?.success) {
-              if ((resendData as any)?.alreadyVerified) {
-                toast.info("Your email is already verified. Please sign in.");
-              } else {
-                setCurrentUser({ id: 'pending', email: email.toLowerCase() });
-                setShowEmailVerification(true);
-                toast.info("Please verify your email first. Check your inbox!");
-              }
-            } else if (resendData?.error?.includes("already verified")) {
-              toast.info("Your email is verified. Please sign in.");
-            } else {
-              toast.error("Please check your email to confirm your account before signing in.");
-            }
+            // Email not confirmed - tell user to check their email or sign up again
+            toast.error("Your email is not verified. Please check your inbox for a verification code, or sign up again.");
           } else {
             throw error;
           }
+        } else if (data?.user) {
+          // Login successful - the onAuthStateChange handler will redirect
+          // No need to do anything here
         }
       }
     } catch (error: any) {
