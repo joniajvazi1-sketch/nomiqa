@@ -4,13 +4,16 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { NetworkBackground } from "@/components/NetworkBackground";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, Mail, Eye, EyeOff } from "lucide-react";
 import { useTranslation } from "@/contexts/TranslationContext";
 import nomiqaAnimatedLogo from "@/assets/nomiqa-animated-logo.gif";
 import { useAffiliateTracking } from "@/hooks/useAffiliateTracking";
 import { UsernameSelection } from "@/components/UsernameSelection";
+import { EmailVerification } from "@/components/EmailVerification";
 
 export default function Auth() {
   const navigate = useNavigate();
@@ -21,6 +24,18 @@ export default function Auth() {
   const [showUsernameSelection, setShowUsernameSelection] = useState(false);
   const [currentUser, setCurrentUser] = useState<{ id: string; email: string } | null>(null);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  
+  // Email auth states
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showEmailVerification, setShowEmailVerification] = useState(false);
+  const [pendingEmail, setPendingEmail] = useState("");
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [showResetPassword, setShowResetPassword] = useState(false);
+  const [resetToken, setResetToken] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   
   const isSignup = searchParams.get('mode') === 'signup' || searchParams.get('mode') === 'register';
 
@@ -200,6 +215,355 @@ export default function Auth() {
     }
   };
 
+  const handleEmailAuth = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!email || !password) {
+      toast.error("Please enter your email and password");
+      return;
+    }
+
+    if (password.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+
+    if (isSignup && !agreedToTerms) {
+      toast.error(t("pleaseAgreeToTerms") || "Please agree to our Terms and Privacy Policy");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      if (isSignup) {
+        // Check if user already exists
+        const { data: existingProfile } = await supabase
+          .from("profiles")
+          .select("id, email_verified")
+          .eq("email", email.toLowerCase())
+          .maybeSingle();
+
+        if (existingProfile) {
+          if (existingProfile.email_verified) {
+            toast.error("An account with this email already exists. Please sign in instead.");
+            setLoading(false);
+            return;
+          }
+        }
+
+        // Sign up the user
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/auth`,
+          }
+        });
+
+        if (error) {
+          if (error.message.includes("already registered")) {
+            toast.error("An account with this email already exists. Please sign in instead.");
+          } else {
+            throw error;
+          }
+          setLoading(false);
+          return;
+        }
+
+        if (data.user) {
+          // Send verification code
+          const { error: codeError } = await supabase.functions.invoke('resend-verification-code', {
+            body: { email: email.toLowerCase(), type: 'registration' }
+          });
+
+          if (codeError) {
+            console.error("Error sending verification code:", codeError);
+          }
+
+          setPendingEmail(email.toLowerCase());
+          setShowEmailVerification(true);
+          toast.success("Please check your email for the verification code");
+        }
+      } else {
+        // Sign in
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+        if (error) {
+          if (error.message.includes("Invalid login credentials")) {
+            toast.error("Invalid email or password. Please try again.");
+          } else if (error.message.includes("Email not confirmed")) {
+            toast.error("Please verify your email before signing in.");
+            setPendingEmail(email.toLowerCase());
+            setShowEmailVerification(true);
+          } else {
+            throw error;
+          }
+        }
+      }
+    } catch (error: any) {
+      console.error("Auth error:", error);
+      toast.error(error.message || "Authentication failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    if (!email) {
+      toast.error("Please enter your email address");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const { error } = await supabase.functions.invoke('resend-verification-code', {
+        body: { email: email.toLowerCase(), type: 'password_reset' }
+      });
+
+      if (error) throw error;
+
+      setPendingEmail(email.toLowerCase());
+      setShowForgotPassword(false);
+      setShowEmailVerification(true);
+      toast.success("Password reset code sent to your email");
+    } catch (error: any) {
+      console.error("Forgot password error:", error);
+      toast.error(error.message || "Failed to send reset code");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResetPassword = async () => {
+    if (!newPassword || !confirmPassword) {
+      toast.error("Please enter and confirm your new password");
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const { error } = await supabase.functions.invoke('reset-password', {
+        body: { 
+          email: pendingEmail, 
+          resetToken, 
+          newPassword 
+        }
+      });
+
+      if (error) throw error;
+
+      toast.success("Password reset successfully! Please sign in.");
+      setShowResetPassword(false);
+      setResetToken("");
+      setNewPassword("");
+      setConfirmPassword("");
+      navigate('/auth');
+    } catch (error: any) {
+      console.error("Reset password error:", error);
+      toast.error(error.message || "Failed to reset password");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerificationComplete = (token?: string) => {
+    if (token) {
+      // Password reset flow - show reset password form
+      setResetToken(token);
+      setShowEmailVerification(false);
+      setShowResetPassword(true);
+    } else {
+      // Registration flow - sign in the user
+      setShowEmailVerification(false);
+      toast.success("Email verified! Signing you in...");
+      // The auth state listener will handle the redirect
+    }
+  };
+
+  // Show email verification screen
+  if (showEmailVerification) {
+    return (
+      <div className="min-h-screen bg-background relative overflow-hidden">
+        <NetworkBackground color="rgb(34, 211, 238)" />
+        <div className="fixed inset-0 -z-10 overflow-hidden opacity-20">
+          <div className="absolute top-20 left-10 w-96 h-96 bg-cyan-500/30 rounded-full blur-3xl"></div>
+          <div className="absolute top-40 right-20 w-80 h-80 bg-blue-500/30 rounded-full blur-3xl"></div>
+        </div>
+        <div className="relative z-10 flex items-center justify-center min-h-screen p-4 py-12">
+          <EmailVerification
+            email={pendingEmail}
+            type={showForgotPassword ? 'password_reset' : 'registration'}
+            onVerified={handleVerificationComplete}
+            onBack={() => {
+              setShowEmailVerification(false);
+              setShowForgotPassword(false);
+            }}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // Show reset password form
+  if (showResetPassword) {
+    return (
+      <div className="min-h-screen bg-background relative overflow-hidden">
+        <NetworkBackground color="rgb(34, 211, 238)" />
+        <div className="fixed inset-0 -z-10 overflow-hidden opacity-20">
+          <div className="absolute top-20 left-10 w-96 h-96 bg-cyan-500/30 rounded-full blur-3xl"></div>
+          <div className="absolute top-40 right-20 w-80 h-80 bg-blue-500/30 rounded-full blur-3xl"></div>
+        </div>
+        <div className="relative z-10 flex items-center justify-center min-h-screen p-4 py-12">
+          <Card className="w-full max-w-md bg-card backdrop-blur-xl border-border shadow-2xl overflow-hidden animate-fade-in">
+            <CardHeader className="text-center pb-4 pt-8">
+              <div className="mb-8">
+                <img 
+                  src={nomiqaAnimatedLogo} 
+                  alt="Nomiqa" 
+                  className="h-24 md:h-32 w-auto mx-auto cursor-pointer hover:opacity-80 transition-opacity"
+                  onClick={() => navigate('/')}
+                />
+              </div>
+              <CardTitle className="text-2xl font-bold text-foreground">
+                {t("resetPassword") || "Reset Password"}
+              </CardTitle>
+              <CardDescription className="text-muted-foreground">
+                {t("enterNewPassword") || "Enter your new password"}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="newPassword">{t("newPassword") || "New Password"}</Label>
+                <div className="relative">
+                  <Input
+                    id="newPassword"
+                    type={showPassword ? "text" : "password"}
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword">{t("confirmPassword") || "Confirm Password"}</Label>
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="••••••••"
+                />
+              </div>
+              <Button
+                onClick={handleResetPassword}
+                disabled={loading}
+                className="w-full"
+              >
+                {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                {t("resetPassword") || "Reset Password"}
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  setShowResetPassword(false);
+                  setResetToken("");
+                  navigate('/auth');
+                }}
+                className="w-full"
+              >
+                ← {t("backToLogin") || "Back to Login"}
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  // Show forgot password form
+  if (showForgotPassword) {
+    return (
+      <div className="min-h-screen bg-background relative overflow-hidden">
+        <NetworkBackground color="rgb(34, 211, 238)" />
+        <div className="fixed inset-0 -z-10 overflow-hidden opacity-20">
+          <div className="absolute top-20 left-10 w-96 h-96 bg-cyan-500/30 rounded-full blur-3xl"></div>
+          <div className="absolute top-40 right-20 w-80 h-80 bg-blue-500/30 rounded-full blur-3xl"></div>
+        </div>
+        <div className="relative z-10 flex items-center justify-center min-h-screen p-4 py-12">
+          <Card className="w-full max-w-md bg-card backdrop-blur-xl border-border shadow-2xl overflow-hidden animate-fade-in">
+            <CardHeader className="text-center pb-4 pt-8">
+              <div className="mb-8">
+                <img 
+                  src={nomiqaAnimatedLogo} 
+                  alt="Nomiqa" 
+                  className="h-24 md:h-32 w-auto mx-auto cursor-pointer hover:opacity-80 transition-opacity"
+                  onClick={() => navigate('/')}
+                />
+              </div>
+              <CardTitle className="text-2xl font-bold text-foreground">
+                {t("forgotPassword") || "Forgot Password"}
+              </CardTitle>
+              <CardDescription className="text-muted-foreground">
+                {t("forgotPasswordDescription") || "Enter your email and we'll send you a reset code"}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">{t("email") || "Email"}</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@example.com"
+                />
+              </div>
+              <Button
+                onClick={handleForgotPassword}
+                disabled={loading}
+                className="w-full"
+              >
+                {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                {t("sendResetCode") || "Send Reset Code"}
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => setShowForgotPassword(false)}
+                className="w-full"
+              >
+                ← {t("backToLogin") || "Back to Login"}
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
       <NetworkBackground color="rgb(34, 211, 238)" />
@@ -245,38 +609,111 @@ export default function Auth() {
             </CardHeader>
 
             <CardContent className="relative space-y-4">
-              {isSignup && (
-                <div className="flex items-start space-x-3 p-3 bg-muted/50 rounded-lg">
-                  <Checkbox 
-                    id="terms" 
-                    checked={agreedToTerms}
-                    onCheckedChange={(checked) => setAgreedToTerms(checked === true)}
-                    className="mt-0.5"
+              {/* Email/Password Form */}
+              <form onSubmit={handleEmailAuth} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email">{t("email") || "Email"}</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="you@example.com"
+                    disabled={loading}
                   />
-                  <label 
-                    htmlFor="terms" 
-                    className="text-sm text-muted-foreground leading-relaxed cursor-pointer"
-                  >
-                    {t("agreeToTerms") || "I agree to the"}{" "}
-                    <a 
-                      href="/terms" 
-                      target="_blank" 
-                      className="text-primary hover:underline font-medium"
-                    >
-                      {t("termsOfService") || "Terms of Service"}
-                    </a>{" "}
-                    {t("andWord") || "and"}{" "}
-                    <a 
-                      href="/privacy" 
-                      target="_blank" 
-                      className="text-primary hover:underline font-medium"
-                    >
-                      {t("privacyPolicy") || "Privacy Policy"}
-                    </a>
-                  </label>
                 </div>
-              )}
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <Label htmlFor="password">{t("password") || "Password"}</Label>
+                    {!isSignup && (
+                      <button
+                        type="button"
+                        onClick={() => setShowForgotPassword(true)}
+                        className="text-xs text-primary hover:underline"
+                      >
+                        {t("forgotPassword") || "Forgot password?"}
+                      </button>
+                    )}
+                  </div>
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••"
+                      disabled={loading}
+                      className="pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                </div>
 
+                {isSignup && (
+                  <div className="flex items-start space-x-3 p-3 bg-muted/50 rounded-lg">
+                    <Checkbox 
+                      id="terms" 
+                      checked={agreedToTerms}
+                      onCheckedChange={(checked) => setAgreedToTerms(checked === true)}
+                      className="mt-0.5"
+                    />
+                    <label 
+                      htmlFor="terms" 
+                      className="text-sm text-muted-foreground leading-relaxed cursor-pointer"
+                    >
+                      {t("agreeToTerms") || "I agree to the"}{" "}
+                      <a 
+                        href="/terms" 
+                        target="_blank" 
+                        className="text-primary hover:underline font-medium"
+                      >
+                        {t("termsOfService") || "Terms of Service"}
+                      </a>{" "}
+                      {t("andWord") || "and"}{" "}
+                      <a 
+                        href="/privacy" 
+                        target="_blank" 
+                        className="text-primary hover:underline font-medium"
+                      >
+                        {t("privacyPolicy") || "Privacy Policy"}
+                      </a>
+                    </label>
+                  </div>
+                )}
+
+                <Button 
+                  type="submit"
+                  className="w-full h-12 text-base font-medium"
+                  disabled={loading || (isSignup && !agreedToTerms)}
+                >
+                  {loading ? (
+                    <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                  ) : (
+                    <Mail className="h-5 w-5 mr-2" />
+                  )}
+                  {loading ? t("loading") : (isSignup ? t("signUp") || "Sign Up" : t("login") || "Sign In")}
+                </Button>
+              </form>
+
+              {/* Divider */}
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t border-border" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-card px-2 text-muted-foreground">
+                    {t("orContinueWith") || "or continue with"}
+                  </span>
+                </div>
+              </div>
+
+              {/* Google Sign In */}
               <Button 
                 onClick={handleGoogleSignIn}
                 className="w-full h-12 text-base font-medium bg-white text-gray-800 hover:bg-gray-100 border border-gray-300 rounded-xl transition-all duration-300 hover:scale-105 shadow-lg flex items-center justify-center gap-3" 
@@ -304,7 +741,7 @@ export default function Auth() {
                     />
                   </svg>
                 )}
-                {loading ? t("loading") : (isSignup ? t("signUpWithGoogle") : t("continueWithGoogle"))}
+                {isSignup ? t("signUpWithGoogle") || "Sign up with Google" : t("continueWithGoogle") || "Continue with Google"}
               </Button>
 
               <div className="pt-4 border-t border-border text-center">
