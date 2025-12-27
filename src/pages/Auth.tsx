@@ -13,7 +13,6 @@ import { useTranslation } from "@/contexts/TranslationContext";
 import nomiqaAnimatedLogo from "@/assets/nomiqa-animated-logo.gif";
 import { useAffiliateTracking } from "@/hooks/useAffiliateTracking";
 import { UsernameSelection } from "@/components/UsernameSelection";
-import { EmailVerification } from "@/components/EmailVerification";
 
 export default function Auth() {
   const navigate = useNavigate();
@@ -29,16 +28,26 @@ export default function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [showEmailVerification, setShowEmailVerification] = useState(false);
-  const [pendingEmail, setPendingEmail] = useState("");
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [showResetPassword, setShowResetPassword] = useState(false);
-  const [resetToken, setResetToken] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   
   const isSignup = searchParams.get('mode') === 'signup' || searchParams.get('mode') === 'register';
+  const isResetMode = searchParams.get('mode') === 'reset';
 
+  // Check for password reset mode on mount
+  useEffect(() => {
+    if (isResetMode) {
+      // User came from password reset email link - show reset form
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session) {
+          setShowResetPassword(true);
+          setCheckingSession(false);
+        }
+      });
+    }
+  }, [isResetMode]);
   useEffect(() => {
     let isMounted = true;
     let handlingUserId: string | null = null;
@@ -237,7 +246,7 @@ export default function Auth() {
 
     try {
       if (isSignup) {
-        // Check if user already exists
+        // Check if user already exists in profiles
         const { data: existingProfile } = await supabase
           .from("profiles")
           .select("id, email_verified")
@@ -245,14 +254,12 @@ export default function Auth() {
           .maybeSingle();
 
         if (existingProfile) {
-          if (existingProfile.email_verified) {
-            toast.error("An account with this email already exists. Please sign in instead.");
-            setLoading(false);
-            return;
-          }
+          toast.error("An account with this email already exists. Please sign in instead.");
+          setLoading(false);
+          return;
         }
 
-        // Sign up the user
+        // Sign up the user - Supabase handles email confirmation
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
@@ -271,19 +278,15 @@ export default function Auth() {
           return;
         }
 
-        if (data.user) {
-          // Send verification code
-          const { error: codeError } = await supabase.functions.invoke('resend-verification-code', {
-            body: { email: email.toLowerCase(), type: 'registration' }
-          });
-
-          if (codeError) {
-            console.error("Error sending verification code:", codeError);
-          }
-
-          setPendingEmail(email.toLowerCase());
-          setShowEmailVerification(true);
-          toast.success("Please check your email for the verification code");
+        // If auto-confirm is enabled, user will be signed in automatically
+        // The onAuthStateChange listener will handle the rest
+        if (data.user && !data.session) {
+          // Email confirmation required - show message
+          toast.success("Please check your email to confirm your account");
+          setLoading(false);
+        } else if (data.session) {
+          // Auto-confirm enabled - user is signed in
+          toast.success("Account created successfully!");
         }
       } else {
         // Sign in
@@ -296,9 +299,7 @@ export default function Auth() {
           if (error.message.includes("Invalid login credentials")) {
             toast.error("Invalid email or password. Please try again.");
           } else if (error.message.includes("Email not confirmed")) {
-            toast.error("Please verify your email before signing in.");
-            setPendingEmail(email.toLowerCase());
-            setShowEmailVerification(true);
+            toast.error("Please check your email to confirm your account before signing in.");
           } else {
             throw error;
           }
@@ -321,19 +322,18 @@ export default function Auth() {
     setLoading(true);
 
     try {
-      const { error } = await supabase.functions.invoke('resend-verification-code', {
-        body: { email: email.toLowerCase(), type: 'password_reset' }
+      // Use Supabase's built-in password reset
+      const { error } = await supabase.auth.resetPasswordForEmail(email.toLowerCase(), {
+        redirectTo: `${window.location.origin}/auth?mode=reset`,
       });
 
       if (error) throw error;
 
-      setPendingEmail(email.toLowerCase());
+      toast.success("Password reset link sent to your email");
       setShowForgotPassword(false);
-      setShowEmailVerification(true);
-      toast.success("Password reset code sent to your email");
     } catch (error: any) {
       console.error("Forgot password error:", error);
-      toast.error(error.message || "Failed to send reset code");
+      toast.error(error.message || "Failed to send reset link");
     } finally {
       setLoading(false);
     }
@@ -358,22 +358,18 @@ export default function Auth() {
     setLoading(true);
 
     try {
-      const { error } = await supabase.functions.invoke('reset-password', {
-        body: { 
-          email: pendingEmail, 
-          resetToken, 
-          newPassword 
-        }
+      // Use Supabase's built-in password update
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword
       });
 
       if (error) throw error;
 
-      toast.success("Password reset successfully! Please sign in.");
+      toast.success("Password reset successfully!");
       setShowResetPassword(false);
-      setResetToken("");
       setNewPassword("");
       setConfirmPassword("");
-      navigate('/auth');
+      navigate('/');
     } catch (error: any) {
       console.error("Reset password error:", error);
       toast.error(error.message || "Failed to reset password");
@@ -381,44 +377,6 @@ export default function Auth() {
       setLoading(false);
     }
   };
-
-  const handleVerificationComplete = (token?: string) => {
-    if (token) {
-      // Password reset flow - show reset password form
-      setResetToken(token);
-      setShowEmailVerification(false);
-      setShowResetPassword(true);
-    } else {
-      // Registration flow - sign in the user
-      setShowEmailVerification(false);
-      toast.success("Email verified! Signing you in...");
-      // The auth state listener will handle the redirect
-    }
-  };
-
-  // Show email verification screen
-  if (showEmailVerification) {
-    return (
-      <div className="min-h-screen bg-background relative overflow-hidden">
-        <NetworkBackground color="rgb(34, 211, 238)" />
-        <div className="fixed inset-0 -z-10 overflow-hidden opacity-20">
-          <div className="absolute top-20 left-10 w-96 h-96 bg-cyan-500/30 rounded-full blur-3xl"></div>
-          <div className="absolute top-40 right-20 w-80 h-80 bg-blue-500/30 rounded-full blur-3xl"></div>
-        </div>
-        <div className="relative z-10 flex items-center justify-center min-h-screen p-4 py-12">
-          <EmailVerification
-            email={pendingEmail}
-            type={showForgotPassword ? 'password_reset' : 'registration'}
-            onVerified={handleVerificationComplete}
-            onBack={() => {
-              setShowEmailVerification(false);
-              setShowForgotPassword(false);
-            }}
-          />
-        </div>
-      </div>
-    );
-  }
 
   // Show reset password form
   if (showResetPassword) {
@@ -490,7 +448,6 @@ export default function Auth() {
                 variant="ghost"
                 onClick={() => {
                   setShowResetPassword(false);
-                  setResetToken("");
                   navigate('/auth');
                 }}
                 className="w-full"
