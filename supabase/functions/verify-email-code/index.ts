@@ -123,6 +123,18 @@ const handler = async (req: Request): Promise<Response> => {
 
         if (updateError) throw updateError;
 
+        // Also confirm email in Supabase auth to allow normal login
+        const { error: authUpdateError } = await supabase.auth.admin.updateUserById(
+          userId,
+          { email_confirm: true }
+        );
+        
+        if (authUpdateError) {
+          console.error(`Failed to confirm email in auth: ${authUpdateError.message}`);
+        } else {
+          console.log(`✓ Email confirmed in auth for user ${userId}`);
+        }
+
         // Send early member welcome email
         console.log(`Sending early member welcome email to ${normalizedEmail}`);
         const sendEmailResponse = await fetch(`${supabaseUrl}/functions/v1/send-email`, {
