@@ -253,11 +253,36 @@ export default function Auth() {
 
         if (error) {
           console.error("Signup error:", error);
-          throw error;
+          // Extract error message from edge function response
+          let errorMessage = "Signup failed. Please try again.";
+          try {
+            if (error.context?.body) {
+              const bodyData = typeof error.context.body === 'string' 
+                ? JSON.parse(error.context.body) 
+                : error.context.body;
+              errorMessage = bodyData.error || errorMessage;
+            } else if (error.message) {
+              errorMessage = error.message;
+            }
+          } catch (e) {
+            // Use default error message
+          }
+          
+          if (errorMessage.includes("already exists")) {
+            toast.error("An account with this email already exists. Please sign in instead.");
+          } else {
+            toast.error(errorMessage);
+          }
+          setLoading(false);
+          return;
         }
 
         if (data?.error) {
-          toast.error(data.error);
+          if (data.error.includes("already exists")) {
+            toast.error("An account with this email already exists. Please sign in instead.");
+          } else {
+            toast.error(data.error);
+          }
           setLoading(false);
           return;
         }
