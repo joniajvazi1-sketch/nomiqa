@@ -240,94 +240,33 @@ export default function Auth() {
 
     try {
       if (isSignup) {
-        // Check if user already exists in profiles
-        const { data: existingProfile } = await supabase
-          .from("profiles")
-          .select("id, email_verified")
-          .eq("email", email.toLowerCase())
-          .maybeSingle();
-
-        if (existingProfile && existingProfile.email_verified) {
-          toast.error("An account with this email already exists. Please sign in instead.");
-          setLoading(false);
-          return;
-        }
-
-        // Sign up the user with auto-confirm disabled (we use custom OTP)
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: `${window.location.origin}/auth`,
+        // Use signup-user edge function to handle signup with service role
+        const { referralCode, clearReferralCode } = useAffiliateTracking.getState();
+        
+        const { data, error } = await supabase.functions.invoke('signup-user', {
+          body: {
+            email: email.toLowerCase(),
+            password,
+            referralCode: referralCode || undefined,
           }
         });
 
         if (error) {
-          if (error.message.includes("already registered")) {
-            toast.error("An account with this email already exists. Please sign in instead.");
-          } else {
-            throw error;
-          }
+          console.error("Signup error:", error);
+          throw error;
+        }
+
+        if (data?.error) {
+          toast.error(data.error);
           setLoading(false);
           return;
         }
 
-        if (data.user) {
-          // Generate verification code and create profile
-          const code = Math.floor(100000 + Math.random() * 900000).toString();
-          const hashedCode = await hashCode(code);
-          const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
-
-          // Create profile with verification code
-          const { error: profileError } = await supabase
-            .from("profiles")
-            .upsert({
-              user_id: data.user.id,
-              username: `temp_${Date.now()}`,
-              email: email.toLowerCase(),
-              email_verified: false,
-              is_early_member: true,
-              verification_code: hashedCode,
-              verification_code_expires_at: expiresAt,
-            }, { onConflict: 'user_id' });
-
-          if (profileError) {
-            console.error("Profile error:", profileError);
-            throw profileError;
-          }
-
-          // Send verification email via send-email function
-          const { error: emailError } = await supabase.functions.invoke('send-email', {
-            body: {
-              type: 'user_verification',
-              to: email.toLowerCase(),
-              data: { code }
-            }
-          });
-
-          if (emailError) {
-            console.error("Email error:", emailError);
-            // Don't fail signup if email fails, user can resend
-          }
-
-          // Track affiliate if applicable
-          const { referralCode, clearReferralCode } = useAffiliateTracking.getState();
+        if (data?.success && data?.userId) {
           if (referralCode) {
-            try {
-              await supabase.functions.invoke("track-affiliate-registration", {
-                body: {
-                  referralCode,
-                  userId: data.user.id,
-                  referrer: document.referrer,
-                },
-              });
-              clearReferralCode();
-            } catch (trackError) {
-              console.error("Error tracking affiliate:", trackError);
-            }
+            clearReferralCode();
           }
-
-          setCurrentUser({ id: data.user.id, email: email.toLowerCase() });
+          setCurrentUser({ id: data.userId, email: email.toLowerCase() });
           setShowEmailVerification(true);
           toast.success("Verification code sent to your email!");
         }
@@ -342,47 +281,20 @@ export default function Auth() {
           if (error.message.includes("Invalid login credentials")) {
             toast.error("Invalid email or password. Please try again.");
           } else if (error.message.includes("Email not confirmed")) {
-            // Check if they have a profile with pending verification
-            const { data: profile } = await supabase
-              .from("profiles")
-              .select("email_verified, verification_code")
-              .eq("email", email.toLowerCase())
-              .maybeSingle();
-            
-            if (profile && !profile.email_verified && profile.verification_code) {
-              // Resend verification code
-              const code = Math.floor(100000 + Math.random() * 900000).toString();
-              const hashedCode = await hashCode(code);
-              const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
-
-              await supabase
-                .from("profiles")
-                .update({
-                  verification_code: hashedCode,
-                  verification_code_expires_at: expiresAt,
-                })
-                .eq("email", email.toLowerCase());
-
-              await supabase.functions.invoke('send-email', {
-                body: {
-                  type: 'user_verification',
-                  to: email.toLowerCase(),
-                  data: { code }
-                }
-              });
-
-              // Get user ID for verification flow
-              const { data: userData } = await supabase
-                .from("profiles")
-                .select("user_id")
-                .eq("email", email.toLowerCase())
-                .single();
-
-              if (userData) {
-                setCurrentUser({ id: userData.user_id, email: email.toLowerCase() });
-                setShowEmailVerification(true);
-                toast.info("Please verify your email first. Check your inbox!");
+            // Use resend-verification-code edge function
+            const { data: resendData, error: resendError } = await supabase.functions.invoke('resend-verification-code', {
+              body: {
+                email: email.toLowerCase(),
+                type: 'registration'
               }
+            });
+
+            if (!resendError && resendData?.success) {
+              // Get user ID for verification flow - we can try to sign in to get the user
+              // but since email is not confirmed, we'll use the email as identifier
+              setCurrentUser({ id: 'pending', email: email.toLowerCase() });
+              setShowEmailVerification(true);
+              toast.info("Please verify your email first. Check your inbox!");
             } else {
               toast.error("Please check your email to confirm your account before signing in.");
             }
@@ -399,15 +311,6 @@ export default function Auth() {
     }
   };
 
-  // Hash code helper function
-  async function hashCode(code: string): Promise<string> {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(code);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-  }
-
   const handleForgotPassword = async () => {
     if (!email) {
       toast.error("Please enter your email address");
@@ -417,36 +320,16 @@ export default function Auth() {
     setLoading(true);
 
     try {
-      // Generate reset code and send via custom email system
-      const code = Math.floor(100000 + Math.random() * 900000).toString();
-      const hashedCode = await hashCode(code);
-      const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
-
-      // Update profile with reset code
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({
-          password_reset_code: hashedCode,
-          password_reset_expires_at: expiresAt,
-        })
-        .eq('email', email.toLowerCase());
-
-      if (updateError) {
-        console.error("Update error:", updateError);
-        // Profile might not exist for this email - still show success to prevent enumeration
-      }
-
-      // Send password reset email
-      const { error: emailError } = await supabase.functions.invoke('send-email', {
+      // Use resend-verification-code edge function for password reset
+      const { data, error } = await supabase.functions.invoke('resend-verification-code', {
         body: {
-          type: 'password_reset',
-          to: email.toLowerCase(),
-          data: { code }
+          email: email.toLowerCase(),
+          type: 'password_reset'
         }
       });
 
-      if (emailError) {
-        console.error("Email error:", emailError);
+      if (error) {
+        console.error("Email error:", error);
       }
 
       toast.success("Reset code sent to your email");
