@@ -58,6 +58,7 @@ const translations: Record<string, Partial<Record<Language | 'HI', string>>> = {
   resetPasswordButton: { EN: "Reset Password", ES: "Restablecer Contraseña", FR: "Réinitialiser le Mot de Passe", DE: "Passwort Zurücksetzen", RU: "Сбросить пароль", ZH: "重置密码", JA: "パスワードをリセット", PT: "Redefinir Senha", AR: "إعادة تعيين كلمة المرور", IT: "Reimposta Password" },
   backToLogin: { EN: "Back to login", ES: "Volver al inicio de sesión", FR: "Retour à la connexion", DE: "Zurück zum Login", RU: "Вернуться к входу", ZH: "返回登录", JA: "ログインに戻る", PT: "Voltar ao login", AR: "العودة إلى تسجيل الدخول", IT: "Torna al login" },
   forgotPassword: { EN: "Forgot password?", ES: "¿Olvidaste tu contraseña?", FR: "Mot de passe oublié ?", DE: "Passwort vergessen?", RU: "Забыли пароль?", ZH: "忘记密码？", JA: "パスワードを忘れた？", PT: "Esqueceu a senha?", AR: "نسيت كلمة المرور؟", IT: "Password dimenticata?" },
+  orContinueWith: { EN: "or continue with", ES: "o continuar con", FR: "ou continuer avec", DE: "oder fortfahren mit", RU: "или продолжить с", ZH: "或继续使用", JA: "または次で続行", PT: "ou continuar com", AR: "أو المتابعة باستخدام", IT: "o continua con" },
   
   // Navigation
   shop: { EN: "Shop", ES: "Tienda", FR: "Boutique", DE: "Shop", RU: "Магазин", ZH: "商店", JA: "ショップ", PT: "Loja", AR: "المتجر", IT: "Negozio" },
