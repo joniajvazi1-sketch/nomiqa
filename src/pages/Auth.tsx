@@ -320,18 +320,22 @@ export default function Auth() {
             if (resendError) {
               const errorData = resendError as any;
               // If email is already verified, just tell user to try signing in again
-              if (errorData?.message?.includes("already verified") || 
+              if (errorData?.message?.includes("already verified") ||
                   (typeof errorData?.context?.body === 'string' && errorData.context.body.includes("already verified"))) {
-                toast.info("Your email is verified. Please try signing in again.");
+                toast.info("Your email is verified. Please sign in.");
               } else {
                 toast.error("Please check your email to confirm your account before signing in.");
               }
             } else if (resendData?.success) {
-              setCurrentUser({ id: 'pending', email: email.toLowerCase() });
-              setShowEmailVerification(true);
-              toast.info("Please verify your email first. Check your inbox!");
+              if ((resendData as any)?.alreadyVerified) {
+                toast.info("Your email is already verified. Please sign in.");
+              } else {
+                setCurrentUser({ id: 'pending', email: email.toLowerCase() });
+                setShowEmailVerification(true);
+                toast.info("Please verify your email first. Check your inbox!");
+              }
             } else if (resendData?.error?.includes("already verified")) {
-              toast.info("Your email is verified. Please try signing in again.");
+              toast.info("Your email is verified. Please sign in.");
             } else {
               toast.error("Please check your email to confirm your account before signing in.");
             }

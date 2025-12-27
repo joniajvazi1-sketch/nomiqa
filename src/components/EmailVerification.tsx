@@ -63,11 +63,18 @@ export const EmailVerification = ({ email, type, onVerified, onBack }: EmailVeri
     if (!canResend) return;
 
     try {
-      const { error } = await supabase.functions.invoke('resend-verification-code', {
+      const { data, error } = await supabase.functions.invoke('resend-verification-code', {
         body: { email, type }
       });
 
       if (error) throw error;
+
+      if ((data as any)?.alreadyVerified) {
+        toast.info("This email is already verified. Please sign in.");
+        // If user is on the verification screen unnecessarily, let the parent advance/back
+        onVerified(undefined);
+        return;
+      }
 
       toast.success("Code resent! Check your email.");
       setCanResend(false);

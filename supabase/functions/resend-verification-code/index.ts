@@ -91,33 +91,38 @@ const handler = async (req: Request): Promise<Response> => {
       }
 
       if (type === 'registration') {
-        // For registration resend, user must have a pending verification
+        // For registration resend, we avoid leaking whether a user exists.
+        // If a profile exists but auth isn't confirmed, we allow resending.
         if (!profile) {
-          console.log(`No profile found for email: ${normalizedEmail}`);
           return new Response(
-            JSON.stringify({ error: "User not found or no pending verification" }),
-            { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+            JSON.stringify({ success: true, message: "If an account exists, a verification code has been sent" }),
+            { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
           );
         }
 
-        if (profile.email_verified) {
+        // If auth already has the email confirmed, treat as already verified (no error)
+        let authEmailConfirmed = false;
+        try {
+          const { data: userData, error: userError } = await supabase.auth.admin.getUserById(profile.user_id);
+          if (!userError && userData?.user?.email?.toLowerCase() === normalizedEmail) {
+            authEmailConfirmed = !!userData.user.email_confirmed_at;
+          }
+        } catch (_e) {
+          // ignore and continue with resend logic
+        }
+
+        if (authEmailConfirmed) {
           return new Response(
-            JSON.stringify({ error: "Email is already verified" }),
-            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+            JSON.stringify({ success: true, alreadyVerified: true, message: "Email is already verified" }),
+            { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
           );
         }
 
-        if (!profile.verification_code) {
-          return new Response(
-            JSON.stringify({ error: "No pending verification found" }),
-            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-          );
-        }
-
-        // Update profile with new hashed code
+        // Update profile with new hashed code (force a fresh verification code)
         const { error: updateError } = await supabase
           .from('profiles')
           .update({
+            email_verified: false,
             verification_code: hashedCode,
             verification_code_expires_at: expiresAt.toISOString(),
           })
@@ -139,7 +144,7 @@ const handler = async (req: Request): Promise<Response> => {
             data: { code }, // Send original code in email
           }),
         });
-        
+
         if (!sendEmailResponse.ok) {
           const errorText = await sendEmailResponse.text();
           console.error(`Failed to send verification email: ${sendEmailResponse.status} - ${errorText}`);
@@ -183,7 +188,7 @@ const handler = async (req: Request): Promise<Response> => {
             data: { code }, // Send original code in email
           }),
         });
-        
+
         if (!sendEmailResponse.ok) {
           const errorText = await sendEmailResponse.text();
           console.error(`Failed to send password reset email: ${sendEmailResponse.status} - ${errorText}`);
