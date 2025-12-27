@@ -13,6 +13,7 @@ import { useTranslation } from "@/contexts/TranslationContext";
 import nomiqaAnimatedLogo from "@/assets/nomiqa-animated-logo.gif";
 import { useAffiliateTracking } from "@/hooks/useAffiliateTracking";
 import { UsernameSelection } from "@/components/UsernameSelection";
+import { EmailVerification } from "@/components/EmailVerification";
 
 export default function Auth() {
   const navigate = useNavigate();
@@ -21,6 +22,10 @@ export default function Auth() {
   const [loading, setLoading] = useState(false);
   const [checkingSession, setCheckingSession] = useState(true);
   const [showUsernameSelection, setShowUsernameSelection] = useState(false);
+  const [showEmailVerification, setShowEmailVerification] = useState(false);
+  const [showPasswordResetVerification, setShowPasswordResetVerification] = useState(false);
+  const [showNewPasswordForm, setShowNewPasswordForm] = useState(false);
+  const [resetToken, setResetToken] = useState("");
   const [currentUser, setCurrentUser] = useState<{ id: string; email: string } | null>(null);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   
@@ -242,13 +247,13 @@ export default function Auth() {
           .eq("email", email.toLowerCase())
           .maybeSingle();
 
-        if (existingProfile) {
+        if (existingProfile && existingProfile.email_verified) {
           toast.error("An account with this email already exists. Please sign in instead.");
           setLoading(false);
           return;
         }
 
-        // Sign up the user - Supabase handles email confirmation
+        // Sign up the user with auto-confirm disabled (we use custom OTP)
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
@@ -267,19 +272,68 @@ export default function Auth() {
           return;
         }
 
-        // If auto-confirm is enabled, user will be signed in automatically
-        // The onAuthStateChange listener will handle the rest
-        if (data.user && !data.session) {
-          // Email confirmation required - show message
-          toast.success("Please check your email to confirm your account");
-          setLoading(false);
-        } else if (data.session) {
-          // Auto-confirm enabled - user is signed in
-          toast.success("Account created successfully!");
+        if (data.user) {
+          // Generate verification code and create profile
+          const code = Math.floor(100000 + Math.random() * 900000).toString();
+          const hashedCode = await hashCode(code);
+          const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
+
+          // Create profile with verification code
+          const { error: profileError } = await supabase
+            .from("profiles")
+            .upsert({
+              user_id: data.user.id,
+              username: `temp_${Date.now()}`,
+              email: email.toLowerCase(),
+              email_verified: false,
+              is_early_member: true,
+              verification_code: hashedCode,
+              verification_code_expires_at: expiresAt,
+            }, { onConflict: 'user_id' });
+
+          if (profileError) {
+            console.error("Profile error:", profileError);
+            throw profileError;
+          }
+
+          // Send verification email via send-email function
+          const { error: emailError } = await supabase.functions.invoke('send-email', {
+            body: {
+              type: 'user_verification',
+              to: email.toLowerCase(),
+              data: { code }
+            }
+          });
+
+          if (emailError) {
+            console.error("Email error:", emailError);
+            // Don't fail signup if email fails, user can resend
+          }
+
+          // Track affiliate if applicable
+          const { referralCode, clearReferralCode } = useAffiliateTracking.getState();
+          if (referralCode) {
+            try {
+              await supabase.functions.invoke("track-affiliate-registration", {
+                body: {
+                  referralCode,
+                  userId: data.user.id,
+                  referrer: document.referrer,
+                },
+              });
+              clearReferralCode();
+            } catch (trackError) {
+              console.error("Error tracking affiliate:", trackError);
+            }
+          }
+
+          setCurrentUser({ id: data.user.id, email: email.toLowerCase() });
+          setShowEmailVerification(true);
+          toast.success("Verification code sent to your email!");
         }
       } else {
         // Sign in
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
@@ -288,7 +342,50 @@ export default function Auth() {
           if (error.message.includes("Invalid login credentials")) {
             toast.error("Invalid email or password. Please try again.");
           } else if (error.message.includes("Email not confirmed")) {
-            toast.error("Please check your email to confirm your account before signing in.");
+            // Check if they have a profile with pending verification
+            const { data: profile } = await supabase
+              .from("profiles")
+              .select("email_verified, verification_code")
+              .eq("email", email.toLowerCase())
+              .maybeSingle();
+            
+            if (profile && !profile.email_verified && profile.verification_code) {
+              // Resend verification code
+              const code = Math.floor(100000 + Math.random() * 900000).toString();
+              const hashedCode = await hashCode(code);
+              const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
+
+              await supabase
+                .from("profiles")
+                .update({
+                  verification_code: hashedCode,
+                  verification_code_expires_at: expiresAt,
+                })
+                .eq("email", email.toLowerCase());
+
+              await supabase.functions.invoke('send-email', {
+                body: {
+                  type: 'user_verification',
+                  to: email.toLowerCase(),
+                  data: { code }
+                }
+              });
+
+              // Get user ID for verification flow
+              const { data: userData } = await supabase
+                .from("profiles")
+                .select("user_id")
+                .eq("email", email.toLowerCase())
+                .single();
+
+              if (userData) {
+                setCurrentUser({ id: userData.user_id, email: email.toLowerCase() });
+                setShowEmailVerification(true);
+                toast.info("Please verify your email first. Check your inbox!");
+              }
+            } else {
+              toast.error("Please check your email to confirm your account before signing in.");
+            }
           } else {
             throw error;
           }
@@ -302,6 +399,15 @@ export default function Auth() {
     }
   };
 
+  // Hash code helper function
+  async function hashCode(code: string): Promise<string> {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(code);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
   const handleForgotPassword = async () => {
     if (!email) {
       toast.error("Please enter your email address");
@@ -311,20 +417,74 @@ export default function Auth() {
     setLoading(true);
 
     try {
-      // Use Supabase's built-in password reset
-      const { error } = await supabase.auth.resetPasswordForEmail(email.toLowerCase(), {
-        redirectTo: `${window.location.origin}/auth?mode=reset`,
+      // Generate reset code and send via custom email system
+      const code = Math.floor(100000 + Math.random() * 900000).toString();
+      const hashedCode = await hashCode(code);
+      const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
+
+      // Update profile with reset code
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({
+          password_reset_code: hashedCode,
+          password_reset_expires_at: expiresAt,
+        })
+        .eq('email', email.toLowerCase());
+
+      if (updateError) {
+        console.error("Update error:", updateError);
+        // Profile might not exist for this email - still show success to prevent enumeration
+      }
+
+      // Send password reset email
+      const { error: emailError } = await supabase.functions.invoke('send-email', {
+        body: {
+          type: 'password_reset',
+          to: email.toLowerCase(),
+          data: { code }
+        }
       });
 
-      if (error) throw error;
+      if (emailError) {
+        console.error("Email error:", emailError);
+      }
 
-      toast.success("Password reset link sent to your email");
+      toast.success("Reset code sent to your email");
       setShowForgotPassword(false);
+      setShowPasswordResetVerification(true);
     } catch (error: any) {
       console.error("Forgot password error:", error);
-      toast.error(error.message || "Failed to send reset link");
+      toast.error(error.message || "Failed to send reset code");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handlePasswordResetVerified = (token?: string) => {
+    if (token) {
+      setResetToken(token);
+      setShowPasswordResetVerification(false);
+      setShowNewPasswordForm(true);
+    }
+  };
+
+  const handleEmailVerified = async () => {
+    setShowEmailVerification(false);
+    
+    if (currentUser) {
+      // Check if user needs username selection
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("username")
+        .eq("user_id", currentUser.id)
+        .single();
+
+      if (profile?.username?.startsWith("temp_")) {
+        setShowUsernameSelection(true);
+      } else {
+        toast.success("Welcome to Nomiqa!");
+        navigate('/');
+      }
     }
   };
 
@@ -347,18 +507,24 @@ export default function Auth() {
     setLoading(true);
 
     try {
-      // Use Supabase's built-in password update
-      const { error } = await supabase.auth.updateUser({
-        password: newPassword
+      // Use the reset-password edge function with the verified token
+      const { data, error } = await supabase.functions.invoke('reset-password', {
+        body: {
+          email: email.toLowerCase(),
+          resetToken: resetToken,
+          newPassword: newPassword
+        }
       });
 
       if (error) throw error;
+      if (data?.error) throw new Error(data.error);
 
-      toast.success("Password reset successfully!");
-      setShowResetPassword(false);
+      toast.success("Password reset successfully! Please sign in.");
+      setShowNewPasswordForm(false);
       setNewPassword("");
       setConfirmPassword("");
-      navigate('/');
+      setResetToken("");
+      navigate('/auth');
     } catch (error: any) {
       console.error("Reset password error:", error);
       toast.error(error.message || "Failed to reset password");
@@ -367,7 +533,138 @@ export default function Auth() {
     }
   };
 
-  // Show reset password form
+  // Show email verification screen (for signup)
+  if (showEmailVerification && currentUser) {
+    return (
+      <div className="min-h-screen bg-background relative overflow-hidden">
+        <NetworkBackground color="rgb(34, 211, 238)" />
+        <div className="fixed inset-0 -z-10 overflow-hidden opacity-20">
+          <div className="absolute top-20 left-10 w-96 h-96 bg-cyan-500/30 rounded-full blur-3xl"></div>
+          <div className="absolute top-40 right-20 w-80 h-80 bg-blue-500/30 rounded-full blur-3xl"></div>
+        </div>
+        <div className="relative z-10 flex items-center justify-center min-h-screen p-4 py-12">
+          <EmailVerification 
+            email={currentUser.email}
+            type="registration"
+            onVerified={handleEmailVerified}
+            onBack={() => {
+              setShowEmailVerification(false);
+              setCurrentUser(null);
+            }}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // Show password reset OTP verification screen
+  if (showPasswordResetVerification) {
+    return (
+      <div className="min-h-screen bg-background relative overflow-hidden">
+        <NetworkBackground color="rgb(34, 211, 238)" />
+        <div className="fixed inset-0 -z-10 overflow-hidden opacity-20">
+          <div className="absolute top-20 left-10 w-96 h-96 bg-cyan-500/30 rounded-full blur-3xl"></div>
+          <div className="absolute top-40 right-20 w-80 h-80 bg-blue-500/30 rounded-full blur-3xl"></div>
+        </div>
+        <div className="relative z-10 flex items-center justify-center min-h-screen p-4 py-12">
+          <EmailVerification 
+            email={email}
+            type="password_reset"
+            onVerified={handlePasswordResetVerified}
+            onBack={() => {
+              setShowPasswordResetVerification(false);
+              setShowForgotPassword(true);
+            }}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // Show new password form (after OTP verified)
+  if (showNewPasswordForm) {
+    return (
+      <div className="min-h-screen bg-background relative overflow-hidden">
+        <NetworkBackground color="rgb(34, 211, 238)" />
+        <div className="fixed inset-0 -z-10 overflow-hidden opacity-20">
+          <div className="absolute top-20 left-10 w-96 h-96 bg-cyan-500/30 rounded-full blur-3xl"></div>
+          <div className="absolute top-40 right-20 w-80 h-80 bg-blue-500/30 rounded-full blur-3xl"></div>
+        </div>
+        <div className="relative z-10 flex items-center justify-center min-h-screen p-4 py-12">
+          <Card className="w-full max-w-md bg-card backdrop-blur-xl border-border shadow-2xl overflow-hidden animate-fade-in">
+            <CardHeader className="text-center pb-4 pt-8">
+              <div className="mb-8">
+                <img 
+                  src={nomiqaAnimatedLogo} 
+                  alt="Nomiqa" 
+                  className="h-24 md:h-32 w-auto mx-auto cursor-pointer hover:opacity-80 transition-opacity"
+                  onClick={() => navigate('/')}
+                />
+              </div>
+              <CardTitle className="text-2xl font-bold text-foreground">
+                {t("resetPassword") || "Create New Password"}
+              </CardTitle>
+              <CardDescription className="text-muted-foreground">
+                {t("enterNewPassword") || "Enter your new password"}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="newPassword">{t("newPassword") || "New Password"}</Label>
+                <div className="relative">
+                  <Input
+                    id="newPassword"
+                    type={showPassword ? "text" : "password"}
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword">{t("confirmPassword") || "Confirm Password"}</Label>
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="••••••••"
+                />
+              </div>
+              <Button
+                onClick={handleResetPassword}
+                disabled={loading}
+                className="w-full"
+              >
+                {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                {t("resetPassword") || "Reset Password"}
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  setShowNewPasswordForm(false);
+                  navigate('/auth');
+                }}
+                className="w-full"
+              >
+                ← {t("backToLogin") || "Back to Login"}
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  // Show reset password form (from email link - Supabase redirect)
   if (showResetPassword) {
     return (
       <div className="min-h-screen bg-background relative overflow-hidden">
