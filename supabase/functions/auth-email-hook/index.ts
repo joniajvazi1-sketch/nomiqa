@@ -1,7 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "https://esm.sh/resend@2.0.0";
-import { Webhook } from "https://esm.sh/standardwebhooks@1.0.0";
-
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
 const corsHeaders = {
@@ -419,32 +417,8 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const hookSecret = Deno.env.get("AUTH_SEND_EMAIL_HOOK_SECRET");
-    
-    if (!hookSecret) {
-      console.error("AUTH_SEND_EMAIL_HOOK_SECRET not configured");
-      return new Response(
-        JSON.stringify({ error: "Hook secret not configured" }),
-        { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
-      );
-    }
-
-    const payload = await req.text();
-    const headers = Object.fromEntries(req.headers);
-    
-    // Verify webhook signature
-    const wh = new Webhook(hookSecret);
-    let data: AuthEmailPayload;
-    
-    try {
-      data = wh.verify(payload, headers) as AuthEmailPayload;
-    } catch (err) {
-      console.error("Webhook signature verification failed:", err);
-      return new Response(
-        JSON.stringify({ error: "Invalid webhook signature" }),
-        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
-      );
-    }
+    // Parse the request body - Supabase Auth sends JSON directly
+    const data: AuthEmailPayload = await req.json();
     
     console.log("Auth email hook triggered:", {
       email: data.user?.email?.replace(/(.{2}).*@/, '$1***@'),
