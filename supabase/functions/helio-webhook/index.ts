@@ -16,10 +16,10 @@ serve(async (req) => {
     const rawBody = await req.text();
     const payload = JSON.parse(rawBody);
     
-    // Minimal logging - mask sensitive data
+    // Generate opaque correlation ID for this request (no sensitive data)
+    const correlationId = crypto.randomUUID().substring(0, 8);
+    console.log(`[${correlationId}] Webhook received: ${payload.event || 'unknown'}`);
     const paylinkId = payload.transactionObject?.paylinkId;
-    const eventType = payload.event;
-    console.log('Webhook received:', { event: eventType, paylinkId: paylinkId ? paylinkId.substring(0, 8) + '...' : 'none' });
 
     // Verify Helio webhook - multiple methods supported
     const signature = req.headers.get('x-signature') || req.headers.get('x-webhook-signature') || req.headers.get('signature');
@@ -142,7 +142,7 @@ serve(async (req) => {
         .single();
 
       if (existingRequest) {
-        console.log('Duplicate request detected, transaction already processed:', transactionId);
+        console.log(`[${correlationId}] Duplicate request detected, already processed`);
         return new Response(
           JSON.stringify({ received: true, status: 'already_processed' }),
           {
@@ -173,7 +173,7 @@ serve(async (req) => {
       .single();
 
     if (orderError || !order) {
-      console.error('Order not found for paylink:', orderPaylinkId?.substring(0, 8) + '...');
+      console.error(`[${correlationId}] Order not found`);
       return new Response(
         JSON.stringify({ error: 'Order not found' }),
         { 
@@ -183,7 +183,7 @@ serve(async (req) => {
       );
     }
 
-    console.log('Found order:', order.id.substring(0, 8) + '...');
+    console.log(`[${correlationId}] Order found, processing`);
 
     // Check transaction status
     const transactionStatus = transactionObject.meta?.transactionStatus;
@@ -209,8 +209,7 @@ serve(async (req) => {
     const customerDetails = transactionObject.meta?.customerDetails || {};
     const transactionSignature = transactionObject.meta?.transactionSignature;
 
-    console.log('Payment successful for order:', order.id.substring(0, 8) + '...');
-    console.log('Transaction signature:', transactionSignature ? transactionSignature.substring(0, 12) + '...' : 'none');
+    console.log(`[${correlationId}] Payment successful, provisioning eSIM`);
 
     // Mark transaction as processed to prevent replay attacks
     if (transactionId) {
@@ -221,7 +220,7 @@ serve(async (req) => {
           webhook_type: 'helio',
           processed_at: new Date().toISOString(),
         });
-      console.log('Marked transaction as processed:', transactionId);
+      console.log(`[${correlationId}] Transaction marked as processed`);
     }
 
     // Update order with payment details
@@ -715,27 +714,17 @@ serve(async (req) => {
       // No need to send emails from our side
       console.log('✓ Airalo will send branded email to customer');
 
-      console.log('=== ORDER PROCESSING COMPLETE ===');
-      console.log('Order ID:', order.id);
-      console.log('Status: completed');
-      console.log('eSIM provisioned: ✓');
-      console.log('Database updated: ✓');
-      console.log('Airalo branded email: ✓ (sent by Airalo)');
-      console.log('Sharing link:', sim.sharing?.link ? '✓ Available' : '❌ Missing');
-      console.log('Access code:', sim.sharing?.access_code ? '✓ Available' : '❌ Missing');
-      console.log('================================');
+      console.log(`[${correlationId}] === ORDER PROCESSING COMPLETE ===`);
+      console.log(`[${correlationId}] Status: completed`);
+      console.log(`[${correlationId}] eSIM provisioned: ✓`);
+      console.log(`[${correlationId}] Sharing link available: ${sim.sharing?.link ? '✓' : '❌'}`);
+      console.log(`[${correlationId}] ================================`);
       
-      // Log critical warning if sharing link is missing
       if (!sim.sharing?.link) {
-        console.error('⚠️ CRITICAL: No sharing link in Airalo response - customer cannot access eSIM portal!');
-        console.error('Check Airalo Partner Dashboard brand settings configuration for "nomiqa"');
+        console.error(`[${correlationId}] CRITICAL: No sharing link - check Airalo brand settings`);
       }
     } catch (airloError: any) {
-      console.error('=== ❌ ESIM PROVISIONING FAILED ===');
-      console.error('Order ID:', order.id);
-      console.error('Error:', airloError.message || airloError);
-      console.error('Stack:', airloError.stack);
-      console.error('===================================');
+      console.error(`[${correlationId}] eSIM provisioning failed:`, airloError.message || 'Unknown error');
       // Don't fail the webhook, just log the error
       // The order is already marked as paid but will remain in failed state
     }
