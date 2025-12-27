@@ -269,7 +269,9 @@ export default function Auth() {
           }
           
           if (errorMessage.includes("already exists")) {
-            toast.error("An account with this email already exists. Please sign in instead.");
+            toast.error("An account with this email already exists. Switching to login...");
+            // Switch to login mode
+            navigate('/auth?mode=login');
           } else {
             toast.error(errorMessage);
           }
@@ -279,7 +281,8 @@ export default function Auth() {
 
         if (data?.error) {
           if (data.error.includes("already exists")) {
-            toast.error("An account with this email already exists. Please sign in instead.");
+            toast.error("An account with this email already exists. Switching to login...");
+            navigate('/auth?mode=login');
           } else {
             toast.error(data.error);
           }
