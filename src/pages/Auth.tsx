@@ -115,19 +115,8 @@ export default function Auth() {
             }
           }
 
-          // Send welcome email to new user
-          try {
-            await supabase.functions.invoke("send-email", {
-              body: {
-                type: "early_member_welcome",
-                to: email,
-                data: {},
-              },
-            });
-            console.log("Welcome email sent to:", email);
-          } catch (emailError) {
-            console.error("Error sending welcome email:", emailError);
-          }
+          // Welcome email is sent via database trigger or can be done server-side
+          console.log("New user registered:", email);
 
           toast.success("Successfully registered — choose a username.");
           setCurrentUser({ id: userId, email });
