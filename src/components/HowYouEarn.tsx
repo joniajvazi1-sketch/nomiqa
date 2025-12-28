@@ -1,24 +1,27 @@
 import { UserPlus, Smartphone, Coins } from "lucide-react";
+import { useTranslation } from "@/contexts/TranslationContext";
 
 export const HowYouEarn = () => {
+  const { t } = useTranslation();
+  
   const steps = [
     {
       icon: UserPlus,
       number: "01",
-      title: "Join",
-      description: "Create a free account in seconds. No ID or KYC required—just your email.",
+      titleKey: "howYouEarnStep1Title",
+      descriptionKey: "howYouEarnStep1Desc",
     },
     {
       icon: Smartphone,
       number: "02", 
-      title: "Verify",
-      description: "Your phone automatically validates network quality and coverage in your area.",
+      titleKey: "howYouEarnStep2Title",
+      descriptionKey: "howYouEarnStep2Desc",
     },
     {
       icon: Coins,
       number: "03",
-      title: "Earn",
-      description: "Get rewarded in tokens and credits for helping the network grow stronger.",
+      titleKey: "howYouEarnStep3Title",
+      descriptionKey: "howYouEarnStep3Desc",
     },
   ];
 
@@ -32,15 +35,15 @@ export const HowYouEarn = () => {
       <div className="container px-4 relative z-10">
         <div className="text-center mb-16 animate-fade-in">
           <span className="inline-block px-5 py-2 rounded-full bg-white/[0.03] backdrop-blur-xl text-nomiqa-teal text-sm font-medium mb-6 border border-white/10 shadow-lg shadow-nomiqa-teal/5">
-            How You Earn
+            {t("howYouEarnBadge")}
           </span>
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-light font-display mb-6">
             <span className="bg-gradient-to-r from-neon-cyan via-white to-neon-violet bg-clip-text text-transparent font-semibold">
-              Turn Your Phone Into a Node
+              {t("howYouEarnTitle")}
             </span>
           </h2>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto font-light">
-            Become part of the world's first user-owned connectivity network. It's simple, free, and rewarding.
+            {t("howYouEarnSubtitle")}
           </p>
         </div>
 
@@ -67,8 +70,8 @@ export const HowYouEarn = () => {
                     </div>
                   </div>
 
-                  <h3 className="text-2xl font-semibold text-foreground mb-3">{step.title}</h3>
-                  <p className="text-muted-foreground leading-relaxed font-light">{step.description}</p>
+                  <h3 className="text-2xl font-semibold text-foreground mb-3">{t(step.titleKey)}</h3>
+                  <p className="text-muted-foreground leading-relaxed font-light">{t(step.descriptionKey)}</p>
 
                   {/* Decorative glow */}
                   <div className="absolute bottom-0 right-0 w-32 h-32 bg-gradient-to-br from-neon-cyan/5 to-transparent rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -82,7 +85,7 @@ export const HowYouEarn = () => {
         <div className="text-center mt-14 animate-fade-in" style={{ animationDelay: '0.4s' }}>
           <div className="inline-block px-6 py-3 rounded-full bg-white/[0.02] backdrop-blur-xl border border-white/10">
             <p className="text-muted-foreground font-light">
-              <span className="text-neon-cyan font-medium">No crypto knowledge needed</span> — we handle the tech, you reap the rewards.
+              <span className="text-neon-cyan font-medium">{t("howYouEarnTagline")}</span> — {t("howYouEarnTaglineEnd")}
             </p>
           </div>
         </div>
