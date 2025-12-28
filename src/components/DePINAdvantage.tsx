@@ -1,16 +1,19 @@
 import { Building2, Users, DollarSign, Network, Coins, Heart } from "lucide-react";
+import { useTranslation } from "@/contexts/TranslationContext";
 
 export const DePINAdvantage = () => {
+  const { t } = useTranslation();
+
   const traditionalTelcos = [
-    { icon: DollarSign, text: "Expensive retail pricing" },
-    { icon: Building2, text: "Centralized infrastructure" },
-    { icon: Users, text: "Profits go to shareholders" },
+    { icon: DollarSign, textKey: "depinTraditional1" },
+    { icon: Building2, textKey: "depinTraditional2" },
+    { icon: Users, textKey: "depinTraditional3" },
   ];
 
   const nomiqaNetwork = [
-    { icon: Coins, text: "Wholesale rates for all" },
-    { icon: Network, text: "User-owned network" },
-    { icon: Heart, text: "Rewards flow back to you" },
+    { icon: Coins, textKey: "depinNomiqa1" },
+    { icon: Network, textKey: "depinNomiqa2" },
+    { icon: Heart, textKey: "depinNomiqa3" },
   ];
 
   return (
@@ -26,15 +29,15 @@ export const DePINAdvantage = () => {
       <div className="container px-4 relative z-10">
         <div className="text-center mb-16 animate-fade-in">
           <span className="inline-block px-5 py-2 rounded-full bg-white/[0.03] backdrop-blur-xl text-neon-cyan text-sm font-medium mb-6 border border-white/10 shadow-lg shadow-neon-cyan/5">
-            The DePIN Advantage
+            {t("depinBadge")}
           </span>
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-light font-display mb-6">
             <span className="bg-gradient-to-r from-neon-cyan via-white to-neon-violet bg-clip-text text-transparent font-semibold">
-              Why Decentralized Wins
+              {t("depinHeadline")}
             </span>
           </h2>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto font-light">
-            The old telecom model is broken. We're building something better—together.
+            {t("depinSubheadline")}
           </p>
         </div>
 
@@ -47,7 +50,7 @@ export const DePINAdvantage = () => {
                 <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-red-500/20 to-red-500/5 backdrop-blur-sm flex items-center justify-center border border-red-500/20">
                   <Building2 className="w-7 h-7 text-red-400" />
                 </div>
-                <h3 className="text-2xl font-semibold text-foreground">Traditional Telcos</h3>
+                <h3 className="text-2xl font-semibold text-foreground">{t("depinTraditionalTitle")}</h3>
               </div>
               
               <div className="space-y-4">
@@ -61,7 +64,7 @@ export const DePINAdvantage = () => {
                       <div className="w-11 h-11 rounded-xl bg-red-500/10 flex items-center justify-center flex-shrink-0 border border-red-500/10">
                         <Icon className="w-5 h-5 text-red-400" />
                       </div>
-                      <span className="text-muted-foreground font-light">{item.text}</span>
+                      <span className="text-muted-foreground font-light">{t(item.textKey)}</span>
                     </div>
                   );
                 })}
@@ -75,7 +78,7 @@ export const DePINAdvantage = () => {
                     <div className="w-10 h-10 bg-red-400/20 rounded-full absolute top-3 animate-pulse border border-red-400/20" />
                     <div className="w-6 h-6 bg-red-400/40 rounded-full absolute top-5 animate-pulse" style={{ animationDelay: '0.5s' }} />
                   </div>
-                  <div className="text-xs text-red-400/50 text-center mt-3 font-light tracking-wide">Centralized Tower</div>
+                  <div className="text-xs text-red-400/50 text-center mt-3 font-light tracking-wide">{t("depinCentralizedTower")}</div>
                 </div>
               </div>
             </div>
@@ -89,7 +92,7 @@ export const DePINAdvantage = () => {
                 <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-neon-cyan/20 to-neon-cyan/5 backdrop-blur-sm flex items-center justify-center border border-neon-cyan/20">
                   <Network className="w-7 h-7 text-neon-cyan" />
                 </div>
-                <h3 className="text-2xl font-semibold text-foreground">The Nomiqa Network</h3>
+                <h3 className="text-2xl font-semibold text-foreground">{t("depinNomiqaTitle")}</h3>
               </div>
               
               <div className="space-y-4">
@@ -103,7 +106,7 @@ export const DePINAdvantage = () => {
                       <div className="w-11 h-11 rounded-xl bg-neon-cyan/10 flex items-center justify-center flex-shrink-0 border border-neon-cyan/10">
                         <Icon className="w-5 h-5 text-neon-cyan" />
                       </div>
-                      <span className="text-foreground font-light">{item.text}</span>
+                      <span className="text-foreground font-light">{t(item.textKey)}</span>
                     </div>
                   );
                 })}
@@ -157,7 +160,7 @@ export const DePINAdvantage = () => {
                     <line x1="50%" y1="50%" x2="25%" y2="78%" stroke="rgba(0,255,200,0.2)" strokeWidth="1" />
                     <line x1="50%" y1="50%" x2="12%" y2="35%" stroke="rgba(0,255,200,0.2)" strokeWidth="1" />
                   </svg>
-                  <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-xs text-neon-cyan/50 whitespace-nowrap font-light tracking-wide">Distributed Mesh</div>
+                  <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-xs text-neon-cyan/50 whitespace-nowrap font-light tracking-wide">{t("depinDistributedMesh")}</div>
                 </div>
               </div>
             </div>
