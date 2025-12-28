@@ -1,5 +1,6 @@
 // TranslationContext - provides i18n for the entire app
 import { createContext, useContext, useEffect, useMemo, useState, ReactNode } from "react";
+import type { Context } from "react";
 import { termsTranslations } from "@/translations/termsTranslations";
 
 export type Language = "EN" | "ES" | "FR" | "DE" | "RU" | "ZH" | "JA" | "PT" | "AR" | "IT";
@@ -14,7 +15,14 @@ interface TranslationContextType {
   formatPrice: (priceUSD: number) => string;
 }
 
-const TranslationContext = createContext<TranslationContextType | undefined>(undefined);
+const TranslationContext: Context<TranslationContextType | undefined> = (() => {
+  // Keep the same Context identity across hot reloads to avoid "used outside provider" crashes.
+  const g = globalThis as any;
+  if (!g.__NOMIQA_TRANSLATION_CONTEXT__) {
+    g.__NOMIQA_TRANSLATION_CONTEXT__ = createContext<TranslationContextType | undefined>(undefined);
+  }
+  return g.__NOMIQA_TRANSLATION_CONTEXT__ as Context<TranslationContextType | undefined>;
+})();
 
 // Comprehensive translations for all pages and components
 const translations: Record<string, Partial<Record<Language | 'HI', string>>> = {
@@ -1016,10 +1024,22 @@ function getInitialLanguage(): Language {
   return detectBrowserLanguage();
 }
 
-export function useTranslation() {
+const FALLBACK_TRANSLATION_CONTEXT: TranslationContextType = {
+  language: "EN",
+  setLanguage: () => {},
+  t: (key: string) => key,
+  currency: "USD",
+  formatPrice: (priceUSD: number) => `$${priceUSD.toFixed(2)}`,
+};
+
+export function useTranslation(): TranslationContextType {
   const ctx = useContext(TranslationContext);
   if (!ctx) {
-    throw new Error("useTranslation must be used within TranslationProvider");
+    // Prevent blank screens in case of hot reload / render ordering issues.
+    if (typeof window !== "undefined") {
+      console.error("useTranslation used without TranslationProvider; using fallback context.");
+    }
+    return FALLBACK_TRANSLATION_CONTEXT;
   }
   return ctx;
 }
