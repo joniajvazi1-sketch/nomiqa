@@ -371,20 +371,50 @@ export default function Auth() {
   const handleEmailVerified = async () => {
     setShowEmailVerification(false);
     
-    if (currentUser) {
-      // Check if user needs username selection
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("username")
-        .eq("user_id", currentUser.id)
-        .single();
+    if (currentUser && email && password) {
+      // Auto-sign in the user after email verification
+      setLoading(true);
+      try {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
 
-      if (profile?.username?.startsWith("temp_")) {
-        setShowUsernameSelection(true);
-      } else {
-        toast.success("Welcome to Nomiqa!");
-        navigate('/');
+        if (error) {
+          console.error("Auto sign-in failed:", error);
+          toast.error("Verification successful! Please sign in with your credentials.");
+          navigate('/auth');
+          return;
+        }
+
+        if (data?.user) {
+          // Check if user needs username selection
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("username")
+            .eq("user_id", data.user.id)
+            .single();
+
+          if (profile?.username?.startsWith("temp_")) {
+            toast.success("Email verified! Now choose your username.");
+            setCurrentUser({ id: data.user.id, email: data.user.email || "" });
+            setShowUsernameSelection(true);
+          } else {
+            toast.success("Welcome to Nomiqa!");
+            navigate('/');
+          }
+        }
+      } catch (err) {
+        console.error("Error during auto sign-in:", err);
+        toast.success("Verification successful! Please sign in.");
+        navigate('/auth');
+      } finally {
+        setLoading(false);
       }
+    } else {
+      // Fallback if we don't have credentials stored
+      toast.success("Email verified! Please sign in to continue.");
+      navigate('/auth');
     }
   };
 
