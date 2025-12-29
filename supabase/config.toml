@@ -59,3 +59,15 @@ verify_jwt = false
 
 [functions.signup-user]
 verify_jwt = false
+
+[functions.sync-contribution-data]
+verify_jwt = true
+
+[functions.get-contribution-stats]
+verify_jwt = true
+
+[functions.get-my-orders]
+verify_jwt = true
+
+[functions.delete-user]
+verify_jwt = true

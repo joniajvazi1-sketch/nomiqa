@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useProducts } from '@/hooks/useProducts';
+import { useProducts, Product } from '@/hooks/useProducts';
 import { useCart } from '@/hooks/useCart';
 import { useHaptics } from '@/hooks/useHaptics';
 import { cn } from '@/lib/utils';
@@ -15,7 +15,7 @@ import { cn } from '@/lib/utils';
  */
 export const AppShop: React.FC = () => {
   const navigate = useNavigate();
-  const { products, isLoading } = useProducts();
+  const { data: products, isLoading } = useProducts();
   const { addItem } = useCart();
   const { lightTap, success } = useHaptics();
   
@@ -23,19 +23,19 @@ export const AppShop: React.FC = () => {
 
   // Group products by country
   const groupedProducts = useMemo(() => {
-    if (!products) return {};
+    if (!products) return {} as Record<string, Product[]>;
     
-    const filtered = products.filter(p => 
+    const filtered = products.filter((p: Product) =>
       p.country_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       p.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    return filtered.reduce((acc, product) => {
+    return filtered.reduce((acc: Record<string, Product[]>, product: Product) => {
       const country = product.country_name;
       if (!acc[country]) acc[country] = [];
       acc[country].push(product);
       return acc;
-    }, {} as Record<string, typeof products>);
+    }, {} as Record<string, Product[]>);
   }, [products, searchQuery]);
 
   const handleAddToCart = (product: any) => {
