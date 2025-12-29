@@ -316,11 +316,17 @@ const WebRoutes = () => (
 /**
  * Main App Router - Detects platform and renders appropriate UI
  * CRITICAL: Website visitors see WebRoutes, Native app users see NativeAppRoutes
+ * 
+ * Routes starting with /app/* will ALWAYS show the native app UI (for preview)
  */
 const AppRouter = () => {
   const { isNative } = usePlatform();
+  const location = window.location.pathname;
   
-  return isNative ? <NativeAppRoutes /> : <WebRoutes />;
+  // Force native app UI for /app routes (allows desktop preview)
+  const isAppRoute = location.startsWith('/app');
+  
+  return (isNative || isAppRoute) ? <NativeAppRoutes /> : <WebRoutes />;
 };
 
 const App = () => {
