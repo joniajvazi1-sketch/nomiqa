@@ -11,6 +11,7 @@ import { TranslationProvider } from "@/contexts/TranslationContext";
 import { usePlatform } from "@/hooks/usePlatform";
 import { AppLayout } from "@/components/app/AppLayout";
 import { WebLayout } from "@/components/app/WebLayout";
+import { AppErrorBoundary } from "@/components/app/AppErrorBoundary";
 
 // Lazy load WEB pages
 const Index = lazy(() => import("./pages/Index"));
@@ -87,7 +88,17 @@ const NativeAppRoutes = () => (
   <AppLayout>
     <Routes>
       <Route path="/app" element={<AppHome />} />
-      <Route path="/app/map" element={<NetworkContribution />} />
+      <Route
+        path="/app/map"
+        element={
+          <AppErrorBoundary
+            title="Map unavailable"
+            description="The map failed to load. Please refresh and try again."
+          >
+            <NetworkContribution />
+          </AppErrorBoundary>
+        }
+      />
       <Route path="/app/shop" element={<AppShop />} />
       <Route path="/app/wallet" element={<AppWallet />} />
       <Route path="/auth" element={<Auth />} />
