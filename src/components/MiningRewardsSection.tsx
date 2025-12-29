@@ -2,6 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Lock, Unlock, Pickaxe, Users, Zap, Rocket, Crown, Star, Gift } from "lucide-react";
+import { useTranslation } from "@/contexts/TranslationContext";
 
 interface MiningRewardsSectionProps {
   totalRegistrations: number;
@@ -10,11 +11,11 @@ interface MiningRewardsSectionProps {
 }
 
 const MILESTONES = [
-  { level: 1, name: 'Recruiter', registrations: 5, boost: 10, icon: Users },
-  { level: 2, name: 'Influencer', registrations: 15, boost: 20, icon: Zap },
-  { level: 3, name: 'Ambassador', registrations: 30, boost: 40, icon: Star },
-  { level: 4, name: 'Champion', registrations: 50, boost: 70, icon: Rocket },
-  { level: 5, name: 'Legend', registrations: 100, boost: 100, icon: Crown },
+  { level: 1, nameKey: 'affiliateTierRecruiter', registrations: 5, boost: 10, icon: Users },
+  { level: 2, nameKey: 'affiliateTierInfluencer', registrations: 15, boost: 20, icon: Zap },
+  { level: 3, nameKey: 'affiliateTierAmbassador', registrations: 30, boost: 40, icon: Star },
+  { level: 4, nameKey: 'affiliateTierChampion', registrations: 50, boost: 70, icon: Rocket },
+  { level: 5, nameKey: 'affiliateTierLegend', registrations: 100, boost: 100, icon: Crown },
 ];
 
 export const MiningRewardsSection = ({ 
@@ -22,6 +23,7 @@ export const MiningRewardsSection = ({
   currentMilestoneLevel,
   minerBoostPercentage 
 }: MiningRewardsSectionProps) => {
+  const { t } = useTranslation();
   
   const getNextMilestone = () => {
     return MILESTONES.find(m => m.level > currentMilestoneLevel);
@@ -56,10 +58,10 @@ export const MiningRewardsSection = ({
           </div>
           <div>
             <CardTitle className="text-xl md:text-2xl font-bold bg-gradient-to-r from-amber-400 via-orange-400 to-yellow-400 bg-clip-text text-transparent">
-              Mining Rewards
+              {t("miningRewardsTitle")}
             </CardTitle>
             <CardDescription className="text-sm">
-              Unlock miner boosts by growing your network
+              {t("miningRewardsDesc")}
             </CardDescription>
           </div>
         </div>
@@ -68,7 +70,7 @@ export const MiningRewardsSection = ({
         {minerBoostPercentage > 0 && (
           <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-500/20 to-orange-500/20 rounded-full border border-amber-500/30">
             <Zap className="w-4 h-4 text-amber-400" />
-            <span className="font-bold text-amber-400">+{minerBoostPercentage}% Mining Boost Active</span>
+            <span className="font-bold text-amber-400">+{minerBoostPercentage}% {t("miningBoostActive")}</span>
           </div>
         )}
       </CardHeader>
@@ -78,13 +80,13 @@ export const MiningRewardsSection = ({
         {nextMilestone && (
           <div className="space-y-3">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Progress to {nextMilestone.name}</span>
-              <span className="font-semibold text-foreground">{remainingToNext} more registrations needed</span>
+              <span className="text-muted-foreground">{t("progressTo")} {t(nextMilestone.nameKey)}</span>
+              <span className="font-semibold text-foreground">{remainingToNext} {t("moreRegistrationsNeeded")}</span>
             </div>
             <Progress value={getProgressToNext()} className="h-3 bg-muted/50" />
             <div className="flex items-center justify-between text-xs text-muted-foreground">
-              <span>{totalRegistrations} registrations</span>
-              <span>{nextMilestone.registrations} required</span>
+              <span>{totalRegistrations} {t("registrationsCount")}</span>
+              <span>{nextMilestone.registrations} {t("required")}</span>
             </div>
           </div>
         )}
@@ -93,7 +95,7 @@ export const MiningRewardsSection = ({
         <div className="space-y-4">
           <h3 className="font-semibold text-base flex items-center gap-2">
             <Gift className="w-4 h-4 text-primary" />
-            Miner Boost Milestones
+            {t("minerBoostMilestones")}
           </h3>
           
           <div className="grid gap-3">
@@ -130,22 +132,22 @@ export const MiningRewardsSection = ({
                       <div>
                         <div className="flex items-center gap-2">
                           <span className={`font-bold ${isUnlocked ? 'text-foreground' : 'text-muted-foreground'}`}>
-                            {milestone.name}
+                            {t(milestone.nameKey)}
                           </span>
                           {isUnlocked && (
                             <Badge variant="outline" className="text-xs bg-amber-500/10 text-amber-400 border-amber-500/30">
                               <Unlock className="w-3 h-3 mr-1" />
-                              Unlocked
+                              {t("unlocked")}
                             </Badge>
                           )}
                           {isCurrent && (
                             <Badge className="text-xs bg-amber-500 text-black">
-                              Current
+                              {t("current")}
                             </Badge>
                           )}
                         </div>
                         <p className="text-sm text-muted-foreground">
-                          {milestone.registrations} registrations
+                          {milestone.registrations} {t("registrationsCount")}
                         </p>
                       </div>
                     </div>
@@ -153,7 +155,7 @@ export const MiningRewardsSection = ({
                     {/* Reward */}
                     <div className={`text-right ${isUnlocked ? 'text-amber-400' : 'text-muted-foreground'}`}>
                       <div className="font-bold text-lg">+{milestone.boost}%</div>
-                      <div className="text-xs">Mining Boost</div>
+                      <div className="text-xs">{t("miningBoost")}</div>
                     </div>
                   </div>
                 </div>
@@ -169,8 +171,8 @@ export const MiningRewardsSection = ({
               <Users className="w-5 h-5 text-primary" />
             </div>
             <div>
-              <h3 className="font-bold text-base">Referral Mining Bonus</h3>
-              <p className="text-sm text-muted-foreground">Passive income from your network</p>
+              <h3 className="font-bold text-base">{t("referralMiningBonus")}</h3>
+              <p className="text-sm text-muted-foreground">{t("passiveIncomeFromNetwork")}</p>
             </div>
           </div>
           
@@ -180,21 +182,21 @@ export const MiningRewardsSection = ({
                 <span className="text-lg font-bold text-green-400">5%</span>
               </div>
               <div>
-                <p className="font-semibold text-foreground">Earn 5% of what your referrals mine</p>
-                <p className="text-xs text-muted-foreground">They don't lose anything — it's a bonus for you!</p>
+                <p className="font-semibold text-foreground">{t("earnFromReferralMining")}</p>
+                <p className="text-xs text-muted-foreground">{t("theyDontLoseAnything")}</p>
               </div>
             </div>
             
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Users className="w-4 h-4" />
-              <span><strong className="text-foreground">{totalRegistrations}</strong> people in your network</span>
+              <span><strong className="text-foreground">{totalRegistrations}</strong> {t("peopleInYourNetwork")}</span>
             </div>
           </div>
           
           <div className="flex items-center gap-2 p-3 bg-amber-500/10 rounded-lg border border-amber-500/20">
             <Rocket className="w-5 h-5 text-amber-400" />
             <p className="text-sm text-amber-200/80">
-              <strong className="text-amber-400">Coming Soon:</strong> Mining rewards will activate when the network launches!
+              <strong className="text-amber-400">{t("comingSoonMining")}</strong> {t("miningRewardsActivate")}
             </p>
           </div>
         </div>

@@ -541,19 +541,19 @@ export default function Affiliate() {
                     <div className="absolute -inset-1 bg-gradient-to-r from-amber-500 to-orange-500 rounded-2xl blur-lg opacity-20 group-hover:opacity-40 transition duration-500"></div>
                     <div className="relative p-5 md:p-6 bg-gradient-to-br from-white/[0.08] to-white/[0.02] backdrop-blur-xl border border-white/20 rounded-2xl shadow-xl h-full">
                       <div className="text-center mb-4">
-                        <h3 className="font-bold text-base md:text-lg text-white">Grow & Mine</h3>
-                        <p className="text-xs md:text-sm text-white/60">from registrations</p>
+                        <h3 className="font-bold text-base md:text-lg text-white">{t("growAndMine")}</h3>
+                        <p className="text-xs md:text-sm text-white/60">{t("fromRegistrations")}</p>
                       </div>
                       <div className="text-center mb-4">
                         <p className="text-3xl md:text-4xl lg:text-5xl font-black bg-gradient-to-r from-amber-400 via-orange-400 to-yellow-400 bg-clip-text text-transparent">
-                          +<AnimatedCounter end={50} suffix="%" delay={200} className="inline-block" />
+                          +<AnimatedCounter end={100} suffix="%" delay={200} className="inline-block" />
                         </p>
-                        <p className="text-sm text-white/50 mt-1">Mining Boost</p>
+                        <p className="text-sm text-white/50 mt-1">{t("miningBoost")}</p>
                       </div>
                       <div className="flex flex-wrap items-center justify-center gap-2 text-xs md:text-sm">
-                        <span className="px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-semibold">Recruiter</span>
+                        <span className="px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-semibold">{t("affiliateTierRecruiter")}</span>
                         <span className="px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-semibold">→</span>
-                        <span className="px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-semibold">Legend</span>
+                        <span className="px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-semibold">{t("affiliateTierLegend")}</span>
                       </div>
                     </div>
                   </div>
