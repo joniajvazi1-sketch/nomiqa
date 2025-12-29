@@ -1,15 +1,32 @@
 import { Capacitor } from '@capacitor/core';
+import { useMemo } from 'react';
 
 /**
  * Check for dev preview mode via URL parameter
  * Add ?appPreview=true to URL to see native app UI in browser
  */
-const isAppPreviewMode = () => {
+const isAppPreviewMode = (): boolean => {
   if (typeof window !== 'undefined') {
-    const params = new URLSearchParams(window.location.search);
-    return params.get('appPreview') === 'true';
+    // Check both search params and hash (in case of hash routing)
+    const urlParams = new URLSearchParams(window.location.search);
+    const hashParams = new URLSearchParams(window.location.hash.split('?')[1] || '');
+    return urlParams.get('appPreview') === 'true' || hashParams.get('appPreview') === 'true';
   }
   return false;
+};
+
+// Store preview mode at module level to persist across re-renders
+// This is set once when the app loads
+let cachedPreviewMode: boolean | null = null;
+
+const getPreviewMode = (): boolean => {
+  if (cachedPreviewMode === null) {
+    cachedPreviewMode = isAppPreviewMode();
+    if (cachedPreviewMode) {
+      console.log('[usePlatform] App Preview Mode ENABLED');
+    }
+  }
+  return cachedPreviewMode;
 };
 
 /**
@@ -22,7 +39,7 @@ const isAppPreviewMode = () => {
 export const usePlatform = () => {
   const platform = Capacitor.getPlatform();
   const isActuallyNative = Capacitor.isNativePlatform();
-  const isPreviewMode = isAppPreviewMode();
+  const isPreviewMode = useMemo(() => getPreviewMode(), []);
   
   // In preview mode, pretend we're native
   const isNative = isActuallyNative || isPreviewMode;
@@ -40,5 +57,5 @@ export const usePlatform = () => {
 /**
  * Static check for use outside of React components
  */
-export const isPlatformNative = () => Capacitor.isNativePlatform();
+export const isPlatformNative = () => Capacitor.isNativePlatform() || getPreviewMode();
 export const getPlatform = () => Capacitor.getPlatform();
