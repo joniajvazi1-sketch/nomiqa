@@ -154,6 +154,45 @@ export type Database = {
           },
         ]
       }
+      contribution_sessions: {
+        Row: {
+          average_signal_strength: number | null
+          created_at: string | null
+          data_points_count: number | null
+          ended_at: string | null
+          id: string
+          started_at: string
+          status: string | null
+          total_distance_meters: number | null
+          total_points_earned: number | null
+          user_id: string
+        }
+        Insert: {
+          average_signal_strength?: number | null
+          created_at?: string | null
+          data_points_count?: number | null
+          ended_at?: string | null
+          id?: string
+          started_at?: string
+          status?: string | null
+          total_distance_meters?: number | null
+          total_points_earned?: number | null
+          user_id: string
+        }
+        Update: {
+          average_signal_strength?: number | null
+          created_at?: string | null
+          data_points_count?: number | null
+          ended_at?: string | null
+          id?: string
+          started_at?: string
+          status?: string | null
+          total_distance_meters?: number | null
+          total_points_earned?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       email_rate_limits: {
         Row: {
           created_at: string
@@ -263,6 +302,68 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      offline_contribution_queue: {
+        Row: {
+          accuracy_meters: number | null
+          carrier: string | null
+          created_at: string | null
+          device_type: string | null
+          id: string
+          latitude: number
+          longitude: number
+          network_type: string | null
+          processed: boolean | null
+          recorded_at: string
+          session_id: string | null
+          signal_dbm: number | null
+          speed_mps: number | null
+          synced_at: string | null
+          user_id: string
+        }
+        Insert: {
+          accuracy_meters?: number | null
+          carrier?: string | null
+          created_at?: string | null
+          device_type?: string | null
+          id?: string
+          latitude: number
+          longitude: number
+          network_type?: string | null
+          processed?: boolean | null
+          recorded_at: string
+          session_id?: string | null
+          signal_dbm?: number | null
+          speed_mps?: number | null
+          synced_at?: string | null
+          user_id: string
+        }
+        Update: {
+          accuracy_meters?: number | null
+          carrier?: string | null
+          created_at?: string | null
+          device_type?: string | null
+          id?: string
+          latitude?: number
+          longitude?: number
+          network_type?: string | null
+          processed?: boolean | null
+          recorded_at?: string
+          session_id?: string | null
+          signal_dbm?: number | null
+          speed_mps?: number | null
+          synced_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "offline_contribution_queue_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "contribution_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       orders: {
         Row: {
@@ -565,6 +666,45 @@ export type Database = {
           username?: string
           verification_code?: string | null
           verification_code_expires_at?: string | null
+        }
+        Relationships: []
+      }
+      user_points: {
+        Row: {
+          contribution_streak_days: number | null
+          created_at: string | null
+          id: string
+          last_contribution_date: string | null
+          pending_points: number | null
+          total_contribution_time_seconds: number | null
+          total_distance_meters: number | null
+          total_points: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          contribution_streak_days?: number | null
+          created_at?: string | null
+          id?: string
+          last_contribution_date?: string | null
+          pending_points?: number | null
+          total_contribution_time_seconds?: number | null
+          total_distance_meters?: number | null
+          total_points?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          contribution_streak_days?: number | null
+          created_at?: string | null
+          id?: string
+          last_contribution_date?: string | null
+          pending_points?: number | null
+          total_contribution_time_seconds?: number | null
+          total_distance_meters?: number | null
+          total_points?: number | null
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
