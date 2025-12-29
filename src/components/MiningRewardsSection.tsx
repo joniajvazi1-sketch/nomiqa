@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Lock, Unlock, Pickaxe, Users, Zap, Rocket, Crown, Star, Gift } from "lucide-react";
+import { Lock, Unlock, Network, Users, Zap, Rocket, Crown, Star, Gift } from "lucide-react";
 import { useTranslation } from "@/contexts/TranslationContext";
 
 interface MiningRewardsSectionProps {
@@ -54,7 +54,7 @@ export const MiningRewardsSection = ({
       <CardHeader className="pb-4 border-b border-border/50 relative">
         <div className="flex items-center gap-3">
           <div className="p-2.5 bg-gradient-to-br from-amber-500/20 to-orange-500/20 rounded-xl border border-amber-500/30">
-            <Pickaxe className="w-6 h-6 text-amber-500" />
+            <Network className="w-6 h-6 text-amber-500" />
           </div>
           <div>
             <CardTitle className="text-xl md:text-2xl font-bold bg-gradient-to-r from-amber-400 via-orange-400 to-yellow-400 bg-clip-text text-transparent">
