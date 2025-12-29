@@ -11,7 +11,7 @@ import { useHaptics } from '@/hooks/useHaptics';
 import { cn } from '@/lib/utils';
 
 /**
- * App Shop - Mobile-optimized eSIM store
+ * App Shop - Mobile-optimized eSIM store with country flags
  */
 export const AppShop: React.FC = () => {
   const navigate = useNavigate();
@@ -45,6 +45,46 @@ export const AppShop: React.FC = () => {
   };
 
   const popularCountries = ['United States', 'United Kingdom', 'Japan', 'Thailand', 'France', 'Germany'];
+
+  // Get first product's flag for each country group
+  const getCountryFlag = (countryProducts: Product[]) => {
+    const imageUrl = countryProducts[0]?.country_image_url;
+    if (imageUrl) {
+      return (
+        <img 
+          src={imageUrl} 
+          alt="" 
+          className="w-8 h-8 rounded-full object-cover border-2 border-border/50 shadow-sm"
+        />
+      );
+    }
+    // Fallback emoji mapping for common countries
+    const emojiMap: Record<string, string> = {
+      'United States': '🇺🇸',
+      'United Kingdom': '🇬🇧',
+      'Japan': '🇯🇵',
+      'Thailand': '🇹🇭',
+      'France': '🇫🇷',
+      'Germany': '🇩🇪',
+      'China': '🇨🇳',
+      'Singapore': '🇸🇬',
+      'Australia': '🇦🇺',
+      'Canada': '🇨🇦',
+      'South Korea': '🇰🇷',
+      'Italy': '🇮🇹',
+      'Spain': '🇪🇸',
+      'Brazil': '🇧🇷',
+      'Mexico': '🇲🇽',
+      'India': '🇮🇳',
+      'Indonesia': '🇮🇩',
+      'Turkey': '🇹🇷',
+      'UAE': '🇦🇪',
+      'Saudi Arabia': '🇸🇦',
+    };
+    const countryName = countryProducts[0]?.country_name;
+    const emoji = emojiMap[countryName] || '🌍';
+    return <span className="text-2xl">{emoji}</span>;
+  };
 
   return (
     <div className="px-4 py-6 space-y-6">
@@ -96,12 +136,15 @@ export const AppShop: React.FC = () => {
         <div className="space-y-6">
           {Object.entries(groupedProducts).slice(0, 10).map(([country, countryProducts]) => (
             <div key={country}>
-              <div className="flex items-center gap-2 mb-3">
-                <MapPin className="w-4 h-4 text-primary" />
-                <h2 className="font-semibold text-foreground">{country}</h2>
-                <Badge variant="secondary" className="text-xs">
-                  {countryProducts.length} plans
-                </Badge>
+              {/* Country header with flag */}
+              <div className="flex items-center gap-3 mb-3">
+                {getCountryFlag(countryProducts as Product[])}
+                <div className="flex items-center gap-2">
+                  <h2 className="font-semibold text-foreground">{country}</h2>
+                  <Badge variant="secondary" className="text-xs">
+                    {countryProducts.length} plans
+                  </Badge>
+                </div>
               </div>
               
               <div className="space-y-2">

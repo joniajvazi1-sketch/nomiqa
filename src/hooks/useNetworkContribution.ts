@@ -65,6 +65,7 @@ export const useNetworkContribution = () => {
   });
 
   const [offlineQueueCount, setOfflineQueueCount] = useState(0);
+  const [lastPosition, setLastPosition] = useState<Position | null>(null);
   
   const lastPositionRef = useRef<Position | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -95,6 +96,7 @@ export const useNetworkContribution = () => {
     }
     
     lastPositionRef.current = position;
+    setLastPosition(position);
     
     // Queue the data point
     queueContributionData(position);
@@ -388,6 +390,7 @@ export const useNetworkContribution = () => {
     isOnline,
     connectionType,
     offlineQueueCount,
+    lastPosition,
     
     // Actions
     startContribution,
