@@ -121,6 +121,21 @@ export default function Auth() {
             }
           }
 
+          // Send welcome email for new Google OAuth registrations
+          try {
+            await supabase.functions.invoke("send-email", {
+              body: {
+                type: "early_member_welcome",
+                email: email,
+                data: { email }
+              }
+            });
+            console.log("Welcome email sent to Google OAuth user:", email);
+          } catch (emailError) {
+            console.error("Error sending welcome email:", emailError);
+            // Don't block registration if email fails
+          }
+
           console.log("New OAuth user registered:", email);
 
           toast.success("Successfully registered — choose a username.");
