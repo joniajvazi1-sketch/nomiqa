@@ -10,7 +10,10 @@ import {
   Wifi,
   Battery,
   Cloud,
-  CloudOff
+  CloudOff,
+  Smartphone,
+  Clock,
+  Route
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -21,7 +24,11 @@ import { cn } from '@/lib/utils';
 
 /**
  * Network Contribution Page - The "Mining" feature
- * Dark futuristic UI with real-time stats, map, and background geolocation
+ * 
+ * BUSINESS RULES:
+ * - CELLULAR ONLY: Mining pauses on WiFi - we are a DePIN for Mobile Networks
+ * - TIME-BASED: Users earn 0.5 points/minute even when stationary
+ * - DISTANCE: Users earn 0.01 points/meter when moving
  */
 export const NetworkContribution: React.FC = () => {
   const { isAndroid } = usePlatform();
@@ -37,6 +44,8 @@ export const NetworkContribution: React.FC = () => {
     connectionType,
     offlineQueueCount,
     lastPosition,
+    isCellular,
+    isPaused,
     startContribution,
     stopContribution,
     formatDuration,
@@ -53,18 +62,39 @@ export const NetworkContribution: React.FC = () => {
   return (
     <div className="relative min-h-screen bg-background">
       {/* Full-screen dark map background */}
-      <ContributionMap userPosition={userPosition} isActive={isActive} />
+      <ContributionMap userPosition={userPosition} isActive={isActive && isCellular} />
       
       {/* Content overlay */}
       <div className="relative z-20 px-4 py-6 space-y-4 min-h-screen flex flex-col">
         {/* Header */}
         <div className="text-center">
           <h1 className="text-2xl font-bold text-foreground">Network Contribution</h1>
-          <p className="text-sm text-muted-foreground">Help map coverage & earn Nomi Points</p>
+          <p className="text-sm text-muted-foreground">Map cellular coverage & earn Nomi Points</p>
         </div>
 
         {/* Alerts section */}
         <div className="space-y-2">
+          {/* CRITICAL: WiFi Warning - Mining Paused */}
+          {isActive && !isCellular && (
+            <Alert className="border-amber-500 bg-amber-500/20 backdrop-blur-sm">
+              <Wifi className="h-5 w-5 text-amber-400" />
+              <AlertTitle className="text-amber-400 font-semibold">Mining Paused</AlertTitle>
+              <AlertDescription className="text-amber-200">
+                Switch to 5G/4G to contribute. We map mobile networks, not WiFi.
+              </AlertDescription>
+            </Alert>
+          )}
+          
+          {/* Cellular Active Indicator */}
+          {isActive && isCellular && (
+            <Alert className="border-green-500/50 bg-green-500/10 backdrop-blur-sm">
+              <Smartphone className="h-4 w-4 text-green-500" />
+              <AlertDescription className="text-green-200/80">
+                📶 Earning on {connectionType.toUpperCase()} - Keep it up!
+              </AlertDescription>
+            </Alert>
+          )}
+
           {/* Battery Warning (Android only) */}
           {isAndroid && !isActive && (
             <Alert className="border-amber-500/50 bg-amber-500/10 backdrop-blur-sm">
@@ -100,25 +130,39 @@ export const NetworkContribution: React.FC = () => {
               'shadow-2xl transform active:scale-95',
               'backdrop-blur-sm',
               isActive 
-                ? 'bg-gradient-to-br from-red-500/90 to-red-700/90 shadow-red-500/50' 
-                : 'bg-gradient-to-br from-primary/90 to-primary/70 shadow-primary/50',
+                ? isPaused
+                  ? 'bg-gradient-to-br from-amber-500/90 to-amber-700/90 shadow-amber-500/50' // Paused (WiFi)
+                  : 'bg-gradient-to-br from-green-500/90 to-green-700/90 shadow-green-500/50' // Active + Cellular
+                : 'bg-gradient-to-br from-primary/90 to-primary/70 shadow-primary/50', // Idle
               !user && 'opacity-50 cursor-not-allowed'
             )}
           >
-            {/* Pulsing rings when active */}
-            {isActive && (
+            {/* Pulsing rings when active on cellular */}
+            {isActive && isCellular && (
               <>
-                <span className="absolute inset-0 rounded-full bg-red-500/30 animate-ping" />
-                <span className="absolute inset-2 rounded-full bg-red-500/20 animate-pulse" />
+                <span className="absolute inset-0 rounded-full bg-green-500/30 animate-ping" />
+                <span className="absolute inset-2 rounded-full bg-green-500/20 animate-pulse" />
               </>
+            )}
+            
+            {/* Paused indicator when on WiFi */}
+            {isActive && isPaused && (
+              <span className="absolute inset-2 rounded-full border-4 border-dashed border-amber-400/50 animate-spin" style={{ animationDuration: '8s' }} />
             )}
             
             <div className="relative z-10 text-center text-white">
               {isActive ? (
-                <>
-                  <Pause className="w-10 h-10 mx-auto mb-1" />
-                  <span className="text-sm font-medium">STOP</span>
-                </>
+                isPaused ? (
+                  <>
+                    <Wifi className="w-10 h-10 mx-auto mb-1 opacity-80" />
+                    <span className="text-xs font-medium">PAUSED</span>
+                  </>
+                ) : (
+                  <>
+                    <Pause className="w-10 h-10 mx-auto mb-1" />
+                    <span className="text-sm font-medium">STOP</span>
+                  </>
+                )
               ) : (
                 <>
                   <Play className="w-10 h-10 mx-auto mb-1" />
@@ -144,45 +188,61 @@ export const NetworkContribution: React.FC = () => {
               <div className="grid grid-cols-3 gap-4 text-center">
                 <div>
                   <Zap className="w-5 h-5 mx-auto mb-1 text-primary" />
-                  <div className="text-xl font-bold text-foreground">{stats.pointsEarned}</div>
+                  <div className="text-xl font-bold text-foreground">
+                    {stats.pointsEarned.toFixed(1)}
+                  </div>
                   <div className="text-xs text-muted-foreground">Points</div>
                 </div>
                 <div>
-                  <Gauge className="w-5 h-5 mx-auto mb-1 text-blue-500" />
-                  <div className="text-xl font-bold text-foreground">{stats.speedKmh}</div>
-                  <div className="text-xs text-muted-foreground">km/h</div>
+                  <Clock className="w-5 h-5 mx-auto mb-1 text-amber-500" />
+                  <div className="text-xl font-bold text-foreground">
+                    {stats.timePoints.toFixed(1)}
+                  </div>
+                  <div className="text-xs text-muted-foreground">Time Pts</div>
                 </div>
                 <div>
-                  <MapPin className="w-5 h-5 mx-auto mb-1 text-green-500" />
-                  <div className="text-xl font-bold text-foreground">{formatDistance(stats.distanceMeters)}</div>
-                  <div className="text-xs text-muted-foreground">Distance</div>
+                  <Route className="w-5 h-5 mx-auto mb-1 text-blue-500" />
+                  <div className="text-xl font-bold text-foreground">
+                    {stats.distancePoints.toFixed(1)}
+                  </div>
+                  <div className="text-xs text-muted-foreground">Dist Pts</div>
                 </div>
               </div>
             </CardContent>
           </Card>
 
           {/* Session Info */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-3 gap-3">
             <Card className="bg-card/70 border-border/50 backdrop-blur-md">
-              <CardContent className="p-3 flex items-center gap-3">
+              <CardContent className="p-3 text-center">
                 <Signal className={cn(
-                  'w-5 h-5',
-                  isOnline ? 'text-green-500' : 'text-red-500'
+                  'w-5 h-5 mx-auto mb-1',
+                  isCellular ? 'text-green-500' : 'text-amber-500'
                 )} />
-                <div>
-                  <div className="text-sm font-medium text-foreground capitalize">{connectionType}</div>
-                  <div className="text-xs text-muted-foreground">Network</div>
+                <div className="text-sm font-medium text-foreground capitalize">
+                  {connectionType || 'none'}
                 </div>
+                <div className="text-xs text-muted-foreground">Network</div>
               </CardContent>
             </Card>
             
             <Card className="bg-card/70 border-border/50 backdrop-blur-md">
-              <CardContent className="p-3 flex items-center gap-3">
-                <Wifi className="w-5 h-5 text-primary" />
-                <div>
-                  <div className="text-sm font-medium text-foreground">{formatDuration(stats.duration)}</div>
-                  <div className="text-xs text-muted-foreground">Duration</div>
+              <CardContent className="p-3 text-center">
+                <Wifi className="w-5 h-5 mx-auto mb-1 text-primary" />
+                <div className="text-sm font-medium text-foreground">
+                  {formatDuration(stats.duration)}
                 </div>
+                <div className="text-xs text-muted-foreground">Duration</div>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-card/70 border-border/50 backdrop-blur-md">
+              <CardContent className="p-3 text-center">
+                <MapPin className="w-5 h-5 mx-auto mb-1 text-green-500" />
+                <div className="text-sm font-medium text-foreground">
+                  {formatDistance(stats.distanceMeters)}
+                </div>
+                <div className="text-xs text-muted-foreground">Distance</div>
               </CardContent>
             </Card>
           </div>
@@ -204,6 +264,10 @@ export const NetworkContribution: React.FC = () => {
                     {offlineQueueCount > 0 ? `${offlineQueueCount} pending sync` : 'All synced'}
                   </div>
                 </div>
+              </div>
+              <div className="text-right">
+                <div className="text-xs text-muted-foreground">Speed</div>
+                <div className="text-sm font-medium text-foreground">{stats.speedKmh} km/h</div>
               </div>
             </CardContent>
           </Card>

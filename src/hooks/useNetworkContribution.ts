@@ -11,7 +11,9 @@ interface ContributionStats {
   distanceMeters: number;
   speedKmh: number;
   dataPointsCount: number;
-  duration: number;
+  duration: number; // in seconds
+  timePoints: number; // Points earned from time
+  distancePoints: number; // Points earned from distance
 }
 
 interface ContributionSession {
@@ -36,13 +38,23 @@ interface OfflineQueueItem {
 const OFFLINE_QUEUE_KEY = 'nomiqa_offline_contribution_queue';
 
 /**
+ * Check if connection type is cellular (earns points)
+ * WiFi and 'none' do NOT earn points - we are a DePIN for Mobile Networks
+ */
+const isCellularConnection = (type: string): boolean => {
+  const cellularTypes = ['cellular', '4g', '5g', 'lte', '3g', '2g'];
+  return cellularTypes.includes(type.toLowerCase());
+};
+
+/**
  * Network Contribution Engine Hook
- * Manages the full contribution lifecycle including:
- * - Session management
- * - Points calculation
- * - Distance tracking
- * - Offline queue
- * - Database sync
+ * 
+ * BUSINESS RULES:
+ * 1. CELLULAR ONLY - Users only earn points on mobile data (4G/5G/LTE)
+ *    WiFi and offline connections pause mining
+ * 
+ * 2. TIME-BASED EARNINGS - Users earn even when stationary
+ *    Formula: points = (distanceMeters * 0.01) + (minutesActive * 0.5)
  */
 export const useNetworkContribution = () => {
   const { isNative, isIOS, isAndroid } = usePlatform();
@@ -61,34 +73,51 @@ export const useNetworkContribution = () => {
     distanceMeters: 0,
     speedKmh: 0,
     dataPointsCount: 0,
-    duration: 0
+    duration: 0,
+    timePoints: 0,
+    distancePoints: 0
   });
 
   const [offlineQueueCount, setOfflineQueueCount] = useState(0);
   const [lastPosition, setLastPosition] = useState<Position | null>(null);
   
+  // Is the current connection cellular (earnable)?
+  const isCellular = isCellularConnection(connectionType);
+  const isPaused = session.status === 'active' && !isCellular;
+  
   const lastPositionRef = useRef<Position | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const lastTimePointsRef = useRef<number>(0); // Track last time points were awarded
 
-  // Position update handler
+  // Position update handler - only process on cellular
   const handlePositionUpdate = useCallback((position: Position) => {
     if (session.status !== 'active') return;
     
+    // CRITICAL: Only process data on cellular connections
+    if (!isCellularConnection(connectionType)) {
+      // Still update position for map display, but don't earn points
+      lastPositionRef.current = position;
+      setLastPosition(position);
+      return;
+    }
+    
     const speedKmh = (position.coords.speed || 0) * 3.6;
     let distanceGained = 0;
-    let pointsGained = 0;
+    let distancePoints = 0;
 
     if (lastPositionRef.current) {
       distanceGained = calculateDistance(lastPositionRef.current, position);
       
       // Only count if moved more than 5 meters (filter GPS noise)
       if (distanceGained > 5) {
-        pointsGained = calculatePoints(distanceGained, speedKmh, 4); // Default signal strength
+        // NEW FORMULA: Distance points = distance * 0.01
+        distancePoints = distanceGained * 0.01;
         
         setStats(prev => ({
           ...prev,
           distanceMeters: prev.distanceMeters + distanceGained,
-          pointsEarned: prev.pointsEarned + pointsGained,
+          distancePoints: prev.distancePoints + distancePoints,
+          pointsEarned: prev.pointsEarned + distancePoints,
           speedKmh: Math.round(speedKmh),
           dataPointsCount: prev.dataPointsCount + 1
         }));
@@ -98,9 +127,9 @@ export const useNetworkContribution = () => {
     lastPositionRef.current = position;
     setLastPosition(position);
     
-    // Queue the data point
+    // Queue the data point for cellular coverage mapping
     queueContributionData(position);
-  }, [session.status]);
+  }, [session.status, connectionType]);
 
   const {
     hasPermission,
@@ -131,6 +160,28 @@ export const useNetworkContribution = () => {
     }
   }, [isOnline, offlineQueueCount, user]);
 
+  // TIME-BASED EARNINGS: Award points every minute on cellular
+  useEffect(() => {
+    if (session.status !== 'active' || !isCellular) return;
+    
+    const currentMinute = Math.floor(stats.duration / 60);
+    const lastAwardedMinute = lastTimePointsRef.current;
+    
+    // Award 0.5 points per minute on cellular
+    if (currentMinute > lastAwardedMinute) {
+      const minutesElapsed = currentMinute - lastAwardedMinute;
+      const timePointsEarned = minutesElapsed * 0.5;
+      
+      setStats(prev => ({
+        ...prev,
+        timePoints: prev.timePoints + timePointsEarned,
+        pointsEarned: prev.pointsEarned + timePointsEarned
+      }));
+      
+      lastTimePointsRef.current = currentMinute;
+    }
+  }, [stats.duration, session.status, isCellular]);
+
   // Calculate distance between two positions (Haversine formula)
   const calculateDistance = (pos1: Position, pos2: Position): number => {
     const R = 6371e3; // Earth's radius in meters
@@ -145,22 +196,6 @@ export const useNetworkContribution = () => {
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
     return R * c;
-  };
-
-  // Calculate points based on contribution quality
-  const calculatePoints = (distance: number, speed: number, signalStrength: number): number => {
-    // Base: 1 point per 10 meters
-    let points = distance / 10;
-    
-    // Speed bonus (walking/biking earns more than driving)
-    if (speed < 10) points *= 1.5; // Walking
-    else if (speed < 30) points *= 1.2; // Biking
-    // Driving: no bonus
-    
-    // Signal quality bonus
-    points *= (1 + (signalStrength / 10));
-    
-    return Math.floor(points);
   };
 
   // Offline queue management
@@ -198,8 +233,8 @@ export const useNetworkContribution = () => {
     queue.push(item);
     saveOfflineQueue(queue);
 
-    // Also log to mining_logs if online
-    if (isOnline && user) {
+    // Also log to mining_logs if online and on cellular
+    if (isOnline && user && isCellular) {
       supabase.from('mining_logs').insert({
         user_id: user.id,
         latitude: position.coords.latitude,
@@ -261,6 +296,9 @@ export const useNetworkContribution = () => {
         status: 'active'
       });
 
+      // Reset time points tracker
+      lastTimePointsRef.current = 0;
+
       // Start location tracking
       const started = await startGeoTracking();
       if (!started) {
@@ -275,7 +313,7 @@ export const useNetworkContribution = () => {
         return false;
       }
 
-      // Start duration timer
+      // Start duration timer (runs regardless of connection type)
       timerRef.current = setInterval(() => {
         setStats(prev => ({ ...prev, duration: prev.duration + 1 }));
       }, 1000);
@@ -310,7 +348,7 @@ export const useNetworkContribution = () => {
             ended_at: new Date().toISOString(),
             status: 'completed',
             total_distance_meters: stats.distanceMeters,
-            total_points_earned: stats.pointsEarned,
+            total_points_earned: Math.floor(stats.pointsEarned),
             data_points_count: stats.dataPointsCount
           })
           .eq('id', session.id);
@@ -322,11 +360,13 @@ export const useNetworkContribution = () => {
           .eq('user_id', user.id)
           .maybeSingle();
 
+        const totalPoints = Math.floor(stats.pointsEarned);
+
         if (existingPoints) {
           await supabase
             .from('user_points')
             .update({
-              total_points: (existingPoints.total_points || 0) + stats.pointsEarned,
+              total_points: (existingPoints.total_points || 0) + totalPoints,
               total_distance_meters: (existingPoints.total_distance_meters || 0) + stats.distanceMeters,
               total_contribution_time_seconds: (existingPoints.total_contribution_time_seconds || 0) + stats.duration
             })
@@ -336,7 +376,7 @@ export const useNetworkContribution = () => {
             .from('user_points')
             .insert({
               user_id: user.id,
-              total_points: stats.pointsEarned,
+              total_points: totalPoints,
               total_distance_meters: stats.distanceMeters,
               total_contribution_time_seconds: stats.duration
             });
@@ -358,9 +398,12 @@ export const useNetworkContribution = () => {
       distanceMeters: 0,
       speedKmh: 0,
       dataPointsCount: 0,
-      duration: 0
+      duration: 0,
+      timePoints: 0,
+      distancePoints: 0
     });
     lastPositionRef.current = null;
+    lastTimePointsRef.current = 0;
   };
 
   // Format helpers
@@ -391,6 +434,10 @@ export const useNetworkContribution = () => {
     connectionType,
     offlineQueueCount,
     lastPosition,
+    
+    // Cellular-specific state
+    isCellular,
+    isPaused, // True when active but not on cellular
     
     // Actions
     startContribution,
