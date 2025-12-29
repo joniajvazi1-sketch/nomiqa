@@ -2,6 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Lock, Unlock, TrendingUp, DollarSign, Users, ArrowRight, Award, Layers } from "lucide-react";
+import { useTranslation } from "@/contexts/TranslationContext";
 
 interface ConversionRewardsSectionProps {
   totalConversions: number;
@@ -10,9 +11,9 @@ interface ConversionRewardsSectionProps {
 }
 
 const TIERS = [
-  { level: 1, name: 'Starter', conversions: 0, commission: 9, description: 'Direct referrals', color: 'blue' },
-  { level: 2, name: 'Pro', conversions: 10, commission: 6, description: '2nd level bonus', color: 'purple' },
-  { level: 3, name: 'Elite', conversions: 30, commission: 3, description: '3rd level bonus', color: 'amber' },
+  { level: 1, nameKey: 'starter', conversions: 0, commission: 9, descriptionKey: 'directReferrals', color: 'blue' },
+  { level: 2, nameKey: 'pro', conversions: 10, commission: 6, descriptionKey: 'level2Bonus', color: 'purple' },
+  { level: 3, nameKey: 'elite', conversions: 30, commission: 3, descriptionKey: 'level3Bonus', color: 'amber' },
 ];
 
 export const ConversionRewardsSection = ({ 
@@ -20,13 +21,26 @@ export const ConversionRewardsSection = ({
   currentTierLevel,
   totalEarnings 
 }: ConversionRewardsSectionProps) => {
+  const { t } = useTranslation();
+  
+  const TIER_NAMES: Record<string, string> = {
+    'starter': t('starter'),
+    'pro': t('pro'),
+    'elite': t('elite'),
+  };
+  
+  const TIER_DESCRIPTIONS: Record<string, string> = {
+    'directReferrals': t('directReferrals'),
+    'level2Bonus': t('level2Bonus'),
+    'level3Bonus': t('level3Bonus'),
+  };
   
   const getNextTier = () => {
-    return TIERS.find(t => t.level > currentTierLevel);
+    return TIERS.find(tier => tier.level > currentTierLevel);
   };
   
   const getCurrentTier = () => {
-    return TIERS.find(t => t.level === currentTierLevel) || TIERS[0];
+    return TIERS.find(tier => tier.level === currentTierLevel) || TIERS[0];
   };
   
   const nextTier = getNextTier();
@@ -96,10 +110,10 @@ export const ConversionRewardsSection = ({
           </div>
           <div>
             <CardTitle className="text-xl md:text-2xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-amber-400 bg-clip-text text-transparent">
-              Conversion Rewards
+              {t('conversionRewards')}
             </CardTitle>
             <CardDescription className="text-sm">
-              Unlock higher commissions by growing your sales
+              {t('unlockHigherCommissions')}
             </CardDescription>
           </div>
         </div>
@@ -108,7 +122,7 @@ export const ConversionRewardsSection = ({
         {currentTierLevel >= 2 && (
           <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-amber-500/20 rounded-full border border-purple-500/30">
             <Award className="w-4 h-4 text-purple-400" />
-            <span className="font-bold text-purple-400">Up to {getTotalCommission()}% Commission Active</span>
+            <span className="font-bold text-purple-400">{t('upToCommissionActive').replace('{percent}', String(getTotalCommission()))}</span>
           </div>
         )}
       </CardHeader>
@@ -118,13 +132,13 @@ export const ConversionRewardsSection = ({
         {nextTier && (
           <div className="space-y-3">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2 text-sm">
-              <span className="text-muted-foreground">Progress to {nextTier.name}</span>
-              <span className="font-semibold text-foreground text-xs sm:text-sm">{remainingToNext} more conversions needed</span>
+              <span className="text-muted-foreground">{t('progressTo')} {TIER_NAMES[nextTier.nameKey]}</span>
+              <span className="font-semibold text-foreground text-xs sm:text-sm">{remainingToNext} {t('moreConversionsNeeded')}</span>
             </div>
             <Progress value={getProgressToNext()} className="h-3 bg-muted/50" />
             <div className="flex items-center justify-between text-xs text-muted-foreground">
-              <span>{totalConversions} conversions</span>
-              <span>{nextTier.conversions} required</span>
+              <span>{totalConversions} {t('conversionsCount')}</span>
+              <span>{nextTier.conversions} {t('requiredLabel')}</span>
             </div>
           </div>
         )}
@@ -133,7 +147,7 @@ export const ConversionRewardsSection = ({
         <div className="space-y-4">
           <h3 className="font-semibold text-base flex items-center gap-2">
             <Layers className="w-4 h-4 text-primary" />
-            Commission Tier Milestones
+            {t('commissionTierMilestones')}
           </h3>
           
           <div className="grid gap-3">
@@ -164,22 +178,22 @@ export const ConversionRewardsSection = ({
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
                           <span className={`font-bold text-sm sm:text-base ${isUnlocked ? colors.text : 'text-muted-foreground'}`}>
-                            {tier.name}
+                            {TIER_NAMES[tier.nameKey]}
                           </span>
                           {isUnlocked && (
                             <Badge variant="outline" className={`text-[10px] sm:text-xs px-1.5 py-0 sm:px-2 ${colors.badge}`}>
                               <Unlock className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />
-                              Unlocked
+                              {t('unlockedLabel')}
                             </Badge>
                           )}
                           {isCurrent && (
                             <Badge className="text-[10px] sm:text-xs px-1.5 py-0 sm:px-2 bg-purple-500 text-white">
-                              Current
+                              {t('currentLabel')}
                             </Badge>
                           )}
                         </div>
                         <p className="text-xs sm:text-sm text-muted-foreground">
-                          {tier.conversions === 0 ? 'Start here' : `${tier.conversions} conversions`}
+                          {tier.conversions === 0 ? t('startHere') : `${tier.conversions} ${t('conversionsCount')}`}
                         </p>
                       </div>
                     </div>
@@ -187,7 +201,7 @@ export const ConversionRewardsSection = ({
                     {/* Commission */}
                     <div className={`text-right flex-shrink-0 ${isUnlocked ? colors.text : 'text-muted-foreground'}`}>
                       <div className="font-bold text-base sm:text-lg">{tier.level === 1 ? '' : '+'}{tier.commission}%</div>
-                      <div className="text-[10px] sm:text-xs">{tier.description}</div>
+                      <div className="text-[10px] sm:text-xs">{TIER_DESCRIPTIONS[tier.descriptionKey]}</div>
                     </div>
                   </div>
                 </div>
@@ -203,8 +217,8 @@ export const ConversionRewardsSection = ({
               <Users className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
             </div>
             <div>
-              <h3 className="font-bold text-sm sm:text-base">Multi-Level Commissions</h3>
-              <p className="text-xs sm:text-sm text-muted-foreground">Build your network and earn from multiple levels</p>
+              <h3 className="font-bold text-sm sm:text-base">{t('multiLevelCommissions')}</h3>
+              <p className="text-xs sm:text-sm text-muted-foreground">{t('buildYourNetwork')}</p>
             </div>
           </div>
           
@@ -212,10 +226,10 @@ export const ConversionRewardsSection = ({
             {/* Level 1 */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 p-2.5 sm:p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
               <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm flex-1 flex-wrap">
-                <span className="font-semibold text-blue-400">Level 1:</span>
-                <span className="text-muted-foreground">You</span>
+                <span className="font-semibold text-blue-400">{t('levelLabel')} 1:</span>
+                <span className="text-muted-foreground">{t('youLabel')}</span>
                 <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground" />
-                <span className="text-foreground">Customer</span>
+                <span className="text-foreground">{t('customerLabel')}</span>
               </div>
               <Badge variant="outline" className="bg-blue-500/10 text-blue-400 border-blue-500/30 text-xs w-fit">
                 <DollarSign className="w-3 h-3 mr-0.5" />
@@ -231,13 +245,13 @@ export const ConversionRewardsSection = ({
             }`}>
               <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm flex-1 flex-wrap">
                 <span className={`font-semibold ${currentTierLevel >= 2 ? 'text-purple-400' : 'text-muted-foreground'}`}>
-                  Level 2:
+                  {t('levelLabel')} 2:
                 </span>
-                <span className="text-muted-foreground">You</span>
+                <span className="text-muted-foreground">{t('youLabel')}</span>
                 <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground" />
-                <span className="text-muted-foreground">Referral</span>
+                <span className="text-muted-foreground">{t('referralLabel')}</span>
                 <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground" />
-                <span className="text-foreground">Customer</span>
+                <span className="text-foreground">{t('customerLabel')}</span>
               </div>
               <Badge variant="outline" className={`text-xs w-fit ${
                 currentTierLevel >= 2 
@@ -257,15 +271,15 @@ export const ConversionRewardsSection = ({
             }`}>
               <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm flex-1 flex-wrap">
                 <span className={`font-semibold ${currentTierLevel >= 3 ? 'text-amber-400' : 'text-muted-foreground'}`}>
-                  Level 3:
+                  {t('levelLabel')} 3:
                 </span>
-                <span className="text-muted-foreground">You</span>
+                <span className="text-muted-foreground">{t('youLabel')}</span>
                 <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground" />
-                <span className="text-muted-foreground">Ref</span>
+                <span className="text-muted-foreground">{t('refLabel')}</span>
                 <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground" />
-                <span className="text-muted-foreground">Their Ref</span>
+                <span className="text-muted-foreground">{t('theirRefLabel')}</span>
                 <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground" />
-                <span className="text-foreground">Customer</span>
+                <span className="text-foreground">{t('customerLabel')}</span>
               </div>
               <Badge variant="outline" className={`text-xs w-fit ${
                 currentTierLevel >= 3 
@@ -280,7 +294,7 @@ export const ConversionRewardsSection = ({
           
           {/* Total earnings display */}
           <div className="flex items-center justify-between p-2.5 sm:p-3 bg-background/50 rounded-lg border border-border/50">
-            <span className="text-xs sm:text-sm font-medium text-muted-foreground">Total Lifetime Earnings</span>
+            <span className="text-xs sm:text-sm font-medium text-muted-foreground">{t('totalLifetimeEarnings')}</span>
             <span className="text-base sm:text-lg font-bold text-primary">${totalEarnings.toFixed(2)}</span>
           </div>
         </div>
