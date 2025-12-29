@@ -1,51 +1,5 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
-import L from 'leaflet';
-
-// Custom blue pulsing dot icon for user location
-const createPulsingIcon = () => {
-  return L.divIcon({
-    className: 'pulsing-marker',
-    html: `
-      <div class="pulse-ring"></div>
-      <div class="pulse-dot"></div>
-    `,
-    iconSize: [20, 20],
-    iconAnchor: [10, 10]
-  });
-};
-
-// Component to recenter map when position changes and handle size issues
-const MapController: React.FC<{ 
-  position: [number, number] | null;
-  onReady: () => void;
-}> = ({ position, onReady }) => {
-  const map = useMap();
-  
-  useEffect(() => {
-    // Immediately notify ready
-    onReady();
-    
-    // Invalidate size multiple times to fix container issues
-    const invalidate = () => map.invalidateSize();
-    invalidate();
-    const t1 = setTimeout(invalidate, 250);
-    const t2 = setTimeout(invalidate, 500);
-    
-    return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
-    };
-  }, [map, onReady]);
-  
-  useEffect(() => {
-    if (position) {
-      map.setView(position, 15, { animate: true });
-    }
-  }, [position, map]);
-  
-  return null;
-};
+import React, { useEffect, useState, useRef } from 'react';
+import { MapPin } from 'lucide-react';
 
 interface ContributionMapProps {
   userPosition: [number, number] | null;
@@ -54,36 +8,125 @@ interface ContributionMapProps {
 
 /**
  * Dark-themed interactive map for Network Contribution
- * Uses CartoDB Dark Matter tiles
+ * Uses dynamic import for Leaflet to avoid SSR/initialization issues
  */
 export const ContributionMap: React.FC<ContributionMapProps> = ({ 
   userPosition, 
   isActive 
 }) => {
-  const [isReady, setIsReady] = useState(false);
+  const mapRef = useRef<HTMLDivElement>(null);
+  const leafletMapRef = useRef<any>(null);
+  const markerRef = useRef<any>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
-  // Default to a nice view if no position yet
-  const defaultCenter: [number, number] = [40.7128, -74.0060]; // NYC
+  // Default center
+  const defaultCenter: [number, number] = [40.7128, -74.0060];
   const center = userPosition || defaultCenter;
 
-  const handleReady = useCallback(() => {
-    setIsReady(true);
+  useEffect(() => {
+    let mounted = true;
+    
+    const initMap = async () => {
+      if (!mapRef.current || leafletMapRef.current) return;
+      
+      try {
+        // Dynamic import to avoid initialization issues
+        const L = await import('leaflet');
+        
+        if (!mounted || !mapRef.current) return;
+        
+        // Create map
+        const map = L.map(mapRef.current, {
+          center: center,
+          zoom: userPosition ? 15 : 3,
+          zoomControl: true,
+          scrollWheelZoom: true,
+          attributionControl: false
+        });
+        
+        // Add dark tile layer
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+          maxZoom: 19,
+          subdomains: 'abcd'
+        }).addTo(map);
+        
+        leafletMapRef.current = map;
+        
+        // Add marker if position exists
+        if (userPosition) {
+          const pulsingIcon = L.divIcon({
+            className: 'pulsing-marker',
+            html: `
+              <div class="pulse-ring"></div>
+              <div class="pulse-dot"></div>
+            `,
+            iconSize: [20, 20],
+            iconAnchor: [10, 10]
+          });
+          
+          markerRef.current = L.marker(userPosition, { icon: pulsingIcon }).addTo(map);
+        }
+        
+        // Fix map size after render
+        setTimeout(() => {
+          map.invalidateSize();
+          if (mounted) setIsLoaded(true);
+        }, 100);
+        
+      } catch (err) {
+        console.error('[ContributionMap] Failed to initialize:', err);
+        if (mounted) {
+          setError('Failed to load map');
+          setIsLoaded(true); // Show fallback
+        }
+      }
+    };
+    
+    initMap();
+    
+    return () => {
+      mounted = false;
+      if (leafletMapRef.current) {
+        leafletMapRef.current.remove();
+        leafletMapRef.current = null;
+      }
+    };
   }, []);
+  
+  // Update marker position when userPosition changes
+  useEffect(() => {
+    if (!leafletMapRef.current) return;
+    
+    const L = require('leaflet');
+    
+    if (userPosition) {
+      if (markerRef.current) {
+        markerRef.current.setLatLng(userPosition);
+      } else {
+        const pulsingIcon = L.divIcon({
+          className: 'pulsing-marker',
+          html: `
+            <div class="pulse-ring"></div>
+            <div class="pulse-dot"></div>
+          `,
+          iconSize: [20, 20],
+          iconAnchor: [10, 10]
+        });
+        markerRef.current = L.marker(userPosition, { icon: pulsingIcon }).addTo(leafletMapRef.current);
+      }
+      leafletMapRef.current.setView(userPosition, 15, { animate: true });
+    }
+  }, [userPosition]);
 
   return (
-    <div 
-      className="absolute inset-0" 
-      style={{ zIndex: 0 }}
-    >
-      {/* Leaflet CSS overrides and pulsing marker styles */}
+    <div className="absolute inset-0" style={{ zIndex: 0 }}>
+      {/* Leaflet CSS overrides */}
       <style>{`
-        .contribution-map-container {
-          height: 100vh !important;
+        .map-container {
+          height: 100% !important;
           width: 100% !important;
-          background: #1a1a2e !important;
-        }
-        .contribution-map-container .leaflet-tile-pane {
-          z-index: 1 !important;
+          background: hsl(220 35% 8%) !important;
         }
         .pulsing-marker {
           position: relative;
@@ -130,38 +173,29 @@ export const ContributionMap: React.FC<ContributionMapProps> = ({
         }
       `}</style>
       
-      <MapContainer
-        center={center}
-        zoom={userPosition ? 15 : 3}
-        zoomControl={true}
-        scrollWheelZoom={true}
-        className="contribution-map-container"
+      {/* Map container */}
+      <div 
+        ref={mapRef}
+        className="map-container"
         style={{ height: '100vh', width: '100%' }}
-      >
-        {/* OpenStreetMap tiles for better visibility */}
-        <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution=""
-          maxZoom={19}
-        />
-        
-        {/* Blue dot for user position */}
-        {userPosition && (
-          <Marker 
-            position={userPosition} 
-            icon={createPulsingIcon()}
-          />
-        )}
-        
-        <MapController position={userPosition} onReady={handleReady} />
-      </MapContainer>
+      />
       
-      {/* Loading overlay - hidden once ready */}
-      {!isReady && (
-        <div 
-          className="absolute inset-0 flex items-center justify-center bg-background"
-          style={{ zIndex: 30 }}
-        >
+      {/* Error fallback */}
+      {error && (
+        <div className="absolute inset-0 flex items-center justify-center bg-background z-20">
+          <div className="text-center p-6">
+            <MapPin className="w-12 h-12 mx-auto mb-3 text-muted-foreground opacity-50" />
+            <p className="text-muted-foreground text-sm">{error}</p>
+            <p className="text-xs text-muted-foreground/70 mt-1">
+              {userPosition ? `Position: ${userPosition[0].toFixed(4)}, ${userPosition[1].toFixed(4)}` : 'Waiting for location...'}
+            </p>
+          </div>
+        </div>
+      )}
+      
+      {/* Loading overlay */}
+      {!isLoaded && !error && (
+        <div className="absolute inset-0 flex items-center justify-center bg-background z-20">
           <div className="text-center">
             <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-2" />
             <p className="text-muted-foreground text-sm">Loading map...</p>
@@ -169,13 +203,13 @@ export const ContributionMap: React.FC<ContributionMapProps> = ({
         </div>
       )}
       
-      {/* Gradient overlay at bottom for UI blending */}
+      {/* Gradient overlay at bottom */}
       <div 
         className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-background via-background/80 to-transparent pointer-events-none"
         style={{ zIndex: 5 }}
       />
       
-      {/* Subtle vignette effect */}
+      {/* Vignette effect */}
       <div 
         className="absolute inset-0 pointer-events-none"
         style={{
