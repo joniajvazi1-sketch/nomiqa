@@ -519,17 +519,17 @@ export default function Affiliate() {
                     <div className="absolute -inset-1 bg-gradient-to-r from-neon-cyan to-neon-violet rounded-2xl blur-lg opacity-20 group-hover:opacity-40 transition duration-500"></div>
                     <div className="relative p-5 md:p-6 bg-gradient-to-br from-white/[0.08] to-white/[0.02] backdrop-blur-xl border border-white/20 rounded-2xl shadow-xl h-full">
                       <div className="text-center mb-4">
-                        <h3 className="font-bold text-base md:text-lg text-white">Sell & Earn</h3>
-                        <p className="text-xs md:text-sm text-white/60">from eSIM sales</p>
+                        <h3 className="font-bold text-base md:text-lg text-white">{t("sellAndEarn")}</h3>
+                        <p className="text-xs md:text-sm text-white/60">{t("fromEsimSales")}</p>
                       </div>
                       <div className="text-center mb-4">
                         <p className="text-3xl md:text-4xl lg:text-5xl font-black bg-gradient-to-r from-neon-cyan via-white to-neon-violet bg-clip-text text-transparent">
                           <AnimatedCounter end={18} suffix="%" className="inline-block" />
                         </p>
-                        <p className="text-sm text-white/50 mt-1">Commission Split</p>
+                        <p className="text-sm text-white/50 mt-1">{t("commissionSplit")}</p>
                       </div>
                       <div className="flex flex-wrap items-center justify-center gap-2 text-xs md:text-sm">
-                        <span className="px-3 py-1.5 rounded-lg bg-neon-cyan/10 border border-neon-cyan/30 text-neon-cyan font-semibold">9% direct</span>
+                        <span className="px-3 py-1.5 rounded-lg bg-neon-cyan/10 border border-neon-cyan/30 text-neon-cyan font-semibold">9% {t("directCommission")}</span>
                         <span className="px-3 py-1.5 rounded-lg bg-neon-violet/10 border border-neon-violet/30 text-neon-violet font-semibold">6% L2</span>
                         <span className="px-3 py-1.5 rounded-lg bg-neon-coral/10 border border-neon-coral/30 text-neon-coral font-semibold">3% L3</span>
                       </div>
@@ -563,7 +563,7 @@ export default function Affiliate() {
               {/* Premium tagline */}
               <div className="pt-4 md:pt-6">
                 <p className="text-base md:text-xl lg:text-2xl text-white/70 max-w-4xl mx-auto leading-relaxed px-4 font-light tracking-wide">
-                  One link. Earn from sales AND mining — 24/7, worldwide.
+                  {t("oneLinkTagline")}
                 </p>
               </div>
             </div>
