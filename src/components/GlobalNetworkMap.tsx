@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { MapPin, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/contexts/TranslationContext";
 
 export const GlobalNetworkMap = () => {
+  const { t } = useTranslation();
   const [nodeCount, setNodeCount] = useState(1247);
   
   // Simulate growing network
@@ -53,15 +55,15 @@ export const GlobalNetworkMap = () => {
       <div className="container px-4 relative z-10">
         <div className="text-center mb-14 animate-fade-in">
           <span className="inline-block px-5 py-2 rounded-full bg-white/[0.03] backdrop-blur-xl text-neon-cyan text-sm font-medium mb-6 border border-white/10 shadow-lg shadow-neon-cyan/5">
-            Global Coverage
+            {t("globalNetworkBadge")}
           </span>
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-light font-display mb-6">
             <span className="bg-gradient-to-r from-neon-cyan via-white to-neon-violet bg-clip-text text-transparent font-semibold">
-              Building Coverage Together
+              {t("globalNetworkTitle")}
             </span>
           </h2>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto font-light">
-            Join thousands of pioneers already expanding the network. Every node strengthens our global mesh.
+            {t("globalNetworkSubtitle")}
           </p>
         </div>
 
@@ -72,14 +74,14 @@ export const GlobalNetworkMap = () => {
               <Users className="w-4 h-4 text-neon-cyan" />
             </div>
             <span className="text-foreground font-semibold text-lg">{nodeCount.toLocaleString()}</span>
-            <span className="text-muted-foreground font-light">nodes active</span>
+            <span className="text-muted-foreground font-light">{t("globalNetworkNodesActive")}</span>
           </div>
           <div className="hidden sm:flex items-center gap-3 px-6 py-3 rounded-full backdrop-blur-xl bg-white/[0.03] border border-white/10 shadow-lg">
             <div className="w-8 h-8 rounded-full bg-nomiqa-teal/10 flex items-center justify-center">
               <MapPin className="w-4 h-4 text-nomiqa-teal" />
             </div>
             <span className="text-foreground font-semibold text-lg">47</span>
-            <span className="text-muted-foreground font-light">countries</span>
+            <span className="text-muted-foreground font-light">{t("globalNetworkCountries")}</span>
           </div>
         </div>
 
@@ -186,10 +188,10 @@ export const GlobalNetworkMap = () => {
             className="h-auto py-4 px-10 text-lg font-light bg-gradient-to-r from-neon-cyan to-nomiqa-teal hover:from-neon-cyan/90 hover:to-nomiqa-teal/90 text-background rounded-2xl shadow-xl shadow-neon-cyan/20 transition-all duration-300 hover:shadow-neon-cyan/40 hover:-translate-y-0.5 border border-white/20"
           >
             <MapPin className="w-5 h-5 mr-2" />
-            Add Your City to the Network
+            {t("globalNetworkCTA")}
           </Button>
           <p className="text-muted-foreground text-sm mt-5 font-light">
-            Be among the first in your area. <span className="text-neon-cyan">Early supporters get bonus rewards.</span>
+            {t("globalNetworkEarlySupporter")} <span className="text-neon-cyan">{t("globalNetworkBonusRewards")}</span>
           </p>
         </div>
       </div>
