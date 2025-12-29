@@ -7,8 +7,10 @@ import {
   TrendingUp,
   Copy,
   Share2,
-  ChevronRight,
-  LogOut
+  LogOut,
+  MapPin,
+  Activity,
+  Clock
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,9 +20,19 @@ import { useNativeShare } from '@/hooks/useNativeShare';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { formatDistanceToNow } from 'date-fns';
+
+interface RecentSession {
+  id: string;
+  started_at: string;
+  ended_at: string | null;
+  total_points_earned: number | null;
+  total_distance_meters: number | null;
+  status: string | null;
+}
 
 /**
- * App Wallet - Earnings, Points, and Affiliate management
+ * App Wallet - Earnings, Points, Affiliate management & Recent Activity
  */
 export const AppWallet: React.FC = () => {
   const navigate = useNavigate();
@@ -32,6 +44,7 @@ export const AppWallet: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [points, setPoints] = useState<any>(null);
   const [affiliate, setAffiliate] = useState<any>(null);
+  const [recentSessions, setRecentSessions] = useState<RecentSession[]>([]);
 
   useEffect(() => {
     loadData();
@@ -58,6 +71,15 @@ export const AppWallet: React.FC = () => {
           .or(`user_id.eq.${currentUser.id},email.eq.${currentUser.email}`)
           .single();
         setAffiliate(affiliateData);
+
+        // Load recent contribution sessions
+        const { data: sessionsData } = await supabase
+          .from('contribution_sessions')
+          .select('*')
+          .eq('user_id', currentUser.id)
+          .order('started_at', { ascending: false })
+          .limit(5);
+        setRecentSessions(sessionsData || []);
       }
     } catch (error) {
       console.error('Error loading data:', error);
@@ -98,6 +120,12 @@ export const AppWallet: React.FC = () => {
     if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
     if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
     return num.toFixed(0);
+  };
+
+  const formatDistance = (meters: number | null) => {
+    if (!meters) return '0m';
+    if (meters >= 1000) return (meters / 1000).toFixed(1) + 'km';
+    return meters.toFixed(0) + 'm';
   };
 
   const getTierName = (level: number) => {
@@ -161,6 +189,81 @@ export const AppWallet: React.FC = () => {
           </p>
         </CardContent>
       </Card>
+
+      {/* Recent Activity Section */}
+      <div>
+        <div className="flex items-center gap-2 mb-3">
+          <Activity className="w-4 h-4 text-primary" />
+          <h2 className="font-semibold text-foreground">Recent Activity</h2>
+        </div>
+        
+        {loading ? (
+          <Card className="bg-card/50 border-border/50">
+            <CardContent className="p-4">
+              <div className="animate-pulse space-y-3">
+                <div className="h-4 bg-muted rounded w-3/4"></div>
+                <div className="h-4 bg-muted rounded w-1/2"></div>
+              </div>
+            </CardContent>
+          </Card>
+        ) : recentSessions.length === 0 ? (
+          <Card className="bg-card/50 border-border/50 border-dashed">
+            <CardContent className="p-6 text-center">
+              <MapPin className="w-10 h-10 mx-auto mb-3 text-muted-foreground/50" />
+              <p className="text-muted-foreground text-sm">
+                Start moving to see your earnings here.
+              </p>
+              <Button 
+                variant="link" 
+                className="mt-2 text-primary"
+                onClick={() => navigate('/app/map')}
+              >
+                Go to Map →
+              </Button>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="space-y-2">
+            {recentSessions.map((session) => (
+              <Card key={session.id} className="bg-card/50 border-border/50">
+                <CardContent className="p-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className={cn(
+                        'w-8 h-8 rounded-full flex items-center justify-center',
+                        session.status === 'active' 
+                          ? 'bg-green-500/20 text-green-500' 
+                          : 'bg-muted text-muted-foreground'
+                      )}>
+                        <Zap className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-foreground text-sm">
+                            +{session.total_points_earned || 0} pts
+                          </span>
+                          {session.status === 'active' && (
+                            <Badge variant="secondary" className="text-xs bg-green-500/20 text-green-500">
+                              Active
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <Clock className="w-3 h-3" />
+                          {formatDistanceToNow(new Date(session.started_at), { addSuffix: true })}
+                          <span>•</span>
+                          <MapPin className="w-3 h-3" />
+                          {formatDistance(session.total_distance_meters)}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Affiliate Section */}
       {affiliate && (
