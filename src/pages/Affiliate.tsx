@@ -708,102 +708,6 @@ export default function Affiliate() {
                 </Card>
               )}
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8 text-center">
-                {/* Registrations */}
-                <Card className="group bg-gradient-to-br from-card/80 via-card/60 to-card/40 backdrop-blur-xl border border-border/50 hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:scale-105 relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/0 via-primary/5 to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  <CardHeader className="pb-3 md:pb-4 relative z-10">
-                    <CardDescription className="text-xs md:text-sm font-medium flex items-center justify-center gap-2">
-                      <UserPlus className="w-4 h-4 text-primary" />
-                      Registrations
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="relative z-10">
-                    <div className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                      {affiliate.total_registrations || 0}
-                    </div>
-                  </CardContent>
-                </Card>
-                
-                {/* Conversions */}
-                <Card className="group bg-gradient-to-br from-card/80 via-card/60 to-card/40 backdrop-blur-xl border border-border/50 hover:border-green-500/50 transition-all duration-300 hover:shadow-xl hover:scale-105 relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-br from-green-500/0 via-green-500/5 to-green-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  <CardHeader className="pb-3 md:pb-4 relative z-10">
-                    <CardDescription className="text-xs md:text-sm font-medium flex items-center justify-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-green-500" />
-                      {t("conversions")}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="relative z-10">
-                    <div className="text-3xl md:text-4xl font-bold text-green-500">
-                      {affiliate.total_conversions || 0}
-                    </div>
-                  </CardContent>
-                </Card>
-                
-                {/* Mining Tier */}
-                <Card className="group bg-gradient-to-br from-card/80 via-card/60 to-card/40 backdrop-blur-xl border border-border/50 hover:border-amber-500/50 transition-all duration-300 hover:shadow-xl hover:scale-105 relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-br from-amber-500/0 via-amber-500/5 to-amber-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  <CardHeader className="pb-3 md:pb-4 relative z-10">
-                    <CardDescription className="text-xs md:text-sm font-medium flex items-center justify-center gap-2">
-                      <Award className="w-4 h-4 text-amber-500" />
-                      Mining Tier
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="relative z-10 space-y-1">
-                    <div className="text-lg md:text-xl font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">
-                      {(() => {
-                        const MILESTONES = [
-                          { level: 0, name: 'Starter' },
-                          { level: 1, name: 'Recruiter' },
-                          { level: 2, name: 'Influencer' },
-                          { level: 3, name: 'Ambassador' },
-                          { level: 4, name: 'Champion' },
-                          { level: 5, name: 'Legend' },
-                        ];
-                        return MILESTONES.find(m => m.level === (affiliate.registration_milestone_level || 0))?.name || 'Starter';
-                      })()}
-                    </div>
-                    <div className="text-sm font-semibold text-amber-500">
-                      +{affiliate.miner_boost_percentage || 0}% boost
-                    </div>
-                  </CardContent>
-                </Card>
-                
-{/* Sales Tier */}
-                <Card className="group bg-gradient-to-br from-card/80 via-card/60 to-card/40 backdrop-blur-xl border border-border/50 hover:border-neon-violet/50 transition-all duration-300 hover:shadow-xl hover:scale-105 relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-br from-neon-violet/0 via-neon-violet/5 to-neon-violet/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  <CardHeader className="pb-3 md:pb-4 relative z-10">
-                    <CardDescription className="text-xs md:text-sm font-medium flex items-center justify-center gap-2">
-                      <TrendingUp className="w-4 h-4 text-neon-violet" />
-                      Sales Tier
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="relative z-10 space-y-1">
-                    <div className="text-lg md:text-xl font-bold text-neon-violet">
-                      {getTierInfo()?.currentTier.name || 'Starter'}
-                    </div>
-                    <div className="text-sm font-semibold text-neon-violet/80">
-                      Tier {affiliate.tier_level || 1}
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Mining Rewards Section */}
-              <MiningRewardsSection
-                totalRegistrations={affiliate.total_registrations || 0}
-                currentMilestoneLevel={affiliate.registration_milestone_level || 0}
-                minerBoostPercentage={affiliate.miner_boost_percentage || 0}
-              />
-
-              {/* Conversion Rewards Section */}
-              <ConversionRewardsSection
-                totalConversions={affiliate.total_conversions || 0}
-                currentTierLevel={selectedAffiliate?.tier_level || 1}
-                totalEarnings={affiliate.total_earnings_usd || 0}
-              />
-
               {/* All Affiliate Links Section - Premium */}
               <Card className="mb-6 md:mb-8 bg-card/80 backdrop-blur-xl border-border/50 shadow-xl hover:shadow-2xl transition-all duration-500">
                 <CardHeader className="pb-4 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 border-b border-border/50">
@@ -984,6 +888,103 @@ export default function Affiliate() {
                     </div>}
                 </CardContent>
               </Card>
+
+              {/* Stats Summary Cards */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8 text-center">
+                {/* Registrations */}
+                <Card className="group bg-gradient-to-br from-card/80 via-card/60 to-card/40 backdrop-blur-xl border border-border/50 hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:scale-105 relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/0 via-primary/5 to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <CardHeader className="pb-3 md:pb-4 relative z-10">
+                    <CardDescription className="text-xs md:text-sm font-medium flex items-center justify-center gap-2">
+                      <UserPlus className="w-4 h-4 text-primary" />
+                      Registrations
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="relative z-10">
+                    <div className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                      {affiliate.total_registrations || 0}
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                {/* Conversions */}
+                <Card className="group bg-gradient-to-br from-card/80 via-card/60 to-card/40 backdrop-blur-xl border border-border/50 hover:border-green-500/50 transition-all duration-300 hover:shadow-xl hover:scale-105 relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-green-500/0 via-green-500/5 to-green-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <CardHeader className="pb-3 md:pb-4 relative z-10">
+                    <CardDescription className="text-xs md:text-sm font-medium flex items-center justify-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-green-500" />
+                      {t("conversions")}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="relative z-10">
+                    <div className="text-3xl md:text-4xl font-bold text-green-500">
+                      {affiliate.total_conversions || 0}
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                {/* Mining Tier */}
+                <Card className="group bg-gradient-to-br from-card/80 via-card/60 to-card/40 backdrop-blur-xl border border-border/50 hover:border-amber-500/50 transition-all duration-300 hover:shadow-xl hover:scale-105 relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-amber-500/0 via-amber-500/5 to-amber-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <CardHeader className="pb-3 md:pb-4 relative z-10">
+                    <CardDescription className="text-xs md:text-sm font-medium flex items-center justify-center gap-2">
+                      <Award className="w-4 h-4 text-amber-500" />
+                      Mining Tier
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="relative z-10 space-y-1">
+                    <div className="text-lg md:text-xl font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">
+                      {(() => {
+                        const MILESTONES = [
+                          { level: 0, name: 'Starter' },
+                          { level: 1, name: 'Recruiter' },
+                          { level: 2, name: 'Influencer' },
+                          { level: 3, name: 'Ambassador' },
+                          { level: 4, name: 'Champion' },
+                          { level: 5, name: 'Legend' },
+                        ];
+                        return MILESTONES.find(m => m.level === (affiliate.registration_milestone_level || 0))?.name || 'Starter';
+                      })()}
+                    </div>
+                    <div className="text-sm font-semibold text-amber-500">
+                      +{affiliate.miner_boost_percentage || 0}% boost
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                {/* Sales Tier */}
+                <Card className="group bg-gradient-to-br from-card/80 via-card/60 to-card/40 backdrop-blur-xl border border-border/50 hover:border-neon-violet/50 transition-all duration-300 hover:shadow-xl hover:scale-105 relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-neon-violet/0 via-neon-violet/5 to-neon-violet/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <CardHeader className="pb-3 md:pb-4 relative z-10">
+                    <CardDescription className="text-xs md:text-sm font-medium flex items-center justify-center gap-2">
+                      <TrendingUp className="w-4 h-4 text-neon-violet" />
+                      Sales Tier
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="relative z-10 space-y-1">
+                    <div className="text-lg md:text-xl font-bold text-neon-violet">
+                      {getTierInfo()?.currentTier.name || 'Starter'}
+                    </div>
+                    <div className="text-sm font-semibold text-neon-violet/80">
+                      Tier {affiliate.tier_level || 1}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Mining Rewards Section */}
+              <MiningRewardsSection
+                totalRegistrations={affiliate.total_registrations || 0}
+                currentMilestoneLevel={affiliate.registration_milestone_level || 0}
+                minerBoostPercentage={affiliate.miner_boost_percentage || 0}
+              />
+
+              {/* Conversion Rewards Section */}
+              <ConversionRewardsSection
+                totalConversions={affiliate.total_conversions || 0}
+                currentTierLevel={selectedAffiliate?.tier_level || 1}
+                totalEarnings={affiliate.total_earnings_usd || 0}
+              />
 
               <Card className="mb-8 hidden bg-white/[0.02] backdrop-blur-xl border-white/10">
                 <CardHeader>
