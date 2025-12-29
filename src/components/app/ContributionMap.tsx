@@ -1,16 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
-
-// Fix for default marker icons in React-Leaflet
-// This prevents the broken marker icon issue
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
-});
 
 // Custom blue pulsing dot icon for user location
 const createPulsingIcon = () => {
@@ -25,16 +15,28 @@ const createPulsingIcon = () => {
   });
 };
 
-// Component to recenter map when position changes
-const MapUpdater: React.FC<{ position: [number, number] | null }> = ({ position }) => {
+// Component to recenter map when position changes and handle size issues
+const MapController: React.FC<{ 
+  position: [number, number] | null;
+  onReady: () => void;
+}> = ({ position, onReady }) => {
   const map = useMap();
   
   useEffect(() => {
-    // Invalidate size to fix rendering issues
-    setTimeout(() => {
-      map.invalidateSize();
-    }, 100);
-  }, [map]);
+    // Immediately notify ready
+    onReady();
+    
+    // Invalidate size multiple times to fix container issues
+    const invalidate = () => map.invalidateSize();
+    invalidate();
+    const t1 = setTimeout(invalidate, 250);
+    const t2 = setTimeout(invalidate, 500);
+    
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
+  }, [map, onReady]);
   
   useEffect(() => {
     if (position) {
@@ -52,22 +54,37 @@ interface ContributionMapProps {
 
 /**
  * Dark-themed interactive map for Network Contribution
- * Uses CartoDB DarkMatter tiles for futuristic look
+ * Uses CartoDB Dark Matter tiles
  */
 export const ContributionMap: React.FC<ContributionMapProps> = ({ 
   userPosition, 
   isActive 
 }) => {
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [isReady, setIsReady] = useState(false);
   
   // Default to a nice view if no position yet
   const defaultCenter: [number, number] = [40.7128, -74.0060]; // NYC
   const center = userPosition || defaultCenter;
 
+  const handleReady = useCallback(() => {
+    setIsReady(true);
+  }, []);
+
   return (
-    <div className="absolute inset-0 z-0">
-      {/* CSS for pulsing marker and Leaflet overrides */}
+    <div 
+      className="absolute inset-0" 
+      style={{ zIndex: 0 }}
+    >
+      {/* Leaflet CSS overrides and pulsing marker styles */}
       <style>{`
+        .contribution-map-container {
+          height: 100vh !important;
+          width: 100% !important;
+          background: #1a1a2e !important;
+        }
+        .contribution-map-container .leaflet-tile-pane {
+          z-index: 1 !important;
+        }
         .pulsing-marker {
           position: relative;
         }
@@ -95,23 +112,10 @@ export const ContributionMap: React.FC<ContributionMapProps> = ({
           transform: translate(-50%, -50%);
         }
         @keyframes pulse-ring {
-          0% {
-            transform: translate(-50%, -50%) scale(0.5);
-            opacity: 1;
-          }
-          100% {
-            transform: translate(-50%, -50%) scale(2);
-            opacity: 0;
-          }
+          0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
+          100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
         }
-        .leaflet-container {
-          background: #0a0a0a !important;
-          height: 100% !important;
-          width: 100% !important;
-        }
-        .leaflet-control-attribution {
-          display: none !important;
-        }
+        .leaflet-control-attribution { display: none !important; }
         .leaflet-control-zoom {
           border: none !important;
           box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important;
@@ -119,13 +123,10 @@ export const ContributionMap: React.FC<ContributionMapProps> = ({
         .leaflet-control-zoom a {
           background: rgba(20, 20, 20, 0.9) !important;
           color: #fff !important;
-          border: 1px solid rgba(255,255,255,0.1) !important;
+          border: 1px solid rgba(255,255,255,0.2) !important;
         }
         .leaflet-control-zoom a:hover {
           background: rgba(40, 40, 40, 0.9) !important;
-        }
-        .leaflet-tile-pane {
-          opacity: 1 !important;
         }
       `}</style>
       
@@ -134,13 +135,12 @@ export const ContributionMap: React.FC<ContributionMapProps> = ({
         zoom={userPosition ? 15 : 3}
         zoomControl={true}
         scrollWheelZoom={true}
-        style={{ height: '100%', width: '100%', minHeight: '100vh' }}
-        className="rounded-none"
-        whenReady={() => setIsLoaded(true)}
+        className="contribution-map-container"
+        style={{ height: '100vh', width: '100%' }}
       >
-        {/* CartoDB Dark Matter - Futuristic dark theme */}
+        {/* OpenStreetMap tiles for better visibility */}
         <TileLayer
-          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution=""
           maxZoom={19}
         />
@@ -153,12 +153,15 @@ export const ContributionMap: React.FC<ContributionMapProps> = ({
           />
         )}
         
-        <MapUpdater position={userPosition} />
+        <MapController position={userPosition} onReady={handleReady} />
       </MapContainer>
       
-      {/* Loading overlay */}
-      {!isLoaded && (
-        <div className="absolute inset-0 flex items-center justify-center bg-background z-20">
+      {/* Loading overlay - hidden once ready */}
+      {!isReady && (
+        <div 
+          className="absolute inset-0 flex items-center justify-center bg-background"
+          style={{ zIndex: 30 }}
+        >
           <div className="text-center">
             <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-2" />
             <p className="text-muted-foreground text-sm">Loading map...</p>
@@ -167,12 +170,19 @@ export const ContributionMap: React.FC<ContributionMapProps> = ({
       )}
       
       {/* Gradient overlay at bottom for UI blending */}
-      <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-background via-background/80 to-transparent pointer-events-none z-10" />
+      <div 
+        className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-background via-background/80 to-transparent pointer-events-none"
+        style={{ zIndex: 5 }}
+      />
       
       {/* Subtle vignette effect */}
-      <div className="absolute inset-0 pointer-events-none z-10" style={{
-        background: 'radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.4) 100%)'
-      }} />
+      <div 
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          zIndex: 5,
+          background: 'radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.3) 100%)'
+        }}
+      />
     </div>
   );
 };
