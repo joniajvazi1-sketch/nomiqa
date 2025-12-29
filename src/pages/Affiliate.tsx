@@ -897,7 +897,7 @@ export default function Affiliate() {
                   <CardHeader className="pb-3 md:pb-4 relative z-10">
                     <CardDescription className="text-xs md:text-sm font-medium flex items-center justify-center gap-2">
                       <UserPlus className="w-4 h-4 text-primary" />
-                      Registrations
+                      {t("affiliateRegistrations")}
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="relative z-10">
@@ -929,25 +929,26 @@ export default function Affiliate() {
                   <CardHeader className="pb-3 md:pb-4 relative z-10">
                     <CardDescription className="text-xs md:text-sm font-medium flex items-center justify-center gap-2">
                       <Award className="w-4 h-4 text-amber-500" />
-                      Mining Tier
+                      {t("affiliateMiningTier")}
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="relative z-10 space-y-1">
                     <div className="text-lg md:text-xl font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">
                       {(() => {
-                        const MILESTONES = [
-                          { level: 0, name: 'Starter' },
-                          { level: 1, name: 'Recruiter' },
-                          { level: 2, name: 'Influencer' },
-                          { level: 3, name: 'Ambassador' },
-                          { level: 4, name: 'Champion' },
-                          { level: 5, name: 'Legend' },
-                        ];
-                        return MILESTONES.find(m => m.level === (affiliate.registration_milestone_level || 0))?.name || 'Starter';
+                        const level = affiliate.registration_milestone_level || 0;
+                        const tierKeys: Record<number, string> = {
+                          0: "affiliateTierStarter",
+                          1: "affiliateTierRecruiter",
+                          2: "affiliateTierInfluencer",
+                          3: "affiliateTierAmbassador",
+                          4: "affiliateTierChampion",
+                          5: "affiliateTierLegend",
+                        };
+                        return t(tierKeys[level] || "affiliateTierStarter");
                       })()}
                     </div>
                     <div className="text-sm font-semibold text-amber-500">
-                      +{affiliate.miner_boost_percentage || 0}% boost
+                      +{affiliate.miner_boost_percentage || 0}% {t("affiliateBoost")}
                     </div>
                   </CardContent>
                 </Card>
@@ -958,15 +959,15 @@ export default function Affiliate() {
                   <CardHeader className="pb-3 md:pb-4 relative z-10">
                     <CardDescription className="text-xs md:text-sm font-medium flex items-center justify-center gap-2">
                       <TrendingUp className="w-4 h-4 text-neon-violet" />
-                      Sales Tier
+                      {t("affiliateSalesTier")}
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="relative z-10 space-y-1">
                     <div className="text-lg md:text-xl font-bold text-neon-violet">
-                      {getTierInfo()?.currentTier.name || 'Starter'}
+                      {getTierInfo()?.currentTier.name || t("affiliateTierStarter")}
                     </div>
                     <div className="text-sm font-semibold text-neon-violet/80">
-                      Tier {affiliate.tier_level || 1}
+                      {t("affiliateTier")} {affiliate.tier_level || 1}
                     </div>
                   </CardContent>
                 </Card>
