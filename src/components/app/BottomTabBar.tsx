@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Home, Map, ShoppingBag, Wallet } from 'lucide-react';
+import { Home, Map, ShoppingBag, User } from 'lucide-react';
 import { useHaptics } from '@/hooks/useHaptics';
 import { cn } from '@/lib/utils';
 
@@ -14,7 +14,7 @@ const tabs: TabItem[] = [
   { path: '/app', icon: Home, label: 'Home' },
   { path: '/app/map', icon: Map, label: 'Map' },
   { path: '/app/shop', icon: ShoppingBag, label: 'Shop' },
-  { path: '/app/wallet', icon: Wallet, label: 'Wallet' }
+  { path: '/app/profile', icon: User, label: 'Profile' }
 ];
 
 export const BottomTabBar: React.FC = () => {
