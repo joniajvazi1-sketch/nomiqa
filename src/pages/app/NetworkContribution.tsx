@@ -137,6 +137,35 @@ export const NetworkContribution: React.FC = () => {
               !user && 'opacity-50 cursor-not-allowed'
             )}
           >
+            {/* Sonar/Radar ping animation when IDLE */}
+            {!isActive && user && (
+              <>
+                {/* Ring 1 - Primary sonar wave */}
+                <span 
+                  className="absolute inset-0 rounded-full border-2 border-neon-cyan/60"
+                  style={{
+                    animation: 'sonar-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite'
+                  }}
+                />
+                {/* Ring 2 - Delayed secondary wave */}
+                <span 
+                  className="absolute inset-0 rounded-full border-2 border-neon-cyan/40"
+                  style={{
+                    animation: 'sonar-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite 0.5s'
+                  }}
+                />
+                {/* Ring 3 - Tertiary wave for depth */}
+                <span 
+                  className="absolute inset-0 rounded-full border border-neon-cyan/20"
+                  style={{
+                    animation: 'sonar-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite 1s'
+                  }}
+                />
+                {/* Inner glow pulse */}
+                <span className="absolute inset-4 rounded-full bg-neon-cyan/10 animate-pulse" />
+              </>
+            )}
+            
             {/* Pulsing rings when active on cellular */}
             {isActive && isCellular && (
               <>
