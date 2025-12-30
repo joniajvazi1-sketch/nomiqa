@@ -36,10 +36,16 @@ export const BottomTabBar: React.FC = () => {
 
   return (
     <nav 
-      className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-xl border-t border-border/50"
+      className="fixed bottom-0 left-0 right-0 z-50"
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
-      <div className="flex items-center justify-around h-16">
+      {/* Glass background with multiple layers */}
+      <div className="absolute inset-0 bg-background/80 backdrop-blur-2xl" />
+      <div className="absolute inset-0 bg-gradient-to-t from-background/50 to-transparent" />
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+      
+      {/* Tab content */}
+      <div className="relative flex items-center justify-around h-[72px] px-2">
         {tabs.map((tab) => {
           const active = isActive(tab.path);
           const Icon = tab.icon;
@@ -49,26 +55,36 @@ export const BottomTabBar: React.FC = () => {
               key={tab.path}
               onClick={() => handleTabPress(tab.path)}
               className={cn(
-                'flex flex-col items-center justify-center flex-1 h-full transition-all duration-200',
-                'active:scale-95 touch-manipulation',
-                active ? 'text-primary' : 'text-muted-foreground'
+                'relative flex flex-col items-center justify-center flex-1 h-full transition-all duration-300',
+                'active:scale-90 touch-manipulation',
+                active ? 'text-primary' : 'text-muted-foreground hover:text-foreground/80'
               )}
             >
+              {/* Active background glow */}
+              {active && (
+                <div className="absolute inset-x-2 top-1/2 -translate-y-1/2 h-12 rounded-2xl bg-primary/10 blur-lg" />
+              )}
+              
+              {/* Icon container with premium styling */}
               <div className={cn(
-                'relative flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300',
-                active && 'bg-primary/15'
+                'relative flex items-center justify-center w-12 h-12 rounded-2xl transition-all duration-300',
+                active ? 'bg-primary/15 shadow-lg shadow-primary/20' : 'bg-transparent'
               )}>
                 <Icon className={cn(
-                  'w-5 h-5 transition-all duration-200',
+                  'w-[22px] h-[22px] transition-all duration-300',
                   active && 'scale-110'
-                )} />
+                )} strokeWidth={active ? 2.5 : 2} />
+                
+                {/* Active indicator dot */}
                 {active && (
-                  <span className="absolute -bottom-1 w-1 h-1 rounded-full bg-primary animate-pulse" />
+                  <span className="absolute -bottom-1 w-1.5 h-1.5 rounded-full bg-primary shadow-lg shadow-primary/50" />
                 )}
               </div>
+              
+              {/* Label with fade effect */}
               <span className={cn(
-                'text-[10px] font-medium mt-0.5 transition-all duration-200',
-                active ? 'opacity-100' : 'opacity-70'
+                'text-[10px] font-semibold mt-0.5 transition-all duration-300 uppercase tracking-wider',
+                active ? 'opacity-100' : 'opacity-50'
               )}>
                 {tab.label}
               </span>

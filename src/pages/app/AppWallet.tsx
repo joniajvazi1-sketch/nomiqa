@@ -10,9 +10,11 @@ import {
   LogOut,
   MapPin,
   Activity,
-  Clock
+  Clock,
+  ChevronRight,
+  Sparkles,
+  ArrowUpRight
 } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useHaptics } from '@/hooks/useHaptics';
@@ -32,7 +34,7 @@ interface RecentSession {
 }
 
 /**
- * App Wallet - Earnings, Points, Affiliate management & Recent Activity
+ * App Wallet - Premium earnings dashboard with sophisticated UI
  */
 export const AppWallet: React.FC = () => {
   const navigate = useNavigate();
@@ -56,7 +58,6 @@ export const AppWallet: React.FC = () => {
       setUser(currentUser);
 
       if (currentUser) {
-        // Load points
         const { data: pointsData } = await supabase
           .from('user_points')
           .select('*')
@@ -64,7 +65,6 @@ export const AppWallet: React.FC = () => {
           .single();
         setPoints(pointsData);
 
-        // Load affiliate
         const { data: affiliateData } = await supabase
           .from('affiliates')
           .select('*')
@@ -72,7 +72,6 @@ export const AppWallet: React.FC = () => {
           .single();
         setAffiliate(affiliateData);
 
-        // Load recent contribution sessions
         const { data: sessionsData } = await supabase
           .from('contribution_sessions')
           .select('*')
@@ -95,7 +94,7 @@ export const AppWallet: React.FC = () => {
     const copied = await copyToClipboard(link);
     if (copied) {
       success();
-      toast({ title: 'Link copied!', description: 'Share it with friends' });
+      toast({ title: 'Link copied!' });
     }
   };
 
@@ -119,7 +118,7 @@ export const AppWallet: React.FC = () => {
   const formatNumber = (num: number) => {
     if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
     if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
-    return num.toFixed(0);
+    return num.toLocaleString();
   };
 
   const formatDistance = (meters: number | null) => {
@@ -137,24 +136,26 @@ export const AppWallet: React.FC = () => {
     }
   };
 
-  const getTierColor = (level: number) => {
+  const getTierGradient = (level: number) => {
     switch (level) {
-      case 1: return 'text-gray-400';
-      case 2: return 'text-blue-400';
-      case 3: return 'text-amber-400';
-      default: return 'text-gray-400';
+      case 1: return 'from-slate-400 to-slate-500';
+      case 2: return 'from-blue-400 to-blue-500';
+      case 3: return 'from-amber-400 to-amber-500';
+      default: return 'from-slate-400 to-slate-500';
     }
   };
 
   if (!user && !loading) {
     return (
-      <div className="px-4 py-6 flex flex-col items-center justify-center min-h-[60vh]">
-        <WalletIcon className="w-16 h-16 text-muted-foreground mb-4" />
-        <h2 className="text-xl font-semibold text-foreground mb-2">Sign in to view wallet</h2>
-        <p className="text-muted-foreground text-center mb-6">
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6">
+        <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center mb-6">
+          <WalletIcon className="w-10 h-10 text-primary" />
+        </div>
+        <h2 className="text-2xl font-bold text-foreground mb-2">Sign in to view wallet</h2>
+        <p className="text-muted-foreground text-center mb-8 max-w-[280px]">
           Track your earnings, points, and referrals
         </p>
-        <Button onClick={() => navigate('/auth')}>
+        <Button onClick={() => navigate('/auth')} className="shadow-lg shadow-primary/30">
           Sign In
         </Button>
       </div>
@@ -162,189 +163,240 @@ export const AppWallet: React.FC = () => {
   }
 
   return (
-    <div className="px-4 py-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Wallet</h1>
-          <p className="text-sm text-muted-foreground">Your earnings & rewards</p>
-        </div>
-        <Button variant="ghost" size="icon" onClick={handleLogout}>
-          <LogOut className="w-5 h-5" />
-        </Button>
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Background effects */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div 
+          className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full opacity-20"
+          style={{
+            background: 'radial-gradient(circle, hsl(var(--primary)) 0%, transparent 70%)',
+            filter: 'blur(80px)'
+          }}
+        />
       </div>
 
-      {/* Nomi Points Card */}
-      <Card className="bg-gradient-to-br from-primary/20 via-primary/10 to-background border-primary/30">
-        <CardContent className="p-6">
-          <div className="flex items-center gap-2 mb-2">
-            <Zap className="w-5 h-5 text-primary" />
-            <span className="text-sm text-muted-foreground font-medium">Nomi Points</span>
+      <div className="relative z-10 px-5 py-6 pb-28 space-y-6">
+        {/* Header */}
+        <header className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground tracking-tight">Wallet</h1>
+            <p className="text-sm text-muted-foreground">Your earnings & rewards</p>
           </div>
-          <div className="text-4xl font-bold text-foreground mb-1">
-            {loading ? '---' : formatNumber(points?.total_points || 0)}
-          </div>
-          <p className="text-xs text-muted-foreground">
-            Contribute network data to earn more
-          </p>
-        </CardContent>
-      </Card>
+          <button 
+            onClick={handleLogout}
+            className="w-11 h-11 rounded-full bg-white/[0.05] backdrop-blur-xl border border-white/10 flex items-center justify-center hover:bg-white/[0.08] transition-all active:scale-95"
+          >
+            <LogOut className="w-5 h-5 text-muted-foreground" />
+          </button>
+        </header>
 
-      {/* Recent Activity Section */}
-      <div>
-        <div className="flex items-center gap-2 mb-3">
-          <Activity className="w-4 h-4 text-primary" />
-          <h2 className="font-semibold text-foreground">Recent Activity</h2>
-        </div>
-        
-        {loading ? (
-          <Card className="bg-card/50 border-border/50">
-            <CardContent className="p-4">
-              <div className="animate-pulse space-y-3">
-                <div className="h-4 bg-muted rounded w-3/4"></div>
-                <div className="h-4 bg-muted rounded w-1/2"></div>
+        {/* Points Hero Card */}
+        <div className="relative rounded-[28px] overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-primary/20 to-neon-cyan/10" />
+          <div className="absolute inset-0 backdrop-blur-3xl" />
+          <div className="absolute -top-20 -right-20 w-60 h-60 bg-gradient-to-br from-primary/50 to-transparent rounded-full blur-3xl" />
+          
+          <div className="relative p-6 border border-white/10 rounded-[28px]">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg shadow-primary/40">
+                <Zap className="w-5 h-5 text-primary-foreground" />
               </div>
-            </CardContent>
-          </Card>
-        ) : recentSessions.length === 0 ? (
-          <Card className="bg-card/50 border-border/50 border-dashed">
-            <CardContent className="p-6 text-center">
-              <MapPin className="w-10 h-10 mx-auto mb-3 text-muted-foreground/50" />
-              <p className="text-muted-foreground text-sm">
-                Start moving to see your earnings here.
-              </p>
+              <div>
+                <span className="text-sm text-foreground/80 font-semibold">Nomi Points</span>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                  <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Live balance</span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="text-5xl font-bold text-foreground mb-2 tracking-tighter">
+              {loading ? '---' : formatNumber(points?.total_points || 0)}
+            </div>
+            
+            <p className="text-sm text-muted-foreground">
+              Contribute network data to earn more
+            </p>
+          </div>
+        </div>
+
+        {/* Recent Activity */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Activity className="w-4 h-4 text-primary" />
+              <h2 className="font-semibold text-foreground">Recent Activity</h2>
+            </div>
+            <button className="flex items-center gap-1 text-xs text-primary font-medium">
+              <span>View all</span>
+              <ChevronRight className="w-3 h-3" />
+            </button>
+          </div>
+          
+          {loading ? (
+            <div className="rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] p-6">
+              <div className="animate-pulse space-y-3">
+                <div className="h-4 bg-white/10 rounded w-3/4" />
+                <div className="h-4 bg-white/10 rounded w-1/2" />
+              </div>
+            </div>
+          ) : recentSessions.length === 0 ? (
+            <div className="rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] border-dashed p-8 text-center">
+              <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-muted/20 to-muted/5 flex items-center justify-center">
+                <MapPin className="w-7 h-7 text-muted-foreground/50" />
+              </div>
+              <p className="text-muted-foreground mb-4">Start moving to see your earnings here</p>
               <Button 
-                variant="link" 
-                className="mt-2 text-primary"
+                variant="outline" 
+                className="bg-white/[0.03] border-white/10"
                 onClick={() => navigate('/app/map')}
               >
-                Go to Map →
+                Go to Map
+                <ArrowUpRight className="w-4 h-4 ml-2" />
               </Button>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="space-y-2">
-            {recentSessions.map((session) => (
-              <Card key={session.id} className="bg-card/50 border-border/50">
-                <CardContent className="p-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className={cn(
-                        'w-8 h-8 rounded-full flex items-center justify-center',
-                        session.status === 'active' 
-                          ? 'bg-green-500/20 text-green-500' 
-                          : 'bg-muted text-muted-foreground'
-                      )}>
-                        <Zap className="w-4 h-4" />
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {recentSessions.map((session) => (
+                <div 
+                  key={session.id} 
+                  className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] hover:bg-white/[0.05] transition-all"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className={cn(
+                      'w-11 h-11 rounded-xl flex items-center justify-center',
+                      session.status === 'active' 
+                        ? 'bg-gradient-to-br from-green-500/25 to-green-500/5' 
+                        : 'bg-white/[0.05]'
+                    )}>
+                      <Zap className={cn(
+                        'w-5 h-5',
+                        session.status === 'active' ? 'text-green-400' : 'text-muted-foreground'
+                      )} />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-foreground">
+                          +{session.total_points_earned || 0} pts
+                        </span>
+                        {session.status === 'active' && (
+                          <Badge className="bg-green-500/20 text-green-400 border-0 text-[10px] px-1.5">
+                            Active
+                          </Badge>
+                        )}
                       </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium text-foreground text-sm">
-                            +{session.total_points_earned || 0} pts
-                          </span>
-                          {session.status === 'active' && (
-                            <Badge variant="secondary" className="text-xs bg-green-500/20 text-green-500">
-                              Active
-                            </Badge>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <Clock className="w-3 h-3" />
-                          {formatDistanceToNow(new Date(session.started_at), { addSuffix: true })}
-                          <span>•</span>
-                          <MapPin className="w-3 h-3" />
-                          {formatDistance(session.total_distance_meters)}
-                        </div>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
+                        <Clock className="w-3 h-3" />
+                        {formatDistanceToNow(new Date(session.started_at), { addSuffix: true })}
+                        <span>•</span>
+                        <MapPin className="w-3 h-3" />
+                        {formatDistance(session.total_distance_meters)}
                       </div>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Affiliate Section */}
-      {affiliate && (
-        <>
-          {/* Affiliate Stats */}
-          <div className="grid grid-cols-2 gap-3">
-            <Card className="bg-card/50 border-border/50">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2 mb-1">
-                  <Users className="w-4 h-4 text-blue-500" />
-                  <span className="text-xs text-muted-foreground">Referrals</span>
                 </div>
-                <div className="text-xl font-semibold text-foreground">
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Affiliate Section */}
+        {affiliate && (
+          <div className="space-y-4">
+            <h2 className="font-semibold text-foreground flex items-center gap-2">
+              <Users className="w-4 h-4 text-primary" />
+              Affiliate Earnings
+            </h2>
+            
+            {/* Stats Grid */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Users className="w-4 h-4 text-blue-400" />
+                  <span className="text-xs text-muted-foreground font-medium">Referrals</span>
+                </div>
+                <div className="text-2xl font-bold text-foreground">
                   {affiliate.total_registrations || 0}
                 </div>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-card/50 border-border/50">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2 mb-1">
-                  <TrendingUp className="w-4 h-4 text-green-500" />
-                  <span className="text-xs text-muted-foreground">Earnings</span>
+              </div>
+              
+              <div className="rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <TrendingUp className="w-4 h-4 text-green-400" />
+                  <span className="text-xs text-muted-foreground font-medium">Earnings</span>
                 </div>
-                <div className="text-xl font-semibold text-foreground">
+                <div className="text-2xl font-bold text-foreground">
                   ${(affiliate.total_earnings_usd || 0).toFixed(2)}
                 </div>
-              </CardContent>
-            </Card>
-          </div>
+              </div>
+            </div>
 
-          {/* Tier Badge */}
-          <Card className="bg-card/50 border-border/50">
-            <CardContent className="p-4 flex items-center justify-between">
+            {/* Tier Badge */}
+            <div className="rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] p-4 flex items-center justify-between">
               <div>
                 <span className="text-xs text-muted-foreground">Sales Tier</span>
-                <div className={cn('font-semibold', getTierColor(affiliate.tier_level))}>
+                <div className={cn(
+                  'text-lg font-bold bg-gradient-to-r bg-clip-text text-transparent',
+                  getTierGradient(affiliate.tier_level)
+                )}>
                   {getTierName(affiliate.tier_level)}
                 </div>
               </div>
-              <Badge variant="outline" className={getTierColor(affiliate.tier_level)}>
+              <Badge 
+                variant="outline" 
+                className={cn('border-0 bg-gradient-to-r text-white shadow-lg', getTierGradient(affiliate.tier_level))}
+              >
                 {affiliate.commission_rate}% Commission
               </Badge>
-            </CardContent>
-          </Card>
+            </div>
 
-          {/* Referral Link */}
-          <Card className="bg-card/50 border-border/50">
-            <CardContent className="p-4">
-              <div className="text-xs text-muted-foreground mb-2">Your Referral Link</div>
+            {/* Referral Link */}
+            <div className="rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] p-4">
+              <div className="text-xs text-muted-foreground mb-3 font-medium">Your Referral Link</div>
               <div className="flex items-center gap-2">
-                <code className="flex-1 text-sm text-foreground truncate bg-muted/50 px-3 py-2 rounded">
+                <code className="flex-1 text-sm text-foreground truncate bg-white/[0.03] border border-white/[0.08] px-4 py-3 rounded-xl font-mono">
                   nomiqa.com?ref={affiliate.affiliate_code}
                 </code>
-                <Button size="icon" variant="outline" onClick={handleCopyLink}>
-                  <Copy className="w-4 h-4" />
-                </Button>
-                <Button size="icon" variant="outline" onClick={handleShare}>
-                  <Share2 className="w-4 h-4" />
-                </Button>
+                <button 
+                  onClick={handleCopyLink}
+                  className="w-12 h-12 rounded-xl bg-white/[0.05] border border-white/10 flex items-center justify-center hover:bg-white/[0.08] transition-all active:scale-95"
+                >
+                  <Copy className="w-5 h-5 text-foreground" />
+                </button>
+                <button 
+                  onClick={handleShare}
+                  className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg shadow-primary/30 active:scale-95 transition-all"
+                >
+                  <Share2 className="w-5 h-5 text-primary-foreground" />
+                </button>
               </div>
-            </CardContent>
-          </Card>
-        </>
-      )}
+            </div>
+          </div>
+        )}
 
-      {/* Create Affiliate CTA */}
-      {!affiliate && !loading && (
-        <Card className="bg-muted/50 border-dashed border-2 border-border">
-          <CardContent className="p-4 text-center">
-            <Users className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
-            <h3 className="font-semibold text-foreground mb-1">Start Earning</h3>
-            <p className="text-sm text-muted-foreground mb-3">
-              Refer friends and earn up to 18% commission
-            </p>
-            <Button onClick={() => navigate('/affiliate')}>
-              Join Program
-            </Button>
-          </CardContent>
-        </Card>
-      )}
+        {/* Create Affiliate CTA */}
+        {!affiliate && !loading && (
+          <div className="relative rounded-2xl overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-neon-cyan/10" />
+            <div className="absolute inset-0 backdrop-blur-xl" />
+            <div className="relative p-6 border border-white/10 border-dashed rounded-2xl text-center">
+              <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                <Sparkles className="w-7 h-7 text-primary" />
+              </div>
+              <h3 className="font-bold text-lg text-foreground mb-2">Start Earning</h3>
+              <p className="text-sm text-muted-foreground mb-5">
+                Refer friends and earn up to 18% commission
+              </p>
+              <Button 
+                onClick={() => navigate('/affiliate')}
+                className="shadow-lg shadow-primary/30"
+              >
+                Join Program
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
