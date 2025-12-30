@@ -37,7 +37,7 @@ const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
 const AppHome = lazy(() => import("./pages/app/AppHome").then(m => ({ default: m.AppHome })));
 const NetworkContribution = lazy(() => import("./pages/app/NetworkContribution").then(m => ({ default: m.NetworkContribution })));
 const AppShop = lazy(() => import("./pages/app/AppShop").then(m => ({ default: m.AppShop })));
-const AppWallet = lazy(() => import("./pages/app/AppWallet").then(m => ({ default: m.AppWallet })));
+const AppProfile = lazy(() => import("./pages/app/AppProfile").then(m => ({ default: m.AppProfile })));
 
 // Loading fallback component
 const PageLoader = () => (
@@ -100,7 +100,9 @@ const NativeAppRoutes = () => (
         }
       />
       <Route path="/app/shop" element={<AppShop />} />
-      <Route path="/app/wallet" element={<AppWallet />} />
+      <Route path="/app/profile" element={<AppProfile />} />
+      {/* Redirect old wallet route to profile */}
+      <Route path="/app/wallet" element={<Navigate to="/app/profile" replace />} />
       <Route path="/auth" element={<Auth />} />
       <Route path="/checkout" element={<Checkout />} />
       <Route path="/payment-success" element={<PaymentSuccess />} />
