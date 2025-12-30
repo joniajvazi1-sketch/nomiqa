@@ -523,21 +523,48 @@ export const AppProfile: React.FC = () => {
               </CardContent>
             </Card>
           ) : (
-            orders.map((order) => (
-              <Card key={order.id} className="bg-card/50 border-border/50">
-                <CardContent className="p-3">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium text-foreground text-sm">{order.package_name || 'eSIM Plan'}</p>
-                      <p className="text-xs text-muted-foreground">{order.data_amount}</p>
+            orders.map((order) => {
+              // Format status for display
+              const getStatusDisplay = (status: string) => {
+                switch (status) {
+                  case 'pending_payment':
+                  case 'pending':
+                  case 'processing':
+                    return { label: 'Processing', color: 'bg-amber-500/20 text-amber-400 border-amber-500/30' };
+                  case 'completed':
+                  case 'active':
+                    return { label: 'Active', color: 'bg-green-500/20 text-green-400 border-green-500/30' };
+                  case 'failed':
+                  case 'cancelled':
+                    return { label: 'Failed', color: 'bg-red-500/20 text-red-400 border-red-500/30' };
+                  case 'expired':
+                    return { label: 'Expired', color: 'bg-muted text-muted-foreground border-border' };
+                  default:
+                    return { label: 'Processing', color: 'bg-amber-500/20 text-amber-400 border-amber-500/30' };
+                }
+              };
+              
+              const statusDisplay = getStatusDisplay(order.status);
+              
+              return (
+                <Card key={order.id} className="bg-card/50 border-border/50">
+                  <CardContent className="p-3">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium text-foreground text-sm">{order.package_name || 'eSIM Plan'}</p>
+                        <p className="text-xs text-muted-foreground">{order.data_amount}</p>
+                      </div>
+                      <Badge 
+                        variant="outline" 
+                        className={cn('text-xs border', statusDisplay.color)}
+                      >
+                        {statusDisplay.label}
+                      </Badge>
                     </div>
-                    <Badge variant={order.status === 'completed' ? 'default' : 'secondary'} className="text-xs">
-                      {order.status}
-                    </Badge>
-                  </div>
-                </CardContent>
-              </Card>
-            ))
+                  </CardContent>
+                </Card>
+              );
+            })
           )}
         </TabsContent>
 
