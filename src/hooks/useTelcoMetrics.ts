@@ -1,0 +1,383 @@
+import { useCallback, useRef, useState } from 'react';
+import { Capacitor } from '@capacitor/core';
+import { Position } from '@capacitor/geolocation';
+import { Device } from '@capacitor/device';
+import { usePlatform } from './usePlatform';
+
+/**
+ * Telco-Grade Signal Metrics
+ * These are the "money metrics" that network engineers and telcos pay for
+ */
+export interface TelcoMetrics {
+  // Signal Quality (The "Money" Metrics)
+  rsrp?: number; // Reference Signal Received Power (dBm, e.g., -90)
+  rsrq?: number; // Reference Signal Received Quality (dB)
+  rssi?: number; // Received Signal Strength Indicator (dBm)
+  sinr?: number; // Signal-to-Interference-plus-Noise Ratio (dB)
+  
+  // Network Identity
+  networkType?: string; // '5G SA', '5G NSA', 'LTE', 'LTE-A', 'HSPA+', '3G', '2G'
+  carrierName?: string; // Display name (e.g., 'Verizon')
+  mcc?: string; // Mobile Country Code (e.g., '310')
+  mnc?: string; // Mobile Network Code (e.g., '410')
+  mccMnc?: string; // Combined (e.g., '310-410')
+  roamingStatus?: boolean;
+  
+  // Connection Quality
+  speedTestDown?: number; // Mbps
+  speedTestUp?: number; // Mbps
+  latencyMs?: number; // Ping (ms)
+  jitterMs?: number; // Jitter (ms)
+  
+  // Device Context
+  deviceModel?: string; // 'iPhone 15 Pro', 'Pixel 8'
+  deviceManufacturer?: string; // 'Apple', 'Samsung'
+  osVersion?: string; // 'iOS 17.2', 'Android 14'
+  
+  // Cell Tower Info
+  cellId?: string;
+  tac?: string; // Tracking Area Code
+  pci?: number; // Physical Cell ID
+  bandNumber?: number; // e.g., Band 71
+  frequencyMhz?: number;
+  bandwidthMhz?: number;
+}
+
+/**
+ * Full Signal Log Entry (for database)
+ */
+export interface SignalLogEntry extends TelcoMetrics {
+  latitude: number;
+  longitude: number;
+  accuracyMeters?: number;
+  altitudeMeters?: number;
+  speedMps?: number;
+  headingDegrees?: number;
+  recordedAt: string;
+  sessionId?: string;
+}
+
+// Minimum distance between logs (meters)
+const MIN_DISTANCE_THRESHOLD = 100;
+// Maximum time between logs when stationary (ms)
+const MAX_TIME_THRESHOLD = 5 * 60 * 1000; // 5 minutes
+
+/**
+ * Hook for collecting telco-grade signal metrics
+ * 
+ * PLATFORM NOTES:
+ * - Android: Full access to RSRP, RSRQ, SINR, Cell ID via TelephonyManager
+ * - iOS: Limited to Carrier name, Radio Technology, and derived metrics
+ */
+export const useTelcoMetrics = () => {
+  const { isNative, isIOS, isAndroid } = usePlatform();
+  const [deviceInfo, setDeviceInfo] = useState<{
+    model: string;
+    manufacturer: string;
+    osVersion: string;
+  } | null>(null);
+  
+  const lastLogPosition = useRef<{ lat: number; lon: number; time: number } | null>(null);
+  const speedTestCache = useRef<{ down?: number; up?: number; latency?: number; timestamp: number } | null>(null);
+  
+  /**
+   * Initialize device info (call once on mount)
+   */
+  const initDeviceInfo = useCallback(async () => {
+    if (!Capacitor.isNativePlatform()) {
+      setDeviceInfo({
+        model: 'Web Browser',
+        manufacturer: 'Unknown',
+        osVersion: navigator.userAgent.includes('iPhone') ? 'iOS' : 
+                   navigator.userAgent.includes('Android') ? 'Android' : 'Web'
+      });
+      return;
+    }
+    
+    try {
+      const info = await Device.getInfo();
+      setDeviceInfo({
+        model: info.model || 'Unknown',
+        manufacturer: info.manufacturer || 'Unknown',
+        osVersion: `${info.platform} ${info.osVersion}`
+      });
+    } catch (error) {
+      console.error('Failed to get device info:', error);
+    }
+  }, []);
+
+  /**
+   * Check if we should log based on distance/time thresholds
+   * Rule: Log every 100m OR every 5 minutes if stationary
+   */
+  const shouldLogDataPoint = useCallback((position: Position): boolean => {
+    const now = Date.now();
+    const currentPos = {
+      lat: position.coords.latitude,
+      lon: position.coords.longitude,
+      time: now
+    };
+    
+    if (!lastLogPosition.current) {
+      lastLogPosition.current = currentPos;
+      return true;
+    }
+    
+    // Calculate distance from last log
+    const distance = calculateDistanceMeters(
+      lastLogPosition.current.lat,
+      lastLogPosition.current.lon,
+      currentPos.lat,
+      currentPos.lon
+    );
+    
+    // Time since last log
+    const timeSinceLastLog = now - lastLogPosition.current.time;
+    
+    // Log if moved 100m+ OR if 5 minutes have passed
+    if (distance >= MIN_DISTANCE_THRESHOLD || timeSinceLastLog >= MAX_TIME_THRESHOLD) {
+      lastLogPosition.current = currentPos;
+      return true;
+    }
+    
+    return false;
+  }, []);
+
+  /**
+   * Get current telco metrics
+   * Platform-specific implementation
+   */
+  const getTelcoMetrics = useCallback(async (connectionType: string): Promise<TelcoMetrics> => {
+    const metrics: TelcoMetrics = {
+      deviceModel: deviceInfo?.model,
+      deviceManufacturer: deviceInfo?.manufacturer,
+      osVersion: deviceInfo?.osVersion,
+    };
+    
+    // Map connection type to granular network type
+    metrics.networkType = mapConnectionToNetworkType(connectionType);
+    
+    if (!Capacitor.isNativePlatform()) {
+      // Web: Limited data available
+      metrics.carrierName = 'Unknown (Web)';
+      return metrics;
+    }
+    
+    if (isAndroid) {
+      // Android: Can potentially access TelephonyManager via native plugin
+      // For now, we use what's available from the network plugin
+      // Note: Full RSRP/RSRQ requires a custom native plugin or Capacitor plugin
+      await getAndroidSignalMetrics(metrics);
+    } else if (isIOS) {
+      // iOS: Limited by Apple's privacy restrictions
+      // Can only get Carrier name and Radio Access Technology
+      await getIOSSignalMetrics(metrics);
+    }
+    
+    // Add speed test data if cached and recent (< 10 minutes)
+    if (speedTestCache.current && Date.now() - speedTestCache.current.timestamp < 10 * 60 * 1000) {
+      metrics.speedTestDown = speedTestCache.current.down;
+      metrics.speedTestUp = speedTestCache.current.up;
+      metrics.latencyMs = speedTestCache.current.latency;
+    }
+    
+    return metrics;
+  }, [deviceInfo, isAndroid, isIOS]);
+
+  /**
+   * Run a lightweight speed test
+   * Uses small file downloads to measure network performance
+   */
+  const runLightweightSpeedTest = useCallback(async (): Promise<{
+    down: number;
+    up: number;
+    latency: number;
+  } | null> => {
+    try {
+      // Measure latency with a HEAD request
+      const latencyStart = performance.now();
+      await fetch('https://www.cloudflare.com/cdn-cgi/trace', { 
+        method: 'HEAD',
+        cache: 'no-store'
+      });
+      const latencyMs = Math.round(performance.now() - latencyStart);
+      
+      // Download test: Fetch a small known-size file
+      const downloadStart = performance.now();
+      const response = await fetch('https://speed.cloudflare.com/__down?bytes=100000', {
+        cache: 'no-store'
+      });
+      await response.arrayBuffer();
+      const downloadTime = (performance.now() - downloadStart) / 1000; // seconds
+      const downloadMbps = (100000 * 8 / 1000000) / downloadTime; // Mbps
+      
+      // Upload test: POST small data
+      const uploadData = new ArrayBuffer(50000);
+      const uploadStart = performance.now();
+      await fetch('https://speed.cloudflare.com/__up', {
+        method: 'POST',
+        body: uploadData,
+        cache: 'no-store'
+      });
+      const uploadTime = (performance.now() - uploadStart) / 1000;
+      const uploadMbps = (50000 * 8 / 1000000) / uploadTime;
+      
+      const result = {
+        down: Math.round(downloadMbps * 10) / 10,
+        up: Math.round(uploadMbps * 10) / 10,
+        latency: latencyMs
+      };
+      
+      // Cache the result
+      speedTestCache.current = { ...result, timestamp: Date.now() };
+      
+      return result;
+    } catch (error) {
+      console.error('Speed test failed:', error);
+      return null;
+    }
+  }, []);
+
+  /**
+   * Create a full signal log entry
+   */
+  const createSignalLogEntry = useCallback(async (
+    position: Position,
+    connectionType: string,
+    sessionId?: string
+  ): Promise<SignalLogEntry> => {
+    const telcoMetrics = await getTelcoMetrics(connectionType);
+    
+    return {
+      ...telcoMetrics,
+      latitude: position.coords.latitude,
+      longitude: position.coords.longitude,
+      accuracyMeters: position.coords.accuracy || undefined,
+      altitudeMeters: position.coords.altitude || undefined,
+      speedMps: position.coords.speed || undefined,
+      headingDegrees: position.coords.heading || undefined,
+      recordedAt: new Date().toISOString(),
+      sessionId
+    };
+  }, [getTelcoMetrics]);
+
+  /**
+   * Reset logging position (call when starting new session)
+   */
+  const resetLoggingState = useCallback(() => {
+    lastLogPosition.current = null;
+    speedTestCache.current = null;
+  }, []);
+
+  return {
+    initDeviceInfo,
+    shouldLogDataPoint,
+    getTelcoMetrics,
+    runLightweightSpeedTest,
+    createSignalLogEntry,
+    resetLoggingState,
+    deviceInfo
+  };
+};
+
+// ============= Helper Functions =============
+
+/**
+ * Calculate distance between two coordinates (Haversine formula)
+ */
+function calculateDistanceMeters(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371e3; // Earth radius in meters
+  const φ1 = lat1 * Math.PI / 180;
+  const φ2 = lat2 * Math.PI / 180;
+  const Δφ = (lat2 - lat1) * Math.PI / 180;
+  const Δλ = (lon2 - lon1) * Math.PI / 180;
+
+  const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+            Math.cos(φ1) * Math.cos(φ2) *
+            Math.sin(Δλ/2) * Math.sin(Δλ/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+  return R * c;
+}
+
+/**
+ * Map generic connection type to granular network type
+ */
+function mapConnectionToNetworkType(connectionType: string): string {
+  const typeMap: Record<string, string> = {
+    '5g': '5G SA',
+    '4g': 'LTE',
+    'lte': 'LTE',
+    'cellular': 'LTE', // Default cellular to LTE
+    '3g': '3G',
+    '2g': '2G',
+    'wifi': 'WiFi',
+    'none': 'None',
+    'unknown': 'Unknown'
+  };
+  
+  return typeMap[connectionType.toLowerCase()] || connectionType.toUpperCase();
+}
+
+/**
+ * Android-specific signal metrics collection
+ * Note: Full implementation requires native Android plugin access to TelephonyManager
+ */
+async function getAndroidSignalMetrics(metrics: TelcoMetrics): Promise<void> {
+  // In a full implementation, this would call a native plugin like:
+  // const signalInfo = await TelephonyPlugin.getSignalStrength();
+  // metrics.rsrp = signalInfo.rsrp;
+  // metrics.rsrq = signalInfo.rsrq;
+  // metrics.sinr = signalInfo.sinr;
+  // metrics.cellId = signalInfo.cellId;
+  // metrics.mcc = signalInfo.mcc;
+  // metrics.mnc = signalInfo.mnc;
+  
+  // For now, use available Connection API data
+  // @ts-ignore - Navigator connection API
+  const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  if (connection) {
+    // Effective type gives us network generation
+    if (connection.effectiveType) {
+      const typeMap: Record<string, string> = {
+        'slow-2g': '2G',
+        '2g': '2G',
+        '3g': '3G',
+        '4g': 'LTE'
+      };
+      metrics.networkType = typeMap[connection.effectiveType] || metrics.networkType;
+    }
+    
+    // Downlink speed estimate (Mbps)
+    if (connection.downlink) {
+      metrics.speedTestDown = connection.downlink;
+    }
+    
+    // Round-trip time estimate (ms)
+    if (connection.rtt) {
+      metrics.latencyMs = connection.rtt;
+    }
+  }
+  
+  // Placeholder carrier detection
+  metrics.carrierName = 'Android Carrier';
+}
+
+/**
+ * iOS-specific signal metrics collection
+ * Apple restricts direct access to RSRP/RSRQ
+ * We can get: Carrier name, Radio Technology
+ */
+async function getIOSSignalMetrics(metrics: TelcoMetrics): Promise<void> {
+  // iOS restrictions mean we can only get:
+  // 1. Carrier name (via CTCarrier - deprecated in iOS 16+)
+  // 2. Radio Access Technology (via CTTelephonyNetworkInfo)
+  
+  // For privacy, iOS doesn't expose signal strength or cell tower info
+  // We rely on the network type from the Network plugin
+  
+  metrics.carrierName = 'iOS Carrier';
+  
+  // On iOS, we can estimate signal quality from download performance
+  // This is done through the speed test function
+}
