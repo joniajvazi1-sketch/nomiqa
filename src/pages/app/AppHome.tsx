@@ -426,7 +426,7 @@ export const AppHome: React.FC = () => {
                 </div>
                 <div className="text-left">
                   <div className="font-semibold text-foreground">Buy eSIM</div>
-                  <div className="text-xs text-muted-foreground">190+ countries covered</div>
+                  <div className="text-xs text-muted-foreground">200+ countries covered</div>
                 </div>
               </div>
               <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:translate-x-1 group-hover:text-foreground transition-all" />

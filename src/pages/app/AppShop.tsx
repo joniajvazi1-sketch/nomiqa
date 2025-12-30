@@ -154,7 +154,7 @@ export const AppShop: React.FC = () => {
         <header className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-foreground tracking-tight">eSIM Shop</h1>
-            <p className="text-sm text-muted-foreground">190+ countries available</p>
+            <p className="text-sm text-muted-foreground">200+ countries available</p>
           </div>
           <button 
             onClick={() => navigate('/checkout')}
