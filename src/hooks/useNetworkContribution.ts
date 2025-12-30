@@ -5,15 +5,17 @@ import { useBackgroundGeolocation } from './useBackgroundGeolocation';
 import { useNetworkStatus } from './useNetworkStatus';
 import { useHaptics } from './useHaptics';
 import { usePlatform } from './usePlatform';
+import { useTelcoMetrics, SignalLogEntry } from './useTelcoMetrics';
 
 interface ContributionStats {
   pointsEarned: number;
   distanceMeters: number;
   speedKmh: number;
   dataPointsCount: number;
-  duration: number; // in seconds
-  timePoints: number; // Points earned from time
-  distancePoints: number; // Points earned from distance
+  signalLogsCount: number; // Telco-grade logs
+  duration: number;
+  timePoints: number;
+  distancePoints: number;
 }
 
 interface ContributionSession {
@@ -23,6 +25,7 @@ interface ContributionSession {
 }
 
 interface OfflineQueueItem {
+  type: 'basic' | 'telco';
   latitude: number;
   longitude: number;
   signal_dbm?: number;
@@ -33,13 +36,15 @@ interface OfflineQueueItem {
   accuracy_meters?: number;
   recorded_at: string;
   session_id?: string;
+  // Telco-grade fields
+  telcoMetrics?: SignalLogEntry;
 }
 
 const OFFLINE_QUEUE_KEY = 'nomiqa_offline_contribution_queue';
+const SPEED_TEST_INTERVAL = 10 * 60 * 1000; // Run speed test every 10 minutes
 
 /**
  * Check if connection type is cellular (earns points)
- * WiFi and 'none' do NOT earn points - we are a DePIN for Mobile Networks
  */
 const isCellularConnection = (type: string): boolean => {
   const cellularTypes = ['cellular', '4g', '5g', 'lte', '3g', '2g'];
@@ -47,19 +52,19 @@ const isCellularConnection = (type: string): boolean => {
 };
 
 /**
- * Network Contribution Engine Hook
+ * Network Contribution Engine Hook - TELCO GRADE
  * 
  * BUSINESS RULES:
- * 1. CELLULAR ONLY - Users only earn points on mobile data (4G/5G/LTE)
- *    WiFi and offline connections pause mining
- * 
- * 2. TIME-BASED EARNINGS - Users earn even when stationary
- *    Formula: points = (distanceMeters * 0.01) + (minutesActive * 0.5)
+ * 1. CELLULAR ONLY - Users only earn points on mobile data
+ * 2. TIME-BASED EARNINGS - points = (distanceMeters * 0.01) + (minutesActive * 0.5)
+ * 3. TELCO LOGGING - Log every 100m OR every 5 minutes if stationary
+ * 4. SPEED TESTS - Run lightweight speed test every 10 minutes
  */
 export const useNetworkContribution = () => {
   const { isNative, isIOS, isAndroid } = usePlatform();
   const { isOnline, connectionType } = useNetworkStatus();
   const { heavyTap, success, warning } = useHaptics();
+  const telcoMetrics = useTelcoMetrics();
   
   const [user, setUser] = useState<any>(null);
   const [session, setSession] = useState<ContributionSession>({
@@ -73,6 +78,7 @@ export const useNetworkContribution = () => {
     distanceMeters: 0,
     speedKmh: 0,
     dataPointsCount: 0,
+    signalLogsCount: 0,
     duration: 0,
     timePoints: 0,
     distancePoints: 0
@@ -81,23 +87,23 @@ export const useNetworkContribution = () => {
   const [offlineQueueCount, setOfflineQueueCount] = useState(0);
   const [lastPosition, setLastPosition] = useState<Position | null>(null);
   
-  // Is the current connection cellular (earnable)?
   const isCellular = isCellularConnection(connectionType);
   const isPaused = session.status === 'active' && !isCellular;
   
   const lastPositionRef = useRef<Position | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const lastTimePointsRef = useRef<number>(0); // Track last time points were awarded
+  const speedTestTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const lastTimePointsRef = useRef<number>(0);
 
-  // Position update handler - only process on cellular
-  const handlePositionUpdate = useCallback((position: Position) => {
+  // Position update handler
+  const handlePositionUpdate = useCallback(async (position: Position) => {
     if (session.status !== 'active') return;
     
-    // CRITICAL: Only process data on cellular connections
+    // Always update position for map display
+    setLastPosition(position);
+    
     if (!isCellularConnection(connectionType)) {
-      // Still update position for map display, but don't earn points
       lastPositionRef.current = position;
-      setLastPosition(position);
       return;
     }
     
@@ -108,9 +114,7 @@ export const useNetworkContribution = () => {
     if (lastPositionRef.current) {
       distanceGained = calculateDistance(lastPositionRef.current, position);
       
-      // Only count if moved more than 5 meters (filter GPS noise)
       if (distanceGained > 5) {
-        // NEW FORMULA: Distance points = distance * 0.01
         distancePoints = distanceGained * 0.01;
         
         setStats(prev => ({
@@ -125,11 +129,95 @@ export const useNetworkContribution = () => {
     }
     
     lastPositionRef.current = position;
-    setLastPosition(position);
     
-    // Queue the data point for cellular coverage mapping
+    // Check if we should log a telco-grade data point (100m or 5min)
+    if (telcoMetrics.shouldLogDataPoint(position)) {
+      await logTelcoDataPoint(position);
+    }
+    
+    // Queue basic data for coverage mapping
     queueContributionData(position);
-  }, [session.status, connectionType]);
+  }, [session.status, connectionType, telcoMetrics]);
+
+  /**
+   * Log a telco-grade signal data point to the database
+   */
+  const logTelcoDataPoint = async (position: Position) => {
+    if (!user || !session.id) return;
+    
+    try {
+      const signalLog = await telcoMetrics.createSignalLogEntry(
+        position,
+        connectionType,
+        session.id
+      );
+      
+      // Insert into signal_logs table
+      const { error } = await supabase.from('signal_logs').insert({
+        user_id: user.id,
+        session_id: session.id,
+        latitude: signalLog.latitude,
+        longitude: signalLog.longitude,
+        accuracy_meters: signalLog.accuracyMeters,
+        altitude_meters: signalLog.altitudeMeters,
+        speed_mps: signalLog.speedMps,
+        heading_degrees: signalLog.headingDegrees,
+        rsrp: signalLog.rsrp,
+        rsrq: signalLog.rsrq,
+        rssi: signalLog.rssi,
+        sinr: signalLog.sinr,
+        network_type: signalLog.networkType,
+        carrier_name: signalLog.carrierName,
+        mcc: signalLog.mcc,
+        mnc: signalLog.mnc,
+        mcc_mnc: signalLog.mccMnc,
+        roaming_status: signalLog.roamingStatus,
+        speed_test_down: signalLog.speedTestDown,
+        speed_test_up: signalLog.speedTestUp,
+        latency_ms: signalLog.latencyMs,
+        jitter_ms: signalLog.jitterMs,
+        device_model: signalLog.deviceModel,
+        device_manufacturer: signalLog.deviceManufacturer,
+        os_version: signalLog.osVersion,
+        cell_id: signalLog.cellId,
+        tac: signalLog.tac,
+        pci: signalLog.pci,
+        band_number: signalLog.bandNumber,
+        frequency_mhz: signalLog.frequencyMhz,
+        bandwidth_mhz: signalLog.bandwidthMhz,
+        recorded_at: signalLog.recordedAt
+      });
+      
+      if (error) {
+        console.error('Signal log insert error:', error);
+        // Queue for offline sync
+        queueTelcoData(signalLog);
+      } else {
+        setStats(prev => ({
+          ...prev,
+          signalLogsCount: prev.signalLogsCount + 1
+        }));
+      }
+    } catch (error) {
+      console.error('Failed to log telco data:', error);
+    }
+  };
+
+  /**
+   * Queue telco data for offline sync
+   */
+  const queueTelcoData = (signalLog: SignalLogEntry) => {
+    const queue = getOfflineQueue();
+    queue.push({
+      type: 'telco',
+      latitude: signalLog.latitude,
+      longitude: signalLog.longitude,
+      recorded_at: signalLog.recordedAt,
+      session_id: signalLog.sessionId,
+      telcoMetrics: signalLog
+    });
+    saveOfflineQueue(queue);
+  };
 
   const {
     hasPermission,
@@ -140,6 +228,11 @@ export const useNetworkContribution = () => {
     stopTracking: stopGeoTracking
   } = useBackgroundGeolocation(handlePositionUpdate);
 
+  // Initialize device info on mount
+  useEffect(() => {
+    telcoMetrics.initDeviceInfo();
+  }, [telcoMetrics]);
+
   // Load user on mount
   useEffect(() => {
     const loadUser = async () => {
@@ -148,7 +241,6 @@ export const useNetworkContribution = () => {
     };
     loadUser();
     
-    // Load offline queue count
     const queue = getOfflineQueue();
     setOfflineQueueCount(queue.length);
   }, []);
@@ -160,14 +252,13 @@ export const useNetworkContribution = () => {
     }
   }, [isOnline, offlineQueueCount, user]);
 
-  // TIME-BASED EARNINGS: Award points every minute on cellular
+  // Time-based earnings
   useEffect(() => {
     if (session.status !== 'active' || !isCellular) return;
     
     const currentMinute = Math.floor(stats.duration / 60);
     const lastAwardedMinute = lastTimePointsRef.current;
     
-    // Award 0.5 points per minute on cellular
     if (currentMinute > lastAwardedMinute) {
       const minutesElapsed = currentMinute - lastAwardedMinute;
       const timePointsEarned = minutesElapsed * 0.5;
@@ -182,9 +273,8 @@ export const useNetworkContribution = () => {
     }
   }, [stats.duration, session.status, isCellular]);
 
-  // Calculate distance between two positions (Haversine formula)
   const calculateDistance = (pos1: Position, pos2: Position): number => {
-    const R = 6371e3; // Earth's radius in meters
+    const R = 6371e3;
     const lat1 = pos1.coords.latitude * Math.PI / 180;
     const lat2 = pos2.coords.latitude * Math.PI / 180;
     const deltaLat = (pos2.coords.latitude - pos1.coords.latitude) * Math.PI / 180;
@@ -219,6 +309,7 @@ export const useNetworkContribution = () => {
 
   const queueContributionData = (position: Position) => {
     const item: OfflineQueueItem = {
+      type: 'basic',
       latitude: position.coords.latitude,
       longitude: position.coords.longitude,
       speed_mps: position.coords.speed || undefined,
@@ -254,21 +345,74 @@ export const useNetworkContribution = () => {
     if (queue.length === 0) return;
 
     try {
-      const { data, error } = await supabase.functions.invoke('sync-contribution-data', {
-        body: { contributions: queue }
-      });
-
-      if (error) throw error;
+      // Separate telco and basic data
+      const telcoData = queue.filter(item => item.type === 'telco');
+      const basicData = queue.filter(item => item.type === 'basic');
+      
+      // Sync telco data directly to signal_logs
+      if (telcoData.length > 0) {
+        const telcoInserts = telcoData.map(item => ({
+          user_id: user.id,
+          session_id: item.session_id,
+          latitude: item.telcoMetrics?.latitude,
+          longitude: item.telcoMetrics?.longitude,
+          accuracy_meters: item.telcoMetrics?.accuracyMeters,
+          altitude_meters: item.telcoMetrics?.altitudeMeters,
+          speed_mps: item.telcoMetrics?.speedMps,
+          heading_degrees: item.telcoMetrics?.headingDegrees,
+          rsrp: item.telcoMetrics?.rsrp,
+          rsrq: item.telcoMetrics?.rsrq,
+          rssi: item.telcoMetrics?.rssi,
+          sinr: item.telcoMetrics?.sinr,
+          network_type: item.telcoMetrics?.networkType,
+          carrier_name: item.telcoMetrics?.carrierName,
+          mcc: item.telcoMetrics?.mcc,
+          mnc: item.telcoMetrics?.mnc,
+          mcc_mnc: item.telcoMetrics?.mccMnc,
+          roaming_status: item.telcoMetrics?.roamingStatus,
+          speed_test_down: item.telcoMetrics?.speedTestDown,
+          speed_test_up: item.telcoMetrics?.speedTestUp,
+          latency_ms: item.telcoMetrics?.latencyMs,
+          jitter_ms: item.telcoMetrics?.jitterMs,
+          device_model: item.telcoMetrics?.deviceModel,
+          device_manufacturer: item.telcoMetrics?.deviceManufacturer,
+          os_version: item.telcoMetrics?.osVersion,
+          cell_id: item.telcoMetrics?.cellId,
+          tac: item.telcoMetrics?.tac,
+          pci: item.telcoMetrics?.pci,
+          band_number: item.telcoMetrics?.bandNumber,
+          frequency_mhz: item.telcoMetrics?.frequencyMhz,
+          bandwidth_mhz: item.telcoMetrics?.bandwidthMhz,
+          recorded_at: item.recorded_at
+        }));
+        
+        const { error: telcoError } = await supabase
+          .from('signal_logs')
+          .insert(telcoInserts);
+        
+        if (telcoError) {
+          console.error('Failed to sync telco data:', telcoError);
+        }
+      }
+      
+      // Sync basic data via edge function
+      if (basicData.length > 0) {
+        const { error } = await supabase.functions.invoke('sync-contribution-data', {
+          body: { contributions: basicData }
+        });
+        
+        if (error) throw error;
+      }
 
       // Clear synced items
       saveOfflineQueue([]);
-      console.log(`Synced ${queue.length} contribution data points`);
+      console.log(`Synced ${queue.length} data points (${telcoData.length} telco, ${basicData.length} basic)`);
     } catch (error) {
       console.error('Failed to sync offline queue:', error);
     }
   };
 
-  // Start a contribution session
+  // Start contribution session
   const startContribution = async (): Promise<boolean> => {
     if (!user) {
       warning();
@@ -277,7 +421,6 @@ export const useNetworkContribution = () => {
 
     heavyTap();
 
-    // Create session in database
     try {
       const { data: newSession, error } = await supabase
         .from('contribution_sessions')
@@ -296,13 +439,12 @@ export const useNetworkContribution = () => {
         status: 'active'
       });
 
-      // Reset time points tracker
+      // Reset telco logging state
+      telcoMetrics.resetLoggingState();
       lastTimePointsRef.current = 0;
 
-      // Start location tracking
       const started = await startGeoTracking();
       if (!started) {
-        // Rollback session
         await supabase
           .from('contribution_sessions')
           .update({ status: 'cancelled' })
@@ -313,10 +455,21 @@ export const useNetworkContribution = () => {
         return false;
       }
 
-      // Start duration timer (runs regardless of connection type)
+      // Start duration timer
       timerRef.current = setInterval(() => {
         setStats(prev => ({ ...prev, duration: prev.duration + 1 }));
       }, 1000);
+
+      // Start periodic speed tests (every 10 minutes)
+      speedTestTimerRef.current = setInterval(async () => {
+        if (isCellular) {
+          console.log('Running periodic speed test...');
+          await telcoMetrics.runLightweightSpeedTest();
+        }
+      }, SPEED_TEST_INTERVAL);
+
+      // Run initial speed test
+      telcoMetrics.runLightweightSpeedTest();
 
       return true;
     } catch (error) {
@@ -330,16 +483,18 @@ export const useNetworkContribution = () => {
   const stopContribution = async () => {
     heavyTap();
 
-    // Stop location tracking
     await stopGeoTracking();
 
-    // Stop timer
     if (timerRef.current) {
       clearInterval(timerRef.current);
       timerRef.current = null;
     }
+    
+    if (speedTestTimerRef.current) {
+      clearInterval(speedTestTimerRef.current);
+      speedTestTimerRef.current = null;
+    }
 
-    // Update session in database
     if (session.id && user) {
       try {
         await supabase
@@ -353,7 +508,6 @@ export const useNetworkContribution = () => {
           })
           .eq('id', session.id);
 
-        // Update user_points
         const { data: existingPoints } = await supabase
           .from('user_points')
           .select('*')
@@ -388,16 +542,15 @@ export const useNetworkContribution = () => {
       }
     }
 
-    // Sync any remaining offline data
     await syncOfflineQueue();
 
-    // Reset state
     setSession({ id: null, startedAt: null, status: 'completed' });
     setStats({
       pointsEarned: 0,
       distanceMeters: 0,
       speedKmh: 0,
       dataPointsCount: 0,
+      signalLogsCount: 0,
       duration: 0,
       timePoints: 0,
       distancePoints: 0
@@ -406,7 +559,6 @@ export const useNetworkContribution = () => {
     lastTimePointsRef.current = 0;
   };
 
-  // Format helpers
   const formatDuration = (seconds: number): string => {
     const hrs = Math.floor(seconds / 3600);
     const mins = Math.floor((seconds % 3600) / 60);
@@ -423,7 +575,6 @@ export const useNetworkContribution = () => {
   };
 
   return {
-    // State
     user,
     session,
     stats,
@@ -434,18 +585,12 @@ export const useNetworkContribution = () => {
     connectionType,
     offlineQueueCount,
     lastPosition,
-    
-    // Cellular-specific state
     isCellular,
-    isPaused, // True when active but not on cellular
-    
-    // Actions
+    isPaused,
     startContribution,
     stopContribution,
     requestPermissions,
     syncOfflineQueue,
-    
-    // Helpers
     formatDuration,
     formatDistance
   };

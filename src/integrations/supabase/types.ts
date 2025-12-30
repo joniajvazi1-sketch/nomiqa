@@ -669,6 +669,125 @@ export type Database = {
         }
         Relationships: []
       }
+      signal_logs: {
+        Row: {
+          accuracy_meters: number | null
+          altitude_meters: number | null
+          band_number: number | null
+          bandwidth_mhz: number | null
+          carrier_name: string | null
+          cell_id: string | null
+          created_at: string | null
+          device_manufacturer: string | null
+          device_model: string | null
+          frequency_mhz: number | null
+          heading_degrees: number | null
+          id: string
+          jitter_ms: number | null
+          latency_ms: number | null
+          latitude: number
+          longitude: number
+          mcc: string | null
+          mcc_mnc: string | null
+          mnc: string | null
+          network_type: string | null
+          os_version: string | null
+          pci: number | null
+          recorded_at: string
+          roaming_status: boolean | null
+          rsrp: number | null
+          rsrq: number | null
+          rssi: number | null
+          session_id: string | null
+          sinr: number | null
+          speed_mps: number | null
+          speed_test_down: number | null
+          speed_test_up: number | null
+          tac: string | null
+          user_id: string
+        }
+        Insert: {
+          accuracy_meters?: number | null
+          altitude_meters?: number | null
+          band_number?: number | null
+          bandwidth_mhz?: number | null
+          carrier_name?: string | null
+          cell_id?: string | null
+          created_at?: string | null
+          device_manufacturer?: string | null
+          device_model?: string | null
+          frequency_mhz?: number | null
+          heading_degrees?: number | null
+          id?: string
+          jitter_ms?: number | null
+          latency_ms?: number | null
+          latitude: number
+          longitude: number
+          mcc?: string | null
+          mcc_mnc?: string | null
+          mnc?: string | null
+          network_type?: string | null
+          os_version?: string | null
+          pci?: number | null
+          recorded_at: string
+          roaming_status?: boolean | null
+          rsrp?: number | null
+          rsrq?: number | null
+          rssi?: number | null
+          session_id?: string | null
+          sinr?: number | null
+          speed_mps?: number | null
+          speed_test_down?: number | null
+          speed_test_up?: number | null
+          tac?: string | null
+          user_id: string
+        }
+        Update: {
+          accuracy_meters?: number | null
+          altitude_meters?: number | null
+          band_number?: number | null
+          bandwidth_mhz?: number | null
+          carrier_name?: string | null
+          cell_id?: string | null
+          created_at?: string | null
+          device_manufacturer?: string | null
+          device_model?: string | null
+          frequency_mhz?: number | null
+          heading_degrees?: number | null
+          id?: string
+          jitter_ms?: number | null
+          latency_ms?: number | null
+          latitude?: number
+          longitude?: number
+          mcc?: string | null
+          mcc_mnc?: string | null
+          mnc?: string | null
+          network_type?: string | null
+          os_version?: string | null
+          pci?: number | null
+          recorded_at?: string
+          roaming_status?: boolean | null
+          rsrp?: number | null
+          rsrq?: number | null
+          rssi?: number | null
+          session_id?: string | null
+          sinr?: number | null
+          speed_mps?: number | null
+          speed_test_down?: number | null
+          speed_test_up?: number | null
+          tac?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "signal_logs_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "contribution_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_points: {
         Row: {
           contribution_streak_days: number | null
