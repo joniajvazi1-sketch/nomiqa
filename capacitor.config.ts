@@ -4,10 +4,6 @@ const config: CapacitorConfig = {
   appId: 'com.nomiqa.app',
   appName: 'Nomiqa',
   webDir: 'dist',
-  server: {
-    url: 'https://93e3c876-a8ae-4b6d-92bd-0a1cb945938e.lovableproject.com?forceHideBadge=true',
-    cleartext: true
-  },
   plugins: {
     SplashScreen: {
       launchShowDuration: 2000,
