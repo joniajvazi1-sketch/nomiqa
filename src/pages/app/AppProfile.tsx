@@ -77,9 +77,9 @@ const TIER_CONFIG = {
 };
 
 const AFFILIATE_TIERS = [
-  { level: 1, name: 'Starter', conversions: 0, commission: '9%' },
-  { level: 2, name: 'Pro', conversions: 10, commission: '9% + 6%' },
-  { level: 3, name: 'Elite', conversions: 30, commission: '9% + 6% + 3%' }
+  { level: 1, name: 'Recruit', conversions: 0, commission: '9%' },
+  { level: 2, name: 'Commander', conversions: 10, commission: '9% + 6%' },
+  { level: 3, name: 'Overlord', conversions: 30, commission: '9% + 6% + 3%' }
 ];
 
 export const AppProfile: React.FC = () => {
@@ -572,11 +572,11 @@ export const AppProfile: React.FC = () => {
         <TabsContent value="earn" className="mt-4 space-y-4">
           {allAffiliates.length > 0 ? (
             <>
-              {/* Affiliate Account Selector */}
+              {/* Team Control Selector */}
               {allAffiliates.length > 1 && (
                 <Card className="bg-card/50 border-border/50">
                   <CardContent className="p-3">
-                    <p className="text-xs text-muted-foreground mb-2">Select Affiliate Account</p>
+                    <p className="text-xs text-muted-foreground mb-2">Team Control</p>
                     <Select value={selectedAffiliateId} onValueChange={setSelectedAffiliateId}>
                       <SelectTrigger className="w-full bg-background/50">
                         <SelectValue placeholder="Select account" />
@@ -646,7 +646,7 @@ export const AppProfile: React.FC = () => {
                       <CardContent className="p-3">
                         <div className="flex items-center gap-2 mb-1">
                           <TrendingUp className="w-3 h-3 text-green-500" />
-                          <span className="text-[10px] text-muted-foreground">Conversions</span>
+                          <span className="text-[10px] text-muted-foreground">Recruits</span>
                         </div>
                         <p className="text-xl font-bold text-foreground">{selectedAffiliate.total_conversions || 0}</p>
                       </CardContent>
@@ -671,13 +671,13 @@ export const AppProfile: React.FC = () => {
                     </Card>
                   </div>
 
-                  {/* Sales Tier Progress */}
+                  {/* Squad Level Progress */}
                   {affiliateTierInfo && (
                     <Card className="bg-card/50 border-border/50">
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between mb-3">
                           <div>
-                            <p className="text-xs text-muted-foreground">Sales Tier</p>
+                            <p className="text-xs text-muted-foreground">Squad Level</p>
                             <p className="font-bold text-foreground">{affiliateTierInfo.currentTier.name}</p>
                           </div>
                           <Badge variant="outline" className="text-primary">
@@ -695,7 +695,7 @@ export const AppProfile: React.FC = () => {
                               <div className="h-full bg-primary rounded-full" style={{ width: `${affiliateTierInfo.progress}%` }} />
                             </div>
                             <p className="text-xs text-muted-foreground">
-                              {affiliateTierInfo.remaining} more conversions needed
+                              {affiliateTierInfo.remaining} more recruits needed
                             </p>
                           </div>
                         )}
