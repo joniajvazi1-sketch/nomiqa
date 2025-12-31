@@ -60,12 +60,19 @@ export const NetworkContribution: React.FC = () => {
     : null;
 
   return (
-    <div className="relative min-h-screen bg-background">
-      {/* Full-screen dark map background */}
+    <div className="fixed inset-0 bg-background overflow-hidden">
+      {/* Full-screen dark map background - extends to absolute bottom behind home indicator */}
       <ContributionMap userPosition={userPosition} isActive={isActive && isCellular} />
       
-      {/* Content overlay */}
-      <div className="relative z-20 px-4 py-6 space-y-4 min-h-screen flex flex-col">
+      {/* Content overlay - scrollable with safe area padding */}
+      <div 
+        className="relative z-20 px-4 py-6 space-y-4 flex flex-col overflow-y-auto"
+        style={{
+          height: '100%',
+          paddingTop: 'calc(env(safe-area-inset-top, 0px) + 1.5rem)',
+          paddingBottom: 'calc(72px + env(safe-area-inset-bottom, 0px) + 1rem)'
+        }}
+      >
         {/* Header */}
         <div className="text-center">
           <h1 className="text-2xl font-bold text-foreground">Network Contribution</h1>
