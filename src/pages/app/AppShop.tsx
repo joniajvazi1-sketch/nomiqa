@@ -353,63 +353,63 @@ export const AppShop: React.FC = () => {
 
         {/* Enhanced Product Detail Modal */}
         <Dialog open={detailModalOpen} onOpenChange={setDetailModalOpen}>
-          <DialogContent className="max-w-sm mx-4 rounded-3xl border-white/10 bg-background/95 backdrop-blur-2xl p-0 overflow-hidden max-h-[85vh] overflow-y-auto">
+          <DialogContent className="w-[calc(100%-2rem)] max-w-[360px] rounded-2xl border-white/10 bg-background/98 backdrop-blur-2xl p-0 overflow-hidden max-h-[80vh] overflow-y-auto">
             {selectedProduct && (
               <>
                 {/* Header with gradient */}
-                <div className="relative p-6 pb-4">
+                <div className="relative p-4 pb-3">
                   <div className="absolute inset-0 bg-gradient-to-b from-primary/10 to-transparent" />
                   <DialogHeader className="relative">
-                    <div className="flex items-center gap-4">
-                      <div className="relative">
+                    <div className="flex items-center gap-3">
+                      <div className="relative shrink-0">
                         {getLargeCountryFlag(selectedProduct)}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <DialogTitle className="text-xl truncate">{selectedProduct.country_name}</DialogTitle>
-                        <p className="text-sm text-muted-foreground truncate">{selectedProduct.name}</p>
+                        <DialogTitle className="text-lg truncate">{selectedProduct.country_name}</DialogTitle>
+                        <p className="text-xs text-muted-foreground truncate">{selectedProduct.name}</p>
                       </div>
                     </div>
                   </DialogHeader>
                 </div>
                 
-                <div className="px-6 pb-6 space-y-4">
+                <div className="px-4 pb-4 space-y-3">
                   {/* Price Display */}
-                  <div className="text-center py-3 rounded-2xl bg-white/[0.03] border border-white/[0.08]">
-                    <div className="text-3xl font-bold text-foreground tracking-tight">
+                  <div className="text-center py-2 rounded-xl bg-white/[0.03] border border-white/[0.08]">
+                    <div className="text-2xl font-bold text-foreground tracking-tight">
                       ${selectedProduct.price_usd.toFixed(2)}
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">One-time payment • Instant activation</p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">One-time payment • Instant activation</p>
                   </div>
 
                   {/* Data & Validity Grid */}
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="p-4 rounded-2xl bg-gradient-to-br from-primary/15 to-primary/5 border border-primary/20">
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
-                        <Wifi className="w-4 h-4" />
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="p-3 rounded-xl bg-gradient-to-br from-primary/15 to-primary/5 border border-primary/20">
+                      <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground mb-1">
+                        <Wifi className="w-3 h-3" />
                         Data
                       </div>
-                      <span className="text-xl font-bold text-foreground">{selectedProduct.data_amount}</span>
+                      <span className="text-base font-bold text-foreground">{selectedProduct.data_amount}</span>
                     </div>
-                    <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.08]">
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
-                        <Calendar className="w-4 h-4" />
+                    <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.08]">
+                      <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground mb-1">
+                        <Calendar className="w-3 h-3" />
                         Validity
                       </div>
-                      <span className="text-xl font-bold text-foreground">{selectedProduct.validity_days} days</span>
+                      <span className="text-base font-bold text-foreground">{selectedProduct.validity_days} days</span>
                     </div>
                   </div>
 
                   {/* Operator / Powered By */}
                   {selectedProduct.operator_image_url && (
-                    <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.08] flex items-center gap-3">
+                    <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.08] flex items-center gap-2">
                       <img 
                         src={selectedProduct.operator_image_url} 
                         alt={selectedProduct.operator_name || 'Operator'} 
-                        className="h-8 object-contain rounded"
+                        className="h-6 object-contain rounded"
                         onError={(e) => { e.currentTarget.style.display = 'none'; }}
                       />
                       {selectedProduct.operator_name && (
-                        <p className="text-sm text-muted-foreground">Powered by {selectedProduct.operator_name}</p>
+                        <p className="text-xs text-muted-foreground">Powered by {selectedProduct.operator_name}</p>
                       )}
                     </div>
                   )}
@@ -418,66 +418,54 @@ export const AppShop: React.FC = () => {
                   <Button 
                     onClick={() => setCompatibilityOpen(true)}
                     variant="outline"
-                    className="w-full h-12 rounded-xl bg-primary/10 border-primary/30 text-primary hover:bg-primary/20"
+                    className="w-full h-10 rounded-xl bg-primary/10 border-primary/30 text-primary hover:bg-primary/20 text-sm"
                   >
                     <Smartphone className="mr-2 h-4 w-4" />
-                    Check Device Compatibility
+                    Check Compatibility
                   </Button>
 
-                  {/* Plan Details */}
-                  <div className="space-y-2">
-                    <h3 className="text-sm font-medium text-foreground">Plan Details</h3>
+                  {/* Plan Details - Compact */}
+                  <div className="space-y-1.5">
+                    <h3 className="text-xs font-medium text-foreground">Plan Details</h3>
                     
                     {selectedProduct.features?.coverage && (
-                      <div className="flex items-start gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/[0.08]">
-                        <Globe className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm text-foreground">Coverage</p>
-                          <p className="text-xs text-muted-foreground">{selectedProduct.features.coverage}</p>
-                        </div>
+                      <div className="flex items-center gap-2 p-2 rounded-lg bg-white/[0.02] border border-white/[0.08]">
+                        <Globe className="h-3.5 w-3.5 text-primary shrink-0" />
+                        <p className="text-xs text-muted-foreground truncate">{selectedProduct.features.coverage}</p>
                       </div>
                     )}
 
                     {selectedProduct.features?.speed && (
-                      <div className="flex items-start gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/[0.08]">
-                        <Zap className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm text-foreground">Network Speed</p>
-                          <p className="text-xs text-muted-foreground">{selectedProduct.features.speed}</p>
-                        </div>
+                      <div className="flex items-center gap-2 p-2 rounded-lg bg-white/[0.02] border border-white/[0.08]">
+                        <Zap className="h-3.5 w-3.5 text-primary shrink-0" />
+                        <p className="text-xs text-muted-foreground truncate">{selectedProduct.features.speed}</p>
                       </div>
                     )}
 
                     {selectedProduct.features?.activation && (
-                      <div className="flex items-start gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/[0.08]">
-                        <Clock className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm text-foreground">Activation</p>
-                          <p className="text-xs text-muted-foreground">{selectedProduct.features.activation}</p>
-                        </div>
+                      <div className="flex items-center gap-2 p-2 rounded-lg bg-white/[0.02] border border-white/[0.08]">
+                        <Clock className="h-3.5 w-3.5 text-primary shrink-0" />
+                        <p className="text-xs text-muted-foreground truncate">{selectedProduct.features.activation}</p>
                       </div>
                     )}
 
-                    <div className="flex items-start gap-3 p-3 rounded-xl bg-green-500/10 border border-green-500/20">
-                      <Shield className="h-4 w-4 text-green-400 mt-0.5 shrink-0" />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm text-green-400">Privacy Protected</p>
-                        <p className="text-xs text-muted-foreground">No tracking, no data collection</p>
-                      </div>
+                    <div className="flex items-center gap-2 p-2 rounded-lg bg-green-500/10 border border-green-500/20">
+                      <Shield className="h-3.5 w-3.5 text-green-400 shrink-0" />
+                      <p className="text-xs text-green-400">Privacy Protected</p>
                     </div>
                   </div>
                   
                   {/* Add to Cart Button */}
                   <Button 
-                    className="w-full h-14 rounded-2xl bg-gradient-to-r from-primary to-primary/80 shadow-lg shadow-primary/30 text-base font-semibold group"
+                    className="w-full h-12 rounded-xl bg-gradient-to-r from-primary to-primary/80 shadow-lg shadow-primary/30 text-sm font-semibold group"
                     onClick={() => {
                       handleAddToCart(selectedProduct);
                       setDetailModalOpen(false);
                     }}
                   >
-                    <ShoppingCart className="w-5 h-5 mr-2" />
+                    <ShoppingCart className="w-4 h-4 mr-2" />
                     Add to Cart
-                    <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </div>
               </>
