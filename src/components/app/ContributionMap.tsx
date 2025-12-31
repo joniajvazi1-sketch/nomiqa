@@ -36,11 +36,11 @@ export const ContributionMap: React.FC<ContributionMapProps> = ({
         
         if (!mounted || !mapRef.current) return;
         
-        // Create map
+        // Create map - NO zoom controls on mobile (pinch to zoom)
         const map = L.map(mapRef.current, {
           center: center,
           zoom: userPosition ? 15 : 3,
-          zoomControl: true,
+          zoomControl: false, // Hide +/- buttons - mobile users pinch to zoom
           scrollWheelZoom: true,
           attributionControl: false
         });

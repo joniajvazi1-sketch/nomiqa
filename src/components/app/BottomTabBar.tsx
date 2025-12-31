@@ -1,6 +1,12 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Home, Map, ShoppingBag, User } from 'lucide-react';
+import { 
+  Home, 
+  Map, 
+  ShoppingBag, 
+  User,
+  // Filled variants (using same icons with fill prop)
+} from 'lucide-react';
 import { useHaptics } from '@/hooks/useHaptics';
 import { cn } from '@/lib/utils';
 
@@ -40,11 +46,11 @@ export const BottomTabBar: React.FC = () => {
     >
       {/* Glass background - extends fully to bottom edge including safe area */}
       <div 
-        className="absolute inset-0 bg-background/90 backdrop-blur-2xl"
+        className="absolute inset-0 bg-background/80 backdrop-blur-2xl"
         style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
       />
       <div 
-        className="absolute inset-0 bg-gradient-to-t from-background to-transparent"
+        className="absolute inset-0 bg-gradient-to-t from-background/60 to-transparent"
         style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
       />
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
@@ -75,13 +81,18 @@ export const BottomTabBar: React.FC = () => {
               
               {/* Icon container with premium styling */}
               <div className={cn(
-                'relative flex items-center justify-center w-12 h-12 rounded-2xl transition-all duration-300',
+                'relative flex items-center justify-center w-14 h-14 rounded-2xl transition-all duration-300',
                 active ? 'bg-primary/15 shadow-lg shadow-primary/20' : 'bg-transparent'
               )}>
-                <Icon className={cn(
-                  'w-[22px] h-[22px] transition-all duration-300',
-                  active && 'scale-110'
-                )} strokeWidth={active ? 2.5 : 2} />
+                {/* LARGER icons: 26px, FILLED when active via fill prop */}
+                <Icon 
+                  className={cn(
+                    'w-[26px] h-[26px] transition-all duration-300',
+                    active && 'scale-110'
+                  )} 
+                  strokeWidth={active ? 2.5 : 1.75}
+                  fill={active ? 'currentColor' : 'none'}
+                />
                 
                 {/* Active indicator dot */}
                 {active && (
