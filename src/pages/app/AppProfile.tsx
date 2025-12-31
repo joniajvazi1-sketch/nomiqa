@@ -11,18 +11,16 @@ import {
   Sparkles,
   Zap,
   TrendingUp,
-  Copy,
   Share2,
   Pencil,
   Check,
   X,
   RefreshCw,
   Users,
-  DollarSign,
   UserPlus,
   CheckCircle2,
   Plus,
-  ChevronDown
+  ChevronRight
 } from 'lucide-react';
 import { AppSpinner } from '@/components/app/AppSpinner';
 import { Loader2 } from 'lucide-react';
@@ -569,181 +567,191 @@ export const AppProfile: React.FC = () => {
           )}
         </TabsContent>
 
-        {/* Earn Tab - Full Affiliate System */}
+        {/* Earn Tab - iOS Style Layout */}
         <TabsContent value="earn" className="mt-4 space-y-4">
-          {allAffiliates.length > 0 ? (
+          {allAffiliates.length > 0 && selectedAffiliate ? (
             <>
-              {/* Team Control Selector */}
-              {allAffiliates.length > 1 && (
-                <Card className="bg-card/50 border-border/50">
-                  <CardContent className="p-3">
-                    <p className="text-xs text-muted-foreground mb-2">Team Control</p>
-                    <Select value={selectedAffiliateId} onValueChange={setSelectedAffiliateId}>
-                      <SelectTrigger className="w-full bg-background/50">
-                        <SelectValue placeholder="Select account" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {allAffiliates.map((aff) => (
-                          <SelectItem key={aff.id} value={aff.id}>
-                            <div className="flex items-center gap-2">
-                              <span>{aff.username || aff.affiliate_code}</span>
-                              <Badge variant="outline" className="text-[10px]">Tier {aff.tier_level}</Badge>
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </CardContent>
-                </Card>
-              )}
+              {/* Centered Avatar & Name */}
+              <div className="flex flex-col items-center py-4">
+                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center mb-3 border-2 border-primary/30">
+                  <span className="text-3xl font-bold text-primary">
+                    {(selectedAffiliate.username || selectedAffiliate.affiliate_code).charAt(0).toUpperCase()}
+                  </span>
+                </div>
+                <h2 className="text-xl font-bold text-foreground">
+                  {selectedAffiliate.username || selectedAffiliate.affiliate_code}
+                </h2>
+                <Badge variant="outline" className="mt-1 text-xs">
+                  {affiliateTierInfo?.currentTier.name || 'Recruit'}
+                </Badge>
+              </div>
 
-              {/* Selected Affiliate Details */}
-              {selectedAffiliate && (
-                <>
-                  {/* Referral Links */}
-                  <Card className="bg-card/50 border-border/50">
-                    <CardContent className="p-4 space-y-3">
-                      <p className="text-xs text-muted-foreground">Your Referral Link</p>
-                      
-                      {/* Username Link (if available) */}
-                      {selectedAffiliate.username && (
-                        <div className="flex items-center gap-2">
-                          <code className="flex-1 text-xs truncate bg-background/50 px-3 py-2 rounded">
-                            nomiqa.com/{selectedAffiliate.username}
-                          </code>
-                          <Button size="icon" variant="outline" className="shrink-0" onClick={() => handleCopyLink(selectedAffiliate.username!, true)}>
-                            <Copy className="w-4 h-4" />
-                          </Button>
+              {/* Total Earnings - Large & Distinct */}
+              <Card className="bg-gradient-to-br from-green-500/20 to-green-600/10 border-green-500/30">
+                <CardContent className="p-6 text-center">
+                  <p className="text-sm text-muted-foreground mb-1">Total Earnings</p>
+                  <p className="text-4xl font-bold text-green-500">
+                    ${(selectedAffiliate.total_earnings_usd || 0).toFixed(2)}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">USDC</p>
+                </CardContent>
+              </Card>
+
+              {/* Invite Friend Button - Large CTA */}
+              <Button 
+                onClick={handleShare} 
+                size="xl" 
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-6 text-base"
+              >
+                <Share2 className="w-5 h-5 mr-2" />
+                Invite Friend
+              </Button>
+
+              {/* Stats Overview Card */}
+              <Card className="bg-card/50 border-border/50">
+                <CardContent className="p-0">
+                  <div className="p-4 border-b border-border/50">
+                    <p className="text-sm font-semibold text-foreground">Stats Overview</p>
+                  </div>
+                  <div className="divide-y divide-border/50">
+                    <div className="flex items-center justify-between p-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center">
+                          <UserPlus className="w-4 h-4 text-blue-500" />
                         </div>
-                      )}
-                      
-                      {/* Code Link */}
-                      <div className="flex items-center gap-2">
-                        <code className="flex-1 text-xs truncate bg-background/50 px-3 py-2 rounded">
-                          nomiqa.com/r/{selectedAffiliate.affiliate_code}
-                        </code>
-                        <Button size="icon" variant="outline" className="shrink-0" onClick={() => handleCopyLink(selectedAffiliate.affiliate_code)}>
-                          <Copy className="w-4 h-4" />
-                        </Button>
-                        <Button size="icon" variant="outline" className="shrink-0" onClick={handleShare}>
-                          <Share2 className="w-4 h-4" />
-                        </Button>
+                        <span className="text-sm text-foreground">Registrations</span>
                       </div>
-                    </CardContent>
-                  </Card>
+                      <span className="text-lg font-semibold text-foreground">{selectedAffiliate.total_registrations || 0}</span>
+                    </div>
+                    <div className="flex items-center justify-between p-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
+                          <TrendingUp className="w-4 h-4 text-green-500" />
+                        </div>
+                        <span className="text-sm text-foreground">Recruits</span>
+                      </div>
+                      <span className="text-lg font-semibold text-foreground">{selectedAffiliate.total_conversions || 0}</span>
+                    </div>
+                    <div className="flex items-center justify-between p-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center">
+                          <Zap className="w-4 h-4 text-amber-500" />
+                        </div>
+                        <span className="text-sm text-foreground">Mining Boost</span>
+                      </div>
+                      <span className="text-lg font-semibold text-amber-500">+{selectedAffiliate.miner_boost_percentage || 0}%</span>
+                    </div>
+                    <div className="flex items-center justify-between p-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center">
+                          <Award className="w-4 h-4 text-purple-500" />
+                        </div>
+                        <span className="text-sm text-foreground">Commission Rate</span>
+                      </div>
+                      <span className="text-lg font-semibold text-foreground">{affiliateTierInfo?.currentTier.commission || '9%'}</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
 
-                  {/* Stats Grid - Registrations & Conversions Separate */}
-                  <div className="grid grid-cols-2 gap-3">
-                    <Card className="bg-card/50 border-border/50">
-                      <CardContent className="p-3">
-                        <div className="flex items-center gap-2 mb-1">
-                          <UserPlus className="w-3 h-3 text-blue-500" />
-                          <span className="text-[10px] text-muted-foreground">Registrations</span>
+              {/* iOS Settings-Style List Items */}
+              <Card className="bg-card/50 border-border/50">
+                <CardContent className="p-0">
+                  {/* Team Control */}
+                  {allAffiliates.length > 1 && (
+                    <div 
+                      className="flex items-center justify-between p-4 border-b border-border/50 active:bg-muted/50 transition-colors cursor-pointer"
+                      onClick={() => {
+                        lightTap();
+                        // Cycle through affiliates
+                        const currentIndex = allAffiliates.findIndex(a => a.id === selectedAffiliateId);
+                        const nextIndex = (currentIndex + 1) % allAffiliates.length;
+                        setSelectedAffiliateId(allAffiliates[nextIndex].id);
+                      }}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                          <Users className="w-4 h-4 text-primary" />
                         </div>
-                        <p className="text-xl font-bold text-foreground">{selectedAffiliate.total_registrations || 0}</p>
-                      </CardContent>
-                    </Card>
-                    <Card className="bg-card/50 border-border/50">
-                      <CardContent className="p-3">
-                        <div className="flex items-center gap-2 mb-1">
-                          <TrendingUp className="w-3 h-3 text-green-500" />
-                          <span className="text-[10px] text-muted-foreground">Recruits</span>
+                        <div>
+                          <p className="text-sm font-medium text-foreground">Team Control</p>
+                          <p className="text-xs text-muted-foreground">{selectedAffiliate.username || selectedAffiliate.affiliate_code}</p>
                         </div>
-                        <p className="text-xl font-bold text-foreground">{selectedAffiliate.total_conversions || 0}</p>
-                      </CardContent>
-                    </Card>
-                    <Card className="bg-card/50 border-border/50">
-                      <CardContent className="p-3">
-                        <div className="flex items-center gap-2 mb-1">
-                          <DollarSign className="w-3 h-3 text-green-500" />
-                          <span className="text-[10px] text-muted-foreground">Total Earnings</span>
-                        </div>
-                        <p className="text-xl font-bold text-green-500">${(selectedAffiliate.total_earnings_usd || 0).toFixed(2)}</p>
-                      </CardContent>
-                    </Card>
-                    <Card className="bg-card/50 border-border/50">
-                      <CardContent className="p-3">
-                        <div className="flex items-center gap-2 mb-1">
-                          <Zap className="w-3 h-3 text-amber-500" />
-                          <span className="text-[10px] text-muted-foreground">Mining Boost</span>
-                        </div>
-                        <p className="text-xl font-bold text-amber-500">+{selectedAffiliate.miner_boost_percentage || 0}%</p>
-                      </CardContent>
-                    </Card>
+                      </div>
+                      <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                    </div>
+                  )}
+
+                  {/* Squad Level */}
+                  <div 
+                    className="flex items-center justify-between p-4 border-b border-border/50 active:bg-muted/50 transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center">
+                        <Crown className="w-4 h-4 text-amber-500" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-foreground">Squad Level</p>
+                        <p className="text-xs text-muted-foreground">
+                          {affiliateTierInfo?.nextTier 
+                            ? `${affiliateTierInfo.remaining} more recruits to ${affiliateTierInfo.nextTier.name}` 
+                            : 'Max tier reached!'
+                          }
+                        </p>
+                      </div>
+                    </div>
+                    <Badge variant="outline" className="text-amber-500 border-amber-500/30">
+                      {affiliateTierInfo?.currentTier.name}
+                    </Badge>
                   </div>
 
-                  {/* Squad Level Progress */}
-                  {affiliateTierInfo && (
-                    <Card className="bg-card/50 border-border/50">
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between mb-3">
-                          <div>
-                            <p className="text-xs text-muted-foreground">Squad Level</p>
-                            <p className="font-bold text-foreground">{affiliateTierInfo.currentTier.name}</p>
-                          </div>
-                          <Badge variant="outline" className="text-primary">
-                            {affiliateTierInfo.currentTier.commission}
-                          </Badge>
-                        </div>
-                        
-                        {affiliateTierInfo.nextTier && (
-                          <div className="space-y-2">
-                            <div className="flex justify-between text-xs">
-                              <span className="text-muted-foreground">Progress to {affiliateTierInfo.nextTier.name}</span>
-                              <span>{Math.round(affiliateTierInfo.progress)}%</span>
-                            </div>
-                            <div className="h-2 bg-background/50 rounded-full overflow-hidden">
-                              <div className="h-full bg-primary rounded-full" style={{ width: `${affiliateTierInfo.progress}%` }} />
-                            </div>
-                            <p className="text-xs text-muted-foreground">
-                              {affiliateTierInfo.remaining} more recruits needed
-                            </p>
-                          </div>
-                        )}
-                        
-                        {!affiliateTierInfo.nextTier && (
-                          <div className="flex items-center gap-2 text-sm text-amber-500">
-                            <Crown className="w-4 h-4" />
-                            <span>Max tier reached!</span>
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  )}
-
-                  {/* Create Additional Link */}
+                  {/* Add New Link */}
                   {allAffiliates.length < 3 && (
-                    <Card className="bg-card/50 border-border/50 border-dashed">
-                      <CardContent className="p-4">
-                        {showNewLinkInput ? (
-                          <div className="space-y-3">
-                            <p className="text-sm font-medium">Create New Affiliate Link</p>
-                            <Input
-                              placeholder="Enter username (e.g., mylink)"
-                              value={newLinkUsername}
-                              onChange={(e) => setNewLinkUsername(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
-                              className="bg-background/50"
-                            />
-                            <div className="flex gap-2">
-                              <Button onClick={createAffiliate} disabled={creatingAffiliate} className="flex-1">
-                                {creatingAffiliate ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Plus className="w-4 h-4 mr-2" />}
-                                Create Link
-                              </Button>
-                              <Button variant="outline" onClick={() => { setShowNewLinkInput(false); setNewLinkUsername(''); }}>
-                                Cancel
-                              </Button>
-                            </div>
-                          </div>
-                        ) : (
-                          <Button variant="ghost" className="w-full" onClick={() => setShowNewLinkInput(true)}>
-                            <Plus className="w-4 h-4 mr-2" />
-                            Add Link ({allAffiliates.length}/3)
-                          </Button>
-                        )}
-                      </CardContent>
-                    </Card>
+                    <div 
+                      className="flex items-center justify-between p-4 active:bg-muted/50 transition-colors cursor-pointer"
+                      onClick={() => {
+                        lightTap();
+                        setShowNewLinkInput(true);
+                      }}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
+                          <Plus className="w-4 h-4 text-green-500" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-foreground">Add Tracking Link</p>
+                          <p className="text-xs text-muted-foreground">{allAffiliates.length}/3 used</p>
+                        </div>
+                      </div>
+                      <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                    </div>
                   )}
-                </>
+                </CardContent>
+              </Card>
+
+              {/* New Link Input Modal */}
+              {showNewLinkInput && (
+                <Card className="bg-card/50 border-primary/50">
+                  <CardContent className="p-4 space-y-3">
+                    <p className="text-sm font-medium">Create New Tracking Link</p>
+                    <Input
+                      placeholder="Enter username (e.g., mylink)"
+                      value={newLinkUsername}
+                      onChange={(e) => setNewLinkUsername(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
+                      className="bg-background/50"
+                      autoFocus
+                    />
+                    <div className="flex gap-2">
+                      <Button onClick={createAffiliate} disabled={creatingAffiliate} className="flex-1">
+                        {creatingAffiliate ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Plus className="w-4 h-4 mr-2" />}
+                        Create
+                      </Button>
+                      <Button variant="outline" onClick={() => { setShowNewLinkInput(false); setNewLinkUsername(''); }}>
+                        Cancel
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
               )}
             </>
           ) : (
