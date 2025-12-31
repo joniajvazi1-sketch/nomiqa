@@ -61,18 +61,19 @@ export const NetworkContribution: React.FC = () => {
 
   return (
     <div className="fixed inset-0 bg-background overflow-hidden">
-      {/* Full-screen dark map background - extends to absolute bottom behind home indicator */}
+      {/* Full-screen dark map background - z-index 1 */}
       <ContributionMap userPosition={userPosition} isActive={isActive && isCellular} />
       
-      {/* Content overlay - scrollable with safe area padding */}
+      {/* Content overlay - z-index 10, above map but below bottom nav (z-50) */}
       <div 
-        className="relative z-20 px-4 py-6 space-y-4 flex flex-col overflow-y-auto"
+        className="absolute inset-0 z-10 px-4 py-6 space-y-4 flex flex-col overflow-y-auto pointer-events-none"
         style={{
-          height: '100%',
           paddingTop: 'calc(env(safe-area-inset-top, 0px) + 1.5rem)',
           paddingBottom: 'calc(72px + env(safe-area-inset-bottom, 0px) + 1rem)'
         }}
       >
+        {/* Re-enable pointer events for interactive content */}
+        <div className="pointer-events-auto space-y-4 flex flex-col flex-1">
         {/* Header */}
         <div className="text-center">
           <h1 className="text-2xl font-bold text-foreground">Network Contribution</h1>
@@ -327,6 +328,8 @@ export const NetworkContribution: React.FC = () => {
               </AlertDescription>
             </Alert>
           )}
+        </div>
+        {/* Close pointer-events-auto wrapper */}
         </div>
       </div>
     </div>
