@@ -2,7 +2,6 @@ import React from 'react';
 import { 
   Zap, 
   Signal, 
-  Gauge, 
   MapPin,
   Pause,
   Play,
@@ -13,7 +12,8 @@ import {
   CloudOff,
   Smartphone,
   Clock,
-  Route
+  Route,
+  Radio
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -23,7 +23,7 @@ import { ContributionMap } from '@/components/app/ContributionMap';
 import { cn } from '@/lib/utils';
 
 /**
- * Network Contribution Page - The "Mining" feature
+ * Network Contribution Page - DePIN Network Scanner
  * 
  * BUSINESS RULES:
  * - CELLULAR ONLY: Mining pauses on WiFi - we are a DePIN for Mobile Networks
@@ -60,33 +60,38 @@ export const NetworkContribution: React.FC = () => {
     : null;
 
   return (
-    <div className="fixed inset-0 bg-background overflow-hidden">
-      {/* Full-screen dark map background - z-index 1 */}
-      <ContributionMap userPosition={userPosition} isActive={isActive && isCellular} />
+    <div className="relative w-full h-full min-h-screen bg-background">
+      {/* Full-screen dark map background */}
+      <div className="absolute inset-0 z-0">
+        <ContributionMap userPosition={userPosition} isActive={isActive && isCellular} />
+      </div>
       
-      {/* Content overlay - z-index 10, above map but below bottom nav (z-50) */}
+      {/* Content overlay - above map */}
       <div 
-        className="absolute inset-0 z-10 px-4 py-6 space-y-4 flex flex-col overflow-y-auto pointer-events-none"
+        className="relative z-10 px-4 py-6 flex flex-col min-h-screen"
         style={{
           paddingTop: 'calc(env(safe-area-inset-top, 0px) + 1.5rem)',
           paddingBottom: 'calc(72px + env(safe-area-inset-bottom, 0px) + 1rem)'
         }}
       >
-        {/* Re-enable pointer events for interactive content */}
-        <div className="pointer-events-auto space-y-4 flex flex-col flex-1">
         {/* Header */}
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-foreground">Network Contribution</h1>
-          <p className="text-sm text-muted-foreground">Map cellular coverage & earn Nomi Points</p>
+        <div className="text-center mb-4">
+          <h1 
+            className="text-2xl font-bold text-foreground"
+            style={{ fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace' }}
+          >
+            NETWORK SCANNER
+          </h1>
+          <p className="text-sm text-muted-foreground">Map cellular coverage • Earn rewards</p>
         </div>
 
         {/* Alerts section */}
-        <div className="space-y-2">
+        <div className="space-y-2 mb-4">
           {/* CRITICAL: WiFi Warning - Mining Paused */}
           {isActive && !isCellular && (
             <Alert className="border-amber-500 bg-amber-500/20 backdrop-blur-sm">
               <Wifi className="h-5 w-5 text-amber-400" />
-              <AlertTitle className="text-amber-400 font-semibold">Mining Paused</AlertTitle>
+              <AlertTitle className="text-amber-400 font-semibold">Scanning Paused</AlertTitle>
               <AlertDescription className="text-amber-200">
                 Switch to 5G/4G to contribute. We map mobile networks, not WiFi.
               </AlertDescription>
@@ -95,10 +100,10 @@ export const NetworkContribution: React.FC = () => {
           
           {/* Cellular Active Indicator */}
           {isActive && isCellular && (
-            <Alert className="border-green-500/50 bg-green-500/10 backdrop-blur-sm">
-              <Smartphone className="h-4 w-4 text-green-500" />
-              <AlertDescription className="text-green-200/80">
-                📶 Earning on {connectionType.toUpperCase()} - Keep it up!
+            <Alert className="border-neon-cyan/50 bg-neon-cyan/10 backdrop-blur-sm">
+              <Smartphone className="h-4 w-4 text-neon-cyan" />
+              <AlertDescription className="text-neon-cyan/80">
+                📶 Scanning on {connectionType.toUpperCase()} - Keep moving!
               </AlertDescription>
             </Alert>
           )}
@@ -120,56 +125,45 @@ export const NetworkContribution: React.FC = () => {
               <AlertTriangle className="h-4 w-4 text-red-500" />
               <AlertTitle className="text-red-500">Location Required</AlertTitle>
               <AlertDescription className="text-red-200/80">
-                Please enable location permissions to start contributing.
+                Please enable location permissions to start scanning.
               </AlertDescription>
             </Alert>
           )}
         </div>
 
-        {/* Spacer to push button toward center */}
+        {/* Main Control Button - Centered */}
         <div className="flex-1 flex items-center justify-center">
-          {/* Main Control Button */}
           <button
             onClick={isActive ? stopContribution : startContribution}
             disabled={!user}
             className={cn(
-              'relative w-36 h-36 rounded-full transition-all duration-500',
+              'relative w-40 h-40 rounded-full transition-all duration-500',
               'flex items-center justify-center',
               'shadow-2xl transform active:scale-95',
-              'backdrop-blur-sm',
+              'backdrop-blur-sm border-2',
               isActive 
                 ? isPaused
-                  ? 'bg-gradient-to-br from-amber-500/90 to-amber-700/90 shadow-amber-500/50' // Paused (WiFi)
-                  : 'bg-gradient-to-br from-green-500/90 to-green-700/90 shadow-green-500/50' // Active + Cellular
-                : 'bg-gradient-to-br from-primary/90 to-primary/70 shadow-primary/50', // Idle
+                  ? 'bg-gradient-to-br from-amber-500/90 to-amber-700/90 shadow-amber-500/50 border-amber-400/50' 
+                  : 'bg-gradient-to-br from-neon-cyan/90 to-neon-cyan/70 shadow-neon-cyan/50 border-neon-cyan/50' 
+                : 'bg-gradient-to-br from-primary/90 to-primary/70 shadow-primary/50 border-primary/50',
               !user && 'opacity-50 cursor-not-allowed'
             )}
           >
             {/* Sonar/Radar ping animation when IDLE */}
             {!isActive && user && (
               <>
-                {/* Ring 1 - Primary sonar wave */}
                 <span 
                   className="absolute inset-0 rounded-full border-2 border-neon-cyan/60"
-                  style={{
-                    animation: 'sonar-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite'
-                  }}
+                  style={{ animation: 'sonar-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite' }}
                 />
-                {/* Ring 2 - Delayed secondary wave */}
                 <span 
                   className="absolute inset-0 rounded-full border-2 border-neon-cyan/40"
-                  style={{
-                    animation: 'sonar-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite 0.5s'
-                  }}
+                  style={{ animation: 'sonar-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite 0.5s' }}
                 />
-                {/* Ring 3 - Tertiary wave for depth */}
                 <span 
                   className="absolute inset-0 rounded-full border border-neon-cyan/20"
-                  style={{
-                    animation: 'sonar-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite 1s'
-                  }}
+                  style={{ animation: 'sonar-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite 1s' }}
                 />
-                {/* Inner glow pulse */}
                 <span className="absolute inset-4 rounded-full bg-neon-cyan/10 animate-pulse" />
               </>
             )}
@@ -177,8 +171,8 @@ export const NetworkContribution: React.FC = () => {
             {/* Pulsing rings when active on cellular */}
             {isActive && isCellular && (
               <>
-                <span className="absolute inset-0 rounded-full bg-green-500/30 animate-ping" />
-                <span className="absolute inset-2 rounded-full bg-green-500/20 animate-pulse" />
+                <span className="absolute inset-0 rounded-full bg-neon-cyan/30 animate-ping" />
+                <span className="absolute inset-2 rounded-full bg-neon-cyan/20 animate-pulse" />
               </>
             )}
             
@@ -191,19 +185,19 @@ export const NetworkContribution: React.FC = () => {
               {isActive ? (
                 isPaused ? (
                   <>
-                    <Wifi className="w-10 h-10 mx-auto mb-1 opacity-80" />
-                    <span className="text-xs font-medium">PAUSED</span>
+                    <Wifi className="w-12 h-12 mx-auto mb-1 opacity-80" />
+                    <span className="text-xs font-mono font-medium">PAUSED</span>
                   </>
                 ) : (
                   <>
-                    <Pause className="w-10 h-10 mx-auto mb-1" />
-                    <span className="text-sm font-medium">STOP</span>
+                    <Pause className="w-12 h-12 mx-auto mb-1" />
+                    <span className="text-sm font-mono font-medium">STOP</span>
                   </>
                 )
               ) : (
                 <>
-                  <Play className="w-10 h-10 mx-auto mb-1" />
-                  <span className="text-sm font-medium">START</span>
+                  <Radio className="w-12 h-12 mx-auto mb-1" />
+                  <span className="text-sm font-mono font-medium">SCAN</span>
                 </>
               )}
             </div>
@@ -212,37 +206,46 @@ export const NetworkContribution: React.FC = () => {
 
         {/* Auth prompt */}
         {!user && (
-          <div className="text-center text-muted-foreground text-sm backdrop-blur-sm bg-background/30 py-2 rounded-lg">
-            Please sign in to start contributing
+          <div className="text-center text-muted-foreground text-sm backdrop-blur-sm bg-background/30 py-2 rounded-lg mb-4 font-mono">
+            Sign in to start scanning
           </div>
         )}
 
         {/* Bottom Stats Panel */}
-        <div className="space-y-3 pb-4">
+        <div className="space-y-3 mt-auto">
           {/* Live Stats */}
-          <Card className="bg-card/70 border-border/50 backdrop-blur-md">
+          <Card className="bg-background/60 border-border/50 backdrop-blur-xl">
             <CardContent className="p-4">
               <div className="grid grid-cols-3 gap-4 text-center">
                 <div>
-                  <Zap className="w-5 h-5 mx-auto mb-1 text-primary" />
-                  <div className="text-xl font-bold text-foreground">
+                  <Zap className="w-5 h-5 mx-auto mb-1 text-neon-cyan" />
+                  <div 
+                    className="text-xl font-bold text-foreground"
+                    style={{ fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace' }}
+                  >
                     {stats.pointsEarned.toFixed(1)}
                   </div>
-                  <div className="text-xs text-muted-foreground">Points</div>
+                  <div className="text-xs text-muted-foreground font-mono">POINTS</div>
                 </div>
                 <div>
                   <Clock className="w-5 h-5 mx-auto mb-1 text-amber-500" />
-                  <div className="text-xl font-bold text-foreground">
+                  <div 
+                    className="text-xl font-bold text-foreground"
+                    style={{ fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace' }}
+                  >
                     {stats.timePoints.toFixed(1)}
                   </div>
-                  <div className="text-xs text-muted-foreground">Time Pts</div>
+                  <div className="text-xs text-muted-foreground font-mono">TIME</div>
                 </div>
                 <div>
-                  <Route className="w-5 h-5 mx-auto mb-1 text-blue-500" />
-                  <div className="text-xl font-bold text-foreground">
+                  <Route className="w-5 h-5 mx-auto mb-1 text-primary" />
+                  <div 
+                    className="text-xl font-bold text-foreground"
+                    style={{ fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace' }}
+                  >
                     {stats.distancePoints.toFixed(1)}
                   </div>
-                  <div className="text-xs text-muted-foreground">Dist Pts</div>
+                  <div className="text-xs text-muted-foreground font-mono">DIST</div>
                 </div>
               </div>
             </CardContent>
@@ -250,61 +253,78 @@ export const NetworkContribution: React.FC = () => {
 
           {/* Session Info */}
           <div className="grid grid-cols-3 gap-3">
-            <Card className="bg-card/70 border-border/50 backdrop-blur-md">
+            <Card className="bg-background/60 border-border/50 backdrop-blur-xl">
               <CardContent className="p-3 text-center">
                 <Signal className={cn(
                   'w-5 h-5 mx-auto mb-1',
-                  isCellular ? 'text-green-500' : 'text-amber-500'
+                  isCellular ? 'text-neon-cyan' : 'text-amber-500'
                 )} />
-                <div className="text-sm font-medium text-foreground capitalize">
-                  {connectionType || 'none'}
+                <div 
+                  className="text-sm font-medium text-foreground uppercase"
+                  style={{ fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace' }}
+                >
+                  {connectionType || 'NONE'}
                 </div>
-                <div className="text-xs text-muted-foreground">Network</div>
+                <div className="text-[10px] text-muted-foreground font-mono">NETWORK</div>
               </CardContent>
             </Card>
             
-            <Card className="bg-card/70 border-border/50 backdrop-blur-md">
+            <Card className="bg-background/60 border-border/50 backdrop-blur-xl">
               <CardContent className="p-3 text-center">
-                <Wifi className="w-5 h-5 mx-auto mb-1 text-primary" />
-                <div className="text-sm font-medium text-foreground">
+                <Clock className="w-5 h-5 mx-auto mb-1 text-primary" />
+                <div 
+                  className="text-sm font-medium text-foreground"
+                  style={{ fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace' }}
+                >
                   {formatDuration(stats.duration)}
                 </div>
-                <div className="text-xs text-muted-foreground">Duration</div>
+                <div className="text-[10px] text-muted-foreground font-mono">DURATION</div>
               </CardContent>
             </Card>
             
-            <Card className="bg-card/70 border-border/50 backdrop-blur-md">
+            <Card className="bg-background/60 border-border/50 backdrop-blur-xl">
               <CardContent className="p-3 text-center">
-                <MapPin className="w-5 h-5 mx-auto mb-1 text-green-500" />
-                <div className="text-sm font-medium text-foreground">
+                <MapPin className="w-5 h-5 mx-auto mb-1 text-neon-cyan" />
+                <div 
+                  className="text-sm font-medium text-foreground"
+                  style={{ fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace' }}
+                >
                   {formatDistance(stats.distanceMeters)}
                 </div>
-                <div className="text-xs text-muted-foreground">Distance</div>
+                <div className="text-[10px] text-muted-foreground font-mono">DISTANCE</div>
               </CardContent>
             </Card>
           </div>
 
           {/* Data Points Counter */}
-          <Card className="bg-card/70 border-border/50 backdrop-blur-md">
+          <Card className="bg-background/60 border-border/50 backdrop-blur-xl">
             <CardContent className="p-3 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 {isOnline ? (
-                  <Cloud className="w-5 h-5 text-green-500" />
+                  <Cloud className="w-5 h-5 text-neon-cyan" />
                 ) : (
                   <CloudOff className="w-5 h-5 text-amber-500" />
                 )}
                 <div>
-                  <div className="text-sm font-medium text-foreground">
-                    {stats.dataPointsCount} data points
+                  <div 
+                    className="text-sm font-medium text-foreground"
+                    style={{ fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace' }}
+                  >
+                    {stats.dataPointsCount} DATA POINTS
                   </div>
-                  <div className="text-xs text-muted-foreground">
-                    {offlineQueueCount > 0 ? `${offlineQueueCount} pending sync` : 'All synced'}
+                  <div className="text-xs text-muted-foreground font-mono">
+                    {offlineQueueCount > 0 ? `${offlineQueueCount} PENDING` : 'SYNCED'}
                   </div>
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-xs text-muted-foreground">Speed</div>
-                <div className="text-sm font-medium text-foreground">{stats.speedKmh} km/h</div>
+                <div className="text-[10px] text-muted-foreground font-mono">SPEED</div>
+                <div 
+                  className="text-sm font-medium text-foreground"
+                  style={{ fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace' }}
+                >
+                  {stats.speedKmh} KM/H
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -313,8 +333,8 @@ export const NetworkContribution: React.FC = () => {
           {!isOnline && (
             <Alert className="border-amber-500/50 bg-amber-500/10 backdrop-blur-sm">
               <CloudOff className="h-4 w-4 text-amber-500" />
-              <AlertDescription className="text-amber-200/80">
-                You're offline. Data will sync when connected.
+              <AlertDescription className="text-amber-200/80 font-mono text-xs">
+                OFFLINE - Data will sync when connected
               </AlertDescription>
             </Alert>
           )}
@@ -323,15 +343,21 @@ export const NetworkContribution: React.FC = () => {
           {geoError && (
             <Alert className="border-red-500/50 bg-red-500/10 backdrop-blur-sm">
               <AlertTriangle className="h-4 w-4 text-red-500" />
-              <AlertDescription className="text-red-200/80">
+              <AlertDescription className="text-red-200/80 font-mono text-xs">
                 {geoError}
               </AlertDescription>
             </Alert>
           )}
         </div>
-        {/* Close pointer-events-auto wrapper */}
-        </div>
       </div>
+
+      {/* Sonar animation keyframes */}
+      <style>{`
+        @keyframes sonar-ping {
+          0% { transform: scale(1); opacity: 1; }
+          100% { transform: scale(2); opacity: 0; }
+        }
+      `}</style>
     </div>
   );
 };

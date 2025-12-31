@@ -120,7 +120,7 @@ export const ContributionMap: React.FC<ContributionMapProps> = ({
   }, [userPosition]);
 
   return (
-    <div className="absolute inset-0" style={{ zIndex: 1 }}>
+    <div className="w-full h-full" style={{ minHeight: '100vh' }}>
       {/* Leaflet CSS overrides */}
       <style>{`
         .map-container {
