@@ -144,6 +144,37 @@ All colors MUST be HSL.
     transition: transform 0.1s ease-out, opacity 0.1s ease-out;
   }
 
+  /* Hide scrollbars globally for native app feel */
+  * {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+  }
+  
+  *::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
+
+  /* Optional: Show scrollbars only on specific elements with .show-scrollbar */
+  .show-scrollbar {
+    scrollbar-width: thin;
+    -ms-overflow-style: auto;
+  }
+  
+  .show-scrollbar::-webkit-scrollbar {
+    display: block;
+    width: 6px;
+    height: 6px;
+  }
+  
+  .show-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .show-scrollbar::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.3);
+    border-radius: 3px;
+  }
+
   /* Reduce motion for users who prefer it */
   @media (prefers-reduced-motion: reduce) {
     *,
