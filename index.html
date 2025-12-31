@@ -52,7 +52,11 @@
   <body>
     <!-- Critical inline styles for immediate visual feedback -->
     <style>
-      #root { min-height: 100vh; background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #0a0a0f 100%); }
+      /* Match app background exactly for seamless overscroll */
+      html, body, #root { 
+        min-height: 100vh; 
+        background-color: hsl(220, 35%, 8%); 
+      }
     </style>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>

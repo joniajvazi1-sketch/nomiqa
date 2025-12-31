@@ -113,8 +113,17 @@ All colors MUST be HSL.
     backface-visibility: hidden;
   }
 
+  /* Ensure html and body match for rubber band overscroll */
+  html {
+    @apply bg-background;
+    /* Exact background color for overscroll rubber band effect */
+    background-color: hsl(220 35% 8%);
+  }
+
   body {
     @apply bg-background text-foreground font-sans antialiased;
+    /* Match exact background for seamless overscroll */
+    background-color: hsl(220 35% 8%);
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
     text-rendering: optimizeLegibility;
