@@ -6,14 +6,15 @@ import {
   Signal, 
   ChevronRight,
   Sparkles,
-  MapPin,
   Trophy,
   Flame,
   Wifi,
   Globe,
-  ArrowUpRight,
   TrendingUp,
-  Check
+  Check,
+  Radio,
+  Database,
+  Satellite
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useHaptics } from '@/hooks/useHaptics';
@@ -27,8 +28,8 @@ interface DailyEarning {
 }
 
 /**
- * App Home Dashboard - Premium native app home screen
- * Features sophisticated glassmorphism, fluid animations, and premium micro-interactions
+ * App Home Dashboard - DePIN Command Center
+ * Features high-tech network scanner aesthetic with dashboard feel
  */
 export const AppHome: React.FC = () => {
   const navigate = useNavigate();
@@ -40,6 +41,7 @@ export const AppHome: React.FC = () => {
     total_distance_meters: number;
     contribution_streak_days: number;
   } | null>(null);
+  const [dataPointsCount, setDataPointsCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [animatedPoints, setAnimatedPoints] = useState(0);
   const [showHowItWorks, setShowHowItWorks] = useState(true);
@@ -69,18 +71,20 @@ export const AppHome: React.FC = () => {
             setPoints(pointsData);
           }
 
-          // Load last 7 days of earnings from contribution_sessions
-          const sevenDaysAgo = new Date();
-          sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-          
+          // Get total data points count from contribution sessions
           const { data: sessionsData } = await supabase
             .from('contribution_sessions')
-            .select('started_at, total_points_earned')
-            .eq('user_id', currentUser.id)
-            .gte('started_at', sevenDaysAgo.toISOString())
-            .order('started_at', { ascending: true });
+            .select('data_points_count, started_at, total_points_earned')
+            .eq('user_id', currentUser.id);
 
           if (sessionsData) {
+            const totalDataPoints = sessionsData.reduce((sum, s) => sum + (s.data_points_count || 0), 0);
+            setDataPointsCount(totalDataPoints);
+
+            // Filter last 7 days for earnings chart
+            const sevenDaysAgo = new Date();
+            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+            
             // Aggregate by day
             const dailyMap = new Map<string, number>();
             const today = new Date();
@@ -95,9 +99,12 @@ export const AppHome: React.FC = () => {
             
             // Sum points per day
             sessionsData.forEach(session => {
-              const dateKey = new Date(session.started_at).toISOString().split('T')[0];
-              const current = dailyMap.get(dateKey) || 0;
-              dailyMap.set(dateKey, current + (session.total_points_earned || 0));
+              const sessionDate = new Date(session.started_at);
+              if (sessionDate >= sevenDaysAgo) {
+                const dateKey = sessionDate.toISOString().split('T')[0];
+                const current = dailyMap.get(dateKey) || 0;
+                dailyMap.set(dateKey, current + (session.total_points_earned || 0));
+              }
             });
 
             const earnings: DailyEarning[] = Array.from(dailyMap.entries()).map(([date, points]) => ({
@@ -158,9 +165,13 @@ export const AppHome: React.FC = () => {
     return num.toLocaleString();
   };
 
-  const formatDistance = (meters: number) => {
-    if (meters >= 1000) return (meters / 1000).toFixed(1) + ' km';
-    return meters.toFixed(0) + ' m';
+  // Convert meters to km² coverage (rough estimate: assume 50m scanning radius)
+  const formatCoverage = (meters: number) => {
+    // Coverage = distance * 100m width = area in m², convert to km²
+    const areaSqMeters = meters * 100; // 100m scanning corridor
+    const areaSqKm = areaSqMeters / 1_000_000;
+    if (areaSqKm >= 1) return areaSqKm.toFixed(2) + ' km²';
+    return (areaSqKm * 1000).toFixed(0) + ' m²';
   };
 
   const greeting = () => {
@@ -230,30 +241,31 @@ export const AppHome: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
-      {/* Premium animated background */}
+      {/* High-tech animated background with grid */}
       <div className="fixed inset-0 pointer-events-none">
         <div 
-          className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full opacity-30"
+          className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full opacity-20"
           style={{
-            background: 'radial-gradient(circle, hsl(var(--primary)) 0%, transparent 70%)',
-            filter: 'blur(80px)',
+            background: 'radial-gradient(circle, hsl(var(--neon-cyan)) 0%, transparent 70%)',
+            filter: 'blur(100px)',
             animation: 'pulse 8s ease-in-out infinite'
           }}
         />
         <div 
-          className="absolute bottom-1/4 -right-20 w-[400px] h-[400px] rounded-full opacity-20"
+          className="absolute bottom-1/4 -right-20 w-[400px] h-[400px] rounded-full opacity-15"
           style={{
-            background: 'radial-gradient(circle, hsl(var(--neon-cyan)) 0%, transparent 70%)',
-            filter: 'blur(60px)',
+            background: 'radial-gradient(circle, hsl(var(--primary)) 0%, transparent 70%)',
+            filter: 'blur(80px)',
             animation: 'pulse 6s ease-in-out infinite 2s'
           }}
         />
+        {/* Tech grid overlay */}
         <div 
-          className="absolute inset-0 opacity-[0.02]"
+          className="absolute inset-0 opacity-[0.03]"
           style={{
-            backgroundImage: `linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), 
-                              linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)`,
-            backgroundSize: '50px 50px'
+            backgroundImage: `linear-gradient(hsl(var(--neon-cyan)) 1px, transparent 1px), 
+                              linear-gradient(90deg, hsl(var(--neon-cyan)) 1px, transparent 1px)`,
+            backgroundSize: '40px 40px'
           }}
         />
       </div>
@@ -263,80 +275,86 @@ export const AppHome: React.FC = () => {
         <header className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="relative">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/40 via-primary/20 to-transparent backdrop-blur-2xl border border-white/10 flex items-center justify-center overflow-hidden shadow-lg shadow-primary/20">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-neon-cyan/30 via-primary/20 to-transparent backdrop-blur-2xl border border-neon-cyan/20 flex items-center justify-center overflow-hidden shadow-lg shadow-neon-cyan/20">
                 <img src={nomiqaLogo} alt="Nomiqa" className="w-9 h-9 object-contain" loading="eager" />
               </div>
-              <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-green-500 rounded-full border-2 border-background shadow-lg shadow-green-500/50" />
+              <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-neon-cyan rounded-full border-2 border-background shadow-lg shadow-neon-cyan/50 animate-pulse" />
             </div>
             <div>
               <p className="text-muted-foreground/80 text-sm font-medium">{greeting()}</p>
               <h1 className="text-xl font-bold text-foreground tracking-tight">
-                {user?.user_metadata?.username || 'Explorer'}
+                {user?.user_metadata?.username || 'Operator'}
               </h1>
             </div>
           </div>
           <button 
             onClick={() => { lightTap(); navigate('/app/profile'); }}
-            className="w-11 h-11 rounded-full bg-white/[0.05] backdrop-blur-xl border border-white/10 flex items-center justify-center hover:bg-white/[0.08] transition-all active:scale-95"
+            className="w-11 h-11 rounded-full bg-neon-cyan/[0.08] backdrop-blur-xl border border-neon-cyan/20 flex items-center justify-center hover:bg-neon-cyan/[0.12] transition-all active:scale-95"
           >
-            <Sparkles className="w-5 h-5 text-primary" />
+            <Satellite className="w-5 h-5 text-neon-cyan" />
           </button>
         </header>
 
-        {/* Hero Points Card */}
+        {/* HERO: Total Points - Large & Prominent with Monospace */}
         <div 
           className="relative rounded-[28px] overflow-hidden cursor-pointer active:scale-[0.98] transition-all duration-300 group"
           onClick={() => handleNavigation('/app/map')}
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/25 via-primary/15 to-neon-cyan/10" />
+          <div className="absolute inset-0 bg-gradient-to-br from-neon-cyan/20 via-primary/15 to-neon-cyan/5" />
           <div className="absolute inset-0 backdrop-blur-3xl" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-white/15 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-white/10 via-transparent to-transparent" />
           
+          {/* Scanning line animation */}
           <div 
-            className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+            className="absolute inset-0 opacity-30"
             style={{
-              background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.1) 50%, transparent 60%)',
-              animation: 'shimmer 3s infinite'
+              background: 'linear-gradient(180deg, transparent 0%, hsl(var(--neon-cyan) / 0.3) 50%, transparent 100%)',
+              backgroundSize: '100% 200%',
+              animation: 'scanline 3s linear infinite'
             }}
           />
           
-          <div className="absolute -top-20 -right-20 w-60 h-60 bg-gradient-to-br from-primary/50 to-transparent rounded-full blur-3xl" />
-          <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-gradient-to-tr from-neon-cyan/40 to-transparent rounded-full blur-2xl" />
+          <div className="absolute -top-20 -right-20 w-60 h-60 bg-gradient-to-br from-neon-cyan/40 to-transparent rounded-full blur-3xl" />
+          <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-gradient-to-tr from-primary/30 to-transparent rounded-full blur-2xl" />
           
-          <div className="relative p-6 border border-white/10 rounded-[28px]">
-            <div className="flex items-center justify-between mb-6">
+          <div className="relative p-6 border border-neon-cyan/20 rounded-[28px]">
+            <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg shadow-primary/40">
-                  <Zap className="w-5 h-5 text-primary-foreground" />
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-neon-cyan to-neon-cyan/70 flex items-center justify-center shadow-lg shadow-neon-cyan/40">
+                  <Zap className="w-5 h-5 text-background" />
                 </div>
                 <div>
-                  <span className="text-sm text-foreground/80 font-semibold">Nomi Points</span>
+                  <span className="text-sm text-foreground/80 font-semibold">Network Points</span>
                   <div className="flex items-center gap-1.5">
-                    <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Live</span>
+                    <div className="w-1.5 h-1.5 rounded-full bg-neon-cyan animate-pulse" />
+                    <span className="text-[10px] text-neon-cyan uppercase tracking-wider font-mono">LIVE</span>
                   </div>
                 </div>
               </div>
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.08] border border-white/10 text-xs text-primary font-medium group-hover:bg-white/[0.12] transition-colors">
-                <span>Tap to earn</span>
-                <ArrowUpRight className="w-3.5 h-3.5" />
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-neon-cyan/[0.1] border border-neon-cyan/20 text-xs text-neon-cyan font-mono uppercase tracking-wide">
+                <Radio className="w-3.5 h-3.5 animate-pulse" />
+                <span>Scan</span>
               </div>
             </div>
             
+            {/* HERO NUMBER - Large Monospace */}
             <div ref={pointsRef} className="mb-3">
               {loading ? (
-                <div className="h-14 w-40 bg-white/10 rounded-2xl animate-pulse relative overflow-hidden">
-                  <div className="absolute inset-0 -translate-x-full animate-shimmer" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)' }} />
+                <div className="h-20 w-48 bg-neon-cyan/10 rounded-2xl animate-pulse relative overflow-hidden">
+                  <div className="absolute inset-0 -translate-x-full animate-shimmer" style={{ background: 'linear-gradient(90deg, transparent, rgba(0,255,255,0.1), transparent)' }} />
                 </div>
               ) : (
-                <div className="text-[56px] font-bold text-foreground tracking-tighter leading-none">
+                <div 
+                  className="text-[72px] font-bold text-foreground tracking-tighter leading-none"
+                  style={{ fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace' }}
+                >
                   {formatNumber(animatedPoints)}
                 </div>
               )}
             </div>
             
             {points?.pending_points && points.pending_points > 0 && (
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-primary/20 to-primary/10 border border-primary/20 text-primary text-sm font-semibold">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-neon-cyan/20 to-neon-cyan/10 border border-neon-cyan/20 text-neon-cyan text-sm font-mono">
                 <Sparkles className="w-4 h-4" />
                 <span>+{formatNumber(points.pending_points)} pending</span>
               </div>
@@ -344,29 +362,29 @@ export const AppHome: React.FC = () => {
           </div>
         </div>
 
-        {/* Stats Grid */}
+        {/* Stats Grid - DePIN Metrics */}
         <div className="grid grid-cols-3 gap-3">
           {[
             { 
-              icon: MapPin, 
-              value: loading ? '--' : formatDistance(points?.total_distance_meters || 0),
-              label: 'Distance',
-              color: 'from-emerald-500/30 to-emerald-500/5',
-              iconColor: 'text-emerald-400'
+              icon: Globe, 
+              value: loading ? '--' : formatCoverage(points?.total_distance_meters || 0),
+              label: 'Coverage',
+              color: 'from-neon-cyan/30 to-neon-cyan/5',
+              iconColor: 'text-neon-cyan'
+            },
+            { 
+              icon: Database, 
+              value: loading ? '--' : formatNumber(dataPointsCount),
+              label: 'Data Points',
+              color: 'from-primary/30 to-primary/5',
+              iconColor: 'text-primary'
             },
             { 
               icon: Flame, 
               value: loading ? '--' : `${points?.contribution_streak_days || 0}`,
-              label: 'Day Streak',
+              label: 'Streak',
               color: 'from-orange-500/30 to-orange-500/5',
               iconColor: 'text-orange-400'
-            },
-            { 
-              icon: Trophy, 
-              value: loading ? '--' : '#--',
-              label: 'Rank',
-              color: 'from-violet-500/30 to-violet-500/5',
-              iconColor: 'text-violet-400'
             }
           ].map((stat, i) => (
             <div 
@@ -380,92 +398,139 @@ export const AppHome: React.FC = () => {
               )}>
                 <stat.icon className={cn('w-5 h-5', stat.iconColor)} />
               </div>
-              <div className="text-lg font-bold text-foreground mb-0.5">{stat.value}</div>
-              <div className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">{stat.label}</div>
+              {/* Monospace numbers for dashboard feel */}
+              <div 
+                className="text-lg font-bold text-foreground mb-0.5"
+                style={{ fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace' }}
+              >
+                {stat.value}
+              </div>
+              <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">{stat.label}</div>
             </div>
           ))}
         </div>
 
-        {/* Primary CTA */}
-        <div className="space-y-3">
-          <Button 
-            onClick={() => handleNavigation('/app/map')}
-            className="relative w-full h-[72px] rounded-2xl border-0 overflow-hidden group shadow-2xl shadow-primary/30"
-            style={{
-              background: 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary)/0.8) 100%)'
-            }}
-          >
+        {/* PRIMARY CTA: Activate Network Scanner - Large Action Card with Pulse */}
+        <div 
+          className="relative rounded-[24px] overflow-hidden cursor-pointer active:scale-[0.98] transition-all duration-300 group"
+          onClick={() => handleNavigation('/app/map')}
+        >
+          {/* Pulsing background effect */}
+          <div className="absolute inset-0">
             <div 
-              className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-              style={{
-                background: 'linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.1) 50%, transparent 100%)'
-              }}
+              className="absolute inset-0 bg-gradient-to-br from-neon-cyan/40 via-primary/30 to-neon-cyan/20"
+              style={{ animation: 'pulse 2s ease-in-out infinite' }}
             />
-            
-            <div className="relative flex items-center justify-between w-full px-2">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center">
-                  <Signal className="w-6 h-6 text-primary-foreground" />
+            <div 
+              className="absolute inset-0 bg-gradient-to-br from-neon-cyan/30 via-primary/20 to-neon-cyan/10"
+              style={{ animation: 'pulse 2s ease-in-out infinite 0.5s' }}
+            />
+          </div>
+          
+          {/* Radar/sonar rings */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
+            <div 
+              className="absolute w-[200%] h-[200%] rounded-full border border-neon-cyan/20"
+              style={{ animation: 'sonar-ping 3s ease-out infinite' }}
+            />
+            <div 
+              className="absolute w-[200%] h-[200%] rounded-full border border-neon-cyan/15"
+              style={{ animation: 'sonar-ping 3s ease-out infinite 1s' }}
+            />
+            <div 
+              className="absolute w-[200%] h-[200%] rounded-full border border-neon-cyan/10"
+              style={{ animation: 'sonar-ping 3s ease-out infinite 2s' }}
+            />
+          </div>
+          
+          <div className="absolute inset-0 backdrop-blur-xl" />
+          
+          <div className="relative p-6 border border-neon-cyan/30 rounded-[24px]">
+            <div className="flex items-center gap-5">
+              {/* Large pulsing icon */}
+              <div className="relative">
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-neon-cyan to-neon-cyan/80 flex items-center justify-center shadow-2xl shadow-neon-cyan/50">
+                  <Signal className="w-8 h-8 text-background" />
                 </div>
-                <div className="text-left">
-                  <div className="font-bold text-lg text-primary-foreground">Start Contributing</div>
-                  <div className="text-sm text-primary-foreground/70">Earn points while you move</div>
+                {/* Pulse rings around icon */}
+                <div 
+                  className="absolute inset-0 rounded-2xl border-2 border-neon-cyan/50"
+                  style={{ animation: 'sonar-ping 2s ease-out infinite' }}
+                />
+              </div>
+              
+              <div className="flex-1">
+                <div 
+                  className="font-bold text-xl text-foreground mb-1"
+                  style={{ fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace' }}
+                >
+                  ACTIVATE SCANNER
+                </div>
+                <div className="text-sm text-foreground/70">
+                  Map cellular networks • Earn rewards
                 </div>
               </div>
-              <ChevronRight className="w-6 h-6 text-primary-foreground/60 group-hover:translate-x-1 group-hover:text-primary-foreground transition-all" />
+              
+              <ChevronRight className="w-7 h-7 text-neon-cyan group-hover:translate-x-1 transition-transform" />
             </div>
-          </Button>
-
-          <Button 
-            onClick={() => handleNavigation('/app/shop')}
-            variant="ghost"
-            className="w-full h-16 rounded-2xl bg-white/[0.03] backdrop-blur-2xl border border-white/[0.08] hover:bg-white/[0.06] hover:border-white/[0.15] group transition-all duration-300"
-          >
-            <div className="flex items-center justify-between w-full px-1">
-              <div className="flex items-center gap-4">
-                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-neon-cyan/25 to-neon-cyan/5 flex items-center justify-center">
-                  <ShoppingBag className="w-5 h-5 text-neon-cyan" />
-                </div>
-                <div className="text-left">
-                  <div className="font-semibold text-foreground">Buy eSIM</div>
-                  <div className="text-xs text-muted-foreground">200+ countries covered</div>
-                </div>
-              </div>
-              <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:translate-x-1 group-hover:text-foreground transition-all" />
-            </div>
-          </Button>
+          </div>
         </div>
+
+        {/* Secondary: Buy eSIM */}
+        <Button 
+          onClick={() => handleNavigation('/app/shop')}
+          variant="ghost"
+          className="w-full h-16 rounded-2xl bg-white/[0.03] backdrop-blur-2xl border border-white/[0.08] hover:bg-white/[0.06] hover:border-white/[0.15] group transition-all duration-300"
+        >
+          <div className="flex items-center justify-between w-full px-1">
+            <div className="flex items-center gap-4">
+              <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary/25 to-primary/5 flex items-center justify-center">
+                <ShoppingBag className="w-5 h-5 text-primary" />
+              </div>
+              <div className="text-left">
+                <div className="font-semibold text-foreground">Buy eSIM</div>
+                <div className="text-xs text-muted-foreground">200+ countries covered</div>
+              </div>
+            </div>
+            <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:translate-x-1 group-hover:text-foreground transition-all" />
+          </div>
+        </Button>
 
         {/* Network Status Pill */}
         <div className="flex items-center justify-center gap-2 py-2">
-          <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.03] backdrop-blur-xl border border-white/[0.08]">
-            <Wifi className="w-4 h-4 text-green-400" />
-            <span className="text-sm text-muted-foreground font-medium">Network Active</span>
-            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+          <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-neon-cyan/[0.05] backdrop-blur-xl border border-neon-cyan/20">
+            <Radio className="w-4 h-4 text-neon-cyan animate-pulse" />
+            <span 
+              className="text-sm text-neon-cyan font-medium"
+              style={{ fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace' }}
+            >
+              NETWORK ONLINE
+            </span>
+            <div className="w-2 h-2 rounded-full bg-neon-cyan animate-pulse shadow-lg shadow-neon-cyan/50" />
           </div>
         </div>
 
         {/* Conditional: How It Works OR Earnings Velocity */}
         {showHowItWorks ? (
-          /* How It Works Section - Dismissible */
+          /* How It Works Section - DePIN focused */
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">How it works</h2>
-              <Globe className="w-4 h-4 text-muted-foreground/50" />
+              <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider font-mono">PROTOCOL</h2>
+              <Globe className="w-4 h-4 text-neon-cyan/50" />
             </div>
             
             <div className="space-y-3">
               {[
-                { step: 1, title: 'Move with cellular data', desc: 'Contribute to the global network', gradient: 'from-primary/20 to-primary/5' },
-                { step: 2, title: 'Earn Nomi Points', desc: 'More distance = more rewards', gradient: 'from-neon-cyan/20 to-neon-cyan/5' },
-                { step: 3, title: 'Convert to $NOMIQA', desc: 'Redeem when token launches', gradient: 'from-violet-500/20 to-violet-500/5' }
+                { step: 1, title: 'Scan cellular networks', desc: 'Drive or travel with the app active', gradient: 'from-neon-cyan/20 to-neon-cyan/5' },
+                { step: 2, title: 'Collect network data', desc: 'Signal strength, coverage, speeds', gradient: 'from-primary/20 to-primary/5' },
+                { step: 3, title: 'Earn $NOMIQA tokens', desc: 'Redeem when token launches', gradient: 'from-violet-500/20 to-violet-500/5' }
               ].map((item) => (
                 <div 
                   key={item.step}
                   className="flex items-center gap-4 p-4 rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] hover:bg-white/[0.05] transition-all duration-300"
                 >
                   <div className={cn(
-                    'w-11 h-11 rounded-xl bg-gradient-to-br flex items-center justify-center font-bold text-primary',
+                    'w-11 h-11 rounded-xl bg-gradient-to-br flex items-center justify-center font-mono font-bold text-neon-cyan',
                     item.gradient
                   )}>
                     {item.step}
@@ -482,18 +547,18 @@ export const AppHome: React.FC = () => {
             <Button
               onClick={handleDismissHowItWorks}
               variant="ghost"
-              className="w-full h-12 rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] hover:bg-white/[0.06] text-muted-foreground hover:text-foreground transition-all"
+              className="w-full h-12 rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] hover:bg-white/[0.06] text-muted-foreground hover:text-foreground transition-all font-mono"
             >
               <Check className="w-4 h-4 mr-2" />
-              I understand, show my earnings
+              UNDERSTOOD — SHOW STATS
             </Button>
           </div>
         ) : (
-          /* Earnings Velocity Card - Robinhood Style */
+          /* Earnings Velocity Card */
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Earnings Velocity</h2>
-              <TrendingUp className="w-4 h-4 text-green-400" />
+              <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider font-mono">EARNINGS VELOCITY</h2>
+              <TrendingUp className="w-4 h-4 text-neon-cyan" />
             </div>
             
             <div className="relative rounded-2xl overflow-hidden">
@@ -503,38 +568,44 @@ export const AppHome: React.FC = () => {
                 {/* Header Stats */}
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <div className="text-2xl font-bold text-foreground">
+                    <div 
+                      className="text-2xl font-bold text-foreground"
+                      style={{ fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace' }}
+                    >
                       {formatNumber(totalWeekPoints)}
                     </div>
-                    <div className="text-xs text-muted-foreground">Points this week</div>
+                    <div className="text-xs text-muted-foreground font-mono">7-DAY TOTAL</div>
                   </div>
                   <div className="text-right">
-                    <div className={cn(
-                      'text-lg font-semibold',
-                      todayPoints > 0 ? 'text-green-400' : 'text-muted-foreground'
-                    )}>
+                    <div 
+                      className={cn(
+                        'text-lg font-semibold',
+                        todayPoints > 0 ? 'text-neon-cyan' : 'text-muted-foreground'
+                      )}
+                      style={{ fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace' }}
+                    >
                       {todayPoints > 0 ? '+' : ''}{formatNumber(todayPoints)}
                     </div>
-                    <div className="text-xs text-muted-foreground">Today</div>
+                    <div className="text-xs text-muted-foreground font-mono">TODAY</div>
                   </div>
                 </div>
 
-                {/* Sparkline Chart - Robinhood Style */}
+                {/* Sparkline Chart */}
                 <div className="relative h-16 w-full">
                   <svg 
                     viewBox="0 0 280 60" 
                     className="w-full h-full"
                     preserveAspectRatio="none"
                   >
-                    {/* Gradient Definition */}
+                    {/* Gradient Definition - Cyan themed */}
                     <defs>
-                      <linearGradient id="areaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stopColor="rgb(34, 197, 94)" stopOpacity="0.3" />
-                        <stop offset="100%" stopColor="rgb(34, 197, 94)" stopOpacity="0" />
+                      <linearGradient id="areaGradientCyan" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stopColor="hsl(var(--neon-cyan))" stopOpacity="0.3" />
+                        <stop offset="100%" stopColor="hsl(var(--neon-cyan))" stopOpacity="0" />
                       </linearGradient>
-                      <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stopColor="rgb(34, 197, 94)" />
-                        <stop offset="100%" stopColor="rgb(74, 222, 128)" />
+                      <linearGradient id="lineGradientCyan" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stopColor="hsl(var(--neon-cyan))" />
+                        <stop offset="100%" stopColor="hsl(var(--primary))" />
                       </linearGradient>
                     </defs>
                     
@@ -542,7 +613,7 @@ export const AppHome: React.FC = () => {
                     {areaPath && (
                       <path
                         d={areaPath}
-                        fill="url(#areaGradient)"
+                        fill="url(#areaGradientCyan)"
                       />
                     )}
                     
@@ -551,7 +622,7 @@ export const AppHome: React.FC = () => {
                       <path
                         d={sparklinePath}
                         fill="none"
-                        stroke="url(#lineGradient)"
+                        stroke="url(#lineGradientCyan)"
                         strokeWidth="2.5"
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -565,14 +636,14 @@ export const AppHome: React.FC = () => {
                           cx={4 + ((earningsData.length - 1) / (earningsData.length - 1)) * 272}
                           cy={56 - (earningsData[earningsData.length - 1].points / Math.max(...earningsData.map(d => d.points), 1)) * 52}
                           r="6"
-                          fill="rgb(34, 197, 94)"
+                          fill="hsl(var(--neon-cyan))"
                           fillOpacity="0.3"
                         />
                         <circle
                           cx={4 + ((earningsData.length - 1) / (earningsData.length - 1)) * 272}
                           cy={56 - (earningsData[earningsData.length - 1].points / Math.max(...earningsData.map(d => d.points), 1)) * 52}
                           r="3"
-                          fill="rgb(34, 197, 94)"
+                          fill="hsl(var(--neon-cyan))"
                         />
                       </>
                     )}
@@ -581,7 +652,7 @@ export const AppHome: React.FC = () => {
                   {/* Empty State */}
                   {totalWeekPoints === 0 && (
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <p className="text-xs text-muted-foreground">Start contributing to see your earnings</p>
+                      <p className="text-xs text-muted-foreground font-mono">ACTIVATE SCANNER TO COLLECT DATA</p>
                     </div>
                   )}
                 </div>
@@ -591,7 +662,7 @@ export const AppHome: React.FC = () => {
                   {earningsData.map((d, i) => (
                     <span 
                       key={d.date} 
-                      className="text-[10px] text-muted-foreground/60 font-medium"
+                      className="text-[10px] text-muted-foreground/60 font-mono"
                     >
                       {['S', 'M', 'T', 'W', 'T', 'F', 'S'][new Date(d.date).getDay()]}
                     </span>
@@ -603,9 +674,9 @@ export const AppHome: React.FC = () => {
             {/* Quick Action */}
             <button
               onClick={() => setShowHowItWorks(true)}
-              className="w-full text-center text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors"
+              className="w-full text-center text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors font-mono uppercase"
             >
-              Show how it works again
+              Show protocol again
             </button>
           </div>
         )}
@@ -613,26 +684,38 @@ export const AppHome: React.FC = () => {
         {/* Auth CTA for non-logged in users */}
         {!loading && !user && (
           <div className="relative rounded-2xl overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-r from-primary/15 to-neon-cyan/15" />
+            <div className="absolute inset-0 bg-gradient-to-r from-neon-cyan/15 to-primary/15" />
             <div className="absolute inset-0 backdrop-blur-xl" />
-            <div className="relative p-6 border border-white/10 rounded-2xl text-center">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center shadow-lg shadow-primary/20">
-                <Sparkles className="w-8 h-8 text-primary" />
+            <div className="relative p-6 border border-neon-cyan/20 rounded-2xl text-center">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-neon-cyan/30 to-neon-cyan/10 flex items-center justify-center shadow-lg shadow-neon-cyan/20">
+                <Satellite className="w-8 h-8 text-neon-cyan" />
               </div>
-              <h3 className="text-xl font-bold text-foreground mb-2">Join the Network</h3>
+              <h3 className="text-xl font-bold text-foreground mb-2 font-mono">JOIN NETWORK</h3>
               <p className="text-sm text-muted-foreground mb-5 max-w-[280px] mx-auto">
-                Sign in to start earning Nomi Points and build the future of connectivity
+                Sign in to activate your scanner and start earning network rewards
               </p>
               <Button 
                 onClick={() => handleNavigation('/auth')}
-                className="bg-gradient-to-r from-primary to-primary/80 hover:opacity-90 shadow-lg shadow-primary/30"
+                className="bg-gradient-to-r from-neon-cyan to-neon-cyan/80 hover:opacity-90 shadow-lg shadow-neon-cyan/30 text-background font-mono"
               >
-                Sign In to Earn
+                CONNECT TO EARN
               </Button>
             </div>
           </div>
         )}
       </div>
+
+      {/* Scanline animation keyframes */}
+      <style>{`
+        @keyframes scanline {
+          0% { background-position: 0% 0%; }
+          100% { background-position: 0% 100%; }
+        }
+        @keyframes sonar-ping {
+          0% { transform: scale(0.5); opacity: 1; }
+          100% { transform: scale(2); opacity: 0; }
+        }
+      `}</style>
     </div>
   );
 };
