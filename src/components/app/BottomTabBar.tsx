@@ -93,11 +93,6 @@ export const BottomTabBar: React.FC = () => {
                   strokeWidth={active ? 2.5 : 1.75}
                   fill={active ? 'currentColor' : 'none'}
                 />
-                
-                {/* Active indicator dot */}
-                {active && (
-                  <span className="absolute -bottom-1 w-1.5 h-1.5 rounded-full bg-primary shadow-lg shadow-primary/50" />
-                )}
               </div>
               
               {/* Label with fade effect */}
