@@ -228,10 +228,11 @@ export const useNetworkContribution = () => {
     stopTracking: stopGeoTracking
   } = useBackgroundGeolocation(handlePositionUpdate);
 
-  // Initialize device info on mount
+  // Initialize device info on mount - use telcoMetrics.initDeviceInfo reference only
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     telcoMetrics.initDeviceInfo();
-  }, [telcoMetrics]);
+  }, []);
 
   // Load user on mount
   useEffect(() => {
