@@ -51,7 +51,14 @@ export const useProducts = () => {
         return hasNoSmsOrVoice && hasValidImage;
       });
       
-      return filteredData;
+      // Sort: local packages first, then regional, both sorted by price
+      return filteredData.sort((a, b) => {
+        // Local packages come before regional
+        if (a.package_type === 'local' && b.package_type === 'regional') return -1;
+        if (a.package_type === 'regional' && b.package_type === 'local') return 1;
+        // Within same type, sort by price
+        return a.price_usd - b.price_usd;
+      });
     },
   });
 };
