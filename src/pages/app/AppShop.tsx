@@ -11,17 +11,21 @@ import {
   X,
   Sparkles,
   Check,
-  ArrowRight
+  ArrowRight,
+  Zap,
+  Shield,
+  Clock,
+  Smartphone
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { useProducts, Product } from '@/hooks/useProducts';
 import { useCart } from '@/hooks/useCart';
 import { useHaptics } from '@/hooks/useHaptics';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { AppSpinner } from '@/components/app/AppSpinner';
+import { CompatibilityChecker } from '@/components/CompatibilityChecker';
 import {
   Dialog,
   DialogContent,
@@ -45,6 +49,7 @@ export const AppShop: React.FC = () => {
   const [displayCount, setDisplayCount] = useState(10);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [detailModalOpen, setDetailModalOpen] = useState(false);
+  const [compatibilityOpen, setCompatibilityOpen] = useState(false);
 
   const filteredProducts = useMemo(() => {
     if (!products) return [];
@@ -56,7 +61,7 @@ export const AppShop: React.FC = () => {
       
       if (coverageFilter === 'all') return matchesSearch;
       
-      const productType = (product as any).package_type || 'local';
+      const productType = product.package_type || 'local';
       return matchesSearch && productType === coverageFilter;
     });
   }, [products, searchQuery, coverageFilter]);
@@ -87,7 +92,7 @@ export const AppShop: React.FC = () => {
 
   const getCountryFlag = (product: Product) => {
     const imageUrl = product.country_image_url;
-    const packageType = (product as any).package_type;
+    const packageType = product.package_type;
     
     if (packageType === 'regional') {
       const regionImageMap: Record<string, string> = {
@@ -105,16 +110,11 @@ export const AppShop: React.FC = () => {
       const regionImage = regionImageMap[product.country_code];
       if (regionImage) {
         return (
-          <div className="relative">
-            <img 
-              src={regionImage} 
-              alt="" 
-              className="w-12 h-12 rounded-xl object-cover border border-white/10 shadow-lg"
-            />
-            <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
-              <Globe className="w-3 h-3 text-primary-foreground" />
-            </div>
-          </div>
+          <img 
+            src={regionImage} 
+            alt="" 
+            className="w-12 h-12 rounded-xl object-cover border border-white/10 shadow-lg"
+          />
         );
       }
     }
@@ -132,6 +132,52 @@ export const AppShop: React.FC = () => {
     return (
       <div className="w-12 h-12 rounded-xl bg-white/[0.05] border border-white/10 flex items-center justify-center">
         <Globe className="w-6 h-6 text-muted-foreground" />
+      </div>
+    );
+  };
+
+  const getLargeCountryFlag = (product: Product) => {
+    const imageUrl = product.country_image_url;
+    const packageType = product.package_type;
+    
+    if (packageType === 'regional') {
+      const regionImageMap: Record<string, string> = {
+        'EUROPE': '/regions/europe.png',
+        'EU-PLUS-UK': '/regions/europe.png',
+        'ASIA': '/regions/asia.png',
+        'CARIBBEAN-ISLANDS': '/regions/caribbean.png',
+        'LATIN-AMERICA': '/regions/latin-america.png',
+        'MIDDLE-EAST-AND-NORTH-AFRICA': '/regions/middle-east-africa.png',
+        'AFRICA': '/regions/middle-east-africa.png',
+        'NORTH-AMERICA': '/regions/north-america.png',
+        'OCEANIA': '/regions/oceania.png',
+        'WORLD': '/regions/world.png',
+      };
+      const regionImage = regionImageMap[product.country_code];
+      if (regionImage) {
+        return (
+          <img 
+            src={regionImage} 
+            alt="" 
+            className="w-16 h-12 rounded-xl object-cover shadow-lg"
+          />
+        );
+      }
+    }
+    
+    if (imageUrl) {
+      return (
+        <img 
+          src={imageUrl} 
+          alt="" 
+          className="w-16 h-12 rounded-xl object-cover shadow-lg"
+        />
+      );
+    }
+    
+    return (
+      <div className="w-16 h-12 rounded-xl bg-white/[0.05] flex items-center justify-center">
+        <Globe className="w-8 h-8 text-muted-foreground" />
       </div>
     );
   };
@@ -237,16 +283,9 @@ export const AppShop: React.FC = () => {
                     {getCountryFlag(product)}
                     
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="font-semibold text-foreground truncate">
-                          {product.country_name}
-                        </span>
-                        {(product as any).package_type === 'regional' && (
-                          <Badge className="bg-primary/20 text-primary border-0 text-[10px] px-1.5">
-                            Regional
-                          </Badge>
-                        )}
-                      </div>
+                      <span className="font-semibold text-foreground block truncate">
+                        {product.country_name}
+                      </span>
                       <div className="flex items-center gap-3 text-sm text-muted-foreground">
                         <span className="flex items-center gap-1">
                           <Wifi className="w-3.5 h-3.5" />
@@ -312,9 +351,9 @@ export const AppShop: React.FC = () => {
           </div>
         )}
 
-        {/* Product Detail Modal - Premium Design */}
+        {/* Enhanced Product Detail Modal */}
         <Dialog open={detailModalOpen} onOpenChange={setDetailModalOpen}>
-          <DialogContent className="max-w-sm mx-4 rounded-3xl border-white/10 bg-background/95 backdrop-blur-2xl p-0 overflow-hidden">
+          <DialogContent className="max-w-sm mx-4 rounded-3xl border-white/10 bg-background/95 backdrop-blur-2xl p-0 overflow-hidden max-h-[85vh] overflow-y-auto">
             {selectedProduct && (
               <>
                 {/* Header with gradient */}
@@ -323,17 +362,25 @@ export const AppShop: React.FC = () => {
                   <DialogHeader className="relative">
                     <div className="flex items-center gap-4">
                       <div className="relative">
-                        {getCountryFlag(selectedProduct)}
+                        {getLargeCountryFlag(selectedProduct)}
                       </div>
-                      <div>
-                        <DialogTitle className="text-xl">{selectedProduct.country_name}</DialogTitle>
-                        <p className="text-sm text-muted-foreground">{selectedProduct.name}</p>
+                      <div className="flex-1 min-w-0">
+                        <DialogTitle className="text-xl truncate">{selectedProduct.country_name}</DialogTitle>
+                        <p className="text-sm text-muted-foreground truncate">{selectedProduct.name}</p>
                       </div>
                     </div>
                   </DialogHeader>
                 </div>
                 
                 <div className="px-6 pb-6 space-y-4">
+                  {/* Price Display */}
+                  <div className="text-center py-3 rounded-2xl bg-white/[0.03] border border-white/[0.08]">
+                    <div className="text-3xl font-bold text-foreground tracking-tight">
+                      ${selectedProduct.price_usd.toFixed(2)}
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">One-time payment • Instant activation</p>
+                  </div>
+
                   {/* Data & Validity Grid */}
                   <div className="grid grid-cols-2 gap-3">
                     <div className="p-4 rounded-2xl bg-gradient-to-br from-primary/15 to-primary/5 border border-primary/20">
@@ -351,24 +398,73 @@ export const AppShop: React.FC = () => {
                       <span className="text-xl font-bold text-foreground">{selectedProduct.validity_days} days</span>
                     </div>
                   </div>
-                  
-                  {/* Coverage info */}
-                  {selectedProduct.features?.coverage && (
-                    <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.08]">
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
-                        <Globe className="w-4 h-4" />
-                        Coverage
-                      </div>
-                      <p className="text-sm text-foreground">{selectedProduct.features.coverage}</p>
+
+                  {/* Operator / Powered By */}
+                  {selectedProduct.operator_image_url && (
+                    <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.08] flex items-center gap-3">
+                      <img 
+                        src={selectedProduct.operator_image_url} 
+                        alt={selectedProduct.operator_name || 'Operator'} 
+                        className="h-8 object-contain rounded"
+                        onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                      />
+                      {selectedProduct.operator_name && (
+                        <p className="text-sm text-muted-foreground">Powered by {selectedProduct.operator_name}</p>
+                      )}
                     </div>
                   )}
-                  
-                  {/* Price Display */}
-                  <div className="text-center py-4">
-                    <div className="text-4xl font-bold text-foreground tracking-tight">
-                      ${selectedProduct.price_usd.toFixed(2)}
+
+                  {/* Device Compatibility Button */}
+                  <Button 
+                    onClick={() => setCompatibilityOpen(true)}
+                    variant="outline"
+                    className="w-full h-12 rounded-xl bg-primary/10 border-primary/30 text-primary hover:bg-primary/20"
+                  >
+                    <Smartphone className="mr-2 h-4 w-4" />
+                    Check Device Compatibility
+                  </Button>
+
+                  {/* Plan Details */}
+                  <div className="space-y-2">
+                    <h3 className="text-sm font-medium text-foreground">Plan Details</h3>
+                    
+                    {selectedProduct.features?.coverage && (
+                      <div className="flex items-start gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/[0.08]">
+                        <Globe className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm text-foreground">Coverage</p>
+                          <p className="text-xs text-muted-foreground">{selectedProduct.features.coverage}</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {selectedProduct.features?.speed && (
+                      <div className="flex items-start gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/[0.08]">
+                        <Zap className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm text-foreground">Network Speed</p>
+                          <p className="text-xs text-muted-foreground">{selectedProduct.features.speed}</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {selectedProduct.features?.activation && (
+                      <div className="flex items-start gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/[0.08]">
+                        <Clock className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm text-foreground">Activation</p>
+                          <p className="text-xs text-muted-foreground">{selectedProduct.features.activation}</p>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="flex items-start gap-3 p-3 rounded-xl bg-green-500/10 border border-green-500/20">
+                      <Shield className="h-4 w-4 text-green-400 mt-0.5 shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-green-400">Privacy Protected</p>
+                        <p className="text-xs text-muted-foreground">No tracking, no data collection</p>
+                      </div>
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">One-time payment • Instant activation</p>
                   </div>
                   
                   {/* Add to Cart Button */}
@@ -388,6 +484,12 @@ export const AppShop: React.FC = () => {
             )}
           </DialogContent>
         </Dialog>
+
+        {/* Compatibility Checker */}
+        <CompatibilityChecker 
+          open={compatibilityOpen} 
+          onOpenChange={setCompatibilityOpen} 
+        />
       </div>
     </div>
   );
