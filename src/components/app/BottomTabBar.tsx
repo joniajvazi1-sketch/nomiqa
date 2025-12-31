@@ -37,15 +37,23 @@ export const BottomTabBar: React.FC = () => {
   return (
     <nav 
       className="fixed bottom-0 left-0 right-0 z-50"
-      style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
-      {/* Glass background with multiple layers */}
-      <div className="absolute inset-0 bg-background/80 backdrop-blur-2xl" />
-      <div className="absolute inset-0 bg-gradient-to-t from-background/50 to-transparent" />
+      {/* Glass background - extends fully to bottom edge including safe area */}
+      <div 
+        className="absolute inset-0 bg-background/90 backdrop-blur-2xl"
+        style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+      />
+      <div 
+        className="absolute inset-0 bg-gradient-to-t from-background to-transparent"
+        style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+      />
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
       
-      {/* Tab content */}
-      <div className="relative flex items-center justify-around h-[72px] px-2">
+      {/* Tab content - icons have padding above home indicator */}
+      <div 
+        className="relative flex items-center justify-around h-[72px] px-2"
+        style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+      >
         {tabs.map((tab) => {
           const active = isActive(tab.path);
           const Icon = tab.icon;

@@ -118,6 +118,10 @@ All colors MUST be HSL.
     @apply bg-background;
     /* Exact background color for overscroll rubber band effect */
     background-color: hsl(220 35% 8%);
+    /* CRITICAL: Stop rubber band bounce completely */
+    overscroll-behavior: none;
+    overflow: hidden;
+    height: 100%;
   }
 
   body {
@@ -129,10 +133,17 @@ All colors MUST be HSL.
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    /* Improve scroll performance */
-    scroll-behavior: smooth;
-    /* Prevent pull-to-refresh on native apps */
-    overscroll-behavior-y: contain;
+    /* CRITICAL: Stop rubber band bounce and void at bottom */
+    overscroll-behavior: none;
+    overflow: hidden;
+    height: 100%;
+    position: fixed;
+    width: 100%;
+  }
+
+  #root {
+    height: 100%;
+    overflow: hidden;
   }
 
   /* Native-feeling tap states for all interactive elements */
