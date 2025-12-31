@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Geolocation, Position, PermissionStatus } from '@capacitor/geolocation';
+import { Geolocation, Position } from '@capacitor/geolocation';
 import { usePlatform } from './usePlatform';
 
 interface BackgroundGeolocationState {
@@ -16,7 +16,8 @@ interface BackgroundGeolocationOptions {
 }
 
 /**
- * Background Geolocation Hook
+ * Foreground Geolocation Hook
+ * Uses @capacitor/geolocation on native, navigator.geolocation on web
  * Handles location permissions and continuous tracking for Network Contribution
  */
 export const useBackgroundGeolocation = (
@@ -31,7 +32,7 @@ export const useBackgroundGeolocation = (
     error: null
   });
   
-  const watchIdRef = useRef<string | null>(null);
+  const watchIdRef = useRef<string | number | null>(null);
   const onPositionUpdateRef = useRef(onPositionUpdate);
   
   // Keep callback ref updated
@@ -46,23 +47,66 @@ export const useBackgroundGeolocation = (
 
   const checkPermissions = async (): Promise<boolean> => {
     try {
-      const status: PermissionStatus = await Geolocation.checkPermissions();
-      const granted = status.location === 'granted' || status.coarseLocation === 'granted';
-      setState(prev => ({ ...prev, hasPermission: granted }));
-      return granted;
+      if (isNative) {
+        const status = await Geolocation.checkPermissions();
+        const granted = status.location === 'granted' || status.coarseLocation === 'granted';
+        setState(prev => ({ ...prev, hasPermission: granted }));
+        return granted;
+      } else {
+        // Web: Check using Permissions API if available
+        if ('permissions' in navigator) {
+          try {
+            const result = await navigator.permissions.query({ name: 'geolocation' });
+            const granted = result.state === 'granted';
+            setState(prev => ({ ...prev, hasPermission: granted || result.state === 'prompt' }));
+            return granted || result.state === 'prompt';
+          } catch {
+            // Permissions API not supported, assume we can try
+            setState(prev => ({ ...prev, hasPermission: true }));
+            return true;
+          }
+        }
+        // Assume we can request on web
+        setState(prev => ({ ...prev, hasPermission: true }));
+        return true;
+      }
     } catch (error) {
       console.warn('Permission check failed:', error);
-      setState(prev => ({ ...prev, hasPermission: false, error: 'Permission check failed' }));
-      return false;
+      // Don't set hasPermission to false immediately - let the user try
+      setState(prev => ({ ...prev, hasPermission: true }));
+      return true;
     }
   };
 
   const requestPermissions = async (): Promise<boolean> => {
     try {
-      const status = await Geolocation.requestPermissions();
-      const granted = status.location === 'granted' || status.coarseLocation === 'granted';
-      setState(prev => ({ ...prev, hasPermission: granted }));
-      return granted;
+      if (isNative) {
+        const status = await Geolocation.requestPermissions();
+        const granted = status.location === 'granted' || status.coarseLocation === 'granted';
+        setState(prev => ({ ...prev, hasPermission: granted }));
+        return granted;
+      } else {
+        // Web: permissions are requested when watchPosition is called
+        // Try getting current position to trigger permission prompt
+        return new Promise((resolve) => {
+          navigator.geolocation.getCurrentPosition(
+            () => {
+              setState(prev => ({ ...prev, hasPermission: true }));
+              resolve(true);
+            },
+            (err) => {
+              console.error('Web permission denied:', err);
+              setState(prev => ({ 
+                ...prev, 
+                hasPermission: false, 
+                error: err.code === 1 ? 'Location permission denied' : 'Location unavailable' 
+              }));
+              resolve(false);
+            },
+            { enableHighAccuracy: true, timeout: 10000 }
+          );
+        });
+      }
     } catch (error) {
       console.error('Permission request failed:', error);
       setState(prev => ({ ...prev, hasPermission: false, error: 'Permission denied' }));
@@ -81,32 +125,74 @@ export const useBackgroundGeolocation = (
     }
 
     // Already tracking
-    if (watchIdRef.current) {
+    if (watchIdRef.current !== null) {
       return true;
     }
 
     try {
-      const watchId = await Geolocation.watchPosition(
-        {
-          enableHighAccuracy: options.enableHighAccuracy ?? true,
-          timeout: options.timeout ?? 10000,
-          maximumAge: options.maximumAge ?? 0
-        },
-        (position, err) => {
-          if (err) {
-            console.error('Watch position error:', err);
-            setState(prev => ({ ...prev, error: err.message }));
-            return;
+      if (isNative) {
+        // Use Capacitor Geolocation
+        const watchId = await Geolocation.watchPosition(
+          {
+            enableHighAccuracy: options.enableHighAccuracy ?? true,
+            timeout: options.timeout ?? 15000,
+            maximumAge: options.maximumAge ?? 0
+          },
+          (position, err) => {
+            if (err) {
+              console.error('Watch position error:', err);
+              setState(prev => ({ ...prev, error: err.message }));
+              return;
+            }
+            
+            if (position) {
+              setState(prev => ({ ...prev, lastPosition: position, error: null }));
+              onPositionUpdateRef.current?.(position);
+            }
           }
-          
-          if (position) {
+        );
+        
+        watchIdRef.current = watchId;
+      } else {
+        // Use Web Geolocation API
+        const watchId = navigator.geolocation.watchPosition(
+          (webPosition) => {
+            // Convert Web GeolocationPosition to Capacitor Position format
+            const position: Position = {
+              coords: {
+                latitude: webPosition.coords.latitude,
+                longitude: webPosition.coords.longitude,
+                accuracy: webPosition.coords.accuracy,
+                altitude: webPosition.coords.altitude,
+                altitudeAccuracy: webPosition.coords.altitudeAccuracy,
+                heading: webPosition.coords.heading,
+                speed: webPosition.coords.speed
+              },
+              timestamp: webPosition.timestamp
+            };
+            
             setState(prev => ({ ...prev, lastPosition: position, error: null }));
             onPositionUpdateRef.current?.(position);
+          },
+          (err) => {
+            console.error('Web watch position error:', err);
+            let errorMessage = 'Location error';
+            if (err.code === 1) errorMessage = 'Location permission denied';
+            else if (err.code === 2) errorMessage = 'Location unavailable';
+            else if (err.code === 3) errorMessage = 'Location timeout';
+            
+            setState(prev => ({ ...prev, error: errorMessage }));
+          },
+          {
+            enableHighAccuracy: options.enableHighAccuracy ?? true,
+            timeout: options.timeout ?? 15000,
+            maximumAge: options.maximumAge ?? 0
           }
-        }
-      );
+        );
+        
+        watchIdRef.current = watchId;
+      }
       
-      watchIdRef.current = watchId;
       setState(prev => ({ ...prev, isTracking: true, error: null }));
       return true;
     } catch (error) {
@@ -121,9 +207,13 @@ export const useBackgroundGeolocation = (
   };
 
   const stopTracking = async () => {
-    if (watchIdRef.current) {
+    if (watchIdRef.current !== null) {
       try {
-        await Geolocation.clearWatch({ id: watchIdRef.current });
+        if (isNative && typeof watchIdRef.current === 'string') {
+          await Geolocation.clearWatch({ id: watchIdRef.current });
+        } else if (!isNative && typeof watchIdRef.current === 'number') {
+          navigator.geolocation.clearWatch(watchIdRef.current);
+        }
       } catch (error) {
         console.warn('Clear watch failed:', error);
       }
@@ -134,13 +224,46 @@ export const useBackgroundGeolocation = (
 
   const getCurrentPosition = async (): Promise<Position | null> => {
     try {
-      const position = await Geolocation.getCurrentPosition({
-        enableHighAccuracy: options.enableHighAccuracy ?? true,
-        timeout: options.timeout ?? 10000,
-        maximumAge: options.maximumAge ?? 0
-      });
-      setState(prev => ({ ...prev, lastPosition: position }));
-      return position;
+      if (isNative) {
+        const position = await Geolocation.getCurrentPosition({
+          enableHighAccuracy: options.enableHighAccuracy ?? true,
+          timeout: options.timeout ?? 15000,
+          maximumAge: options.maximumAge ?? 0
+        });
+        setState(prev => ({ ...prev, lastPosition: position }));
+        return position;
+      } else {
+        // Web fallback
+        return new Promise((resolve) => {
+          navigator.geolocation.getCurrentPosition(
+            (webPosition) => {
+              const position: Position = {
+                coords: {
+                  latitude: webPosition.coords.latitude,
+                  longitude: webPosition.coords.longitude,
+                  accuracy: webPosition.coords.accuracy,
+                  altitude: webPosition.coords.altitude,
+                  altitudeAccuracy: webPosition.coords.altitudeAccuracy,
+                  heading: webPosition.coords.heading,
+                  speed: webPosition.coords.speed
+                },
+                timestamp: webPosition.timestamp
+              };
+              setState(prev => ({ ...prev, lastPosition: position }));
+              resolve(position);
+            },
+            (err) => {
+              console.error('Get current position failed:', err);
+              resolve(null);
+            },
+            {
+              enableHighAccuracy: options.enableHighAccuracy ?? true,
+              timeout: options.timeout ?? 15000,
+              maximumAge: options.maximumAge ?? 0
+            }
+          );
+        });
+      }
     } catch (error) {
       console.error('Get current position failed:', error);
       return null;
@@ -150,11 +273,15 @@ export const useBackgroundGeolocation = (
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (watchIdRef.current) {
-        Geolocation.clearWatch({ id: watchIdRef.current }).catch(console.warn);
+      if (watchIdRef.current !== null) {
+        if (isNative && typeof watchIdRef.current === 'string') {
+          Geolocation.clearWatch({ id: watchIdRef.current }).catch(console.warn);
+        } else if (!isNative && typeof watchIdRef.current === 'number') {
+          navigator.geolocation.clearWatch(watchIdRef.current);
+        }
       }
     };
-  }, []);
+  }, [isNative]);
 
   return {
     ...state,
