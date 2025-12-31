@@ -325,7 +325,9 @@ export const AppHome: React.FC = () => {
             
             <div ref={pointsRef} className="mb-3">
               {loading ? (
-                <div className="h-14 w-40 bg-white/10 rounded-2xl animate-pulse" />
+                <div className="h-14 w-40 bg-white/10 rounded-2xl animate-pulse relative overflow-hidden">
+                  <div className="absolute inset-0 -translate-x-full animate-shimmer" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)' }} />
+                </div>
               ) : (
                 <div className="text-[56px] font-bold text-foreground tracking-tighter leading-none">
                   {formatNumber(animatedPoints)}
@@ -369,8 +371,8 @@ export const AppHome: React.FC = () => {
           ].map((stat, i) => (
             <div 
               key={stat.label}
-              className="rounded-2xl bg-white/[0.03] backdrop-blur-2xl border border-white/[0.08] p-4 text-center hover:bg-white/[0.05] transition-all duration-300"
-              style={{ animationDelay: `${i * 100}ms` }}
+              className="rounded-2xl bg-white/[0.03] backdrop-blur-2xl border border-white/[0.08] p-4 text-center hover:bg-white/[0.05] transition-all duration-300 animate-fade-in active:scale-95"
+              style={{ animationDelay: `${i * 100 + 200}ms`, animationFillMode: 'backwards' }}
             >
               <div className={cn(
                 'w-11 h-11 mx-auto mb-3 rounded-xl bg-gradient-to-br flex items-center justify-center',
