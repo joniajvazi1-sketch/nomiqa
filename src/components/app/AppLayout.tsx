@@ -11,22 +11,28 @@ interface AppLayoutProps {
 
 /**
  * Native App Layout - Used only when running as installed app
- * No header/footer, uses bottom tab navigation, handles safe areas
- * Includes page transition animations
+ * Edge-to-edge display with content flowing behind status bar
+ * No header/footer, uses bottom tab navigation
  */
 export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const { isNative, isIOS } = usePlatform();
   const location = useLocation();
 
   useEffect(() => {
-    // Configure status bar for native app
+    // Configure status bar for native app - translucent overlay style
     if (isNative) {
       const configureStatusBar = async () => {
         try {
+          // Light content (white text/icons) for dark backgrounds
           await StatusBar.setStyle({ style: Style.Dark });
-          await StatusBar.setBackgroundColor({ color: '#0a0a0a' });
-          if (!isIOS) {
-            await StatusBar.setOverlaysWebView({ overlay: false });
+          
+          if (isIOS) {
+            // iOS: Let content flow behind status bar (handled by viewport-fit=cover)
+            // Status bar will overlay content with translucent background
+          } else {
+            // Android: Make status bar transparent and overlay content
+            await StatusBar.setBackgroundColor({ color: '#00000000' });
+            await StatusBar.setOverlaysWebView({ overlay: true });
           }
         } catch (error) {
           console.warn('StatusBar configuration failed:', error);
@@ -37,16 +43,27 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   }, [isNative, isIOS]);
 
   return (
-    <div 
-      className="min-h-screen bg-background flex flex-col"
-      style={{ 
-        paddingTop: 'env(safe-area-inset-top)',
-        paddingLeft: 'env(safe-area-inset-left)',
-        paddingRight: 'env(safe-area-inset-right)'
-      }}
-    >
+    <div className="min-h-screen bg-background flex flex-col relative">
+      {/* Background that extends behind status bar */}
+      <div 
+        className="fixed inset-0 bg-background pointer-events-none"
+        style={{ zIndex: -1 }}
+      />
+      
+      {/* Status bar spacer - creates padding but allows background to show through */}
+      <div 
+        className="w-full shrink-0"
+        style={{ height: 'env(safe-area-inset-top, 0px)' }}
+      />
+      
       {/* Main content area with page transition */}
-      <main className="flex-1 pb-20 overflow-y-auto">
+      <main 
+        className="flex-1 pb-20 overflow-y-auto"
+        style={{ 
+          paddingLeft: 'env(safe-area-inset-left)',
+          paddingRight: 'env(safe-area-inset-right)'
+        }}
+      >
         <PageTransition key={location.pathname}>
           {children}
         </PageTransition>
