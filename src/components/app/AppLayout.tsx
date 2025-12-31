@@ -43,25 +43,23 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   }, [isNative, isIOS]);
 
   return (
-    <div className="min-h-screen bg-background flex flex-col relative">
-      {/* Background that extends behind status bar */}
+    <div className="h-full w-full flex flex-col relative overflow-hidden">
+      {/* FIXED fullscreen background - extends behind notch and home indicator */}
       <div 
         className="fixed inset-0 bg-background pointer-events-none"
         style={{ zIndex: -1 }}
       />
       
-      {/* Status bar spacer - creates padding but allows background to show through */}
-      <div 
-        className="w-full shrink-0"
-        style={{ height: 'env(safe-area-inset-top, 0px)' }}
-      />
-      
-      {/* Main content area with page transition */}
+      {/* Scrollable content area */}
       <main 
-        className="flex-1 pb-20 overflow-y-auto"
+        className="flex-1 overflow-y-auto overflow-x-hidden"
         style={{ 
-          paddingLeft: 'env(safe-area-inset-left)',
-          paddingRight: 'env(safe-area-inset-right)'
+          paddingTop: 'env(safe-area-inset-top, 0px)',
+          paddingLeft: 'env(safe-area-inset-left, 0px)',
+          paddingRight: 'env(safe-area-inset-right, 0px)',
+          paddingBottom: 'calc(72px + env(safe-area-inset-bottom, 0px))',
+          /* Smooth iOS scrolling */
+          WebkitOverflowScrolling: 'touch',
         }}
       >
         <PageTransition key={location.pathname}>
@@ -69,7 +67,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         </PageTransition>
       </main>
       
-      {/* Bottom navigation */}
+      {/* Bottom navigation - pinned to absolute bottom */}
       <BottomTabBar />
     </div>
   );
