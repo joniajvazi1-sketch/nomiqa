@@ -120,7 +120,7 @@ export const ContributionMap: React.FC<ContributionMapProps> = ({
   }, [userPosition]);
 
   return (
-    <div className="absolute inset-0" style={{ zIndex: 0 }}>
+    <div className="fixed inset-0" style={{ zIndex: 0, height: '100vh', width: '100vw' }}>
       {/* Leaflet CSS overrides */}
       <style>{`
         .map-container {
@@ -203,11 +203,7 @@ export const ContributionMap: React.FC<ContributionMapProps> = ({
         </div>
       )}
       
-      {/* Gradient overlay at bottom */}
-      <div 
-        className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-background via-background/80 to-transparent pointer-events-none"
-        style={{ zIndex: 5 }}
-      />
+      {/* Gradient overlay at bottom - REMOVED to let map extend to true bottom */}
       
       {/* Vignette effect */}
       <div 
