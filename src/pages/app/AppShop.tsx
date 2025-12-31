@@ -365,8 +365,10 @@ export const AppShop: React.FC = () => {
                         {getLargeCountryFlag(selectedProduct)}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <DialogTitle className="text-lg truncate">{selectedProduct.country_name}</DialogTitle>
-                        <p className="text-xs text-muted-foreground truncate">{selectedProduct.name}</p>
+                        <DialogTitle className="text-lg leading-tight">{selectedProduct.country_name}</DialogTitle>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          {selectedProduct.data_amount} • {selectedProduct.validity_days} days
+                        </p>
                       </div>
                     </div>
                   </DialogHeader>

@@ -38,9 +38,17 @@ export const useProducts = () => {
       if (error) throw error;
       
       // Filter out packages with SMS or Voice (keep data-only)
+      // Also filter out local packages without country images
       const filteredData = (data as Product[]).filter(product => {
         const name = product.name.toLowerCase();
-        return !name.includes('sms') && !name.includes('mins');
+        const hasNoSmsOrVoice = !name.includes('sms') && !name.includes('mins');
+        
+        // For local packages, require a country image
+        // For regional packages, we use our own region images so no filter needed
+        const hasValidImage = product.package_type === 'regional' || 
+          (product.country_image_url && product.country_image_url.trim() !== '');
+        
+        return hasNoSmsOrVoice && hasValidImage;
       });
       
       return filteredData;
