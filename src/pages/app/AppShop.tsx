@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { 
   Search, 
   MapPin, 
-  Loader2, 
   ShoppingCart, 
   Wifi, 
   Calendar, 
@@ -22,6 +21,7 @@ import { useCart } from '@/hooks/useCart';
 import { useHaptics } from '@/hooks/useHaptics';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { AppSpinner } from '@/components/app/AppSpinner';
 import {
   Dialog,
   DialogContent,
@@ -157,12 +157,12 @@ export const AppShop: React.FC = () => {
             <p className="text-sm text-muted-foreground">200+ countries available</p>
           </div>
           <button 
-            onClick={() => navigate('/checkout')}
-            className="relative w-12 h-12 rounded-xl bg-white/[0.05] backdrop-blur-xl border border-white/10 flex items-center justify-center hover:bg-white/[0.08] transition-all active:scale-95"
+            onClick={() => { lightTap(); navigate('/checkout'); }}
+            className="relative w-12 h-12 rounded-xl bg-white/[0.05] backdrop-blur-xl border border-white/10 flex items-center justify-center hover:bg-white/[0.08] transition-all active:scale-90"
           >
             <ShoppingCart className="w-5 h-5 text-foreground" />
             {cartItemCount > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-gradient-to-br from-primary to-primary/80 text-primary-foreground text-xs font-bold rounded-full flex items-center justify-center shadow-lg shadow-primary/40">
+              <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-gradient-to-br from-primary to-primary/80 text-primary-foreground text-xs font-bold rounded-full flex items-center justify-center shadow-lg shadow-primary/40 animate-bounce-in">
                 {cartItemCount}
               </span>
             )}
@@ -217,10 +217,7 @@ export const AppShop: React.FC = () => {
         {/* Products List */}
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-20">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center mb-4">
-              <Loader2 className="w-8 h-8 animate-spin text-primary" />
-            </div>
-            <p className="text-sm text-muted-foreground">Loading eSIM plans...</p>
+            <AppSpinner size="lg" label="Loading eSIM plans..." />
           </div>
         ) : (
           <div className="space-y-3">
@@ -228,8 +225,8 @@ export const AppShop: React.FC = () => {
               <div 
                 key={product.id}
                 onClick={() => handleProductClick(product)}
-                className="relative rounded-2xl overflow-hidden cursor-pointer active:scale-[0.98] transition-all duration-200"
-                style={{ animationDelay: `${index * 50}ms` }}
+                className="relative rounded-2xl overflow-hidden cursor-pointer active:scale-[0.97] transition-all duration-200 animate-fade-in"
+                style={{ animationDelay: `${Math.min(index, 5) * 50}ms`, animationFillMode: 'backwards' }}
               >
                 {/* Glass background */}
                 <div className="absolute inset-0 bg-white/[0.03] backdrop-blur-xl" />

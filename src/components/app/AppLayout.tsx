@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { BottomTabBar } from './BottomTabBar';
+import { PageTransition } from './PageTransition';
 import { usePlatform } from '@/hooks/usePlatform';
 
 interface AppLayoutProps {
@@ -10,9 +12,11 @@ interface AppLayoutProps {
 /**
  * Native App Layout - Used only when running as installed app
  * No header/footer, uses bottom tab navigation, handles safe areas
+ * Includes page transition animations
  */
 export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const { isNative, isIOS } = usePlatform();
+  const location = useLocation();
 
   useEffect(() => {
     // Configure status bar for native app
@@ -41,9 +45,11 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         paddingRight: 'env(safe-area-inset-right)'
       }}
     >
-      {/* Main content area */}
+      {/* Main content area with page transition */}
       <main className="flex-1 pb-20 overflow-y-auto">
-        {children}
+        <PageTransition key={location.pathname}>
+          {children}
+        </PageTransition>
       </main>
       
       {/* Bottom navigation */}

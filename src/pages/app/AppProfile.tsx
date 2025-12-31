@@ -11,7 +11,6 @@ import {
   Sparkles,
   Zap,
   TrendingUp,
-  Loader2,
   Copy,
   Share2,
   Pencil,
@@ -25,6 +24,8 @@ import {
   Plus,
   ChevronDown
 } from 'lucide-react';
+import { AppSpinner } from '@/components/app/AppSpinner';
+import { Loader2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -374,7 +375,7 @@ export const AppProfile: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <AppSpinner size="lg" label="Loading profile..." />
       </div>
     );
   }

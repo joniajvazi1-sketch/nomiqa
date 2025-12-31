@@ -55,8 +55,8 @@ export const BottomTabBar: React.FC = () => {
               key={tab.path}
               onClick={() => handleTabPress(tab.path)}
               className={cn(
-                'relative flex flex-col items-center justify-center flex-1 h-full transition-all duration-300',
-                'active:scale-90 touch-manipulation',
+                'relative flex flex-col items-center justify-center flex-1 h-full transition-all duration-200',
+                'active:scale-90 active:opacity-70 touch-manipulation',
                 active ? 'text-primary' : 'text-muted-foreground hover:text-foreground/80'
               )}
             >
