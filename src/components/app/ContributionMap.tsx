@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { MapPin } from 'lucide-react';
+import { MapPin, Loader2 } from 'lucide-react';
 
 interface ContributionMapProps {
   userPosition: [number, number] | null;
@@ -7,8 +7,23 @@ interface ContributionMapProps {
 }
 
 /**
+ * Validate coordinates are real GPS values (not 0,0 or invalid)
+ */
+const isValidCoordinate = (lat: number, lon: number): boolean => {
+  // Check for null island (0,0) which often indicates uninitialized GPS
+  if (lat === 0 && lon === 0) return false;
+  // Check valid ranges
+  if (lat < -90 || lat > 90) return false;
+  if (lon < -180 || lon > 180) return false;
+  // Check for NaN
+  if (isNaN(lat) || isNaN(lon)) return false;
+  return true;
+};
+
+/**
  * Dark-themed interactive map for Network Contribution
  * Uses dynamic import for Leaflet to avoid SSR/initialization issues
+ * Includes validation to prevent crashes from invalid coordinates
  */
 export const ContributionMap: React.FC<ContributionMapProps> = ({ 
   userPosition, 
@@ -16,14 +31,22 @@ export const ContributionMap: React.FC<ContributionMapProps> = ({
 }) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const leafletMapRef = useRef<any>(null);
+  const leafletRef = useRef<any>(null); // Store Leaflet module reference
   const markerRef = useRef<any>(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isMapReady, setIsMapReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
-  // Default center
+  // Validate user position before using
+  const validPosition = userPosition && isValidCoordinate(userPosition[0], userPosition[1]) 
+    ? userPosition 
+    : null;
+  
+  // Default center (NYC) - used when no valid position
   const defaultCenter: [number, number] = [40.7128, -74.0060];
-  const center = userPosition || defaultCenter;
+  const center = validPosition || defaultCenter;
 
+  // Initialize map once
   useEffect(() => {
     let mounted = true;
     
@@ -31,15 +54,16 @@ export const ContributionMap: React.FC<ContributionMapProps> = ({
       if (!mapRef.current || leafletMapRef.current) return;
       
       try {
-        // Dynamic import to avoid initialization issues
+        // Dynamic import to avoid initialization issues in Capacitor
         const L = await import('leaflet');
+        leafletRef.current = L;
         
         if (!mounted || !mapRef.current) return;
         
         // Create map - NO zoom controls on mobile (pinch to zoom)
         const map = L.map(mapRef.current, {
           center: center,
-          zoom: userPosition ? 15 : 3,
+          zoom: validPosition ? 15 : 3,
           zoomControl: false, // Hide +/- buttons - mobile users pinch to zoom
           scrollWheelZoom: true,
           attributionControl: false
@@ -53,8 +77,8 @@ export const ContributionMap: React.FC<ContributionMapProps> = ({
         
         leafletMapRef.current = map;
         
-        // Add marker if position exists
-        if (userPosition) {
+        // Add marker if valid position exists
+        if (validPosition) {
           const pulsingIcon = L.divIcon({
             className: 'pulsing-marker',
             html: `
@@ -65,14 +89,21 @@ export const ContributionMap: React.FC<ContributionMapProps> = ({
             iconAnchor: [10, 10]
           });
           
-          markerRef.current = L.marker(userPosition, { icon: pulsingIcon }).addTo(map);
+          markerRef.current = L.marker(validPosition, { icon: pulsingIcon }).addTo(map);
         }
         
-        // Fix map size after render
-        setTimeout(() => {
+        // Fix map size after render - use requestAnimationFrame to avoid state updates during render
+        requestAnimationFrame(() => {
+          if (!mounted) return;
           map.invalidateSize();
-          if (mounted) setIsLoaded(true);
-        }, 100);
+          // Use setTimeout to ensure we're outside the render cycle
+          setTimeout(() => {
+            if (mounted) {
+              setIsLoaded(true);
+              setIsMapReady(true);
+            }
+          }, 50);
+        });
         
       } catch (err) {
         console.error('[ContributionMap] Failed to initialize:', err);
@@ -88,22 +119,31 @@ export const ContributionMap: React.FC<ContributionMapProps> = ({
     return () => {
       mounted = false;
       if (leafletMapRef.current) {
-        leafletMapRef.current.remove();
+        try {
+          leafletMapRef.current.remove();
+        } catch (e) {
+          console.warn('[ContributionMap] Cleanup warning:', e);
+        }
         leafletMapRef.current = null;
+        markerRef.current = null;
       }
     };
   }, []);
   
-  // Update marker position when userPosition changes
+  // Update marker position when userPosition changes - only after map is ready
   useEffect(() => {
-    if (!leafletMapRef.current) return;
+    // Don't update if map isn't ready or no valid position
+    if (!isMapReady || !leafletMapRef.current || !leafletRef.current) return;
+    if (!validPosition) return;
     
-    const L = require('leaflet');
+    const L = leafletRef.current;
     
-    if (userPosition) {
+    try {
       if (markerRef.current) {
-        markerRef.current.setLatLng(userPosition);
+        // Update existing marker position
+        markerRef.current.setLatLng(validPosition);
       } else {
+        // Create new marker
         const pulsingIcon = L.divIcon({
           className: 'pulsing-marker',
           html: `
@@ -113,11 +153,15 @@ export const ContributionMap: React.FC<ContributionMapProps> = ({
           iconSize: [20, 20],
           iconAnchor: [10, 10]
         });
-        markerRef.current = L.marker(userPosition, { icon: pulsingIcon }).addTo(leafletMapRef.current);
+        markerRef.current = L.marker(validPosition, { icon: pulsingIcon }).addTo(leafletMapRef.current);
       }
-      leafletMapRef.current.setView(userPosition, 15, { animate: true });
+      
+      // Smoothly pan to new position
+      leafletMapRef.current.setView(validPosition, 15, { animate: true, duration: 0.5 });
+    } catch (err) {
+      console.error('[ContributionMap] Failed to update position:', err);
     }
-  }, [userPosition]);
+  }, [validPosition?.[0], validPosition?.[1], isMapReady]);
 
   return (
     <div className="w-full h-full" style={{ minHeight: '100vh' }}>
@@ -193,12 +237,26 @@ export const ContributionMap: React.FC<ContributionMapProps> = ({
         </div>
       )}
       
-      {/* Loading overlay */}
+      {/* Loading overlay - shows until map is loaded */}
       {!isLoaded && !error && (
         <div className="absolute inset-0 flex items-center justify-center bg-background z-20">
           <div className="text-center">
-            <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2 text-primary" />
             <p className="text-muted-foreground text-sm">Loading map...</p>
+          </div>
+        </div>
+      )}
+      
+      {/* GPS Acquiring overlay - shows when map loaded but no valid position yet */}
+      {isLoaded && !error && !validPosition && isActive && (
+        <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
+          <div className="text-center bg-background/80 backdrop-blur-sm rounded-2xl p-6 mx-4">
+            <div className="relative mx-auto w-12 h-12 mb-3">
+              <div className="absolute inset-0 border-2 border-primary/30 rounded-full animate-ping" />
+              <MapPin className="w-12 h-12 text-primary" />
+            </div>
+            <p className="text-foreground font-medium">Acquiring GPS Signal</p>
+            <p className="text-muted-foreground text-sm mt-1">Please wait for location lock...</p>
           </div>
         </div>
       )}
