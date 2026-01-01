@@ -114,6 +114,38 @@ export const useBackgroundGeolocation = (
     }
   };
 
+  /**
+   * Validate position has reasonable accuracy (not stale/invalid)
+   */
+  const isValidPosition = (position: Position): boolean => {
+    const { latitude, longitude, accuracy } = position.coords;
+    
+    // Check for null island (0,0) - often means GPS not locked
+    if (latitude === 0 && longitude === 0) {
+      console.log('[Geo] Ignoring null island position (0,0)');
+      return false;
+    }
+    
+    // Check valid coordinate ranges
+    if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
+      console.log('[Geo] Invalid coordinate range:', latitude, longitude);
+      return false;
+    }
+    
+    // Check for NaN
+    if (isNaN(latitude) || isNaN(longitude)) {
+      console.log('[Geo] NaN coordinates');
+      return false;
+    }
+    
+    // Optionally reject very inaccurate readings (> 500m accuracy)
+    if (accuracy && accuracy > 500) {
+      console.log('[Geo] Poor accuracy:', accuracy, 'm - still accepting but logging');
+    }
+    
+    return true;
+  };
+
   const startTracking = async (): Promise<boolean> => {
     // Check/request permissions first
     let hasPermission = state.hasPermission;
@@ -140,12 +172,12 @@ export const useBackgroundGeolocation = (
           },
           (position, err) => {
             if (err) {
-              console.error('Watch position error:', err);
+              console.error('[Geo] Watch position error:', err);
               setState(prev => ({ ...prev, error: err.message }));
               return;
             }
             
-            if (position) {
+            if (position && isValidPosition(position)) {
               setState(prev => ({ ...prev, lastPosition: position, error: null }));
               onPositionUpdateRef.current?.(position);
             }
@@ -171,11 +203,14 @@ export const useBackgroundGeolocation = (
               timestamp: webPosition.timestamp
             };
             
-            setState(prev => ({ ...prev, lastPosition: position, error: null }));
-            onPositionUpdateRef.current?.(position);
+            // Validate before updating state
+            if (isValidPosition(position)) {
+              setState(prev => ({ ...prev, lastPosition: position, error: null }));
+              onPositionUpdateRef.current?.(position);
+            }
           },
           (err) => {
-            console.error('Web watch position error:', err);
+            console.error('[Geo] Web watch position error:', err);
             let errorMessage = 'Location error';
             if (err.code === 1) errorMessage = 'Location permission denied';
             else if (err.code === 2) errorMessage = 'Location unavailable';
@@ -196,7 +231,7 @@ export const useBackgroundGeolocation = (
       setState(prev => ({ ...prev, isTracking: true, error: null }));
       return true;
     } catch (error) {
-      console.error('Start tracking failed:', error);
+      console.error('[Geo] Start tracking failed:', error);
       setState(prev => ({ 
         ...prev, 
         isTracking: false, 
