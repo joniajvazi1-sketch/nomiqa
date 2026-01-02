@@ -1,7 +1,5 @@
 import { lazy, Suspense, memo } from "react";
-import { Navbar } from "@/components/Navbar";
 import { Hero } from "@/components/Hero";
-import { Footer } from "@/components/Footer";
 
 // Lazy load all below-the-fold components to improve TTI
 const SupportChatbot = lazy(() => import("@/components/SupportChatbot").then(m => ({ default: m.SupportChatbot })));
@@ -26,8 +24,7 @@ LoadingSpinner.displayName = "LoadingSpinner";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
+    <>
       <Hero />
       {/* Lazy load all sections below hero for faster TTI */}
       <Suspense fallback={<LoadingSpinner />}>
@@ -43,11 +40,10 @@ const Index = () => {
         <FAQ />
         <SiteNavigation />
       </Suspense>
-      <Footer />
       <Suspense fallback={null}>
         <SupportChatbot />
       </Suspense>
-    </div>
+    </>
   );
 };
 
