@@ -285,10 +285,10 @@ export const AppHome: React.FC = () => {
             <div className="relative">
               <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-neon-cyan/30 via-primary/20 to-transparent backdrop-blur-2xl border border-neon-cyan/20 flex items-center justify-center overflow-hidden shadow-lg shadow-neon-cyan/20 hover:scale-105 transition-transform duration-300">
                 <span 
-                  className="text-[11px] font-bold text-neon-cyan tracking-[0.15em]"
+                  className="text-[8px] font-bold text-neon-cyan tracking-[0.08em]"
                   style={{ fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace' }}
                 >
-                  NQ
+                  NOMIQA
                 </span>
               </div>
               <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-neon-cyan rounded-full border-2 border-background shadow-lg shadow-neon-cyan/50 animate-pulse" />
