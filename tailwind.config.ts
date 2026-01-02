@@ -195,6 +195,30 @@ export default {
           "0%, 100%": { boxShadow: "0 0 20px hsla(180, 100%, 70%, 0.3)" },
           "50%": { boxShadow: "0 0 40px hsla(180, 100%, 70%, 0.6)" },
         },
+        "radar-sweep": {
+          "0%": { transform: "rotate(0deg)" },
+          "100%": { transform: "rotate(360deg)" },
+        },
+        "radar-blip": {
+          "0%": { opacity: "0", transform: "scale(0)" },
+          "20%": { opacity: "1", transform: "scale(1)" },
+          "100%": { opacity: "0", transform: "scale(1.5)" },
+        },
+        "celebration-bounce": {
+          "0%": { transform: "scale(0)", opacity: "0" },
+          "50%": { transform: "scale(1.15)" },
+          "70%": { transform: "scale(0.95)" },
+          "100%": { transform: "scale(1)", opacity: "1" },
+        },
+        "number-pop": {
+          "0%": { transform: "scale(1)" },
+          "50%": { transform: "scale(1.15)", color: "hsl(var(--neon-cyan))" },
+          "100%": { transform: "scale(1)" },
+        },
+        "signal-wave": {
+          "0%": { transform: "scale(1)", opacity: "1" },
+          "100%": { transform: "scale(2)", opacity: "0" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.1s ease-out",
@@ -220,6 +244,11 @@ export default {
         "stagger-in": "stagger-in 0.5s ease-out forwards",
         "count-up": "count-up 0.4s ease-out forwards",
         "glow-pulse": "glow-pulse 2s ease-in-out infinite",
+        "radar-sweep": "radar-sweep 2s linear infinite",
+        "radar-blip": "radar-blip 2s ease-out infinite",
+        "celebration-bounce": "celebration-bounce 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards",
+        "number-pop": "number-pop 0.3s ease-out",
+        "signal-wave": "signal-wave 1.5s ease-out infinite",
       },
     },
   },
