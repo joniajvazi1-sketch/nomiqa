@@ -284,7 +284,12 @@ export const AppHome: React.FC = () => {
           <div className="flex items-center gap-4">
             <div className="relative">
               <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-neon-cyan/30 via-primary/20 to-transparent backdrop-blur-2xl border border-neon-cyan/20 flex items-center justify-center overflow-hidden shadow-lg shadow-neon-cyan/20 hover:scale-105 transition-transform duration-300">
-                <img src={nomiqaLogo} alt="Nomiqa" className="w-9 h-9 object-contain" loading="eager" />
+                <span 
+                  className="text-[11px] font-bold text-neon-cyan tracking-[0.15em]"
+                  style={{ fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace' }}
+                >
+                  NQ
+                </span>
               </div>
               <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-neon-cyan rounded-full border-2 border-background shadow-lg shadow-neon-cyan/50 animate-pulse" />
             </div>
