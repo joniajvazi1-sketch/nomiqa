@@ -32,13 +32,38 @@ export const Navbar = () => {
   // Check if we're on the shop page
   const isShopPage = location.pathname.includes('/shop');
 
-  // Scroll detection for blur effect
+  // Scroll detection for blur effect - works with both window and WebLayout scroll container
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
+      // Check window scroll first
+      if (window.scrollY > 20) {
+        setScrolled(true);
+        return;
+      }
+      // Check the WebLayout scroll container (fixed div with overflow-y-auto)
+      const scrollContainer = document.querySelector('.fixed.inset-0.overflow-y-auto');
+      if (scrollContainer && scrollContainer.scrollTop > 20) {
+        setScrolled(true);
+        return;
+      }
+      setScrolled(false);
     };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    
+    // Listen to window scroll
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    
+    // Also listen to the WebLayout scroll container
+    const scrollContainer = document.querySelector('.fixed.inset-0.overflow-y-auto');
+    if (scrollContainer) {
+      scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
+    }
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (scrollContainer) {
+        scrollContainer.removeEventListener('scroll', handleScroll);
+      }
+    };
   }, []);
 
   const languages: { code: Language; name: string; flag: string }[] = [
