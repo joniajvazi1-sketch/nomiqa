@@ -179,6 +179,22 @@ export default {
           "0%, 100%": { opacity: "0.4", transform: "scale(1)" },
           "50%": { opacity: "1", transform: "scale(1.05)" },
         },
+        "ripple": {
+          "0%": { width: "0", height: "0", opacity: "0.5" },
+          "100%": { width: "500px", height: "500px", opacity: "0" },
+        },
+        "stagger-in": {
+          "0%": { opacity: "0", transform: "translateY(16px) scale(0.95)" },
+          "100%": { opacity: "1", transform: "translateY(0) scale(1)" },
+        },
+        "count-up": {
+          "0%": { opacity: "0", transform: "translateY(10px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        "glow-pulse": {
+          "0%, 100%": { boxShadow: "0 0 20px hsla(180, 100%, 70%, 0.3)" },
+          "50%": { boxShadow: "0 0 40px hsla(180, 100%, 70%, 0.6)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.1s ease-out",
@@ -200,6 +216,10 @@ export default {
         "sheet-bounce": "sheet-bounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)",
         "spin-slow": "spin-slow 2s linear infinite",
         "pulse-glow": "pulse-glow 2s ease-in-out infinite",
+        "ripple": "ripple 0.6s ease-out forwards",
+        "stagger-in": "stagger-in 0.5s ease-out forwards",
+        "count-up": "count-up 0.4s ease-out forwards",
+        "glow-pulse": "glow-pulse 2s ease-in-out infinite",
       },
     },
   },

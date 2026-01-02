@@ -14,18 +14,26 @@ import {
   Check,
   Radio,
   Database,
-  Satellite
+  Satellite,
+  Target,
+  MapPin
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useHaptics } from '@/hooks/useHaptics';
 import { supabase } from '@/integrations/supabase/client';
 import nomiqaLogo from '@/assets/nomiqa-animated-logo.gif';
 import { cn } from '@/lib/utils';
+import { MiniContributionMap } from '@/components/app/MiniContributionMap';
+import { AnimatedProgressBar } from '@/components/app/AnimatedProgressBar';
+import { RippleButton } from '@/components/app/RippleButton';
 
 interface DailyEarning {
   date: string;
   points: number;
 }
+
+// Daily goal constant (can be made dynamic later)
+const DAILY_GOAL = 500;
 
 /**
  * App Home Dashboard - DePIN Command Center
@@ -271,16 +279,16 @@ export const AppHome: React.FC = () => {
       </div>
 
       <div className="relative z-10 px-5 py-6 pb-28 space-y-6">
-        {/* Header */}
-        <header className="flex items-center justify-between">
+        {/* Header - with staggered entrance animation */}
+        <header className="flex items-center justify-between animate-stagger-in" style={{ animationFillMode: 'backwards' }}>
           <div className="flex items-center gap-4">
             <div className="relative">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-neon-cyan/30 via-primary/20 to-transparent backdrop-blur-2xl border border-neon-cyan/20 flex items-center justify-center overflow-hidden shadow-lg shadow-neon-cyan/20">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-neon-cyan/30 via-primary/20 to-transparent backdrop-blur-2xl border border-neon-cyan/20 flex items-center justify-center overflow-hidden shadow-lg shadow-neon-cyan/20 hover:scale-105 transition-transform duration-300">
                 <img src={nomiqaLogo} alt="Nomiqa" className="w-9 h-9 object-contain" loading="eager" />
               </div>
               <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-neon-cyan rounded-full border-2 border-background shadow-lg shadow-neon-cyan/50 animate-pulse" />
             </div>
-            <div>
+            <div className="animate-stagger-in" style={{ animationDelay: '100ms', animationFillMode: 'backwards' }}>
               <p className="text-muted-foreground/80 text-sm font-medium">{greeting()}</p>
               <h1 className="text-xl font-bold text-foreground tracking-tight">
                 {user?.user_metadata?.username || 'Operator'}
@@ -289,15 +297,17 @@ export const AppHome: React.FC = () => {
           </div>
           <button 
             onClick={() => { lightTap(); navigate('/app/profile'); }}
-            className="w-11 h-11 rounded-full bg-neon-cyan/[0.08] backdrop-blur-xl border border-neon-cyan/20 flex items-center justify-center hover:bg-neon-cyan/[0.12] transition-all active:scale-95"
+            className="w-11 h-11 rounded-full bg-neon-cyan/[0.08] backdrop-blur-xl border border-neon-cyan/20 flex items-center justify-center hover:bg-neon-cyan/[0.12] hover:scale-110 transition-all duration-300 active:scale-95 animate-stagger-in"
+            style={{ animationDelay: '150ms', animationFillMode: 'backwards' }}
           >
             <Satellite className="w-5 h-5 text-neon-cyan" />
           </button>
         </header>
 
-        {/* HERO: Total Points - Large & Prominent with Monospace */}
+        {/* HERO: Total Points - Large & Prominent with Monospace and entrance animation */}
         <div 
-          className="relative rounded-[28px] overflow-hidden cursor-pointer active:scale-[0.98] transition-all duration-300 group"
+          className="relative rounded-[28px] overflow-hidden cursor-pointer active:scale-[0.97] transition-all duration-300 group animate-stagger-in"
+          style={{ animationDelay: '100ms', animationFillMode: 'backwards' }}
           onClick={() => handleNavigation('/app/map')}
         >
           <div className="absolute inset-0 bg-gradient-to-br from-neon-cyan/20 via-primary/15 to-neon-cyan/5" />
@@ -314,13 +324,13 @@ export const AppHome: React.FC = () => {
             }}
           />
           
-          <div className="absolute -top-20 -right-20 w-60 h-60 bg-gradient-to-br from-neon-cyan/40 to-transparent rounded-full blur-3xl" />
-          <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-gradient-to-tr from-primary/30 to-transparent rounded-full blur-2xl" />
+          <div className="absolute -top-20 -right-20 w-60 h-60 bg-gradient-to-br from-neon-cyan/40 to-transparent rounded-full blur-3xl group-hover:scale-110 transition-transform duration-500" />
+          <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-gradient-to-tr from-primary/30 to-transparent rounded-full blur-2xl group-hover:scale-110 transition-transform duration-500" />
           
-          <div className="relative p-6 border border-neon-cyan/20 rounded-[28px]">
+          <div className="relative p-6 border border-neon-cyan/20 rounded-[28px] group-hover:border-neon-cyan/30 transition-colors">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-neon-cyan to-neon-cyan/70 flex items-center justify-center shadow-lg shadow-neon-cyan/40">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-neon-cyan to-neon-cyan/70 flex items-center justify-center shadow-lg shadow-neon-cyan/40 group-hover:scale-110 transition-transform duration-300">
                   <Zap className="w-5 h-5 text-background" />
                 </div>
                 <div>
@@ -331,13 +341,13 @@ export const AppHome: React.FC = () => {
                   </div>
                 </div>
               </div>
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-neon-cyan/[0.1] border border-neon-cyan/20 text-xs text-neon-cyan font-mono uppercase tracking-wide">
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-neon-cyan/[0.1] border border-neon-cyan/20 text-xs text-neon-cyan font-mono uppercase tracking-wide group-hover:bg-neon-cyan/[0.15] transition-colors">
                 <Radio className="w-3.5 h-3.5 animate-pulse" />
                 <span>Scan</span>
               </div>
             </div>
             
-            {/* HERO NUMBER - Large Monospace */}
+            {/* HERO NUMBER - Large Monospace with count-up animation */}
             <div ref={pointsRef} className="mb-3">
               {loading ? (
                 <div className="h-20 w-48 bg-neon-cyan/10 rounded-2xl animate-pulse relative overflow-hidden">
@@ -345,8 +355,12 @@ export const AppHome: React.FC = () => {
                 </div>
               ) : (
                 <div 
-                  className="text-[72px] font-bold text-foreground tracking-tighter leading-none"
-                  style={{ fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace' }}
+                  className="text-[72px] font-bold text-foreground tracking-tighter leading-none animate-count-up"
+                  style={{ 
+                    fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace',
+                    animationDelay: '300ms',
+                    animationFillMode: 'backwards'
+                  }}
                 >
                   {formatNumber(animatedPoints)}
                 </div>
@@ -354,15 +368,15 @@ export const AppHome: React.FC = () => {
             </div>
             
             {points?.pending_points && points.pending_points > 0 && (
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-neon-cyan/20 to-neon-cyan/10 border border-neon-cyan/20 text-neon-cyan text-sm font-mono">
-                <Sparkles className="w-4 h-4" />
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-neon-cyan/20 to-neon-cyan/10 border border-neon-cyan/20 text-neon-cyan text-sm font-mono animate-bounce-in" style={{ animationDelay: '500ms', animationFillMode: 'backwards' }}>
+                <Sparkles className="w-4 h-4 animate-pulse" />
                 <span>+{formatNumber(points.pending_points)} pending</span>
               </div>
             )}
           </div>
         </div>
 
-        {/* Stats Grid - DePIN Metrics */}
+        {/* Stats Grid - DePIN Metrics with staggered animations */}
         <div className="grid grid-cols-3 gap-3">
           {[
             { 
@@ -389,19 +403,26 @@ export const AppHome: React.FC = () => {
           ].map((stat, i) => (
             <div 
               key={stat.label}
-              className="rounded-2xl bg-white/[0.03] backdrop-blur-2xl border border-white/[0.08] p-4 text-center hover:bg-white/[0.05] transition-all duration-300 animate-fade-in active:scale-95"
-              style={{ animationDelay: `${i * 100 + 200}ms`, animationFillMode: 'backwards' }}
+              className="rounded-2xl bg-white/[0.03] backdrop-blur-2xl border border-white/[0.08] p-4 text-center hover:bg-white/[0.05] transition-all duration-300 active:scale-95 animate-stagger-in"
+              style={{ 
+                animationDelay: `${i * 100 + 200}ms`, 
+                animationFillMode: 'backwards'
+              }}
             >
               <div className={cn(
-                'w-11 h-11 mx-auto mb-3 rounded-xl bg-gradient-to-br flex items-center justify-center',
+                'w-11 h-11 mx-auto mb-3 rounded-xl bg-gradient-to-br flex items-center justify-center transition-transform duration-300 hover:scale-110',
                 stat.color
               )}>
                 <stat.icon className={cn('w-5 h-5', stat.iconColor)} />
               </div>
               {/* Monospace numbers for dashboard feel */}
               <div 
-                className="text-lg font-bold text-foreground mb-0.5"
-                style={{ fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace' }}
+                className="text-lg font-bold text-foreground mb-0.5 animate-count-up"
+                style={{ 
+                  fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace',
+                  animationDelay: `${i * 100 + 400}ms`,
+                  animationFillMode: 'backwards'
+                }}
               >
                 {stat.value}
               </div>
@@ -410,9 +431,68 @@ export const AppHome: React.FC = () => {
           ))}
         </div>
 
-        {/* PRIMARY CTA: Activate Network Scanner - Large Action Card with Pulse */}
+        {/* Daily Goal Progress */}
+        <div className="space-y-3 animate-stagger-in" style={{ animationDelay: '500ms', animationFillMode: 'backwards' }}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Target className="w-4 h-4 text-neon-cyan" />
+              <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider font-mono">Daily Goal</span>
+            </div>
+            <span 
+              className="text-xs text-muted-foreground font-mono"
+              style={{ fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace' }}
+            >
+              {formatNumber(todayPoints)} / {formatNumber(DAILY_GOAL)}
+            </span>
+          </div>
+          <AnimatedProgressBar 
+            value={todayPoints} 
+            max={DAILY_GOAL}
+            showPercentage={false}
+            delay={600}
+          />
+          {todayPoints >= DAILY_GOAL && (
+            <div className="flex items-center justify-center gap-2 text-neon-cyan text-sm font-semibold animate-bounce-in">
+              <Trophy className="w-4 h-4" />
+              <span>Daily Goal Achieved!</span>
+            </div>
+          )}
+        </div>
+
+        {/* Mini Map Preview Card */}
         <div 
-          className="relative rounded-[24px] overflow-hidden cursor-pointer active:scale-[0.98] transition-all duration-300 group"
+          className="relative rounded-2xl overflow-hidden cursor-pointer active:scale-[0.98] transition-all duration-300 group animate-stagger-in"
+          style={{ animationDelay: '600ms', animationFillMode: 'backwards' }}
+          onClick={() => handleNavigation('/app/map')}
+        >
+          <div className="absolute inset-0 bg-white/[0.03] backdrop-blur-xl" />
+          <div className="relative p-4 border border-white/[0.08] rounded-2xl">
+            <div className="flex items-center gap-4">
+              <MiniContributionMap 
+                className="w-[100px] h-[60px] rounded-lg border border-neon-cyan/20"
+                contributionPoints={points?.total_points || 0}
+              />
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <MapPin className="w-4 h-4 text-neon-cyan" />
+                  <span className="text-sm font-semibold text-foreground">Contribution Map</span>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {dataPointsCount > 0 
+                    ? `${formatNumber(dataPointsCount)} data points collected`
+                    : 'Start scanning to see your coverage'
+                  }
+                </p>
+              </div>
+              <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:translate-x-1 group-hover:text-neon-cyan transition-all" />
+            </div>
+          </div>
+        </div>
+
+        {/* PRIMARY CTA: Activate Network Scanner - Enhanced with glow pulse */}
+        <div 
+          className="relative rounded-[24px] overflow-hidden cursor-pointer active:scale-[0.97] transition-all duration-300 group animate-stagger-in animate-glow-pulse"
+          style={{ animationDelay: '700ms', animationFillMode: 'backwards' }}
           onClick={() => handleNavigation('/app/map')}
         >
           {/* Pulsing background effect */}
@@ -447,9 +527,9 @@ export const AppHome: React.FC = () => {
           
           <div className="relative p-6 border border-neon-cyan/30 rounded-[24px]">
             <div className="flex items-center gap-5">
-              {/* Large pulsing icon */}
+              {/* Large pulsing icon with enhanced animation */}
               <div className="relative">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-neon-cyan to-neon-cyan/80 flex items-center justify-center shadow-2xl shadow-neon-cyan/50">
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-neon-cyan to-neon-cyan/80 flex items-center justify-center shadow-2xl shadow-neon-cyan/50 group-hover:scale-110 transition-transform duration-300">
                   <Signal className="w-8 h-8 text-background" />
                 </div>
                 {/* Pulse rings around icon */}
@@ -457,11 +537,15 @@ export const AppHome: React.FC = () => {
                   className="absolute inset-0 rounded-2xl border-2 border-neon-cyan/50"
                   style={{ animation: 'sonar-ping 2s ease-out infinite' }}
                 />
+                <div 
+                  className="absolute inset-0 rounded-2xl border-2 border-neon-cyan/30"
+                  style={{ animation: 'sonar-ping 2s ease-out infinite 0.5s' }}
+                />
               </div>
               
               <div className="flex-1">
                 <div 
-                  className="font-bold text-xl text-foreground mb-1"
+                  className="font-bold text-xl text-foreground mb-1 group-hover:text-neon-cyan transition-colors"
                   style={{ fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace' }}
                 >
                   ACTIVATE SCANNER
@@ -471,34 +555,46 @@ export const AppHome: React.FC = () => {
                 </div>
               </div>
               
-              <ChevronRight className="w-7 h-7 text-neon-cyan group-hover:translate-x-1 transition-transform" />
+              <div className="relative">
+                <ChevronRight className="w-7 h-7 text-neon-cyan group-hover:translate-x-2 transition-transform duration-300" />
+                {/* Arrow glow on hover */}
+                <div className="absolute inset-0 bg-neon-cyan/20 blur-lg opacity-0 group-hover:opacity-100 transition-opacity" />
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Secondary: Buy eSIM */}
-        <Button 
-          onClick={() => handleNavigation('/app/shop')}
-          variant="ghost"
-          className="w-full h-16 rounded-2xl bg-white/[0.03] backdrop-blur-2xl border border-white/[0.08] hover:bg-white/[0.06] hover:border-white/[0.15] group transition-all duration-300"
+        {/* Secondary: Buy eSIM - Enhanced with stagger animation */}
+        <div 
+          className="animate-stagger-in"
+          style={{ animationDelay: '800ms', animationFillMode: 'backwards' }}
         >
-          <div className="flex items-center justify-between w-full px-1">
-            <div className="flex items-center gap-4">
-              <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary/25 to-primary/5 flex items-center justify-center">
-                <ShoppingBag className="w-5 h-5 text-primary" />
+          <Button 
+            onClick={() => handleNavigation('/app/shop')}
+            variant="ghost"
+            className="w-full h-16 rounded-2xl bg-white/[0.03] backdrop-blur-2xl border border-white/[0.08] hover:bg-white/[0.06] hover:border-white/[0.15] group transition-all duration-300 active:scale-[0.98]"
+          >
+            <div className="flex items-center justify-between w-full px-1">
+              <div className="flex items-center gap-4">
+                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary/25 to-primary/5 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <ShoppingBag className="w-5 h-5 text-primary" />
+                </div>
+                <div className="text-left">
+                  <div className="font-semibold text-foreground group-hover:text-primary transition-colors">Buy eSIM</div>
+                  <div className="text-xs text-muted-foreground">200+ countries covered</div>
+                </div>
               </div>
-              <div className="text-left">
-                <div className="font-semibold text-foreground">Buy eSIM</div>
-                <div className="text-xs text-muted-foreground">200+ countries covered</div>
-              </div>
+              <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:translate-x-2 group-hover:text-primary transition-all duration-300" />
             </div>
-            <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:translate-x-1 group-hover:text-foreground transition-all" />
-          </div>
-        </Button>
+          </Button>
+        </div>
 
-        {/* Network Status Pill */}
-        <div className="flex items-center justify-center gap-2 py-2">
-          <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-neon-cyan/[0.05] backdrop-blur-xl border border-neon-cyan/20">
+        {/* Network Status Pill - Animated entrance */}
+        <div 
+          className="flex items-center justify-center gap-2 py-2 animate-stagger-in"
+          style={{ animationDelay: '900ms', animationFillMode: 'backwards' }}
+        >
+          <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-neon-cyan/[0.05] backdrop-blur-xl border border-neon-cyan/20 hover:bg-neon-cyan/[0.08] transition-all cursor-default">
             <Radio className="w-4 h-4 text-neon-cyan animate-pulse" />
             <span 
               className="text-sm text-neon-cyan font-medium"
@@ -512,8 +608,8 @@ export const AppHome: React.FC = () => {
 
         {/* Conditional: How It Works OR Earnings Velocity */}
         {showHowItWorks ? (
-          /* How It Works Section - DePIN focused */
-          <div className="space-y-4">
+          /* How It Works Section - DePIN focused with staggered step animations */
+          <div className="space-y-4 animate-stagger-in" style={{ animationDelay: '1000ms', animationFillMode: 'backwards' }}>
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider font-mono">PROTOCOL</h2>
               <Globe className="w-4 h-4 text-neon-cyan/50" />
@@ -524,13 +620,14 @@ export const AppHome: React.FC = () => {
                 { step: 1, title: 'Scan cellular networks', desc: 'Drive or travel with the app active', gradient: 'from-neon-cyan/20 to-neon-cyan/5' },
                 { step: 2, title: 'Collect network data', desc: 'Signal strength, coverage, speeds', gradient: 'from-primary/20 to-primary/5' },
                 { step: 3, title: 'Earn $NOMIQA tokens', desc: 'Redeem when token launches', gradient: 'from-violet-500/20 to-violet-500/5' }
-              ].map((item) => (
+              ].map((item, i) => (
                 <div 
                   key={item.step}
-                  className="flex items-center gap-4 p-4 rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] hover:bg-white/[0.05] transition-all duration-300"
+                  className="flex items-center gap-4 p-4 rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] hover:bg-white/[0.05] hover:border-white/[0.12] transition-all duration-300 cursor-pointer active:scale-[0.98] animate-stagger-in"
+                  style={{ animationDelay: `${1100 + i * 100}ms`, animationFillMode: 'backwards' }}
                 >
                   <div className={cn(
-                    'w-11 h-11 rounded-xl bg-gradient-to-br flex items-center justify-center font-mono font-bold text-neon-cyan',
+                    'w-11 h-11 rounded-xl bg-gradient-to-br flex items-center justify-center font-mono font-bold text-neon-cyan transition-transform duration-300 hover:scale-110',
                     item.gradient
                   )}>
                     {item.step}
@@ -543,25 +640,26 @@ export const AppHome: React.FC = () => {
               ))}
             </div>
 
-            {/* I Understand Button */}
-            <Button
+            {/* I Understand Button - Enhanced with ripple-like feedback */}
+            <RippleButton
               onClick={handleDismissHowItWorks}
-              variant="ghost"
-              className="w-full h-12 rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] hover:bg-white/[0.06] text-muted-foreground hover:text-foreground transition-all font-mono"
+              variant="secondary"
+              hapticStyle="medium"
+              className="w-full h-12 rounded-2xl font-mono"
             >
               <Check className="w-4 h-4 mr-2" />
               UNDERSTOOD — SHOW STATS
-            </Button>
+            </RippleButton>
           </div>
         ) : (
-          /* Earnings Velocity Card */
-          <div className="space-y-4">
+          /* Earnings Velocity Card - with entrance animation */
+          <div className="space-y-4 animate-stagger-in" style={{ animationDelay: '1000ms', animationFillMode: 'backwards' }}>
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider font-mono">EARNINGS VELOCITY</h2>
-              <TrendingUp className="w-4 h-4 text-neon-cyan" />
+              <TrendingUp className="w-4 h-4 text-neon-cyan animate-pulse" />
             </div>
             
-            <div className="relative rounded-2xl overflow-hidden">
+            <div className="relative rounded-2xl overflow-hidden hover:scale-[1.01] transition-transform duration-300">
               <div className="absolute inset-0 bg-white/[0.03] backdrop-blur-xl" />
               
               <div className="relative p-5 border border-white/[0.08] rounded-2xl">

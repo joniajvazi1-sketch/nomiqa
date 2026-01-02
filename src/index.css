@@ -284,6 +284,18 @@ All colors MUST be HSL.
   .animate-sonar {
     animation: sonar-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
   }
+
+  /* Scanline animation for map/scanner effects */
+  @keyframes scanline {
+    0% { background-position: 0% 0%; }
+    100% { background-position: 0% 100%; }
+  }
+
+  /* Shimmer animation for loading states */
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
 }
 
 @layer utilities {
