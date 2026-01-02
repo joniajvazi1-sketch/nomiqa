@@ -43,6 +43,7 @@ export const AppHome: React.FC = () => {
   const navigate = useNavigate();
   const { mediumTap, lightTap, success } = useHaptics();
   const [user, setUser] = useState<any>(null);
+  const [username, setUsername] = useState<string | null>(null);
   const [points, setPoints] = useState<{
     total_points: number;
     pending_points: number;
@@ -69,6 +70,17 @@ export const AppHome: React.FC = () => {
         setUser(currentUser);
 
         if (currentUser) {
+          // Fetch profile username
+          const { data: profileData } = await supabase
+            .from('profiles')
+            .select('username')
+            .eq('user_id', currentUser.id)
+            .single();
+          
+          if (profileData?.username) {
+            setUsername(profileData.username);
+          }
+
           const { data: pointsData } = await supabase
             .from('user_points')
             .select('*')
@@ -296,7 +308,7 @@ export const AppHome: React.FC = () => {
             <div className="animate-stagger-in" style={{ animationDelay: '100ms', animationFillMode: 'backwards' }}>
               <p className="text-muted-foreground/80 text-sm font-medium">{greeting()}</p>
               <h1 className="text-xl font-bold text-foreground tracking-tight">
-                {user?.user_metadata?.username || 'Operator'}
+                {username || 'Operator'}
               </h1>
             </div>
           </div>
