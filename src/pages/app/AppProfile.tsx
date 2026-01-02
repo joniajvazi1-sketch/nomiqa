@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   User,
@@ -20,7 +20,10 @@ import {
   UserPlus,
   CheckCircle2,
   Plus,
-  ChevronRight
+  ChevronRight,
+  Wallet,
+  MapPin,
+  Activity
 } from 'lucide-react';
 import { AppSpinner } from '@/components/app/AppSpinner';
 import { Loader2 } from 'lucide-react';
@@ -35,6 +38,11 @@ import { useNativeShare } from '@/hooks/useNativeShare';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { WeeklyContributionChart } from '@/components/app/WeeklyContributionChart';
+import { AnimatedAvatar } from '@/components/app/AnimatedAvatar';
+import { AnimatedStatCard } from '@/components/app/AnimatedStatCard';
+import { AnimatedCounter } from '@/components/app/AnimatedCounter';
+import { AnimatedProgressBar } from '@/components/app/AnimatedProgressBar';
 
 interface UserProfile {
   username: string;
@@ -100,8 +108,20 @@ export const AppProfile: React.FC = () => {
   const [creatingAffiliate, setCreatingAffiliate] = useState(false);
   const [showNewLinkInput, setShowNewLinkInput] = useState(false);
   const [newLinkUsername, setNewLinkUsername] = useState('');
+  const [userPoints, setUserPoints] = useState<{ total_points: number; total_distance_meters: number } | null>(null);
+  const [activeTab, setActiveTab] = useState('account');
 
   const selectedAffiliate = allAffiliates.find(a => a.id === selectedAffiliateId) || allAffiliates[0];
+
+  // Generate mock weekly contribution data based on user points
+  const weeklyData = useMemo(() => {
+    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const baseValue = userPoints?.total_points ? Math.floor(userPoints.total_points / 30) : 10;
+    return days.map((day, i) => ({
+      day,
+      value: Math.floor(baseValue * (0.5 + Math.random() * 1.2) * (i === 6 ? 1.5 : 1))
+    }));
+  }, [userPoints]);
 
   useEffect(() => {
     loadData();
@@ -143,6 +163,14 @@ export const AppProfile: React.FC = () => {
           membershipData = newMembership;
         }
         setMembership(membershipData);
+
+        // Load user points for stats
+        const { data: pointsData } = await supabase
+          .from('user_points')
+          .select('total_points, total_distance_meters')
+          .eq('user_id', currentUser.id)
+          .maybeSingle();
+        setUserPoints(pointsData);
 
         // Load all affiliates for this user
         const { data: affiliatesData } = await supabase
@@ -385,40 +413,101 @@ export const AppProfile: React.FC = () => {
 
   return (
     <div className="px-4 py-6 space-y-6 pb-24">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Profile</h1>
-          <p className="text-sm text-muted-foreground">Your account & rewards</p>
+      {/* Header with Animated Avatar */}
+      <div className="flex items-center gap-4">
+        <AnimatedAvatar
+          initial={profile?.username?.charAt(0) || 'U'}
+          tier={(membership?.membership_tier || 'beginner') as 'beginner' | 'traveler' | 'adventurer' | 'explorer'}
+        />
+        <div className="flex-1">
+          <h1 className="text-xl font-bold text-foreground">{profile?.username || 'User'}</h1>
+          <p className="text-sm text-muted-foreground">{profile?.email}</p>
+          <div className="flex items-center gap-2 mt-1">
+            <Badge variant="outline" className={cn('text-xs capitalize', tierConfig.color)}>
+              <TierIcon className="w-3 h-3 mr-1" />
+              {membership?.membership_tier || 'Beginner'}
+            </Badge>
+          </div>
         </div>
-        <Button variant="ghost" size="icon" onClick={handleLogout}>
+        <Button variant="ghost" size="icon" onClick={handleLogout} className="active:scale-95 transition-transform">
           <LogOut className="w-5 h-5" />
         </Button>
       </div>
 
+      {/* Quick Stats Cards */}
+      <div className="grid grid-cols-2 gap-3">
+        <AnimatedStatCard
+          icon={Wallet}
+          iconColor="text-green-500"
+          iconBg="bg-green-500/20"
+          label="Total Cashback"
+          value={totalCashbackEarned}
+          prefix="$"
+          decimals={2}
+          delay={0}
+        />
+        <AnimatedStatCard
+          icon={Activity}
+          iconColor="text-neon-cyan"
+          iconBg="bg-neon-cyan/20"
+          label="Data Points"
+          value={userPoints?.total_points || 0}
+          delay={100}
+        />
+      </div>
+
+      {/* Weekly Contribution Chart */}
+      <Card className="bg-card/50 border-border/50 overflow-hidden">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-semibold text-foreground">Weekly Activity</h3>
+            <Badge variant="outline" className="text-xs text-primary border-primary/30">
+              This Week
+            </Badge>
+          </div>
+          <WeeklyContributionChart data={weeklyData} animated />
+        </CardContent>
+      </Card>
+
       {/* Tabs */}
-      <Tabs defaultValue="account" className="w-full">
-        <TabsList className="grid w-full grid-cols-4 h-auto p-1 bg-card/50 border border-border/50">
-          <TabsTrigger value="account" className="flex flex-col items-center gap-1 py-2 text-[10px]">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-4 h-auto p-1 bg-card/50 border border-border/50 backdrop-blur-sm">
+          <TabsTrigger 
+            value="account" 
+            className="flex flex-col items-center gap-1 py-2 text-[10px] transition-all data-[state=active]:animate-stat-pop"
+            onClick={() => lightTap()}
+          >
             <User className="w-4 h-4" />
             Account
           </TabsTrigger>
-          <TabsTrigger value="membership" className="flex flex-col items-center gap-1 py-2 text-[10px]">
+          <TabsTrigger 
+            value="membership" 
+            className="flex flex-col items-center gap-1 py-2 text-[10px] transition-all data-[state=active]:animate-stat-pop"
+            onClick={() => lightTap()}
+          >
             <Award className="w-4 h-4" />
             Tier
           </TabsTrigger>
-          <TabsTrigger value="orders" className="flex flex-col items-center gap-1 py-2 text-[10px]">
+          <TabsTrigger 
+            value="orders" 
+            className="flex flex-col items-center gap-1 py-2 text-[10px] transition-all data-[state=active]:animate-stat-pop"
+            onClick={() => lightTap()}
+          >
             <Package className="w-4 h-4" />
             eSIMs
           </TabsTrigger>
-          <TabsTrigger value="earn" className="flex flex-col items-center gap-1 py-2 text-[10px]">
+          <TabsTrigger 
+            value="earn" 
+            className="flex flex-col items-center gap-1 py-2 text-[10px] transition-all data-[state=active]:animate-stat-pop"
+            onClick={() => lightTap()}
+          >
             <Gift className="w-4 h-4" />
             Earn
           </TabsTrigger>
         </TabsList>
 
         {/* Account Tab */}
-        <TabsContent value="account" className="mt-4 space-y-4">
+        <TabsContent value="account" className="mt-4 space-y-4 animate-tab-content-in">
           <Card className="bg-card/50 border-border/50">
             <CardContent className="p-4 space-y-4">
               <div>
@@ -431,17 +520,17 @@ export const AppProfile: React.FC = () => {
                       className="text-lg font-semibold bg-background/50"
                       autoFocus
                     />
-                    <Button size="icon" variant="ghost" onClick={handleSaveUsername} disabled={savingUsername}>
+                    <Button size="icon" variant="ghost" onClick={handleSaveUsername} disabled={savingUsername} className="active:scale-95">
                       {savingUsername ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4 text-green-500" />}
                     </Button>
-                    <Button size="icon" variant="ghost" onClick={() => { setIsEditingUsername(false); setEditedUsername(profile?.username || ''); }}>
+                    <Button size="icon" variant="ghost" onClick={() => { setIsEditingUsername(false); setEditedUsername(profile?.username || ''); }} className="active:scale-95">
                       <X className="w-4 h-4 text-red-500" />
                     </Button>
                   </div>
                 ) : (
                   <div className="flex items-center gap-2">
                     <p className="text-lg font-semibold text-foreground">{profile?.username}</p>
-                    <Button size="icon" variant="ghost" onClick={() => setIsEditingUsername(true)} className="w-6 h-6">
+                    <Button size="icon" variant="ghost" onClick={() => setIsEditingUsername(true)} className="w-6 h-6 active:scale-95">
                       <Pencil className="w-3 h-3 text-muted-foreground" />
                     </Button>
                   </div>
@@ -456,11 +545,11 @@ export const AppProfile: React.FC = () => {
         </TabsContent>
 
         {/* Membership Tab */}
-        <TabsContent value="membership" className="mt-4 space-y-4">
-          <Card className={cn('border-0 overflow-hidden', tierConfig.bg)}>
+        <TabsContent value="membership" className="mt-4 space-y-4 animate-tab-content-in">
+          <Card className={cn('border-0 overflow-hidden animate-stat-pop', tierConfig.bg)}>
             <CardContent className="p-4">
               <div className="flex items-center gap-3 mb-3">
-                <div className={cn('p-2 rounded-full', tierConfig.bg)}>
+                <div className={cn('p-2 rounded-full', tierConfig.bg, 'animate-pulse-glow')}>
                   <TierIcon className={cn('w-6 h-6', tierConfig.color)} />
                 </div>
                 <div>
@@ -471,24 +560,28 @@ export const AppProfile: React.FC = () => {
               
               <div className="bg-background/50 rounded-lg p-3 mb-3">
                 <p className="text-xs text-muted-foreground mb-1">Total Cashback Earned</p>
-                <p className="text-2xl font-bold text-primary">${totalCashbackEarned.toFixed(2)}</p>
+                <p className="text-2xl font-bold text-primary tabular-nums">
+                  $<AnimatedCounter value={totalCashbackEarned} decimals={2} duration={1500} />
+                </p>
               </div>
 
               {nextTier && (
                 <div className="space-y-2">
                   <div className="flex justify-between text-xs">
                     <span className="text-muted-foreground">Progress to {nextTier.name}</span>
-                    <span className="font-medium">{Math.round(nextTier.progress)}%</span>
+                    <span className="font-medium tabular-nums">{Math.round(nextTier.progress)}%</span>
                   </div>
-                  <div className="h-2 bg-background/50 rounded-full overflow-hidden">
-                    <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${nextTier.progress}%` }} />
-                  </div>
+                  <AnimatedProgressBar 
+                    value={membership?.total_spent_usd || 0} 
+                    max={nextTier.threshold} 
+                    showPercentage={false}
+                  />
                   <p className="text-xs text-muted-foreground">${nextTier.remaining.toFixed(2)} more to unlock</p>
                 </div>
               )}
 
               {!nextTier && (
-                <div className="flex items-center gap-2 text-sm">
+                <div className="flex items-center gap-2 text-sm animate-pulse">
                   <Crown className="w-4 h-4 text-primary" />
                   <span>Highest tier reached!</span>
                 </div>
@@ -496,14 +589,16 @@ export const AppProfile: React.FC = () => {
             </CardContent>
           </Card>
 
-          <Card className="bg-card/50 border-border/50">
+          <Card className="bg-card/50 border-border/50" style={{ animationDelay: '100ms' }}>
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs text-muted-foreground">Lifetime Spending</p>
-                  <p className="text-xl font-bold text-foreground">${membership?.total_spent_usd.toFixed(2)}</p>
+                  <p className="text-xl font-bold text-foreground tabular-nums">
+                    $<AnimatedCounter value={membership?.total_spent_usd || 0} decimals={2} duration={1200} />
+                  </p>
                 </div>
-                <Button variant="ghost" size="sm" onClick={loadData}>
+                <Button variant="ghost" size="sm" onClick={loadData} className="active:scale-95 transition-transform">
                   <RefreshCw className="w-4 h-4" />
                 </Button>
               </div>
@@ -512,17 +607,17 @@ export const AppProfile: React.FC = () => {
         </TabsContent>
 
         {/* Orders Tab */}
-        <TabsContent value="orders" className="mt-4 space-y-3">
+        <TabsContent value="orders" className="mt-4 space-y-3 animate-tab-content-in">
           {orders.length === 0 ? (
-            <Card className="bg-card/50 border-border/50 border-dashed">
+            <Card className="bg-card/50 border-border/50 border-dashed animate-fade-in">
               <CardContent className="p-6 text-center">
-                <Package className="w-10 h-10 mx-auto mb-3 text-muted-foreground/50" />
+                <Package className="w-10 h-10 mx-auto mb-3 text-muted-foreground/50 animate-bounce-slow" />
                 <p className="text-muted-foreground text-sm mb-3">No eSIMs yet</p>
-                <Button onClick={() => navigate('/app/shop')}>Browse Plans</Button>
+                <Button onClick={() => navigate('/app/shop')} className="active:scale-95 transition-transform">Browse Plans</Button>
               </CardContent>
             </Card>
           ) : (
-            orders.map((order) => {
+            orders.map((order, index) => {
               // Format status for display
               const getStatusDisplay = (status: string) => {
                 switch (status) {
@@ -546,7 +641,11 @@ export const AppProfile: React.FC = () => {
               const statusDisplay = getStatusDisplay(order.status);
               
               return (
-                <Card key={order.id} className="bg-card/50 border-border/50">
+                <Card 
+                  key={order.id} 
+                  className="bg-card/50 border-border/50 animate-stagger-in"
+                  style={{ animationDelay: `${index * 80}ms` }}
+                >
                   <CardContent className="p-3">
                     <div className="flex items-center justify-between">
                       <div>
@@ -568,30 +667,30 @@ export const AppProfile: React.FC = () => {
         </TabsContent>
 
         {/* Earn Tab - iOS Style Layout */}
-        <TabsContent value="earn" className="mt-4 space-y-4">
+        <TabsContent value="earn" className="mt-4 space-y-4 animate-tab-content-in">
           {allAffiliates.length > 0 && selectedAffiliate ? (
             <>
-              {/* Centered Avatar & Name */}
+              {/* Centered Avatar & Name - Using Animated Avatar */}
               <div className="flex flex-col items-center py-4">
-                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center mb-3 border-2 border-primary/30">
-                  <span className="text-3xl font-bold text-primary">
-                    {(selectedAffiliate.username || selectedAffiliate.affiliate_code).charAt(0).toUpperCase()}
-                  </span>
-                </div>
-                <h2 className="text-xl font-bold text-foreground">
+                <AnimatedAvatar
+                  initial={(selectedAffiliate.username || selectedAffiliate.affiliate_code).charAt(0)}
+                  tier="adventurer"
+                  className="mb-3"
+                />
+                <h2 className="text-xl font-bold text-foreground animate-fade-in">
                   {selectedAffiliate.username || selectedAffiliate.affiliate_code}
                 </h2>
-                <Badge variant="outline" className="mt-1 text-xs">
+                <Badge variant="outline" className="mt-1 text-xs animate-stat-pop" style={{ animationDelay: '200ms' }}>
                   {affiliateTierInfo?.currentTier.name || 'Recruit'}
                 </Badge>
               </div>
 
               {/* Total Earnings - Large & Distinct */}
-              <Card className="bg-gradient-to-br from-green-500/20 to-green-600/10 border-green-500/30">
+              <Card className="bg-gradient-to-br from-green-500/20 to-green-600/10 border-green-500/30 animate-stat-pop">
                 <CardContent className="p-6 text-center">
                   <p className="text-sm text-muted-foreground mb-1">Total Earnings</p>
-                  <p className="text-4xl font-bold text-green-500">
-                    ${(selectedAffiliate.total_earnings_usd || 0).toFixed(2)}
+                  <p className="text-4xl font-bold text-green-500 tabular-nums">
+                    $<AnimatedCounter value={selectedAffiliate.total_earnings_usd || 0} decimals={2} duration={1800} />
                   </p>
                   <p className="text-xs text-muted-foreground mt-1">USDC</p>
                 </CardContent>
@@ -601,47 +700,53 @@ export const AppProfile: React.FC = () => {
               <Button 
                 onClick={handleShare} 
                 size="xl" 
-                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-6 text-base"
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-6 text-base active:scale-95 transition-transform"
               >
                 <Share2 className="w-5 h-5 mr-2" />
                 Invite Friend
               </Button>
 
-              {/* Stats Overview Card */}
-              <Card className="bg-card/50 border-border/50">
+              {/* Stats Overview Card with Animated Numbers */}
+              <Card className="bg-card/50 border-border/50 overflow-hidden">
                 <CardContent className="p-0">
                   <div className="p-4 border-b border-border/50">
                     <p className="text-sm font-semibold text-foreground">Stats Overview</p>
                   </div>
                   <div className="divide-y divide-border/50">
-                    <div className="flex items-center justify-between p-4">
+                    <div className="flex items-center justify-between p-4 animate-stagger-in" style={{ animationDelay: '100ms' }}>
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center">
                           <UserPlus className="w-4 h-4 text-blue-500" />
                         </div>
                         <span className="text-sm text-foreground">Registrations</span>
                       </div>
-                      <span className="text-lg font-semibold text-foreground">{selectedAffiliate.total_registrations || 0}</span>
+                      <span className="text-lg font-semibold text-foreground tabular-nums">
+                        <AnimatedCounter value={selectedAffiliate.total_registrations || 0} duration={1200} />
+                      </span>
                     </div>
-                    <div className="flex items-center justify-between p-4">
+                    <div className="flex items-center justify-between p-4 animate-stagger-in" style={{ animationDelay: '200ms' }}>
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
                           <TrendingUp className="w-4 h-4 text-green-500" />
                         </div>
                         <span className="text-sm text-foreground">Recruits</span>
                       </div>
-                      <span className="text-lg font-semibold text-foreground">{selectedAffiliate.total_conversions || 0}</span>
+                      <span className="text-lg font-semibold text-foreground tabular-nums">
+                        <AnimatedCounter value={selectedAffiliate.total_conversions || 0} duration={1200} />
+                      </span>
                     </div>
-                    <div className="flex items-center justify-between p-4">
+                    <div className="flex items-center justify-between p-4 animate-stagger-in" style={{ animationDelay: '300ms' }}>
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center">
+                        <div className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center animate-pulse-glow">
                           <Zap className="w-4 h-4 text-amber-500" />
                         </div>
                         <span className="text-sm text-foreground">Mining Boost</span>
                       </div>
-                      <span className="text-lg font-semibold text-amber-500">+{selectedAffiliate.miner_boost_percentage || 0}%</span>
+                      <span className="text-lg font-semibold text-amber-500 tabular-nums">
+                        +<AnimatedCounter value={selectedAffiliate.miner_boost_percentage || 0} duration={1500} />%
+                      </span>
                     </div>
-                    <div className="flex items-center justify-between p-4">
+                    <div className="flex items-center justify-between p-4 animate-stagger-in" style={{ animationDelay: '400ms' }}>
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center">
                           <Award className="w-4 h-4 text-purple-500" />
@@ -654,13 +759,13 @@ export const AppProfile: React.FC = () => {
                 </CardContent>
               </Card>
 
-              {/* iOS Settings-Style List Items */}
-              <Card className="bg-card/50 border-border/50">
+              {/* iOS Settings-Style List Items with Transitions */}
+              <Card className="bg-card/50 border-border/50 animate-stagger-in" style={{ animationDelay: '500ms' }}>
                 <CardContent className="p-0">
                   {/* Team Control */}
                   {allAffiliates.length > 1 && (
                     <div 
-                      className="flex items-center justify-between p-4 border-b border-border/50 active:bg-muted/50 transition-colors cursor-pointer"
+                      className="flex items-center justify-between p-4 border-b border-border/50 active:bg-muted/50 active:scale-[0.98] transition-all cursor-pointer"
                       onClick={() => {
                         lightTap();
                         // Cycle through affiliates
@@ -678,7 +783,7 @@ export const AppProfile: React.FC = () => {
                           <p className="text-xs text-muted-foreground">{selectedAffiliate.username || selectedAffiliate.affiliate_code}</p>
                         </div>
                       </div>
-                      <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                      <ChevronRight className="w-5 h-5 text-muted-foreground transition-transform group-active:translate-x-1" />
                     </div>
                   )}
 
@@ -708,7 +813,7 @@ export const AppProfile: React.FC = () => {
                   {/* Add New Link */}
                   {allAffiliates.length < 3 && (
                     <div 
-                      className="flex items-center justify-between p-4 active:bg-muted/50 transition-colors cursor-pointer"
+                      className="flex items-center justify-between p-4 active:bg-muted/50 active:scale-[0.98] transition-all cursor-pointer"
                       onClick={() => {
                         lightTap();
                         setShowNewLinkInput(true);
