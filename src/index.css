@@ -296,6 +296,22 @@ All colors MUST be HSL.
     0% { transform: translateX(-100%); }
     100% { transform: translateX(100%); }
   }
+
+  /* Error feedback utility classes */
+  .animate-error-shake {
+    animation: error-shake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+  }
+
+  .error-highlight {
+    box-shadow: 0 0 0 2px hsl(0 75% 55% / 0.5), 0 0 16px hsl(0 75% 55% / 0.3);
+    border-color: hsl(0 75% 55%) !important;
+  }
+
+  @keyframes error-shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+    20%, 40%, 60%, 80% { transform: translateX(4px); }
+  }
 }
 
 @layer utilities {
