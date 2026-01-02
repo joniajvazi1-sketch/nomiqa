@@ -19,6 +19,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useNetworkContribution } from '@/hooks/useNetworkContribution';
 import { usePlatform } from '@/hooks/usePlatform';
+import { useHaptics } from '@/hooks/useHaptics';
 import { ContributionMap } from '@/components/app/ContributionMap';
 import { AnimatedCounter } from '@/components/app/AnimatedCounter';
 import { RadarScanner } from '@/components/app/RadarScanner';
@@ -36,10 +37,12 @@ import { cn } from '@/lib/utils';
  */
 export const NetworkContribution: React.FC = () => {
   const { isAndroid } = usePlatform();
+  const { error: errorHaptic } = useHaptics();
   const [showCelebration, setShowCelebration] = useState(false);
   const [celebrationPoints, setCelebrationPoints] = useState(0);
   const [celebrationType, setCelebrationType] = useState<'milestone' | 'session-end'>('milestone');
   const lastPointsRef = useRef(0);
+  const startButtonRef = useRef<HTMLButtonElement>(null);
   
   const {
     user,
@@ -182,13 +185,29 @@ export const NetworkContribution: React.FC = () => {
         {/* Main Control Button with Radar Scanner */}
         <div className="flex-1 flex items-center justify-center">
           <button
-            onClick={isActive ? handleStopContribution : startContribution}
+            ref={startButtonRef}
+            onClick={() => {
+              // Error feedback when no permissions
+              if (!isActive && hasPermission === false) {
+                errorHaptic();
+                startButtonRef.current?.classList.add('animate-error-shake', 'error-highlight');
+                setTimeout(() => {
+                  startButtonRef.current?.classList.remove('animate-error-shake');
+                }, 400);
+                setTimeout(() => {
+                  startButtonRef.current?.classList.remove('error-highlight');
+                }, 800);
+                return;
+              }
+              isActive ? handleStopContribution() : startContribution();
+            }}
             disabled={!user}
             className={cn(
-              'relative w-44 h-44 rounded-full transition-all duration-500',
+              'relative w-44 h-44 rounded-full',
               'flex items-center justify-center',
               'shadow-2xl transform active:scale-95',
               'backdrop-blur-sm border-2',
+              'transition-all duration-250 ease-out', // Consistent timing
               isActive 
                 ? isPaused
                   ? 'bg-gradient-to-br from-amber-500/90 to-amber-700/90 shadow-amber-500/50 border-amber-400/50' 
