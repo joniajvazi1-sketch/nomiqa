@@ -9,7 +9,10 @@ import {
   Activity,
   Zap,
   Timer,
-  Gauge
+  Gauge,
+  ArrowDown,
+  ArrowUp,
+  Loader2
 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useNetworkContribution } from '@/hooks/useNetworkContribution';
@@ -35,8 +38,6 @@ export const NetworkContribution: React.FC = () => {
   const [showCelebration, setShowCelebration] = useState(false);
   const [celebrationPoints, setCelebrationPoints] = useState(0);
   const [celebrationType, setCelebrationType] = useState<'milestone' | 'session-end'>('milestone');
-  const [speedTestRunning, setSpeedTestRunning] = useState<'quick' | 'full' | null>(null);
-  const [dailyFullTests, setDailyFullTests] = useState(0);
   const [showHeatmap, setShowHeatmap] = useState(false);
   const startButtonRef = useRef<HTMLButtonElement>(null);
   
@@ -54,9 +55,11 @@ export const NetworkContribution: React.FC = () => {
     lastPosition,
     isCellular,
     isPaused,
+    isRunningSpeedTest,
     startContribution,
     stopContribution,
-    formatDuration
+    formatDuration,
+    triggerManualSpeedTest
   } = useNetworkContribution();
 
   // Heatmap data hook
@@ -79,10 +82,10 @@ export const NetworkContribution: React.FC = () => {
   const connStr = String(connectionType).toLowerCase();
   const signalStrength = connStr.includes('5g') ? 95 : connStr.includes('4g') || connStr.includes('lte') ? 80 : connStr.includes('3g') ? 60 : 40;
 
-  // Mock speed metrics (would come from actual speed test in production)
-  const downloadSpeed = isActive ? (signalStrength * 0.8 + Math.random() * 20) : 0;
-  const uploadSpeed = isActive ? (signalStrength * 0.3 + Math.random() * 10) : 0;
-  const latency = isActive ? Math.max(10, 100 - signalStrength + Math.random() * 20) : 0;
+  // Use real speed test data when available, otherwise estimate
+  const downloadSpeed = stats.lastSpeedTest?.down ?? (isActive ? (signalStrength * 0.8 + Math.random() * 20) : 0);
+  const uploadSpeed = stats.lastSpeedTest?.up ?? (isActive ? (signalStrength * 0.3 + Math.random() * 10) : 0);
+  const latency = stats.lastSpeedTest?.latency ?? (isActive ? Math.max(10, 100 - signalStrength + Math.random() * 20) : 0);
 
   // Handle session end celebration
   const handleStopContribution = useCallback(() => {
@@ -94,32 +97,24 @@ export const NetworkContribution: React.FC = () => {
     stopContribution();
   }, [stats.pointsEarned, stopContribution]);
 
-  // Handle speed test
-  const handleSpeedTest = useCallback((type: 'quick' | 'full') => {
-    if (type === 'full' && dailyFullTests >= 3) {
+  // Handle manual speed test
+  const handleSpeedTest = useCallback(async () => {
+    if (!isActive || !isCellular || isRunningSpeedTest) {
       errorHaptic();
       return;
     }
     
     mediumTap();
-    setSpeedTestRunning(type);
+    const result = await triggerManualSpeedTest();
     
-    // Simulate speed test duration
-    const duration = type === 'quick' ? 3000 : 8000;
-    const points = type === 'quick' ? 5 : 20;
-    
-    setTimeout(() => {
-      setSpeedTestRunning(null);
-      if (type === 'full') {
-        setDailyFullTests(prev => prev + 1);
-      }
-      // Award points
-      setCelebrationPoints(points);
+    if (result) {
+      // Show celebration for speed test completion
+      const bonusPoints = result.down >= 50 ? 3 : 2;
+      setCelebrationPoints(bonusPoints);
       setCelebrationType('milestone');
       setShowCelebration(true);
-      success();
-    }, duration);
-  }, [dailyFullTests, errorHaptic, mediumTap, success]);
+    }
+  }, [isActive, isCellular, isRunningSpeedTest, errorHaptic, mediumTap, triggerManualSpeedTest]);
 
   // Get connection label
   const getConnectionLabel = () => {
@@ -378,86 +373,109 @@ export const NetworkContribution: React.FC = () => {
           </div>
         </div>
 
-        {/* BOTTOM: Speed Test Buttons + Points */}
+        {/* BOTTOM: Speed Test + Stats */}
         <div className="space-y-3 mt-auto">
-          {/* Current session points */}
+          {/* Current session points breakdown */}
           {isActive && (
-            <div className="flex items-center justify-center gap-2 py-2 animate-fade-in">
-              <Zap className="w-4 h-4 text-neon-cyan" />
-              <span 
-                className="text-lg font-bold text-foreground"
-                style={{ fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace' }}
-              >
-                +{stats.pointsEarned.toFixed(1)}
-              </span>
-              <span className="text-sm text-muted-foreground">pts this session</span>
+            <div className="rounded-2xl bg-black/40 backdrop-blur-xl border border-white/10 p-3 animate-fade-in">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <Zap className="w-4 h-4 text-neon-cyan" />
+                  <span className="text-sm font-semibold text-foreground">Session Points</span>
+                </div>
+                <span 
+                  className="text-lg font-bold text-neon-cyan"
+                  style={{ fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace' }}
+                >
+                  +{stats.pointsEarned.toFixed(1)}
+                </span>
+              </div>
+              
+              {/* Points breakdown */}
+              <div className="grid grid-cols-3 gap-2 text-xs">
+                <div className="flex flex-col items-center p-2 rounded-lg bg-white/5">
+                  <span className="text-muted-foreground">Time</span>
+                  <span className="font-mono text-foreground">+{stats.timePoints.toFixed(1)}</span>
+                </div>
+                <div className="flex flex-col items-center p-2 rounded-lg bg-white/5">
+                  <span className="text-muted-foreground">Distance</span>
+                  <span className="font-mono text-foreground">+{stats.distancePoints.toFixed(1)}</span>
+                </div>
+                <div className="flex flex-col items-center p-2 rounded-lg bg-neon-cyan/10 border border-neon-cyan/20">
+                  <span className="text-neon-cyan/80">Speed Tests</span>
+                  <span className="font-mono text-neon-cyan">+{stats.speedTestPoints.toFixed(1)}</span>
+                </div>
+              </div>
             </div>
           )}
 
-          {/* Speed Test Buttons */}
-          <div className="grid grid-cols-2 gap-3">
-            {/* Quick Test */}
-            <button
-              onClick={() => handleSpeedTest('quick')}
-              disabled={!isActive || !isCellular || speedTestRunning !== null}
-              className={cn(
-                'relative rounded-2xl p-4 backdrop-blur-xl border transition-all active:scale-[0.98]',
-                isActive && isCellular && !speedTestRunning
-                  ? 'bg-white/5 border-white/10 hover:bg-white/10'
-                  : 'bg-white/3 border-white/5 opacity-50 cursor-not-allowed'
-              )}
-            >
-              {speedTestRunning === 'quick' && (
-                <div className="absolute inset-0 rounded-2xl overflow-hidden">
-                  <div 
-                    className="h-full bg-neon-cyan/20"
-                    style={{ animation: 'fill-progress 3s linear forwards' }}
-                  />
+          {/* Speed Test Card - Real functionality */}
+          <button
+            onClick={handleSpeedTest}
+            disabled={!isActive || !isCellular || isRunningSpeedTest}
+            className={cn(
+              'w-full relative rounded-2xl p-4 backdrop-blur-xl border transition-all active:scale-[0.98]',
+              isActive && isCellular && !isRunningSpeedTest
+                ? 'bg-gradient-to-r from-neon-cyan/10 to-primary/10 border-neon-cyan/30 hover:border-neon-cyan/50'
+                : 'bg-white/3 border-white/5 opacity-50 cursor-not-allowed'
+            )}
+          >
+            {/* Progress animation when testing */}
+            {isRunningSpeedTest && (
+              <div className="absolute inset-0 rounded-2xl overflow-hidden">
+                <div 
+                  className="h-full bg-neon-cyan/20"
+                  style={{ animation: 'fill-progress 5s linear forwards' }}
+                />
+              </div>
+            )}
+            
+            <div className="relative flex items-center gap-3">
+              <div className={cn(
+                'w-12 h-12 rounded-xl flex items-center justify-center',
+                isRunningSpeedTest ? 'bg-neon-cyan/20' : 'bg-neon-cyan/10'
+              )}>
+                {isRunningSpeedTest ? (
+                  <Loader2 className="w-6 h-6 text-neon-cyan animate-spin" />
+                ) : (
+                  <Gauge className="w-6 h-6 text-neon-cyan" />
+                )}
+              </div>
+              
+              <div className="flex-1 text-left">
+                <div className="text-sm font-semibold text-foreground">
+                  {isRunningSpeedTest ? 'Testing...' : 'Run Speed Test'}
                 </div>
-              )}
-              <div className="relative flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-neon-cyan/10 flex items-center justify-center">
-                  <Timer className="w-5 h-5 text-neon-cyan" />
-                </div>
-                <div className="text-left flex-1">
-                  <div className="text-sm font-semibold text-foreground">Quick Test</div>
-                  <div className="text-xs text-muted-foreground">~25 MB • +5 pts</div>
+                <div className="text-xs text-muted-foreground">
+                  {isRunningSpeedTest 
+                    ? 'Measuring network performance' 
+                    : `+2-3.5 pts • ${stats.speedTestCount} tests this session`}
                 </div>
               </div>
-            </button>
-
-            {/* Full Test */}
-            <button
-              onClick={() => handleSpeedTest('full')}
-              disabled={!isActive || !isCellular || speedTestRunning !== null || dailyFullTests >= 3}
-              className={cn(
-                'relative rounded-2xl p-4 backdrop-blur-xl border transition-all active:scale-[0.98]',
-                isActive && isCellular && !speedTestRunning && dailyFullTests < 3
-                  ? 'bg-primary/5 border-primary/20 hover:bg-primary/10'
-                  : 'bg-white/3 border-white/5 opacity-50 cursor-not-allowed'
-              )}
-            >
-              {speedTestRunning === 'full' && (
-                <div className="absolute inset-0 rounded-2xl overflow-hidden">
-                  <div 
-                    className="h-full bg-primary/20"
-                    style={{ animation: 'fill-progress 8s linear forwards' }}
-                  />
-                </div>
-              )}
-              <div className="relative flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                  <Gauge className="w-5 h-5 text-primary" />
-                </div>
-                <div className="text-left flex-1">
-                  <div className="text-sm font-semibold text-foreground">Full Test</div>
-                  <div className="text-xs text-muted-foreground">
-                    ~80 MB • +20 pts • {3 - dailyFullTests}/3
+              
+              {/* Last speed test results */}
+              {stats.lastSpeedTest && !isRunningSpeedTest && (
+                <div className="text-right">
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <ArrowDown className="w-3 h-3 text-neon-cyan" />
+                    <span className="font-mono">{stats.lastSpeedTest.down}</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <ArrowUp className="w-3 h-3 text-primary" />
+                    <span className="font-mono">{stats.lastSpeedTest.up}</span>
                   </div>
                 </div>
-              </div>
-            </button>
-          </div>
+              )}
+            </div>
+            
+            {/* Auto speed test info */}
+            <div className="mt-2 pt-2 border-t border-white/5 flex items-center justify-between text-xs">
+              <span className="text-muted-foreground">Auto runs every 10 min</span>
+              {stats.lastSpeedTest && (
+                <span className="text-muted-foreground font-mono">{stats.lastSpeedTest.latency}ms ping</span>
+              )}
+            </div>
+          </button>
 
           {/* Data points synced indicator */}
           <div className="flex items-center justify-center gap-2 py-2">
@@ -466,7 +484,7 @@ export const NetworkContribution: React.FC = () => {
               isOnline ? 'text-neon-cyan' : 'text-amber-500'
             )} />
             <span className="text-xs text-muted-foreground">
-              {stats.dataPointsCount} data points • {isOnline ? 'Synced' : `${offlineQueueCount} pending`}
+              {stats.dataPointsCount} data points • {stats.signalLogsCount} telco logs • {isOnline ? 'Synced' : `${offlineQueueCount} pending`}
             </span>
           </div>
         </div>
