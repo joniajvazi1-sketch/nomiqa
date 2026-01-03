@@ -234,14 +234,33 @@ export const NetworkContribution: React.FC = () => {
 
         {/* Alerts section - compact */}
         <div className="space-y-2 mb-4">
-          {/* WiFi Warning */}
+          {/* WiFi Warning - More prominent when paused */}
           {isActive && !isCellular && (
-            <Alert className="border-amber-500/50 bg-amber-500/20 backdrop-blur-xl py-2 animate-fade-in">
-              <Wifi className="h-4 w-4 text-amber-400" />
-              <AlertDescription className="text-amber-200 text-sm">
-                Switch to cellular to continue earning
-              </AlertDescription>
-            </Alert>
+            <div className="rounded-2xl bg-amber-500/20 backdrop-blur-xl border border-amber-500/40 p-4 animate-fade-in">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center flex-shrink-0">
+                  <Wifi className="h-6 w-6 text-amber-400" />
+                </div>
+                <div className="flex-1">
+                  <div className="text-sm font-semibold text-amber-200 mb-0.5">Mining Paused</div>
+                  <div className="text-xs text-amber-300/80">
+                    Switch to 5G/LTE to continue earning points
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-xs text-amber-400/60 uppercase font-mono">WiFi</div>
+                  <div className="text-xs text-amber-400/40">Detected</div>
+                </div>
+              </div>
+              
+              {/* Paused points indicator */}
+              {stats.pointsEarned > 0 && (
+                <div className="mt-3 pt-3 border-t border-amber-500/20 flex items-center justify-between">
+                  <span className="text-xs text-amber-300/60">Session points (paused)</span>
+                  <span className="text-sm font-mono text-amber-300">{stats.pointsEarned.toFixed(1)} pts</span>
+                </div>
+              )}
+            </div>
           )}
 
           {/* Permission Error */}
@@ -262,6 +281,17 @@ export const NetworkContribution: React.FC = () => {
                 Offline • {offlineQueueCount} points queued
               </AlertDescription>
             </Alert>
+          )}
+          
+          {/* Cellular Active Indicator - when mining normally */}
+          {isActive && isCellular && (
+            <div className="flex items-center justify-center gap-2 py-1.5 animate-fade-in">
+              <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-neon-cyan/10 border border-neon-cyan/20">
+                <Signal className="w-3.5 h-3.5 text-neon-cyan" />
+                <span className="text-xs font-medium text-neon-cyan">Cellular Active</span>
+                <div className="w-1.5 h-1.5 rounded-full bg-neon-cyan animate-pulse" />
+              </div>
+            </div>
           )}
         </div>
 
