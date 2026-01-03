@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Achievement, generateAchievements } from '@/components/app/AchievementSystem';
+import { usePushNotifications } from './usePushNotifications';
 
 interface UserStats {
   totalPoints: number;
@@ -21,12 +22,16 @@ interface UseAchievementsReturn {
   streakMultiplier: number;
   loading: boolean;
   refreshAchievements: () => Promise<void>;
+  notificationsEnabled: boolean;
+  requestNotificationPermission: () => Promise<boolean>;
 }
 
 // Local storage key for tracking previously unlocked achievements
 const UNLOCKED_CACHE_KEY = 'nomiqa_unlocked_achievements';
 
 export const useAchievements = (): UseAchievementsReturn => {
+  const { notifyAchievementUnlock, notifyMilestone, isEnabled, requestPermission } = usePushNotifications();
+  
   const [stats, setStats] = useState<UserStats>({
     totalPoints: 0,
     totalDistance: 0,
@@ -115,7 +120,16 @@ export const useAchievements = (): UseAchievementsReturn => {
 
     if (newUnlocks.length > 0) {
       // Show the most recent unlock
-      setRecentUnlock(newUnlocks[newUnlocks.length - 1]);
+      const latestUnlock = newUnlocks[newUnlocks.length - 1];
+      setRecentUnlock(latestUnlock);
+      
+      // Send push notification for achievement unlock
+      notifyAchievementUnlock(latestUnlock.title, latestUnlock.reward);
+      
+      // Check for milestone achievements and send special notification
+      if (latestUnlock.category === 'milestone') {
+        notifyMilestone(latestUnlock.title, stats.totalPoints);
+      }
 
       // Update cache
       const newCache = new Set(previouslyUnlocked);
@@ -128,7 +142,7 @@ export const useAchievements = (): UseAchievementsReturn => {
         console.error('Error saving achievement cache:', e);
       }
     }
-  }, [achievements, previouslyUnlocked, loading]);
+  }, [achievements, previouslyUnlocked, loading, notifyAchievementUnlock, notifyMilestone, stats.totalPoints]);
 
   // Calculate streak multiplier
   const streakMultiplier = useMemo(() => {
@@ -152,6 +166,8 @@ export const useAchievements = (): UseAchievementsReturn => {
     streakDays: stats.streakDays,
     streakMultiplier,
     loading,
-    refreshAchievements: fetchStats
+    refreshAchievements: fetchStats,
+    notificationsEnabled: isEnabled,
+    requestNotificationPermission: requestPermission
   };
 };
