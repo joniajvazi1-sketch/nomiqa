@@ -7,6 +7,13 @@ import { useHaptics } from './useHaptics';
 import { usePlatform } from './usePlatform';
 import { useTelcoMetrics, SignalLogEntry } from './useTelcoMetrics';
 
+interface SpeedTestResult {
+  down: number;
+  up: number;
+  latency: number;
+  timestamp: Date;
+}
+
 interface ContributionStats {
   pointsEarned: number;
   distanceMeters: number;
@@ -16,6 +23,9 @@ interface ContributionStats {
   duration: number;
   timePoints: number;
   distancePoints: number;
+  speedTestPoints: number; // Bonus points from speed tests
+  speedTestCount: number; // Number of speed tests completed
+  lastSpeedTest: SpeedTestResult | null;
 }
 
 interface ContributionSession {
@@ -42,6 +52,8 @@ interface OfflineQueueItem {
 
 const OFFLINE_QUEUE_KEY = 'nomiqa_offline_contribution_queue';
 const SPEED_TEST_INTERVAL = 10 * 60 * 1000; // Run speed test every 10 minutes
+const SPEED_TEST_BONUS_POINTS = 2; // Bonus points per speed test
+const PREMIUM_SPEED_THRESHOLD = 50; // Mbps - extra bonus for fast connections
 
 /**
  * Check if connection type is cellular (earns points)
@@ -81,8 +93,13 @@ export const useNetworkContribution = () => {
     signalLogsCount: 0,
     duration: 0,
     timePoints: 0,
-    distancePoints: 0
+    distancePoints: 0,
+    speedTestPoints: 0,
+    speedTestCount: 0,
+    lastSpeedTest: null
   });
+  
+  const [isRunningSpeedTest, setIsRunningSpeedTest] = useState(false);
 
   const [offlineQueueCount, setOfflineQueueCount] = useState(0);
   const [lastPosition, setLastPosition] = useState<Position | null>(null);
@@ -489,13 +506,14 @@ export const useNetworkContribution = () => {
       // Start periodic speed tests (every 10 minutes)
       speedTestTimerRef.current = setInterval(async () => {
         if (isCellular) {
-          console.log('Running periodic speed test...');
-          await telcoMetrics.runLightweightSpeedTest();
+          await runSpeedTestWithBonus();
         }
       }, SPEED_TEST_INTERVAL);
 
-      // Run initial speed test
-      telcoMetrics.runLightweightSpeedTest();
+      // Run initial speed test after a short delay (let GPS stabilize)
+      setTimeout(() => {
+        if (isCellular) runSpeedTestWithBonus();
+      }, 5000);
 
       return true;
     } catch (error) {
@@ -579,10 +597,84 @@ export const useNetworkContribution = () => {
       signalLogsCount: 0,
       duration: 0,
       timePoints: 0,
-      distancePoints: 0
+      distancePoints: 0,
+      speedTestPoints: 0,
+      speedTestCount: 0,
+      lastSpeedTest: null
     });
     lastPositionRef.current = null;
     lastTimePointsRef.current = 0;
+  };
+
+  /**
+   * Run a speed test and award bonus points
+   */
+  const runSpeedTestWithBonus = async (): Promise<SpeedTestResult | null> => {
+    if (!isCellular || isRunningSpeedTest) return null;
+    
+    setIsRunningSpeedTest(true);
+    console.log('Running speed test for bonus points...');
+    
+    try {
+      const result = await telcoMetrics.runLightweightSpeedTest();
+      
+      if (result) {
+        const speedTestResult: SpeedTestResult = {
+          down: result.down,
+          up: result.up,
+          latency: result.latency,
+          timestamp: new Date()
+        };
+        
+        // Calculate bonus points
+        let bonusPoints = SPEED_TEST_BONUS_POINTS;
+        
+        // Extra bonus for premium speeds (50+ Mbps)
+        if (result.down >= PREMIUM_SPEED_THRESHOLD) {
+          bonusPoints += 1; // Extra point for fast connection
+          console.log(`Premium speed detected: ${result.down} Mbps - extra bonus!`);
+        }
+        
+        // Extra bonus for low latency (<50ms)
+        if (result.latency < 50) {
+          bonusPoints += 0.5;
+          console.log(`Low latency detected: ${result.latency}ms - extra bonus!`);
+        }
+        
+        setStats(prev => ({
+          ...prev,
+          speedTestPoints: prev.speedTestPoints + bonusPoints,
+          pointsEarned: prev.pointsEarned + bonusPoints,
+          speedTestCount: prev.speedTestCount + 1,
+          lastSpeedTest: speedTestResult
+        }));
+        
+        // Haptic feedback for successful test
+        success();
+        console.log(`Speed test complete: ↓${result.down} ↑${result.up} Mbps, ${result.latency}ms - +${bonusPoints} pts`);
+        
+        return speedTestResult;
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('Speed test failed:', error);
+      return null;
+    } finally {
+      setIsRunningSpeedTest(false);
+    }
+  };
+
+  /**
+   * Manually trigger a speed test (user initiated)
+   */
+  const triggerManualSpeedTest = async (): Promise<SpeedTestResult | null> => {
+    if (!isCellular) {
+      warning();
+      return null;
+    }
+    heavyTap();
+    return runSpeedTestWithBonus();
   };
 
   const formatDuration = (seconds: number): string => {
@@ -613,11 +705,13 @@ export const useNetworkContribution = () => {
     lastPosition,
     isCellular,
     isPaused,
+    isRunningSpeedTest,
     startContribution,
     stopContribution,
     requestPermissions,
     syncOfflineQueue,
     formatDuration,
-    formatDistance
+    formatDistance,
+    triggerManualSpeedTest
   };
 };
