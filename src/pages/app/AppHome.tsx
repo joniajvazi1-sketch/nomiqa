@@ -8,13 +8,17 @@ import {
   TrendingUp,
   Settings,
   Bell,
-  Sparkles
+  Sparkles,
+  Flame,
+  Trophy
 } from 'lucide-react';
 import { useHaptics } from '@/hooks/useHaptics';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 import { MiniContributionMap } from '@/components/app/MiniContributionMap';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
+import { useAchievements } from '@/hooks/useAchievements';
+import { StreakBonus, MilestonePopup, AchievementBadge } from '@/components/app/AchievementSystem';
 
 interface DailyEarning {
   date: string;
@@ -26,12 +30,22 @@ const POINTS_TO_USD = 0.01;
 
 /**
  * App Home Dashboard - Command Center
- * Clean, focused layout with Today's earnings hero and quick actions
+ * Clean, focused layout with Today's earnings hero, streaks, and achievements
  */
 export const AppHome: React.FC = () => {
   const navigate = useNavigate();
   const { mediumTap, lightTap } = useHaptics();
   const { isOnline, connectionType } = useNetworkStatus();
+  const { 
+    achievements, 
+    unlockedCount, 
+    totalCount, 
+    recentUnlock, 
+    clearRecentUnlock,
+    streakDays,
+    streakMultiplier 
+  } = useAchievements();
+  
   const [user, setUser] = useState<any>(null);
   const [username, setUsername] = useState<string | null>(null);
   const [points, setPoints] = useState<{
@@ -279,14 +293,23 @@ export const AppHome: React.FC = () => {
               )}
             </div>
 
-            {/* Sublines */}
+            {/* Sublines with streak multiplier */}
             <div className="flex items-center gap-4 mb-5 text-sm text-muted-foreground">
               <div className="flex items-center gap-1.5">
                 <TrendingUp className="w-3.5 h-3.5 text-neon-cyan" />
-                <span>Multiplier: 1.2x</span>
+                <span>Multiplier: {streakMultiplier}x</span>
               </div>
               <div className="w-px h-4 bg-white/10" />
               <span>{todayPoints.toLocaleString()} pts</span>
+              {streakDays >= 3 && (
+                <>
+                  <div className="w-px h-4 bg-white/10" />
+                  <div className="flex items-center gap-1">
+                    <Flame className="w-3.5 h-3.5 text-orange-500" />
+                    <span className="text-orange-400">{streakDays}d</span>
+                  </div>
+                </>
+              )}
             </div>
 
             {/* Primary CTA: Start Scan */}
@@ -354,10 +377,54 @@ export const AppHome: React.FC = () => {
           </div>
         </div>
 
+        {/* STREAK BONUS (if streak >= 1) */}
+        {user && streakDays >= 1 && (
+          <div 
+            className="animate-fade-in"
+            style={{ animationDelay: '300ms' }}
+          >
+            <StreakBonus streakDays={streakDays} isActive={true} />
+          </div>
+        )}
+
+        {/* ACHIEVEMENTS ROW */}
+        {user && achievements.length > 0 && (
+          <div 
+            className="animate-fade-in"
+            style={{ animationDelay: '350ms' }}
+          >
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Trophy className="w-4 h-4 text-primary" />
+                <span className="text-sm font-semibold text-foreground">Achievements</span>
+              </div>
+              <span className="text-xs text-muted-foreground">{unlockedCount}/{totalCount}</span>
+            </div>
+            <div className="flex gap-1 overflow-x-auto pb-2 scrollbar-hide">
+              {achievements.slice(0, 6).map((achievement) => (
+                <AchievementBadge 
+                  key={achievement.id} 
+                  achievement={achievement} 
+                  size="sm"
+                  showProgress={true}
+                />
+              ))}
+              {achievements.length > 6 && (
+                <button
+                  onClick={() => handleNavigation('/app/profile')}
+                  className="flex items-center justify-center w-12 h-12 rounded-full bg-white/[0.05] border border-white/10 text-muted-foreground hover:bg-white/[0.08] transition-all"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* MAP PREVIEW STRIP */}
         <div 
           className="relative rounded-2xl overflow-hidden cursor-pointer active:scale-[0.98] transition-all duration-300 group animate-fade-in"
-          style={{ animationDelay: '300ms' }}
+          style={{ animationDelay: '400ms' }}
           onClick={() => handleNavigation('/app/map')}
         >
           <div className="absolute inset-0 bg-white/[0.03] backdrop-blur-xl" />
@@ -382,6 +449,13 @@ export const AppHome: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* Milestone Popup */}
+        <MilestonePopup 
+          show={!!recentUnlock} 
+          achievement={recentUnlock} 
+          onClose={clearRecentUnlock} 
+        />
 
         {/* Auth CTA for non-logged-in users */}
         {!user && !loading && (
@@ -419,6 +493,14 @@ export const AppHome: React.FC = () => {
           50% { 
             box-shadow: 0 10px 35px -5px hsl(var(--neon-cyan) / 0.5);
           }
+        }
+        
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
         }
       `}</style>
     </div>
