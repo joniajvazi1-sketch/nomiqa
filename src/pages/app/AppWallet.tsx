@@ -19,7 +19,9 @@ import {
   ShoppingBag,
   Coins,
   CreditCard,
-  Star
+  Star,
+  Trophy,
+  Flame
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -29,6 +31,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
+import { useAchievements } from '@/hooks/useAchievements';
+import { AchievementBadge, MilestonePopup, StreakBonus } from '@/components/app/AchievementSystem';
 
 interface RecentSession {
   id: string;
@@ -69,6 +73,17 @@ export const AppWallet: React.FC = () => {
   const [recentSessions, setRecentSessions] = useState<RecentSession[]>([]);
   const [activeFilter, setActiveFilter] = useState<TransactionFilter>('all');
   const [showBalanceDetails, setShowBalanceDetails] = useState(false);
+  
+  // Achievement system
+  const { 
+    achievements, 
+    unlockedCount, 
+    totalCount, 
+    recentUnlock, 
+    clearRecentUnlock,
+    streakDays,
+    streakMultiplier 
+  } = useAchievements();
 
   useEffect(() => {
     loadData();
@@ -345,6 +360,34 @@ export const AppWallet: React.FC = () => {
           </div>
         </div>
 
+        {/* Streak Bonus */}
+        {streakDays >= 1 && (
+          <StreakBonus streakDays={streakDays} isActive={true} />
+        )}
+
+        {/* Achievements Section */}
+        {achievements.length > 0 && (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Trophy className="w-4 h-4 text-primary" />
+                <h2 className="font-semibold text-foreground">Achievements</h2>
+              </div>
+              <span className="text-xs text-muted-foreground">{unlockedCount}/{totalCount} unlocked</span>
+            </div>
+            <div className="flex gap-1 overflow-x-auto pb-2 scrollbar-hide">
+              {achievements.map((achievement) => (
+                <AchievementBadge 
+                  key={achievement.id} 
+                  achievement={achievement} 
+                  size="sm"
+                  showProgress={true}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Quick Actions */}
         <div className="grid grid-cols-4 gap-3">
           {[
@@ -527,7 +570,12 @@ export const AppWallet: React.FC = () => {
         )}
       </div>
 
-      {/* CSS Animations */}
+      {/* Milestone Popup */}
+      <MilestonePopup 
+        show={!!recentUnlock} 
+        achievement={recentUnlock} 
+        onClose={clearRecentUnlock} 
+      />
       <style>{`
         @keyframes gradient-x {
           0%, 100% { background-position: 0% 50%; }
