@@ -308,12 +308,19 @@ export type Database = {
           accuracy_meters: number | null
           carrier: string | null
           created_at: string | null
+          device_fingerprint: string | null
+          device_hash: string | null
           device_type: string | null
           id: string
           latitude: number
+          location_hash: string | null
           longitude: number
+          network_hash: string | null
           network_type: string | null
           processed: boolean | null
+          proof_hash: string | null
+          proof_timestamp: string | null
+          proof_version: number | null
           recorded_at: string
           session_id: string | null
           signal_dbm: number | null
@@ -325,12 +332,19 @@ export type Database = {
           accuracy_meters?: number | null
           carrier?: string | null
           created_at?: string | null
+          device_fingerprint?: string | null
+          device_hash?: string | null
           device_type?: string | null
           id?: string
           latitude: number
+          location_hash?: string | null
           longitude: number
+          network_hash?: string | null
           network_type?: string | null
           processed?: boolean | null
+          proof_hash?: string | null
+          proof_timestamp?: string | null
+          proof_version?: number | null
           recorded_at: string
           session_id?: string | null
           signal_dbm?: number | null
@@ -342,12 +356,19 @@ export type Database = {
           accuracy_meters?: number | null
           carrier?: string | null
           created_at?: string | null
+          device_fingerprint?: string | null
+          device_hash?: string | null
           device_type?: string | null
           id?: string
           latitude?: number
+          location_hash?: string | null
           longitude?: number
+          network_hash?: string | null
           network_type?: string | null
           processed?: boolean | null
+          proof_hash?: string | null
+          proof_timestamp?: string | null
+          proof_version?: number | null
           recorded_at?: string
           session_id?: string | null
           signal_dbm?: number | null
