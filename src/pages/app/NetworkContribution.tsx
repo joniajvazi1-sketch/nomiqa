@@ -477,6 +477,50 @@ export const NetworkContribution: React.FC = () => {
             </div>
           </button>
 
+          {/* Telco Data Collection Card - C3 Premium Data UI */}
+          {isActive && (
+            <div className="rounded-2xl bg-gradient-to-br from-primary/10 via-black/40 to-neon-cyan/5 backdrop-blur-xl border border-primary/20 p-3 animate-fade-in">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-6 h-6 rounded-lg bg-primary/20 flex items-center justify-center">
+                  <Signal className="w-3.5 h-3.5 text-primary" />
+                </div>
+                <span className="text-xs font-semibold text-foreground">Telco-Grade Data</span>
+                <div className="ml-auto flex items-center gap-1">
+                  <div className={cn(
+                    'w-1.5 h-1.5 rounded-full',
+                    stats.signalLogsCount > 0 ? 'bg-neon-cyan animate-pulse' : 'bg-muted-foreground'
+                  )} />
+                  <span className="text-xs font-mono text-neon-cyan">{stats.signalLogsCount}</span>
+                  <span className="text-xs text-muted-foreground">logs</span>
+                </div>
+              </div>
+              
+              {/* Metrics being collected */}
+              <div className="grid grid-cols-4 gap-1.5">
+                <div className="flex flex-col items-center p-1.5 rounded-lg bg-white/5">
+                  <span className="text-[10px] text-muted-foreground">Network</span>
+                  <span className="text-[10px] font-mono text-foreground">{getConnectionLabel()}</span>
+                </div>
+                <div className="flex flex-col items-center p-1.5 rounded-lg bg-white/5">
+                  <span className="text-[10px] text-muted-foreground">Signal</span>
+                  <span className="text-[10px] font-mono text-foreground">{signalStrength}%</span>
+                </div>
+                <div className="flex flex-col items-center p-1.5 rounded-lg bg-white/5">
+                  <span className="text-[10px] text-muted-foreground">GPS</span>
+                  <span className="text-[10px] font-mono text-foreground">{lastPosition ? '✓' : '—'}</span>
+                </div>
+                <div className="flex flex-col items-center p-1.5 rounded-lg bg-white/5">
+                  <span className="text-[10px] text-muted-foreground">Speed</span>
+                  <span className="text-[10px] font-mono text-foreground">{stats.lastSpeedTest ? '✓' : '—'}</span>
+                </div>
+              </div>
+              
+              <div className="mt-2 text-[10px] text-muted-foreground text-center">
+                Logs every 100m or 5min • Carrier, RSRP, Cell ID tracked
+              </div>
+            </div>
+          )}
+
           {/* Data points synced indicator */}
           <div className="flex items-center justify-center gap-2 py-2">
             <Activity className={cn(
