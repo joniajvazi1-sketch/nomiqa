@@ -18,7 +18,9 @@ import { cn } from '@/lib/utils';
 import { MiniContributionMap } from '@/components/app/MiniContributionMap';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import { useAchievements } from '@/hooks/useAchievements';
+import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { StreakBonus, MilestonePopup, AchievementBadge } from '@/components/app/AchievementSystem';
+import { NotificationToggle } from '@/components/app/NotificationToggle';
 
 interface DailyEarning {
   date: string;
@@ -43,8 +45,13 @@ export const AppHome: React.FC = () => {
     recentUnlock, 
     clearRecentUnlock,
     streakDays,
-    streakMultiplier 
+    streakMultiplier,
+    notificationsEnabled,
+    requestNotificationPermission
   } = useAchievements();
+  const { isSupported: notificationsSupported, permissionStatus } = usePushNotifications();
+  
+  const [showNotificationPrompt, setShowNotificationPrompt] = useState(false);
   
   const [user, setUser] = useState<any>(null);
   const [username, setUsername] = useState<string | null>(null);
@@ -237,11 +244,28 @@ export const AppHome: React.FC = () => {
 
           {/* Icon buttons */}
           <div className="flex items-center gap-2">
+            {/* Notification button - shows different states */}
             <button 
-              onClick={() => { lightTap(); /* Future: notifications */ }}
-              className="w-10 h-10 rounded-full bg-white/[0.05] backdrop-blur-xl border border-white/[0.08] flex items-center justify-center hover:bg-white/[0.08] active:scale-95 transition-all"
+              onClick={() => { 
+                lightTap(); 
+                if (notificationsSupported && !notificationsEnabled) {
+                  setShowNotificationPrompt(prev => !prev);
+                }
+              }}
+              className={cn(
+                "w-10 h-10 rounded-full backdrop-blur-xl border flex items-center justify-center hover:bg-white/[0.08] active:scale-95 transition-all relative",
+                notificationsEnabled 
+                  ? "bg-primary/10 border-primary/30" 
+                  : "bg-white/[0.05] border-white/[0.08]"
+              )}
             >
-              <Bell className="w-4.5 h-4.5 text-muted-foreground" />
+              <Bell className={cn(
+                "w-4.5 h-4.5",
+                notificationsEnabled ? "text-primary" : "text-muted-foreground"
+              )} />
+              {notificationsSupported && !notificationsEnabled && (
+                <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-primary animate-pulse" />
+              )}
             </button>
             <button 
               onClick={() => { lightTap(); navigate('/app/profile'); }}
@@ -251,6 +275,23 @@ export const AppHome: React.FC = () => {
             </button>
           </div>
         </header>
+
+        {/* Notification Permission Prompt */}
+        {showNotificationPrompt && notificationsSupported && !notificationsEnabled && (
+          <div className="animate-fade-in">
+            <NotificationToggle
+              isEnabled={notificationsEnabled}
+              permissionStatus={permissionStatus}
+              onRequestPermission={async () => {
+                const granted = await requestNotificationPermission();
+                if (granted) {
+                  setShowNotificationPrompt(false);
+                }
+                return granted;
+              }}
+            />
+          </div>
+        )}
 
         {/* "TODAY" HERO CARD */}
         <div 
