@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useNetworkContribution } from '@/hooks/useNetworkContribution';
+import { useContributionHeatmap } from '@/hooks/useContributionHeatmap';
 import { usePlatform } from '@/hooks/usePlatform';
 import { useHaptics } from '@/hooks/useHaptics';
 import { ContributionMap } from '@/components/app/ContributionMap';
@@ -23,10 +24,10 @@ import { cn } from '@/lib/utils';
 /**
  * Network Contribution Page - Premium Scanning Experience
  * 
- * Phase A2 Redesign:
+ * Phase A2 Redesign + B2 Heatmap:
  * - Top status capsule showing connection type
  * - Center quality dial with signal metrics
- * - Quick vs Full speed test buttons
+ * - Toggle between live view and coverage heatmap
  */
 export const NetworkContribution: React.FC = () => {
   const { isAndroid } = usePlatform();
@@ -36,8 +37,10 @@ export const NetworkContribution: React.FC = () => {
   const [celebrationType, setCelebrationType] = useState<'milestone' | 'session-end'>('milestone');
   const [speedTestRunning, setSpeedTestRunning] = useState<'quick' | 'full' | null>(null);
   const [dailyFullTests, setDailyFullTests] = useState(0);
+  const [showHeatmap, setShowHeatmap] = useState(false);
   const startButtonRef = useRef<HTMLButtonElement>(null);
   
+  // Network contribution hook
   const {
     user,
     session,
@@ -55,6 +58,15 @@ export const NetworkContribution: React.FC = () => {
     stopContribution,
     formatDuration
   } = useNetworkContribution();
+
+  // Heatmap data hook
+  const { 
+    points: heatmapPoints, 
+    loading: heatmapLoading,
+    totalDataPoints: heatmapTotalPoints,
+    coverageAreaKm,
+    refresh: refreshHeatmap
+  } = useContributionHeatmap();
 
   const isActive = session.status === 'active';
   
@@ -120,11 +132,26 @@ export const NetworkContribution: React.FC = () => {
     return 'Cellular';
   };
 
+  // Toggle heatmap view
+  const handleToggleHeatmap = useCallback(() => {
+    mediumTap();
+    setShowHeatmap(prev => !prev);
+    if (!showHeatmap) {
+      refreshHeatmap();
+    }
+  }, [showHeatmap, mediumTap, refreshHeatmap]);
+
   return (
     <div className="relative w-full h-full min-h-screen bg-background">
       {/* Full-screen dark map background */}
       <div className="absolute inset-0 z-0">
-        <ContributionMap userPosition={userPosition} isActive={isActive && isCellular} />
+        <ContributionMap 
+          userPosition={userPosition} 
+          isActive={isActive && isCellular}
+          heatmapPoints={heatmapPoints}
+          showHeatmap={showHeatmap}
+          onToggleHeatmap={handleToggleHeatmap}
+        />
       </div>
       
       {/* Celebration overlay */}
