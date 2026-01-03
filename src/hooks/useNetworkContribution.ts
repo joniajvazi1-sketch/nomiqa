@@ -253,6 +253,31 @@ export const useNetworkContribution = () => {
     }
   }, [isOnline, offlineQueueCount, user]);
 
+  // Track previous cellular state for haptic feedback on change
+  const prevIsCellularRef = useRef(isCellular);
+  
+  // Haptic feedback when connection type changes during active session
+  useEffect(() => {
+    if (session.status !== 'active') {
+      prevIsCellularRef.current = isCellular;
+      return;
+    }
+    
+    // Connection changed during active session
+    if (prevIsCellularRef.current !== isCellular) {
+      if (isCellular) {
+        // Switched to cellular - resume earning
+        success();
+        console.log('Cellular connection restored - mining resumed');
+      } else {
+        // Switched to WiFi - paused
+        warning();
+        console.log('WiFi detected - mining paused');
+      }
+      prevIsCellularRef.current = isCellular;
+    }
+  }, [isCellular, session.status, success, warning]);
+
   // Time-based earnings
   useEffect(() => {
     if (session.status !== 'active' || !isCellular) return;
