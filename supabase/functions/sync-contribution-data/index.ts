@@ -17,6 +17,59 @@ interface ContributionData {
   speed_mps?: number;
   accuracy_meters?: number;
   recorded_at: string;
+  device_fingerprint?: string; // Client-side device hash
+}
+
+interface LocationProof {
+  proof_hash: string;
+  proof_version: number;
+  timestamp: string;
+  location_hash: string;
+  device_hash: string;
+  network_hash: string;
+}
+
+// Generate SHA-256 hash
+async function sha256(message: string): Promise<string> {
+  const msgBuffer = new TextEncoder().encode(message);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// Generate a location proof for a contribution
+async function generateLocationProof(
+  userId: string,
+  contribution: ContributionData,
+  serverSecret: string
+): Promise<LocationProof> {
+  const timestamp = new Date().toISOString();
+  const proofVersion = 1;
+
+  // Create location hash (coords rounded to ~11m precision for privacy + timestamp)
+  const locationData = `${contribution.latitude.toFixed(4)}|${contribution.longitude.toFixed(4)}|${contribution.recorded_at}`;
+  const locationHash = await sha256(locationData);
+
+  // Create device hash (device fingerprint + carrier + network type)
+  const deviceData = `${contribution.device_fingerprint || 'unknown'}|${contribution.carrier || 'unknown'}|${contribution.device_type || 'unknown'}`;
+  const deviceHash = await sha256(deviceData);
+
+  // Create network hash (signal strength + network type)
+  const networkData = `${contribution.signal_dbm || 0}|${contribution.network_type || 'unknown'}|${contribution.accuracy_meters || 0}`;
+  const networkHash = await sha256(networkData);
+
+  // Create final proof hash combining all elements + server secret for tamper-proofing
+  const proofData = `v${proofVersion}|${userId}|${locationHash}|${deviceHash}|${networkHash}|${timestamp}|${serverSecret}`;
+  const proofHash = await sha256(proofData);
+
+  return {
+    proof_hash: proofHash,
+    proof_version: proofVersion,
+    timestamp,
+    location_hash: locationHash.substring(0, 16), // Truncated for storage efficiency
+    device_hash: deviceHash.substring(0, 16),
+    network_hash: networkHash.substring(0, 16)
+  };
 }
 
 interface SyncRequest {
@@ -287,9 +340,20 @@ serve(async (req) => {
 
     console.log(`Validated: ${validCount} valid, ${rejectedCount} rejected`);
 
+    // Generate location proofs for all valid contributions
+    const serverSecret = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')?.substring(0, 32) || 'default-secret';
+    const proofs: LocationProof[] = [];
+    
+    for (const contribution of validContributions) {
+      const proof = await generateLocationProof(user.id, contribution, serverSecret);
+      proofs.push(proof);
+    }
+
+    console.log(`Generated ${proofs.length} location proofs for user ${user.id}`);
+
     const totalPointsEarned = Math.floor(validContributions.length * 5);
 
-    const queueItems = validContributions.map((c) => ({
+    const queueItems = validContributions.map((c, index) => ({
       user_id: user.id,
       session_id: c.session_id || null,
       latitude: c.latitude,
@@ -302,7 +366,15 @@ serve(async (req) => {
       accuracy_meters: c.accuracy_meters,
       recorded_at: c.recorded_at,
       synced_at: new Date().toISOString(),
-      processed: true
+      processed: true,
+      // Location proof fields
+      proof_hash: proofs[index].proof_hash,
+      proof_version: proofs[index].proof_version,
+      proof_timestamp: proofs[index].timestamp,
+      location_hash: proofs[index].location_hash,
+      device_hash: proofs[index].device_hash,
+      network_hash: proofs[index].network_hash,
+      device_fingerprint: c.device_fingerprint || null
     }));
 
     const { error: insertError } = await supabase
@@ -362,10 +434,16 @@ serve(async (req) => {
         synced_count: validContributions.length,
         rejected_count: rejectedCount,
         points_earned: totalPointsEarned,
+        proofs_generated: proofs.length,
         validation_summary: {
           avg_suspicion_score: avgSuspicionScore.toFixed(2),
           rejection_reasons: [...new Set(rejectionReasons)].slice(0, 3)
-        }
+        },
+        location_proofs: proofs.map(p => ({
+          hash: p.proof_hash.substring(0, 12) + '...',
+          version: p.proof_version,
+          timestamp: p.timestamp
+        }))
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
