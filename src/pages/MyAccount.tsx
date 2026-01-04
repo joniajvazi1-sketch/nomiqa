@@ -9,7 +9,7 @@ import { NetworkBackground } from "@/components/NetworkBackground";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Loader2, User, Award, Package, Gift, Crown, Star, TrendingUp, Zap, Sparkles, RefreshCw, Wallet, DollarSign, Copy, Pencil, Check, X } from "lucide-react";
+import { Loader2, User, Award, Package, Gift, Crown, Star, TrendingUp, Zap, Sparkles, RefreshCw, Wallet, DollarSign, Copy, Pencil, Check, X, Shield } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "@/contexts/TranslationContext";
 import { localizedPath } from "@/utils/localizedLinks";
@@ -89,6 +89,7 @@ export default function MyAccount() {
   const [isEditingWallet, setIsEditingWallet] = useState(false);
   const [savingWallet, setSavingWallet] = useState(false);
   const [walletValidationError, setWalletValidationError] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     checkAuth();
@@ -161,6 +162,16 @@ export default function MyAccount() {
           tier_level: highestTier
         });
       }
+
+      // Check if user is admin
+      const { data: roleData } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', session.user.id)
+        .eq('role', 'admin')
+        .maybeSingle();
+      
+      setIsAdmin(!!roleData);
 
       // Check for tier upgrade
       const previousTier = localStorage.getItem('previousTier');
@@ -469,6 +480,30 @@ export default function MyAccount() {
                     <p className="text-sm text-white/60 mb-2 font-medium">{t("emailLabel")}</p>
                     <p className="text-lg font-medium text-white/90">{profile?.email}</p>
                   </div>
+                  
+                  {/* Admin Dashboard Link - Only visible to admins */}
+                  {isAdmin && (
+                    <div className="group p-4 rounded-xl border border-purple-500/30 bg-purple-500/10 hover:bg-purple-500/20 transition-all duration-300">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-purple-500/20 rounded-lg border border-purple-500/30">
+                            <Shield className="w-5 h-5 text-purple-400" />
+                          </div>
+                          <div>
+                            <p className="font-semibold text-purple-300">Admin Dashboard</p>
+                            <p className="text-sm text-white/50">Manage users and view analytics</p>
+                          </div>
+                        </div>
+                        <Button
+                          onClick={() => navigate('/admin/users')}
+                          variant="outline"
+                          className="border-purple-500/50 text-purple-300 hover:bg-purple-500/20 hover:text-purple-200"
+                        >
+                          Open Dashboard
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>
