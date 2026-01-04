@@ -644,9 +644,9 @@ export default function Affiliate() {
               </CardContent>
             </Card> : !affiliate ? <Card className="max-w-2xl mx-auto bg-white/[0.02] backdrop-blur-xl border-white/10">
               <CardHeader>
-                <CardTitle>Create Your First Affiliate Link</CardTitle>
+                <CardTitle>{t("affiliateCreateButton")}</CardTitle>
                 <CardDescription>
-                  Get started with your automatic affiliate link based on your username
+                  {t("affiliateAuthDesc")}
                 </CardDescription>
               </CardHeader>
               <CardContent>
