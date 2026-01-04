@@ -43,6 +43,7 @@ import { AnimatedAvatar } from '@/components/app/AnimatedAvatar';
 import { AnimatedStatCard } from '@/components/app/AnimatedStatCard';
 import { AnimatedCounter } from '@/components/app/AnimatedCounter';
 import { AnimatedProgressBar } from '@/components/app/AnimatedProgressBar';
+import { useTranslation } from '@/contexts/TranslationContext';
 
 interface UserProfile {
   username: string;
@@ -95,6 +96,7 @@ export const AppProfile: React.FC = () => {
   const { lightTap, success } = useHaptics();
   const { share, copyToClipboard } = useNativeShare();
   const { toast } = useToast();
+  const { t } = useTranslation();
   
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -1038,7 +1040,7 @@ export const AppProfile: React.FC = () => {
 
                 <Button onClick={createAffiliate} disabled={creatingAffiliate} className="w-full">
                   {creatingAffiliate ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <CheckCircle2 className="w-4 h-4 mr-2" />}
-                  Get your Affiliate Link
+                  {t("affiliateCreateButton")}
                 </Button>
               </CardContent>
             </Card>
