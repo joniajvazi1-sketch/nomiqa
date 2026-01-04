@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Users, UserCheck, Wallet, Search, CheckCircle, XCircle, ArrowLeft, ChevronRight } from "lucide-react";
+import { Users, UserCheck, Wallet, Search, CheckCircle, XCircle, ArrowLeft, ChevronRight, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -47,44 +47,48 @@ export default function AdminUsers() {
   const [users, setUsers] = useState<UserData[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) {
-          navigate("/auth");
-          return;
-        }
-
-        const response = await supabase.functions.invoke("get-admin-users");
-        
-        if (response.error) {
-          throw new Error(response.error.message);
-        }
-
-        if (response.data.error) {
-          if (response.data.error.includes("Forbidden")) {
-            setError("You don't have admin access to view this page.");
-          } else {
-            throw new Error(response.data.error);
-          }
-          return;
-        }
-
-        setUsers(response.data.users || []);
-        setStats(response.data.stats || null);
-      } catch (err: any) {
-        console.error("Error fetching admin data:", err);
-        setError(err.message || "Failed to load data");
-      } finally {
-        setLoading(false);
+  const fetchData = async (isRefresh = false) => {
+    try {
+      if (isRefresh) setRefreshing(true);
+      
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        navigate("/auth");
+        return;
       }
-    };
 
+      const response = await supabase.functions.invoke("get-admin-users");
+      
+      if (response.error) {
+        throw new Error(response.error.message);
+      }
+
+      if (response.data.error) {
+        if (response.data.error.includes("Forbidden")) {
+          setError("You don't have admin access to view this page.");
+        } else {
+          throw new Error(response.data.error);
+        }
+        return;
+      }
+
+      setUsers(response.data.users || []);
+      setStats(response.data.stats || null);
+    } catch (err: any) {
+      console.error("Error fetching admin data:", err);
+      setError(err.message || "Failed to load data");
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
     fetchData();
   }, [navigate]);
 
@@ -249,18 +253,28 @@ export default function AdminUsers() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pt-16 md:pt-20">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-xl border-b border-white/10 p-4">
-        <div className="flex items-center justify-between gap-3">
+      <div className="fixed top-0 left-0 right-0 z-10 bg-background/95 backdrop-blur-xl border-b border-white/10 p-3 md:p-4">
+        <div className="flex items-center justify-between gap-2 max-w-7xl mx-auto">
           <div className="min-w-0">
-            <h1 className="text-lg md:text-2xl font-bold truncate">Admin Dashboard</h1>
-            <p className="text-xs md:text-sm text-muted-foreground hidden sm:block">Track users & referrals</p>
+            <h1 className="text-base md:text-2xl font-bold truncate">Admin Dashboard</h1>
           </div>
-          <Button onClick={() => navigate("/")} variant="outline" size="sm" className="shrink-0">
-            <ArrowLeft className="w-4 h-4 md:mr-2" />
-            <span className="hidden md:inline">Back</span>
-          </Button>
+          <div className="flex items-center gap-2 shrink-0">
+            <Button 
+              onClick={() => fetchData(true)} 
+              variant="ghost" 
+              size="sm" 
+              disabled={refreshing}
+              className="h-8 w-8 p-0"
+            >
+              <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+            </Button>
+            <Button onClick={() => navigate("/")} variant="outline" size="sm" className="h-8">
+              <ArrowLeft className="w-4 h-4 md:mr-2" />
+              <span className="hidden md:inline">Back</span>
+            </Button>
+          </div>
         </div>
       </div>
 
