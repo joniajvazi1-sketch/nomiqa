@@ -32,6 +32,7 @@ const MyAccount = lazy(() => import("./pages/MyAccount"));
 const Help = lazy(() => import("./pages/Help"));
 const Rewards = lazy(() => import("./pages/Rewards"));
 const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
+const AdminUsers = lazy(() => import("./pages/AdminUsers"));
 
 // Lazy load APP pages (native only)
 const AppHome = lazy(() => import("./pages/app/AppHome").then(m => ({ default: m.AppHome })));
@@ -137,6 +138,7 @@ const WebRoutes = () => (
       <Route path="/help" element={<Help />} />
       <Route path="/rewards" element={<Rewards />} />
       <Route path="/payment-success" element={<PaymentSuccess />} />
+      <Route path="/admin/users" element={<AdminUsers />} />
 
       {/* Localized route groups */}
       {/** German */}
