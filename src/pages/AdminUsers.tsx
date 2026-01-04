@@ -2,12 +2,12 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Users, UserCheck, Wallet, Search, CheckCircle, XCircle, ArrowLeft } from "lucide-react";
+import { Users, UserCheck, Wallet, Search, CheckCircle, XCircle, ArrowLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface UserData {
   id: string;
@@ -49,6 +49,7 @@ export default function AdminUsers() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -113,12 +114,12 @@ export default function AdminUsers() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background p-6">
-        <div className="max-w-7xl mx-auto space-y-6">
+      <div className="min-h-screen bg-background p-4">
+        <div className="max-w-7xl mx-auto space-y-4">
           <Skeleton className="h-8 w-48" />
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {[...Array(6)].map((_, i) => (
-              <Skeleton key={i} className="h-24" />
+          <div className="grid grid-cols-3 gap-3">
+            {[...Array(3)].map((_, i) => (
+              <Skeleton key={i} className="h-20" />
             ))}
           </div>
           <Skeleton className="h-96" />
@@ -129,13 +130,13 @@ export default function AdminUsers() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-6">
-        <Card className="max-w-md">
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <Card className="max-w-sm w-full">
           <CardContent className="pt-6 text-center">
-            <XCircle className="w-12 h-12 text-destructive mx-auto mb-4" />
-            <h2 className="text-xl font-semibold mb-2">Access Denied</h2>
-            <p className="text-muted-foreground mb-4">{error}</p>
-            <Button onClick={() => navigate("/")} variant="outline">
+            <XCircle className="w-10 h-10 text-destructive mx-auto mb-3" />
+            <h2 className="text-lg font-semibold mb-2">Access Denied</h2>
+            <p className="text-sm text-muted-foreground mb-4">{error}</p>
+            <Button onClick={() => navigate("/")} variant="outline" size="sm">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Go Home
             </Button>
@@ -145,158 +146,312 @@ export default function AdminUsers() {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-background p-4 md:p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bold">User & Referral Dashboard</h1>
-            <p className="text-muted-foreground">Track all users, referrals, and affiliate performance</p>
-          </div>
-          <Button onClick={() => navigate("/")} variant="outline" size="sm">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back
+  // Mobile user detail view
+  if (selectedUser) {
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-xl border-b border-white/10 p-4">
+          <Button 
+            onClick={() => setSelectedUser(null)} 
+            variant="ghost" 
+            size="sm"
+            className="gap-2"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Users
           </Button>
         </div>
+        
+        <div className="p-4 space-y-4">
+          {/* User Header */}
+          <Card className="bg-white/5 border-white/10">
+            <CardContent className="pt-4">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
+                  <span className="text-lg font-bold text-primary">
+                    {selectedUser.username?.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h2 className="font-semibold truncate">{selectedUser.username}</h2>
+                  <p className="text-sm text-muted-foreground truncate">{selectedUser.email || "No email"}</p>
+                </div>
+                {selectedUser.email_verified ? (
+                  <CheckCircle className="w-5 h-5 text-green-500 shrink-0" />
+                ) : (
+                  <XCircle className="w-5 h-5 text-muted-foreground shrink-0" />
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground">Joined {formatDate(selectedUser.created_at)}</p>
+            </CardContent>
+          </Card>
 
+          {/* Details Grid */}
+          <div className="grid grid-cols-2 gap-3">
+            <Card className="bg-white/5 border-white/10">
+              <CardContent className="p-3">
+                <p className="text-xs text-muted-foreground mb-1">Wallet</p>
+                {selectedUser.solana_wallet ? (
+                  <Badge variant="secondary" className="font-mono text-xs">
+                    {truncateWallet(selectedUser.solana_wallet)}
+                  </Badge>
+                ) : (
+                  <p className="text-sm text-muted-foreground">Not connected</p>
+                )}
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-white/5 border-white/10">
+              <CardContent className="p-3">
+                <p className="text-xs text-muted-foreground mb-1">Referred By</p>
+                {selectedUser.referred_by ? (
+                  <div>
+                    <p className="text-sm font-medium truncate">{selectedUser.referred_by.username || "—"}</p>
+                    <p className="text-xs text-muted-foreground font-mono">{selectedUser.referred_by.affiliate_code}</p>
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">Direct signup</p>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Affiliate Stats */}
+          {selectedUser.is_affiliate && (
+            <Card className="bg-white/5 border-white/10">
+              <CardHeader className="pb-2 pt-4">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Badge className="bg-primary/20 text-primary">{selectedUser.affiliate_code}</Badge>
+                  Affiliate Stats
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pb-4">
+                <div className="grid grid-cols-3 gap-3 text-center">
+                  <div>
+                    <p className="text-2xl font-bold">{selectedUser.total_registrations}</p>
+                    <p className="text-xs text-muted-foreground">Referrals</p>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold">{selectedUser.total_conversions}</p>
+                    <p className="text-xs text-muted-foreground">Conversions</p>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-green-500">${selectedUser.total_earnings_usd.toFixed(0)}</p>
+                    <p className="text-xs text-muted-foreground">Earnings</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-xl border-b border-white/10 p-4">
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <h1 className="text-lg md:text-2xl font-bold truncate">Admin Dashboard</h1>
+            <p className="text-xs md:text-sm text-muted-foreground hidden sm:block">Track users & referrals</p>
+          </div>
+          <Button onClick={() => navigate("/")} variant="outline" size="sm" className="shrink-0">
+            <ArrowLeft className="w-4 h-4 md:mr-2" />
+            <span className="hidden md:inline">Back</span>
+          </Button>
+        </div>
+      </div>
+
+      <div className="p-4 space-y-4 max-w-7xl mx-auto">
         {/* Stats Cards */}
         {stats && (
-          <div className="grid grid-cols-3 gap-4">
-            <Card>
-              <CardContent className="pt-4 pb-4">
-                <div className="flex items-center gap-2">
-                  <Users className="w-5 h-5 text-primary" />
-                  <span className="text-sm text-muted-foreground">Total Users</span>
+          <div className="grid grid-cols-3 gap-2 md:gap-4">
+            <Card className="bg-white/5 border-white/10">
+              <CardContent className="p-3 md:p-4">
+                <div className="flex items-center gap-1.5 md:gap-2">
+                  <Users className="w-4 h-4 md:w-5 md:h-5 text-primary shrink-0" />
+                  <span className="text-xs md:text-sm text-muted-foreground truncate">Users</span>
                 </div>
-                <p className="text-2xl font-bold mt-1">{stats.total_users}</p>
+                <p className="text-xl md:text-2xl font-bold mt-1">{stats.total_users}</p>
               </CardContent>
             </Card>
-            <Card>
-              <CardContent className="pt-4 pb-4">
-                <div className="flex items-center gap-2">
-                  <UserCheck className="w-5 h-5 text-green-500" />
-                  <span className="text-sm text-muted-foreground">Verified</span>
+            <Card className="bg-white/5 border-white/10">
+              <CardContent className="p-3 md:p-4">
+                <div className="flex items-center gap-1.5 md:gap-2">
+                  <UserCheck className="w-4 h-4 md:w-5 md:h-5 text-green-500 shrink-0" />
+                  <span className="text-xs md:text-sm text-muted-foreground truncate">Verified</span>
                 </div>
-                <p className="text-2xl font-bold mt-1">{stats.verified_emails}</p>
+                <p className="text-xl md:text-2xl font-bold mt-1">{stats.verified_emails}</p>
               </CardContent>
             </Card>
-            <Card>
-              <CardContent className="pt-4 pb-4">
-                <div className="flex items-center gap-2">
-                  <Wallet className="w-5 h-5 text-purple-500" />
-                  <span className="text-sm text-muted-foreground">Wallets</span>
+            <Card className="bg-white/5 border-white/10">
+              <CardContent className="p-3 md:p-4">
+                <div className="flex items-center gap-1.5 md:gap-2">
+                  <Wallet className="w-4 h-4 md:w-5 md:h-5 text-purple-500 shrink-0" />
+                  <span className="text-xs md:text-sm text-muted-foreground truncate">Wallets</span>
                 </div>
-                <p className="text-2xl font-bold mt-1">{stats.wallets_connected}</p>
+                <p className="text-xl md:text-2xl font-bold mt-1">{stats.wallets_connected}</p>
               </CardContent>
             </Card>
           </div>
         )}
 
         {/* Search */}
-        <Card>
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            placeholder="Search users..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10 bg-white/5 border-white/10"
+          />
+        </div>
+
+        {/* Mobile User List */}
+        <div className="md:hidden space-y-2">
+          {filteredUsers.length === 0 ? (
+            <Card className="bg-white/5 border-white/10">
+              <CardContent className="py-8 text-center text-muted-foreground">
+                {searchTerm ? "No users match your search" : "No users found"}
+              </CardContent>
+            </Card>
+          ) : (
+            filteredUsers.map((user) => (
+              <Card 
+                key={user.id} 
+                className="bg-white/5 border-white/10 active:scale-[0.98] transition-transform cursor-pointer"
+                onClick={() => setSelectedUser(user)}
+              >
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+                      <span className="text-sm font-bold text-primary">
+                        {user.username?.charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium truncate">{user.username}</p>
+                        {user.email_verified ? (
+                          <CheckCircle className="w-3.5 h-3.5 text-green-500 shrink-0" />
+                        ) : (
+                          <XCircle className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        {user.is_affiliate && (
+                          <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+                            {user.affiliate_code}
+                          </Badge>
+                        )}
+                        {user.solana_wallet && (
+                          <Wallet className="w-3 h-3 text-purple-500" />
+                        )}
+                        {user.referred_by && (
+                          <span className="truncate">via {user.referred_by.username || user.referred_by.affiliate_code}</span>
+                        )}
+                      </div>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          )}
+        </div>
+
+        {/* Desktop Table */}
+        <Card className="hidden md:block bg-white/5 border-white/10">
           <CardHeader className="pb-3">
-            <CardTitle className="text-lg">All Users</CardTitle>
+            <CardTitle className="text-lg">All Users ({filteredUsers.length})</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="relative mb-4">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="Search by username, email, or affiliate code..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>User</TableHead>
-                    <TableHead>Email Verified</TableHead>
-                    <TableHead>Wallet</TableHead>
-                    <TableHead>Referred By</TableHead>
-                    <TableHead>Affiliate</TableHead>
-                    <TableHead>Referrals</TableHead>
-                    <TableHead>Conversions</TableHead>
-                    <TableHead>Earnings</TableHead>
-                    <TableHead>Joined</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
+            <ScrollArea className="w-full">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-white/10">
+                    <th className="text-left py-3 px-2 font-medium text-muted-foreground">User</th>
+                    <th className="text-left py-3 px-2 font-medium text-muted-foreground">Verified</th>
+                    <th className="text-left py-3 px-2 font-medium text-muted-foreground">Wallet</th>
+                    <th className="text-left py-3 px-2 font-medium text-muted-foreground">Referred By</th>
+                    <th className="text-left py-3 px-2 font-medium text-muted-foreground">Affiliate</th>
+                    <th className="text-left py-3 px-2 font-medium text-muted-foreground">Refs</th>
+                    <th className="text-left py-3 px-2 font-medium text-muted-foreground">Conv</th>
+                    <th className="text-left py-3 px-2 font-medium text-muted-foreground">Earned</th>
+                    <th className="text-left py-3 px-2 font-medium text-muted-foreground">Joined</th>
+                  </tr>
+                </thead>
+                <tbody>
                   {filteredUsers.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
+                    <tr>
+                      <td colSpan={9} className="text-center py-8 text-muted-foreground">
                         {searchTerm ? "No users match your search" : "No users found"}
-                      </TableCell>
-                    </TableRow>
+                      </td>
+                    </tr>
                   ) : (
                     filteredUsers.map((user) => (
-                      <TableRow key={user.id}>
-                        <TableCell>
+                      <tr key={user.id} className="border-b border-white/5 hover:bg-white/5">
+                        <td className="py-3 px-2">
                           <div>
                             <p className="font-medium">{user.username}</p>
                             <p className="text-xs text-muted-foreground">{user.email || "No email"}</p>
                           </div>
-                        </TableCell>
-                        <TableCell>
+                        </td>
+                        <td className="py-3 px-2">
                           {user.email_verified ? (
-                            <CheckCircle className="w-5 h-5 text-green-500" />
+                            <CheckCircle className="w-4 h-4 text-green-500" />
                           ) : (
-                            <XCircle className="w-5 h-5 text-muted-foreground" />
+                            <XCircle className="w-4 h-4 text-muted-foreground" />
                           )}
-                        </TableCell>
-                        <TableCell>
+                        </td>
+                        <td className="py-3 px-2">
                           {user.solana_wallet ? (
                             <Badge variant="secondary" className="font-mono text-xs">
                               {truncateWallet(user.solana_wallet)}
                             </Badge>
                           ) : (
-                            <span className="text-muted-foreground text-sm">—</span>
+                            <span className="text-muted-foreground">—</span>
                           )}
-                        </TableCell>
-                        <TableCell>
+                        </td>
+                        <td className="py-3 px-2">
                           {user.referred_by ? (
                             <div>
                               <p className="text-sm">{user.referred_by.username || user.referred_by.email}</p>
                               <p className="text-xs text-muted-foreground font-mono">{user.referred_by.affiliate_code}</p>
                             </div>
                           ) : (
-                            <span className="text-muted-foreground text-sm">Direct</span>
+                            <span className="text-muted-foreground">Direct</span>
                           )}
-                        </TableCell>
-                        <TableCell>
+                        </td>
+                        <td className="py-3 px-2">
                           {user.is_affiliate ? (
-                            <Badge className="bg-primary/20 text-primary hover:bg-primary/30">
+                            <Badge className="bg-primary/20 text-primary hover:bg-primary/30 text-xs">
                               {user.affiliate_code}
                             </Badge>
                           ) : (
-                            <span className="text-muted-foreground text-sm">—</span>
+                            <span className="text-muted-foreground">—</span>
                           )}
-                        </TableCell>
-                        <TableCell>
-                          <span className="font-medium">{user.total_registrations}</span>
-                        </TableCell>
-                        <TableCell>
-                          <span className="font-medium">{user.total_conversions}</span>
-                        </TableCell>
-                        <TableCell>
+                        </td>
+                        <td className="py-3 px-2 font-medium">{user.total_registrations}</td>
+                        <td className="py-3 px-2 font-medium">{user.total_conversions}</td>
+                        <td className="py-3 px-2">
                           {user.total_earnings_usd > 0 ? (
-                            <span className="font-medium text-green-600">${user.total_earnings_usd.toFixed(2)}</span>
+                            <span className="font-medium text-green-500">${user.total_earnings_usd.toFixed(2)}</span>
                           ) : (
-                            <span className="text-muted-foreground">$0.00</span>
+                            <span className="text-muted-foreground">$0</span>
                           )}
-                        </TableCell>
-                        <TableCell className="text-sm text-muted-foreground">
+                        </td>
+                        <td className="py-3 px-2 text-muted-foreground whitespace-nowrap">
                           {formatDate(user.created_at)}
-                        </TableCell>
-                      </TableRow>
+                        </td>
+                      </tr>
                     ))
                   )}
-                </TableBody>
-              </Table>
-            </div>
+                </tbody>
+              </table>
+            </ScrollArea>
           </CardContent>
         </Card>
       </div>
