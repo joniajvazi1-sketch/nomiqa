@@ -253,7 +253,7 @@ export default function AdminUsers() {
   }
 
   return (
-    <div className="min-h-screen bg-background pt-16 md:pt-20">
+    <div className="min-h-screen bg-background pt-14 md:pt-16">
       {/* Header */}
       <div className="fixed top-0 left-0 right-0 z-10 bg-background/95 backdrop-blur-xl border-b border-white/10 p-3 md:p-4">
         <div className="flex items-center justify-between gap-2 max-w-7xl mx-auto">
