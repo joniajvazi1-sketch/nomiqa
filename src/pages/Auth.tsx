@@ -220,10 +220,11 @@ export default function Auth() {
     
     setLoading(true);
     try {
+      const redirect = searchParams.get("redirect") || "/";
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth`,
+          redirectTo: `${window.location.origin}/auth?redirect=${encodeURIComponent(redirect)}`,
         }
       });
 

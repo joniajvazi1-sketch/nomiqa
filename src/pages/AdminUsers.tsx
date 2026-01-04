@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -44,6 +44,7 @@ interface Stats {
 
 export default function AdminUsers() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [users, setUsers] = useState<UserData[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -58,7 +59,8 @@ export default function AdminUsers() {
       
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
-        navigate("/auth");
+        const redirect = encodeURIComponent(location.pathname + location.search);
+        navigate(`/auth?redirect=${redirect}`);
         return;
       }
 
