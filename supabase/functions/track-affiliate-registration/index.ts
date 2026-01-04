@@ -61,10 +61,10 @@ serve(async (req) => {
 
     console.log(`Tracking registration for referral code: ${referralCode}, user: ${userId}`);
 
-    // Find affiliate by code
+    // Find affiliate by code with username for the welcome email
     const { data: affiliate, error: affError } = await supabase
       .from('affiliates')
-      .select('id, affiliate_code, total_registrations')
+      .select('id, affiliate_code, total_registrations, username')
       .eq('affiliate_code', referralCode)
       .maybeSingle();
 
@@ -80,6 +80,10 @@ serve(async (req) => {
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+    
+    // Get the new user's email for sending welcome email
+    const { data: newUserData } = await supabase.auth.admin.getUserById(userId);
+    const newUserEmail = newUserData?.user?.email;
 
     // Check if this user already has a referral record
     const { data: existingReferral } = await supabase
@@ -133,6 +137,33 @@ serve(async (req) => {
     }
 
     console.log(`Registration tracked successfully for affiliate ${affiliate.affiliate_code}`);
+    
+    // Send welcome email to the new referred user
+    if (newUserEmail) {
+      try {
+        const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+        const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+        
+        await fetch(`${supabaseUrl}/functions/v1/send-email`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${supabaseServiceKey}`,
+          },
+          body: JSON.stringify({
+            type: 'referral_welcome',
+            to: newUserEmail,
+            data: {
+              referrerUsername: affiliate.username || affiliate.affiliate_code,
+            },
+          }),
+        });
+        console.log(`Referral welcome email sent to ${newUserEmail}`);
+      } catch (emailError) {
+        console.error('Error sending referral welcome email:', emailError);
+        // Don't fail the registration tracking if email fails
+      }
+    }
 
     return new Response(
       JSON.stringify({ 
