@@ -25,6 +25,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 interface UserProfile {
   username: string;
   email: string;
+  solana_wallet: string | null;
 }
 
 interface MembershipData {
@@ -84,6 +85,10 @@ export default function MyAccount() {
   const [isEditingUsername, setIsEditingUsername] = useState(false);
   const [editedUsername, setEditedUsername] = useState("");
   const [savingUsername, setSavingUsername] = useState(false);
+  const [solanaWallet, setSolanaWallet] = useState("");
+  const [isEditingWallet, setIsEditingWallet] = useState(false);
+  const [savingWallet, setSavingWallet] = useState(false);
+  const [walletValidationError, setWalletValidationError] = useState("");
 
   useEffect(() => {
     checkAuth();
@@ -101,16 +106,18 @@ export default function MyAccount() {
       // Fetch profile
       const { data: profileData } = await supabase
         .from('profiles')
-        .select('username')
+        .select('username, solana_wallet')
         .eq('user_id', session.user.id)
         .maybeSingle();
 
       const username = profileData?.username || session.user.email?.split('@')[0] || 'User';
       setProfile({
         username,
-        email: session.user.email || ''
+        email: session.user.email || '',
+        solana_wallet: profileData?.solana_wallet || null
       });
       setEditedUsername(username);
+      setSolanaWallet(profileData?.solana_wallet || '');
 
       // Fetch or create membership data
       let { data: membershipData } = await supabase
@@ -267,6 +274,52 @@ export default function MyAccount() {
     setIsEditingUsername(false);
   };
 
+  const validateSolanaWallet = (address: string): boolean => {
+    if (!address) return true; // Empty is valid (clearing wallet)
+    // Base58 check: only valid characters, length 32-44
+    const base58Regex = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
+    return base58Regex.test(address);
+  };
+
+  const handleSaveWallet = async () => {
+    const trimmedWallet = solanaWallet.trim();
+    
+    if (trimmedWallet && !validateSolanaWallet(trimmedWallet)) {
+      setWalletValidationError('Invalid Solana wallet address format');
+      return;
+    }
+
+    setSavingWallet(true);
+    setWalletValidationError('');
+    
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const { error } = await supabase
+        .from('profiles')
+        .update({ solana_wallet: trimmedWallet || null })
+        .eq('user_id', session.user.id);
+
+      if (error) throw error;
+
+      setProfile(prev => prev ? { ...prev, solana_wallet: trimmedWallet || null } : null);
+      setIsEditingWallet(false);
+      toast.success(trimmedWallet ? 'Wallet address saved successfully' : 'Wallet address removed');
+    } catch (error: any) {
+      console.error('Error updating wallet:', error);
+      toast.error('Failed to update wallet address');
+    } finally {
+      setSavingWallet(false);
+    }
+  };
+
+  const handleCancelWalletEdit = () => {
+    setSolanaWallet(profile?.solana_wallet || '');
+    setIsEditingWallet(false);
+    setWalletValidationError('');
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -312,7 +365,7 @@ export default function MyAccount() {
           </div>
 
           <Tabs defaultValue="info" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 md:grid-cols-5 mb-8 h-auto bg-card/50 backdrop-blur-sm border border-border/50 p-1 gap-1">
+            <TabsList className="grid w-full grid-cols-3 md:grid-cols-6 mb-8 h-auto bg-card/50 backdrop-blur-sm border border-border/50 p-1 gap-1">
               <TabsTrigger 
                 value="info" 
                 className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2 sm:py-3 px-1 sm:px-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary transition-all duration-300 hover:scale-105"
@@ -333,6 +386,13 @@ export default function MyAccount() {
               >
                 <Package className="w-4 h-4" />
                 <span className="text-[9px] sm:text-sm font-medium leading-tight">{t("myEsimsTab")}</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="wallet" 
+                className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2 sm:py-3 px-1 sm:px-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary transition-all duration-300 hover:scale-105"
+              >
+                <Wallet className="w-4 h-4" />
+                <span className="text-[9px] sm:text-sm font-medium leading-tight">{t("walletTab")}</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="earnings" 
@@ -745,6 +805,112 @@ export default function MyAccount() {
                     <Package className="w-4 h-4 md:w-5 md:h-5 mr-2 shrink-0" />
                     <span className="break-words">{t("viewAllOrders")}</span>
                   </Button>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="wallet" className="animate-fade-in">
+              <Card className="border-border/50 bg-card/80 backdrop-blur-xl shadow-xl hover:shadow-2xl transition-all duration-300">
+                <CardHeader className="bg-gradient-to-br from-neon-violet/10 via-transparent to-neon-cyan/10 border-b border-border/50">
+                  <CardTitle className="flex items-center gap-3 text-2xl">
+                    <div className="p-2 bg-neon-violet/10 rounded-lg border border-neon-violet/20">
+                      <Wallet className="w-6 h-6 text-neon-violet" />
+                    </div>
+                    {t("solanaWallet")}
+                  </CardTitle>
+                  <CardDescription className="mt-2 text-sm">
+                    {t("walletDescription")}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pt-6 space-y-6">
+                  <div className="group p-6 rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] transition-all duration-300">
+                    <div className="flex items-center justify-between mb-4">
+                      <p className="text-sm text-white/60 font-medium flex items-center gap-2">
+                        <Wallet className="w-4 h-4" />
+                        {t("walletAddress")}
+                      </p>
+                      {!isEditingWallet && profile?.solana_wallet && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => {
+                            navigator.clipboard.writeText(profile.solana_wallet || '');
+                            toast.success('Wallet address copied!');
+                          }}
+                          className="text-white/50 hover:text-neon-cyan hover:bg-neon-cyan/10"
+                        >
+                          <Copy className="w-4 h-4 mr-1" />
+                          {t("copy")}
+                        </Button>
+                      )}
+                    </div>
+                    
+                    {isEditingWallet ? (
+                      <div className="space-y-4">
+                        <Input
+                          value={solanaWallet}
+                          onChange={(e) => {
+                            setSolanaWallet(e.target.value);
+                            setWalletValidationError('');
+                          }}
+                          className="text-lg font-mono bg-white/[0.05] border-white/20 text-white placeholder:text-white/40 focus:border-neon-violet/50"
+                          placeholder="Enter your Solana wallet address"
+                          autoFocus
+                        />
+                        {walletValidationError && (
+                          <Alert variant="destructive" className="bg-red-500/10 border-red-500/30">
+                            <AlertDescription>{walletValidationError}</AlertDescription>
+                          </Alert>
+                        )}
+                        <div className="flex gap-2">
+                          <Button
+                            onClick={handleSaveWallet}
+                            disabled={savingWallet}
+                            className="bg-neon-violet hover:bg-neon-violet/80"
+                          >
+                            {savingWallet ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Check className="w-4 h-4 mr-2" />}
+                            {t("save")}
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            onClick={handleCancelWalletEdit}
+                            disabled={savingWallet}
+                            className="text-white/70 hover:text-white hover:bg-white/10"
+                          >
+                            <X className="w-4 h-4 mr-2" />
+                            {t("cancel")}
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-3">
+                        {profile?.solana_wallet ? (
+                          <p className="text-xl font-mono text-neon-violet break-all">
+                            {profile.solana_wallet}
+                          </p>
+                        ) : (
+                          <p className="text-lg text-white/40 italic">
+                            {t("noWalletConnected")}
+                          </p>
+                        )}
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => setIsEditingWallet(true)}
+                          className="text-white/50 hover:text-neon-violet hover:bg-neon-violet/10 shrink-0"
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <Alert className="bg-neon-violet/5 border-neon-violet/20">
+                    <Wallet className="h-4 w-4 text-neon-violet" />
+                    <AlertDescription className="text-white/70">
+                      {t("walletRewardInfo")}
+                    </AlertDescription>
+                  </Alert>
                 </CardContent>
               </Card>
             </TabsContent>
