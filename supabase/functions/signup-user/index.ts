@@ -95,12 +95,15 @@ const handler = async (req: Request): Promise<Response> => {
     const hashedCode = await hashCode(code);
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
 
+    // Generate a unique temporary username using user_id to guarantee uniqueness
+    const tempUsername = `user_${userId.replace(/-/g, '').substring(0, 12)}`;
+
     // Create profile with verification code (using service role)
     const { error: profileError } = await supabase
       .from('profiles')
       .upsert({
         user_id: userId,
-        username: `temp_${Date.now()}`,
+        username: tempUsername,
         email: normalizedEmail,
         email_verified: false,
         is_early_member: true,
