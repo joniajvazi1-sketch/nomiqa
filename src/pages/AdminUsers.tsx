@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Users, UserCheck, Wallet, Share2, ShoppingCart, Search, CheckCircle, XCircle, ArrowLeft } from "lucide-react";
+import { Users, UserCheck, Wallet, Search, CheckCircle, XCircle, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface UserData {
@@ -162,7 +162,7 @@ export default function AdminUsers() {
 
         {/* Stats Cards */}
         {stats && (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          <div className="grid grid-cols-3 gap-4">
             <Card>
               <CardContent className="pt-4 pb-4">
                 <div className="flex items-center gap-2">
@@ -188,33 +188,6 @@ export default function AdminUsers() {
                   <span className="text-sm text-muted-foreground">Wallets</span>
                 </div>
                 <p className="text-2xl font-bold mt-1">{stats.wallets_connected}</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="pt-4 pb-4">
-                <div className="flex items-center gap-2">
-                  <Share2 className="w-5 h-5 text-blue-500" />
-                  <span className="text-sm text-muted-foreground">Affiliates</span>
-                </div>
-                <p className="text-2xl font-bold mt-1">{stats.total_affiliates}</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="pt-4 pb-4">
-                <div className="flex items-center gap-2">
-                  <Users className="w-5 h-5 text-orange-500" />
-                  <span className="text-sm text-muted-foreground">Referrals</span>
-                </div>
-                <p className="text-2xl font-bold mt-1">{stats.total_referrals}</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="pt-4 pb-4">
-                <div className="flex items-center gap-2">
-                  <ShoppingCart className="w-5 h-5 text-emerald-500" />
-                  <span className="text-sm text-muted-foreground">Conversions</span>
-                </div>
-                <p className="text-2xl font-bold mt-1">{stats.total_conversions}</p>
               </CardContent>
             </Card>
           </div>
