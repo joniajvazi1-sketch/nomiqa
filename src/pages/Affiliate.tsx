@@ -664,7 +664,7 @@ export default function Affiliate() {
 
                   <Button onClick={createAffiliate} className="w-full" size="lg" disabled={creating}>
                     {creating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    Create My First Affiliate Link
+                    {t("affiliateCreateButton")}
                   </Button>
                 </div>
               </CardContent>

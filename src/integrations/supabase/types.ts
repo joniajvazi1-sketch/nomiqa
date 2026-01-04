@@ -654,6 +654,7 @@ export type Database = {
           is_early_member: boolean
           password_reset_code: string | null
           password_reset_expires_at: string | null
+          solana_wallet: string | null
           updated_at: string
           user_id: string
           username: string
@@ -668,6 +669,7 @@ export type Database = {
           is_early_member?: boolean
           password_reset_code?: string | null
           password_reset_expires_at?: string | null
+          solana_wallet?: string | null
           updated_at?: string
           user_id: string
           username: string
@@ -682,6 +684,7 @@ export type Database = {
           is_early_member?: boolean
           password_reset_code?: string | null
           password_reset_expires_at?: string | null
+          solana_wallet?: string | null
           updated_at?: string
           user_id?: string
           username?: string

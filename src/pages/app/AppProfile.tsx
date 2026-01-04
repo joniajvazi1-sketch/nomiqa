@@ -47,6 +47,7 @@ import { AnimatedProgressBar } from '@/components/app/AnimatedProgressBar';
 interface UserProfile {
   username: string;
   email: string;
+  solana_wallet?: string | null;
 }
 
 interface MembershipData {
@@ -110,6 +111,10 @@ export const AppProfile: React.FC = () => {
   const [newLinkUsername, setNewLinkUsername] = useState('');
   const [userPoints, setUserPoints] = useState<{ total_points: number; total_distance_meters: number } | null>(null);
   const [activeTab, setActiveTab] = useState('account');
+  const [solanaWallet, setSolanaWallet] = useState('');
+  const [isEditingWallet, setIsEditingWallet] = useState(false);
+  const [savingWallet, setSavingWallet] = useState(false);
+  const [walletError, setWalletError] = useState<string | null>(null);
 
   const selectedAffiliate = allAffiliates.find(a => a.id === selectedAffiliateId) || allAffiliates[0];
 
@@ -136,16 +141,18 @@ export const AppProfile: React.FC = () => {
         // Load profile
         const { data: profileData } = await supabase
           .from('profiles')
-          .select('username')
+          .select('username, solana_wallet')
           .eq('user_id', currentUser.id)
           .maybeSingle();
 
         const username = profileData?.username || currentUser.email?.split('@')[0] || 'User';
         setProfile({
           username,
-          email: currentUser.email || ''
+          email: currentUser.email || '',
+          solana_wallet: profileData?.solana_wallet
         });
         setEditedUsername(username);
+        setSolanaWallet(profileData?.solana_wallet || '');
 
         // Load membership
         let { data: membershipData } = await supabase
@@ -275,6 +282,47 @@ export const AppProfile: React.FC = () => {
       toast({ title: 'Failed to update username', variant: 'destructive' });
     } finally {
       setSavingUsername(false);
+    }
+  };
+
+  // Validate Solana wallet address (base58, 32-44 chars)
+  const validateSolanaWallet = (address: string): boolean => {
+    if (!address) return true; // Empty is valid (removes wallet)
+    const base58Regex = /^[1-9A-HJ-NP-Za-km-z]+$/;
+    return address.length >= 32 && address.length <= 44 && base58Regex.test(address);
+  };
+
+  const handleSaveWallet = async () => {
+    const trimmedWallet = solanaWallet.trim();
+    
+    if (trimmedWallet && !validateSolanaWallet(trimmedWallet)) {
+      setWalletError('Invalid Solana wallet address');
+      toast({ title: 'Invalid Solana wallet address', variant: 'destructive' });
+      return;
+    }
+
+    setSavingWallet(true);
+    setWalletError(null);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const { error } = await supabase
+        .from('profiles')
+        .update({ solana_wallet: trimmedWallet || null })
+        .eq('user_id', session.user.id);
+
+      if (error) throw error;
+
+      setProfile(prev => prev ? { ...prev, solana_wallet: trimmedWallet || null } : null);
+      setIsEditingWallet(false);
+      success();
+      toast({ title: trimmedWallet ? 'Wallet saved!' : 'Wallet removed!' });
+    } catch (error) {
+      console.error('Error saving wallet:', error);
+      toast({ title: 'Failed to save wallet', variant: 'destructive' });
+    } finally {
+      setSavingWallet(false);
     }
   };
 
@@ -471,7 +519,7 @@ export const AppProfile: React.FC = () => {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-4 h-auto p-1 bg-card/50 border border-border/50 backdrop-blur-sm">
+        <TabsList className="grid w-full grid-cols-5 h-auto p-1 bg-card/50 border border-border/50 backdrop-blur-sm">
           <TabsTrigger 
             value="account" 
             className="flex flex-col items-center gap-1 py-2 text-[10px] transition-all data-[state=active]:animate-stat-pop"
@@ -495,6 +543,14 @@ export const AppProfile: React.FC = () => {
           >
             <Package className="w-4 h-4" />
             eSIMs
+          </TabsTrigger>
+          <TabsTrigger 
+            value="wallet" 
+            className="flex flex-col items-center gap-1 py-2 text-[10px] transition-all data-[state=active]:animate-stat-pop"
+            onClick={() => lightTap()}
+          >
+            <Wallet className="w-4 h-4" />
+            Wallet
           </TabsTrigger>
           <TabsTrigger 
             value="earn" 
@@ -664,6 +720,98 @@ export const AppProfile: React.FC = () => {
               );
             })
           )}
+        </TabsContent>
+
+        {/* Wallet Tab */}
+        <TabsContent value="wallet" className="mt-4 space-y-4 animate-tab-content-in">
+          <Card className="bg-card/50 border-border/50">
+            <CardContent className="p-4 space-y-4">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="p-2 rounded-full bg-primary/20">
+                  <Wallet className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-foreground">Solana Wallet</h3>
+                  <p className="text-xs text-muted-foreground">Add your wallet to receive rewards</p>
+                </div>
+              </div>
+              
+              {isEditingWallet ? (
+                <div className="space-y-3">
+                  <Input
+                    value={solanaWallet}
+                    onChange={(e) => {
+                      setSolanaWallet(e.target.value);
+                      setWalletError(null);
+                    }}
+                    placeholder="Enter your Solana wallet address"
+                    className="font-mono text-sm bg-background/50"
+                    autoFocus
+                  />
+                  {walletError && (
+                    <p className="text-xs text-red-500">{walletError}</p>
+                  )}
+                  <div className="flex gap-2">
+                    <Button onClick={handleSaveWallet} disabled={savingWallet} className="flex-1 active:scale-95 transition-transform">
+                      {savingWallet ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Check className="w-4 h-4 mr-2" />}
+                      Save
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => {
+                        setIsEditingWallet(false);
+                        setSolanaWallet(profile?.solana_wallet || '');
+                        setWalletError(null);
+                      }}
+                      className="active:scale-95 transition-transform"
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {profile?.solana_wallet ? (
+                    <div className="p-3 bg-background/50 rounded-lg border border-border/50">
+                      <p className="text-xs text-muted-foreground mb-1">Connected Wallet</p>
+                      <p className="font-mono text-sm text-foreground break-all">{profile.solana_wallet}</p>
+                    </div>
+                  ) : (
+                    <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+                      <p className="text-sm text-amber-600 dark:text-amber-400">
+                        No wallet connected. Add your Solana wallet to receive rewards.
+                      </p>
+                    </div>
+                  )}
+                  <Button 
+                    onClick={() => setIsEditingWallet(true)} 
+                    variant={profile?.solana_wallet ? "outline" : "default"}
+                    className="w-full active:scale-95 transition-transform"
+                  >
+                    <Pencil className="w-4 h-4 mr-2" />
+                    {profile?.solana_wallet ? 'Edit Wallet' : 'Add Wallet'}
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Rewards Info */}
+          <Card className="bg-gradient-to-br from-primary/10 to-accent/10 border-primary/20">
+            <CardContent className="p-4">
+              <div className="flex items-start gap-3">
+                <div className="p-2 rounded-full bg-primary/20 mt-0.5">
+                  <Sparkles className="w-4 h-4 text-primary" />
+                </div>
+                <div>
+                  <h4 className="font-semibold text-foreground text-sm mb-1">Earn Real Crypto</h4>
+                  <p className="text-xs text-muted-foreground">
+                    Your affiliate earnings and network rewards will be distributed directly to your Solana wallet in USDC.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         {/* Earn Tab - iOS Style Layout */}
@@ -890,7 +1038,7 @@ export const AppProfile: React.FC = () => {
 
                 <Button onClick={createAffiliate} disabled={creatingAffiliate} className="w-full">
                   {creatingAffiliate ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <CheckCircle2 className="w-4 h-4 mr-2" />}
-                  Create My First Link
+                  Get your Affiliate Link
                 </Button>
               </CardContent>
             </Card>
