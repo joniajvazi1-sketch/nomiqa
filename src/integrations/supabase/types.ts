@@ -154,6 +154,45 @@ export type Database = {
           },
         ]
       }
+      challenges: {
+        Row: {
+          created_at: string | null
+          description: string
+          id: string
+          is_active: boolean | null
+          metric_type: string
+          reward_points: number
+          target_value: number
+          title: string
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description: string
+          id?: string
+          is_active?: boolean | null
+          metric_type: string
+          reward_points: number
+          target_value: number
+          title: string
+          type: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string
+          id?: string
+          is_active?: boolean | null
+          metric_type?: string
+          reward_points?: number
+          target_value?: number
+          title?: string
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       contribution_sessions: {
         Row: {
           average_signal_strength: number | null
@@ -266,6 +305,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      leaderboard_cache: {
+        Row: {
+          id: string
+          monthly_points: number | null
+          rank_all_time: number | null
+          rank_monthly: number | null
+          rank_weekly: number | null
+          total_distance_meters: number | null
+          total_points: number | null
+          updated_at: string | null
+          user_id: string
+          username: string | null
+          weekly_points: number | null
+        }
+        Insert: {
+          id?: string
+          monthly_points?: number | null
+          rank_all_time?: number | null
+          rank_monthly?: number | null
+          rank_weekly?: number | null
+          total_distance_meters?: number | null
+          total_points?: number | null
+          updated_at?: string | null
+          user_id: string
+          username?: string | null
+          weekly_points?: number | null
+        }
+        Update: {
+          id?: string
+          monthly_points?: number | null
+          rank_all_time?: number | null
+          rank_monthly?: number | null
+          rank_weekly?: number | null
+          total_distance_meters?: number | null
+          total_points?: number | null
+          updated_at?: string | null
+          user_id?: string
+          username?: string | null
+          weekly_points?: number | null
+        }
+        Relationships: []
       }
       mining_logs: {
         Row: {
@@ -812,6 +893,53 @@ export type Database = {
           },
         ]
       }
+      user_challenge_progress: {
+        Row: {
+          challenge_id: string
+          claimed_at: string | null
+          completed_at: string | null
+          created_at: string | null
+          current_value: number | null
+          id: string
+          period_start: string
+          started_at: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          challenge_id: string
+          claimed_at?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          current_value?: number | null
+          id?: string
+          period_start?: string
+          started_at?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          challenge_id?: string
+          claimed_at?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          current_value?: number | null
+          id?: string
+          period_start?: string
+          started_at?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_challenge_progress_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "challenges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_points: {
         Row: {
           contribution_streak_days: number | null
@@ -951,6 +1079,7 @@ export type Database = {
         Returns: Json
       }
       update_all_prices: { Args: never; Returns: number }
+      update_leaderboard_rankings: { Args: never; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "user"
