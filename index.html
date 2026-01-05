@@ -18,6 +18,10 @@
     <link rel="preconnect" href="https://api.coingecko.com" crossorigin />
     <link rel="preconnect" href="https://cdn.airalo.com" crossorigin />
     
+    <!-- Preload LCP hero image for faster Largest Contentful Paint -->
+    <link rel="preload" as="image" type="image/webp" href="/src/assets/hero-mobile-sunset.webp" media="(max-width: 767px)" fetchpriority="high" />
+    <link rel="preload" as="image" type="image/png" href="/src/assets/hero-sunset-background.png" media="(min-width: 768px)" fetchpriority="high" />
+    
     <!-- Critical CSS for above-the-fold content - eliminates render blocking -->
     <style>
       :root{--background:220 35% 8%;--foreground:60 9.1% 97.8%;--neon-cyan:180 100% 50%;--neon-violet:270 91% 65%}
