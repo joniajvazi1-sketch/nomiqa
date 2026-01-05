@@ -76,6 +76,10 @@ export const FeaturedProducts = () => {
           <img 
             src={regionImage} 
             alt={countryCode} 
+            width={40}
+            height={28}
+            loading="lazy"
+            decoding="async"
             className="w-10 h-7 rounded object-cover"
           />
         );

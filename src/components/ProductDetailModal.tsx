@@ -54,8 +54,11 @@ export const ProductDetailModal = ({
           <img 
             src={regionImage} 
             alt={countryCode} 
-            className="w-16 h-11 rounded-lg object-cover shadow-lg"
+            width={64}
+            height={44}
             loading="lazy"
+            decoding="async"
+            className="w-16 h-11 rounded-lg object-cover shadow-lg"
           />
         );
       }
@@ -71,8 +74,11 @@ export const ProductDetailModal = ({
         <img 
           src={countryImageUrl} 
           alt={`${countryCode} flag`} 
-          className="w-16 h-11 rounded-lg object-cover shadow-lg"
+          width={64}
+          height={44}
           loading="lazy"
+          decoding="async"
+          className="w-16 h-11 rounded-lg object-cover shadow-lg"
         />
       );
     }

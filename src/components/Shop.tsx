@@ -106,8 +106,11 @@ export const Shop = () => {
           <img 
             src={regionImage} 
             alt={countryCode} 
-            className="w-14 h-10 rounded-lg object-cover shadow-lg"
+            width={56}
+            height={40}
             loading="lazy"
+            decoding="async"
+            className="w-14 h-10 rounded-lg object-cover shadow-lg"
           />
         );
       }
@@ -123,8 +126,11 @@ export const Shop = () => {
         <img 
           src={countryImageUrl} 
           alt={`${countryCode} flag`} 
-          className="w-14 h-10 rounded-lg object-cover shadow-lg"
+          width={56}
+          height={40}
           loading="lazy"
+          decoding="async"
+          className="w-14 h-10 rounded-lg object-cover shadow-lg"
         />
       );
     }
