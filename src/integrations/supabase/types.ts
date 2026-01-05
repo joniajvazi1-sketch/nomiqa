@@ -750,11 +750,14 @@ export type Database = {
           carrier_name: string | null
           cell_id: string | null
           created_at: string | null
+          data_quality_score: number | null
           device_manufacturer: string | null
           device_model: string | null
           frequency_mhz: number | null
           heading_degrees: number | null
           id: string
+          is_indoor: boolean | null
+          is_rare_location: boolean | null
           jitter_ms: number | null
           latency_ms: number | null
           latitude: number
@@ -786,11 +789,14 @@ export type Database = {
           carrier_name?: string | null
           cell_id?: string | null
           created_at?: string | null
+          data_quality_score?: number | null
           device_manufacturer?: string | null
           device_model?: string | null
           frequency_mhz?: number | null
           heading_degrees?: number | null
           id?: string
+          is_indoor?: boolean | null
+          is_rare_location?: boolean | null
           jitter_ms?: number | null
           latency_ms?: number | null
           latitude: number
@@ -822,11 +828,14 @@ export type Database = {
           carrier_name?: string | null
           cell_id?: string | null
           created_at?: string | null
+          data_quality_score?: number | null
           device_manufacturer?: string | null
           device_model?: string | null
           frequency_mhz?: number | null
           heading_degrees?: number | null
           id?: string
+          is_indoor?: boolean | null
+          is_rare_location?: boolean | null
           jitter_ms?: number | null
           latency_ms?: number | null
           latitude?: number

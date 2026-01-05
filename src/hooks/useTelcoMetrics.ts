@@ -3,6 +3,11 @@ import { Capacitor } from '@capacitor/core';
 import { Position } from '@capacitor/geolocation';
 import { Device } from '@capacitor/device';
 import { usePlatform } from './usePlatform';
+import { 
+  TelephonyInfoPlugin, 
+  isTelephonyPluginAvailable
+} from '@/plugins/TelephonyInfoPlugin';
+import { calculateDataQualityScore } from '@/utils/dataQualityScoring';
 
 /**
  * Telco-Grade Signal Metrics
@@ -55,6 +60,8 @@ export interface SignalLogEntry extends TelcoMetrics {
   headingDegrees?: number;
   recordedAt: string;
   sessionId?: string;
+  dataQualityScore?: number; // 0-100 quality score
+  isMockLocation?: boolean; // Anti-cheat flag
 }
 
 // Minimum distance between logs (meters)
@@ -145,7 +152,7 @@ export const useTelcoMetrics = () => {
 
   /**
    * Get current telco metrics
-   * Platform-specific implementation
+   * Platform-specific implementation with native plugin support
    */
   const getTelcoMetrics = useCallback(async (connectionType: string): Promise<TelcoMetrics> => {
     const metrics: TelcoMetrics = {
@@ -163,14 +170,43 @@ export const useTelcoMetrics = () => {
       return metrics;
     }
     
-    if (isAndroid) {
-      // Android: Can potentially access TelephonyManager via native plugin
-      // For now, we use what's available from the network plugin
-      // Note: Full RSRP/RSRQ requires a custom native plugin or Capacitor plugin
+    if (isAndroid && isTelephonyPluginAvailable()) {
+      // Android with native plugin: Full telco-grade data
+      try {
+        const signalInfo = await TelephonyInfoPlugin.getSignalInfo();
+        
+        // Apply native metrics
+        if (signalInfo.rsrp) metrics.rsrp = signalInfo.rsrp;
+        if (signalInfo.rsrq) metrics.rsrq = signalInfo.rsrq;
+        if (signalInfo.rssi) metrics.rssi = signalInfo.rssi;
+        if (signalInfo.sinr) metrics.sinr = signalInfo.sinr;
+        if (signalInfo.cellId) metrics.cellId = signalInfo.cellId;
+        if (signalInfo.tac) metrics.tac = signalInfo.tac;
+        if (signalInfo.pci) metrics.pci = signalInfo.pci;
+        if (signalInfo.mcc) metrics.mcc = signalInfo.mcc;
+        if (signalInfo.mnc) metrics.mnc = signalInfo.mnc;
+        if (signalInfo.mccMnc) metrics.mccMnc = signalInfo.mccMnc;
+        if (signalInfo.carrierName) metrics.carrierName = signalInfo.carrierName;
+        if (signalInfo.networkType) metrics.networkType = signalInfo.networkType;
+        if (signalInfo.isRoaming !== undefined) metrics.roamingStatus = signalInfo.isRoaming;
+        if (signalInfo.bandNumber) metrics.bandNumber = signalInfo.bandNumber;
+        if (signalInfo.frequencyMhz) metrics.frequencyMhz = signalInfo.frequencyMhz;
+        if (signalInfo.bandwidthMhz) metrics.bandwidthMhz = signalInfo.bandwidthMhz;
+        
+        console.log('[TelcoMetrics] Native Android signal data acquired:', {
+          rsrp: metrics.rsrp,
+          networkType: metrics.networkType,
+          cellId: metrics.cellId
+        });
+      } catch (error) {
+        console.warn('[TelcoMetrics] Native plugin error, using fallback:', error);
+        await getAndroidSignalMetrics(metrics);
+      }
+    } else if (isAndroid) {
+      // Android without native plugin: Use Connection API fallback
       await getAndroidSignalMetrics(metrics);
     } else if (isIOS) {
       // iOS: Limited by Apple's privacy restrictions
-      // Can only get Carrier name and Radio Access Technology
       await getIOSSignalMetrics(metrics);
     }
     
@@ -239,7 +275,7 @@ export const useTelcoMetrics = () => {
   }, []);
 
   /**
-   * Create a full signal log entry
+   * Create a full signal log entry with quality score
    */
   const createSignalLogEntry = useCallback(async (
     position: Position,
@@ -248,7 +284,18 @@ export const useTelcoMetrics = () => {
   ): Promise<SignalLogEntry> => {
     const telcoMetrics = await getTelcoMetrics(connectionType);
     
-    return {
+    // Check for mock location on Android
+    let isMockLocation = false;
+    if (isAndroid && isTelephonyPluginAvailable()) {
+      try {
+        const mockCheck = await TelephonyInfoPlugin.isMockLocationEnabled();
+        isMockLocation = mockCheck.isMock;
+      } catch {
+        // Ignore error, assume not mocked
+      }
+    }
+    
+    const entry: SignalLogEntry = {
       ...telcoMetrics,
       latitude: position.coords.latitude,
       longitude: position.coords.longitude,
@@ -257,9 +304,38 @@ export const useTelcoMetrics = () => {
       speedMps: position.coords.speed || undefined,
       headingDegrees: position.coords.heading || undefined,
       recordedAt: new Date().toISOString(),
-      sessionId
+      sessionId,
+      isMockLocation
     };
-  }, [getTelcoMetrics]);
+    
+    // Calculate data quality score
+    const qualityResult = calculateDataQualityScore({
+      network_type: entry.networkType,
+      accuracy_meters: entry.accuracyMeters,
+      rsrp: entry.rsrp,
+      rsrq: entry.rsrq,
+      sinr: entry.sinr,
+      rssi: entry.rssi,
+      cell_id: entry.cellId,
+      mcc: entry.mcc,
+      mnc: entry.mnc,
+      carrier_name: entry.carrierName,
+      speed_test_down: entry.speedTestDown,
+      speed_test_up: entry.speedTestUp,
+      latency_ms: entry.latencyMs,
+      band_number: entry.bandNumber,
+      frequency_mhz: entry.frequencyMhz,
+      latitude: entry.latitude,
+      longitude: entry.longitude,
+      is_indoor: entry.accuracyMeters ? entry.accuracyMeters > 30 : false
+    });
+    
+    entry.dataQualityScore = qualityResult.totalScore;
+    
+    console.log('[TelcoMetrics] Signal log created with quality score:', qualityResult.totalScore);
+    
+    return entry;
+  }, [getTelcoMetrics, isAndroid]);
 
   /**
    * Reset logging position (call when starting new session)

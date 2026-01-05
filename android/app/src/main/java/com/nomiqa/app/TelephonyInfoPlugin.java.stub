@@ -1,0 +1,243 @@
+/**
+ * TelephonyInfoPlugin - Native Android Implementation Stub
+ * 
+ * This file provides the structure for the native Android Capacitor plugin
+ * that accesses TelephonyManager APIs for telco-grade signal metrics.
+ * 
+ * TO IMPLEMENT:
+ * 1. Rename this file to TelephonyInfoPlugin.java
+ * 2. Add to your Android project's MainActivity or as a separate plugin
+ * 3. Register in your app's capacitor.config.ts
+ * 
+ * Required Permissions (add to AndroidManifest.xml):
+ *   <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+ *   <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+ *   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+ */
+
+package com.nomiqa.app;
+
+import android.Manifest;
+import android.content.Context;
+import android.location.Location;
+import android.location.LocationManager;
+import android.os.Build;
+import android.telephony.CellIdentityLte;
+import android.telephony.CellIdentityNr;
+import android.telephony.CellInfo;
+import android.telephony.CellInfoLte;
+import android.telephony.CellInfoNr;
+import android.telephony.CellSignalStrengthLte;
+import android.telephony.CellSignalStrengthNr;
+import android.telephony.ServiceState;
+import android.telephony.SubscriptionInfo;
+import android.telephony.SubscriptionManager;
+import android.telephony.TelephonyManager;
+
+import com.getcapacitor.JSObject;
+import com.getcapacitor.Plugin;
+import com.getcapacitor.PluginCall;
+import com.getcapacitor.PluginMethod;
+import com.getcapacitor.annotation.CapacitorPlugin;
+import com.getcapacitor.annotation.Permission;
+import com.getcapacitor.annotation.PermissionCallback;
+
+import java.util.List;
+
+@CapacitorPlugin(
+    name = "TelephonyInfoPlugin",
+    permissions = {
+        @Permission(
+            alias = "location",
+            strings = { Manifest.permission.ACCESS_FINE_LOCATION }
+        ),
+        @Permission(
+            alias = "phoneState", 
+            strings = { Manifest.permission.READ_PHONE_STATE }
+        )
+    }
+)
+public class TelephonyInfoPlugin extends Plugin {
+
+    private TelephonyManager telephonyManager;
+    private SubscriptionManager subscriptionManager;
+    private LocationManager locationManager;
+
+    @Override
+    public void load() {
+        Context context = getContext();
+        telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+        subscriptionManager = (SubscriptionManager) context.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE);
+        locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+    }
+
+    @PluginMethod
+    public void getSignalInfo(PluginCall call) {
+        JSObject result = new JSObject();
+        
+        try {
+            // Get all cell info
+            List<CellInfo> cellInfoList = telephonyManager.getAllCellInfo();
+            
+            if (cellInfoList != null && !cellInfoList.isEmpty()) {
+                for (CellInfo cellInfo : cellInfoList) {
+                    if (!cellInfo.isRegistered()) continue;
+                    
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && cellInfo instanceof CellInfoNr) {
+                        // 5G NR
+                        CellInfoNr cellInfoNr = (CellInfoNr) cellInfo;
+                        CellSignalStrengthNr signalNr = (CellSignalStrengthNr) cellInfoNr.getCellSignalStrength();
+                        CellIdentityNr identityNr = (CellIdentityNr) cellInfoNr.getCellIdentity();
+                        
+                        result.put("networkType", "5G_SA");
+                        result.put("rsrp", signalNr.getSsRsrp());
+                        result.put("rsrq", signalNr.getSsRsrq());
+                        result.put("sinr", signalNr.getSsSinr());
+                        result.put("pci", identityNr.getPci());
+                        result.put("tac", String.valueOf(identityNr.getTac()));
+                        result.put("mcc", identityNr.getMccString());
+                        result.put("mnc", identityNr.getMncString());
+                        
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                            result.put("bandNumber", identityNr.getBands().length > 0 ? identityNr.getBands()[0] : null);
+                        }
+                        break;
+                        
+                    } else if (cellInfo instanceof CellInfoLte) {
+                        // LTE
+                        CellInfoLte cellInfoLte = (CellInfoLte) cellInfo;
+                        CellSignalStrengthLte signalLte = cellInfoLte.getCellSignalStrength();
+                        CellIdentityLte identityLte = cellInfoLte.getCellIdentity();
+                        
+                        result.put("networkType", "LTE");
+                        result.put("rsrp", signalLte.getRsrp());
+                        result.put("rsrq", signalLte.getRsrq());
+                        result.put("rssi", signalLte.getRssi());
+                        
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            result.put("sinr", signalLte.getRssnr());
+                        }
+                        
+                        result.put("cellId", String.valueOf(identityLte.getCi()));
+                        result.put("pci", identityLte.getPci());
+                        result.put("tac", String.valueOf(identityLte.getTac()));
+                        result.put("mcc", identityLte.getMccString());
+                        result.put("mnc", identityLte.getMncString());
+                        
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                            result.put("bandNumber", identityLte.getBandwidth() / 1000); // Convert to MHz
+                        }
+                        break;
+                    }
+                    // Add handlers for WCDMA, GSM, etc. as needed
+                }
+            }
+            
+            // Get carrier name
+            result.put("carrierName", telephonyManager.getNetworkOperatorName());
+            
+            // Get roaming status
+            result.put("isRoaming", telephonyManager.isNetworkRoaming());
+            
+            // Get MCC/MNC combined
+            String networkOperator = telephonyManager.getNetworkOperator();
+            if (networkOperator != null && networkOperator.length() >= 5) {
+                result.put("mccMnc", networkOperator.substring(0, 3) + "-" + networkOperator.substring(3));
+            }
+            
+        } catch (SecurityException e) {
+            result.put("error", "Permission denied: " + e.getMessage());
+        } catch (Exception e) {
+            result.put("error", "Failed to get signal info: " + e.getMessage());
+        }
+        
+        call.resolve(result);
+    }
+
+    @PluginMethod
+    public void getCarrierInfo(PluginCall call) {
+        JSObject result = new JSObject();
+        
+        try {
+            result.put("carrierName", telephonyManager.getNetworkOperatorName());
+            
+            String networkOperator = telephonyManager.getNetworkOperator();
+            if (networkOperator != null && networkOperator.length() >= 5) {
+                result.put("mcc", networkOperator.substring(0, 3));
+                result.put("mnc", networkOperator.substring(3));
+            }
+            
+            result.put("isRoaming", telephonyManager.isNetworkRoaming());
+            
+        } catch (SecurityException e) {
+            result.put("error", "Permission denied");
+        }
+        
+        call.resolve(result);
+    }
+
+    @PluginMethod
+    public void isMockLocationEnabled(PluginCall call) {
+        JSObject result = new JSObject();
+        
+        try {
+            // Check if mock location is enabled
+            boolean isMock = false;
+            
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                // Android 12+: Check location.isMock()
+                // This requires getting the last known location
+                Location lastLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                if (lastLocation != null) {
+                    isMock = lastLocation.isMock();
+                }
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                // Android 6-11: Check isFromMockProvider()
+                Location lastLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                if (lastLocation != null) {
+                    isMock = lastLocation.isFromMockProvider();
+                }
+            } else {
+                // Older Android: Check developer options setting
+                String mockLocation = android.provider.Settings.Secure.getString(
+                    getContext().getContentResolver(),
+                    android.provider.Settings.Secure.ALLOW_MOCK_LOCATION
+                );
+                isMock = "1".equals(mockLocation);
+            }
+            
+            result.put("isMock", isMock);
+            
+        } catch (SecurityException e) {
+            result.put("isMock", false);
+            result.put("error", "Permission denied");
+        }
+        
+        call.resolve(result);
+    }
+
+    @PluginMethod
+    public void checkPermissions(PluginCall call) {
+        JSObject result = new JSObject();
+        result.put("location", hasPermission(Manifest.permission.ACCESS_FINE_LOCATION));
+        result.put("phoneState", hasPermission(Manifest.permission.READ_PHONE_STATE));
+        call.resolve(result);
+    }
+
+    @PluginMethod
+    public void requestPermissions(PluginCall call) {
+        requestAllPermissions(call, "permissionCallback");
+    }
+
+    @PermissionCallback
+    private void permissionCallback(PluginCall call) {
+        JSObject result = new JSObject();
+        result.put("location", hasPermission(Manifest.permission.ACCESS_FINE_LOCATION));
+        result.put("phoneState", hasPermission(Manifest.permission.READ_PHONE_STATE));
+        call.resolve(result);
+    }
+
+    private boolean hasPermission(String permission) {
+        return getPermissionState(permission) == PermissionState.GRANTED;
+    }
+}

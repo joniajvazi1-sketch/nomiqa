@@ -169,7 +169,7 @@ export const useNetworkContribution = () => {
         session.id
       );
       
-      // Insert into signal_logs table
+      // Insert into signal_logs table with quality score
       const { error } = await supabase.from('signal_logs').insert({
         user_id: user.id,
         session_id: session.id,
@@ -202,7 +202,11 @@ export const useNetworkContribution = () => {
         band_number: signalLog.bandNumber,
         frequency_mhz: signalLog.frequencyMhz,
         bandwidth_mhz: signalLog.bandwidthMhz,
-        recorded_at: signalLog.recordedAt
+        recorded_at: signalLog.recordedAt,
+        // New quality scoring fields
+        data_quality_score: signalLog.dataQualityScore,
+        is_mock_location: signalLog.isMockLocation,
+        is_indoor: signalLog.accuracyMeters ? signalLog.accuracyMeters > 30 : false
       });
       
       if (error) {
