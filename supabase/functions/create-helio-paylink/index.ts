@@ -132,12 +132,12 @@ serve(async (req) => {
 
       const totalUsd = Number(product.price_usd) * Number(quantity);
 
+      // Create order (non-PII fields only)
       const { data: createdOrder, error: createError } = await supabase
         .from('orders')
         .insert({
           user_id: userId,
-          email,
-          full_name: fullName || 'Customer',
+          email: 'see-orders-pii@private', // Placeholder - real email in orders_pii
           product_id: product.id,
           package_name: product.name,
           data_amount: product.data_amount,
@@ -155,7 +155,23 @@ serve(async (req) => {
         throw new Error('Failed to create order');
       }
 
+      // Insert PII into secure orders_pii table
+      const { error: piiError } = await supabase
+        .from('orders_pii')
+        .insert({
+          id: createdOrder.id,
+          email: email,
+          full_name: fullName || 'Customer'
+        });
+
+      if (piiError) {
+        console.error('Error inserting order PII:', piiError);
+        // Don't fail the order creation, just log the error
+      }
+
       order = createdOrder;
+      // Add email back to order object for response/logging
+      order.email = email;
       orderId = createdOrder.id;
       console.log('Created order on server:', orderId);
     }
