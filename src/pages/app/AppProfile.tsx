@@ -23,7 +23,9 @@ import {
   ChevronRight,
   Wallet,
   MapPin,
-  Activity
+  Activity,
+  BarChart3,
+  Shield
 } from 'lucide-react';
 import { AppSpinner } from '@/components/app/AppSpinner';
 import { Loader2 } from 'lucide-react';
@@ -44,6 +46,8 @@ import { AnimatedStatCard } from '@/components/app/AnimatedStatCard';
 import { AnimatedCounter } from '@/components/app/AnimatedCounter';
 import { AnimatedProgressBar } from '@/components/app/AnimatedProgressBar';
 import { useTranslation } from '@/contexts/TranslationContext';
+import { AnalyticsDashboard } from '@/components/app/AnalyticsDashboard';
+import { PrivacyControls } from '@/components/app/PrivacyControls';
 
 interface UserProfile {
   username: string;
@@ -521,7 +525,7 @@ export const AppProfile: React.FC = () => {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-5 h-auto p-1 bg-card/50 border border-border/50 backdrop-blur-sm">
+        <TabsList className="grid w-full grid-cols-7 h-auto p-1 bg-card/50 border border-border/50 backdrop-blur-sm">
           <TabsTrigger 
             value="account" 
             className="flex flex-col items-center gap-1 py-2 text-[10px] transition-all data-[state=active]:animate-stat-pop"
@@ -529,6 +533,14 @@ export const AppProfile: React.FC = () => {
           >
             <User className="w-4 h-4" />
             Account
+          </TabsTrigger>
+          <TabsTrigger 
+            value="analytics" 
+            className="flex flex-col items-center gap-1 py-2 text-[10px] transition-all data-[state=active]:animate-stat-pop"
+            onClick={() => lightTap()}
+          >
+            <BarChart3 className="w-4 h-4" />
+            Data
           </TabsTrigger>
           <TabsTrigger 
             value="membership" 
@@ -553,6 +565,14 @@ export const AppProfile: React.FC = () => {
           >
             <Wallet className="w-4 h-4" />
             Wallet
+          </TabsTrigger>
+          <TabsTrigger 
+            value="privacy" 
+            className="flex flex-col items-center gap-1 py-2 text-[10px] transition-all data-[state=active]:animate-stat-pop"
+            onClick={() => lightTap()}
+          >
+            <Shield className="w-4 h-4" />
+            Privacy
           </TabsTrigger>
           <TabsTrigger 
             value="earn" 
@@ -600,6 +620,11 @@ export const AppProfile: React.FC = () => {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* Analytics Tab - NEW */}
+        <TabsContent value="analytics" className="mt-4 animate-tab-content-in">
+          <AnalyticsDashboard />
         </TabsContent>
 
         {/* Membership Tab */}
@@ -814,6 +839,11 @@ export const AppProfile: React.FC = () => {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* Privacy Tab - NEW */}
+        <TabsContent value="privacy" className="mt-4 animate-tab-content-in">
+          <PrivacyControls />
         </TabsContent>
 
         {/* Earn Tab - iOS Style Layout */}
