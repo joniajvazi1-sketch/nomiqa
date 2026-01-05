@@ -26,21 +26,39 @@ export const RadarScanner: React.FC<RadarScannerProps> = ({
           <div className="absolute w-[20%] h-[20%] rounded-full border border-neon-cyan/50" />
         </div>
 
-        {/* Radar sweep beam */}
+        {/* Radar sweep beam - Enhanced with trailing glow */}
         {isActive && !isPaused && (
-          <div 
-            className="absolute inset-0 origin-center"
-            style={{
-              animation: 'radar-sweep 2s linear infinite'
-            }}
-          >
+          <>
+            {/* Primary sweep */}
             <div 
-              className="absolute top-0 left-1/2 w-1/2 h-1/2 origin-bottom-left"
+              className="absolute inset-0 origin-center"
               style={{
-                background: 'conic-gradient(from 0deg, transparent 0deg, hsl(var(--neon-cyan) / 0.4) 30deg, transparent 60deg)'
+                animation: 'radar-sweep 2s linear infinite'
               }}
-            />
-          </div>
+            >
+              <div 
+                className="absolute top-0 left-1/2 w-1/2 h-1/2 origin-bottom-left"
+                style={{
+                  background: 'conic-gradient(from 0deg, transparent 0deg, hsl(var(--neon-cyan) / 0.5) 20deg, hsl(var(--neon-cyan) / 0.3) 40deg, transparent 60deg)'
+                }}
+              />
+            </div>
+            {/* Secondary sweep trail */}
+            <div 
+              className="absolute inset-0 origin-center"
+              style={{
+                animation: 'radar-sweep 2s linear infinite',
+                animationDelay: '-0.3s'
+              }}
+            >
+              <div 
+                className="absolute top-0 left-1/2 w-1/2 h-1/2 origin-bottom-left opacity-40"
+                style={{
+                  background: 'conic-gradient(from 0deg, transparent 0deg, hsl(var(--neon-cyan) / 0.3) 15deg, transparent 30deg)'
+                }}
+              />
+            </div>
+          </>
         )}
 
         {/* Signal dots - animated when active */}
@@ -76,12 +94,29 @@ export const RadarScanner: React.FC<RadarScannerProps> = ({
           </>
         )}
 
-        {/* Paused state - dashed border */}
+        {/* Paused state - Enhanced pulsing WiFi indicator */}
         {isPaused && (
-          <div 
-            className="absolute inset-4 rounded-full border-4 border-dashed border-amber-400/50"
-            style={{ animation: 'spin 8s linear infinite' }}
-          />
+          <>
+            <div 
+              className="absolute inset-4 rounded-full border-4 border-dashed border-amber-400/50"
+              style={{ animation: 'spin 8s linear infinite' }}
+            />
+            {/* Pulsing WiFi waves */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              {[1, 2, 3].map((ring) => (
+                <div
+                  key={ring}
+                  className="absolute rounded-full border-2 border-amber-400/30"
+                  style={{
+                    width: `${30 + ring * 15}%`,
+                    height: `${30 + ring * 15}%`,
+                    animation: `wifi-pulse 2s ease-in-out infinite`,
+                    animationDelay: `${ring * 0.2}s`
+                  }}
+                />
+              ))}
+            </div>
+          </>
         )}
 
         {/* Center glow */}
@@ -130,6 +165,20 @@ export const RadarScanner: React.FC<RadarScannerProps> = ({
           />
         </svg>
       )}
+
+      {/* CSS Animations */}
+      <style>{`
+        @keyframes wifi-pulse {
+          0%, 100% { 
+            opacity: 0.3;
+            transform: scale(1);
+          }
+          50% { 
+            opacity: 0.6;
+            transform: scale(1.02);
+          }
+        }
+      `}</style>
     </div>
   );
 };

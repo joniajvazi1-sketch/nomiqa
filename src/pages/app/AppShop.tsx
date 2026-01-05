@@ -26,7 +26,7 @@ import { useCart } from '@/hooks/useCart';
 import { useHaptics } from '@/hooks/useHaptics';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
-import { AppSpinner } from '@/components/app/AppSpinner';
+import { SkeletonProductCard } from '@/components/app/SkeletonProductCard';
 import { CompatibilityChecker } from '@/components/CompatibilityChecker';
 import {
   Dialog,
@@ -364,8 +364,8 @@ export const AppShop: React.FC = () => {
 
         {/* Products Grid */}
         {isLoading ? (
-          <div className="flex flex-col items-center justify-center py-20">
-            <AppSpinner size="lg" label="Loading eSIM plans..." />
+          <div className="grid grid-cols-2 gap-3">
+            <SkeletonProductCard count={8} />
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-3">
