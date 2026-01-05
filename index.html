@@ -14,8 +14,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="dns-prefetch" href="https://gzhmbiopiciugriatsdb.supabase.co" />
     <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
-    <!-- Defer non-critical API preconnects -->
-    <link rel="dns-prefetch" href="https://api.coingecko.com" />
+    <!-- Preconnect to API origins used after initial render -->
+    <link rel="preconnect" href="https://api.coingecko.com" crossorigin />
+    <link rel="preconnect" href="https://cdn.airalo.com" crossorigin />
     
     <!-- Critical CSS for above-the-fold content - eliminates render blocking -->
     <style>

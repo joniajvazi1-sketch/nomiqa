@@ -35,18 +35,30 @@ export const useSolanaPrice = () => {
       }
     };
 
-    // Defer fetch to after initial render to avoid blocking LCP
+    // Defer fetch to after initial render using requestIdleCallback to avoid blocking LCP
     let intervalId: ReturnType<typeof setInterval>;
-    const timeoutId = setTimeout(() => {
+    let timeoutId: ReturnType<typeof setTimeout>;
+    
+    const startFetching = () => {
       fetchPrice();
       // Refresh every 60 seconds
       intervalId = setInterval(fetchPrice, 60000);
-    }, 2000); // Delay 2s after mount to prioritize LCP
-    
-    return () => {
-      clearTimeout(timeoutId);
-      if (intervalId) clearInterval(intervalId);
     };
+    
+    // Use requestIdleCallback for truly non-blocking defer, fallback to setTimeout
+    if ('requestIdleCallback' in window) {
+      const idleId = (window as any).requestIdleCallback(startFetching, { timeout: 5000 });
+      return () => {
+        (window as any).cancelIdleCallback(idleId);
+        if (intervalId) clearInterval(intervalId);
+      };
+    } else {
+      timeoutId = setTimeout(startFetching, 3000);
+      return () => {
+        clearTimeout(timeoutId);
+        if (intervalId) clearInterval(intervalId);
+      };
+    }
   }, []);
 
   return { price, isLoading, error };
