@@ -241,12 +241,28 @@ export const NetworkContribution: React.FC = () => {
 
         {/* Alerts section - compact */}
         <div className="space-y-2 mb-4">
-          {/* WiFi Warning - More prominent when paused */}
+          {/* WiFi Warning - Enhanced with pulsing WiFi icon and breathing animation */}
           {isActive && !isCellular && (
-            <div className="rounded-2xl bg-amber-500/20 backdrop-blur-xl border border-amber-500/40 p-4 animate-fade-in">
+            <div 
+              className="rounded-2xl bg-amber-500/20 backdrop-blur-xl border border-amber-500/40 p-4 animate-fade-in"
+              style={{ animation: 'breathing 3s ease-in-out infinite' }}
+            >
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center flex-shrink-0">
-                  <Wifi className="h-6 w-6 text-amber-400" />
+                {/* Pulsing WiFi icon container */}
+                <div className="relative w-12 h-12 flex items-center justify-center flex-shrink-0">
+                  {/* Pulsing rings behind icon */}
+                  <div 
+                    className="absolute inset-0 rounded-full bg-amber-500/20"
+                    style={{ animation: 'wifi-icon-pulse 2s ease-in-out infinite' }}
+                  />
+                  <div 
+                    className="absolute inset-1 rounded-full bg-amber-500/30"
+                    style={{ animation: 'wifi-icon-pulse 2s ease-in-out infinite 0.3s' }}
+                  />
+                  <Wifi 
+                    className="h-6 w-6 text-amber-400 relative z-10" 
+                    style={{ animation: 'wifi-icon-bounce 1.5s ease-in-out infinite' }}
+                  />
                 </div>
                 <div className="flex-1">
                   <div className="text-sm font-semibold text-amber-200 mb-0.5">Mining Paused</div>
@@ -254,9 +270,21 @@ export const NetworkContribution: React.FC = () => {
                     Switch to 5G/LTE to continue earning points
                   </div>
                 </div>
-                <div className="text-right">
+                {/* Connecting dots indicator */}
+                <div className="flex flex-col items-end gap-1">
                   <div className="text-xs text-amber-400/60 uppercase font-mono">WiFi</div>
-                  <div className="text-xs text-amber-400/40">Detected</div>
+                  <div className="flex gap-1">
+                    {[0, 1, 2].map((dot) => (
+                      <div
+                        key={dot}
+                        className="w-1.5 h-1.5 rounded-full bg-amber-400"
+                        style={{
+                          animation: 'connecting-dots-small 1.4s ease-in-out infinite',
+                          animationDelay: `${dot * 0.2}s`
+                        }}
+                      />
+                    ))}
+                  </div>
                 </div>
               </div>
               
@@ -267,6 +295,26 @@ export const NetworkContribution: React.FC = () => {
                   <span className="text-sm font-mono text-amber-300">{stats.pointsEarned.toFixed(1)} pts</span>
                 </div>
               )}
+              
+              {/* CSS for WiFi warning animations */}
+              <style>{`
+                @keyframes breathing {
+                  0%, 100% { transform: scale(1); opacity: 1; }
+                  50% { transform: scale(1.01); opacity: 0.95; }
+                }
+                @keyframes wifi-icon-pulse {
+                  0%, 100% { transform: scale(1); opacity: 0.3; }
+                  50% { transform: scale(1.3); opacity: 0; }
+                }
+                @keyframes wifi-icon-bounce {
+                  0%, 100% { transform: translateY(0); }
+                  50% { transform: translateY(-2px); }
+                }
+                @keyframes connecting-dots-small {
+                  0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); }
+                  40% { opacity: 1; transform: scale(1.3); }
+                }
+              `}</style>
             </div>
           )}
 
