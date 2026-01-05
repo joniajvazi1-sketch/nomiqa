@@ -17,6 +17,22 @@
     <!-- Defer non-critical API preconnects -->
     <link rel="dns-prefetch" href="https://api.coingecko.com" />
     
+    <!-- Critical CSS for above-the-fold content - eliminates render blocking -->
+    <style>
+      :root{--background:220 35% 8%;--foreground:60 9.1% 97.8%;--neon-cyan:180 100% 50%;--neon-violet:270 91% 65%}
+      *,::before,::after{box-sizing:border-box}
+      html{line-height:1.5;-webkit-text-size-adjust:100%}
+      body{margin:0;font-family:Inter,system-ui,sans-serif;background:hsl(var(--background));color:hsl(var(--foreground))}
+      #root{min-height:100vh}
+      .container{width:100%;margin:0 auto;padding:0 1rem}
+      @media(min-width:640px){.container{max-width:640px}}
+      @media(min-width:768px){.container{max-width:768px}}
+      @media(min-width:1024px){.container{max-width:1024px}}
+      @media(min-width:1280px){.container{max-width:1280px}}
+      .animate-fade-in{animation:fadeIn .5s ease-out forwards;opacity:0}
+      @keyframes fadeIn{to{opacity:1}}
+    </style>
+    
     <!-- Fonts loaded via Google Fonts stylesheet with display=swap for optimal loading -->
     
     <title>nomiqa - The worlds first crypto eSIM for digital freedom</title>
@@ -52,11 +68,7 @@
   <body>
     <!-- Critical inline styles for immediate visual feedback -->
     <style>
-      /* Match app background exactly for seamless overscroll */
-      html, body, #root { 
-        min-height: 100vh; 
-        background-color: hsl(220, 35%, 8%); 
-      }
+      /* Match app background exactly for seamless overscroll - already defined in head critical CSS */
     </style>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
