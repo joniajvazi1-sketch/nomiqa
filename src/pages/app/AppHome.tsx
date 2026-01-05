@@ -21,6 +21,8 @@ import { useAchievements } from '@/hooks/useAchievements';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { StreakBonus, MilestonePopup, AchievementBadge } from '@/components/app/AchievementSystem';
 import { NotificationToggle } from '@/components/app/NotificationToggle';
+import { ChallengesSection } from '@/components/app/ChallengesSection';
+import { LeaderboardSection } from '@/components/app/LeaderboardSection';
 
 interface DailyEarning {
   date: string;
@@ -462,10 +464,36 @@ export const AppHome: React.FC = () => {
           </div>
         )}
 
+        {/* CHALLENGES SECTION */}
+        {user && (
+          <div 
+            className="animate-fade-in"
+            style={{ animationDelay: '400ms' }}
+          >
+            <ChallengesSection 
+              compact={true} 
+              onViewAll={() => handleNavigation('/app/wallet')}
+            />
+          </div>
+        )}
+
+        {/* LEADERBOARD SECTION */}
+        {user && (
+          <div 
+            className="animate-fade-in"
+            style={{ animationDelay: '450ms' }}
+          >
+            <LeaderboardSection 
+              compact={true}
+              onViewAll={() => handleNavigation('/app/wallet')}
+            />
+          </div>
+        )}
+
         {/* MAP PREVIEW STRIP */}
         <div 
           className="relative rounded-2xl overflow-hidden cursor-pointer active:scale-[0.98] transition-all duration-300 group animate-fade-in"
-          style={{ animationDelay: '400ms' }}
+          style={{ animationDelay: '500ms' }}
           onClick={() => handleNavigation('/app/map')}
         >
           <div className="absolute inset-0 bg-white/[0.03] backdrop-blur-xl" />

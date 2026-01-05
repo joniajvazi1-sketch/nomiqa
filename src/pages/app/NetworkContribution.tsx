@@ -12,7 +12,8 @@ import {
   Gauge,
   ArrowDown,
   ArrowUp,
-  Loader2
+  Loader2,
+  Building2
 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useNetworkContribution } from '@/hooks/useNetworkContribution';
@@ -22,6 +23,7 @@ import { useHaptics } from '@/hooks/useHaptics';
 import { ContributionMap } from '@/components/app/ContributionMap';
 import { RewardCelebration } from '@/components/app/RewardCelebration';
 import { SignalQualityDial } from '@/components/app/SignalQualityDial';
+import { IndoorModeToggle, IndoorModeIndicator } from '@/components/app/IndoorModeToggle';
 import { cn } from '@/lib/utils';
 
 /**
@@ -39,6 +41,7 @@ export const NetworkContribution: React.FC = () => {
   const [celebrationPoints, setCelebrationPoints] = useState(0);
   const [celebrationType, setCelebrationType] = useState<'milestone' | 'session-end'>('milestone');
   const [showHeatmap, setShowHeatmap] = useState(false);
+  const [indoorMode, setIndoorMode] = useState(false);
   const startButtonRef = useRef<HTMLButtonElement>(null);
   
   // Network contribution hook
@@ -81,6 +84,12 @@ export const NetworkContribution: React.FC = () => {
   // Signal strength simulation based on connection type
   const connStr = String(connectionType).toLowerCase();
   const signalStrength = connStr.includes('5g') ? 95 : connStr.includes('4g') || connStr.includes('lte') ? 80 : connStr.includes('3g') ? 60 : 40;
+
+  // Indoor mode multiplier (1.5x)
+  const indoorMultiplier = indoorMode ? 1.5 : 1;
+  
+  // GPS accuracy for auto-detecting indoor
+  const gpsAccuracy = lastPosition?.coords?.accuracy;
 
   // Use real speed test data when available, otherwise estimate
   const downloadSpeed = stats.lastSpeedTest?.down ?? (isActive ? (signalStrength * 0.8 + Math.random() * 20) : 0);
@@ -166,7 +175,7 @@ export const NetworkContribution: React.FC = () => {
         }}
       >
         {/* TOP STATUS CAPSULE */}
-        <div className="flex items-center justify-center mb-4">
+        <div className="flex items-center justify-center gap-2 mb-4">
           <div className={cn(
             'flex items-center gap-3 px-4 py-2 rounded-full backdrop-blur-xl border transition-all',
             isActive && isCellular 
@@ -195,6 +204,9 @@ export const NetworkContribution: React.FC = () => {
             >
               {getConnectionLabel()}
             </span>
+            
+            {/* Indoor mode indicator */}
+            {indoorMode && <IndoorModeIndicator isIndoor={true} />}
             
             {/* Signal bars */}
             <div className="flex items-end gap-0.5 h-4">
@@ -373,8 +385,18 @@ export const NetworkContribution: React.FC = () => {
           </div>
         </div>
 
-        {/* BOTTOM: Speed Test + Stats */}
+        {/* BOTTOM: Indoor Mode + Speed Test + Stats */}
         <div className="space-y-3 mt-auto">
+          {/* Indoor Mode Toggle */}
+          {isActive && (
+            <IndoorModeToggle
+              isIndoor={indoorMode}
+              onToggle={setIndoorMode}
+              disabled={!isCellular}
+              gpsAccuracy={gpsAccuracy}
+            />
+          )}
+
           {/* Current session points breakdown */}
           {isActive && (
             <div className="rounded-2xl bg-black/40 backdrop-blur-xl border border-white/10 p-3 animate-fade-in">
@@ -382,12 +404,18 @@ export const NetworkContribution: React.FC = () => {
                 <div className="flex items-center gap-2">
                   <Zap className="w-4 h-4 text-neon-cyan" />
                   <span className="text-sm font-semibold text-foreground">Session Points</span>
+                  {indoorMode && (
+                    <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 text-[10px] font-bold flex items-center gap-1">
+                      <Building2 className="w-2.5 h-2.5" />
+                      1.5x
+                    </span>
+                  )}
                 </div>
                 <span 
                   className="text-lg font-bold text-neon-cyan"
                   style={{ fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace' }}
                 >
-                  +{stats.pointsEarned.toFixed(1)}
+                  +{(stats.pointsEarned * indoorMultiplier).toFixed(1)}
                 </span>
               </div>
               
@@ -395,15 +423,15 @@ export const NetworkContribution: React.FC = () => {
               <div className="grid grid-cols-3 gap-2 text-xs">
                 <div className="flex flex-col items-center p-2 rounded-lg bg-white/5">
                   <span className="text-muted-foreground">Time</span>
-                  <span className="font-mono text-foreground">+{stats.timePoints.toFixed(1)}</span>
+                  <span className="font-mono text-foreground">+{(stats.timePoints * indoorMultiplier).toFixed(1)}</span>
                 </div>
                 <div className="flex flex-col items-center p-2 rounded-lg bg-white/5">
                   <span className="text-muted-foreground">Distance</span>
-                  <span className="font-mono text-foreground">+{stats.distancePoints.toFixed(1)}</span>
+                  <span className="font-mono text-foreground">+{(stats.distancePoints * indoorMultiplier).toFixed(1)}</span>
                 </div>
                 <div className="flex flex-col items-center p-2 rounded-lg bg-neon-cyan/10 border border-neon-cyan/20">
                   <span className="text-neon-cyan/80">Speed Tests</span>
-                  <span className="font-mono text-neon-cyan">+{stats.speedTestPoints.toFixed(1)}</span>
+                  <span className="font-mono text-neon-cyan">+{(stats.speedTestPoints * indoorMultiplier).toFixed(1)}</span>
                 </div>
               </div>
             </div>

@@ -21,7 +21,8 @@ import {
   CreditCard,
   Star,
   Trophy,
-  Flame
+  Flame,
+  Target
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -33,6 +34,8 @@ import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { useAchievements } from '@/hooks/useAchievements';
 import { AchievementBadge, MilestonePopup, StreakBonus } from '@/components/app/AchievementSystem';
+import { ChallengesSection } from '@/components/app/ChallengesSection';
+import { LeaderboardSection } from '@/components/app/LeaderboardSection';
 
 interface RecentSession {
   id: string;
@@ -387,6 +390,12 @@ export const AppWallet: React.FC = () => {
             </div>
           </div>
         )}
+
+        {/* CHALLENGES SECTION - Full view */}
+        <ChallengesSection compact={false} />
+
+        {/* LEADERBOARD SECTION - Full view */}
+        <LeaderboardSection compact={false} />
 
         {/* Quick Actions */}
         <div className="grid grid-cols-4 gap-3">
