@@ -472,26 +472,15 @@ export type Database = {
           access_token: string | null
           access_token_expires_at: string | null
           access_token_invalidated: boolean | null
-          activation_code: string | null
           airlo_order_id: string | null
           airlo_request_id: string | null
           created_at: string
           data_amount: string | null
-          email: string
-          full_name: string | null
-          iccid: string | null
+          email: string | null
           id: string
-          lpa: string | null
-          manual_installation: string | null
-          matching_id: string | null
           package_name: string | null
           product_id: string
-          qr_code_url: string | null
-          qrcode: string | null
-          qrcode_installation: string | null
           referral_code: string | null
-          sharing_access_code: string | null
-          sharing_link: string | null
           status: string
           total_amount_usd: number
           updated_at: string
@@ -503,26 +492,15 @@ export type Database = {
           access_token?: string | null
           access_token_expires_at?: string | null
           access_token_invalidated?: boolean | null
-          activation_code?: string | null
           airlo_order_id?: string | null
           airlo_request_id?: string | null
           created_at?: string
           data_amount?: string | null
-          email: string
-          full_name?: string | null
-          iccid?: string | null
+          email?: string | null
           id?: string
-          lpa?: string | null
-          manual_installation?: string | null
-          matching_id?: string | null
           package_name?: string | null
           product_id: string
-          qr_code_url?: string | null
-          qrcode?: string | null
-          qrcode_installation?: string | null
           referral_code?: string | null
-          sharing_access_code?: string | null
-          sharing_link?: string | null
           status?: string
           total_amount_usd: number
           updated_at?: string
@@ -534,26 +512,15 @@ export type Database = {
           access_token?: string | null
           access_token_expires_at?: string | null
           access_token_invalidated?: boolean | null
-          activation_code?: string | null
           airlo_order_id?: string | null
           airlo_request_id?: string | null
           created_at?: string
           data_amount?: string | null
-          email?: string
-          full_name?: string | null
-          iccid?: string | null
+          email?: string | null
           id?: string
-          lpa?: string | null
-          manual_installation?: string | null
-          matching_id?: string | null
           package_name?: string | null
           product_id?: string
-          qr_code_url?: string | null
-          qrcode?: string | null
-          qrcode_installation?: string | null
           referral_code?: string | null
-          sharing_access_code?: string | null
-          sharing_link?: string | null
           status?: string
           total_amount_usd?: number
           updated_at?: string

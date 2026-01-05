@@ -223,12 +223,11 @@ serve(async (req) => {
       console.log(`[${correlationId}] Transaction marked as processed`);
     }
 
-    // Update order with payment details
+    // Update order status (no PII updates here - email column removed from orders)
     const { error: updateError } = await supabase
       .from('orders')
       .update({
         status: 'paid',
-        email: customerDetails.email || order.email,
         updated_at: new Date().toISOString(),
       })
       .eq('id', order.id);
@@ -236,6 +235,14 @@ serve(async (req) => {
     if (updateError) {
       console.error('Error updating order:', updateError);
       throw updateError;
+    }
+
+    // Update email in orders_pii if provided by customer
+    if (customerDetails.email) {
+      await supabase
+        .from('orders_pii')
+        .update({ email: customerDetails.email, updated_at: new Date().toISOString() })
+        .eq('id', order.id);
     }
 
     console.log('Order updated successfully');
@@ -375,13 +382,27 @@ serve(async (req) => {
         hasSharingLink: !!sim?.sharing?.link
       });
 
-      // Update order with complete eSIM details and branded sharing info
-      console.log('Updating order in database...');
+      // Update order status (non-PII fields only)
+      console.log('Updating order status in database...');
       const { error: updateError } = await supabase
         .from('orders')
         .update({
           status: 'completed',
           airlo_order_id: orderData.id?.toString(),
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', order.id);
+
+      if (updateError) {
+        console.error('Failed to update order:', updateError);
+        throw new Error(`Failed to update order: ${updateError.message}`);
+      }
+
+      // Update PII in secure orders_pii table
+      console.log('Updating eSIM details in secure PII table...');
+      const { error: piiError } = await supabase
+        .from('orders_pii')
+        .update({
           iccid: sim.iccid,
           lpa: sim.lpa,
           matching_id: sim.matching_id,
@@ -396,9 +417,9 @@ serve(async (req) => {
         })
         .eq('id', order.id);
 
-      if (updateError) {
-        console.error('Failed to update order:', updateError);
-        throw new Error(`Failed to update order: ${updateError.message}`);
+      if (piiError) {
+        console.error('Failed to update order PII:', piiError);
+        // Log but don't throw - order completion is more important
       }
 
       console.log('✓ Order updated successfully in database');

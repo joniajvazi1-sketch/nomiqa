@@ -138,29 +138,19 @@ serve(async (req) => {
       .eq('airlo_package_id', packageId)
       .single();
 
-    // Create order record with eSIM details - always use authenticated user ID
+    // Create order record (non-PII only) - always use authenticated user ID
     const { data: order, error: orderError } = await supabase
       .from('orders')
       .insert({
         user_id: authenticatedUserId,
         product_id: product?.id,
-        email,
+        email: 'see-orders-pii@private', // Placeholder - real email in orders_pii
         total_amount_usd: product?.price_usd || 0,
         status: 'completed',
         airlo_order_id: orderData.id?.toString(),
-        iccid: esimData?.iccid,
-        lpa: esimData?.lpa,
-        matching_id: esimData?.matching_id,
-        qrcode: esimData?.qrcode,
-        qr_code_url: esimData?.qrcode_url,
-        activation_code: esimData?.matching_id,
-        manual_installation: orderData.manual_installation,
-        qrcode_installation: orderData.qrcode_installation,
         package_name: product?.name,
         data_amount: product?.data_amount,
-        validity_days: product?.validity_days,
-        sharing_link: sharingData?.link,
-        sharing_access_code: sharingData?.access_code
+        validity_days: product?.validity_days
       })
       .select()
       .single();
@@ -169,7 +159,30 @@ serve(async (req) => {
       throw orderError;
     }
 
-    // Fetch PII back from orders_pii for the response (trigger clears it from orders)
+    // Insert PII into separate secure table (orders_pii)
+    const { error: piiError } = await supabase
+      .from('orders_pii')
+      .insert({
+        id: order.id,
+        email,
+        iccid: esimData?.iccid,
+        lpa: esimData?.lpa,
+        matching_id: esimData?.matching_id,
+        qrcode: esimData?.qrcode,
+        qr_code_url: esimData?.qrcode_url,
+        activation_code: esimData?.matching_id,
+        manual_installation: orderData.manual_installation,
+        qrcode_installation: orderData.qrcode_installation,
+        sharing_link: sharingData?.link,
+        sharing_access_code: sharingData?.access_code
+      });
+
+    if (piiError) {
+      console.error('Failed to insert order PII:', piiError);
+      // Don't throw - order was created, PII insert failure is logged but shouldn't fail the order
+    }
+
+    // Fetch PII back from orders_pii for the response
     const { data: orderPii } = await supabase
       .from('orders_pii')
       .select('email, full_name, iccid, lpa, qrcode, qr_code_url, activation_code, matching_id, manual_installation, qrcode_installation, sharing_link, sharing_access_code')
