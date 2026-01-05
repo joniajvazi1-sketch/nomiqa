@@ -1,7 +1,5 @@
-import { Navbar } from "@/components/Navbar";
 import { FAQ } from "@/components/FAQ";
 import { SiteNavigation } from "@/components/SiteNavigation";
-import { Footer } from "@/components/Footer";
 import { SupportChatbot } from "@/components/SupportChatbot";
 import { NetworkBackground } from "@/components/NetworkBackground";
 import { MessageCircle, Mail } from "lucide-react";
@@ -27,8 +25,6 @@ const Help = () => {
         <div className="absolute top-20 left-10 w-96 h-96 bg-neon-cyan/30 rounded-full blur-3xl"></div>
         <div className="absolute bottom-20 right-10 w-80 h-80 bg-neon-violet/30 rounded-full blur-3xl"></div>
       </div>
-      
-      <Navbar />
       
       {/* Help Center Section */}
       <section className="pt-32 md:pt-40 pb-12 md:pb-16 relative overflow-hidden">
@@ -111,7 +107,6 @@ const Help = () => {
       <FAQ showAll />
       
       <SiteNavigation />
-      <Footer />
       <SupportChatbot />
     </div>
   );

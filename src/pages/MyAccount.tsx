@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Navbar } from "@/components/Navbar";
 import { SiteNavigation } from "@/components/SiteNavigation";
-import { Footer } from "@/components/Footer";
 import { SupportChatbot } from "@/components/SupportChatbot";
 import { NetworkBackground } from "@/components/NetworkBackground";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -359,7 +357,6 @@ export default function MyAccount() {
       </div>
       
       <Confetti trigger={showConfetti} onComplete={() => setShowConfetti(false)} />
-      <Navbar />
       
       <main className="container mx-auto px-4 pt-32 md:pt-24 pb-16 relative z-10">
         <div className="max-w-6xl mx-auto">
@@ -1185,7 +1182,6 @@ export default function MyAccount() {
       </main>
 
       <SiteNavigation />
-      <Footer />
       <SupportChatbot />
     </div>
   );

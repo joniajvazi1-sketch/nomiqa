@@ -1,6 +1,4 @@
-import { Navbar } from "@/components/Navbar";
 import { SiteNavigation } from "@/components/SiteNavigation";
-import { Footer } from "@/components/Footer";
 import { SupportChatbot } from "@/components/SupportChatbot";
 import { NetworkBackground } from "@/components/NetworkBackground";
 import { Coins, Rocket, TrendingUp, Lock, Zap } from "lucide-react";
@@ -63,9 +61,6 @@ const Token = () => {
         <div className="absolute top-60 right-20 w-[500px] h-[500px] bg-neon-cyan/30 rounded-full blur-3xl"></div>
         <div className="absolute bottom-40 left-1/3 w-80 h-80 bg-neon-coral/20 rounded-full blur-3xl"></div>
       </div>
-      
-      <Navbar />
-      
       <main className="relative z-10 pt-24 md:pt-32 pb-20 px-4" ref={sectionRef}>
         <div className="max-w-6xl mx-auto">
           {/* Hero Section */}
@@ -159,7 +154,6 @@ const Token = () => {
       </main>
 
       <SiteNavigation />
-      <Footer />
       <SupportChatbot />
     </div>
   );
