@@ -1,7 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { Navbar } from "@/components/Navbar";
 import { SiteNavigation } from "@/components/SiteNavigation";
-import { Footer } from "@/components/Footer";
 import { SupportChatbot } from "@/components/SupportChatbot";
 import { NetworkBackground } from "@/components/NetworkBackground";
 import { AnimatedCounter } from "@/components/AnimatedCounter";
@@ -489,8 +487,6 @@ export default function Affiliate() {
         <div className="absolute top-20 left-10 w-96 h-96 bg-orange-500/30 rounded-full blur-3xl"></div>
         <div className="absolute bottom-20 right-10 w-[500px] h-[500px] bg-neon-coral/30 rounded-full blur-3xl"></div>
       </div>
-
-      <Navbar />
       
       <section className="pt-28 md:pt-24 pb-12 md:pb-16 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-deep-space/80 via-midnight-blue/60 to-deep-space/80 backdrop-blur-sm"></div>
@@ -1057,7 +1053,6 @@ export default function Affiliate() {
       </div>
 
       <SiteNavigation />
-      <Footer />
       <SupportChatbot />
     </div>;
 }

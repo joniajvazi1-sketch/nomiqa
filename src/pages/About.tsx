@@ -1,6 +1,4 @@
-import { Navbar } from "@/components/Navbar";
 import { SiteNavigation } from "@/components/SiteNavigation";
-import { Footer } from "@/components/Footer";
 import { SupportChatbot } from "@/components/SupportChatbot";
 import { NetworkBackground } from "@/components/NetworkBackground";
 import { Globe, Heart, Users, Zap } from "lucide-react";
@@ -44,9 +42,6 @@ export default function About() {
         <div className="absolute bottom-20 right-10 w-[500px] h-[500px] bg-neon-coral/30 rounded-full blur-3xl"></div>
         <div className="absolute top-1/2 left-1/3 w-80 h-80 bg-rose-500/20 rounded-full blur-3xl"></div>
       </div>
-      
-      <Navbar />
-      
       {/* Hero Section with warm imagery */}
       <section className="relative pt-32 md:pt-40 pb-20 px-4 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-deep-space/40 to-black/60"></div>
@@ -193,7 +188,6 @@ export default function About() {
       </section>
       
       <SiteNavigation />
-      <Footer />
       <SupportChatbot />
     </div>
   );

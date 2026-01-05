@@ -1,6 +1,4 @@
-import { Navbar } from "@/components/Navbar";
 import { SiteNavigation } from "@/components/SiteNavigation";
-import { Footer } from "@/components/Footer";
 import { SupportChatbot } from "@/components/SupportChatbot";
 import { NetworkBackground } from "@/components/NetworkBackground";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -91,9 +89,6 @@ export default function Roadmap() {
         <div className="absolute bottom-40 left-20 w-[500px] h-[500px] bg-neon-cyan/30 rounded-full blur-3xl"></div>
         <div className="absolute top-1/2 right-1/4 w-80 h-80 bg-neon-coral/20 rounded-full blur-3xl"></div>
       </div>
-      
-      <Navbar />
-      
       <div className="container mx-auto px-4 py-20 relative z-10">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12 animate-fade-in">
@@ -168,7 +163,6 @@ export default function Roadmap() {
       </div>
 
       <SiteNavigation />
-      <Footer />
       <SupportChatbot />
     </div>
   );

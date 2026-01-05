@@ -1,6 +1,4 @@
-import { Navbar } from "@/components/Navbar";
 import { SiteNavigation } from "@/components/SiteNavigation";
-import { Footer } from "@/components/Footer";
 import { SupportChatbot } from "@/components/SupportChatbot";
 import { NetworkBackground } from "@/components/NetworkBackground";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -90,9 +88,6 @@ export default function GettingStarted() {
         <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-neon-violet rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1.5s' }}></div>
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-neon-coral rounded-full blur-3xl animate-pulse" style={{ animationDelay: '3s' }}></div>
       </div>
-
-      <Navbar />
-      
       {/* Hero Section */}
       <section className="relative pt-32 pb-16 md:pb-20 px-4">
         <div className="container max-w-5xl mx-auto relative z-10">
@@ -236,7 +231,6 @@ export default function GettingStarted() {
       </section>
 
       <SiteNavigation />
-      <Footer />
       <SupportChatbot />
     </div>
   );

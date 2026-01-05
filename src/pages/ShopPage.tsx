@@ -1,8 +1,6 @@
 import { lazy, Suspense } from "react";
-import { Navbar } from "@/components/Navbar";
 import { Shop } from "@/components/Shop";
 import { SiteNavigation } from "@/components/SiteNavigation";
-import { Footer } from "@/components/Footer";
 import { SEO } from "@/components/SEO";
 import { NetworkBackground } from "@/components/NetworkBackground";
 
@@ -21,12 +19,10 @@ const ShopPage = () => {
         <div className="absolute top-40 right-20 w-80 h-80 bg-neon-violet/20 rounded-full blur-2xl"></div>
       </div>
       
-      <Navbar />
       <div className="pt-20 relative z-10">
         <Shop />
       </div>
       <SiteNavigation />
-      <Footer />
       <Suspense fallback={null}>
         <SupportChatbot />
       </Suspense>

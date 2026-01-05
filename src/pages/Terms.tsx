@@ -1,6 +1,4 @@
-import { Navbar } from "@/components/Navbar";
 import { SiteNavigation } from "@/components/SiteNavigation";
-import { Footer } from "@/components/Footer";
 import { SupportChatbot } from "@/components/SupportChatbot";
 import { NetworkBackground } from "@/components/NetworkBackground";
 import { useTranslation } from "@/contexts/TranslationContext";
@@ -25,9 +23,6 @@ export default function Terms() {
         <div className="absolute top-40 left-20 w-96 h-96 bg-neon-cyan/30 rounded-full blur-3xl"></div>
         <div className="absolute bottom-20 right-20 w-[500px] h-[500px] bg-neon-violet/30 rounded-full blur-3xl"></div>
       </div>
-      
-      <Navbar />
-      
       <div className="pt-24 pb-20 px-4">
         <div className={`max-w-4xl mx-auto transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           
@@ -361,7 +356,6 @@ export default function Terms() {
       </div>
 
       <SiteNavigation />
-      <Footer />
       <SupportChatbot />
     </div>
   );

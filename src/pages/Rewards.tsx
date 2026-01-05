@@ -1,7 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Navbar } from "@/components/Navbar";
 import { SiteNavigation } from "@/components/SiteNavigation";
-import { Footer } from "@/components/Footer";
 import { SupportChatbot } from "@/components/SupportChatbot";
 import { NetworkBackground } from "@/components/NetworkBackground";
 import { Plane, Compass, Mountain, Rocket, Wallet, Sparkles, Zap } from "lucide-react";
@@ -73,9 +71,6 @@ export default function Rewards() {
         <div className="absolute top-40 right-20 w-80 h-80 bg-neon-coral/30 rounded-full blur-3xl"></div>
         <div className="absolute bottom-40 left-1/4 w-[500px] h-[500px] bg-amber-500/20 rounded-full blur-3xl"></div>
       </div>
-      
-      <Navbar />
-      
       <main ref={sectionRef} className="relative z-10 pt-32 pb-20 px-4 sm:px-6">
         <div className="container mx-auto max-w-6xl">
           {/* Hero Section */}
@@ -178,7 +173,6 @@ export default function Rewards() {
       </main>
 
       <SiteNavigation />
-      <Footer />
       <SupportChatbot />
     </div>
   );

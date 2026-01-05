@@ -1,6 +1,4 @@
-import { Navbar } from "@/components/Navbar";
 import { SiteNavigation } from "@/components/SiteNavigation";
-import { Footer } from "@/components/Footer";
 import { SupportChatbot } from "@/components/SupportChatbot";
 import { NetworkBackground } from "@/components/NetworkBackground";
 import { Shield, Eye, Lock, Globe, Fingerprint, Database } from "lucide-react";
@@ -41,9 +39,6 @@ export default function Privacy() {
         <div className="absolute bottom-20 right-10 w-96 h-96 bg-blue-500/30 rounded-full blur-3xl"></div>
         <div className="absolute top-1/2 right-1/3 w-[400px] h-[400px] bg-neon-cyan/20 rounded-full blur-3xl"></div>
       </div>
-      
-      <Navbar />
-      
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 px-4 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-deep-space/80 via-midnight-blue/60 to-deep-space/80 backdrop-blur-sm"></div>
@@ -156,7 +151,6 @@ export default function Privacy() {
       </section>
       
       <SiteNavigation />
-      <Footer />
       <SupportChatbot />
     </div>
   );
