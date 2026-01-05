@@ -22,6 +22,31 @@ export default defineConfig(({ mode }) => ({
           }
           return 'assets/[name]-[hash][extname]';
         },
+        // Manual chunk splitting to reduce main bundle size
+        manualChunks: {
+          // Core React framework
+          'react-vendor': ['react', 'react-dom'],
+          // Router
+          'router': ['react-router-dom'],
+          // State management and data fetching
+          'query': ['@tanstack/react-query'],
+          // UI components library
+          'radix': [
+            '@radix-ui/react-accordion',
+            '@radix-ui/react-alert-dialog',
+            '@radix-ui/react-dialog',
+            '@radix-ui/react-dropdown-menu',
+            '@radix-ui/react-popover',
+            '@radix-ui/react-select',
+            '@radix-ui/react-tabs',
+            '@radix-ui/react-toast',
+            '@radix-ui/react-tooltip',
+          ],
+          // Animation library
+          'framer': ['framer-motion'],
+          // Supabase client
+          'supabase': ['@supabase/supabase-js'],
+        },
       },
     },
   },
