@@ -3,6 +3,19 @@ import { MapPin, Loader2, Layers, Map as MapIcon } from 'lucide-react';
 import { HeatmapPoint } from '@/hooks/useContributionHeatmap';
 import { cn } from '@/lib/utils';
 
+// Lazy load Leaflet CSS only when this component is used
+let leafletCssLoaded = false;
+const loadLeafletCss = () => {
+  if (leafletCssLoaded || typeof document === 'undefined') return;
+  leafletCssLoaded = true;
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+  link.integrity = 'sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=';
+  link.crossOrigin = '';
+  document.head.appendChild(link);
+};
+
 interface ContributionMapProps {
   userPosition: [number, number] | null;
   isActive: boolean;
@@ -57,6 +70,9 @@ export const ContributionMap: React.FC<ContributionMapProps> = ({
       if (!mapRef.current || leafletMapRef.current) return;
       
       try {
+        // Load Leaflet CSS dynamically
+        loadLeafletCss();
+        
         const L = await import('leaflet');
         leafletRef.current = L;
         
