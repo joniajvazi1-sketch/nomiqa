@@ -101,8 +101,8 @@ export const Hero = () => {
             </div>
           </div>
 
-          {/* Main Headline */}
-          <div className="text-center mb-6 md:mb-8 animate-fade-in" style={{ animationDelay: "0.1s" }}>
+          {/* Main Headline - No animation for faster LCP */}
+          <div className="text-center mb-6 md:mb-8">
             <h1 className="text-3xl md:text-5xl lg:text-6xl xl:text-7xl font-semibold font-display leading-[1.1] tracking-tight">
               <span className="block bg-gradient-to-r from-neon-cyan via-white to-neon-violet bg-clip-text text-transparent">
                 {t("heroNetworkHeadline")}
@@ -110,8 +110,8 @@ export const Hero = () => {
             </h1>
           </div>
           
-          {/* Subheadline */}
-          <div className="text-center mb-8 md:mb-10 max-w-2xl mx-auto animate-fade-in" style={{ animationDelay: "0.15s" }}>
+          {/* Subheadline - No animation for faster LCP */}
+          <div className="text-center mb-8 md:mb-10 max-w-2xl mx-auto">
             <p className="text-base md:text-lg lg:text-xl text-white/90 font-light leading-relaxed">
               {t("heroNetworkSubheadline")}
             </p>
