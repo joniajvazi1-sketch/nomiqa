@@ -2,36 +2,28 @@
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
 
-# Cache images for 1 year
-*.png
-  Cache-Control: public, max-age=31536000, immutable
-
-*.jpg
-  Cache-Control: public, max-age=31536000, immutable
-
-*.jpeg
-  Cache-Control: public, max-age=31536000, immutable
-
-*.gif
-  Cache-Control: public, max-age=31536000, immutable
-
-*.webp
-  Cache-Control: public, max-age=31536000, immutable
-
-*.svg
-  Cache-Control: public, max-age=31536000, immutable
-
-# Cache fonts for 1 year
-*.woff
-  Cache-Control: public, max-age=31536000, immutable
-
-*.woff2
-  Cache-Control: public, max-age=31536000, immutable
-
 # Cache region images
 /regions/*
   Cache-Control: public, max-age=31536000, immutable
 
-# Cache logo
+# Cache logo and public images
 /nomiqa-logo.jpg
   Cache-Control: public, max-age=31536000, immutable
+
+/nomiqa-og-image.jpg
+  Cache-Control: public, max-age=31536000, immutable
+
+/nomiqa-token-logo.gif
+  Cache-Control: public, max-age=31536000, immutable
+
+# Cache all static files by extension pattern
+/*
+  Cache-Control: public, max-age=31536000, immutable
+  ! Content-Type: text/html
+
+# HTML pages - shorter cache with revalidation
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+/
+  Cache-Control: public, max-age=0, must-revalidate
