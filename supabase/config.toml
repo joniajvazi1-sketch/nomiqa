@@ -71,3 +71,6 @@ verify_jwt = true
 
 [functions.delete-user]
 verify_jwt = true
+
+[functions.get-global-coverage]
+verify_jwt = false
