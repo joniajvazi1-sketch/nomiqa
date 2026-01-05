@@ -191,6 +191,10 @@ export const AppShop: React.FC = () => {
           <img 
             src={regionImage} 
             alt="" 
+            width={size === 'sm' ? 56 : 80}
+            height={size === 'sm' ? 56 : 64}
+            loading="lazy"
+            decoding="async"
             className={cn(sizeClasses, 'object-cover border border-white/10 shadow-lg transition-transform group-hover:scale-105')}
           />
         );
@@ -202,6 +206,10 @@ export const AppShop: React.FC = () => {
         <img 
           src={imageUrl} 
           alt="" 
+          width={size === 'sm' ? 56 : 80}
+          height={size === 'sm' ? 56 : 64}
+          loading="lazy"
+          decoding="async"
           className={cn(sizeClasses, 'object-cover border border-white/10 shadow-lg transition-transform group-hover:scale-105')}
         />
       );
