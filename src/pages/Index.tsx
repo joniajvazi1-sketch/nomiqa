@@ -26,16 +26,26 @@ const Index = () => {
   return (
     <>
       <Hero />
-      {/* Lazy load all sections below hero for faster TTI */}
+      {/* Progressive loading: critical sections first, then lower priority */}
       <Suspense fallback={<LoadingSpinner />}>
         <DePINAdvantage />
+      </Suspense>
+      <Suspense fallback={<LoadingSpinner />}>
         <HowYouEarn />
+      </Suspense>
+      <Suspense fallback={<LoadingSpinner />}>
         <GlobalNetworkMap />
         <TrustPartners />
+      </Suspense>
+      <Suspense fallback={<LoadingSpinner />}>
         <FeaturedProducts />
+      </Suspense>
+      <Suspense fallback={<LoadingSpinner />}>
         <WhyNomiqa />
         <HowItWorksSteps />
         <ScrollableFeatures />
+      </Suspense>
+      <Suspense fallback={<LoadingSpinner />}>
         <CoverageSection />
         <FAQ />
         <SiteNavigation />

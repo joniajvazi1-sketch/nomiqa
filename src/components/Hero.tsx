@@ -15,7 +15,12 @@ export const Hero = () => {
   const [username, setUsername] = useState<string | null>(null);
 
   useEffect(() => {
-    const checkAuthAndFetchProfile = async () => {
+    // Defer auth check to after initial paint for faster TTI
+    const timeoutId = requestIdleCallback ? 
+      requestIdleCallback(() => checkAuth()) : 
+      setTimeout(() => checkAuth(), 100);
+    
+    async function checkAuth() {
       const { data: { session } } = await supabase.auth.getSession();
       setIsLoggedIn(!!session);
       
@@ -30,30 +35,30 @@ export const Hero = () => {
           setUsername(profile.username);
         }
       }
-    };
-    checkAuthAndFetchProfile();
+    }
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_, session) => {
       setIsLoggedIn(!!session);
       
       if (session?.user) {
-        setTimeout(async () => {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('username')
-            .eq('user_id', session.user.id)
-            .maybeSingle();
-          
-          if (profile?.username) {
-            setUsername(profile.username);
-          }
-        }, 0);
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('username')
+          .eq('user_id', session.user.id)
+          .maybeSingle();
+        
+        if (profile?.username) {
+          setUsername(profile.username);
+        }
       } else {
         setUsername(null);
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+      if (typeof timeoutId === 'number') clearTimeout(timeoutId);
+    };
   }, []);
 
   const getGreeting = () => {
