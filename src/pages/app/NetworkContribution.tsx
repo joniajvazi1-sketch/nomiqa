@@ -18,6 +18,7 @@ import {
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useNetworkContribution } from '@/hooks/useNetworkContribution';
 import { useContributionHeatmap } from '@/hooks/useContributionHeatmap';
+import { useGlobalCoverage } from '@/hooks/useGlobalCoverage';
 import { usePlatform } from '@/hooks/usePlatform';
 import { useHaptics } from '@/hooks/useHaptics';
 import { ContributionMap } from '@/components/app/ContributionMap';
@@ -26,13 +27,15 @@ import { SignalQualityDial } from '@/components/app/SignalQualityDial';
 import { IndoorModeToggle, IndoorModeIndicator } from '@/components/app/IndoorModeToggle';
 import { cn } from '@/lib/utils';
 
+type CoverageMode = 'personal' | 'global';
+
 /**
  * Network Contribution Page - Premium Scanning Experience
  * 
- * Phase A2 Redesign + B2 Heatmap:
+ * Phase A2 Redesign + B2 Heatmap + Phase 5 Global Coverage:
  * - Top status capsule showing connection type
  * - Center quality dial with signal metrics
- * - Toggle between live view and coverage heatmap
+ * - Toggle between personal heatmap and global community coverage
  */
 export const NetworkContribution: React.FC = () => {
   const { isAndroid } = usePlatform();
@@ -42,6 +45,7 @@ export const NetworkContribution: React.FC = () => {
   const [celebrationType, setCelebrationType] = useState<'milestone' | 'session-end'>('milestone');
   const [showHeatmap, setShowHeatmap] = useState(false);
   const [indoorMode, setIndoorMode] = useState(false);
+  const [coverageMode, setCoverageMode] = useState<CoverageMode>('personal');
   const startButtonRef = useRef<HTMLButtonElement>(null);
   
   // Network contribution hook
@@ -65,7 +69,7 @@ export const NetworkContribution: React.FC = () => {
     triggerManualSpeedTest
   } = useNetworkContribution();
 
-  // Heatmap data hook
+  // Heatmap data hook (personal)
   const { 
     points: heatmapPoints, 
     loading: heatmapLoading,
@@ -73,6 +77,19 @@ export const NetworkContribution: React.FC = () => {
     coverageAreaKm,
     refresh: refreshHeatmap
   } = useContributionHeatmap();
+
+  // Global coverage hook
+  const {
+    data: globalCoverageData,
+    loading: globalCoverageLoading,
+    error: globalCoverageError,
+    refresh: refreshGlobalCoverage,
+    networkFilter,
+    setNetworkFilter,
+  } = useGlobalCoverage({
+    autoRefresh: coverageMode === 'global',
+    refreshInterval: 60000, // 1 minute
+  });
 
   const isActive = session.status === 'active';
   
@@ -136,7 +153,7 @@ export const NetworkContribution: React.FC = () => {
     return 'Cellular';
   };
 
-  // Toggle heatmap view
+  // Toggle heatmap view (personal mode)
   const handleToggleHeatmap = useCallback(() => {
     mediumTap();
     setShowHeatmap(prev => !prev);
@@ -144,6 +161,24 @@ export const NetworkContribution: React.FC = () => {
       refreshHeatmap();
     }
   }, [showHeatmap, mediumTap, refreshHeatmap]);
+
+  // Toggle coverage mode (personal <-> global)
+  const handleToggleCoverageMode = useCallback(() => {
+    mediumTap();
+    setCoverageMode(prev => {
+      const next = prev === 'personal' ? 'global' : 'personal';
+      if (next === 'global') {
+        refreshGlobalCoverage(true);
+      }
+      return next;
+    });
+  }, [mediumTap, refreshGlobalCoverage]);
+
+  // Handle network filter change
+  const handleNetworkFilterChange = useCallback((filter: '5g' | 'lte' | '3g' | null) => {
+    mediumTap();
+    setNetworkFilter(filter);
+  }, [mediumTap, setNetworkFilter]);
 
   return (
     <div className="relative w-full h-full min-h-screen bg-background">
@@ -155,6 +190,12 @@ export const NetworkContribution: React.FC = () => {
           heatmapPoints={heatmapPoints}
           showHeatmap={showHeatmap}
           onToggleHeatmap={handleToggleHeatmap}
+          globalCoverage={globalCoverageData?.cells || []}
+          coverageMode={coverageMode}
+          onToggleCoverageMode={handleToggleCoverageMode}
+          globalCoverageLoading={globalCoverageLoading}
+          networkFilter={networkFilter}
+          onNetworkFilterChange={handleNetworkFilterChange}
         />
       </div>
       

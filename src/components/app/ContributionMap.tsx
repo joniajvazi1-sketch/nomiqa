@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { MapPin, Loader2, Layers, Map as MapIcon } from 'lucide-react';
+import { MapPin, Loader2, Layers, Map as MapIcon, Globe2, User } from 'lucide-react';
 import { HeatmapPoint } from '@/hooks/useContributionHeatmap';
+import { GlobalCoverageCell } from '@/hooks/useGlobalCoverage';
 import { cn } from '@/lib/utils';
 
 // Lazy load Leaflet CSS only when this component is used
@@ -16,12 +17,29 @@ const loadLeafletCss = () => {
   document.head.appendChild(link);
 };
 
+// Network type colors for global coverage
+const NETWORK_COLORS = {
+  '5g': '#22d3ee',    // Cyan
+  'lte': '#3b82f6',   // Blue
+  '3g': '#eab308',    // Yellow
+  'other': '#6b7280', // Gray
+};
+
+type CoverageMode = 'personal' | 'global';
+
 interface ContributionMapProps {
   userPosition: [number, number] | null;
   isActive: boolean;
   heatmapPoints?: HeatmapPoint[];
   showHeatmap?: boolean;
   onToggleHeatmap?: () => void;
+  // Global coverage props
+  globalCoverage?: GlobalCoverageCell[];
+  coverageMode?: CoverageMode;
+  onToggleCoverageMode?: () => void;
+  globalCoverageLoading?: boolean;
+  networkFilter?: '5g' | 'lte' | '3g' | null;
+  onNetworkFilterChange?: (filter: '5g' | 'lte' | '3g' | null) => void;
 }
 
 /**
@@ -37,20 +55,27 @@ const isValidCoordinate = (lat: number, lon: number): boolean => {
 
 /**
  * Dark-themed interactive map for Network Contribution
- * Supports heatmap overlay for coverage visualization
+ * Supports personal heatmap and global community coverage
  */
 export const ContributionMap: React.FC<ContributionMapProps> = ({ 
   userPosition, 
   isActive,
   heatmapPoints = [],
   showHeatmap = false,
-  onToggleHeatmap
+  onToggleHeatmap,
+  globalCoverage = [],
+  coverageMode = 'personal',
+  onToggleCoverageMode,
+  globalCoverageLoading = false,
+  networkFilter = null,
+  onNetworkFilterChange,
 }) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const leafletMapRef = useRef<any>(null);
   const leafletRef = useRef<any>(null);
   const markerRef = useRef<any>(null);
   const heatLayerRef = useRef<any>(null);
+  const globalMarkersRef = useRef<any[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isMapReady, setIsMapReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -140,6 +165,12 @@ export const ContributionMap: React.FC<ContributionMapProps> = ({
         } catch (e) {}
         heatLayerRef.current = null;
       }
+      // Clean up global markers
+      globalMarkersRef.current.forEach(marker => {
+        try { leafletMapRef.current?.removeLayer(marker); } catch (e) {}
+      });
+      globalMarkersRef.current = [];
+      
       if (leafletMapRef.current) {
         try {
           leafletMapRef.current.remove();
@@ -181,9 +212,10 @@ export const ContributionMap: React.FC<ContributionMapProps> = ({
     }
   }, [validPosition?.[0], validPosition?.[1], isMapReady]);
 
-  // Update heatmap layer when points change or toggle
+  // Update heatmap layer when points change or toggle (personal mode only)
   useEffect(() => {
     if (!isMapReady || !leafletMapRef.current || !leafletRef.current) return;
+    if (coverageMode !== 'personal') return; // Skip for global mode
     
     const L = leafletRef.current;
     const map = leafletMapRef.current;
@@ -231,7 +263,75 @@ export const ContributionMap: React.FC<ContributionMapProps> = ({
         console.error('[ContributionMap] Failed to create heatmap:', err);
       }
     }
-  }, [showHeatmap, heatmapPoints, isMapReady]);
+  }, [showHeatmap, heatmapPoints, isMapReady, coverageMode]);
+
+  // Render global coverage markers
+  useEffect(() => {
+    if (!isMapReady || !leafletMapRef.current || !leafletRef.current) return;
+    if (coverageMode !== 'global') return;
+
+    const L = leafletRef.current;
+    const map = leafletMapRef.current;
+
+    // Clear existing markers
+    globalMarkersRef.current.forEach(marker => {
+      try { map.removeLayer(marker); } catch (e) {}
+    });
+    globalMarkersRef.current = [];
+
+    // Remove personal heatmap if visible
+    if (heatLayerRef.current) {
+      try { map.removeLayer(heatLayerRef.current); } catch (e) {}
+      heatLayerRef.current = null;
+    }
+
+    if (globalCoverage.length === 0) return;
+
+    // Filter by network type if specified
+    const filteredCells = networkFilter 
+      ? globalCoverage.filter(cell => cell.network === networkFilter)
+      : globalCoverage;
+
+    // Create circle markers for each cell
+    filteredCells.forEach(cell => {
+      const color = NETWORK_COLORS[cell.network] || NETWORK_COLORS.other;
+      const radius = Math.max(300, Math.min(1000, cell.count * 50)); // 300-1000m based on data points
+      const opacity = 0.3 + (cell.intensity * 0.5); // 0.3-0.8 based on signal strength
+
+      const circle = L.circle([cell.lat, cell.lng], {
+        radius,
+        color,
+        fillColor: color,
+        fillOpacity: opacity,
+        weight: 1,
+        opacity: 0.6,
+      }).addTo(map);
+
+      // Add popup with info
+      circle.bindPopup(`
+        <div style="font-family: monospace; font-size: 12px;">
+          <strong>${cell.network.toUpperCase()}</strong><br/>
+          Signal: ${Math.round(cell.intensity * 100)}%<br/>
+          Data points: ${cell.count}
+        </div>
+      `);
+
+      globalMarkersRef.current.push(circle);
+    });
+
+    // Fit bounds to global coverage
+    if (filteredCells.length > 1) {
+      const lats = filteredCells.map(c => c.lat);
+      const lngs = filteredCells.map(c => c.lng);
+      const bounds = L.latLngBounds(
+        [Math.min(...lats), Math.min(...lngs)],
+        [Math.max(...lats), Math.max(...lngs)]
+      );
+      map.fitBounds(bounds, { padding: [50, 50], maxZoom: 12 });
+    }
+
+    console.log(`[ContributionMap] Rendered ${filteredCells.length} global coverage cells`);
+  }, [globalCoverage, coverageMode, networkFilter, isMapReady]);
 
   return (
     <div className="w-full h-full" style={{ minHeight: '100vh' }}>
@@ -282,13 +382,49 @@ export const ContributionMap: React.FC<ContributionMapProps> = ({
         style={{ height: '100vh', width: '100%' }}
       />
       
-      {/* Toggle button for heatmap view */}
-      {onToggleHeatmap && isLoaded && !error && (
+      {/* Coverage Mode Toggle (My Coverage / Global) */}
+      {onToggleCoverageMode && isLoaded && !error && (
+        <div 
+          className="absolute top-4 left-4 right-4 z-20 flex items-center justify-center gap-2"
+          style={{ marginTop: 'env(safe-area-inset-top, 0px)' }}
+        >
+          <div className="flex items-center gap-1 p-1 rounded-full bg-background/80 backdrop-blur-xl border border-white/10">
+            <button
+              onClick={coverageMode === 'personal' ? undefined : onToggleCoverageMode}
+              className={cn(
+                'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all',
+                coverageMode === 'personal'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'text-muted-foreground hover:text-foreground'
+              )}
+            >
+              <User className="w-3.5 h-3.5" />
+              My Coverage
+            </button>
+            <button
+              onClick={coverageMode === 'global' ? undefined : onToggleCoverageMode}
+              className={cn(
+                'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all',
+                coverageMode === 'global'
+                  ? 'bg-neon-cyan text-black'
+                  : 'text-muted-foreground hover:text-foreground'
+              )}
+            >
+              <Globe2 className="w-3.5 h-3.5" />
+              Global
+              {globalCoverageLoading && <Loader2 className="w-3 h-3 animate-spin" />}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Heatmap toggle (personal mode only) */}
+      {onToggleHeatmap && coverageMode === 'personal' && isLoaded && !error && (
         <button
           onClick={onToggleHeatmap}
           className={cn(
-            'absolute top-4 right-4 z-20',
-            'w-12 h-12 rounded-full',
+            'absolute top-16 right-4 z-20',
+            'w-10 h-10 rounded-full',
             'backdrop-blur-xl border shadow-lg',
             'flex items-center justify-center',
             'transition-all active:scale-95',
@@ -299,15 +435,43 @@ export const ContributionMap: React.FC<ContributionMapProps> = ({
           style={{ marginTop: 'env(safe-area-inset-top, 0px)' }}
         >
           {showHeatmap ? (
-            <MapIcon className="w-5 h-5 text-neon-cyan" />
+            <MapIcon className="w-4 h-4 text-neon-cyan" />
           ) : (
-            <Layers className="w-5 h-5 text-foreground" />
+            <Layers className="w-4 h-4 text-foreground" />
           )}
         </button>
       )}
+
+      {/* Network type filter (global mode only) */}
+      {coverageMode === 'global' && onNetworkFilterChange && isLoaded && !error && (
+        <div 
+          className="absolute top-16 left-4 right-4 z-20 flex items-center justify-center"
+          style={{ marginTop: 'env(safe-area-inset-top, 0px)' }}
+        >
+          <div className="flex items-center gap-1 p-1 rounded-full bg-background/80 backdrop-blur-xl border border-white/10">
+            {(['5g', 'lte', '3g', null] as const).map((filter) => (
+              <button
+                key={filter || 'all'}
+                onClick={() => onNetworkFilterChange(filter)}
+                className={cn(
+                  'px-3 py-1 rounded-full text-xs font-mono font-medium transition-all',
+                  networkFilter === filter
+                    ? 'text-black'
+                    : 'text-muted-foreground hover:text-foreground'
+                )}
+                style={networkFilter === filter ? {
+                  backgroundColor: filter ? NETWORK_COLORS[filter] : '#10b981',
+                } : undefined}
+              >
+                {filter ? filter.toUpperCase() : 'All'}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
       
-      {/* Heatmap legend */}
-      {showHeatmap && heatmapPoints.length > 0 && isLoaded && (
+      {/* Personal Heatmap legend */}
+      {coverageMode === 'personal' && showHeatmap && heatmapPoints.length > 0 && isLoaded && (
         <div 
           className="absolute bottom-24 left-4 right-4 z-20 pointer-events-none animate-fade-in"
           style={{ marginBottom: 'env(safe-area-inset-bottom, 0px)' }}
@@ -323,6 +487,42 @@ export const ContributionMap: React.FC<ContributionMapProps> = ({
             <div className="flex justify-between mt-1">
               <span className="text-[10px] text-muted-foreground">Weak</span>
               <span className="text-[10px] text-muted-foreground">Excellent</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Global Coverage legend */}
+      {coverageMode === 'global' && globalCoverage.length > 0 && isLoaded && !error && (
+        <div 
+          className="absolute bottom-24 left-4 right-4 z-20 pointer-events-none animate-fade-in"
+          style={{ marginBottom: 'env(safe-area-inset-bottom, 0px)' }}
+        >
+          <div className="bg-background/80 backdrop-blur-xl rounded-2xl p-4 border border-white/10">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-xs text-muted-foreground">Network Types</span>
+              <span className="text-xs font-medium text-foreground">
+                {globalCoverage.length} locations
+              </span>
+            </div>
+            <div className="flex items-center justify-between gap-2">
+              {Object.entries(NETWORK_COLORS).filter(([k]) => k !== 'other').map(([network, color]) => (
+                <div 
+                  key={network} 
+                  className={cn(
+                    "flex items-center gap-1.5 px-2 py-1 rounded-lg transition-all",
+                    networkFilter === network ? "bg-white/10" : ""
+                  )}
+                >
+                  <div 
+                    className="w-3 h-3 rounded-full" 
+                    style={{ backgroundColor: color }}
+                  />
+                  <span className="text-[10px] font-mono font-medium text-foreground">
+                    {network.toUpperCase()}
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -347,9 +547,20 @@ export const ContributionMap: React.FC<ContributionMapProps> = ({
           </div>
         </div>
       )}
+
+      {/* Global coverage loading overlay */}
+      {globalCoverageLoading && coverageMode === 'global' && isLoaded && (
+        <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
+          <div className="text-center bg-background/80 backdrop-blur-sm rounded-2xl p-6 mx-4">
+            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2 text-neon-cyan" />
+            <p className="text-foreground font-medium">Loading Global Coverage</p>
+            <p className="text-muted-foreground text-sm mt-1">Aggregating community data...</p>
+          </div>
+        </div>
+      )}
       
       {/* GPS Acquiring overlay */}
-      {isLoaded && !error && !validPosition && isActive && !showHeatmap && (
+      {isLoaded && !error && !validPosition && isActive && coverageMode === 'personal' && !showHeatmap && (
         <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
           <div className="text-center bg-background/80 backdrop-blur-sm rounded-2xl p-6 mx-4">
             <div className="relative mx-auto w-12 h-12 mb-3">
@@ -362,13 +573,24 @@ export const ContributionMap: React.FC<ContributionMapProps> = ({
         </div>
       )}
       
-      {/* Empty heatmap state */}
-      {showHeatmap && heatmapPoints.length === 0 && isLoaded && !error && (
+      {/* Empty heatmap state (personal) */}
+      {coverageMode === 'personal' && showHeatmap && heatmapPoints.length === 0 && isLoaded && !error && (
         <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
           <div className="text-center bg-background/80 backdrop-blur-sm rounded-2xl p-6 mx-4">
             <Layers className="w-12 h-12 mx-auto mb-3 text-muted-foreground opacity-50" />
             <p className="text-foreground font-medium">No Coverage Data Yet</p>
             <p className="text-muted-foreground text-sm mt-1">Start scanning to build your coverage map</p>
+          </div>
+        </div>
+      )}
+
+      {/* Empty global coverage state */}
+      {coverageMode === 'global' && globalCoverage.length === 0 && !globalCoverageLoading && isLoaded && !error && (
+        <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
+          <div className="text-center bg-background/80 backdrop-blur-sm rounded-2xl p-6 mx-4">
+            <Globe2 className="w-12 h-12 mx-auto mb-3 text-muted-foreground opacity-50" />
+            <p className="text-foreground font-medium">No Global Coverage Yet</p>
+            <p className="text-muted-foreground text-sm mt-1">Be the first to contribute!</p>
           </div>
         </div>
       )}
