@@ -69,6 +69,37 @@ export const useSoundEffects = () => {
     });
   };
 
+  const playCelebration = () => {
+    if (!soundEnabled) return;
+    
+    const context = initAudioContext();
+    const now = context.currentTime;
+    
+    // Create a celebratory ascending arpeggio
+    const notes = [523.25, 659.25, 783.99, 1046.5]; // C5, E5, G5, C6
+    
+    notes.forEach((freq, index) => {
+      const oscillator = context.createOscillator();
+      const gainNode = context.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(context.destination);
+      
+      oscillator.frequency.value = freq;
+      oscillator.type = 'sine';
+      
+      const startTime = now + index * 0.08;
+      const volume = 0.12;
+      
+      gainNode.gain.setValueAtTime(0, startTime);
+      gainNode.gain.linearRampToValueAtTime(volume, startTime + 0.02);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + 0.4);
+      
+      oscillator.start(startTime);
+      oscillator.stop(startTime + 0.4);
+    });
+  };
+
   const toggleSound = () => {
     setSoundEnabled(prev => !prev);
   };
@@ -78,5 +109,6 @@ export const useSoundEffects = () => {
     toggleSound,
     playTick,
     playDing,
+    playCelebration,
   };
 };

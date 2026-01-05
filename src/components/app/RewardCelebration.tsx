@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Confetti } from '@/components/Confetti';
 import { cn } from '@/lib/utils';
 import { Trophy, Zap, Star } from 'lucide-react';
+import { useSoundEffects } from '@/hooks/useSoundEffects';
+import { ParticleEffect } from '@/components/app/ParticleEffect';
 
 interface RewardCelebrationProps {
   trigger: boolean;
@@ -17,17 +19,27 @@ export const RewardCelebration: React.FC<RewardCelebrationProps> = ({
   type = 'milestone'
 }) => {
   const [showBadge, setShowBadge] = useState(false);
+  const [showParticles, setShowParticles] = useState(false);
+  const { playCelebration, soundEnabled } = useSoundEffects();
 
   useEffect(() => {
     if (trigger) {
       setShowBadge(true);
+      setShowParticles(true);
+      
+      // Play celebration sound
+      if (soundEnabled) {
+        playCelebration();
+      }
+      
       const timer = setTimeout(() => {
         setShowBadge(false);
+        setShowParticles(false);
         onComplete?.();
       }, 3000);
       return () => clearTimeout(timer);
     }
-  }, [trigger, onComplete]);
+  }, [trigger, onComplete, playCelebration, soundEnabled]);
 
   const getIcon = () => {
     switch (type) {
@@ -63,12 +75,18 @@ export const RewardCelebration: React.FC<RewardCelebrationProps> = ({
               'shadow-[0_0_50px_rgba(0,255,255,0.3)] animate-bounce-in'
             )}
           >
-            <div className="flex flex-col items-center gap-3">
+          <div className="flex flex-col items-center gap-3">
               <div className="relative">
                 <div className="absolute inset-0 animate-ping">
                   {getIcon()}
                 </div>
                 {getIcon()}
+                {/* Particle burst around icon */}
+                <ParticleEffect 
+                  trigger={showParticles} 
+                  count={16} 
+                  color={type === 'achievement' ? 'hsl(45, 93%, 47%)' : 'hsl(var(--neon-cyan))'} 
+                />
               </div>
               
               <div className="text-center">

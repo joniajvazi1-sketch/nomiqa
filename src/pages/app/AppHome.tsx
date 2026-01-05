@@ -23,6 +23,8 @@ import { StreakBonus, MilestonePopup, AchievementBadge } from '@/components/app/
 import { NotificationToggle } from '@/components/app/NotificationToggle';
 import { ChallengesSection } from '@/components/app/ChallengesSection';
 import { LeaderboardSection } from '@/components/app/LeaderboardSection';
+import { RewardCelebration } from '@/components/app/RewardCelebration';
+import { ShimmerButton } from '@/components/app/ShimmerButton';
 
 interface DailyEarning {
   date: string;
@@ -32,6 +34,8 @@ interface DailyEarning {
 // Point to USD conversion rate (mock for now)
 const POINTS_TO_USD = 0.01;
 
+// Daily goal threshold for celebration
+const DAILY_GOAL_POINTS = 100;
 /**
  * App Home Dashboard - Command Center
  * Clean, focused layout with Today's earnings hero, streaks, and achievements
@@ -67,6 +71,8 @@ export const AppHome: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [animatedUSD, setAnimatedUSD] = useState(0);
   const [earningsData, setEarningsData] = useState<DailyEarning[]>([]);
+  const [showDailyGoalCelebration, setShowDailyGoalCelebration] = useState(false);
+  const [dailyGoalCelebrated, setDailyGoalCelebrated] = useState(false);
   const usdRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -157,8 +163,20 @@ export const AppHome: React.FC = () => {
     return earningsData[earningsData.length - 1].points;
   }, [earningsData]);
 
-  // Calculate today's USD value
+  // Today's USD value
   const todayUSD = useMemo(() => todayPoints * POINTS_TO_USD, [todayPoints]);
+
+  // Check for daily goal achievement
+  useEffect(() => {
+    const celebratedKey = `daily-goal-celebrated-${new Date().toISOString().split('T')[0]}`;
+    const alreadyCelebrated = localStorage.getItem(celebratedKey) === 'true';
+    
+    if (todayPoints >= DAILY_GOAL_POINTS && !alreadyCelebrated && !dailyGoalCelebrated) {
+      setShowDailyGoalCelebration(true);
+      setDailyGoalCelebrated(true);
+      localStorage.setItem(celebratedKey, 'true');
+    }
+  }, [todayPoints, dailyGoalCelebrated]);
 
   // Animate USD counter
   useEffect(() => {
@@ -355,10 +373,11 @@ export const AppHome: React.FC = () => {
               )}
             </div>
 
-            {/* Primary CTA: Start Scan */}
-            <button
+            {/* Primary CTA: Start Scan with Shimmer */}
+            <ShimmerButton
               onClick={() => handleNavigation('/app/map')}
-              className="w-full h-14 rounded-2xl bg-gradient-to-r from-neon-cyan to-neon-cyan/80 text-background font-bold text-lg flex items-center justify-center gap-3 shadow-lg shadow-neon-cyan/30 hover:shadow-neon-cyan/50 active:scale-[0.98] transition-all duration-300 group"
+              shimmerEnabled={!loading}
+              className="w-full h-14 rounded-2xl bg-gradient-to-r from-neon-cyan to-neon-cyan/80 text-background font-bold text-lg shadow-lg shadow-neon-cyan/30 hover:shadow-neon-cyan/50 active:scale-[0.98] transition-all duration-300 group"
               style={{ 
                 fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace',
                 animation: 'gentle-pulse 2s ease-in-out infinite'
@@ -367,9 +386,17 @@ export const AppHome: React.FC = () => {
               <Signal className="w-5 h-5 group-hover:animate-pulse" />
               START SCAN
               <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </button>
+            </ShimmerButton>
           </div>
         </div>
+
+        {/* Daily Goal Celebration */}
+        <RewardCelebration
+          trigger={showDailyGoalCelebration}
+          points={todayPoints}
+          type="milestone"
+          onComplete={() => setShowDailyGoalCelebration(false)}
+        />
 
         {/* TWO MINI CARDS: Impact & Boost */}
         <div className="grid grid-cols-2 gap-3">

@@ -48,6 +48,9 @@ import { AnimatedProgressBar } from '@/components/app/AnimatedProgressBar';
 import { useTranslation } from '@/contexts/TranslationContext';
 import { AnalyticsDashboard } from '@/components/app/AnalyticsDashboard';
 import { PrivacyControls } from '@/components/app/PrivacyControls';
+import { useSoundEffects } from '@/hooks/useSoundEffects';
+import { Switch } from '@/components/ui/switch';
+import { Volume2, VolumeX } from 'lucide-react';
 
 interface UserProfile {
   username: string;
@@ -98,6 +101,7 @@ const AFFILIATE_TIERS = [
 export const AppProfile: React.FC = () => {
   const navigate = useNavigate();
   const { lightTap, success } = useHaptics();
+  const { soundEnabled, toggleSound } = useSoundEffects();
   const { share, copyToClipboard } = useNativeShare();
   const { toast } = useToast();
   const { t } = useTranslation();
@@ -617,6 +621,28 @@ export const AppProfile: React.FC = () => {
               <div>
                 <p className="text-xs text-muted-foreground mb-1">Email</p>
                 <p className="text-base text-foreground">{profile?.email}</p>
+              </div>
+              
+              {/* Sound Effects Toggle */}
+              <div className="flex items-center justify-between pt-2 border-t border-border/50">
+                <div className="flex items-center gap-2">
+                  {soundEnabled ? (
+                    <Volume2 className="w-4 h-4 text-primary" />
+                  ) : (
+                    <VolumeX className="w-4 h-4 text-muted-foreground" />
+                  )}
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Sound Effects</p>
+                    <p className="text-xs text-muted-foreground">Play sounds for rewards</p>
+                  </div>
+                </div>
+                <Switch 
+                  checked={soundEnabled}
+                  onCheckedChange={() => {
+                    lightTap();
+                    toggleSound();
+                  }}
+                />
               </div>
             </CardContent>
           </Card>

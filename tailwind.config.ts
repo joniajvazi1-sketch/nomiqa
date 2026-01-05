@@ -257,6 +257,26 @@ export default {
           "50%": { transform: "scale(1.1)" },
           "100%": { transform: "scale(1)" },
         },
+        // WiFi pulsing for paused state
+        "wifi-pulse": {
+          "0%, 100%": { opacity: "0.3", transform: "scale(1)" },
+          "50%": { opacity: "0.7", transform: "scale(1.05)" },
+        },
+        // Sparkle effect for badges
+        "sparkle": {
+          "0%, 100%": { opacity: "0", transform: "scale(0) rotate(0deg)" },
+          "50%": { opacity: "1", transform: "scale(1) rotate(180deg)" },
+        },
+        // Gentle pulse for CTAs
+        "gentle-pulse": {
+          "0%, 100%": { boxShadow: "0 10px 25px -5px hsla(180, 100%, 65%, 0.3)" },
+          "50%": { boxShadow: "0 10px 35px -5px hsla(180, 100%, 65%, 0.5)" },
+        },
+        // Sonar ping for idle buttons
+        "sonar-ping": {
+          "0%": { transform: "scale(1)", opacity: "0.8" },
+          "100%": { transform: "scale(1.5)", opacity: "0" },
+        },
       },
       animation: {
         // UI feedback (instant: 100ms)
@@ -303,6 +323,11 @@ export default {
         // Error/feedback animations
         "error-shake": "error-shake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97)",
         "error-pulse": "error-pulse 0.6s ease-out",
+        // New Phase 2 animations
+        "wifi-pulse": "wifi-pulse 2s ease-in-out infinite",
+        "sparkle": "sparkle 1.5s ease-in-out infinite",
+        "gentle-pulse": "gentle-pulse 2s ease-in-out infinite",
+        "sonar-ping": "sonar-ping 2s ease-out infinite",
       },
     },
   },

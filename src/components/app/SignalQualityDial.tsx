@@ -1,5 +1,6 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
+import { OrbitingParticles } from '@/components/app/OrbitingParticles';
 
 interface SignalQualityDialProps {
   signalStrength: number; // 0-100
@@ -41,6 +42,14 @@ export const SignalQualityDial: React.FC<SignalQualityDialProps> = ({
 
   return (
     <div className={cn('relative flex items-center justify-center', className)}>
+      {/* Orbiting particles when active */}
+      <OrbitingParticles 
+        isActive={isActive} 
+        count={10} 
+        radius={108} 
+        color={qualityColor}
+      />
+
       {/* Outer glow ring when active */}
       {isActive && (
         <div 
