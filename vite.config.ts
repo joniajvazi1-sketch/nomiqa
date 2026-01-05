@@ -11,7 +11,7 @@ export default defineConfig(({ mode }) => ({
     port: 8080,
   },
   build: {
-    sourcemap: 'hidden', // Generate source maps but don't reference them in bundles
+    sourcemap: true, // Generate source maps and reference them for debugging
     cssCodeSplit: true, // Split CSS for better loading
     rollupOptions: {
       output: {
