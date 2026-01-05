@@ -472,7 +472,7 @@ export const AppHome: React.FC = () => {
           >
             <ChallengesSection 
               compact={true} 
-              onViewAll={() => handleNavigation('/app/wallet')}
+              onViewAll={() => handleNavigation('/app/profile')}
             />
           </div>
         )}
@@ -485,7 +485,7 @@ export const AppHome: React.FC = () => {
           >
             <LeaderboardSection 
               compact={true}
-              onViewAll={() => handleNavigation('/app/wallet')}
+              onViewAll={() => handleNavigation('/app/profile')}
             />
           </div>
         )}
