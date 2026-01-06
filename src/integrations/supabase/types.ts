@@ -272,7 +272,15 @@ export type Database = {
           to_state?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "connection_events_session_fk"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "contribution_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       contribution_sessions: {
         Row: {
@@ -380,6 +388,13 @@ export type Database = {
             columns: ["nearest_log_id"]
             isOneToOne: false
             referencedRelation: "signal_logs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "coverage_confirmations_session_fk"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "contribution_sessions"
             referencedColumns: ["id"]
           },
         ]
