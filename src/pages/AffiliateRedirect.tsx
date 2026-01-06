@@ -8,7 +8,7 @@ export default function AffiliateRedirect() {
   const { code, username } = useParams<{ code?: string; username?: string }>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { setReferralCode, clearReferralCode } = useAffiliateTracking();
+  const { setReferralCode } = useAffiliateTracking();
   const [isProcessing, setIsProcessing] = useState(true);
 
   useEffect(() => {
@@ -21,9 +21,6 @@ export default function AffiliateRedirect() {
       }
 
       try {
-        // Clear any existing referral code first to ensure we use the new one
-        clearReferralCode();
-        
         // Look up the affiliate by code or username to get the affiliate_code
         let affiliateCode: string | null = null;
         
@@ -57,8 +54,22 @@ export default function AffiliateRedirect() {
 
         // Store the referral code for use during registration/purchase
         if (affiliateCode) {
+          // Set the referral code in zustand store (persisted to localStorage)
           setReferralCode(affiliateCode);
           console.log('Referral code stored:', affiliateCode);
+          
+          // Also store directly in localStorage as backup to ensure persistence
+          // This prevents race conditions with zustand's async persist
+          try {
+            const existingStorage = localStorage.getItem('affiliate-tracking');
+            const parsed = existingStorage ? JSON.parse(existingStorage) : { state: {} };
+            parsed.state.referralCode = affiliateCode;
+            parsed.state.referralTimestamp = Date.now();
+            localStorage.setItem('affiliate-tracking', JSON.stringify(parsed));
+            console.log('Referral code also saved directly to localStorage');
+          } catch (storageError) {
+            console.error('Error saving to localStorage:', storageError);
+          }
         }
       } catch (error) {
         console.error('Error looking up affiliate:', error);
@@ -66,13 +77,16 @@ export default function AffiliateRedirect() {
 
       setIsProcessing(false);
       
+      // Small delay to ensure localStorage write completes before navigation
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       // Preserve any destination parameter
       const destination = searchParams.get('dest') || '/';
       navigate(destination, { replace: true });
     };
 
     handleRedirect();
-  }, [code, username, navigate, setReferralCode, clearReferralCode, searchParams]);
+  }, [code, username, navigate, setReferralCode, searchParams]);
 
   if (!isProcessing) {
     return null;
