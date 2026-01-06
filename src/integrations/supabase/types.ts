@@ -759,7 +759,10 @@ export type Database = {
           is_indoor: boolean | null
           is_rare_location: boolean | null
           jitter_ms: number | null
+          latency_error: string | null
+          latency_method: string | null
           latency_ms: number | null
+          latency_provider: string | null
           latitude: number
           longitude: number
           mcc: string | null
@@ -777,6 +780,8 @@ export type Database = {
           sinr: number | null
           speed_mps: number | null
           speed_test_down: number | null
+          speed_test_error: string | null
+          speed_test_provider: string | null
           speed_test_up: number | null
           tac: string | null
           user_id: string
@@ -798,7 +803,10 @@ export type Database = {
           is_indoor?: boolean | null
           is_rare_location?: boolean | null
           jitter_ms?: number | null
+          latency_error?: string | null
+          latency_method?: string | null
           latency_ms?: number | null
+          latency_provider?: string | null
           latitude: number
           longitude: number
           mcc?: string | null
@@ -816,6 +824,8 @@ export type Database = {
           sinr?: number | null
           speed_mps?: number | null
           speed_test_down?: number | null
+          speed_test_error?: string | null
+          speed_test_provider?: string | null
           speed_test_up?: number | null
           tac?: string | null
           user_id: string
@@ -837,7 +847,10 @@ export type Database = {
           is_indoor?: boolean | null
           is_rare_location?: boolean | null
           jitter_ms?: number | null
+          latency_error?: string | null
+          latency_method?: string | null
           latency_ms?: number | null
+          latency_provider?: string | null
           latitude?: number
           longitude?: number
           mcc?: string | null
@@ -855,6 +868,8 @@ export type Database = {
           sinr?: number | null
           speed_mps?: number | null
           speed_test_down?: number | null
+          speed_test_error?: string | null
+          speed_test_provider?: string | null
           speed_test_up?: number | null
           tac?: string | null
           user_id?: string

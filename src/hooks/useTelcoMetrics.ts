@@ -8,6 +8,7 @@ import {
   isTelephonyPluginAvailable
 } from '@/plugins/TelephonyInfoPlugin';
 import { calculateDataQualityScore } from '@/utils/dataQualityScoring';
+import { runSpeedTest, type SpeedTestResult as ProviderSpeedTestResult } from '@/utils/speedTestProviders';
 
 /**
  * Telco-Grade Signal Metrics
@@ -33,6 +34,13 @@ export interface TelcoMetrics {
   speedTestUp?: number; // Mbps
   latencyMs?: number; // Ping (ms)
   jitterMs?: number; // Jitter (ms)
+  
+  // Error tracking for speed tests
+  speedTestError?: string;
+  speedTestProvider?: string;
+  latencyError?: string;
+  latencyProvider?: string;
+  latencyMethod?: string;
   
   // Device Context
   deviceModel?: string; // 'iPhone 15 Pro', 'Pixel 8'
@@ -85,7 +93,17 @@ export const useTelcoMetrics = () => {
   } | null>(null);
   
   const lastLogPosition = useRef<{ lat: number; lon: number; time: number } | null>(null);
-  const speedTestCache = useRef<{ down?: number; up?: number; latency?: number; timestamp: number } | null>(null);
+  const speedTestCache = useRef<{ 
+    down?: number; 
+    up?: number; 
+    latency?: number; 
+    provider?: string;
+    latencyMethod?: string;
+    downloadError?: string;
+    uploadError?: string;
+    latencyError?: string;
+    timestamp: number;
+  } | null>(null);
   
   /**
    * Initialize device info (call once on mount)
@@ -215,62 +233,80 @@ export const useTelcoMetrics = () => {
       metrics.speedTestDown = speedTestCache.current.down;
       metrics.speedTestUp = speedTestCache.current.up;
       metrics.latencyMs = speedTestCache.current.latency;
+      metrics.speedTestProvider = speedTestCache.current.provider;
+      metrics.latencyProvider = speedTestCache.current.provider;
+      metrics.latencyMethod = speedTestCache.current.latencyMethod;
+      metrics.speedTestError = speedTestCache.current.downloadError;
+      metrics.latencyError = speedTestCache.current.latencyError;
     }
     
     return metrics;
   }, [deviceInfo, isAndroid, isIOS]);
 
   /**
-   * Run a lightweight speed test
-   * Uses small file downloads to measure network performance
+   * Run a reliable speed test with fallback providers
+   * Uses Nomiqa endpoints first, falls back to Cloudflare
+   * Stores errors in DB for debugging
    */
   const runLightweightSpeedTest = useCallback(async (): Promise<{
-    down: number;
-    up: number;
-    latency: number;
+    down: number | null;
+    up: number | null;
+    latency: number | null;
+    provider: string;
+    latencyMethod: string;
+    downloadError?: string;
+    uploadError?: string;
+    latencyError?: string;
   } | null> => {
     try {
-      // Measure latency with a HEAD request
-      const latencyStart = performance.now();
-      await fetch('https://www.cloudflare.com/cdn-cgi/trace', { 
-        method: 'HEAD',
-        cache: 'no-store'
-      });
-      const latencyMs = Math.round(performance.now() - latencyStart);
-      
-      // Download test: Fetch a small known-size file
-      const downloadStart = performance.now();
-      const response = await fetch('https://speed.cloudflare.com/__down?bytes=100000', {
-        cache: 'no-store'
-      });
-      await response.arrayBuffer();
-      const downloadTime = (performance.now() - downloadStart) / 1000; // seconds
-      const downloadMbps = (100000 * 8 / 1000000) / downloadTime; // Mbps
-      
-      // Upload test: POST small data
-      const uploadData = new ArrayBuffer(50000);
-      const uploadStart = performance.now();
-      await fetch('https://speed.cloudflare.com/__up', {
-        method: 'POST',
-        body: uploadData,
-        cache: 'no-store'
-      });
-      const uploadTime = (performance.now() - uploadStart) / 1000;
-      const uploadMbps = (50000 * 8 / 1000000) / uploadTime;
-      
-      const result = {
-        down: Math.round(downloadMbps * 10) / 10,
-        up: Math.round(uploadMbps * 10) / 10,
-        latency: latencyMs
-      };
+      // Use the new provider-based speed test with fallback
+      const result = await runSpeedTest(true);
       
       // Cache the result
-      speedTestCache.current = { ...result, timestamp: Date.now() };
+      speedTestCache.current = { 
+        down: result.down ?? undefined,
+        up: result.up ?? undefined,
+        latency: result.latency ?? undefined,
+        provider: result.provider,
+        latencyMethod: result.latencyMethod,
+        downloadError: result.downloadError,
+        uploadError: result.uploadError,
+        latencyError: result.latencyError,
+        timestamp: Date.now() 
+      };
       
-      return result;
+      return {
+        down: result.down,
+        up: result.up,
+        latency: result.latency,
+        provider: result.provider,
+        latencyMethod: result.latencyMethod,
+        downloadError: result.downloadError,
+        uploadError: result.uploadError,
+        latencyError: result.latencyError
+      };
     } catch (error) {
       console.error('Speed test failed:', error);
-      return null;
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      
+      // Cache the failure for DB storage
+      speedTestCache.current = {
+        timestamp: Date.now(),
+        provider: 'none',
+        latencyMethod: 'none',
+        downloadError: errorMessage,
+        latencyError: errorMessage
+      };
+      
+      return {
+        down: null,
+        up: null,
+        latency: null,
+        provider: 'none',
+        latencyMethod: 'none',
+        downloadError: errorMessage,
+        latencyError: errorMessage
+      };
     }
   }, []);
 
