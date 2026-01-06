@@ -154,6 +154,36 @@ export type Database = {
           },
         ]
       }
+      app_remote_config: {
+        Row: {
+          config_key: string
+          config_value: Json
+          created_at: string | null
+          description: string | null
+          id: string
+          is_sensitive: boolean
+          updated_at: string | null
+        }
+        Insert: {
+          config_key: string
+          config_value?: Json
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_sensitive?: boolean
+          updated_at?: string | null
+        }
+        Update: {
+          config_key?: string
+          config_value?: Json
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_sensitive?: boolean
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       challenges: {
         Row: {
           created_at: string | null
