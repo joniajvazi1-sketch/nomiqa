@@ -10,7 +10,9 @@ const ALLOWED_QUALITY = ['excellent', 'good', 'poor', 'no_service'];
 const ALLOWED_TRIGGER_REASONS = ['session_end', 'network_change', 'quality_drop', 'location_cluster', 'manual'];
 
 // Bonus points for coverage confirmations (gold data)
-const CONFIRMATION_POINTS = 50;
+const CONFIRMATION_POINTS = 10;
+// Rate limit: 1 confirmation per 5 minutes unless session_end
+const RATE_LIMIT_MINUTES = 5;
 
 // Round coordinates to 4 decimal places (~11m precision)
 function roundCoordinate(value: number): number {
@@ -196,6 +198,28 @@ serve(async (req) => {
       });
     }
 
+    // Rate limit check (skip for session_end which is controlled by session lifecycle)
+    if (trigger_reason !== 'session_end') {
+      const rateLimitTime = new Date(Date.now() - RATE_LIMIT_MINUTES * 60 * 1000).toISOString();
+      const { data: recentConfirmations, error: rateError } = await supabaseAdmin
+        .from('coverage_confirmations')
+        .select('id, recorded_at')
+        .eq('user_id', user.id)
+        .gte('recorded_at', rateLimitTime)
+        .limit(1);
+
+      if (!rateError && recentConfirmations && recentConfirmations.length > 0) {
+        console.warn(`Rate limit: user ${user.id} already submitted confirmation within ${RATE_LIMIT_MINUTES} minutes`);
+        return new Response(JSON.stringify({ 
+          error: `Please wait ${RATE_LIMIT_MINUTES} minutes between coverage confirmations`,
+          retry_after_seconds: RATE_LIMIT_MINUTES * 60
+        }), {
+          status: 429,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+    }
+
     // Find nearest signal log for anti-fraud (within last 5 minutes, 500m radius)
     const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
     const { data: nearbyLogs, error: logsError } = await supabaseAdmin
@@ -227,8 +251,22 @@ serve(async (req) => {
       // Reject if no log within ~500m (0.005 degrees approx)
       if (minDistance > 0.005) {
         console.warn(`No signal log within 500m of confirmation. Distance: ${minDistance}`);
-        nearestLogId = null; // Still allow but flag it
+        return new Response(JSON.stringify({ 
+          error: 'No recent signal data nearby. Please confirm coverage during active contribution.' 
+        }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
       }
+    } else {
+      // No logs found at all within 5 minutes
+      console.warn(`No signal logs found within 5 minutes for session ${session_id}`);
+      return new Response(JSON.stringify({ 
+        error: 'No recent signal data found. Start contributing before confirming coverage.' 
+      }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
     }
 
     // Derive geohash and country code
