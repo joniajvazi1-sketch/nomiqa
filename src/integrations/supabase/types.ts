@@ -223,6 +223,57 @@ export type Database = {
         }
         Relationships: []
       }
+      connection_events: {
+        Row: {
+          accuracy_meters: number | null
+          carrier_name: string | null
+          created_at: string | null
+          event_type: string
+          from_state: string | null
+          id: string
+          is_roaming: boolean | null
+          latitude: number | null
+          longitude: number | null
+          network_type: string | null
+          recorded_at: string
+          session_id: string | null
+          to_state: string | null
+          user_id: string
+        }
+        Insert: {
+          accuracy_meters?: number | null
+          carrier_name?: string | null
+          created_at?: string | null
+          event_type: string
+          from_state?: string | null
+          id?: string
+          is_roaming?: boolean | null
+          latitude?: number | null
+          longitude?: number | null
+          network_type?: string | null
+          recorded_at: string
+          session_id?: string | null
+          to_state?: string | null
+          user_id: string
+        }
+        Update: {
+          accuracy_meters?: number | null
+          carrier_name?: string | null
+          created_at?: string | null
+          event_type?: string
+          from_state?: string | null
+          id?: string
+          is_roaming?: boolean | null
+          latitude?: number | null
+          longitude?: number | null
+          network_type?: string | null
+          recorded_at?: string
+          session_id?: string | null
+          to_state?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       contribution_sessions: {
         Row: {
           average_signal_strength: number | null
@@ -261,6 +312,77 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      coverage_confirmations: {
+        Row: {
+          accuracy_meters: number | null
+          can_browse: boolean | null
+          can_call: boolean | null
+          can_stream: boolean | null
+          carrier_name: string | null
+          country_code: string | null
+          created_at: string | null
+          id: string
+          latitude: number
+          location_geohash: string | null
+          longitude: number
+          nearest_log_id: string | null
+          network_type: string | null
+          quality: string
+          recorded_at: string
+          session_id: string
+          trigger_reason: string
+          user_id: string
+        }
+        Insert: {
+          accuracy_meters?: number | null
+          can_browse?: boolean | null
+          can_call?: boolean | null
+          can_stream?: boolean | null
+          carrier_name?: string | null
+          country_code?: string | null
+          created_at?: string | null
+          id?: string
+          latitude: number
+          location_geohash?: string | null
+          longitude: number
+          nearest_log_id?: string | null
+          network_type?: string | null
+          quality: string
+          recorded_at: string
+          session_id: string
+          trigger_reason: string
+          user_id: string
+        }
+        Update: {
+          accuracy_meters?: number | null
+          can_browse?: boolean | null
+          can_call?: boolean | null
+          can_stream?: boolean | null
+          carrier_name?: string | null
+          country_code?: string | null
+          created_at?: string | null
+          id?: string
+          latitude?: number
+          location_geohash?: string | null
+          longitude?: number
+          nearest_log_id?: string | null
+          network_type?: string | null
+          quality?: string
+          recorded_at?: string
+          session_id?: string
+          trigger_reason?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coverage_confirmations_nearest_log_id_fkey"
+            columns: ["nearest_log_id"]
+            isOneToOne: false
+            referencedRelation: "signal_logs"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       email_rate_limits: {
         Row: {
