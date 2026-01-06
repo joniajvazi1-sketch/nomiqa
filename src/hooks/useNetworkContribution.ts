@@ -206,7 +206,13 @@ export const useNetworkContribution = () => {
         // New quality scoring fields
         data_quality_score: signalLog.dataQualityScore,
         is_mock_location: signalLog.isMockLocation,
-        is_indoor: signalLog.accuracyMeters ? signalLog.accuracyMeters > 30 : false
+        is_indoor: signalLog.accuracyMeters ? signalLog.accuracyMeters > 30 : false,
+        // Speed test error tracking fields
+        speed_test_error: signalLog.speedTestError,
+        speed_test_provider: signalLog.speedTestProvider,
+        latency_error: signalLog.latencyError,
+        latency_provider: signalLog.latencyProvider,
+        latency_method: signalLog.latencyMethod
       });
       
       if (error) {
@@ -430,7 +436,13 @@ export const useNetworkContribution = () => {
           band_number: item.telcoMetrics?.bandNumber,
           frequency_mhz: item.telcoMetrics?.frequencyMhz,
           bandwidth_mhz: item.telcoMetrics?.bandwidthMhz,
-          recorded_at: item.recorded_at
+          recorded_at: item.recorded_at,
+          // Speed test error tracking fields
+          speed_test_error: item.telcoMetrics?.speedTestError,
+          speed_test_provider: item.telcoMetrics?.speedTestProvider,
+          latency_error: item.telcoMetrics?.latencyError,
+          latency_provider: item.telcoMetrics?.latencyProvider,
+          latency_method: item.telcoMetrics?.latencyMethod
         }));
         
         const { error: telcoError } = await supabase
@@ -624,38 +636,43 @@ export const useNetworkContribution = () => {
       
       if (result) {
         const speedTestResult: SpeedTestResult = {
-          down: result.down,
-          up: result.up,
-          latency: result.latency,
+          down: result.down ?? 0,
+          up: result.up ?? 0,
+          latency: result.latency ?? 0,
           timestamp: new Date()
         };
         
-        // Calculate bonus points
-        let bonusPoints = SPEED_TEST_BONUS_POINTS;
-        
-        // Extra bonus for premium speeds (50+ Mbps)
-        if (result.down >= PREMIUM_SPEED_THRESHOLD) {
-          bonusPoints += 1; // Extra point for fast connection
-          console.log(`Premium speed detected: ${result.down} Mbps - extra bonus!`);
+        // Only award bonus points if we got actual speed data
+        if (result.down !== null || result.latency !== null) {
+          // Calculate bonus points
+          let bonusPoints = SPEED_TEST_BONUS_POINTS;
+          
+          // Extra bonus for premium speeds (50+ Mbps)
+          if (result.down && result.down >= PREMIUM_SPEED_THRESHOLD) {
+            bonusPoints += 1; // Extra point for fast connection
+            console.log(`Premium speed detected: ${result.down} Mbps - extra bonus!`);
+          }
+          
+          // Extra bonus for low latency (<50ms)
+          if (result.latency && result.latency < 50) {
+            bonusPoints += 0.5;
+            console.log(`Low latency detected: ${result.latency}ms - extra bonus!`);
+          }
+          
+          setStats(prev => ({
+            ...prev,
+            speedTestPoints: prev.speedTestPoints + bonusPoints,
+            pointsEarned: prev.pointsEarned + bonusPoints,
+            speedTestCount: prev.speedTestCount + 1,
+            lastSpeedTest: speedTestResult
+          }));
+          
+          // Haptic feedback for successful test
+          success();
+          console.log(`Speed test complete (${result.provider}): ↓${result.down ?? 'N/A'} ↑${result.up ?? 'N/A'} Mbps, ${result.latency ?? 'N/A'}ms - +${bonusPoints} pts`);
+        } else {
+          console.log(`Speed test completed with errors: download=${result.downloadError}, latency=${result.latencyError}`);
         }
-        
-        // Extra bonus for low latency (<50ms)
-        if (result.latency < 50) {
-          bonusPoints += 0.5;
-          console.log(`Low latency detected: ${result.latency}ms - extra bonus!`);
-        }
-        
-        setStats(prev => ({
-          ...prev,
-          speedTestPoints: prev.speedTestPoints + bonusPoints,
-          pointsEarned: prev.pointsEarned + bonusPoints,
-          speedTestCount: prev.speedTestCount + 1,
-          lastSpeedTest: speedTestResult
-        }));
-        
-        // Haptic feedback for successful test
-        success();
-        console.log(`Speed test complete: ↓${result.down} ↑${result.up} Mbps, ${result.latency}ms - +${bonusPoints} pts`);
         
         return speedTestResult;
       }
