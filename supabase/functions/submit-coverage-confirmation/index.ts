@@ -198,8 +198,10 @@ serve(async (req) => {
       });
     }
 
-    // Rate limit check (skip for session_end which is controlled by session lifecycle)
-    if (trigger_reason !== 'session_end') {
+    // Rate limit check - determines if bonus points are awarded (not if insert happens)
+    let bonusAllowed = trigger_reason === 'session_end'; // session_end always gets bonus
+    
+    if (!bonusAllowed) {
       const rateLimitTime = new Date(Date.now() - RATE_LIMIT_MINUTES * 60 * 1000).toISOString();
       const { data: recentConfirmations, error: rateError } = await supabaseAdmin
         .from('coverage_confirmations')
@@ -208,15 +210,11 @@ serve(async (req) => {
         .gte('recorded_at', rateLimitTime)
         .limit(1);
 
-      if (!rateError && recentConfirmations && recentConfirmations.length > 0) {
-        console.warn(`Rate limit: user ${user.id} already submitted confirmation within ${RATE_LIMIT_MINUTES} minutes`);
-        return new Response(JSON.stringify({ 
-          error: `Please wait ${RATE_LIMIT_MINUTES} minutes between coverage confirmations`,
-          retry_after_seconds: RATE_LIMIT_MINUTES * 60
-        }), {
-          status: 429,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        });
+      // If no recent confirmations, bonus is allowed
+      bonusAllowed = !rateError && (!recentConfirmations || recentConfirmations.length === 0);
+      
+      if (!bonusAllowed) {
+        console.log(`Rate limit: user ${user.id} already submitted within ${RATE_LIMIT_MINUTES} min - will insert but skip bonus`);
       }
     }
 
@@ -305,19 +303,14 @@ serve(async (req) => {
       });
     }
 
-    // Award bonus points for gold data
-    const { error: pointsError } = await supabaseAdmin
-      .from('user_points')
-      .upsert({
-        user_id: user.id,
-        total_points: CONFIRMATION_POINTS,
-        updated_at: new Date().toISOString()
-      }, {
-        onConflict: 'user_id'
-      });
+    // Award bonus points only if rate limit allows
+    let bonus_awarded = false;
+    let bonus_points = 0;
 
-    // If upsert doesn't work, try increment
-    if (pointsError) {
+    if (bonusAllowed) {
+      bonus_points = CONFIRMATION_POINTS;
+      
+      // Get existing points and increment
       const { data: existingPoints } = await supabaseAdmin
         .from('user_points')
         .select('total_points')
@@ -325,29 +318,35 @@ serve(async (req) => {
         .single();
 
       if (existingPoints) {
-        await supabaseAdmin
+        const { error: updateError } = await supabaseAdmin
           .from('user_points')
           .update({ 
-            total_points: (existingPoints.total_points || 0) + CONFIRMATION_POINTS,
+            total_points: (existingPoints.total_points || 0) + bonus_points,
             updated_at: new Date().toISOString()
           })
           .eq('user_id', user.id);
+        
+        bonus_awarded = !updateError;
       } else {
-        await supabaseAdmin
+        const { error: insertError } = await supabaseAdmin
           .from('user_points')
           .insert({
             user_id: user.id,
-            total_points: CONFIRMATION_POINTS
+            total_points: bonus_points
           });
+        
+        bonus_awarded = !insertError;
       }
     }
 
-    console.log(`[COVERAGE_CONFIRMATION] user=${user.id} quality=${quality} trigger=${trigger_reason} geohash=${location_geohash} points_awarded=${CONFIRMATION_POINTS}`);
+    console.log(`[COVERAGE_CONFIRMATION] user=${user.id} quality=${quality} trigger=${trigger_reason} geohash=${location_geohash} bonus_awarded=${bonus_awarded} bonus_points=${bonus_points}`);
 
     return new Response(JSON.stringify({ 
-      success: true, 
-      id: insertedConfirmation.id,
-      points_awarded: CONFIRMATION_POINTS,
+      ok: true,
+      confirmation_id: insertedConfirmation.id,
+      bonus_awarded,
+      bonus_points,
+      rate_limited: !bonusAllowed,
       has_nearby_log: nearestLogId !== null
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
