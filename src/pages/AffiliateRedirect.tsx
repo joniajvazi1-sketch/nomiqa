@@ -3,6 +3,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useAffiliateTracking } from "@/hooks/useAffiliateTracking";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 export default function AffiliateRedirect() {
   const { code, username } = useParams<{ code?: string; username?: string }>();
@@ -21,19 +22,23 @@ export default function AffiliateRedirect() {
       }
 
       try {
-        // Look up the affiliate by code or username to get the affiliate_code
+        // Look up the affiliate by code or username to get the affiliate_code and username
         let affiliateCode: string | null = null;
+        let affiliateUsername: string | null = null;
+        let affiliateId: string | null = null;
         
         if (code) {
           // Verify the code exists in the database
           const { data: affiliate } = await supabase
             .from('affiliates')
-            .select('affiliate_code')
+            .select('id, affiliate_code, username')
             .eq('affiliate_code', code.toUpperCase())
             .maybeSingle();
           
           if (affiliate) {
             affiliateCode = affiliate.affiliate_code;
+            affiliateUsername = affiliate.username;
+            affiliateId = affiliate.id;
           } else {
             console.warn('Invalid referral code:', code);
           }
@@ -41,12 +46,14 @@ export default function AffiliateRedirect() {
           // If redirected via username, look up the affiliate_code
           const { data: affiliate } = await supabase
             .from('affiliates')
-            .select('affiliate_code')
+            .select('id, affiliate_code, username')
             .eq('username', username.toLowerCase())
             .maybeSingle();
           
           if (affiliate) {
             affiliateCode = affiliate.affiliate_code;
+            affiliateUsername = affiliate.username;
+            affiliateId = affiliate.id;
           } else {
             console.warn('Invalid username:', username);
           }
@@ -70,6 +77,16 @@ export default function AffiliateRedirect() {
           } catch (storageError) {
             console.error('Error saving to localStorage:', storageError);
           }
+
+          // Show confirmation toast with affiliate username
+          const displayName = affiliateUsername || code || username;
+          toast.success(`Referred by ${displayName}`, {
+            description: "Your referral has been recorded!",
+            duration: 4000,
+          });
+
+          // Log the referral visit for audit purposes (fire and forget)
+          logReferralVisit(affiliateCode, affiliateUsername, affiliateId);
         }
       } catch (error) {
         console.error('Error looking up affiliate:', error);
@@ -87,6 +104,29 @@ export default function AffiliateRedirect() {
 
     handleRedirect();
   }, [code, username, navigate, setReferralCode, searchParams]);
+
+  // Fire-and-forget logging function
+  const logReferralVisit = async (
+    affiliateCode: string, 
+    affiliateUsername: string | null, 
+    affiliateId: string | null
+  ) => {
+    try {
+      await supabase.functions.invoke('log-referral-visit', {
+        body: {
+          affiliateCode,
+          affiliateUsername,
+          affiliateId,
+          referrerUrl: document.referrer || null,
+          landingPage: window.location.pathname,
+          userAgent: navigator.userAgent,
+        },
+      });
+    } catch (error) {
+      // Silent fail - logging should not affect user experience
+      console.error('Failed to log referral visit:', error);
+    }
+  };
 
   if (!isProcessing) {
     return null;

@@ -95,3 +95,6 @@ verify_jwt = true
 
 [functions.export-user-data]
 verify_jwt = true
+
+[functions.log-referral-visit]
+verify_jwt = false
