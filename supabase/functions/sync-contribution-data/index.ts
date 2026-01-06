@@ -17,7 +17,49 @@ interface ContributionData {
   speed_mps?: number;
   accuracy_meters?: number;
   recorded_at: string;
-  device_fingerprint?: string; // Client-side device hash
+  device_fingerprint?: string;
+}
+
+interface SignalLogData {
+  session_id?: string;
+  latitude: number;
+  longitude: number;
+  accuracy_meters?: number;
+  altitude_meters?: number;
+  speed_mps?: number;
+  heading_degrees?: number;
+  rsrp?: number;
+  rsrq?: number;
+  rssi?: number;
+  sinr?: number;
+  roaming_status?: boolean;
+  speed_test_down?: number;
+  speed_test_up?: number;
+  latency_ms?: number;
+  jitter_ms?: number;
+  pci?: number;
+  band_number?: number;
+  frequency_mhz?: number;
+  bandwidth_mhz?: number;
+  recorded_at: string;
+  data_quality_score?: number;
+  is_indoor?: boolean;
+  is_rare_location?: boolean;
+  speed_test_error?: string;
+  speed_test_provider?: string;
+  latency_error?: string;
+  latency_provider?: string;
+  latency_method?: string;
+  network_type?: string;
+  carrier_name?: string;
+  mcc?: string;
+  mnc?: string;
+  mcc_mnc?: string;
+  device_model?: string;
+  device_manufacturer?: string;
+  os_version?: string;
+  cell_id?: string;
+  tac?: string;
 }
 
 interface LocationProof {
@@ -27,6 +69,114 @@ interface LocationProof {
   location_hash: string;
   device_hash: string;
   network_hash: string;
+}
+
+// MCC to ISO country code mapping (major countries)
+const MCC_TO_COUNTRY: Record<string, string> = {
+  '202': 'GR', '204': 'NL', '206': 'BE', '208': 'FR', '214': 'ES', '216': 'HU',
+  '218': 'BA', '220': 'RS', '222': 'IT', '226': 'RO', '228': 'CH', '230': 'CZ',
+  '232': 'AT', '234': 'GB', '235': 'GB', '238': 'DK', '240': 'SE', '242': 'NO',
+  '244': 'FI', '246': 'LT', '247': 'LV', '248': 'EE', '250': 'RU', '255': 'UA',
+  '260': 'PL', '262': 'DE', '266': 'GI', '268': 'PT', '270': 'LU', '272': 'IE',
+  '274': 'IS', '276': 'AL', '278': 'MT', '280': 'CY', '282': 'GE', '283': 'AM',
+  '284': 'BG', '286': 'TR', '288': 'FO', '290': 'GL', '292': 'SM', '293': 'SI',
+  '294': 'MK', '295': 'LI', '297': 'ME', '302': 'CA', '308': 'PM', '310': 'US',
+  '311': 'US', '312': 'US', '313': 'US', '314': 'US', '315': 'US', '316': 'US',
+  '330': 'PR', '334': 'MX', '338': 'JM', '340': 'GP', '342': 'BB', '344': 'AG',
+  '346': 'KY', '348': 'VG', '350': 'BM', '352': 'GD', '354': 'MS', '356': 'KN',
+  '358': 'LC', '360': 'VC', '362': 'CW', '363': 'AW', '364': 'BS', '365': 'AI',
+  '366': 'DM', '368': 'CU', '370': 'DO', '372': 'HT', '374': 'TT', '376': 'TC',
+  '400': 'AZ', '401': 'KZ', '402': 'BT', '404': 'IN', '405': 'IN', '406': 'IN',
+  '410': 'PK', '412': 'AF', '413': 'LK', '414': 'MM', '415': 'LB', '416': 'JO',
+  '417': 'SY', '418': 'IQ', '419': 'KW', '420': 'SA', '421': 'YE', '422': 'OM',
+  '424': 'AE', '425': 'IL', '426': 'BH', '427': 'QA', '428': 'MN', '429': 'NP',
+  '432': 'IR', '434': 'UZ', '436': 'TJ', '437': 'KG', '438': 'TM', '440': 'JP',
+  '441': 'JP', '450': 'KR', '452': 'VN', '454': 'HK', '455': 'MO', '456': 'KH',
+  '457': 'LA', '460': 'CN', '461': 'CN', '466': 'TW', '467': 'KP', '470': 'BD',
+  '472': 'MV', '502': 'MY', '505': 'AU', '510': 'ID', '514': 'TL', '515': 'PH',
+  '520': 'TH', '525': 'SG', '528': 'BN', '530': 'NZ', '536': 'NR', '537': 'PG',
+  '539': 'TO', '540': 'SB', '541': 'VU', '542': 'FJ', '544': 'AS', '545': 'KI',
+  '546': 'NC', '547': 'PF', '548': 'CK', '549': 'WS', '550': 'FM', '551': 'MH',
+  '552': 'PW', '553': 'TV', '555': 'NU', '602': 'EG', '603': 'DZ', '604': 'MA',
+  '605': 'TN', '606': 'LY', '607': 'GM', '608': 'SN', '609': 'MR', '610': 'ML',
+  '611': 'GN', '612': 'CI', '613': 'BF', '614': 'NE', '615': 'TG', '616': 'BJ',
+  '617': 'MU', '618': 'LR', '619': 'SL', '620': 'GH', '621': 'NG', '622': 'TD',
+  '623': 'CF', '624': 'CM', '625': 'CV', '626': 'ST', '627': 'GQ', '628': 'GA',
+  '629': 'CG', '630': 'CD', '631': 'AO', '632': 'GW', '633': 'SC', '634': 'SD',
+  '635': 'RW', '636': 'ET', '637': 'SO', '638': 'DJ', '639': 'KE', '640': 'TZ',
+  '641': 'UG', '642': 'BI', '643': 'MZ', '645': 'ZM', '646': 'MG', '647': 'RE',
+  '648': 'ZW', '649': 'NA', '650': 'MW', '651': 'LS', '652': 'BW', '653': 'SZ',
+  '654': 'KM', '655': 'ZA', '657': 'ER', '659': 'SS', '702': 'BZ', '704': 'GT',
+  '706': 'SV', '708': 'HN', '710': 'NI', '712': 'CR', '714': 'PA', '716': 'PE',
+  '722': 'AR', '724': 'BR', '730': 'CL', '732': 'CO', '734': 'VE', '736': 'BO',
+  '738': 'GY', '740': 'EC', '742': 'GF', '744': 'PY', '746': 'SR', '748': 'UY',
+  '750': 'FK'
+};
+
+// Network generation from network_type string
+function deriveNetworkGeneration(networkType?: string): string | null {
+  if (!networkType) return null;
+  const upper = networkType.toUpperCase();
+  if (upper.includes('5G') || upper.includes('NR')) return '5G';
+  if (upper.includes('LTE') || upper.includes('4G')) return '4G';
+  if (upper.includes('HSPA') || upper.includes('HSDPA') || upper.includes('HSUPA') || 
+      upper.includes('UMTS') || upper.includes('3G') || upper.includes('WCDMA')) return '3G';
+  if (upper.includes('EDGE') || upper.includes('GPRS') || upper.includes('2G') || 
+      upper.includes('GSM') || upper.includes('CDMA')) return '2G';
+  if (upper.includes('WIFI') || upper.includes('WI-FI')) return 'WiFi';
+  return null;
+}
+
+// Derive country code from MCC
+function deriveCountryFromMCC(mcc?: string): string | null {
+  if (!mcc) return null;
+  return MCC_TO_COUNTRY[mcc] || null;
+}
+
+// Generate geohash (precision 7 = ~153m x 153m)
+const BASE32 = '0123456789bcdefghjkmnpqrstuvwxyz';
+function encodeGeohash(lat: number, lng: number, precision: number = 7): string {
+  let minLat = -90, maxLat = 90;
+  let minLng = -180, maxLng = 180;
+  let hash = '';
+  let bit = 0;
+  let ch = 0;
+  let isLng = true;
+
+  while (hash.length < precision) {
+    if (isLng) {
+      const mid = (minLng + maxLng) / 2;
+      if (lng >= mid) {
+        ch |= (1 << (4 - bit));
+        minLng = mid;
+      } else {
+        maxLng = mid;
+      }
+    } else {
+      const mid = (minLat + maxLat) / 2;
+      if (lat >= mid) {
+        ch |= (1 << (4 - bit));
+        minLat = mid;
+      } else {
+        maxLat = mid;
+      }
+    }
+    isLng = !isLng;
+    if (bit < 4) {
+      bit++;
+    } else {
+      hash += BASE32[ch];
+      bit = 0;
+      ch = 0;
+    }
+  }
+  return hash;
+}
+
+// Round coordinates to 4 decimals (~11m precision)
+function roundCoord(value: number, decimals: number = 4): number {
+  const factor = Math.pow(10, decimals);
+  return Math.round(value * factor) / factor;
 }
 
 // Generate SHA-256 hash
@@ -46,19 +196,15 @@ async function generateLocationProof(
   const timestamp = new Date().toISOString();
   const proofVersion = 1;
 
-  // Create location hash (coords rounded to ~11m precision for privacy + timestamp)
   const locationData = `${contribution.latitude.toFixed(4)}|${contribution.longitude.toFixed(4)}|${contribution.recorded_at}`;
   const locationHash = await sha256(locationData);
 
-  // Create device hash (device fingerprint + carrier + network type)
   const deviceData = `${contribution.device_fingerprint || 'unknown'}|${contribution.carrier || 'unknown'}|${contribution.device_type || 'unknown'}`;
   const deviceHash = await sha256(deviceData);
 
-  // Create network hash (signal strength + network type)
   const networkData = `${contribution.signal_dbm || 0}|${contribution.network_type || 'unknown'}|${contribution.accuracy_meters || 0}`;
   const networkHash = await sha256(networkData);
 
-  // Create final proof hash combining all elements + server secret for tamper-proofing
   const proofData = `v${proofVersion}|${userId}|${locationHash}|${deviceHash}|${networkHash}|${timestamp}|${serverSecret}`;
   const proofHash = await sha256(proofData);
 
@@ -66,7 +212,7 @@ async function generateLocationProof(
     proof_hash: proofHash,
     proof_version: proofVersion,
     timestamp,
-    location_hash: locationHash.substring(0, 16), // Truncated for storage efficiency
+    location_hash: locationHash.substring(0, 16),
     device_hash: deviceHash.substring(0, 16),
     network_hash: networkHash.substring(0, 16)
   };
@@ -74,6 +220,7 @@ async function generateLocationProof(
 
 interface SyncRequest {
   contributions: ContributionData[];
+  signalLogs?: SignalLogData[];
 }
 
 interface ValidationResult {
@@ -83,16 +230,22 @@ interface ValidationResult {
 }
 
 // Validation constants
-const MAX_ACCURACY_METERS = 100; // Reject readings with accuracy > 100m
-const MAX_SPEED_MPS = 150; // ~540 km/h - faster than commercial aircraft
-const MIN_TIME_BETWEEN_POINTS_MS = 500; // Minimum 0.5s between points
-const MAX_DISTANCE_PER_SECOND_METERS = 200; // ~720 km/h max travel speed
-const DUPLICATE_THRESHOLD_METERS = 0.5; // Points closer than this are duplicates
-const SUSPICIOUS_PATTERN_THRESHOLD = 5; // Number of flags before rejection
+const MAX_ACCURACY_METERS = 100;
+const MAX_SPEED_MPS = 150;
+const MIN_TIME_BETWEEN_POINTS_MS = 500;
+const MAX_DISTANCE_PER_SECOND_METERS = 200;
+const DUPLICATE_THRESHOLD_METERS = 0.5;
+const SUSPICIOUS_PATTERN_THRESHOLD = 5;
+
+// Speed test sanity bounds
+const MIN_SPEED_MBPS = 0.01;
+const MAX_SPEED_MBPS = 10000;
+const MIN_LATENCY_MS = 1;
+const MAX_LATENCY_MS = 30000;
 
 // Haversine distance calculation
 function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
-  const R = 6371000; // Earth's radius in meters
+  const R = 6371000;
   const dLat = (lat2 - lat1) * Math.PI / 180;
   const dLon = (lon2 - lon1) * Math.PI / 180;
   const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
@@ -111,58 +264,48 @@ function validateContribution(
   let suspicionScore = 0;
   const reasons: string[] = [];
 
-  // 1. Check GPS accuracy
   if (contribution.accuracy_meters && contribution.accuracy_meters > MAX_ACCURACY_METERS) {
     suspicionScore += 2;
     reasons.push(`Low GPS accuracy: ${contribution.accuracy_meters}m`);
   }
 
-  // 2. Check for impossible coordinates
   if (Math.abs(contribution.latitude) > 90 || Math.abs(contribution.longitude) > 180) {
     return { valid: false, reason: 'Invalid coordinates', suspicionScore: 10 };
   }
 
-  // 3. Check for null island (0,0) or obviously fake coordinates
   if (contribution.latitude === 0 && contribution.longitude === 0) {
     return { valid: false, reason: 'Null island coordinates detected', suspicionScore: 10 };
   }
 
-  // 4. Check reported speed against maximum
   if (contribution.speed_mps && contribution.speed_mps > MAX_SPEED_MPS) {
     suspicionScore += 3;
     reasons.push(`Impossible speed: ${contribution.speed_mps} m/s`);
   }
 
-  // 5. Validate against previous point if available
   if (previousContribution) {
     const timeDiffMs = new Date(contribution.recorded_at).getTime() - 
                        new Date(previousContribution.recorded_at).getTime();
     
-    // Check minimum time between points
     if (timeDiffMs < MIN_TIME_BETWEEN_POINTS_MS && timeDiffMs >= 0) {
       suspicionScore += 1;
       reasons.push('Points recorded too quickly');
     }
 
-    // Check for time travel (future to past)
     if (timeDiffMs < 0) {
       suspicionScore += 3;
       reasons.push('Time inconsistency detected');
     }
 
-    // Calculate actual distance and speed
     const distance = calculateDistance(
       previousContribution.latitude, previousContribution.longitude,
       contribution.latitude, contribution.longitude
     );
 
-    // Check for exact duplicates
     if (distance < DUPLICATE_THRESHOLD_METERS) {
       suspicionScore += 0.5;
       reasons.push('Duplicate location');
     }
 
-    // Check calculated speed vs time
     if (timeDiffMs > 0) {
       const calculatedSpeedMps = (distance / timeDiffMs) * 1000;
       
@@ -171,7 +314,6 @@ function validateContribution(
         reasons.push(`Impossible travel speed: ${calculatedSpeedMps.toFixed(1)} m/s`);
       }
 
-      // Cross-check reported speed vs calculated speed (if reported)
       if (contribution.speed_mps) {
         const speedDiff = Math.abs(contribution.speed_mps - calculatedSpeedMps);
         if (speedDiff > 50 && calculatedSpeedMps > 10) {
@@ -182,7 +324,6 @@ function validateContribution(
     }
   }
 
-  // 6. Check for pattern-based spoofing in recent history
   if (recentHistory && recentHistory.length >= 3) {
     const bearings: number[] = [];
     for (let i = 1; i < recentHistory.length; i++) {
@@ -229,6 +370,74 @@ function validateContribution(
   };
 }
 
+// Validate signal log data with speed/latency sanity checks
+interface SignalLogValidation {
+  valid: boolean;
+  sanitized: SignalLogData;
+  flags: string[];
+}
+
+function validateSignalLog(log: SignalLogData): SignalLogValidation {
+  const flags: string[] = [];
+  const sanitized = { ...log };
+
+  // Coordinate validation
+  if (Math.abs(log.latitude) > 90 || Math.abs(log.longitude) > 180) {
+    return { valid: false, sanitized, flags: ['Invalid coordinates'] };
+  }
+  if (log.latitude === 0 && log.longitude === 0) {
+    return { valid: false, sanitized, flags: ['Null island'] };
+  }
+
+  // Round coordinates
+  sanitized.latitude = roundCoord(log.latitude, 4);
+  sanitized.longitude = roundCoord(log.longitude, 4);
+
+  // Speed test sanity
+  if (log.speed_test_down !== undefined && log.speed_test_down !== null) {
+    if (log.speed_test_down < MIN_SPEED_MBPS || log.speed_test_down > MAX_SPEED_MBPS) {
+      sanitized.speed_test_down = undefined;
+      flags.push(`download_out_of_range:${log.speed_test_down}`);
+    }
+  }
+  if (log.speed_test_up !== undefined && log.speed_test_up !== null) {
+    if (log.speed_test_up < MIN_SPEED_MBPS || log.speed_test_up > MAX_SPEED_MBPS) {
+      sanitized.speed_test_up = undefined;
+      flags.push(`upload_out_of_range:${log.speed_test_up}`);
+    }
+  }
+
+  // Latency sanity
+  if (log.latency_ms !== undefined && log.latency_ms !== null) {
+    if (log.latency_ms < MIN_LATENCY_MS || log.latency_ms > MAX_LATENCY_MS) {
+      sanitized.latency_ms = undefined;
+      flags.push(`latency_out_of_range:${log.latency_ms}`);
+    }
+  }
+
+  // RSRP sanity (-140 to -44 dBm typical)
+  if (log.rsrp !== undefined && log.rsrp !== null) {
+    if (log.rsrp < -150 || log.rsrp > -30) {
+      flags.push(`rsrp_suspicious:${log.rsrp}`);
+    }
+  }
+
+  // Accuracy check
+  if (log.accuracy_meters && log.accuracy_meters > MAX_ACCURACY_METERS) {
+    flags.push(`low_gps_accuracy:${log.accuracy_meters}`);
+  }
+
+  // Movement speed sanity
+  if (log.speed_mps !== undefined && log.speed_mps !== null) {
+    if (log.speed_mps < 0 || log.speed_mps > MAX_SPEED_MPS) {
+      sanitized.speed_mps = undefined;
+      flags.push(`movement_speed_invalid:${log.speed_mps}`);
+    }
+  }
+
+  return { valid: true, sanitized, flags };
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -259,9 +468,119 @@ serve(async (req) => {
       );
     }
 
-    const { contributions }: SyncRequest = await req.json();
+    const { contributions, signalLogs }: SyncRequest = await req.json();
 
+    // Process signal logs if provided
+    let signalLogsResult = { inserted: 0, rejected: 0, flags: [] as string[] };
+    
+    if (signalLogs && Array.isArray(signalLogs) && signalLogs.length > 0) {
+      console.log(`Processing ${signalLogs.length} signal logs for user ${user.id}`);
+      
+      const validSignalLogs: Record<string, unknown>[] = [];
+      const allFlags: string[] = [];
+      
+      for (const log of signalLogs) {
+        const validation = validateSignalLog(log);
+        
+        if (!validation.valid) {
+          signalLogsResult.rejected++;
+          allFlags.push(...validation.flags);
+          console.log(`Rejected signal log: ${validation.flags.join(', ')}`);
+          continue;
+        }
+        
+        if (validation.flags.length > 0) {
+          allFlags.push(...validation.flags);
+        }
+        
+        const s = validation.sanitized;
+        
+        // Derive additional fields
+        const geohash = encodeGeohash(s.latitude, s.longitude, 7);
+        const countryCode = deriveCountryFromMCC(s.mcc);
+        const networkGeneration = deriveNetworkGeneration(s.network_type);
+        
+        validSignalLogs.push({
+          user_id: user.id,
+          session_id: s.session_id || null,
+          latitude: s.latitude,
+          longitude: s.longitude,
+          accuracy_meters: s.accuracy_meters,
+          altitude_meters: s.altitude_meters,
+          speed_mps: s.speed_mps,
+          heading_degrees: s.heading_degrees,
+          rsrp: s.rsrp,
+          rsrq: s.rsrq,
+          rssi: s.rssi,
+          sinr: s.sinr,
+          roaming_status: s.roaming_status,
+          speed_test_down: s.speed_test_down,
+          speed_test_up: s.speed_test_up,
+          latency_ms: s.latency_ms,
+          jitter_ms: s.jitter_ms,
+          pci: s.pci,
+          band_number: s.band_number,
+          frequency_mhz: s.frequency_mhz,
+          bandwidth_mhz: s.bandwidth_mhz,
+          recorded_at: s.recorded_at,
+          data_quality_score: s.data_quality_score,
+          is_indoor: s.is_indoor,
+          is_rare_location: s.is_rare_location,
+          speed_test_error: s.speed_test_error,
+          speed_test_provider: s.speed_test_provider,
+          latency_error: s.latency_error,
+          latency_provider: s.latency_provider,
+          latency_method: s.latency_method,
+          network_type: s.network_type,
+          carrier_name: s.carrier_name,
+          mcc: s.mcc,
+          mnc: s.mnc,
+          mcc_mnc: s.mcc_mnc,
+          device_model: s.device_model,
+          device_manufacturer: s.device_manufacturer,
+          os_version: s.os_version,
+          cell_id: s.cell_id,
+          tac: s.tac,
+          // Derived fields (stored in existing columns or logged)
+          // geohash and country_code would need new columns - log for now
+        });
+        
+        console.log(`Signal log prepared: geohash=${geohash}, country=${countryCode || 'unknown'}, gen=${networkGeneration || 'unknown'}`);
+      }
+      
+      if (validSignalLogs.length > 0) {
+        const { error: signalInsertError } = await supabase
+          .from('signal_logs')
+          .insert(validSignalLogs);
+        
+        if (signalInsertError) {
+          console.error('Signal logs insert error:', signalInsertError);
+          signalLogsResult.rejected += validSignalLogs.length;
+        } else {
+          signalLogsResult.inserted = validSignalLogs.length;
+          console.log(`Inserted ${validSignalLogs.length} signal logs`);
+        }
+      }
+      
+      signalLogsResult.flags = [...new Set(allFlags)].slice(0, 10);
+    }
+
+    // Handle contributions if provided (existing logic)
     if (!contributions || !Array.isArray(contributions) || contributions.length === 0) {
+      // If only signal logs were provided, return success
+      if (signalLogs && signalLogs.length > 0) {
+        return new Response(
+          JSON.stringify({
+            success: true,
+            synced_count: 0,
+            rejected_count: 0,
+            points_earned: 0,
+            signal_logs: signalLogsResult
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      
       return new Response(
         JSON.stringify({ error: 'No contributions to sync' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -270,7 +589,6 @@ serve(async (req) => {
 
     console.log(`Validating ${contributions.length} contributions for user ${user.id}`);
 
-    // Fetch recent contributions for pattern analysis
     const { data: recentContributions } = await supabase
       .from('offline_contribution_queue')
       .select('latitude, longitude, recorded_at, speed_mps, accuracy_meters')
@@ -278,7 +596,6 @@ serve(async (req) => {
       .order('recorded_at', { ascending: false })
       .limit(10);
 
-    // Validate each contribution
     let validCount = 0;
     let rejectedCount = 0;
     let totalSuspicionScore = 0;
@@ -332,7 +649,8 @@ serve(async (req) => {
           rejected_count: rejectedCount,
           points_earned: 0,
           message: 'All contributions failed validation',
-          reasons: [...new Set(rejectionReasons)].slice(0, 5)
+          reasons: [...new Set(rejectionReasons)].slice(0, 5),
+          signal_logs: signalLogsResult
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
@@ -340,7 +658,6 @@ serve(async (req) => {
 
     console.log(`Validated: ${validCount} valid, ${rejectedCount} rejected`);
 
-    // Generate location proofs for all valid contributions
     const serverSecret = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')?.substring(0, 32) || 'default-secret';
     const proofs: LocationProof[] = [];
     
@@ -356,8 +673,8 @@ serve(async (req) => {
     const queueItems = validContributions.map((c, index) => ({
       user_id: user.id,
       session_id: c.session_id || null,
-      latitude: c.latitude,
-      longitude: c.longitude,
+      latitude: roundCoord(c.latitude, 4),
+      longitude: roundCoord(c.longitude, 4),
       signal_dbm: c.signal_dbm,
       network_type: c.network_type,
       carrier: c.carrier,
@@ -367,7 +684,6 @@ serve(async (req) => {
       recorded_at: c.recorded_at,
       synced_at: new Date().toISOString(),
       processed: true,
-      // Location proof fields
       proof_hash: proofs[index].proof_hash,
       proof_version: proofs[index].proof_version,
       proof_timestamp: proofs[index].timestamp,
@@ -391,8 +707,8 @@ serve(async (req) => {
 
     const miningLogs = validContributions.map((c) => ({
       user_id: user.id,
-      latitude: c.latitude,
-      longitude: c.longitude,
+      latitude: roundCoord(c.latitude, 4),
+      longitude: roundCoord(c.longitude, 4),
       signal_dbm: c.signal_dbm,
       network_type: c.network_type,
       carrier: c.carrier,
@@ -443,7 +759,8 @@ serve(async (req) => {
           hash: p.proof_hash.substring(0, 12) + '...',
           version: p.proof_version,
           timestamp: p.timestamp
-        }))
+        })),
+        signal_logs: signalLogsResult
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
