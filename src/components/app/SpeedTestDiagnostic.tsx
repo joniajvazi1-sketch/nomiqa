@@ -70,6 +70,9 @@ export const SpeedTestDiagnostic = () => {
               </Badge>
             ))}
           </div>
+          <p className="text-[10px] text-muted-foreground mt-1">
+            Latency: Edge Function • Download: Static Storage (1-5MB adaptive) • Upload: Edge Function
+          </p>
         </div>
 
         {/* Success Rates */}
@@ -130,6 +133,11 @@ export const SpeedTestDiagnostic = () => {
                 <p className="text-sm font-semibold">
                   {currentResult.down !== null ? `${currentResult.down.toFixed(1)} Mbps` : '—'}
                 </p>
+                {currentResult.downloadSize && (
+                  <p className="text-[10px] text-muted-foreground">
+                    {(currentResult.downloadSize / 1_000_000).toFixed(1)}MB file
+                  </p>
+                )}
               </div>
               <div>
                 <div className="flex items-center justify-center gap-1">
