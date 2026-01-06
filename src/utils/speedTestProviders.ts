@@ -41,6 +41,9 @@ const CLOUDFLARE_ENDPOINTS: SpeedTestEndpoints = {
   provider: 'cloudflare'
 };
 
+// Export providers list for diagnostic display
+export const SPEED_TEST_PROVIDERS = [NOMIQA_ENDPOINTS, CLOUDFLARE_ENDPOINTS];
+
 /**
  * Test if an endpoint is reachable
  */

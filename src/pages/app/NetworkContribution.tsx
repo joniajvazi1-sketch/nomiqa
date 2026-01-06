@@ -25,6 +25,7 @@ import { ContributionMap } from '@/components/app/ContributionMap';
 import { RewardCelebration } from '@/components/app/RewardCelebration';
 import { SignalQualityDial } from '@/components/app/SignalQualityDial';
 import { IndoorModeToggle, IndoorModeIndicator } from '@/components/app/IndoorModeToggle';
+import { SpeedTestDiagnostic } from '@/components/app/SpeedTestDiagnostic';
 import { cn } from '@/lib/utils';
 
 type CoverageMode = 'personal' | 'global';
@@ -593,6 +594,9 @@ export const NetworkContribution: React.FC = () => {
               )}
             </div>
           </button>
+
+          {/* Speed Test Diagnostic - Shows provider, success rate, errors */}
+          {isActive && <SpeedTestDiagnostic />}
 
           {/* Telco Data Collection Card - C3 Premium Data UI */}
           {isActive && (
