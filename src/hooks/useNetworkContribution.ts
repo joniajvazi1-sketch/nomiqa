@@ -157,7 +157,7 @@ export const useNetworkContribution = () => {
   }, [session.status, connectionType, telcoMetrics]);
 
   /**
-   * Log a telco-grade signal data point to the database
+   * Log a telco-grade signal data point via edge function
    */
   const logTelcoDataPoint = async (position: Position) => {
     if (!user || !session.id) return;
@@ -169,61 +169,69 @@ export const useNetworkContribution = () => {
         session.id
       );
       
-      // Insert into signal_logs table with quality score
-      const { error } = await supabase.from('signal_logs').insert({
-        user_id: user.id,
-        session_id: session.id,
-        latitude: signalLog.latitude,
-        longitude: signalLog.longitude,
-        accuracy_meters: signalLog.accuracyMeters,
-        altitude_meters: signalLog.altitudeMeters,
-        speed_mps: signalLog.speedMps,
-        heading_degrees: signalLog.headingDegrees,
-        rsrp: signalLog.rsrp,
-        rsrq: signalLog.rsrq,
-        rssi: signalLog.rssi,
-        sinr: signalLog.sinr,
-        network_type: signalLog.networkType,
-        carrier_name: signalLog.carrierName,
-        mcc: signalLog.mcc,
-        mnc: signalLog.mnc,
-        mcc_mnc: signalLog.mccMnc,
-        roaming_status: signalLog.roamingStatus,
-        speed_test_down: signalLog.speedTestDown,
-        speed_test_up: signalLog.speedTestUp,
-        latency_ms: signalLog.latencyMs,
-        jitter_ms: signalLog.jitterMs,
-        device_model: signalLog.deviceModel,
-        device_manufacturer: signalLog.deviceManufacturer,
-        os_version: signalLog.osVersion,
-        cell_id: signalLog.cellId,
-        tac: signalLog.tac,
-        pci: signalLog.pci,
-        band_number: signalLog.bandNumber,
-        frequency_mhz: signalLog.frequencyMhz,
-        bandwidth_mhz: signalLog.bandwidthMhz,
-        recorded_at: signalLog.recordedAt,
-        // New quality scoring fields
-        data_quality_score: signalLog.dataQualityScore,
-        is_mock_location: signalLog.isMockLocation,
-        is_indoor: signalLog.accuracyMeters ? signalLog.accuracyMeters > 30 : false,
-        // Speed test error tracking fields
-        speed_test_error: signalLog.speedTestError,
-        speed_test_provider: signalLog.speedTestProvider,
-        latency_error: signalLog.latencyError,
-        latency_provider: signalLog.latencyProvider,
-        latency_method: signalLog.latencyMethod
+      // Insert via edge function (handles validation, geohash, country_code derivation)
+      const { data, error } = await supabase.functions.invoke('sync-contribution-data', {
+        body: {
+          signalLogs: [{
+            user_id: user.id,
+            session_id: session.id,
+            latitude: signalLog.latitude,
+            longitude: signalLog.longitude,
+            accuracy_meters: signalLog.accuracyMeters,
+            altitude_meters: signalLog.altitudeMeters,
+            speed_mps: signalLog.speedMps,
+            heading_degrees: signalLog.headingDegrees,
+            rsrp: signalLog.rsrp,
+            rsrq: signalLog.rsrq,
+            rssi: signalLog.rssi,
+            sinr: signalLog.sinr,
+            network_type: signalLog.networkType,
+            carrier_name: signalLog.carrierName,
+            mcc: signalLog.mcc,
+            mnc: signalLog.mnc,
+            mcc_mnc: signalLog.mccMnc,
+            roaming_status: signalLog.roamingStatus,
+            speed_test_down: signalLog.speedTestDown,
+            speed_test_up: signalLog.speedTestUp,
+            latency_ms: signalLog.latencyMs,
+            jitter_ms: signalLog.jitterMs,
+            device_model: signalLog.deviceModel,
+            device_manufacturer: signalLog.deviceManufacturer,
+            os_version: signalLog.osVersion,
+            cell_id: signalLog.cellId,
+            tac: signalLog.tac,
+            pci: signalLog.pci,
+            band_number: signalLog.bandNumber,
+            frequency_mhz: signalLog.frequencyMhz,
+            bandwidth_mhz: signalLog.bandwidthMhz,
+            recorded_at: signalLog.recordedAt,
+            data_quality_score: signalLog.dataQualityScore,
+            is_mock_location: signalLog.isMockLocation,
+            is_indoor: signalLog.accuracyMeters ? signalLog.accuracyMeters > 30 : false,
+            speed_test_error: signalLog.speedTestError,
+            speed_test_provider: signalLog.speedTestProvider,
+            latency_error: signalLog.latencyError,
+            latency_provider: signalLog.latencyProvider,
+            latency_method: signalLog.latencyMethod
+          }]
+        }
       });
       
       if (error) {
-        console.error('Signal log insert error:', error);
+        console.error('Signal log sync error:', error);
         // Queue for offline sync
         queueTelcoData(signalLog);
       } else {
-        setStats(prev => ({
-          ...prev,
-          signalLogsCount: prev.signalLogsCount + 1
-        }));
+        const result = data?.signal_logs;
+        if (result?.inserted > 0) {
+          setStats(prev => ({
+            ...prev,
+            signalLogsCount: prev.signalLogsCount + result.inserted
+          }));
+        }
+        if (result?.rejected > 0) {
+          console.warn('Signal logs rejected:', result.rejected, result.flags);
+        }
       }
     } catch (error) {
       console.error('Failed to log telco data:', error);
@@ -402,9 +410,9 @@ export const useNetworkContribution = () => {
       const telcoData = queue.filter(item => item.type === 'telco');
       const basicData = queue.filter(item => item.type === 'basic');
       
-      // Sync telco data directly to signal_logs
+      // Sync telco data via edge function (handles validation, geohash, country_code)
       if (telcoData.length > 0) {
-        const telcoInserts = telcoData.map(item => ({
+        const signalLogs = telcoData.map(item => ({
           user_id: user.id,
           session_id: item.session_id,
           latitude: item.telcoMetrics?.latitude,
@@ -437,7 +445,9 @@ export const useNetworkContribution = () => {
           frequency_mhz: item.telcoMetrics?.frequencyMhz,
           bandwidth_mhz: item.telcoMetrics?.bandwidthMhz,
           recorded_at: item.recorded_at,
-          // Speed test error tracking fields
+          data_quality_score: item.telcoMetrics?.dataQualityScore,
+          is_mock_location: item.telcoMetrics?.isMockLocation,
+          is_indoor: item.telcoMetrics?.accuracyMeters ? item.telcoMetrics.accuracyMeters > 30 : false,
           speed_test_error: item.telcoMetrics?.speedTestError,
           speed_test_provider: item.telcoMetrics?.speedTestProvider,
           latency_error: item.telcoMetrics?.latencyError,
@@ -445,13 +455,17 @@ export const useNetworkContribution = () => {
           latency_method: item.telcoMetrics?.latencyMethod
         }));
         
-        const { error: telcoError } = await supabase
-          .from('signal_logs')
-          .insert(telcoInserts);
+        const { data, error: telcoError } = await supabase.functions.invoke('sync-contribution-data', {
+          body: { signalLogs }
+        });
         
         if (telcoError) {
           console.error('Failed to sync telco data:', telcoError);
+          return; // Don't clear queue if sync failed
         }
+        
+        const result = data?.signal_logs;
+        console.log(`Synced ${result?.inserted || 0} signal logs, rejected ${result?.rejected || 0}`);
       }
       
       // Sync basic data via edge function
