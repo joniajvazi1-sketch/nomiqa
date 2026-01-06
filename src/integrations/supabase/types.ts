@@ -908,6 +908,45 @@ export type Database = {
         }
         Relationships: []
       }
+      referral_audit_log: {
+        Row: {
+          affiliate_code: string | null
+          affiliate_id: string | null
+          affiliate_username: string | null
+          created_at: string
+          id: string
+          ip_hash: string | null
+          landing_page: string | null
+          referrer_url: string | null
+          user_agent: string | null
+          visitor_fingerprint: string | null
+        }
+        Insert: {
+          affiliate_code?: string | null
+          affiliate_id?: string | null
+          affiliate_username?: string | null
+          created_at?: string
+          id?: string
+          ip_hash?: string | null
+          landing_page?: string | null
+          referrer_url?: string | null
+          user_agent?: string | null
+          visitor_fingerprint?: string | null
+        }
+        Update: {
+          affiliate_code?: string | null
+          affiliate_id?: string | null
+          affiliate_username?: string | null
+          created_at?: string
+          id?: string
+          ip_hash?: string | null
+          landing_page?: string | null
+          referrer_url?: string | null
+          user_agent?: string | null
+          visitor_fingerprint?: string | null
+        }
+        Relationships: []
+      }
       signal_logs: {
         Row: {
           accuracy_meters: number | null
