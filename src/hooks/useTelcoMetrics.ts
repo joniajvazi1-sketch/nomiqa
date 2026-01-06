@@ -247,8 +247,9 @@ export const useTelcoMetrics = () => {
    * Run a reliable speed test with fallback providers
    * Uses Nomiqa endpoints first, falls back to Cloudflare
    * Stores errors in DB for debugging
+   * Now selects appropriate file size based on network type
    */
-  const runLightweightSpeedTest = useCallback(async (): Promise<{
+  const runLightweightSpeedTest = useCallback(async (networkType?: string): Promise<{
     down: number | null;
     up: number | null;
     latency: number | null;
@@ -260,7 +261,8 @@ export const useTelcoMetrics = () => {
   } | null> => {
     try {
       // Use the new provider-based speed test with fallback
-      const result = await runSpeedTest(true);
+      // Pass networkType for adaptive file size selection
+      const result = await runSpeedTest(true, networkType);
       
       // Cache the result
       speedTestCache.current = { 
