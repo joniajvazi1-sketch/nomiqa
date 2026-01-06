@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { Position } from '@capacitor/geolocation';
+import { Geolocation, Position } from '@capacitor/geolocation';
 import { supabase } from '@/integrations/supabase/client';
 import { useBackgroundGeolocation } from './useBackgroundGeolocation';
 import { useNetworkStatus } from './useNetworkStatus';
@@ -61,6 +61,28 @@ const PREMIUM_SPEED_THRESHOLD = 50; // Mbps - extra bonus for fast connections
 const isCellularConnection = (type: string): boolean => {
   const cellularTypes = ['cellular', '4g', '5g', 'lte', '3g', '2g'];
   return cellularTypes.includes(type.toLowerCase());
+};
+
+/**
+ * Request location permission explicitly (user-initiated only)
+ * Apple requires this to be triggered by user action, not on app load
+ */
+const ensureLocationPermission = async (): Promise<boolean> => {
+  try {
+    const perm = await Geolocation.checkPermissions();
+    
+    if (perm.location === 'granted') return true;
+    
+    // User-initiated permission request
+    const request = await Geolocation.requestPermissions({
+      permissions: ['location']
+    });
+    
+    return request.location === 'granted';
+  } catch (error) {
+    console.error('Permission check failed:', error);
+    return false;
+  }
 };
 
 /**
@@ -488,6 +510,14 @@ export const useNetworkContribution = () => {
   // Start contribution session
   const startContribution = async (): Promise<boolean> => {
     if (!user) {
+      warning();
+      return false;
+    }
+
+    // Request location permission explicitly (user-initiated per Apple guidelines)
+    const hasPermission = await ensureLocationPermission();
+    if (!hasPermission) {
+      console.warn('Location permission denied - cannot start scan');
       warning();
       return false;
     }
