@@ -54,7 +54,7 @@ serve(async (req) => {
       });
     }
 
-    // Fetch all profiles with their affiliate data
+    // Fetch all profiles with country_code
     const { data: profiles, error: profilesError } = await adminClient
       .from("profiles")
       .select("*")
@@ -85,9 +85,25 @@ serve(async (req) => {
 
     if (referralsError) throw referralsError;
 
-    // Combine data - map profiles to their affiliate info and referral counts
+    // Combine data - map profiles to their affiliate info (aggregate all affiliates for same user)
     const usersWithReferrals = profiles?.map((profile) => {
-      const affiliate = affiliates?.find((a) => a.user_id === profile.user_id);
+      // Get ALL affiliates for this user and aggregate their stats
+      const userAffiliates = affiliates?.filter((a) => a.user_id === profile.user_id) || [];
+      const hasAffiliates = userAffiliates.length > 0;
+      
+      // Aggregate stats from all affiliates
+      const totalRegistrations = userAffiliates.reduce((sum, a) => sum + (a.total_registrations || 0), 0);
+      const totalConversions = userAffiliates.reduce((sum, a) => sum + (a.total_conversions || 0), 0);
+      const totalEarnings = userAffiliates.reduce((sum, a) => sum + (a.total_earnings_usd || 0), 0);
+      const maxTierLevel = Math.max(...userAffiliates.map(a => a.tier_level || 0), 0);
+      const maxMinerBoost = Math.max(...userAffiliates.map(a => a.miner_boost_percentage || 0), 0);
+      
+      // Get affiliate usernames for display
+      const affiliateUsernames = userAffiliates
+        .map(a => a.username)
+        .filter(Boolean)
+        .join(', ');
+
       const userReferrals = referrals?.filter((r) => r.registered_user_id === profile.user_id) || [];
       const referredBy = userReferrals.length > 0 ? userReferrals[0]?.affiliates : null;
 
@@ -100,14 +116,16 @@ serve(async (req) => {
         solana_wallet: profile.solana_wallet,
         is_early_member: profile.is_early_member,
         created_at: profile.created_at,
-        // Affiliate info (if they're an affiliate)
-        is_affiliate: !!affiliate,
-        affiliate_code: affiliate?.affiliate_code || null,
-        total_registrations: affiliate?.total_registrations || 0,
-        total_conversions: affiliate?.total_conversions || 0,
-        total_earnings_usd: affiliate?.total_earnings_usd || 0,
-        tier_level: affiliate?.tier_level || 0,
-        miner_boost_percentage: affiliate?.miner_boost_percentage || 0,
+        country_code: profile.country_code || null,
+        // Affiliate info (aggregated from all user's affiliates)
+        is_affiliate: hasAffiliates,
+        affiliate_count: userAffiliates.length,
+        affiliate_usernames: affiliateUsernames,
+        total_registrations: totalRegistrations,
+        total_conversions: totalConversions,
+        total_earnings_usd: totalEarnings,
+        tier_level: maxTierLevel,
+        miner_boost_percentage: maxMinerBoost,
         // Who referred this user
         referred_by: referredBy ? {
           email: referredBy.email,
