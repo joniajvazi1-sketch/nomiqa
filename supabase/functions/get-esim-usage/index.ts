@@ -71,9 +71,11 @@ serve(async (req) => {
       );
     }
 
-    // Check ownership
+    // Check ownership - ONLY check user_id, never email (email field is now a placeholder)
+    // Guest orders (user_id = NULL) must use access_token via get-order-by-token endpoint instead
     const order = esimUsage.orders as any;
-    if (order.user_id !== user.id && order.email !== user.email) {
+    if (!order.user_id || order.user_id !== user.id) {
+      console.log(`Authorization failed: order.user_id=${order.user_id}, user.id=${user.id}`);
       return new Response(
         JSON.stringify({ error: 'Forbidden - not your eSIM' }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
