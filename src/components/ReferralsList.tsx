@@ -2,12 +2,11 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
-import { Users, Loader2, UserCheck, ShoppingCart, Clock, Globe } from "lucide-react";
+import { Users, Loader2, UserCheck, ShoppingCart, Clock } from "lucide-react";
 import { useTranslation } from "@/contexts/TranslationContext";
 
 interface ReferredUser {
   id: string;
-  email: string;
   username: string | null;
   registeredAt: string;
   status: string;
@@ -43,49 +42,17 @@ export function ReferralsList({ affiliateId }: ReferralsListProps) {
   const fetchReferrals = async () => {
     setLoading(true);
     try {
-      // Get all referrals for this affiliate that have a registered user
-      const { data: referralData, error: referralError } = await supabase
-        .from('affiliate_referrals')
-        .select('id, registered_user_id, registered_at, status')
-        .eq('affiliate_id', affiliateId)
-        .not('registered_user_id', 'is', null)
-        .order('registered_at', { ascending: false });
-
-      if (referralError) throw referralError;
-
-      if (!referralData || referralData.length === 0) {
-        setReferrals([]);
-        setLoading(false);
-        return;
-      }
-
-      // Get profile info for each registered user
-      const userIds = referralData.map(r => r.registered_user_id).filter(Boolean);
-      
-      const { data: profiles, error: profileError } = await supabase
-        .from('profiles')
-        .select('user_id, username, email, country_code')
-        .in('user_id', userIds);
-
-      if (profileError) throw profileError;
-
-      // Map referrals with profile data
-      const mappedReferrals: ReferredUser[] = referralData.map(ref => {
-        const profile = profiles?.find(p => p.user_id === ref.registered_user_id);
-        return {
-          id: ref.id,
-          email: profile?.email || 'Unknown',
-          username: profile?.username || null,
-          registeredAt: ref.registered_at || '',
-          status: ref.status || 'registered',
-          hasConverted: ref.status === 'converted',
-          countryCode: profile?.country_code || null,
-        };
+      // Use edge function to securely fetch referral data
+      const { data, error } = await supabase.functions.invoke('get-affiliate-referrals', {
+        body: { affiliate_id: affiliateId }
       });
 
-      setReferrals(mappedReferrals);
+      if (error) throw error;
+
+      setReferrals(data?.referrals || []);
     } catch (error) {
       console.error('Error fetching referrals:', error);
+      setReferrals([]);
     } finally {
       setLoading(false);
     }
@@ -101,16 +68,6 @@ export function ReferralsList({ affiliateId }: ReferralsListProps) {
     });
   };
 
-  // Mask email for privacy (show first 3 chars and domain)
-  const maskEmail = (email: string) => {
-    if (!email || email === 'Unknown') return email;
-    const [local, domain] = email.split('@');
-    if (!domain) return email;
-    const masked = local.length > 3 
-      ? local.substring(0, 3) + '***' 
-      : local + '***';
-    return `${masked}@${domain}`;
-  };
 
   if (loading) {
     return (
@@ -176,9 +133,6 @@ export function ReferralsList({ affiliateId }: ReferralsListProps) {
                       ) : (
                         <span className="text-muted-foreground italic">No username</span>
                       )}
-                    </div>
-                    <div className="text-xs md:text-sm text-muted-foreground font-mono">
-                      {maskEmail(referral.email)}
                     </div>
                   </div>
                 </div>

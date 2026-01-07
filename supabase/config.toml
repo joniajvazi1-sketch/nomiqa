@@ -98,3 +98,6 @@ verify_jwt = true
 
 [functions.log-referral-visit]
 verify_jwt = false
+
+[functions.get-affiliate-referrals]
+verify_jwt = false
