@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
-import { Users, Loader2, UserCheck, ShoppingCart, Clock } from "lucide-react";
+import { Users, Loader2, UserCheck, ShoppingCart, Clock, Globe } from "lucide-react";
 import { useTranslation } from "@/contexts/TranslationContext";
 
 interface ReferredUser {
@@ -12,11 +12,22 @@ interface ReferredUser {
   registeredAt: string;
   status: string;
   hasConverted: boolean;
+  countryCode: string | null;
 }
 
 interface ReferralsListProps {
   affiliateId: string;
 }
+
+// Convert country code to flag emoji
+const countryToFlag = (countryCode: string | null): string => {
+  if (!countryCode || countryCode.length !== 2) return '🌍';
+  const codePoints = countryCode
+    .toUpperCase()
+    .split('')
+    .map(char => 127397 + char.charCodeAt(0));
+  return String.fromCodePoint(...codePoints);
+};
 
 export function ReferralsList({ affiliateId }: ReferralsListProps) {
   const { t } = useTranslation();
@@ -53,7 +64,7 @@ export function ReferralsList({ affiliateId }: ReferralsListProps) {
       
       const { data: profiles, error: profileError } = await supabase
         .from('profiles')
-        .select('user_id, username, email')
+        .select('user_id, username, email, country_code')
         .in('user_id', userIds);
 
       if (profileError) throw profileError;
@@ -68,6 +79,7 @@ export function ReferralsList({ affiliateId }: ReferralsListProps) {
           registeredAt: ref.registered_at || '',
           status: ref.status || 'registered',
           hasConverted: ref.status === 'converted',
+          countryCode: profile?.country_code || null,
         };
       });
 
@@ -146,6 +158,10 @@ export function ReferralsList({ affiliateId }: ReferralsListProps) {
                 className="p-4 bg-muted/50 backdrop-blur-sm border border-border/50 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-muted/70 transition-colors"
               >
                 <div className="flex items-center gap-3">
+                  {/* Country flag */}
+                  <div className="text-2xl" title={referral.countryCode || 'Unknown'}>
+                    {countryToFlag(referral.countryCode)}
+                  </div>
                   <div className={`p-2 rounded-full ${referral.hasConverted ? 'bg-green-500/20' : 'bg-blue-500/20'}`}>
                     {referral.hasConverted ? (
                       <ShoppingCart className="w-4 h-4 text-green-500" />
