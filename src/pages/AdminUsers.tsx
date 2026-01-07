@@ -18,8 +18,10 @@ interface UserData {
   solana_wallet: string | null;
   is_early_member: boolean;
   created_at: string;
+  country_code: string | null;
   is_affiliate: boolean;
-  affiliate_code: string | null;
+  affiliate_count: number;
+  affiliate_usernames: string;
   total_registrations: number;
   total_conversions: number;
   total_earnings_usd: number;
@@ -32,6 +34,16 @@ interface UserData {
   } | null;
   referral_status: string | null;
 }
+
+// Convert country code to flag emoji
+const countryToFlag = (countryCode: string | null): string => {
+  if (!countryCode || countryCode.length !== 2) return '';
+  const codePoints = countryCode
+    .toUpperCase()
+    .split('')
+    .map(char => 127397 + char.charCodeAt(0));
+  return String.fromCodePoint(...codePoints);
+};
 
 interface Stats {
   total_users: number;
@@ -99,7 +111,7 @@ export default function AdminUsers() {
     return (
       user.username?.toLowerCase().includes(search) ||
       user.email?.toLowerCase().includes(search) ||
-      user.affiliate_code?.toLowerCase().includes(search) ||
+      user.affiliate_usernames?.toLowerCase().includes(search) ||
       user.referred_by?.username?.toLowerCase().includes(search) ||
       user.referred_by?.email?.toLowerCase().includes(search)
     );
@@ -179,7 +191,14 @@ export default function AdminUsers() {
                   </span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h2 className="font-semibold truncate">{selectedUser.username}</h2>
+                  <div className="flex items-center gap-2">
+                    {selectedUser.country_code && (
+                      <span className="text-lg" title={selectedUser.country_code}>
+                        {countryToFlag(selectedUser.country_code)}
+                      </span>
+                    )}
+                    <h2 className="font-semibold truncate">{selectedUser.username}</h2>
+                  </div>
                   <p className="text-sm text-muted-foreground truncate">{selectedUser.email || "No email"}</p>
                 </div>
                 {selectedUser.email_verified ? (
@@ -222,13 +241,12 @@ export default function AdminUsers() {
             </Card>
           </div>
 
-          {/* Affiliate Stats */}
-          {selectedUser.is_affiliate && (
+          {/* Affiliate Stats - only show if they have referrals or earnings */}
+          {selectedUser.is_affiliate && (selectedUser.total_registrations > 0 || selectedUser.total_conversions > 0 || selectedUser.total_earnings_usd > 0) && (
             <Card className="bg-white/5 border-white/10">
               <CardHeader className="pb-2 pt-4">
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <Badge className="bg-primary/20 text-primary">{selectedUser.affiliate_code}</Badge>
-                  Affiliate Stats
+                <CardTitle className="text-sm">
+                  Affiliate Stats {selectedUser.affiliate_count > 1 && `(${selectedUser.affiliate_count} links)`}
                 </CardTitle>
               </CardHeader>
               <CardContent className="pb-4">
@@ -342,10 +360,17 @@ export default function AdminUsers() {
               >
                 <CardContent className="p-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
-                      <span className="text-sm font-bold text-primary">
-                        {user.username?.charAt(0).toUpperCase()}
-                      </span>
+                    <div className="flex items-center gap-2 shrink-0">
+                      {user.country_code && (
+                        <span className="text-lg" title={user.country_code}>
+                          {countryToFlag(user.country_code)}
+                        </span>
+                      )}
+                      <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                        <span className="text-sm font-bold text-primary">
+                          {user.username?.charAt(0).toUpperCase()}
+                        </span>
+                      </div>
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
@@ -357,16 +382,14 @@ export default function AdminUsers() {
                         )}
                       </div>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        {user.is_affiliate && (
-                          <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
-                            {user.affiliate_code}
-                          </Badge>
+                        {user.is_affiliate && user.total_registrations > 0 && (
+                          <span className="text-primary font-medium">{user.total_registrations} refs</span>
                         )}
                         {user.solana_wallet && (
                           <Wallet className="w-3 h-3 text-purple-500" />
                         )}
                         {user.referred_by && (
-                          <span className="truncate">via {user.referred_by.username || user.referred_by.affiliate_code}</span>
+                          <span className="truncate">via {user.referred_by.username || 'referral'}</span>
                         )}
                       </div>
                     </div>
@@ -388,11 +411,10 @@ export default function AdminUsers() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-white/10">
+                    <th className="text-left py-3 px-2 font-medium text-muted-foreground">🌍</th>
                     <th className="text-left py-3 px-2 font-medium text-muted-foreground">User</th>
                     <th className="text-left py-3 px-2 font-medium text-muted-foreground">Verified</th>
-                    <th className="text-left py-3 px-2 font-medium text-muted-foreground">Wallet</th>
                     <th className="text-left py-3 px-2 font-medium text-muted-foreground">Referred By</th>
-                    <th className="text-left py-3 px-2 font-medium text-muted-foreground">Affiliate</th>
                     <th className="text-left py-3 px-2 font-medium text-muted-foreground">Refs</th>
                     <th className="text-left py-3 px-2 font-medium text-muted-foreground">Conv</th>
                     <th className="text-left py-3 px-2 font-medium text-muted-foreground">Earned</th>
@@ -402,13 +424,16 @@ export default function AdminUsers() {
                 <tbody>
                   {filteredUsers.length === 0 ? (
                     <tr>
-                      <td colSpan={9} className="text-center py-8 text-muted-foreground">
+                      <td colSpan={8} className="text-center py-8 text-muted-foreground">
                         {searchTerm ? "No users match your search" : "No users found"}
                       </td>
                     </tr>
                   ) : (
                     filteredUsers.map((user) => (
                       <tr key={user.id} className="border-b border-white/5 hover:bg-white/5">
+                        <td className="py-3 px-2 text-lg">
+                          {user.country_code ? countryToFlag(user.country_code) : ''}
+                        </td>
                         <td className="py-3 px-2">
                           <div>
                             <p className="font-medium">{user.username}</p>
@@ -423,40 +448,23 @@ export default function AdminUsers() {
                           )}
                         </td>
                         <td className="py-3 px-2">
-                          {user.solana_wallet ? (
-                            <Badge variant="secondary" className="font-mono text-xs">
-                              {truncateWallet(user.solana_wallet)}
-                            </Badge>
-                          ) : (
-                            <span className="text-muted-foreground">—</span>
-                          )}
-                        </td>
-                        <td className="py-3 px-2">
                           {user.referred_by ? (
-                            <div>
-                              <p className="text-sm">{user.referred_by.username || user.referred_by.email}</p>
-                              <p className="text-xs text-muted-foreground font-mono">{user.referred_by.affiliate_code}</p>
-                            </div>
-                          ) : (
-                            <span className="text-muted-foreground">Direct</span>
-                          )}
-                        </td>
-                        <td className="py-3 px-2">
-                          {user.is_affiliate ? (
-                            <Badge className="bg-primary/20 text-primary hover:bg-primary/30 text-xs">
-                              {user.affiliate_code}
-                            </Badge>
+                            <span className="text-sm">{user.referred_by.username || 'referral'}</span>
                           ) : (
                             <span className="text-muted-foreground">—</span>
                           )}
                         </td>
-                        <td className="py-3 px-2 font-medium">{user.total_registrations}</td>
-                        <td className="py-3 px-2 font-medium">{user.total_conversions}</td>
+                        <td className="py-3 px-2 font-medium">
+                          {user.total_registrations > 0 ? user.total_registrations : <span className="text-muted-foreground">—</span>}
+                        </td>
+                        <td className="py-3 px-2 font-medium">
+                          {user.total_conversions > 0 ? user.total_conversions : <span className="text-muted-foreground">—</span>}
+                        </td>
                         <td className="py-3 px-2">
                           {user.total_earnings_usd > 0 ? (
-                            <span className="font-medium text-green-500">${user.total_earnings_usd.toFixed(2)}</span>
+                            <span className="font-medium text-green-500">${user.total_earnings_usd.toFixed(0)}</span>
                           ) : (
-                            <span className="text-muted-foreground">$0</span>
+                            <span className="text-muted-foreground">—</span>
                           )}
                         </td>
                         <td className="py-3 px-2 text-muted-foreground whitespace-nowrap">
