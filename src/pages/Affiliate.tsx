@@ -5,6 +5,7 @@ import { NetworkBackground } from "@/components/NetworkBackground";
 import { AnimatedCounter } from "@/components/AnimatedCounter";
 import { MiningRewardsSection } from "@/components/MiningRewardsSection";
 import { ConversionRewardsSection } from "@/components/ConversionRewardsSection";
+import { ReferralsList } from "@/components/ReferralsList";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -967,6 +968,11 @@ export default function Affiliate() {
                     </div>
                   </CardContent>
                 </Card>
+              </div>
+
+              {/* My Referrals List */}
+              <div className="mb-8">
+                <ReferralsList affiliateId={selectedAffiliateId} />
               </div>
 
               {/* Mining Rewards Section */}
