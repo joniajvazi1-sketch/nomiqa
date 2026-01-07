@@ -4,7 +4,7 @@ import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-forwarded-for, x-real-ip",
 };
 
 // Input validation
@@ -26,6 +26,45 @@ async function hashCode(code: string): Promise<string> {
   const hashBuffer = await crypto.subtle.digest('SHA-256', data);
   const hashArray = Array.from(new Uint8Array(hashBuffer));
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// Detect country from IP using free ip-api.com service
+async function detectCountryFromIP(req: Request): Promise<string | null> {
+  try {
+    // Get IP from headers (edge function receives forwarded IP)
+    const forwardedFor = req.headers.get('x-forwarded-for');
+    const realIp = req.headers.get('x-real-ip');
+    const ip = forwardedFor?.split(',')[0]?.trim() || realIp || null;
+    
+    if (!ip || ip === '127.0.0.1' || ip === '::1') {
+      console.log('No valid IP for geolocation');
+      return null;
+    }
+    
+    console.log(`Detecting country for IP: ${ip.substring(0, 8)}...`);
+    
+    // Use ip-api.com (free, no API key needed, 45 req/min limit)
+    const response = await fetch(`http://ip-api.com/json/${ip}?fields=countryCode,status`, {
+      signal: AbortSignal.timeout(3000), // 3 second timeout
+    });
+    
+    if (!response.ok) {
+      console.error('IP geolocation request failed:', response.status);
+      return null;
+    }
+    
+    const data = await response.json();
+    
+    if (data.status === 'success' && data.countryCode) {
+      console.log(`Detected country: ${data.countryCode}`);
+      return data.countryCode;
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('Error detecting country:', error);
+    return null;
+  }
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -98,6 +137,9 @@ const handler = async (req: Request): Promise<Response> => {
     // Generate a unique temporary username using user_id to guarantee uniqueness
     const tempUsername = `user_${userId.replace(/-/g, '').substring(0, 12)}`;
 
+    // Detect country from IP (non-blocking, don't fail signup if this fails)
+    const countryCode = await detectCountryFromIP(req);
+
     // Create profile with verification code (using service role)
     const { error: profileError } = await supabase
       .from('profiles')
@@ -109,6 +151,7 @@ const handler = async (req: Request): Promise<Response> => {
         is_early_member: true,
         verification_code: hashedCode,
         verification_code_expires_at: expiresAt,
+        country_code: countryCode,
       }, { onConflict: 'user_id' });
 
     if (profileError) {

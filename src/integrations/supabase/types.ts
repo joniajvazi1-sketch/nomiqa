@@ -862,6 +862,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          country_code: string | null
           created_at: string
           email: string | null
           email_verified: boolean | null
@@ -877,6 +878,7 @@ export type Database = {
           verification_code_expires_at: string | null
         }
         Insert: {
+          country_code?: string | null
           created_at?: string
           email?: string | null
           email_verified?: boolean | null
@@ -892,6 +894,7 @@ export type Database = {
           verification_code_expires_at?: string | null
         }
         Update: {
+          country_code?: string | null
           created_at?: string
           email?: string | null
           email_verified?: boolean | null
