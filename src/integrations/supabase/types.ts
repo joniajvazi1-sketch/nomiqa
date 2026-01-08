@@ -1262,6 +1262,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_update_leaderboard_rankings: { Args: never; Returns: undefined }
       cleanup_expired_order_pii: { Args: never; Returns: number }
       cleanup_old_email_rate_limits: { Args: never; Returns: undefined }
       cleanup_old_mining_logs: { Args: never; Returns: number }
