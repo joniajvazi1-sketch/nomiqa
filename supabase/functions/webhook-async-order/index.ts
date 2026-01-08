@@ -142,10 +142,26 @@ serve(async (req) => {
       
       console.log('Updating order with eSIM data, ICCID:', sim.iccid);
       
-      await supabase
+      // Update non-PII fields in orders table (PII columns were removed)
+      const { error: orderUpdateError } = await supabase
         .from('orders')
         .update({
           status: 'completed',
+          airlo_order_id: airaloData.id?.toString(),
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', order.id);
+
+      if (orderUpdateError) {
+        console.error('Error updating order status:', orderUpdateError);
+      } else {
+        console.log('Order status updated to completed');
+      }
+
+      // Store PII in orders_pii table (secure storage)
+      const { error: piiUpdateError } = await supabase
+        .from('orders_pii')
+        .update({
           iccid: sim.iccid,
           lpa: sim.lpa,
           matching_id: sim.matching_id,
@@ -154,10 +170,36 @@ serve(async (req) => {
           activation_code: sim.matching_id,
           manual_installation: airaloData.manual_installation,
           qrcode_installation: airaloData.qrcode_installation,
-          airlo_order_id: airaloData.id?.toString(),
           updated_at: new Date().toISOString()
         })
         .eq('id', order.id);
+
+      if (piiUpdateError) {
+        console.error('Error updating orders_pii:', piiUpdateError);
+        // Try insert if update fails (in case PII record doesn't exist yet)
+        const { error: piiInsertError } = await supabase
+          .from('orders_pii')
+          .insert({
+            id: order.id,
+            email: 'see-orders-pii@private', // Placeholder, actual email stored at creation
+            iccid: sim.iccid,
+            lpa: sim.lpa,
+            matching_id: sim.matching_id,
+            qrcode: sim.qrcode,
+            qr_code_url: sim.qrcode_url,
+            activation_code: sim.matching_id,
+            manual_installation: airaloData.manual_installation,
+            qrcode_installation: airaloData.qrcode_installation
+          });
+        
+        if (piiInsertError) {
+          console.error('Error inserting orders_pii:', piiInsertError);
+        } else {
+          console.log('Created orders_pii record for order');
+        }
+      } else {
+        console.log('orders_pii updated successfully with eSIM data');
+      }
 
       console.log('Order updated successfully with eSIM data');
 
@@ -210,40 +252,46 @@ serve(async (req) => {
 
       // Send order confirmation email with eSIM Cloud portal link
       try {
-        console.log('Sending order confirmation email to:', order.email);
-        
-        // Fetch updated order to get sharing_link and sharing_access_code
-        const { data: updatedOrder } = await supabase
-          .from('orders')
-          .select('sharing_link, sharing_access_code, package_name')
+        // Fetch PII (email, sharing links) from orders_pii table
+        const { data: orderPii } = await supabase
+          .from('orders_pii')
+          .select('email, sharing_link, sharing_access_code')
           .eq('id', order.id)
           .single();
         
-        const { data: product } = await supabase
-          .from('products')
-          .select('country_name')
-          .eq('id', order.product_id)
-          .single();
-
-        const emailResponse = await supabase.functions.invoke('send-email', {
-          body: {
-            type: 'order_confirmation',
-            to: order.email,
-            data: {
-              country: product?.country_name || 'Unknown',
-              dataAmount: order.data_amount,
-              validity: order.validity_days,
-              price: order.total_amount_usd.toFixed(2),
-              sharingLink: updatedOrder?.sharing_link,
-              accessCode: updatedOrder?.sharing_access_code
-            }
-          }
-        });
-
-        if (emailResponse.error) {
-          console.error('Failed to send order confirmation email:', emailResponse.error);
+        const customerEmail = orderPii?.email;
+        
+        if (!customerEmail || customerEmail === 'see-orders-pii@private') {
+          console.log('No valid customer email found in orders_pii, skipping email');
         } else {
-          console.log('Order confirmation email sent successfully');
+          console.log('Sending order confirmation email to:', customerEmail);
+          
+          const { data: product } = await supabase
+            .from('products')
+            .select('country_name')
+            .eq('id', order.product_id)
+            .single();
+
+          const emailResponse = await supabase.functions.invoke('send-email', {
+            body: {
+              type: 'order_confirmation',
+              to: customerEmail,
+              data: {
+                country: product?.country_name || 'Unknown',
+                dataAmount: order.data_amount,
+                validity: order.validity_days,
+                price: order.total_amount_usd.toFixed(2),
+                sharingLink: orderPii?.sharing_link,
+                accessCode: orderPii?.sharing_access_code
+              }
+            }
+          });
+
+          if (emailResponse.error) {
+            console.error('Failed to send order confirmation email:', emailResponse.error);
+          } else {
+            console.log('Order confirmation email sent successfully');
+          }
         }
       } catch (emailError) {
         console.error('Error sending order confirmation email:', emailError);
