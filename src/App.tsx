@@ -1,4 +1,4 @@
-import { useEffect, lazy, Suspense } from "react";
+import { useEffect, useState, lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -40,15 +40,41 @@ const NetworkContribution = lazy(() => import("./pages/app/NetworkContribution")
 const AppShop = lazy(() => import("./pages/app/AppShop").then(m => ({ default: m.AppShop })));
 const AppProfile = lazy(() => import("./pages/app/AppProfile").then(m => ({ default: m.AppProfile })));
 
-// Loading fallback component
-const PageLoader = () => (
-  <div className="min-h-screen bg-background flex items-center justify-center">
-    <div className="relative">
-      <div className="w-16 h-16 border-4 border-neon-cyan/20 border-t-neon-cyan rounded-full animate-spin" />
-      <div className="absolute inset-0 bg-neon-cyan/20 rounded-full blur-xl animate-pulse" />
+// Loading fallback component (with a safety timeout for slow/blocked mobile networks)
+const PageLoader = () => {
+  const [showHelp, setShowHelp] = useState(false);
+
+  useEffect(() => {
+    const t = window.setTimeout(() => setShowHelp(true), 12000);
+    return () => window.clearTimeout(t);
+  }, []);
+
+  return (
+    <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="relative flex flex-col items-center gap-5 px-6 text-center">
+        <div className="relative">
+          <div className="w-16 h-16 border-4 border-neon-cyan/20 border-t-neon-cyan rounded-full animate-spin" />
+          <div className="absolute inset-0 bg-neon-cyan/20 rounded-full blur-xl animate-pulse" />
+        </div>
+
+        {showHelp && (
+          <div className="max-w-xs">
+            <p className="text-sm text-muted-foreground">
+              Still loading? On some mobile browsers, storage/network settings can block the app from finishing.
+            </p>
+            <button
+              type="button"
+              className="mt-3 inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
+              onClick={() => window.location.reload()}
+            >
+              Reload
+            </button>
+          </div>
+        )}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const queryClient = new QueryClient();
 
@@ -353,9 +379,14 @@ const App = () => {
           <Sonner />
           <BrowserRouter>
             <AffiliateTracker />
-            <Suspense fallback={<PageLoader />}>
-              <AppRouter />
-            </Suspense>
+            <AppErrorBoundary
+              title="Site failed to load"
+              description="This page couldn’t finish loading. Please reload and try again."
+            >
+              <Suspense fallback={<PageLoader />}>
+                <AppRouter />
+              </Suspense>
+            </AppErrorBoundary>
           </BrowserRouter>
         </TooltipProvider>
       </TranslationProvider>

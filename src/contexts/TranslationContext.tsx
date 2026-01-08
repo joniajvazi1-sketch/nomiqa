@@ -1033,9 +1033,13 @@ export function TranslationProvider({ children }: { children: ReactNode }) {
   const [language, setLang] = useState<Language>(getInitialLanguage);
 
   useEffect(() => {
-    // Persist to localStorage
+    // Persist to localStorage (may be unavailable in some mobile/private modes)
     if (typeof window !== 'undefined') {
-      localStorage.setItem("lang", language);
+      try {
+        localStorage.setItem("lang", language);
+      } catch {
+        // Ignore storage failures to avoid breaking initial app render
+      }
     }
     
     // Update document attributes
@@ -1096,8 +1100,13 @@ function getInitialLanguage(): Language {
   const fromPath = getPathLanguage();
   if (fromPath) return fromPath;
 
-  // 2) From localStorage
-  const savedLang = localStorage.getItem("lang") as Language | null;
+  // 2) From localStorage (may throw on some mobile/private modes)
+  let savedLang: Language | null = null;
+  try {
+    savedLang = localStorage.getItem("lang") as Language | null;
+  } catch {
+    savedLang = null;
+  }
   if (savedLang && ['EN','ES','FR','DE','RU','ZH','JA','PT','AR','IT'].includes(savedLang)) {
     return savedLang;
   }
