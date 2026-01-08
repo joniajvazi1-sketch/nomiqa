@@ -16,37 +16,51 @@ export const Hero = () => {
 
   useEffect(() => {
     // Defer auth check to after initial paint for faster TTI
-    const timeoutId = requestIdleCallback ? 
-      requestIdleCallback(() => checkAuth()) : 
-      setTimeout(() => checkAuth(), 100);
-    
+    // NOTE: iOS Safari may not support requestIdleCallback; always feature-detect via window.
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+    let idleId: number | null = null;
+
     async function checkAuth() {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       setIsLoggedIn(!!session);
-      
+
       if (session?.user) {
         const { data: profile } = await supabase
-          .from('profiles')
-          .select('username')
-          .eq('user_id', session.user.id)
+          .from("profiles")
+          .select("username")
+          .eq("user_id", session.user.id)
           .maybeSingle();
-        
+
         if (profile?.username) {
           setUsername(profile.username);
         }
       }
     }
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_, session) => {
+    const start = () => {
+      checkAuth();
+    };
+
+    if ("requestIdleCallback" in window) {
+      idleId = (window as any).requestIdleCallback(start, { timeout: 1500 });
+    } else {
+      timeoutId = setTimeout(start, 100);
+    }
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (_, session) => {
       setIsLoggedIn(!!session);
-      
+
       if (session?.user) {
         const { data: profile } = await supabase
-          .from('profiles')
-          .select('username')
-          .eq('user_id', session.user.id)
+          .from("profiles")
+          .select("username")
+          .eq("user_id", session.user.id)
           .maybeSingle();
-        
+
         if (profile?.username) {
           setUsername(profile.username);
         }
@@ -57,7 +71,12 @@ export const Hero = () => {
 
     return () => {
       subscription.unsubscribe();
-      if (typeof timeoutId === 'number') clearTimeout(timeoutId);
+      if (idleId !== null && "cancelIdleCallback" in window) {
+        (window as any).cancelIdleCallback(idleId);
+      }
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
     };
   }, []);
 
