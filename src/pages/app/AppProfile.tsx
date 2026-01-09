@@ -685,58 +685,202 @@ export const AppProfile: React.FC = () => {
           <AnalyticsDashboard />
         </TabsContent>
 
-        {/* Rewards Tab - Friendly language */}
+        {/* Rewards Tab - Priority: Mining Boosts > Referral Commission > Cashback */}
         <TabsContent value="membership" className="mt-4 space-y-4 animate-tab-content-in">
-          {/* Total Rewards Summary */}
+          {/* Total Earnings Summary (Referral + Cashback only - real money) */}
           <Card className="bg-gradient-to-br from-primary/20 via-neon-cyan/10 to-green-500/10 border-0 overflow-hidden animate-stat-pop">
             <CardContent className="p-5">
               <div className="text-center mb-4">
-                <p className="text-sm text-muted-foreground mb-1">Total Rewards Earned</p>
+                <p className="text-sm text-muted-foreground mb-1">Total Earnings</p>
                 <p className="text-4xl font-bold text-foreground">
                   $<AnimatedCounter 
-                    value={
-                      totalCashbackEarned + 
-                      (selectedAffiliate?.total_earnings_usd || 0) + 
-                      ((userPoints?.total_points || 0) * 0.001)
-                    } 
+                    value={totalCashbackEarned + (selectedAffiliate?.total_earnings_usd || 0)} 
                     decimals={2} 
                     duration={1500} 
                   />
                 </p>
-                <p className="text-xs text-muted-foreground mt-1">From all reward sources 🎉</p>
+                <p className="text-xs text-muted-foreground mt-1">Referral commissions + cashback 💰</p>
               </div>
               
-              {/* Three reward types grid */}
-              <div className="grid grid-cols-3 gap-2">
-                <div className="bg-background/40 rounded-xl p-3 text-center">
-                  <Wallet className="w-5 h-5 text-green-500 mx-auto mb-1" />
-                  <p className="text-lg font-bold text-green-500">${totalCashbackEarned.toFixed(2)}</p>
-                  <p className="text-[10px] text-muted-foreground">Cashback</p>
-                </div>
-                <div className="bg-background/40 rounded-xl p-3 text-center">
-                  <Activity className="w-5 h-5 text-neon-cyan mx-auto mb-1" />
-                  <p className="text-lg font-bold text-neon-cyan">${((userPoints?.total_points || 0) * 0.001).toFixed(2)}</p>
-                  <p className="text-[10px] text-muted-foreground">Mining</p>
-                </div>
+              {/* Two earning types grid */}
+              <div className="grid grid-cols-2 gap-3">
                 <div className="bg-background/40 rounded-xl p-3 text-center">
                   <Users className="w-5 h-5 text-primary mx-auto mb-1" />
-                  <p className="text-lg font-bold text-primary">${(selectedAffiliate?.total_earnings_usd || 0).toFixed(2)}</p>
-                  <p className="text-[10px] text-muted-foreground">Referrals</p>
+                  <p className="text-xl font-bold text-primary">${(selectedAffiliate?.total_earnings_usd || 0).toFixed(2)}</p>
+                  <p className="text-[10px] text-muted-foreground">Referral Commission</p>
+                </div>
+                <div className="bg-background/40 rounded-xl p-3 text-center">
+                  <Wallet className="w-5 h-5 text-green-500 mx-auto mb-1" />
+                  <p className="text-xl font-bold text-green-500">${totalCashbackEarned.toFixed(2)}</p>
+                  <p className="text-[10px] text-muted-foreground">Cashback</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Cashback Rewards */}
-          <Card className={cn('border-0 overflow-hidden bg-gradient-to-br', tierConfig.bg, 'to-transparent')} style={{ animationDelay: '50ms' }}>
+          {/* Mining Boosts - Priority 1 */}
+          <Card className="bg-gradient-to-br from-neon-cyan/20 to-transparent border-neon-cyan/30 overflow-hidden" style={{ animationDelay: '50ms' }}>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 rounded-xl bg-neon-cyan/20">
+                  <Zap className="w-5 h-5 text-neon-cyan" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-base font-bold text-foreground">Mining Boosts</h3>
+                  <p className="text-xs text-muted-foreground">Boost earned from referrals & contributions</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-lg font-bold text-neon-cyan">
+                    +{selectedAffiliate?.miner_boost_percentage || 0}%
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">boost active</p>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-3 gap-2 mb-3">
+                <div className="bg-background/40 rounded-lg p-2 text-center">
+                  <Activity className="w-4 h-4 text-neon-cyan mx-auto mb-1" />
+                  <p className="text-sm font-semibold text-foreground">
+                    <AnimatedCounter value={userPoints?.total_points || 0} duration={1000} />
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">Points</p>
+                </div>
+                <div className="bg-background/40 rounded-lg p-2 text-center">
+                  <MapPin className="w-4 h-4 text-muted-foreground mx-auto mb-1" />
+                  <p className="text-sm font-semibold text-foreground">
+                    {((userPoints?.total_distance_meters || 0) / 1000).toFixed(1)}km
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">Distance</p>
+                </div>
+                <div className="bg-background/40 rounded-lg p-2 text-center">
+                  <UserPlus className="w-4 h-4 text-muted-foreground mx-auto mb-1" />
+                  <p className="text-sm font-semibold text-foreground">
+                    {selectedAffiliate?.total_registrations || 0}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">Recruits</p>
+                </div>
+              </div>
+
+              <div className="bg-white/5 rounded-xl p-3 text-center">
+                <p className="text-xs text-muted-foreground mb-1">Refer friends to increase your mining boost!</p>
+                <p className="text-sm font-medium text-neon-cyan">More recruits = Higher boost % 🚀</p>
+              </div>
+
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="w-full text-xs mt-3 border-neon-cyan/30 text-neon-cyan hover:bg-neon-cyan/10" 
+                onClick={() => navigate('/app')}
+              >
+                <Zap className="w-3 h-3 mr-1" />
+                Start Mining
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Referral Commission - Priority 2 */}
+          <Card className="bg-card/50 border-border/50 overflow-hidden" style={{ animationDelay: '100ms' }}>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 rounded-xl bg-primary/20">
+                  <Users className="w-5 h-5 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-base font-bold text-foreground">Referral Commission</h3>
+                  <p className="text-xs text-muted-foreground">Earn when your referrals buy eSIMs</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-lg font-bold text-primary">
+                    $<AnimatedCounter value={selectedAffiliate?.total_earnings_usd || 0} decimals={2} duration={1000} />
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">earned</p>
+                </div>
+              </div>
+              
+              {selectedAffiliate ? (
+                <>
+                  <div className="grid grid-cols-2 gap-2 mb-3">
+                    <div className="bg-background/40 rounded-lg p-2 text-center">
+                      <UserPlus className="w-4 h-4 text-muted-foreground mx-auto mb-1" />
+                      <p className="text-sm font-semibold text-foreground">
+                        {selectedAffiliate.total_registrations || 0}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground">Recruits</p>
+                    </div>
+                    <div className="bg-background/40 rounded-lg p-2 text-center">
+                      <CheckCircle2 className="w-4 h-4 text-green-500 mx-auto mb-1" />
+                      <p className="text-sm font-semibold text-foreground">
+                        {selectedAffiliate.total_conversions || 0}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground">Sales</p>
+                    </div>
+                  </div>
+
+                  <div className="bg-white/5 rounded-xl p-3">
+                    <div className="flex items-center justify-between text-xs mb-2">
+                      <span className="text-muted-foreground">Commission Rate</span>
+                      <span className="font-semibold text-primary">{selectedAffiliate.commission_rate || 9}%</span>
+                    </div>
+                    {affiliateTierInfo && affiliateTierInfo.nextTier && (
+                      <>
+                        <div className="flex items-center justify-between text-xs mb-1">
+                          <span className="text-muted-foreground">
+                            Tier {affiliateTierInfo.currentTier.level}: {affiliateTierInfo.currentTier.name}
+                          </span>
+                          <span className="text-foreground">
+                            {affiliateTierInfo.remaining} sales to {affiliateTierInfo.nextTier.name}
+                          </span>
+                        </div>
+                        <AnimatedProgressBar 
+                          value={selectedAffiliate.total_conversions || 0} 
+                          max={affiliateTierInfo.nextTier.conversions} 
+                          showPercentage={false}
+                        />
+                      </>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full text-xs" 
+                  onClick={() => setActiveTab('earn')}
+                >
+                  <Gift className="w-3 h-3 mr-1" />
+                  Get Your Referral Link
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Cashback - Priority 3 */}
+          <Card className={cn('border-0 overflow-hidden bg-gradient-to-br', tierConfig.bg, 'to-transparent')} style={{ animationDelay: '150ms' }}>
             <CardContent className="p-4">
               <div className="flex items-center gap-3 mb-3">
                 <div className={cn('p-2 rounded-xl', tierConfig.bg)}>
                   <TierIcon className={cn('w-5 h-5', tierConfig.color)} />
                 </div>
-                <div>
-                  <h3 className="text-base font-bold text-foreground">{tierConfig.friendlyName || membership?.membership_tier}</h3>
-                  <p className="text-xs text-muted-foreground">{membership?.cashback_rate}% cashback on purchases</p>
+                <div className="flex-1">
+                  <h3 className="text-base font-bold text-foreground">Cashback</h3>
+                  <p className="text-xs text-muted-foreground">{membership?.cashback_rate}% back on your purchases</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-lg font-bold text-green-500">
+                    $<AnimatedCounter value={totalCashbackEarned} decimals={2} duration={1000} />
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">saved</p>
+                </div>
+              </div>
+              
+              <div className="bg-background/40 rounded-xl p-3 mb-3">
+                <div className="flex items-center justify-between text-xs mb-1">
+                  <span className="text-muted-foreground">Tier: {tierConfig.friendlyName}</span>
+                  <span className="font-semibold text-green-500">{membership?.cashback_rate}% rate</span>
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground">Lifetime Spending</span>
+                  <span className="font-semibold text-foreground">${(membership?.total_spent_usd || 0).toFixed(2)}</span>
                 </div>
               </div>
               
@@ -759,124 +903,6 @@ export const AppProfile: React.FC = () => {
                   <Crown className="w-4 h-4 text-primary" />
                   <span className="font-medium">Max tier! 10% cashback 🏆</span>
                 </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Mining Rewards */}
-          <Card className="bg-card/50 border-border/50 overflow-hidden" style={{ animationDelay: '100ms' }}>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 rounded-xl bg-neon-cyan/20">
-                  <Activity className="w-5 h-5 text-neon-cyan" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-base font-bold text-foreground">Mining Rewards</h3>
-                  <p className="text-xs text-muted-foreground">Earn by contributing network data</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-lg font-bold text-neon-cyan">
-                    <AnimatedCounter value={userPoints?.total_points || 0} duration={1000} />
-                  </p>
-                  <p className="text-[10px] text-muted-foreground">points</p>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-2 mb-3">
-                <div className="bg-background/40 rounded-lg p-2 text-center">
-                  <MapPin className="w-4 h-4 text-muted-foreground mx-auto mb-1" />
-                  <p className="text-sm font-semibold text-foreground">
-                    {((userPoints?.total_distance_meters || 0) / 1000).toFixed(1)} km
-                  </p>
-                  <p className="text-[10px] text-muted-foreground">Distance</p>
-                </div>
-                <div className="bg-background/40 rounded-lg p-2 text-center">
-                  <TrendingUp className="w-4 h-4 text-muted-foreground mx-auto mb-1" />
-                  <p className="text-sm font-semibold text-green-500">
-                    ${((userPoints?.total_points || 0) * 0.001).toFixed(2)}
-                  </p>
-                  <p className="text-[10px] text-muted-foreground">Est. Value</p>
-                </div>
-              </div>
-
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="w-full text-xs" 
-                onClick={() => navigate('/app')}
-              >
-                <Zap className="w-3 h-3 mr-1" />
-                Start Mining
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Referral Earnings */}
-          <Card className="bg-card/50 border-border/50 overflow-hidden" style={{ animationDelay: '150ms' }}>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 rounded-xl bg-primary/20">
-                  <Users className="w-5 h-5 text-primary" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-base font-bold text-foreground">Referral Earnings</h3>
-                  <p className="text-xs text-muted-foreground">Commission from eSIM sales</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-lg font-bold text-primary">
-                    $<AnimatedCounter value={selectedAffiliate?.total_earnings_usd || 0} decimals={2} duration={1000} />
-                  </p>
-                  <p className="text-[10px] text-muted-foreground">earned</p>
-                </div>
-              </div>
-              
-              {selectedAffiliate ? (
-                <>
-                  <div className="grid grid-cols-2 gap-2 mb-3">
-                    <div className="bg-background/40 rounded-lg p-2 text-center">
-                      <UserPlus className="w-4 h-4 text-muted-foreground mx-auto mb-1" />
-                      <p className="text-sm font-semibold text-foreground">
-                        {selectedAffiliate.total_registrations || 0}
-                      </p>
-                      <p className="text-[10px] text-muted-foreground">Recruits</p>
-                    </div>
-                    <div className="bg-background/40 rounded-lg p-2 text-center">
-                      <CheckCircle2 className="w-4 h-4 text-muted-foreground mx-auto mb-1" />
-                      <p className="text-sm font-semibold text-foreground">
-                        {selectedAffiliate.total_conversions || 0}
-                      </p>
-                      <p className="text-[10px] text-muted-foreground">Conversions</p>
-                    </div>
-                  </div>
-
-                  {affiliateTierInfo && affiliateTierInfo.nextTier && (
-                    <div className="space-y-2 bg-white/5 rounded-xl p-3">
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-muted-foreground">
-                          Level {affiliateTierInfo.currentTier.level}: {affiliateTierInfo.currentTier.name}
-                        </span>
-                        <span className="text-foreground">
-                          {affiliateTierInfo.remaining} to {affiliateTierInfo.nextTier.name}
-                        </span>
-                      </div>
-                      <AnimatedProgressBar 
-                        value={selectedAffiliate.total_conversions || 0} 
-                        max={affiliateTierInfo.nextTier.conversions} 
-                        showPercentage={false}
-                      />
-                    </div>
-                  )}
-                </>
-              ) : (
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="w-full text-xs" 
-                  onClick={() => setActiveTab('earn')}
-                >
-                  <Gift className="w-3 h-3 mr-1" />
-                  Start Earning
-                </Button>
               )}
             </CardContent>
           </Card>
