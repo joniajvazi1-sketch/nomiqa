@@ -22,11 +22,13 @@ import { useGlobalCoverage } from '@/hooks/useGlobalCoverage';
 import { usePlatform } from '@/hooks/usePlatform';
 import { useHaptics } from '@/hooks/useHaptics';
 import { useTranslation } from '@/contexts/TranslationContext';
+import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { ContributionMap } from '@/components/app/ContributionMap';
 import { RewardCelebration } from '@/components/app/RewardCelebration';
 import { SignalQualityDial } from '@/components/app/SignalQualityDial';
 import { IndoorModeToggle, IndoorModeIndicator } from '@/components/app/IndoorModeToggle';
 import { SpeedTestDiagnostic } from '@/components/app/SpeedTestDiagnostic';
+import { PullToRefreshIndicator } from '@/components/app/PullToRefreshIndicator';
 import { cn } from '@/lib/utils';
 
 type CoverageMode = 'personal' | 'global';
@@ -183,6 +185,18 @@ export const NetworkContribution: React.FC = () => {
     setNetworkFilter(filter);
   }, [mediumTap, setNetworkFilter]);
 
+  // Pull-to-refresh handler
+  const handleRefresh = useCallback(async () => {
+    await Promise.all([
+      refreshHeatmap(),
+      refreshGlobalCoverage(true)
+    ]);
+  }, [refreshHeatmap, refreshGlobalCoverage]);
+
+  const { isRefreshing, pullDistance, pullProgress, handlers } = usePullToRefresh({
+    onRefresh: handleRefresh,
+  });
+
   return (
     <div className="relative w-full h-full min-h-screen bg-background">
       {/* Full-screen dark map background */}
@@ -212,12 +226,20 @@ export const NetworkContribution: React.FC = () => {
       
       {/* Content overlay - above map */}
       <div 
-        className="relative z-10 px-4 py-4 flex flex-col min-h-screen"
+        className="relative z-10 px-4 py-4 flex flex-col min-h-screen overflow-y-auto"
         style={{
           paddingTop: 'calc(env(safe-area-inset-top, 0px) + 1rem)',
           paddingBottom: 'calc(72px + env(safe-area-inset-bottom, 0px) + 1rem)'
         }}
+        {...handlers}
       >
+        {/* Pull-to-refresh indicator */}
+        <PullToRefreshIndicator 
+          pullDistance={pullDistance}
+          pullProgress={pullProgress}
+          isRefreshing={isRefreshing}
+        />
+        
         {/* TOP STATUS CAPSULE */}
         <div className="flex items-center justify-center gap-2 mb-4">
           <div className={cn(
