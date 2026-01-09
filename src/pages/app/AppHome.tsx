@@ -14,6 +14,7 @@ import {
   Gift
 } from 'lucide-react';
 import { useHaptics } from '@/hooks/useHaptics';
+import { useTranslation } from '@/contexts/TranslationContext';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 import { MiniContributionMap } from '@/components/app/MiniContributionMap';
@@ -44,6 +45,7 @@ const DAILY_GOAL_POINTS = 100;
 export const AppHome: React.FC = () => {
   const navigate = useNavigate();
   const { mediumTap, lightTap } = useHaptics();
+  const { t } = useTranslation();
   const { isOnline, connectionType } = useNetworkStatus();
   const { 
     achievements, 
@@ -217,10 +219,10 @@ export const AppHome: React.FC = () => {
 
   // Get connection type display
   const getConnectionLabel = () => {
-    if (!isOnline) return 'Offline';
+    if (!isOnline) return t('app.home.offline');
     const type = connectionType?.toLowerCase() || 'wifi';
     if (type === 'wifi') return 'WiFi';
-    if (type === 'cellular') return 'Cellular';
+    if (type === 'cellular') return t('app.network.cellular');
     if (type === '4g') return 'LTE';
     if (type === '5g') return '5G';
     return type.toUpperCase();
@@ -261,7 +263,7 @@ export const AppHome: React.FC = () => {
               className="text-xs text-foreground/80 font-medium"
               style={{ fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace' }}
             >
-              {isOnline ? 'Online' : 'Offline'} • {getConnectionLabel()}
+              {isOnline ? t('app.home.online') : t('app.home.offline')} • {getConnectionLabel()}
             </span>
           </div>
 
@@ -338,7 +340,7 @@ export const AppHome: React.FC = () => {
             {/* Label */}
             <div className="flex items-center gap-2 mb-4">
               <Zap className="w-4 h-4 text-neon-cyan" />
-              <span className="text-sm font-semibold text-foreground/70 uppercase tracking-wider">Today's Earnings</span>
+              <span className="text-sm font-semibold text-foreground/70 uppercase tracking-wider">{t('app.home.todaysEarnings')}</span>
             </div>
             
             {/* Big USD Number */}
@@ -379,7 +381,7 @@ export const AppHome: React.FC = () => {
               className="w-full h-14 rounded-2xl bg-gradient-to-r from-neon-cyan to-sky-400 text-background font-bold text-lg shadow-lg shadow-neon-cyan/30 hover:shadow-neon-cyan/50 active:scale-[0.98] transition-all duration-300 group"
             >
               <Signal className="w-5 h-5 group-hover:animate-pulse" />
-              Start Earning
+              {t('app.home.startEarning')}
               <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </ShimmerButton>
           </div>
@@ -404,14 +406,14 @@ export const AppHome: React.FC = () => {
               <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-sky-500/20 to-sky-500/5 flex items-center justify-center">
                 <MapPin className="w-4 h-4 text-sky-400" />
               </div>
-              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Your Impact</span>
+              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t('app.home.yourImpact')}</span>
             </div>
             <div 
               className="text-xl font-bold text-foreground mb-0.5"
             >
               {loading ? '--' : formatDistance(points?.total_distance_meters || 0)}
             </div>
-            <div className="text-xs text-muted-foreground">explored 🗺️</div>
+            <div className="text-xs text-muted-foreground">{t('app.home.explored')} 🗺️</div>
           </div>
 
           {/* Boost Card - Pressable to go to Invite */}
@@ -437,10 +439,10 @@ export const AppHome: React.FC = () => {
                 <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-500/20 to-violet-500/5 flex items-center justify-center">
                   <Gift className="w-4 h-4 text-violet-400" />
                 </div>
-                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Tip</span>
+                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t('app.home.tip')}</span>
               </div>
-              <div className="text-sm font-semibold text-foreground mb-0.5">Earn more!</div>
-              <div className="text-xs text-violet-400">Invite friends for boosts →</div>
+              <div className="text-sm font-semibold text-foreground mb-0.5">{t('app.home.earnMore')}</div>
+              <div className="text-xs text-violet-400">{t('app.home.inviteFriends')} →</div>
             </div>
           </div>
         </div>

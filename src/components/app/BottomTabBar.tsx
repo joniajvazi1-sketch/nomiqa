@@ -9,24 +9,26 @@ import {
 } from 'lucide-react';
 import { useHaptics } from '@/hooks/useHaptics';
 import { cn } from '@/lib/utils';
+import { useTranslation } from '@/contexts/TranslationContext';
 
 interface TabItem {
   path: string;
   icon: React.ElementType;
-  label: string;
+  labelKey: string;
 }
-
-const tabs: TabItem[] = [
-  { path: '/app', icon: Home, label: 'Home' },
-  { path: '/app/map', icon: Map, label: 'Earn' },
-  { path: '/app/shop', icon: ShoppingBag, label: 'Shop' },
-  { path: '/app/profile', icon: User, label: 'Me' }
-];
 
 export const BottomTabBar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { lightTap } = useHaptics();
+  const { t } = useTranslation();
+
+  const tabs: TabItem[] = [
+    { path: '/app', icon: Home, labelKey: 'app.nav.home' },
+    { path: '/app/map', icon: Map, labelKey: 'app.nav.earn' },
+    { path: '/app/shop', icon: ShoppingBag, labelKey: 'app.nav.shop' },
+    { path: '/app/profile', icon: User, labelKey: 'app.nav.me' }
+  ];
 
   const handleTabPress = (path: string) => {
     lightTap();
@@ -100,7 +102,7 @@ export const BottomTabBar: React.FC = () => {
                 'text-[10px] font-semibold mt-0.5 transition-all duration-300 uppercase tracking-wider',
                 active ? 'opacity-100' : 'opacity-50'
               )}>
-                {tab.label}
+                {t(tab.labelKey)}
               </span>
             </button>
           );

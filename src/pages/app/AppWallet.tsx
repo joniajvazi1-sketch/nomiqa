@@ -27,6 +27,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useHaptics } from '@/hooks/useHaptics';
+import { useTranslation } from '@/contexts/TranslationContext';
 import { useNativeShare } from '@/hooks/useNativeShare';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -68,6 +69,7 @@ export const AppWallet: React.FC = () => {
   const { lightTap, success, mediumTap } = useHaptics();
   const { share, copyToClipboard } = useNativeShare();
   const { toast } = useToast();
+  const { t } = useTranslation();
   
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -279,8 +281,8 @@ export const AppWallet: React.FC = () => {
         {/* Header */}
         <header className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-foreground tracking-tight">Wallet</h1>
-            <p className="text-sm text-muted-foreground">Your earnings & rewards</p>
+            <h1 className="text-2xl font-bold text-foreground tracking-tight">{t('app.wallet.title')}</h1>
+            <p className="text-sm text-muted-foreground">{t('app.wallet.subtitle')}</p>
           </div>
           <button 
             onClick={handleLogout}
@@ -311,10 +313,10 @@ export const AppWallet: React.FC = () => {
                     <Zap className="w-6 h-6 text-primary-foreground" />
                   </div>
                   <div>
-                    <span className="text-sm text-foreground/80 font-semibold">Total Balance</span>
+                    <span className="text-sm text-foreground/80 font-semibold">{t('app.wallet.totalBalance')}</span>
                     <div className="flex items-center gap-1.5">
                       <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                      <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Live</span>
+                      <span className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('app.wallet.live')}</span>
                     </div>
                   </div>
                 </div>

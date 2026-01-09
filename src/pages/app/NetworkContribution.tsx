@@ -21,6 +21,7 @@ import { useContributionHeatmap } from '@/hooks/useContributionHeatmap';
 import { useGlobalCoverage } from '@/hooks/useGlobalCoverage';
 import { usePlatform } from '@/hooks/usePlatform';
 import { useHaptics } from '@/hooks/useHaptics';
+import { useTranslation } from '@/contexts/TranslationContext';
 import { ContributionMap } from '@/components/app/ContributionMap';
 import { RewardCelebration } from '@/components/app/RewardCelebration';
 import { SignalQualityDial } from '@/components/app/SignalQualityDial';
@@ -41,6 +42,7 @@ type CoverageMode = 'personal' | 'global';
 export const NetworkContribution: React.FC = () => {
   const { isAndroid } = usePlatform();
   const { error: errorHaptic, mediumTap, success } = useHaptics();
+  const { t } = useTranslation();
   const [showCelebration, setShowCelebration] = useState(false);
   const [celebrationPoints, setCelebrationPoints] = useState(0);
   const [celebrationType, setCelebrationType] = useState<'milestone' | 'session-end'>('milestone');
@@ -145,13 +147,13 @@ export const NetworkContribution: React.FC = () => {
 
   // Get connection label
   const getConnectionLabel = () => {
-    if (!isOnline) return 'Offline';
+    if (!isOnline) return t('app.home.offline');
     const type = connStr;
     if (type.includes('5g')) return '5G';
     if (type.includes('4g') || type.includes('lte')) return 'LTE';
     if (type.includes('3g')) return '3G';
     if (type.includes('wifi')) return 'WiFi';
-    return 'Cellular';
+    return t('app.network.cellular');
   };
 
   // Toggle heatmap view (personal mode)
@@ -307,9 +309,9 @@ export const NetworkContribution: React.FC = () => {
                   />
                 </div>
                 <div className="flex-1">
-                  <div className="text-sm font-semibold text-amber-200 mb-0.5">Mining Paused</div>
+                  <div className="text-sm font-semibold text-amber-200 mb-0.5">{t('app.network.miningPaused')}</div>
                   <div className="text-xs text-amber-300/80">
-                    Switch to 5G/LTE to continue earning points
+                    {t('app.network.switchTo5G')}
                   </div>
                 </div>
                 {/* Connecting dots indicator */}
@@ -452,7 +454,7 @@ export const NetworkContribution: React.FC = () => {
               )}
               style={{ fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace' }}
             >
-              {isActive ? (isPaused ? 'PAUSED' : 'SCANNING') : 'START SCAN'}
+              {isActive ? (isPaused ? t('app.network.paused') : t('app.network.scanning')) : t('app.network.startScan')}
             </div>
             {!user && (
               <div className="text-xs text-muted-foreground mt-1">Sign in required</div>

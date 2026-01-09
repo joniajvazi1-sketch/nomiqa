@@ -5,10 +5,12 @@ import { useHaptics } from '@/hooks/useHaptics';
 import { useAchievements } from '@/hooks/useAchievements';
 import { AchievementBadge, StreakBonus } from '@/components/app/AchievementSystem';
 import { cn } from '@/lib/utils';
+import { useTranslation } from '@/contexts/TranslationContext';
 
 export const AppAchievements: React.FC = () => {
   const navigate = useNavigate();
   const { lightTap } = useHaptics();
+  const { t } = useTranslation();
   const { 
     achievements, 
     unlockedCount, 
@@ -45,8 +47,8 @@ export const AppAchievements: React.FC = () => {
             <ArrowLeft className="w-5 h-5 text-foreground" />
           </button>
           <div>
-            <h1 className="text-xl font-bold text-foreground">Achievements</h1>
-            <p className="text-sm text-muted-foreground">{unlockedCount} of {totalCount} unlocked</p>
+            <h1 className="text-xl font-bold text-foreground">{t('app.achievements')}</h1>
+            <p className="text-sm text-muted-foreground">{unlockedCount} {t('app.achievements.of')} {totalCount} {t('app.achievements.unlocked')}</p>
           </div>
         </div>
       </header>
@@ -66,14 +68,14 @@ export const AppAchievements: React.FC = () => {
               </div>
               <div>
                 <div className="text-2xl font-bold text-foreground">{unlockedCount}</div>
-                <div className="text-sm text-muted-foreground">Unlocked</div>
+                <div className="text-sm text-muted-foreground">{t('app.achievements.unlocked')}</div>
               </div>
             </div>
             <div className="text-right">
               <div className="text-2xl font-bold text-muted-foreground">{totalCount - unlockedCount}</div>
               <div className="text-sm text-muted-foreground flex items-center gap-1 justify-end">
                 <Lock className="w-3 h-3" />
-                Locked
+                {t('app.achievements.locked')}
               </div>
             </div>
           </div>
