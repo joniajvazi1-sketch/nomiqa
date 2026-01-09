@@ -45,13 +45,9 @@ serve(async (req) => {
       .eq('user_id', user.id)
       .maybeSingle();
 
-    // Get recent sessions
-    const { data: recentSessions, error: sessionsError } = await supabase
-      .from('contribution_sessions')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false })
-      .limit(10);
+    if (pointsError) {
+      console.error('Points error:', pointsError);
+    }
 
     // Get affiliate data for miner boost
     const { data: affiliate } = await supabase
@@ -80,6 +76,51 @@ serve(async (req) => {
 
     const rank = (usersAbove || 0) + 1;
 
+    // Get weekly contribution data (last 7 days) for chart
+    const now = new Date();
+    const weekAgo = new Date(now);
+    weekAgo.setDate(weekAgo.getDate() - 6);
+    weekAgo.setHours(0, 0, 0, 0);
+    
+    const { data: sessionsData } = await supabase
+      .from('contribution_sessions')
+      .select('started_at, total_points_earned')
+      .eq('user_id', user.id)
+      .gte('started_at', weekAgo.toISOString())
+      .order('started_at', { ascending: true })
+      .limit(500);
+
+    // Aggregate by day of week
+    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const dailyPoints: Record<string, number> = {};
+    
+    // Initialize all 7 days
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(weekAgo);
+      date.setDate(date.getDate() + i);
+      const dayName = dayNames[date.getDay()];
+      dailyPoints[`${i}-${dayName}`] = 0;
+    }
+    
+    // Sum points per day
+    sessionsData?.forEach((session: { started_at: string; total_points_earned: number | null }) => {
+      const sessionDate = new Date(session.started_at);
+      const daysSinceStart = Math.floor((sessionDate.getTime() - weekAgo.getTime()) / (1000 * 60 * 60 * 24));
+      if (daysSinceStart >= 0 && daysSinceStart < 7) {
+        const dayName = dayNames[sessionDate.getDay()];
+        const key = `${daysSinceStart}-${dayName}`;
+        dailyPoints[key] = (dailyPoints[key] || 0) + (session.total_points_earned || 0);
+      }
+    });
+
+    // Convert to array format for chart
+    const weeklyData = Object.entries(dailyPoints)
+      .sort((a, b) => parseInt(a[0]) - parseInt(b[0]))
+      .map(([key, value]) => ({
+        day: key.split('-')[1],
+        value: Number(value)
+      }));
+
     return new Response(
       JSON.stringify({
         points: {
@@ -94,7 +135,7 @@ serve(async (req) => {
           milestone_level: affiliate?.registration_milestone_level || 0
         },
         rank,
-        recent_sessions: recentSessions || []
+        weekly_data: weeklyData
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );

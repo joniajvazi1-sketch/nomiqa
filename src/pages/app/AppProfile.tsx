@@ -157,13 +157,39 @@ export const AppProfile: React.FC = () => {
       setUser(currentUser);
 
       if (currentUser) {
-        // Load profile
-        const { data: profileData } = await supabase
-          .from('profiles')
-          .select('username, solana_wallet')
-          .eq('user_id', currentUser.id)
-          .maybeSingle();
+        // Load essential data in parallel for speed
+        const [profileResult, membershipResult, affiliatesResult, ordersResult, statsResult] = await Promise.all([
+          // Profile
+          supabase
+            .from('profiles')
+            .select('username, solana_wallet')
+            .eq('user_id', currentUser.id)
+            .maybeSingle(),
+          // Membership
+          supabase
+            .from('user_spending')
+            .select('*')
+            .eq('user_id', currentUser.id)
+            .maybeSingle(),
+          // Affiliates
+          supabase
+            .from('affiliates')
+            .select('*')
+            .or(`user_id.eq.${currentUser.id},email.eq.${currentUser.email}`)
+            .order('created_at', { ascending: true }),
+          // Orders (limited)
+          supabase
+            .from('orders')
+            .select('id, package_name, data_amount, status, created_at')
+            .eq('user_id', currentUser.id)
+            .order('created_at', { ascending: false })
+            .limit(10),
+          // Contribution stats via edge function (replaces heavy direct reads)
+          supabase.functions.invoke('get-contribution-stats')
+        ]);
 
+        // Process profile
+        const profileData = profileResult.data;
         const username = profileData?.username || currentUser.email?.split('@')[0] || 'User';
         setProfile({
           username,
@@ -173,13 +199,8 @@ export const AppProfile: React.FC = () => {
         setEditedUsername(username);
         setSolanaWallet(profileData?.solana_wallet || '');
 
-        // Load membership
-        let { data: membershipData } = await supabase
-          .from('user_spending')
-          .select('*')
-          .eq('user_id', currentUser.id)
-          .maybeSingle();
-
+        // Process membership
+        let membershipData = membershipResult.data;
         if (!membershipData) {
           const { data: newMembership } = await supabase
             .from('user_spending')
@@ -190,84 +211,34 @@ export const AppProfile: React.FC = () => {
         }
         setMembership(membershipData);
 
-        // Load user points for stats
-        const { data: pointsData } = await supabase
-          .from('user_points')
-          .select('total_points, total_distance_meters')
-          .eq('user_id', currentUser.id)
-          .maybeSingle();
-        setUserPoints(pointsData);
+        // Process contribution stats from edge function
+        if (statsResult.data && !statsResult.error) {
+          const stats = statsResult.data;
+          setUserPoints({
+            total_points: stats.points?.total || 0,
+            total_distance_meters: stats.points?.total_distance_meters || 0
+          });
+          // Use weekly data from backend
+          if (stats.weekly_data && stats.weekly_data.length > 0) {
+            setWeeklyData(stats.weekly_data);
+          }
+        } else {
+          console.error('Stats fetch error:', statsResult.error);
+          setUserPoints({ total_points: 0, total_distance_meters: 0 });
+        }
 
-        // Load all affiliates for this user
-        const { data: affiliatesData } = await supabase
-          .from('affiliates')
-          .select('*')
-          .or(`user_id.eq.${currentUser.id},email.eq.${currentUser.email}`)
-          .order('created_at', { ascending: true });
-
+        // Process affiliates
+        const affiliatesData = affiliatesResult.data;
         if (affiliatesData && affiliatesData.length > 0) {
           setAllAffiliates(affiliatesData);
-          // Select the one with highest tier by default
           const highestTier = affiliatesData.reduce((prev, current) => 
             (current.tier_level > prev.tier_level) ? current : prev
           );
           setSelectedAffiliateId(highestTier.id);
         }
 
-        // Load orders
-        const { data: ordersData } = await supabase
-          .from('orders')
-          .select('id, package_name, data_amount, status, created_at')
-          .eq('user_id', currentUser.id)
-          .order('created_at', { ascending: false })
-          .limit(10);
-        setOrders(ordersData || []);
-
-        // Load weekly contribution data (last 7 days)
-        const now = new Date();
-        const weekAgo = new Date(now);
-        weekAgo.setDate(weekAgo.getDate() - 6);
-        weekAgo.setHours(0, 0, 0, 0);
-        
-        const { data: sessionsData } = await supabase
-          .from('contribution_sessions')
-          .select('started_at, total_points_earned')
-          .eq('user_id', currentUser.id)
-          .gte('started_at', weekAgo.toISOString())
-          .order('started_at', { ascending: true });
-
-        // Aggregate by day of week
-        const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-        const dailyPoints: Record<string, number> = {};
-        
-        // Initialize all 7 days
-        for (let i = 0; i < 7; i++) {
-          const date = new Date(weekAgo);
-          date.setDate(date.getDate() + i);
-          const dayName = dayNames[date.getDay()];
-          dailyPoints[`${i}-${dayName}`] = 0;
-        }
-        
-        // Sum points per day
-        sessionsData?.forEach(session => {
-          const sessionDate = new Date(session.started_at);
-          const daysSinceStart = Math.floor((sessionDate.getTime() - weekAgo.getTime()) / (1000 * 60 * 60 * 24));
-          if (daysSinceStart >= 0 && daysSinceStart < 7) {
-            const dayName = dayNames[sessionDate.getDay()];
-            const key = `${daysSinceStart}-${dayName}`;
-            dailyPoints[key] = (dailyPoints[key] || 0) + (session.total_points_earned || 0);
-          }
-        });
-
-        // Convert to array format for chart
-        const chartData = Object.entries(dailyPoints)
-          .sort((a, b) => parseInt(a[0]) - parseInt(b[0]))
-          .map(([key, value]) => ({
-            day: key.split('-')[1],
-            value: Number(value)
-          }));
-        
-        setWeeklyData(chartData);
+        // Process orders
+        setOrders(ordersResult.data || []);
       }
     } catch (error) {
       console.error('Error loading data:', error);
