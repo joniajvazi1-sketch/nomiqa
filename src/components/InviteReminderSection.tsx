@@ -11,31 +11,31 @@ export const InviteReminderSection = () => {
 
   const tiers = [
     {
-      title: 'Reward Boost',
-      description: 'More recruits = higher earning rate',
+      title: t("inviteRewardBoostTitle"),
+      description: t("inviteRewardBoostDesc"),
       icon: Zap,
       color: 'text-neon-cyan',
       bg: 'bg-neon-cyan/20',
-      highlight: 'Up to +100%',
-      detail: 'bonus on points'
+      highlight: t("inviteRewardBoostHighlight"),
+      detail: t("inviteRewardBoostDetail")
     },
     {
-      title: 'Sales Commission',
-      description: 'Earn when referrals buy eSIMs',
+      title: t("inviteSalesCommissionTitle"),
+      description: t("inviteSalesCommissionDesc"),
       icon: Percent,
       color: 'text-primary',
       bg: 'bg-primary/20',
-      highlight: 'Up to 18%',
-      detail: 'multi-tier commission'
+      highlight: t("inviteSalesCommissionHighlight"),
+      detail: t("inviteSalesCommissionDetail")
     },
     {
-      title: 'Network Earnings',
-      description: '5% of your referrals\' rewards',
+      title: t("inviteNetworkEarningsTitle"),
+      description: t("inviteNetworkEarningsDesc"),
       icon: TrendingUp,
       color: 'text-green-500',
       bg: 'bg-green-500/20',
-      highlight: '+5%',
-      detail: 'from their earnings'
+      highlight: t("inviteNetworkEarningsHighlight"),
+      detail: t("inviteNetworkEarningsDetail")
     }
   ];
 
@@ -51,13 +51,13 @@ export const InviteReminderSection = () => {
         <div className="text-center mb-12">
           <Badge variant="outline" className="mb-4 border-neon-cyan/30 text-neon-cyan bg-neon-cyan/5">
             <Gift className="w-3 h-3 mr-1" />
-            Referral Program
+            {t("inviteBadge")}
           </Badge>
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Invite Friends. <span className="text-gradient-primary">Earn Together.</span>
+            {t("inviteTitle")} <span className="text-gradient-primary">{t("inviteTitleHighlight")}</span>
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Unlock 3 ways to earn just by sharing. The more friends you invite, the more you both benefit.
+            {t("inviteSubtitle")}
           </p>
         </div>
 
@@ -97,18 +97,18 @@ export const InviteReminderSection = () => {
           <Button 
             size="lg"
             onClick={() => navigate('/affiliate')}
-            className="bg-gradient-to-r from-primary to-violet-500 hover:from-primary/90 hover:to-violet-500/90 text-primary-foreground font-semibold px-8"
+            className="bg-gradient-to-r from-neon-cyan to-neon-violet hover:from-neon-cyan/90 hover:to-neon-violet/90 text-white font-semibold px-8 border-0"
           >
             <Users className="w-5 h-5 mr-2" />
-            Start Inviting Friends
+            {t("inviteStartButton")}
           </Button>
           <Button 
             variant="outline"
             size="lg"
             onClick={() => navigate('/affiliate')}
-            className="border-border/50"
+            className="border-white/20 hover:border-white/40 hover:bg-white/5"
           >
-            Learn More
+            {t("learnMore")}
             <ChevronRight className="w-4 h-4 ml-1" />
           </Button>
         </div>
