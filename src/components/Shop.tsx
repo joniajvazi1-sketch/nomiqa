@@ -18,7 +18,7 @@ type CoverageType = "all" | "local" | "regional";
 
 export const Shop = () => {
   const navigate = useNavigate();
-  const { data: products, isLoading } = useProducts();
+  const { data: products, isLoading, isError, refetch } = useProducts();
   const { items, addItem } = useCart();
   const { language, t, formatPrice } = useTranslation();
   const [searchQuery, setSearchQuery] = useState("");
@@ -225,6 +225,13 @@ export const Shop = () => {
         {isLoading ? (
           <div className="flex justify-center py-20">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : isError ? (
+          <div className="text-center py-20 space-y-4">
+            <p className="text-muted-foreground">Failed to load products. Please try again.</p>
+            <Button onClick={() => refetch()} variant="outline" className="border-neon-cyan text-neon-cyan">
+              Retry
+            </Button>
           </div>
         ) : !displayedProducts?.length ? (
           <div className="text-center py-20">
