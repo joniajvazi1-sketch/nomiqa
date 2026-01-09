@@ -519,31 +519,40 @@ export const AppHome: React.FC = () => {
           </div>
         )}
 
-        {/* MAP PREVIEW STRIP */}
+        {/* MAP PREVIEW CARD */}
         <div 
-          className="relative rounded-2xl overflow-hidden cursor-pointer active:scale-[0.98] transition-all duration-300 group animate-fade-in"
+          className="relative rounded-2xl overflow-hidden cursor-pointer active:scale-[0.98] transition-all duration-300 group animate-fade-in border border-white/[0.08]"
           style={{ animationDelay: '500ms' }}
           onClick={() => handleNavigation('/app/map')}
         >
-          <div className="absolute inset-0 bg-white/[0.03] backdrop-blur-xl" />
-          <div className="relative p-4 border border-white/[0.08] rounded-2xl">
-            <div className="flex items-center gap-4">
-              <MiniContributionMap 
-                className="w-[100px] h-[60px] rounded-lg border border-neon-cyan/20"
-                contributionPoints={points?.total_points || 0}
-              />
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-sm font-semibold text-foreground">Your Coverage</span>
+          {/* Map preview as background */}
+          <MiniContributionMap 
+            className="w-full h-32"
+            contributionPoints={points?.total_points || 0}
+            dataPointsCount={dataPointsCount}
+          />
+          
+          {/* Content overlay */}
+          <div className="absolute inset-0 flex items-end">
+            <div className="w-full p-4 bg-gradient-to-t from-background via-background/90 to-transparent">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <MapPin className="w-4 h-4 text-neon-cyan" />
+                    <span className="text-sm font-semibold text-foreground">Your Coverage Map</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {dataPointsCount > 0 
+                      ? `${dataPointsCount.toLocaleString()} data points collected`
+                      : 'Start contributing to see your coverage'
+                    }
+                  </p>
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  {dataPointsCount > 0 
-                    ? `${dataPointsCount.toLocaleString()} data points collected`
-                    : 'Tap to view coverage map'
-                  }
-                </p>
+                <div className="flex items-center gap-1 text-xs text-neon-cyan font-medium">
+                  <span>View</span>
+                  <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </div>
               </div>
-              <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:translate-x-1 group-hover:text-neon-cyan transition-all" />
             </div>
           </div>
         </div>
