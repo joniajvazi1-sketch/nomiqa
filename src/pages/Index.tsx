@@ -8,7 +8,7 @@ const WhatIsDePIN = lazy(() => import("@/components/WhatIsDePIN").then(m => ({ d
 const DataMarketplace = lazy(() => import("@/components/DataMarketplace").then(m => ({ default: m.DataMarketplace })));
 const LiveNetworkStats = lazy(() => import("@/components/LiveNetworkStats").then(m => ({ default: m.LiveNetworkStats })));
 const HowYouEarn = lazy(() => import("@/components/HowYouEarn").then(m => ({ default: m.HowYouEarn })));
-const GlobalNetworkMap = lazy(() => import("@/components/GlobalNetworkMap").then(m => ({ default: m.GlobalNetworkMap })));
+
 const TrustPartners = lazy(() => import("@/components/TrustPartners").then(m => ({ default: m.TrustPartners })));
 const FeaturedProducts = lazy(() => import("@/components/FeaturedProducts").then(m => ({ default: m.FeaturedProducts })));
 const HowItWorksSteps = lazy(() => import("@/components/HowItWorksSteps").then(m => ({ default: m.HowItWorksSteps })));
@@ -46,7 +46,6 @@ const Index = () => {
         <HowYouEarn />
       </Suspense>
       <Suspense fallback={<LoadingSpinner />}>
-        <GlobalNetworkMap />
         <TrustPartners />
       </Suspense>
       <Suspense fallback={<LoadingSpinner />}>
