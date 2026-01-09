@@ -85,17 +85,19 @@ interface Order {
   created_at: string;
 }
 
+// Friendly tier names and descriptions
 const TIER_CONFIG = {
-  beginner: { icon: Star, color: 'text-amber-500', bg: 'bg-amber-500/20' },
-  traveler: { icon: Award, color: 'text-slate-400', bg: 'bg-slate-400/20' },
-  adventurer: { icon: Crown, color: 'text-yellow-500', bg: 'bg-yellow-500/20' },
-  explorer: { icon: Sparkles, color: 'text-purple-500', bg: 'bg-purple-500/20' }
+  beginner: { icon: Star, color: 'text-amber-400', bg: 'bg-amber-400/20', friendlyName: 'Starter', description: 'Welcome aboard! 🎉' },
+  traveler: { icon: Award, color: 'text-sky-400', bg: 'bg-sky-400/20', friendlyName: 'Traveler', description: 'You\'re on a roll! ✈️' },
+  adventurer: { icon: Crown, color: 'text-amber-500', bg: 'bg-amber-500/20', friendlyName: 'Adventurer', description: 'Amazing progress! 🌟' },
+  explorer: { icon: Sparkles, color: 'text-violet-400', bg: 'bg-violet-400/20', friendlyName: 'Explorer', description: 'You\'re a superstar! 🏆' }
 };
 
+// Friendly referral tier names
 const AFFILIATE_TIERS = [
-  { level: 1, name: 'Recruit', conversions: 0, commission: '9%' },
-  { level: 2, name: 'Commander', conversions: 10, commission: '9% + 6%' },
-  { level: 3, name: 'Overlord', conversions: 30, commission: '9% + 6% + 3%' }
+  { level: 1, name: 'Friend', conversions: 0, commission: '9%', emoji: '👋' },
+  { level: 2, name: 'Champion', conversions: 10, commission: '9% + 6%', emoji: '🌟' },
+  { level: 3, name: 'Legend', conversions: 30, commission: '9% + 6% + 3%', emoji: '🏆' }
 ];
 
 export const AppProfile: React.FC = () => {
@@ -527,64 +529,48 @@ export const AppProfile: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Tabs */}
+      {/* Tabs - Simplified for mainstream users */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-7 h-auto p-1 bg-card/50 border border-border/50 backdrop-blur-sm">
+        <TabsList className="grid w-full grid-cols-5 h-auto p-1.5 bg-card/50 border border-border/50 backdrop-blur-sm rounded-2xl">
           <TabsTrigger 
             value="account" 
-            className="flex flex-col items-center gap-1 py-2 text-[10px] transition-all data-[state=active]:animate-stat-pop"
+            className="flex flex-col items-center gap-1 py-2.5 text-[11px] rounded-xl transition-all data-[state=active]:animate-stat-pop data-[state=active]:bg-white/10"
             onClick={() => lightTap()}
           >
             <User className="w-4 h-4" />
-            Account
-          </TabsTrigger>
-          <TabsTrigger 
-            value="analytics" 
-            className="flex flex-col items-center gap-1 py-2 text-[10px] transition-all data-[state=active]:animate-stat-pop"
-            onClick={() => lightTap()}
-          >
-            <BarChart3 className="w-4 h-4" />
-            Data
+            Me
           </TabsTrigger>
           <TabsTrigger 
             value="membership" 
-            className="flex flex-col items-center gap-1 py-2 text-[10px] transition-all data-[state=active]:animate-stat-pop"
+            className="flex flex-col items-center gap-1 py-2.5 text-[11px] rounded-xl transition-all data-[state=active]:animate-stat-pop data-[state=active]:bg-white/10"
             onClick={() => lightTap()}
           >
             <Award className="w-4 h-4" />
-            Tier
+            Rewards
           </TabsTrigger>
           <TabsTrigger 
             value="orders" 
-            className="flex flex-col items-center gap-1 py-2 text-[10px] transition-all data-[state=active]:animate-stat-pop"
+            className="flex flex-col items-center gap-1 py-2.5 text-[11px] rounded-xl transition-all data-[state=active]:animate-stat-pop data-[state=active]:bg-white/10"
             onClick={() => lightTap()}
           >
             <Package className="w-4 h-4" />
-            eSIMs
-          </TabsTrigger>
-          <TabsTrigger 
-            value="wallet" 
-            className="flex flex-col items-center gap-1 py-2 text-[10px] transition-all data-[state=active]:animate-stat-pop"
-            onClick={() => lightTap()}
-          >
-            <Wallet className="w-4 h-4" />
-            Wallet
-          </TabsTrigger>
-          <TabsTrigger 
-            value="privacy" 
-            className="flex flex-col items-center gap-1 py-2 text-[10px] transition-all data-[state=active]:animate-stat-pop"
-            onClick={() => lightTap()}
-          >
-            <Shield className="w-4 h-4" />
-            Privacy
+            My eSIMs
           </TabsTrigger>
           <TabsTrigger 
             value="earn" 
-            className="flex flex-col items-center gap-1 py-2 text-[10px] transition-all data-[state=active]:animate-stat-pop"
+            className="flex flex-col items-center gap-1 py-2.5 text-[11px] rounded-xl transition-all data-[state=active]:animate-stat-pop data-[state=active]:bg-white/10"
             onClick={() => lightTap()}
           >
             <Gift className="w-4 h-4" />
-            Earn
+            Invite
+          </TabsTrigger>
+          <TabsTrigger 
+            value="settings" 
+            className="flex flex-col items-center gap-1 py-2.5 text-[11px] rounded-xl transition-all data-[state=active]:animate-stat-pop data-[state=active]:bg-white/10"
+            onClick={() => lightTap()}
+          >
+            <Shield className="w-4 h-4" />
+            Settings
           </TabsTrigger>
         </TabsList>
 
@@ -653,46 +639,51 @@ export const AppProfile: React.FC = () => {
           <AnalyticsDashboard />
         </TabsContent>
 
-        {/* Membership Tab */}
+        {/* Rewards Tab - Friendly language */}
         <TabsContent value="membership" className="mt-4 space-y-4 animate-tab-content-in">
-          <Card className={cn('border-0 overflow-hidden animate-stat-pop', tierConfig.bg)}>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3 mb-3">
-                <div className={cn('p-2 rounded-full', tierConfig.bg, 'animate-pulse-glow')}>
-                  <TierIcon className={cn('w-6 h-6', tierConfig.color)} />
+          {/* Your Level Card */}
+          <Card className={cn('border-0 overflow-hidden animate-stat-pop bg-gradient-to-br', tierConfig.bg, 'to-transparent')}>
+            <CardContent className="p-5">
+              <div className="flex items-center gap-4 mb-4">
+                <div className={cn('p-3 rounded-2xl', tierConfig.bg)}>
+                  <TierIcon className={cn('w-7 h-7', tierConfig.color)} />
                 </div>
                 <div>
-                  <h3 className="font-bold text-foreground capitalize">{membership?.membership_tier}</h3>
-                  <p className="text-xs text-muted-foreground">{membership?.cashback_rate}% cashback</p>
+                  <h3 className="text-lg font-bold text-foreground">{tierConfig.friendlyName || membership?.membership_tier}</h3>
+                  <p className="text-sm text-muted-foreground">{tierConfig.description}</p>
                 </div>
               </div>
               
-              <div className="bg-background/50 rounded-lg p-3 mb-3">
-                <p className="text-xs text-muted-foreground mb-1">Total Cashback Earned</p>
-                <p className="text-2xl font-bold text-primary tabular-nums">
+              {/* Cashback highlight */}
+              <div className="bg-background/60 rounded-2xl p-4 mb-4 text-center">
+                <p className="text-sm text-muted-foreground mb-1">You've saved</p>
+                <p className="text-3xl font-bold text-green-500">
                   $<AnimatedCounter value={totalCashbackEarned} decimals={2} duration={1500} />
                 </p>
+                <p className="text-xs text-muted-foreground mt-1">with {membership?.cashback_rate}% cashback on every purchase! 🎉</p>
               </div>
 
               {nextTier && (
-                <div className="space-y-2">
-                  <div className="flex justify-between text-xs">
-                    <span className="text-muted-foreground">Progress to {nextTier.name}</span>
-                    <span className="font-medium tabular-nums">{Math.round(nextTier.progress)}%</span>
+                <div className="space-y-3 bg-white/5 rounded-2xl p-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-foreground">Level up to {nextTier.name}</span>
+                    <span className="text-xs text-muted-foreground">{Math.round(nextTier.progress)}%</span>
                   </div>
                   <AnimatedProgressBar 
                     value={membership?.total_spent_usd || 0} 
                     max={nextTier.threshold} 
                     showPercentage={false}
                   />
-                  <p className="text-xs text-muted-foreground">${nextTier.remaining.toFixed(2)} more to unlock</p>
+                  <p className="text-xs text-muted-foreground text-center">
+                    Spend ${nextTier.remaining.toFixed(0)} more to unlock {nextTier.rate}% cashback! ✨
+                  </p>
                 </div>
               )}
 
               {!nextTier && (
-                <div className="flex items-center gap-2 text-sm animate-pulse">
-                  <Crown className="w-4 h-4 text-primary" />
-                  <span>Highest tier reached!</span>
+                <div className="flex items-center justify-center gap-2 text-sm bg-gradient-to-r from-violet-500/20 to-primary/20 rounded-2xl p-3">
+                  <Crown className="w-5 h-5 text-primary" />
+                  <span className="font-medium">You're at the top! Maximum rewards unlocked 🏆</span>
                 </div>
               )}
             </CardContent>
@@ -775,100 +766,88 @@ export const AppProfile: React.FC = () => {
           )}
         </TabsContent>
 
-        {/* Wallet Tab */}
-        <TabsContent value="wallet" className="mt-4 space-y-4 animate-tab-content-in">
+        {/* Settings Tab - Combined Privacy, Wallet, Analytics */}
+        <TabsContent value="settings" className="mt-4 space-y-4 animate-tab-content-in">
+          {/* Analytics Summary */}
           <Card className="bg-card/50 border-border/50">
-            <CardContent className="p-4 space-y-4">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 rounded-full bg-primary/20">
-                  <Wallet className="w-5 h-5 text-primary" />
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 rounded-xl bg-neon-cyan/20">
+                  <BarChart3 className="w-5 h-5 text-neon-cyan" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-foreground">Solana Wallet</h3>
-                  <p className="text-xs text-muted-foreground">Add your wallet to receive rewards</p>
+                  <h3 className="font-semibold text-foreground">Your Activity</h3>
+                  <p className="text-xs text-muted-foreground">Points and distance tracked</p>
                 </div>
               </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-white/5 rounded-xl p-3 text-center">
+                  <p className="text-2xl font-bold text-foreground">{userPoints?.total_points?.toLocaleString() || 0}</p>
+                  <p className="text-xs text-muted-foreground">Total Points</p>
+                </div>
+                <div className="bg-white/5 rounded-xl p-3 text-center">
+                  <p className="text-2xl font-bold text-foreground">{((userPoints?.total_distance_meters || 0) / 1000).toFixed(1)} km</p>
+                  <p className="text-xs text-muted-foreground">Distance</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Wallet Section - Simplified and friendly */}
+          <Card className="bg-card/50 border-border/50">
+            <CardContent className="p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-xl bg-violet-500/20">
+                    <Wallet className="w-5 h-5 text-violet-400" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-foreground">Payout Wallet</h3>
+                    <p className="text-xs text-muted-foreground">Optional - for advanced users</p>
+                  </div>
+                </div>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => setIsEditingWallet(!isEditingWallet)}
+                  className="text-xs"
+                >
+                  {profile?.solana_wallet ? 'Edit' : 'Add'}
+                </Button>
+              </div>
               
-              {isEditingWallet ? (
-                <div className="space-y-3">
+              {isEditingWallet && (
+                <div className="space-y-3 pt-2 border-t border-border/50">
                   <Input
                     value={solanaWallet}
                     onChange={(e) => {
                       setSolanaWallet(e.target.value);
                       setWalletError(null);
                     }}
-                    placeholder="Enter your Solana wallet address"
+                    placeholder="Solana wallet address"
                     className="font-mono text-sm bg-background/50"
-                    autoFocus
                   />
-                  {walletError && (
-                    <p className="text-xs text-red-500">{walletError}</p>
-                  )}
+                  {walletError && <p className="text-xs text-red-500">{walletError}</p>}
                   <div className="flex gap-2">
-                    <Button onClick={handleSaveWallet} disabled={savingWallet} className="flex-1 active:scale-95 transition-transform">
-                      {savingWallet ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Check className="w-4 h-4 mr-2" />}
-                      Save
+                    <Button onClick={handleSaveWallet} disabled={savingWallet} size="sm" className="flex-1">
+                      {savingWallet ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save'}
                     </Button>
-                    <Button 
-                      variant="outline" 
-                      onClick={() => {
-                        setIsEditingWallet(false);
-                        setSolanaWallet(profile?.solana_wallet || '');
-                        setWalletError(null);
-                      }}
-                      className="active:scale-95 transition-transform"
-                    >
-                      <X className="w-4 h-4" />
+                    <Button variant="outline" size="sm" onClick={() => { setIsEditingWallet(false); setSolanaWallet(profile?.solana_wallet || ''); }}>
+                      Cancel
                     </Button>
                   </div>
                 </div>
-              ) : (
-                <div className="space-y-3">
-                  {profile?.solana_wallet ? (
-                    <div className="p-3 bg-background/50 rounded-lg border border-border/50">
-                      <p className="text-xs text-muted-foreground mb-1">Connected Wallet</p>
-                      <p className="font-mono text-sm text-foreground break-all">{profile.solana_wallet}</p>
-                    </div>
-                  ) : (
-                    <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
-                      <p className="text-sm text-amber-600 dark:text-amber-400">
-                        No wallet connected. Add your Solana wallet to receive rewards.
-                      </p>
-                    </div>
-                  )}
-                  <Button 
-                    onClick={() => setIsEditingWallet(true)} 
-                    variant={profile?.solana_wallet ? "outline" : "default"}
-                    className="w-full active:scale-95 transition-transform"
-                  >
-                    <Pencil className="w-4 h-4 mr-2" />
-                    {profile?.solana_wallet ? 'Edit Wallet' : 'Add Wallet'}
-                  </Button>
-                </div>
+              )}
+              
+              {!isEditingWallet && profile?.solana_wallet && (
+                <p className="text-xs font-mono text-muted-foreground truncate bg-white/5 rounded-lg px-3 py-2">
+                  {profile.solana_wallet.slice(0, 8)}...{profile.solana_wallet.slice(-8)}
+                </p>
               )}
             </CardContent>
           </Card>
 
-          {/* Rewards Info */}
-          <Card className="bg-gradient-to-br from-primary/10 to-accent/10 border-primary/20">
-            <CardContent className="p-4">
-              <div className="flex items-start gap-3">
-                <div className="p-2 rounded-full bg-primary/20 mt-0.5">
-                  <Sparkles className="w-4 h-4 text-primary" />
-                </div>
-                <div>
-                  <h4 className="font-semibold text-foreground text-sm mb-1">Earn Real Crypto</h4>
-                  <p className="text-xs text-muted-foreground">
-                    Your affiliate earnings and network rewards will be distributed directly to your Solana wallet in USDC.
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Privacy Tab - NEW */}
-        <TabsContent value="privacy" className="mt-4 animate-tab-content-in">
+          {/* Privacy Controls */}
           <PrivacyControls />
         </TabsContent>
 
@@ -891,154 +870,130 @@ export const AppProfile: React.FC = () => {
                 </Badge>
               </div>
 
-              {/* Total Earnings - Large & Distinct */}
+              {/* Total Earnings - Friendly language */}
               <Card className="bg-gradient-to-br from-green-500/20 to-green-600/10 border-green-500/30 animate-stat-pop">
                 <CardContent className="p-6 text-center">
-                  <p className="text-sm text-muted-foreground mb-1">Total Earnings</p>
+                  <p className="text-sm text-muted-foreground mb-1">You've earned</p>
                   <p className="text-4xl font-bold text-green-500 tabular-nums">
                     $<AnimatedCounter value={selectedAffiliate.total_earnings_usd || 0} decimals={2} duration={1800} />
                   </p>
-                  <p className="text-xs text-muted-foreground mt-1">USDC</p>
+                  <p className="text-xs text-muted-foreground mt-2">From sharing with friends! 🎉</p>
                 </CardContent>
               </Card>
 
-              {/* Invite Friend Button - Large CTA */}
+              {/* Invite Friend Button - Large friendly CTA */}
               <Button 
                 onClick={handleShare} 
                 size="xl" 
-                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-6 text-base active:scale-95 transition-transform"
+                className="w-full bg-gradient-to-r from-primary to-violet-500 hover:from-primary/90 hover:to-violet-500/90 text-primary-foreground font-semibold py-6 text-base active:scale-95 transition-transform rounded-2xl shadow-lg"
               >
                 <Share2 className="w-5 h-5 mr-2" />
-                Invite Friend
+                Share with Friends
               </Button>
 
-              {/* Stats Overview Card with Animated Numbers */}
+              {/* Friends Summary - Friendly language */}
               <Card className="bg-card/50 border-border/50 overflow-hidden">
                 <CardContent className="p-0">
                   <div className="p-4 border-b border-border/50">
-                    <p className="text-sm font-semibold text-foreground">Stats Overview</p>
+                    <p className="text-sm font-semibold text-foreground">Your Impact 🌟</p>
                   </div>
                   <div className="divide-y divide-border/50">
-                    <div className="flex items-center justify-between p-4 animate-stagger-in" style={{ animationDelay: '100ms' }}>
+                    <div className="flex items-center justify-between p-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center">
-                          <UserPlus className="w-4 h-4 text-blue-500" />
+                        <div className="w-10 h-10 rounded-xl bg-sky-500/20 flex items-center justify-center">
+                          <UserPlus className="w-5 h-5 text-sky-500" />
                         </div>
-                        <span className="text-sm text-foreground">Registrations</span>
+                        <span className="text-sm text-foreground">Friends signed up</span>
                       </div>
                       <span className="text-lg font-semibold text-foreground tabular-nums">
                         <AnimatedCounter value={selectedAffiliate.total_registrations || 0} duration={1200} />
                       </span>
                     </div>
-                    <div className="flex items-center justify-between p-4 animate-stagger-in" style={{ animationDelay: '200ms' }}>
+                    <div className="flex items-center justify-between p-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
-                          <TrendingUp className="w-4 h-4 text-green-500" />
+                        <div className="w-10 h-10 rounded-xl bg-green-500/20 flex items-center justify-center">
+                          <CheckCircle2 className="w-5 h-5 text-green-500" />
                         </div>
-                        <span className="text-sm text-foreground">Recruits</span>
+                        <span className="text-sm text-foreground">Friends who bought</span>
                       </div>
                       <span className="text-lg font-semibold text-foreground tabular-nums">
                         <AnimatedCounter value={selectedAffiliate.total_conversions || 0} duration={1200} />
                       </span>
                     </div>
-                    <div className="flex items-center justify-between p-4 animate-stagger-in" style={{ animationDelay: '300ms' }}>
+                    <div className="flex items-center justify-between p-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center animate-pulse-glow">
-                          <Zap className="w-4 h-4 text-amber-500" />
+                        <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center">
+                          <Zap className="w-5 h-5 text-amber-500" />
                         </div>
-                        <span className="text-sm text-foreground">Mining Boost</span>
+                        <span className="text-sm text-foreground">Bonus boost</span>
                       </div>
                       <span className="text-lg font-semibold text-amber-500 tabular-nums">
-                        +<AnimatedCounter value={selectedAffiliate.miner_boost_percentage || 0} duration={1500} />%
+                        +{selectedAffiliate.miner_boost_percentage || 0}%
                       </span>
-                    </div>
-                    <div className="flex items-center justify-between p-4 animate-stagger-in" style={{ animationDelay: '400ms' }}>
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center">
-                          <Award className="w-4 h-4 text-purple-500" />
-                        </div>
-                        <span className="text-sm text-foreground">Commission Rate</span>
-                      </div>
-                      <span className="text-lg font-semibold text-foreground">{affiliateTierInfo?.currentTier.commission || '9%'}</span>
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
-              {/* iOS Settings-Style List Items with Transitions */}
-              <Card className="bg-card/50 border-border/50 animate-stagger-in" style={{ animationDelay: '500ms' }}>
-                <CardContent className="p-0">
-                  {/* Team Control */}
-                  {allAffiliates.length > 1 && (
-                    <div 
-                      className="flex items-center justify-between p-4 border-b border-border/50 active:bg-muted/50 active:scale-[0.98] transition-all cursor-pointer"
-                      onClick={() => {
-                        lightTap();
-                        // Cycle through affiliates
-                        const currentIndex = allAffiliates.findIndex(a => a.id === selectedAffiliateId);
-                        const nextIndex = (currentIndex + 1) % allAffiliates.length;
-                        setSelectedAffiliateId(allAffiliates[nextIndex].id);
-                      }}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-                          <Users className="w-4 h-4 text-primary" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-foreground">Team Control</p>
-                          <p className="text-xs text-muted-foreground">{selectedAffiliate.username || selectedAffiliate.affiliate_code}</p>
-                        </div>
-                      </div>
-                      <ChevronRight className="w-5 h-5 text-muted-foreground transition-transform group-active:translate-x-1" />
+              {/* Level Progress - Friendly */}
+              <Card className="bg-card/50 border-border/50">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-10 h-10 rounded-xl bg-violet-500/20 flex items-center justify-center">
+                      <Crown className="w-5 h-5 text-violet-500" />
                     </div>
-                  )}
-
-                  {/* Squad Level */}
-                  <div 
-                    className="flex items-center justify-between p-4 border-b border-border/50 active:bg-muted/50 transition-colors"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center">
-                        <Crown className="w-4 h-4 text-amber-500" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-foreground">Squad Level</p>
-                        <p className="text-xs text-muted-foreground">
-                          {affiliateTierInfo?.nextTier 
-                            ? `${affiliateTierInfo.remaining} more recruits to ${affiliateTierInfo.nextTier.name}` 
-                            : 'Max tier reached!'
-                          }
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-1">
+                        <p className="text-sm font-medium text-foreground">
+                          {affiliateTierInfo?.currentTier.emoji} {affiliateTierInfo?.currentTier.name} Level
                         </p>
+                        <span className="text-xs text-muted-foreground">{affiliateTierInfo?.currentTier.commission}</span>
                       </div>
+                      {affiliateTierInfo?.nextTier && (
+                        <p className="text-xs text-muted-foreground">
+                          Invite {affiliateTierInfo.remaining} more friends to become a {affiliateTierInfo.nextTier.emoji} {affiliateTierInfo.nextTier.name}!
+                        </p>
+                      )}
+                      {!affiliateTierInfo?.nextTier && (
+                        <p className="text-xs text-green-500">You're at the top! 🏆</p>
+                      )}
                     </div>
-                    <Badge variant="outline" className="text-amber-500 border-amber-500/30">
-                      {affiliateTierInfo?.currentTier.name}
-                    </Badge>
                   </div>
+                  {affiliateTierInfo?.nextTier && (
+                    <AnimatedProgressBar 
+                      value={selectedAffiliate.total_conversions || 0} 
+                      max={affiliateTierInfo.nextTier.conversions} 
+                      showPercentage={false}
+                    />
+                  )}
+                </CardContent>
+              </Card>
 
-                  {/* Add New Link */}
-                  {allAffiliates.length < 3 && (
+              {/* Add New Link - Only show if less than 3 links */}
+              {allAffiliates.length < 3 && (
+                <Card className="bg-card/50 border-border/50 border-dashed">
+                  <CardContent className="p-4">
                     <div 
-                      className="flex items-center justify-between p-4 active:bg-muted/50 active:scale-[0.98] transition-all cursor-pointer"
+                      className="flex items-center justify-between cursor-pointer active:scale-[0.98] transition-all"
                       onClick={() => {
                         lightTap();
                         setShowNewLinkInput(true);
                       }}
                     >
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
-                          <Plus className="w-4 h-4 text-green-500" />
+                        <div className="w-10 h-10 rounded-xl bg-green-500/20 flex items-center justify-center">
+                          <Plus className="w-5 h-5 text-green-500" />
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-foreground">Add Tracking Link</p>
-                          <p className="text-xs text-muted-foreground">{allAffiliates.length}/3 used</p>
+                          <p className="text-sm font-medium text-foreground">Add another link</p>
+                          <p className="text-xs text-muted-foreground">{allAffiliates.length}/3 links used</p>
                         </div>
                       </div>
                       <ChevronRight className="w-5 h-5 text-muted-foreground" />
                     </div>
-                  )}
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              )}
 
               {/* New Link Input Modal */}
               {showNewLinkInput && (
