@@ -27,6 +27,7 @@ import { Button } from '@/components/ui/button';
 import { useProducts, Product } from '@/hooks/useProducts';
 import { useCart } from '@/hooks/useCart';
 import { useHaptics } from '@/hooks/useHaptics';
+import { useTranslation } from '@/contexts/TranslationContext';
 import { useDeviceCompatibility } from '@/hooks/useDeviceCompatibility';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -63,6 +64,7 @@ export const AppShop: React.FC = () => {
   const { items, addItem } = useCart();
   const { lightTap, success, error: hapticError } = useHaptics();
   const { isCompatible, platform, isLoading: compatLoading } = useDeviceCompatibility();
+  const { t } = useTranslation();
   
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<CoverageTab>('local');
@@ -135,7 +137,7 @@ export const AppShop: React.FC = () => {
       setAddingProductId(null);
       
       toast.success(`${product.country_name} eSIM`, {
-        description: 'Added to cart'
+        description: t('app.shop.addedToCart')
       });
     }, 150);
   };
@@ -146,8 +148,8 @@ export const AppShop: React.FC = () => {
       hapticError();
       setCartShaking(true);
       setTimeout(() => setCartShaking(false), 500);
-      toast.error('Your cart is empty', {
-        description: 'Add some eSIM plans first!'
+      toast.error(t('app.shop.cartEmpty'), {
+        description: t('app.shop.addPlansFirst')
       });
     } else {
       navigate('/checkout');
@@ -218,13 +220,13 @@ export const AppShop: React.FC = () => {
   };
 
   const tabs: { key: CoverageTab; label: string; icon: React.ElementType }[] = [
-    { key: 'local', label: 'Local', icon: MapPin },
-    { key: 'regional', label: 'Regional', icon: Globe },
-    { key: 'global', label: 'Global', icon: Signal },
+    { key: 'local', label: t('app.shop.local'), icon: MapPin },
+    { key: 'regional', label: t('app.shop.regional'), icon: Globe },
+    { key: 'global', label: t('app.shop.global'), icon: Signal },
   ];
 
   const dataFilters: { key: DataFilter; label: string }[] = [
-    { key: 'all', label: 'All' },
+    { key: 'all', label: t('app.shop.all') },
     { key: '1gb', label: '1GB' },
     { key: '3gb', label: '3GB' },
     { key: '5gb', label: '5GB' },
@@ -256,8 +258,8 @@ export const AppShop: React.FC = () => {
         {/* Header */}
         <header className="flex items-center justify-between animate-fade-in">
           <div>
-            <h1 className="text-2xl font-bold text-foreground tracking-tight">eSIM Shop</h1>
-            <p className="text-sm text-muted-foreground">200+ destinations</p>
+            <h1 className="text-2xl font-bold text-foreground tracking-tight">{t('app.shop.title')}</h1>
+            <p className="text-sm text-muted-foreground">{t('app.shop.destinations')}</p>
           </div>
           <button 
             ref={cartButtonRef}
@@ -307,7 +309,7 @@ export const AppShop: React.FC = () => {
           <div className="relative flex items-center border border-white/[0.08] rounded-2xl overflow-hidden focus-within:border-primary/30 transition-colors">
             <Search className="absolute left-4 w-5 h-5 text-muted-foreground" />
             <Input
-              placeholder={activeTab === 'local' ? 'Search countries...' : activeTab === 'regional' ? 'Search regions...' : 'Search global plans...'}
+              placeholder={activeTab === 'local' ? t('app.shop.searchCountries') : activeTab === 'regional' ? t('app.shop.searchRegions') : t('app.shop.searchGlobal')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-12 pr-10 h-12 bg-transparent border-0 text-foreground placeholder:text-muted-foreground/60 focus-visible:ring-0"
@@ -344,14 +346,14 @@ export const AppShop: React.FC = () => {
         {/* Results Count */}
         <div className="flex items-center justify-between text-sm animate-fade-in" style={{ animationDelay: '200ms' }}>
           <span className="text-muted-foreground">
-            {filteredProducts.length} {activeTab === 'local' ? 'countries' : activeTab === 'regional' ? 'regions' : 'plans'}
+            {filteredProducts.length} {activeTab === 'local' ? t('app.shop.countries') : activeTab === 'regional' ? t('app.shop.regions') : t('app.shop.plans')}
           </span>
           {dataFilter !== 'all' && (
             <button 
               onClick={() => setDataFilter('all')}
               className="text-primary text-xs flex items-center gap-1 hover:underline"
             >
-              Clear filter
+              {t('app.shop.clearFilter')}
               <X className="w-3 h-3" />
             </button>
           )}

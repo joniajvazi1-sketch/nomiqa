@@ -4,10 +4,12 @@ import { ArrowLeft, Target, Flame, Calendar, Star } from 'lucide-react';
 import { useHaptics } from '@/hooks/useHaptics';
 import { useChallenges } from '@/hooks/useChallenges';
 import { ChallengeCard } from '@/components/app/ChallengeCard';
+import { useTranslation } from '@/contexts/TranslationContext';
 
 export const AppChallenges: React.FC = () => {
   const navigate = useNavigate();
   const { lightTap } = useHaptics();
+  const { t } = useTranslation();
   const { 
     dailyChallenges, 
     weeklyChallenges, 
@@ -30,9 +32,9 @@ export const AppChallenges: React.FC = () => {
             <ArrowLeft className="w-5 h-5 text-foreground" />
           </button>
           <div>
-            <h1 className="text-xl font-bold text-foreground">Challenges</h1>
+            <h1 className="text-xl font-bold text-foreground">{t('app.challenges')}</h1>
             <p className="text-sm text-muted-foreground">
-              {unclaimedCount > 0 ? `${unclaimedCount} rewards to claim` : 'Complete challenges to earn rewards'}
+              {unclaimedCount > 0 ? `${unclaimedCount} ${t('app.challenges.rewardsToClaim')}` : t('app.challenges.completeToEarn')}
             </p>
           </div>
         </div>
@@ -44,17 +46,17 @@ export const AppChallenges: React.FC = () => {
           <div className="rounded-2xl bg-gradient-to-br from-orange-500/10 to-orange-500/5 border border-orange-500/20 p-4 text-center">
             <Flame className="w-5 h-5 text-orange-500 mx-auto mb-2" />
             <div className="text-xl font-bold text-foreground">{completedTodayCount}</div>
-            <div className="text-xs text-muted-foreground">Daily Done</div>
+            <div className="text-xs text-muted-foreground">{t('app.challenges.dailyDone')}</div>
           </div>
           <div className="rounded-2xl bg-gradient-to-br from-blue-500/10 to-blue-500/5 border border-blue-500/20 p-4 text-center">
             <Calendar className="w-5 h-5 text-blue-500 mx-auto mb-2" />
             <div className="text-xl font-bold text-foreground">{weeklyChallenges.length}</div>
-            <div className="text-xs text-muted-foreground">Weekly</div>
+            <div className="text-xs text-muted-foreground">{t('app.challenges.weekly')}</div>
           </div>
           <div className="rounded-2xl bg-gradient-to-br from-purple-500/10 to-purple-500/5 border border-purple-500/20 p-4 text-center">
             <Star className="w-5 h-5 text-purple-500 mx-auto mb-2" />
             <div className="text-xl font-bold text-foreground">{specialChallenges.length}</div>
-            <div className="text-xs text-muted-foreground">Special</div>
+            <div className="text-xs text-muted-foreground">{t('app.challenges.special')}</div>
           </div>
         </div>
 
@@ -71,8 +73,8 @@ export const AppChallenges: React.FC = () => {
               <section>
                 <div className="flex items-center gap-2 mb-3">
                   <Flame className="w-4 h-4 text-orange-500" />
-                  <h2 className="text-sm font-semibold text-foreground uppercase tracking-wider">Daily</h2>
-                  <span className="text-xs text-muted-foreground ml-auto">Resets in 24h</span>
+                  <h2 className="text-sm font-semibold text-foreground uppercase tracking-wider">{t('app.challenges.daily')}</h2>
+                  <span className="text-xs text-muted-foreground ml-auto">{t('app.challenges.resetsIn24h')}</span>
                 </div>
                 <div className="space-y-3">
                   {dailyChallenges.map((c) => (
@@ -100,8 +102,8 @@ export const AppChallenges: React.FC = () => {
               <section>
                 <div className="flex items-center gap-2 mb-3">
                   <Calendar className="w-4 h-4 text-blue-500" />
-                  <h2 className="text-sm font-semibold text-foreground uppercase tracking-wider">Weekly</h2>
-                  <span className="text-xs text-muted-foreground ml-auto">Resets Sunday</span>
+                  <h2 className="text-sm font-semibold text-foreground uppercase tracking-wider">{t('app.challenges.weekly')}</h2>
+                  <span className="text-xs text-muted-foreground ml-auto">{t('app.challenges.resetsSunday')}</span>
                 </div>
                 <div className="space-y-3">
                   {weeklyChallenges.map((c) => (
@@ -129,7 +131,7 @@ export const AppChallenges: React.FC = () => {
               <section>
                 <div className="flex items-center gap-2 mb-3">
                   <Star className="w-4 h-4 text-purple-500" />
-                  <h2 className="text-sm font-semibold text-foreground uppercase tracking-wider">Special</h2>
+                  <h2 className="text-sm font-semibold text-foreground uppercase tracking-wider">{t('app.challenges.special')}</h2>
                 </div>
                 <div className="space-y-3">
                   {specialChallenges.map((c) => (
@@ -156,8 +158,8 @@ export const AppChallenges: React.FC = () => {
             {dailyChallenges.length === 0 && weeklyChallenges.length === 0 && specialChallenges.length === 0 && (
               <div className="text-center py-12">
                 <Target className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-foreground mb-2">No Challenges Available</h3>
-                <p className="text-sm text-muted-foreground">Check back later for new challenges!</p>
+                <h3 className="text-lg font-semibold text-foreground mb-2">{t('app.challenges.noChallenges')}</h3>
+                <p className="text-sm text-muted-foreground">{t('app.challenges.checkBackLater')}</p>
               </div>
             )}
           </>

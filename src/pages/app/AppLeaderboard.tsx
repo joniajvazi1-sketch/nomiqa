@@ -3,10 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
 import { LeaderboardSection } from '@/components/app/LeaderboardSection';
 import { useHaptics } from '@/hooks/useHaptics';
+import { useTranslation } from '@/contexts/TranslationContext';
 
 export const AppLeaderboard: React.FC = () => {
   const navigate = useNavigate();
   const { lightTap } = useHaptics();
+  const { t } = useTranslation();
 
   return (
     <div className="min-h-screen bg-background">
@@ -19,7 +21,7 @@ export const AppLeaderboard: React.FC = () => {
           >
             <ChevronLeft className="w-5 h-5 text-foreground" />
           </button>
-          <h1 className="text-lg font-bold text-foreground">Leaderboard</h1>
+          <h1 className="text-lg font-bold text-foreground">{t('app.leaderboard')}</h1>
         </div>
       </header>
 
