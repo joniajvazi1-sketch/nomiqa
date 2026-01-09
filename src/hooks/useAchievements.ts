@@ -72,11 +72,13 @@ export const useAchievements = (): UseAchievementsReturn => {
         .eq('user_id', user.id)
         .maybeSingle();
 
-      // Fetch sessions count and data points
+      // Fetch sessions count and data points (bounded to avoid slow loads)
       const { data: sessionsData } = await supabase
         .from('contribution_sessions')
         .select('id, data_points_count')
-        .eq('user_id', user.id);
+        .eq('user_id', user.id)
+        .order('started_at', { ascending: false })
+        .limit(500);
 
       // Fetch referrals count
       const { data: affiliateData } = await supabase

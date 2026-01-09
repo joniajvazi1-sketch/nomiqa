@@ -91,14 +91,15 @@ export const AnalyticsDashboard: React.FC = () => {
       
       setSessions(sessionsData || []);
 
-      // Load signal logs for trends (last 30 days)
+      // Load signal logs for trends (last 30 days) - bounded for performance
       const thirtyDaysAgo = subDays(new Date(), 30).toISOString();
       const { data: signalData } = await supabase
         .from('signal_logs')
         .select('id, recorded_at, rsrp, rssi, network_type, speed_test_down, speed_test_up, latency_ms')
         .eq('user_id', user.id)
         .gte('recorded_at', thirtyDaysAgo)
-        .order('recorded_at', { ascending: true });
+        .order('recorded_at', { ascending: true })
+        .limit(2000);
 
       // Process data for charts
       if (signalData && signalData.length > 0) {

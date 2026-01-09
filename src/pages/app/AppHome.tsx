@@ -104,11 +104,13 @@ export const AppHome: React.FC = () => {
             setPoints(pointsData);
           }
 
-          // Get total data points count from contribution sessions
+          // Get recent session data (bounded) for chart + summary
           const { data: sessionsData } = await supabase
             .from('contribution_sessions')
             .select('data_points_count, started_at, total_points_earned')
-            .eq('user_id', currentUser.id);
+            .eq('user_id', currentUser.id)
+            .order('started_at', { ascending: false })
+            .limit(500);
 
           if (sessionsData) {
             const totalDataPoints = sessionsData.reduce((sum, s) => sum + (s.data_points_count || 0), 0);
@@ -548,7 +550,7 @@ export const AppHome: React.FC = () => {
                   </div>
                   <p className="text-xs text-muted-foreground">
                     {dataPointsCount > 0 
-                      ? `${dataPointsCount.toLocaleString()} data points collected`
+                      ? `${dataPointsCount.toLocaleString()} recent data points collected`
                       : 'Start contributing to see your coverage'
                     }
                   </p>
