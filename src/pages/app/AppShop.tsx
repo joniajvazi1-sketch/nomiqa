@@ -17,17 +17,20 @@ import {
   Smartphone,
   Plus,
   Signal,
-  Flame
+  Flame,
+  CheckCircle2,
+  XCircle,
+  AlertCircle
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useProducts, Product } from '@/hooks/useProducts';
 import { useCart } from '@/hooks/useCart';
 import { useHaptics } from '@/hooks/useHaptics';
+import { useDeviceCompatibility } from '@/hooks/useDeviceCompatibility';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { SkeletonProductCard } from '@/components/app/SkeletonProductCard';
-import { CompatibilityChecker } from '@/components/CompatibilityChecker';
 import {
   Dialog,
   DialogContent,
@@ -59,6 +62,7 @@ export const AppShop: React.FC = () => {
   const { data: products, isLoading } = useProducts();
   const { items, addItem } = useCart();
   const { lightTap, success, error: hapticError } = useHaptics();
+  const { isCompatible, platform, isLoading: compatLoading } = useDeviceCompatibility();
   
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<CoverageTab>('local');
@@ -66,7 +70,6 @@ export const AppShop: React.FC = () => {
   const [displayCount, setDisplayCount] = useState(12);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [detailModalOpen, setDetailModalOpen] = useState(false);
-  const [compatibilityOpen, setCompatibilityOpen] = useState(false);
   const [addingProductId, setAddingProductId] = useState<string | null>(null);
   const [cartShaking, setCartShaking] = useState(false);
   const cartButtonRef = useRef<HTMLButtonElement>(null);
@@ -477,9 +480,12 @@ export const AppShop: React.FC = () => {
           </div>
         )}
 
-        {/* Enhanced Plan Selection Modal */}
+        {/* Enhanced Plan Selection Modal - Popup Animation */}
         <Dialog open={detailModalOpen} onOpenChange={setDetailModalOpen}>
-          <DialogContent className="w-[calc(100%-2rem)] max-w-[380px] rounded-3xl border-white/10 bg-background/98 backdrop-blur-2xl p-0 overflow-hidden max-h-[85vh] overflow-y-auto animate-modal-bounce">
+          <DialogContent 
+            variant="popup"
+            className="w-[calc(100%-2rem)] max-w-[380px] rounded-3xl border border-white/[0.08] bg-background/98 backdrop-blur-2xl p-0 overflow-hidden max-h-[85vh] overflow-y-auto"
+          >
             {selectedProduct && (
               <>
                 {/* Header with large flag */}
@@ -487,14 +493,14 @@ export const AppShop: React.FC = () => {
                   <div className="absolute inset-0 bg-gradient-to-b from-primary/15 via-primary/5 to-transparent" />
                   <DialogHeader className="relative">
                     <div className="flex items-start gap-4">
-                      <div className="relative shrink-0 animate-scale-in">
+                      <div className="relative shrink-0">
                         {getCountryFlag(selectedProduct, 'lg')}
                       </div>
                       <div className="flex-1 min-w-0 pt-1">
-                        <DialogTitle className="text-xl font-bold leading-tight animate-fade-in">
+                        <DialogTitle className="text-xl font-bold leading-tight">
                           {selectedProduct.country_name}
                         </DialogTitle>
-                        <p className="text-sm text-muted-foreground mt-1 animate-fade-in" style={{ animationDelay: '50ms' }}>
+                        <p className="text-sm text-muted-foreground mt-1">
                           {selectedProduct.package_type === 'regional' ? 'Regional Coverage' : 
                            selectedProduct.country_code === 'WORLD' ? 'Worldwide Coverage' : 'Local Coverage'}
                         </p>
@@ -505,15 +511,55 @@ export const AppShop: React.FC = () => {
                 
                 <div className="px-5 pb-5 space-y-4">
                   {/* Price Hero */}
-                  <div className="text-center py-4 rounded-2xl bg-gradient-to-br from-primary/15 to-primary/5 border border-primary/20 animate-scale-in" style={{ animationDelay: '100ms' }}>
+                  <div className="text-center py-4 rounded-2xl bg-gradient-to-br from-primary/15 to-primary/5 border border-primary/20">
                     <div className="text-3xl font-bold text-foreground tracking-tight tabular-nums">
                       ${selectedProduct.price_usd.toFixed(2)}
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">One-time payment • Instant delivery</p>
                   </div>
 
+                  {/* Device Compatibility - Auto-detected */}
+                  <div className="rounded-2xl overflow-hidden">
+                    {compatLoading ? (
+                      <div className="flex items-center gap-3 p-4 bg-white/[0.03] border border-white/[0.08]">
+                        <div className="w-5 h-5 border-2 border-white/30 border-t-primary rounded-full animate-spin" />
+                        <span className="text-sm text-muted-foreground">Checking device...</span>
+                      </div>
+                    ) : isCompatible === true ? (
+                      <div className="flex items-center gap-3 p-4 bg-green-500/10 border border-green-500/20">
+                        <div className="p-2 rounded-lg bg-green-500/20">
+                          <CheckCircle2 className="w-5 h-5 text-green-400" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-green-400">Device Compatible</p>
+                          <p className="text-xs text-muted-foreground">{platform} • Ready for eSIM</p>
+                        </div>
+                      </div>
+                    ) : isCompatible === false ? (
+                      <div className="flex items-center gap-3 p-4 bg-red-500/10 border border-red-500/20">
+                        <div className="p-2 rounded-lg bg-red-500/20">
+                          <XCircle className="w-5 h-5 text-red-400" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-red-400">May Not Be Compatible</p>
+                          <p className="text-xs text-muted-foreground">{platform} • Update device or use QR</p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-3 p-4 bg-primary/10 border border-primary/20">
+                        <div className="p-2 rounded-lg bg-primary/20">
+                          <AlertCircle className="w-5 h-5 text-primary" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-primary">Check on Your Phone</p>
+                          <p className="text-xs text-muted-foreground">Install via QR on supported device</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
                   {/* Data & Validity Cards */}
-                  <div className="grid grid-cols-2 gap-3 animate-fade-in" style={{ animationDelay: '150ms' }}>
+                  <div className="grid grid-cols-2 gap-3">
                     <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.08]">
                       <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
                         <Wifi className="w-4 h-4 text-primary" />
@@ -532,7 +578,7 @@ export const AppShop: React.FC = () => {
 
                   {/* Operator */}
                   {selectedProduct.operator_image_url && (
-                    <div className="p-3 rounded-2xl bg-white/[0.03] border border-white/[0.08] flex items-center gap-3 animate-fade-in" style={{ animationDelay: '200ms' }}>
+                    <div className="p-3 rounded-2xl bg-white/[0.03] border border-white/[0.08] flex items-center gap-3">
                       <img 
                         src={selectedProduct.operator_image_url} 
                         alt={selectedProduct.operator_name || 'Operator'} 
@@ -548,55 +594,34 @@ export const AppShop: React.FC = () => {
                     </div>
                   )}
 
-                  {/* Device Compatibility */}
-                  <Button 
-                    onClick={() => setCompatibilityOpen(true)}
-                    variant="outline"
-                    className="w-full h-12 rounded-2xl bg-primary/10 border-primary/30 text-primary hover:bg-primary/20 text-sm font-medium animate-fade-in"
-                    style={{ animationDelay: '250ms' }}
-                  >
-                    <Smartphone className="mr-2 h-5 w-5" />
-                    Check Device Compatibility
-                  </Button>
-
                   {/* Plan Features */}
-                  <div className="space-y-2 animate-fade-in" style={{ animationDelay: '300ms' }}>
-                    <h3 className="text-sm font-medium text-foreground mb-3">Plan Features</h3>
-                    
+                  <div className="space-y-2">
                     {selectedProduct.features?.coverage && (
-                      <div className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/[0.08]">
+                      <div className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/[0.05]">
                         <Globe className="h-4 w-4 text-primary shrink-0" />
-                        <p className="text-sm text-muted-foreground">{selectedProduct.features.coverage}</p>
+                        <p className="text-xs text-muted-foreground truncate">{selectedProduct.features.coverage}</p>
                       </div>
                     )}
 
                     {selectedProduct.features?.speed && (
-                      <div className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/[0.08]">
+                      <div className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/[0.05]">
                         <Zap className="h-4 w-4 text-primary shrink-0" />
-                        <p className="text-sm text-muted-foreground">{selectedProduct.features.speed}</p>
+                        <p className="text-xs text-muted-foreground truncate">{selectedProduct.features.speed}</p>
                       </div>
                     )}
 
-                    {selectedProduct.features?.activation && (
-                      <div className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/[0.08]">
-                        <Clock className="h-4 w-4 text-primary shrink-0" />
-                        <p className="text-sm text-muted-foreground">{selectedProduct.features.activation}</p>
-                      </div>
-                    )}
-
-                    <div className="flex items-center gap-3 p-3 rounded-xl bg-green-500/10 border border-green-500/20">
+                    <div className="flex items-center gap-3 p-3 rounded-xl bg-green-500/5 border border-green-500/15">
                       <Shield className="h-4 w-4 text-green-400 shrink-0" />
-                      <p className="text-sm text-green-400">Privacy Protected • No KYC Required</p>
+                      <p className="text-xs text-green-400/80">Privacy Protected • No KYC</p>
                     </div>
                   </div>
                   
                   {/* Add to Cart Button */}
                   <Button 
                     className={cn(
-                      'w-full h-14 rounded-2xl bg-gradient-to-r from-primary to-primary/80 shadow-lg shadow-primary/30 text-base font-semibold group transition-all animate-fade-in',
+                      'w-full h-14 rounded-2xl bg-gradient-to-r from-primary to-primary/80 shadow-lg shadow-primary/30 text-base font-semibold group transition-all active:scale-[0.98]',
                       addingProductId === selectedProduct.id && 'animate-bounce'
                     )}
-                    style={{ animationDelay: '350ms' }}
                     disabled={addingProductId === selectedProduct.id}
                     onClick={() => {
                       handleAddToCart(selectedProduct);
@@ -605,7 +630,7 @@ export const AppShop: React.FC = () => {
                   >
                     {addingProductId === selectedProduct.id ? (
                       <>
-                        <Check className="w-5 h-5 mr-2 animate-scale-in" />
+                        <Check className="w-5 h-5 mr-2" />
                         Added to Cart!
                       </>
                     ) : (
@@ -621,12 +646,6 @@ export const AppShop: React.FC = () => {
             )}
           </DialogContent>
         </Dialog>
-
-        {/* Compatibility Checker */}
-        <CompatibilityChecker 
-          open={compatibilityOpen} 
-          onOpenChange={setCompatibilityOpen} 
-        />
       </div>
 
       {/* Animations */}
