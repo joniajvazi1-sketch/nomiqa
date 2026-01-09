@@ -506,12 +506,6 @@ export const AppProfile: React.FC = () => {
         <div className="flex-1">
           <h1 className="text-xl font-bold text-foreground">{profile?.username || 'User'}</h1>
           <p className="text-sm text-muted-foreground">{profile?.email}</p>
-          <div className="flex items-center gap-2 mt-1">
-            <Badge variant="outline" className={cn('text-xs capitalize', tierConfig.color)}>
-              <TierIcon className="w-3 h-3 mr-1" />
-              {membership?.membership_tier || 'Beginner'}
-            </Badge>
-          </div>
         </div>
         <Button variant="ghost" size="icon" onClick={handleLogout} className="active:scale-95 transition-transform">
           <LogOut className="w-5 h-5" />
