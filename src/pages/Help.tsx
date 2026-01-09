@@ -2,6 +2,7 @@ import { FAQ } from "@/components/FAQ";
 import { SiteNavigation } from "@/components/SiteNavigation";
 import { SupportChatbot } from "@/components/SupportChatbot";
 import { NetworkBackground } from "@/components/NetworkBackground";
+import { SEO } from "@/components/SEO";
 import { MessageCircle, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/contexts/TranslationContext";
@@ -19,6 +20,7 @@ const Help = () => {
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-black/40 via-deep-space/60 to-black/40 relative">
+      <SEO page="help" />
       <NetworkBackground />
       
       <div className="fixed inset-0 -z-10 overflow-hidden opacity-20">

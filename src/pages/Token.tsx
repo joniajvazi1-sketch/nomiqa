@@ -1,14 +1,21 @@
 import { SiteNavigation } from "@/components/SiteNavigation";
 import { SupportChatbot } from "@/components/SupportChatbot";
-import { Rocket, Users, Globe, Shield, TrendingUp, ArrowRight, Sparkles } from "lucide-react";
+import { SEO } from "@/components/SEO";
+import { Rocket, Users, Globe, Shield, TrendingUp, ArrowRight, Sparkles, Mail, CheckCircle, Loader2 } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import { useTranslation } from "@/contexts/TranslationContext";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const Token = () => {
   const { t } = useTranslation();
   const [isVisible, setIsVisible] = useState(false);
+  const [email, setEmail] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubscribed, setIsSubscribed] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -27,6 +34,41 @@ const Token = () => {
 
     return () => observer.disconnect();
   }, []);
+
+  const handleWaitlistSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!email || !email.includes("@")) {
+      toast.error(t("tokenInvalidEmail"));
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const { error } = await supabase
+        .from("token_waitlist")
+        .insert({ email, source: "token_page" });
+
+      if (error) {
+        if (error.code === "23505") {
+          // Unique constraint violation - already subscribed
+          toast.info(t("tokenAlreadySubscribed"));
+          setIsSubscribed(true);
+        } else {
+          throw error;
+        }
+      } else {
+        setIsSubscribed(true);
+        toast.success(t("tokenWaitlistSuccess"));
+      }
+    } catch (error) {
+      console.error("Waitlist error:", error);
+      toast.error(t("tokenWaitlistError"));
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const utilities = [
     {
@@ -53,6 +95,8 @@ const Token = () => {
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
+      <SEO page="token" />
+      
       {/* Subtle gradient background */}
       <div className="fixed inset-0 -z-10">
         <div className="absolute inset-0 bg-gradient-to-b from-background via-background to-background" />
@@ -87,8 +131,52 @@ const Token = () => {
               {t("tokenSubtitle")}
             </p>
 
+            {/* Email Waitlist Form */}
+            <div className="max-w-md mx-auto pt-4">
+              {!isSubscribed ? (
+                <form onSubmit={handleWaitlistSubmit} className="flex flex-col sm:flex-row gap-3">
+                  <div className="relative flex-1">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    <Input
+                      type="email"
+                      placeholder={t("tokenEmailPlaceholder")}
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="pl-10 h-12 bg-white/[0.03] backdrop-blur-xl border-white/10 focus:border-primary/50 rounded-xl"
+                      disabled={isSubmitting}
+                    />
+                  </div>
+                  <Button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="h-12 px-6 gap-2"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        {t("tokenSubmitting")}
+                      </>
+                    ) : (
+                      <>
+                        {t("tokenNotifyMe")}
+                        <ArrowRight className="w-4 h-4" />
+                      </>
+                    )}
+                  </Button>
+                </form>
+              ) : (
+                <div className="flex items-center justify-center gap-2 p-4 rounded-xl bg-primary/10 border border-primary/20">
+                  <CheckCircle className="w-5 h-5 text-primary" />
+                  <span className="text-primary font-medium">{t("tokenSubscribed")}</span>
+                </div>
+              )}
+              <p className="text-xs text-muted-foreground/60 mt-3">
+                {t("tokenWaitlistNote")}
+              </p>
+            </div>
+
             {/* Subtle glow effect */}
-            <div className="py-8 md:py-12">
+            <div className="py-4 md:py-8">
               <div className="w-24 h-1 mx-auto bg-gradient-to-r from-transparent via-primary/50 to-transparent rounded-full" />
             </div>
             

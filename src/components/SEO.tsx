@@ -2,7 +2,7 @@ import { Helmet } from "react-helmet-async";
 import { useTranslation, Language } from "@/contexts/TranslationContext";
 
 interface SEOProps {
-  page?: "home" | "shop" | "about" | "privacy" | "affiliate" | "gettingStarted" | "terms";
+  page?: "home" | "shop" | "about" | "privacy" | "affiliate" | "gettingStarted" | "terms" | "token" | "help" | "rewards";
 }
 
 const seoData: Record<string, Record<Language, { title: string; description: string }>> = {
@@ -298,6 +298,132 @@ const seoData: Record<string, Record<Language, { title: string; description: str
     AR: {
       title: "الشروط والأحكام - المعلومات القانونية | Nomiqa",
       description: "اقرأ الشروط والأحكام وسياسة الخصوصية والمعلومات القانونية لـ Nomiqa. فهم سياسات خدمة eSIM وحماية البيانات واتفاقيات المستخدم."
+    }
+  },
+  token: {
+    EN: {
+      title: "$NOMIQA Token - Earn Rewards & Get Discounts | Coming Soon",
+      description: "Join the $NOMIQA token waitlist. Earn rewards for network contributions, get discounts on eSIM purchases, and participate in governance. Launching on Solana."
+    },
+    DE: {
+      title: "$NOMIQA Token - Belohnungen verdienen & Rabatte erhalten | Bald verfügbar",
+      description: "Tritt der $NOMIQA Token-Warteliste bei. Verdiene Belohnungen für Netzwerkbeiträge, erhalte Rabatte auf eSIM-Käufe und nimm an der Governance teil. Launch auf Solana."
+    },
+    FR: {
+      title: "Jeton $NOMIQA - Gagnez des récompenses & des réductions | Bientôt disponible",
+      description: "Rejoignez la liste d'attente du jeton $NOMIQA. Gagnez des récompenses pour vos contributions au réseau, obtenez des réductions sur les achats eSIM et participez à la gouvernance. Lancement sur Solana."
+    },
+    ES: {
+      title: "Token $NOMIQA - Gana recompensas y descuentos | Próximamente",
+      description: "Únete a la lista de espera del token $NOMIQA. Gana recompensas por contribuciones a la red, obtén descuentos en compras de eSIM y participa en la gobernanza. Lanzamiento en Solana."
+    },
+    IT: {
+      title: "Token $NOMIQA - Guadagna premi e sconti | Prossimamente",
+      description: "Unisciti alla lista d'attesa del token $NOMIQA. Guadagna premi per i contributi alla rete, ottieni sconti sugli acquisti eSIM e partecipa alla governance. Lancio su Solana."
+    },
+    PT: {
+      title: "Token $NOMIQA - Ganhe recompensas e descontos | Em breve",
+      description: "Junte-se à lista de espera do token $NOMIQA. Ganhe recompensas por contribuições à rede, obtenha descontos em compras de eSIM e participe da governança. Lançamento na Solana."
+    },
+    JA: {
+      title: "$NOMIQAトークン - 報酬を獲得 & 割引を受ける | 近日公開",
+      description: "$NOMIQAトークンのウェイトリストに参加。ネットワーク貢献で報酬を獲得、eSIM購入で割引、ガバナンスに参加。Solanaでローンチ。"
+    },
+    ZH: {
+      title: "$NOMIQA代币 - 赚取奖励和折扣 | 即将推出",
+      description: "加入$NOMIQA代币候补名单。为网络贡献赚取奖励，在eSIM购买时获得折扣，并参与治理。在Solana上发布。"
+    },
+    RU: {
+      title: "Токен $NOMIQA - Зарабатывайте награды и скидки | Скоро",
+      description: "Присоединяйтесь к списку ожидания токена $NOMIQA. Зарабатывайте награды за вклад в сеть, получайте скидки на покупки eSIM и участвуйте в управлении. Запуск на Solana."
+    },
+    AR: {
+      title: "رمز $NOMIQA - اربح مكافآت واحصل على خصومات | قريبًا",
+      description: "انضم إلى قائمة انتظار رمز $NOMIQA. اربح مكافآت مقابل المساهمات في الشبكة، واحصل على خصومات على مشتريات eSIM، وشارك في الحوكمة. الإطلاق على Solana."
+    }
+  },
+  help: {
+    EN: {
+      title: "Help Center & Support - FAQ | Nomiqa",
+      description: "Get help with your Nomiqa eSIM. Find answers in our FAQ, chat with our AI assistant, or contact support. We're here 24/7 to help you stay connected."
+    },
+    DE: {
+      title: "Hilfe-Center & Support - FAQ | Nomiqa",
+      description: "Erhalte Hilfe zu deiner Nomiqa eSIM. Finde Antworten in unseren FAQ, chatte mit unserem KI-Assistenten oder kontaktiere den Support. Wir sind 24/7 für dich da."
+    },
+    FR: {
+      title: "Centre d'aide & Support - FAQ | Nomiqa",
+      description: "Obtenez de l'aide pour votre eSIM Nomiqa. Trouvez des réponses dans notre FAQ, discutez avec notre assistant IA ou contactez le support. Nous sommes là 24/7."
+    },
+    ES: {
+      title: "Centro de Ayuda y Soporte - FAQ | Nomiqa",
+      description: "Obtén ayuda con tu eSIM Nomiqa. Encuentra respuestas en nuestras FAQ, chatea con nuestro asistente IA o contacta soporte. Estamos aquí 24/7."
+    },
+    IT: {
+      title: "Centro Assistenza & Supporto - FAQ | Nomiqa",
+      description: "Ottieni aiuto con la tua eSIM Nomiqa. Trova risposte nelle nostre FAQ, chatta con il nostro assistente IA o contatta il supporto. Siamo qui 24/7."
+    },
+    PT: {
+      title: "Central de Ajuda & Suporte - FAQ | Nomiqa",
+      description: "Obtenha ajuda com seu eSIM Nomiqa. Encontre respostas em nosso FAQ, converse com nosso assistente IA ou entre em contato com o suporte. Estamos aqui 24/7."
+    },
+    JA: {
+      title: "ヘルプセンター & サポート - FAQ | Nomiqa",
+      description: "Nomiqa eSIMのヘルプを取得。FAQで回答を見つける、AIアシスタントとチャット、またはサポートに連絡。24時間年中無休でサポート。"
+    },
+    ZH: {
+      title: "帮助中心与支持 - 常见问题 | Nomiqa",
+      description: "获取Nomiqa eSIM帮助。在常见问题中查找答案，与我们的AI助手聊天，或联系支持。我们24/7全天候为您服务。"
+    },
+    RU: {
+      title: "Центр помощи и Поддержка - FAQ | Nomiqa",
+      description: "Получите помощь по вашей Nomiqa eSIM. Найдите ответы в FAQ, общайтесь с нашим ИИ-ассистентом или свяжитесь с поддержкой. Мы здесь 24/7."
+    },
+    AR: {
+      title: "مركز المساعدة والدعم - الأسئلة الشائعة | Nomiqa",
+      description: "احصل على مساعدة مع eSIM الخاص بك من Nomiqa. اعثر على إجابات في الأسئلة الشائعة، تحدث مع مساعدنا الذكي، أو اتصل بالدعم. نحن هنا على مدار الساعة."
+    }
+  },
+  rewards: {
+    EN: {
+      title: "Loyalty Rewards Program - Earn Crypto Cashback | Nomiqa",
+      description: "Earn up to 10% cashback in crypto on every eSIM purchase. Climb loyalty tiers from Bronze to Platinum and unlock exclusive rewards with Nomiqa."
+    },
+    DE: {
+      title: "Treueprogramm - Krypto-Cashback verdienen | Nomiqa",
+      description: "Verdiene bis zu 10% Cashback in Krypto bei jedem eSIM-Kauf. Steige von Bronze zu Platin auf und schalte exklusive Belohnungen mit Nomiqa frei."
+    },
+    FR: {
+      title: "Programme de fidélité - Gagnez du cashback crypto | Nomiqa",
+      description: "Gagnez jusqu'à 10% de cashback en crypto sur chaque achat eSIM. Montez les niveaux de fidélité de Bronze à Platine et débloquez des récompenses exclusives."
+    },
+    ES: {
+      title: "Programa de Recompensas - Gana cashback crypto | Nomiqa",
+      description: "Gana hasta 10% de cashback en crypto en cada compra de eSIM. Sube de nivel desde Bronce hasta Platino y desbloquea recompensas exclusivas con Nomiqa."
+    },
+    IT: {
+      title: "Programma Fedeltà - Guadagna cashback crypto | Nomiqa",
+      description: "Guadagna fino al 10% di cashback in crypto su ogni acquisto eSIM. Sali i livelli fedeltà da Bronzo a Platino e sblocca premi esclusivi con Nomiqa."
+    },
+    PT: {
+      title: "Programa de Recompensas - Ganhe cashback crypto | Nomiqa",
+      description: "Ganhe até 10% de cashback em crypto em cada compra de eSIM. Suba os níveis de fidelidade de Bronze para Platina e desbloqueie recompensas exclusivas."
+    },
+    JA: {
+      title: "ロイヤルティ報酬プログラム - 暗号キャッシュバックを獲得 | Nomiqa",
+      description: "eSIM購入ごとに最大10%の暗号キャッシュバックを獲得。ブロンズからプラチナまでロイヤルティティアを上げて、Nomiqaで限定報酬をアンロック。"
+    },
+    ZH: {
+      title: "忠诚度奖励计划 - 赚取加密货币返现 | Nomiqa",
+      description: "每次购买eSIM可获得高达10%的加密货币返现。从青铜到白金提升忠诚度等级，解锁Nomiqa的独家奖励。"
+    },
+    RU: {
+      title: "Программа лояльности - Зарабатывайте крипто-кешбэк | Nomiqa",
+      description: "Зарабатывайте до 10% кешбэка в крипте с каждой покупки eSIM. Поднимайтесь по уровням лояльности от Бронзы до Платины и получайте эксклюзивные награды."
+    },
+    AR: {
+      title: "برنامج مكافآت الولاء - اربح استرداد نقدي بالعملات المشفرة | Nomiqa",
+      description: "اربح ما يصل إلى 10% استرداد نقدي بالعملات المشفرة على كل عملية شراء eSIM. ارتقِ في مستويات الولاء من البرونزية إلى البلاتينية واحصل على مكافآت حصرية."
     }
   }
 };

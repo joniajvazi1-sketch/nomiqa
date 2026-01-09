@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { SiteNavigation } from "@/components/SiteNavigation";
 import { SupportChatbot } from "@/components/SupportChatbot";
 import { NetworkBackground } from "@/components/NetworkBackground";
+import { SEO } from "@/components/SEO";
 import { Plane, Compass, Mountain, Rocket, Wallet, Sparkles, Zap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "@/contexts/TranslationContext";
@@ -64,6 +65,7 @@ export default function Rewards() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-black via-deep-space to-black relative overflow-hidden">
+      <SEO page="rewards" />
       <NetworkBackground color="rgb(251, 146, 60)" />
       
       <div className="fixed inset-0 -z-10 overflow-hidden opacity-20">
