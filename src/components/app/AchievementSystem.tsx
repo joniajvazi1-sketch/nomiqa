@@ -13,10 +13,18 @@ import {
   Gift,
   Clock,
   TrendingUp,
-  Award
+  Award,
+  Lock,
+  CheckCircle2,
+  X
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useHaptics } from '@/hooks/useHaptics';
+import {
+  Drawer,
+  DrawerContent,
+  DrawerClose,
+} from '@/components/ui/drawer';
 
 export interface Achievement {
   id: string;
@@ -36,6 +44,7 @@ interface AchievementBadgeProps {
   size?: 'sm' | 'md' | 'lg';
   showProgress?: boolean;
   onClick?: () => void;
+  showDetailsOnTap?: boolean;
 }
 
 interface StreakBonusProps {
@@ -77,6 +86,140 @@ const tierStyles = {
   }
 };
 
+const tierLabels = {
+  bronze: 'Bronze',
+  silver: 'Silver',
+  gold: 'Gold',
+  platinum: 'Platinum'
+};
+
+const categoryLabels = {
+  contribution: 'Contribution',
+  streak: 'Streak',
+  referral: 'Referral',
+  milestone: 'Milestone',
+  special: 'Special'
+};
+
+/**
+ * Achievement Details Drawer
+ */
+const AchievementDetailsDrawer: React.FC<{
+  achievement: Achievement | null;
+  open: boolean;
+  onClose: () => void;
+}> = ({ achievement, open, onClose }) => {
+  if (!achievement) return null;
+  
+  const tier = tierStyles[achievement.tier];
+  const progressPercent = Math.round(achievement.progress);
+  
+  return (
+    <Drawer open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
+      <DrawerContent className="bg-background border-t border-white/[0.08] max-h-[85vh]">
+        <div className="mx-auto w-full max-w-md">
+          {/* Close button */}
+          <DrawerClose className="absolute right-4 top-4 p-2 rounded-full bg-white/[0.05] hover:bg-white/[0.1] transition-colors">
+            <X className="w-4 h-4 text-muted-foreground" />
+          </DrawerClose>
+          
+          <div className="p-6 pt-8">
+            {/* Badge icon */}
+            <div className="flex justify-center mb-4">
+              <div className={cn(
+                'relative w-24 h-24 rounded-full flex items-center justify-center',
+                'bg-gradient-to-br border-2 backdrop-blur-xl',
+                tier.bg,
+                tier.border,
+                achievement.unlocked && `shadow-xl ${tier.glow}`,
+                !achievement.unlocked && 'opacity-60 grayscale'
+              )}>
+                <div className={cn(tier.text, 'w-12 h-12')}>
+                  {achievement.icon}
+                </div>
+                
+                {/* Status indicator */}
+                {achievement.unlocked ? (
+                  <div className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-green-500 flex items-center justify-center border-2 border-background">
+                    <CheckCircle2 className="w-5 h-5 text-white" />
+                  </div>
+                ) : (
+                  <div className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-white/10 flex items-center justify-center border-2 border-background">
+                    <Lock className="w-4 h-4 text-muted-foreground" />
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            {/* Title & tier */}
+            <div className="text-center mb-4">
+              <h3 className={cn('text-xl font-bold mb-1', tier.text)}>
+                {achievement.title}
+              </h3>
+              <div className="flex items-center justify-center gap-2">
+                <span className={cn(
+                  'text-xs font-medium px-2 py-0.5 rounded-full',
+                  tier.bg, tier.border, tier.text, 'border'
+                )}>
+                  {tierLabels[achievement.tier]}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  {categoryLabels[achievement.category]}
+                </span>
+              </div>
+            </div>
+            
+            {/* Description */}
+            <p className="text-center text-muted-foreground mb-6">
+              {achievement.description}
+            </p>
+            
+            {/* Progress section */}
+            <div className="rounded-xl bg-white/[0.03] border border-white/[0.08] p-4 mb-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm text-muted-foreground">Progress</span>
+                <span className={cn(
+                  'text-sm font-bold',
+                  achievement.unlocked ? 'text-green-400' : 'text-foreground'
+                )}>
+                  {achievement.unlocked ? 'Completed!' : `${progressPercent}%`}
+                </span>
+              </div>
+              
+              {/* Progress bar */}
+              <div className="h-3 rounded-full bg-white/[0.08] overflow-hidden">
+                <div 
+                  className={cn(
+                    'h-full rounded-full transition-all duration-500',
+                    achievement.unlocked 
+                      ? 'bg-gradient-to-r from-green-500 to-emerald-400' 
+                      : `bg-gradient-to-r ${tier.bg}`
+                  )}
+                  style={{ width: `${progressPercent}%` }}
+                />
+              </div>
+            </div>
+            
+            {/* Reward */}
+            <div className="flex items-center justify-center gap-3 py-4 rounded-xl bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20">
+              <Gift className="w-5 h-5 text-primary" />
+              <span className="text-sm text-muted-foreground">Reward:</span>
+              <span className="text-lg font-bold text-foreground">+{achievement.reward} pts</span>
+            </div>
+            
+            {/* Unlock date if unlocked */}
+            {achievement.unlocked && achievement.unlockedAt && (
+              <p className="text-center text-xs text-muted-foreground mt-4">
+                Unlocked on {achievement.unlockedAt.toLocaleDateString()}
+              </p>
+            )}
+          </div>
+        </div>
+      </DrawerContent>
+    </Drawer>
+  );
+};
+
 /**
  * Achievement Badge Component
  */
@@ -84,9 +227,11 @@ export const AchievementBadge: React.FC<AchievementBadgeProps> = ({
   achievement,
   size = 'md',
   showProgress = true,
-  onClick
+  onClick,
+  showDetailsOnTap = false
 }) => {
   const { lightTap } = useHaptics();
+  const [showDetails, setShowDetails] = useState(false);
   const tier = tierStyles[achievement.tier];
   
   const sizeClasses = {
@@ -101,71 +246,90 @@ export const AchievementBadge: React.FC<AchievementBadgeProps> = ({
     lg: 'w-9 h-9'
   };
 
+  const handleClick = () => {
+    lightTap();
+    if (showDetailsOnTap) {
+      setShowDetails(true);
+    }
+    onClick?.();
+  };
+
   return (
-    <button
-      onClick={() => { lightTap(); onClick?.(); }}
-      className={cn(
-        'relative flex flex-col items-center gap-2 p-2 rounded-xl transition-all',
-        'hover:scale-105 active:scale-95',
-        onClick && 'cursor-pointer'
-      )}
-    >
-      {/* Badge circle */}
-      <div className={cn(
-        'relative rounded-full flex items-center justify-center',
-        'bg-gradient-to-br border-2 backdrop-blur-xl',
-        sizeClasses[size],
-        tier.bg,
-        tier.border,
-        achievement.unlocked && `shadow-lg ${tier.glow}`,
-        !achievement.unlocked && 'opacity-40 grayscale'
-      )}>
-        {/* Icon */}
-        <div className={cn(tier.text, iconSizes[size])}>
-          {achievement.icon}
+    <>
+      <button
+        onClick={handleClick}
+        className={cn(
+          'relative flex flex-col items-center gap-2 p-2 rounded-xl transition-all',
+          'hover:scale-105 active:scale-95',
+          (onClick || showDetailsOnTap) && 'cursor-pointer'
+        )}
+      >
+        {/* Badge circle */}
+        <div className={cn(
+          'relative rounded-full flex items-center justify-center',
+          'bg-gradient-to-br border-2 backdrop-blur-xl',
+          sizeClasses[size],
+          tier.bg,
+          tier.border,
+          achievement.unlocked && `shadow-lg ${tier.glow}`,
+          !achievement.unlocked && 'opacity-40 grayscale'
+        )}>
+          {/* Icon */}
+          <div className={cn(tier.text, iconSizes[size])}>
+            {achievement.icon}
+          </div>
+          
+          {/* Progress ring for locked achievements */}
+          {!achievement.unlocked && showProgress && achievement.progress > 0 && (
+            <svg className="absolute inset-0 -rotate-90" viewBox="0 0 100 100">
+              <circle
+                cx="50"
+                cy="50"
+                r="46"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="4"
+                className="text-white/10"
+              />
+              <circle
+                cx="50"
+                cy="50"
+                r="46"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="4"
+                strokeDasharray={`${achievement.progress * 2.89} 289`}
+                className={tier.text}
+              />
+            </svg>
+          )}
+          
+          {/* Unlocked checkmark */}
+          {achievement.unlocked && (
+            <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-green-500 flex items-center justify-center border-2 border-background">
+              <Star className="w-3 h-3 text-white fill-white" />
+            </div>
+          )}
         </div>
         
-        {/* Progress ring for locked achievements */}
-        {!achievement.unlocked && showProgress && achievement.progress > 0 && (
-          <svg className="absolute inset-0 -rotate-90" viewBox="0 0 100 100">
-            <circle
-              cx="50"
-              cy="50"
-              r="46"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="4"
-              className="text-white/10"
-            />
-            <circle
-              cx="50"
-              cy="50"
-              r="46"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="4"
-              strokeDasharray={`${achievement.progress * 2.89} 289`}
-              className={tier.text}
-            />
-          </svg>
-        )}
-        
-        {/* Unlocked checkmark */}
-        {achievement.unlocked && (
-          <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-green-500 flex items-center justify-center border-2 border-background">
-            <Star className="w-3 h-3 text-white fill-white" />
-          </div>
-        )}
-      </div>
+        {/* Title */}
+        <span className={cn(
+          'text-[10px] font-medium text-center max-w-[60px] leading-tight',
+          achievement.unlocked ? 'text-foreground' : 'text-muted-foreground'
+        )}>
+          {achievement.title}
+        </span>
+      </button>
       
-      {/* Title */}
-      <span className={cn(
-        'text-[10px] font-medium text-center max-w-[60px] leading-tight',
-        achievement.unlocked ? 'text-foreground' : 'text-muted-foreground'
-      )}>
-        {achievement.title}
-      </span>
-    </button>
+      {/* Details drawer */}
+      {showDetailsOnTap && (
+        <AchievementDetailsDrawer 
+          achievement={achievement}
+          open={showDetails}
+          onClose={() => setShowDetails(false)}
+        />
+      )}
+    </>
   );
 };
 
