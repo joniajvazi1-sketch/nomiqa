@@ -115,6 +115,7 @@ export const AppAchievements: React.FC = () => {
                       achievement={achievement} 
                       size="md"
                       showProgress={!achievement.unlocked}
+                      showDetailsOnTap={true}
                     />
                     <span className="text-xs text-center text-foreground/80 mt-2 line-clamp-2">
                       {achievement.title}
