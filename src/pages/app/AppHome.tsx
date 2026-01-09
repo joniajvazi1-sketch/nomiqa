@@ -27,6 +27,8 @@ import { ChallengesSection } from '@/components/app/ChallengesSection';
 import { LeaderboardSection } from '@/components/app/LeaderboardSection';
 import { RewardCelebration } from '@/components/app/RewardCelebration';
 import { ShimmerButton } from '@/components/app/ShimmerButton';
+import { OnboardingFlow } from '@/components/app/OnboardingFlow';
+import { AnimatePresence } from 'framer-motion';
 
 interface DailyEarning {
   date: string;
@@ -61,6 +63,10 @@ export const AppHome: React.FC = () => {
   const { isSupported: notificationsSupported, permissionStatus } = usePushNotifications();
   
   const [showNotificationPrompt, setShowNotificationPrompt] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return localStorage.getItem('hasSeenOnboarding') !== 'true';
+  });
   
   const [user, setUser] = useState<any>(null);
   const [username, setUsername] = useState<string | null>(null);
@@ -229,8 +235,16 @@ export const AppHome: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
-      {/* Subtle animated background */}
+    <>
+      {/* Onboarding Flow for first-time users */}
+      <AnimatePresence>
+        {showOnboarding && (
+          <OnboardingFlow onComplete={() => setShowOnboarding(false)} />
+        )}
+      </AnimatePresence>
+
+      <div className="min-h-screen bg-background relative overflow-hidden">
+        {/* Subtle animated background */}
       <div className="fixed inset-0 pointer-events-none">
         <div 
           className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[500px] rounded-full opacity-15"
@@ -619,7 +633,8 @@ export const AppHome: React.FC = () => {
           scrollbar-width: none;
         }
       `}</style>
-    </div>
+      </div>
+    </>
   );
 };
 

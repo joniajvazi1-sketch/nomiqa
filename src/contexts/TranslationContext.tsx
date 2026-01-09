@@ -94,8 +94,33 @@ const translations: Record<string, Partial<Record<Language | 'HI', string>>> = {
   appRewardsToClaimCount: { EN: "rewards to claim", ES: "recompensas por reclamar", FR: "récompenses à réclamer", DE: "Belohnungen einlösbar", RU: "наград к получению", ZH: "待领取奖励", JA: "受け取れる報酬", PT: "recompensas para resgatar", AR: "مكافآت للمطالبة", IT: "premi da riscattare" },
   appCompleteToEarn: { EN: "Complete challenges to earn rewards", ES: "Completa desafíos para ganar recompensas", FR: "Complétez des défis pour gagner des récompenses", DE: "Schließe Herausforderungen ab, um Belohnungen zu erhalten", RU: "Выполняйте испытания, чтобы получить награды", ZH: "完成挑战以赚取奖励", JA: "チャレンジを完了して報酬を獲得", PT: "Complete desafios para ganhar recompensas", AR: "أكمل التحديات لكسب المكافآت", IT: "Completa sfide per guadagnare premi" },
   appDailyDone: { EN: "Daily Done", ES: "Diario hecho", FR: "Quotidien terminé", DE: "Täglich erledigt", RU: "Выполнено за день", ZH: "今日完成", JA: "本日完了", PT: "Diário feito", AR: "اليومي مكتمل", IT: "Giornaliero completato" },
+  appNoChallenges: { EN: "No Challenges Available", ES: "No hay desafíos disponibles", FR: "Aucun défi disponible", DE: "Keine Herausforderungen verfügbar", RU: "Нет доступных испытаний", ZH: "没有可用的挑战", JA: "利用可能なチャレンジがありません", PT: "Nenhum desafio disponível", AR: "لا توجد تحديات متاحة", IT: "Nessuna sfida disponibile" },
+  appCheckBackLater: { EN: "Check back later for new challenges!", ES: "¡Vuelve más tarde para nuevos desafíos!", FR: "Revenez plus tard pour de nouveaux défis!", DE: "Schauen Sie später für neue Herausforderungen vorbei!", RU: "Загляните позже за новыми испытаниями!", ZH: "稍后回来查看新挑战！", JA: "後で新しいチャレンジを確認してください！", PT: "Volte mais tarde para novos desafios!", AR: "تحقق لاحقاً من التحديات الجديدة!", IT: "Torna più tardi per nuove sfide!" },
+  appOf: { EN: "of", ES: "de", FR: "sur", DE: "von", RU: "из", ZH: "共", JA: "/", PT: "de", AR: "من", IT: "di" },
+  appSearchRegions: { EN: "Search regions...", ES: "Buscar regiones...", FR: "Rechercher des régions...", DE: "Regionen suchen...", RU: "Поиск регионов...", ZH: "搜索区域...", JA: "地域を検索...", PT: "Pesquisar regiões...", AR: "البحث عن المناطق...", IT: "Cerca regioni..." },
+  appSearchGlobal: { EN: "Search global plans...", ES: "Buscar planes globales...", FR: "Rechercher des forfaits mondiaux...", DE: "Globale Pläne suchen...", RU: "Поиск глобальных планов...", ZH: "搜索全球套餐...", JA: "グローバルプランを検索...", PT: "Pesquisar planos globais...", AR: "البحث عن الخطط العالمية...", IT: "Cerca piani globali..." },
+  appRegions: { EN: "regions", ES: "regiones", FR: "régions", DE: "Regionen", RU: "регионы", ZH: "区域", JA: "地域", PT: "regiões", AR: "مناطق", IT: "regioni" },
+  appPlans: { EN: "plans", ES: "planes", FR: "forfaits", DE: "Pläne", RU: "планы", ZH: "套餐", JA: "プラン", PT: "planos", AR: "خطط", IT: "piani" },
+  appClearFilter: { EN: "Clear filter", ES: "Limpiar filtro", FR: "Effacer le filtre", DE: "Filter löschen", RU: "Очистить фильтр", ZH: "清除筛选", JA: "フィルターをクリア", PT: "Limpar filtro", AR: "مسح الفلتر", IT: "Cancella filtro" },
+  appCellular: { EN: "Cellular", ES: "Celular", FR: "Cellulaire", DE: "Mobilfunk", RU: "Сотовая связь", ZH: "蜂窝网络", JA: "モバイル", PT: "Celular", AR: "شبكة خلوية", IT: "Cellulare" },
+  // ========== APP - Onboarding ==========
+  appOnboardingSkip: { EN: "Skip", ES: "Omitir", FR: "Passer", DE: "Überspringen", RU: "Пропустить", ZH: "跳过", JA: "スキップ", PT: "Pular", AR: "تخطي", IT: "Salta" },
+  appOnboardingNext: { EN: "Next", ES: "Siguiente", FR: "Suivant", DE: "Weiter", RU: "Далее", ZH: "下一步", JA: "次へ", PT: "Próximo", AR: "التالي", IT: "Avanti" },
+  appOnboardingGetStarted: { EN: "Get Started", ES: "Comenzar", FR: "Commencer", DE: "Los geht's", RU: "Начать", ZH: "开始", JA: "はじめる", PT: "Começar", AR: "ابدأ الآن", IT: "Inizia" },
+  appOnboardingWelcomeTitle: { EN: "Welcome to Nomiqa", ES: "Bienvenido a Nomiqa", FR: "Bienvenue sur Nomiqa", DE: "Willkommen bei Nomiqa", RU: "Добро пожаловать в Nomiqa", ZH: "欢迎使用Nomiqa", JA: "Nomiqaへようこそ", PT: "Bem-vindo ao Nomiqa", AR: "مرحباً بك في Nomiqa", IT: "Benvenuto su Nomiqa" },
+  appOnboardingWelcomeDesc: { EN: "Earn rewards while traveling. Get premium eSIMs and build the world's network together.", ES: "Gana recompensas mientras viajas. Obtén eSIMs premium y construye la red mundial juntos.", FR: "Gagnez des récompenses en voyageant. Obtenez des eSIMs premium et construisez le réseau mondial ensemble.", DE: "Verdiene Belohnungen auf Reisen. Erhalte Premium-eSIMs und baue gemeinsam das weltweite Netzwerk auf.", RU: "Зарабатывайте награды в путешествиях. Получите премиум eSIM и стройте мировую сеть вместе.", ZH: "旅行时赚取奖励。获取优质eSIM，一起构建全球网络。", JA: "旅行しながら報酬を獲得。プレミアムeSIMを入手し、世界のネットワークを一緒に構築しましょう。", PT: "Ganhe recompensas enquanto viaja. Obtenha eSIMs premium e construa a rede mundial juntos.", AR: "اكسب المكافآت أثناء السفر. احصل على eSIM مميزة وساهم في بناء الشبكة العالمية معًا.", IT: "Guadagna premi mentre viaggi. Ottieni eSIM premium e costruisci la rete mondiale insieme." },
+  appOnboardingEarnTitle: { EN: "Earn Points Anywhere", ES: "Gana Puntos en Cualquier Lugar", FR: "Gagnez des Points Partout", DE: "Überall Punkte Verdienen", RU: "Зарабатывайте Баллы Везде", ZH: "随处赚取积分", JA: "どこでもポイント獲得", PT: "Ganhe Pontos em Qualquer Lugar", AR: "اكسب النقاط في أي مكان", IT: "Guadagna Punti Ovunque" },
+  appOnboardingEarnDesc: { EN: "Scan cellular networks to contribute coverage data. The more you explore, the more you earn!", ES: "Escanea redes celulares para contribuir datos de cobertura. ¡Cuanto más explores, más ganarás!", FR: "Scannez les réseaux cellulaires pour contribuer aux données de couverture. Plus vous explorez, plus vous gagnez!", DE: "Scanne Mobilfunknetze, um Abdeckungsdaten beizusteuern. Je mehr du erkundest, desto mehr verdienst du!", RU: "Сканируйте сотовые сети, чтобы вносить данные о покрытии. Чем больше исследуете, тем больше зарабатываете!", ZH: "扫描蜂窝网络以贡献覆盖数据。探索越多，赚取越多！", JA: "携帯ネットワークをスキャンしてカバレッジデータに貢献。探索するほど稼げます！", PT: "Escaneie redes celulares para contribuir com dados de cobertura. Quanto mais você explorar, mais ganhará!", AR: "امسح شبكات الهاتف المحمول للمساهمة في بيانات التغطية. كلما استكشفت أكثر، كسبت أكثر!", IT: "Scansiona le reti cellulari per contribuire ai dati di copertura. Più esplori, più guadagni!" },
+  appOnboardingShopTitle: { EN: "Shop Premium eSIMs", ES: "Compra eSIMs Premium", FR: "Achetez des eSIMs Premium", DE: "Premium eSIMs Kaufen", RU: "Покупайте Премиум eSIM", ZH: "购买优质eSIM", JA: "プレミアムeSIMを購入", PT: "Compre eSIMs Premium", AR: "تسوق eSIM المميزة", IT: "Acquista eSIM Premium" },
+  appOnboardingShopDesc: { EN: "Get instant mobile data in 200+ countries. No contracts, no roaming fees. Just scan and go!", ES: "Obtén datos móviles instantáneos en más de 200 países. Sin contratos, sin cargos de roaming. ¡Solo escanea y listo!", FR: "Obtenez des données mobiles instantanées dans plus de 200 pays. Sans contrat, sans frais d'itinérance. Scannez et partez!", DE: "Erhalte sofortige mobile Daten in über 200 Ländern. Keine Verträge, keine Roaming-Gebühren. Einfach scannen und los!", RU: "Получите мгновенный мобильный интернет в 200+ странах. Без контрактов, без роуминга. Просто сканируйте и вперёд!", ZH: "在200多个国家即时获取移动数据。无合约，无漫游费。扫描即用！", JA: "200以上の国で即座にモバイルデータを取得。契約不要、ローミング料金なし。スキャンして出発！", PT: "Obtenha dados móveis instantâneos em mais de 200 países. Sem contratos, sem taxas de roaming. Basta escanear e ir!", AR: "احصل على بيانات الجوال الفورية في أكثر من 200 دولة. بدون عقود، بدون رسوم تجوال. فقط امسح وانطلق!", IT: "Ottieni dati mobili istantanei in oltre 200 paesi. Nessun contratto, nessun costo di roaming. Scansiona e vai!" },
+  appOnboardingRewardsTitle: { EN: "Unlock Rewards", ES: "Desbloquea Recompensas", FR: "Débloquez des Récompenses", DE: "Belohnungen Freischalten", RU: "Разблокируйте Награды", ZH: "解锁奖励", JA: "報酬をアンロック", PT: "Desbloqueie Recompensas", AR: "افتح المكافآت", IT: "Sblocca i Premi" },
+  appOnboardingRewardsDesc: { EN: "Complete challenges, invite friends, and climb the leaderboard. Turn your points into real value!", ES: "Completa desafíos, invita amigos y sube en la clasificación. ¡Convierte tus puntos en valor real!", FR: "Complétez des défis, invitez des amis et grimpez au classement. Transformez vos points en vraie valeur!", DE: "Schließe Herausforderungen ab, lade Freunde ein und klettere in der Rangliste. Verwandle deine Punkte in echten Wert!", RU: "Выполняйте задания, приглашайте друзей и поднимайтесь в рейтинге. Превращайте очки в реальную ценность!", ZH: "完成挑战，邀请好友，攀登排行榜。将积分转化为真正的价值！", JA: "チャレンジを完了し、友達を招待し、リーダーボードを上がろう。ポイントを本当の価値に変えましょう！", PT: "Complete desafios, convide amigos e suba no ranking. Transforme seus pontos em valor real!", AR: "أكمل التحديات، ادعُ الأصدقاء، وتسلق لوحة الصدارة. حوّل نقاطك إلى قيمة حقيقية!", IT: "Completa sfide, invita amici e scala la classifica. Trasforma i tuoi punti in valore reale!" },
+  // App Settings
+  appSettings: { EN: "App Settings", ES: "Configuración de la app", FR: "Paramètres de l'app", DE: "App-Einstellungen", RU: "Настройки приложения", ZH: "应用设置", JA: "アプリ設定", PT: "Configurações do app", AR: "إعدادات التطبيق", IT: "Impostazioni app" },
+  appReplayTutorial: { EN: "Replay Tutorial", ES: "Repetir tutorial", FR: "Rejouer le tutoriel", DE: "Tutorial wiederholen", RU: "Повторить обучение", ZH: "重播教程", JA: "チュートリアルを再生", PT: "Repetir tutorial", AR: "إعادة التشغيل التعليمي", IT: "Ripeti tutorial" },
+  appTutorialReset: { EN: "Tutorial reset", ES: "Tutorial reiniciado", FR: "Tutoriel réinitialisé", DE: "Tutorial zurückgesetzt", RU: "Обучение сброшено", ZH: "教程已重置", JA: "チュートリアルをリセットしました", PT: "Tutorial reiniciado", AR: "تم إعادة تعيين البرنامج التعليمي", IT: "Tutorial reimpostato" },
+  appTutorialResetDesc: { EN: "You'll see the onboarding next time you open the app", ES: "Verás la introducción la próxima vez que abras la app", FR: "Vous verrez l'introduction la prochaine fois que vous ouvrirez l'app", DE: "Du siehst das Onboarding beim nächsten Öffnen der App", RU: "Вы увидите обучение при следующем открытии приложения", ZH: "下次打开应用时将显示新手引导", JA: "次回アプリを開いたときにオンボーディングが表示されます", PT: "Você verá a introdução na próxima vez que abrir o app", AR: "سترى البرنامج التعليمي في المرة القادمة التي تفتح فيها التطبيق", IT: "Vedrai l'introduzione la prossima volta che apri l'app" },
 
-  // Checkout Page
   checkoutBackToShop: { EN: "Back to Shop", ES: "Volver a la Tienda", FR: "Retour à la Boutique", DE: "Zurück zum Shop", RU: "Вернуться в магазин", ZH: "返回商店", JA: "ショップに戻る", PT: "Voltar à Loja", AR: "العودة إلى المتجر", IT: "Torna al Negozio" },
   checkoutTitle: { EN: "Checkout", ES: "Pagar", FR: "Commander", DE: "Zur Kasse", RU: "Оформление заказа", ZH: "结账", JA: "お会計", PT: "Finalizar Compra", AR: "الدفع", IT: "Checkout" },
   checkoutOrderSummary: { EN: "Order Summary", ES: "Resumen del Pedido", FR: "Récapitulatif de la Commande", DE: "Bestellübersicht", RU: "Итоги заказа", ZH: "订单摘要", JA: "注文概要", PT: "Resumo do Pedido", AR: "ملخص الطلب", IT: "Riepilogo Ordine" },
@@ -1370,8 +1395,89 @@ export function TranslationProvider({ children }: { children: ReactNode }) {
   }, [language]);
 
   const t = useMemo(() => {
+    // Key mapping: convert dot notation to camelCase lookup
+    const keyMap: Record<string, string> = {
+      // Bottom Tab Bar
+      'app.nav.home': 'appTabHome',
+      'app.nav.earn': 'appTabEarn',
+      'app.nav.shop': 'appTabShop',
+      'app.nav.me': 'appTabMe',
+      // Home Page
+      'app.home.online': 'appOnline',
+      'app.home.offline': 'appOffline',
+      'app.home.todaysEarnings': 'appTodaysEarnings',
+      'app.home.startEarning': 'appStartEarning',
+      'app.home.yourImpact': 'appYourImpact',
+      'app.home.explored': 'appExplored',
+      'app.home.tip': 'appTip',
+      'app.home.earnMore': 'appEarnMore',
+      'app.home.inviteFriends': 'appInviteFriendsBoosts',
+      // Shop Page
+      'app.shop.title': 'appEsimShop',
+      'app.shop.destinations': 'appDestinations',
+      'app.shop.local': 'appLocal',
+      'app.shop.regional': 'appRegional',
+      'app.shop.global': 'appGlobal',
+      'app.shop.searchCountries': 'appSearchCountries',
+      'app.shop.searchRegions': 'appSearchRegions',
+      'app.shop.searchGlobal': 'appSearchGlobal',
+      'app.shop.all': 'appAll',
+      'app.shop.countries': 'appCountries',
+      'app.shop.regions': 'appRegions',
+      'app.shop.plans': 'appPlans',
+      'app.shop.clearFilter': 'appClearFilter',
+      'app.shop.addedToCart': 'appAddedToCart',
+      'app.shop.cartEmpty': 'appCartEmpty',
+      'app.shop.addPlansFirst': 'appAddPlansFirst',
+      // Wallet Page
+      'app.wallet.title': 'appWallet',
+      'app.wallet.subtitle': 'appYourEarningsRewards',
+      'app.wallet.totalBalance': 'appTotalBalance',
+      'app.wallet.live': 'appLive',
+      // Network Contribution
+      'app.network.miningPaused': 'appMiningPaused',
+      'app.network.switchTo5G': 'appSwitchToCellular',
+      'app.network.scanning': 'appScanning',
+      'app.network.paused': 'appPaused',
+      'app.network.startScan': 'appStartScan',
+      'app.network.cellular': 'appCellular',
+      // Achievements
+      'app.achievements': 'appAchievements',
+      'app.achievements.unlocked': 'appUnlocked',
+      'app.achievements.locked': 'appLocked',
+      'app.achievements.of': 'appOf',
+      // Challenges
+      'app.challenges': 'appChallenges',
+      'app.challenges.daily': 'appDaily',
+      'app.challenges.dailyDone': 'appDailyDone',
+      'app.challenges.weekly': 'appWeekly',
+      'app.challenges.special': 'appSpecial',
+      'app.challenges.resetsIn24h': 'appResetsIn24h',
+      'app.challenges.resetsSunday': 'appResetsSunday',
+      'app.challenges.rewardsToClaim': 'appRewardsToClaimCount',
+      'app.challenges.completeToEarn': 'appCompleteToEarn',
+      'app.challenges.noChallenges': 'appNoChallenges',
+      'app.challenges.checkBackLater': 'appCheckBackLater',
+      // Leaderboard
+      'app.leaderboard': 'appLeaderboard',
+      // Onboarding
+      'app.onboarding.skip': 'appOnboardingSkip',
+      'app.onboarding.next': 'appOnboardingNext',
+      'app.onboarding.getStarted': 'appOnboardingGetStarted',
+      'app.onboarding.welcome.title': 'appOnboardingWelcomeTitle',
+      'app.onboarding.welcome.description': 'appOnboardingWelcomeDesc',
+      'app.onboarding.earn.title': 'appOnboardingEarnTitle',
+      'app.onboarding.earn.description': 'appOnboardingEarnDesc',
+      'app.onboarding.shop.title': 'appOnboardingShopTitle',
+      'app.onboarding.shop.description': 'appOnboardingShopDesc',
+      'app.onboarding.rewards.title': 'appOnboardingRewardsTitle',
+      'app.onboarding.rewards.description': 'appOnboardingRewardsDesc',
+    };
+    
     return (key: string) => {
-      const entry = translations[key];
+      // Try mapped key first, then direct key
+      const lookupKey = keyMap[key] || key;
+      const entry = translations[lookupKey];
       if (!entry) return key;
       return entry[language] ?? entry["EN"] ?? key;
     };
