@@ -38,7 +38,7 @@ export const ChallengesSection: React.FC<ChallengesSectionProps> = ({
                            activeTab === 'weekly' ? weeklyChallenges :
                            specialChallenges;
 
-  const displayChallenges = compact ? currentChallenges.slice(0, 2) : currentChallenges;
+  const displayChallenges = compact ? currentChallenges.slice(0, 1) : currentChallenges;
 
   if (loading) {
     return (
@@ -151,12 +151,12 @@ export const ChallengesSection: React.FC<ChallengesSectionProps> = ({
       </AnimatePresence>
 
       {/* View more button for compact mode */}
-      {compact && currentChallenges.length > 2 && onViewAll && (
+      {compact && currentChallenges.length > 1 && onViewAll && (
         <button
           onClick={() => { lightTap(); onViewAll(); }}
-          className="w-full py-2 text-center text-sm text-muted-foreground hover:text-foreground transition-colors"
+          className="w-full py-3 text-center text-sm font-medium text-primary hover:text-primary/80 transition-colors rounded-xl bg-white/[0.03] border border-white/[0.08] active:scale-[0.98]"
         >
-          +{currentChallenges.length - 2} more challenges
+          +{currentChallenges.length - 1} more challenges
         </button>
       )}
     </div>
