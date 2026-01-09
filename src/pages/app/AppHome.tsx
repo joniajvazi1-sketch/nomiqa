@@ -10,7 +10,8 @@ import {
   Bell,
   Sparkles,
   Flame,
-  Trophy
+  Trophy,
+  Gift
 } from 'lucide-react';
 import { useHaptics } from '@/hooks/useHaptics';
 import { supabase } from '@/integrations/supabase/client';
@@ -428,12 +429,12 @@ export const AppHome: React.FC = () => {
             <div className="relative">
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-500/20 to-violet-500/5 flex items-center justify-center">
-                  <Sparkles className="w-4 h-4 text-violet-400" />
+                  <Gift className="w-4 h-4 text-violet-400" />
                 </div>
                 <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Tip</span>
               </div>
               <div className="text-sm font-semibold text-foreground mb-0.5">Earn more!</div>
-              <div className="text-xs text-violet-400">Explore new areas →</div>
+              <div className="text-xs text-violet-400">Invite friends for boosts →</div>
             </div>
           </div>
         </div>
