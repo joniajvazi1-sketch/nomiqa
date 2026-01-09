@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Wallet as WalletIcon, 
@@ -37,6 +37,8 @@ import { useAchievements } from '@/hooks/useAchievements';
 import { AchievementBadge, MilestonePopup, StreakBonus } from '@/components/app/AchievementSystem';
 import { ChallengesSection } from '@/components/app/ChallengesSection';
 import { LeaderboardSection } from '@/components/app/LeaderboardSection';
+import { usePullToRefresh } from '@/hooks/usePullToRefresh';
+import { PullToRefreshIndicator } from '@/components/app/PullToRefreshIndicator';
 
 interface RecentSession {
   id: string;
@@ -90,11 +92,7 @@ export const AppWallet: React.FC = () => {
     streakMultiplier 
   } = useAchievements();
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       const { data: { user: currentUser } } = await supabase.auth.getUser();
       setUser(currentUser);
@@ -127,7 +125,16 @@ export const AppWallet: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  // Pull-to-refresh
+  const { isRefreshing, pullDistance, pullProgress, handlers } = usePullToRefresh({
+    onRefresh: loadData
+  });
 
   // Convert sessions to transactions and add mock data for UI demo
   const transactions = useMemo<Transaction[]>(() => {
@@ -258,7 +265,17 @@ export const AppWallet: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
+    <div 
+      className="min-h-screen bg-background relative overflow-hidden overflow-y-auto"
+      {...handlers}
+    >
+      {/* Pull to refresh indicator */}
+      <PullToRefreshIndicator 
+        pullDistance={pullDistance}
+        pullProgress={pullProgress}
+        isRefreshing={isRefreshing}
+      />
+
       {/* Background effects */}
       <div className="fixed inset-0 pointer-events-none">
         <div 

@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useMemo, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Search, 
@@ -32,6 +32,8 @@ import { useDeviceCompatibility } from '@/hooks/useDeviceCompatibility';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { SkeletonProductCard } from '@/components/app/SkeletonProductCard';
+import { usePullToRefresh } from '@/hooks/usePullToRefresh';
+import { PullToRefreshIndicator } from '@/components/app/PullToRefreshIndicator';
 import {
   Dialog,
   DialogContent,
@@ -60,7 +62,7 @@ const REGION_IMAGE_MAP: Record<string, string> = {
  */
 export const AppShop: React.FC = () => {
   const navigate = useNavigate();
-  const { data: products, isLoading } = useProducts();
+  const { data: products, isLoading, refetch } = useProducts();
   const { items, addItem } = useCart();
   const { lightTap, success, error: hapticError } = useHaptics();
   const { isCompatible, platform, isLoading: compatLoading } = useDeviceCompatibility();
@@ -75,6 +77,15 @@ export const AppShop: React.FC = () => {
   const [addingProductId, setAddingProductId] = useState<string | null>(null);
   const [cartShaking, setCartShaking] = useState(false);
   const cartButtonRef = useRef<HTMLButtonElement>(null);
+
+  // Pull-to-refresh
+  const handleRefresh = useCallback(async () => {
+    await refetch();
+  }, [refetch]);
+
+  const { isRefreshing, pullDistance, pullProgress, handlers } = usePullToRefresh({
+    onRefresh: handleRefresh
+  });
 
   // Parse data amount to number for filtering
   const parseDataAmount = (dataStr: string): number => {
@@ -235,7 +246,17 @@ export const AppShop: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
+    <div 
+      className="min-h-screen bg-background relative overflow-hidden overflow-y-auto"
+      {...handlers}
+    >
+      {/* Pull to refresh indicator */}
+      <PullToRefreshIndicator 
+        pullDistance={pullDistance}
+        pullProgress={pullProgress}
+        isRefreshing={isRefreshing}
+      />
+
       {/* Background effects */}
       <div className="fixed inset-0 pointer-events-none">
         <div 

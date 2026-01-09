@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useMemo } from 'react';
+import React, { useEffect, useState, useRef, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Zap, 
@@ -29,6 +29,8 @@ import { RewardCelebration } from '@/components/app/RewardCelebration';
 import { ShimmerButton } from '@/components/app/ShimmerButton';
 import { OnboardingFlow } from '@/components/app/OnboardingFlow';
 import { AnimatePresence } from 'framer-motion';
+import { usePullToRefresh } from '@/hooks/usePullToRefresh';
+import { PullToRefreshIndicator } from '@/components/app/PullToRefreshIndicator';
 
 interface DailyEarning {
   date: string;
@@ -84,89 +86,94 @@ export const AppHome: React.FC = () => {
   const [dailyGoalCelebrated, setDailyGoalCelebrated] = useState(false);
   const usdRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const { data: { user: currentUser } } = await supabase.auth.getUser();
-        setUser(currentUser);
+  const loadData = useCallback(async () => {
+    try {
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      setUser(currentUser);
 
-        if (currentUser) {
-          // Fetch profile username
-          const { data: profileData } = await supabase
-            .from('profiles')
-            .select('username')
-            .eq('user_id', currentUser.id)
-            .maybeSingle();
-          
-          if (profileData?.username) {
-            setUsername(profileData.username);
-          }
-
-          const { data: pointsData } = await supabase
-            .from('user_points')
-            .select('*')
-            .eq('user_id', currentUser.id)
-            .maybeSingle();
-          
-          if (pointsData) {
-            setPoints(pointsData);
-          }
-
-          // Get recent session data (bounded) for chart + summary
-          const { data: sessionsData } = await supabase
-            .from('contribution_sessions')
-            .select('data_points_count, started_at, total_points_earned')
-            .eq('user_id', currentUser.id)
-            .order('started_at', { ascending: false })
-            .limit(500);
-
-          if (sessionsData) {
-            const totalDataPoints = sessionsData.reduce((sum, s) => sum + (s.data_points_count || 0), 0);
-            setDataPointsCount(totalDataPoints);
-
-            // Filter last 7 days for earnings chart
-            const sevenDaysAgo = new Date();
-            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-            
-            // Aggregate by day
-            const dailyMap = new Map<string, number>();
-            const today = new Date();
-            
-            // Initialize all 7 days with 0
-            for (let i = 6; i >= 0; i--) {
-              const date = new Date(today);
-              date.setDate(date.getDate() - i);
-              const dateKey = date.toISOString().split('T')[0];
-              dailyMap.set(dateKey, 0);
-            }
-            
-            // Sum points per day
-            sessionsData.forEach(session => {
-              const sessionDate = new Date(session.started_at);
-              if (sessionDate >= sevenDaysAgo) {
-                const dateKey = sessionDate.toISOString().split('T')[0];
-                const current = dailyMap.get(dateKey) || 0;
-                dailyMap.set(dateKey, current + (session.total_points_earned || 0));
-              }
-            });
-
-            const earnings: DailyEarning[] = Array.from(dailyMap.entries()).map(([date, points]) => ({
-              date,
-              points
-            }));
-            
-            setEarningsData(earnings);
-          }
+      if (currentUser) {
+        // Fetch profile username
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('username')
+          .eq('user_id', currentUser.id)
+          .maybeSingle();
+        
+        if (profileData?.username) {
+          setUsername(profileData.username);
         }
-      } catch (error) {
-        console.error('Error loading data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    loadData();
+        const { data: pointsData } = await supabase
+          .from('user_points')
+          .select('*')
+          .eq('user_id', currentUser.id)
+          .maybeSingle();
+        
+        if (pointsData) {
+          setPoints(pointsData);
+        }
+
+        // Get recent session data (bounded) for chart + summary
+        const { data: sessionsData } = await supabase
+          .from('contribution_sessions')
+          .select('data_points_count, started_at, total_points_earned')
+          .eq('user_id', currentUser.id)
+          .order('started_at', { ascending: false })
+          .limit(500);
+
+        if (sessionsData) {
+          const totalDataPoints = sessionsData.reduce((sum, s) => sum + (s.data_points_count || 0), 0);
+          setDataPointsCount(totalDataPoints);
+
+          // Filter last 7 days for earnings chart
+          const sevenDaysAgo = new Date();
+          sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+          
+          // Aggregate by day
+          const dailyMap = new Map<string, number>();
+          const today = new Date();
+          
+          // Initialize all 7 days with 0
+          for (let i = 6; i >= 0; i--) {
+            const date = new Date(today);
+            date.setDate(date.getDate() - i);
+            const dateKey = date.toISOString().split('T')[0];
+            dailyMap.set(dateKey, 0);
+          }
+          
+          // Sum points per day
+          sessionsData.forEach(session => {
+            const sessionDate = new Date(session.started_at);
+            if (sessionDate >= sevenDaysAgo) {
+              const dateKey = sessionDate.toISOString().split('T')[0];
+              const current = dailyMap.get(dateKey) || 0;
+              dailyMap.set(dateKey, current + (session.total_points_earned || 0));
+            }
+          });
+
+          const earnings: DailyEarning[] = Array.from(dailyMap.entries()).map(([date, points]) => ({
+            date,
+            points
+          }));
+          
+          setEarningsData(earnings);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading data:', error);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  // Pull-to-refresh
+  const { isRefreshing, pullDistance, pullProgress, handlers } = usePullToRefresh({
+    onRefresh: loadData
+  });
 
   // Today's points from earnings data
   const todayPoints = useMemo(() => {
@@ -243,7 +250,17 @@ export const AppHome: React.FC = () => {
         )}
       </AnimatePresence>
 
-      <div className="min-h-screen bg-background relative overflow-hidden">
+      <div 
+        className="min-h-screen bg-background relative overflow-hidden overflow-y-auto"
+        {...handlers}
+      >
+        {/* Pull to refresh indicator */}
+        <PullToRefreshIndicator 
+          pullDistance={pullDistance}
+          pullProgress={pullProgress}
+          isRefreshing={isRefreshing}
+        />
+
         {/* Subtle animated background */}
       <div className="fixed inset-0 pointer-events-none">
         <div 
