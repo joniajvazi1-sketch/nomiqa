@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Target, Flame, Calendar, Star } from 'lucide-react';
 import { useHaptics } from '@/hooks/useHaptics';
 import { useChallenges } from '@/hooks/useChallenges';
 import { ChallengeCard } from '@/components/app/ChallengeCard';
 import { useTranslation } from '@/contexts/TranslationContext';
+import { usePullToRefresh } from '@/hooks/usePullToRefresh';
+import { PullToRefreshIndicator } from '@/components/app/PullToRefreshIndicator';
 
 export const AppChallenges: React.FC = () => {
   const navigate = useNavigate();
@@ -17,11 +19,30 @@ export const AppChallenges: React.FC = () => {
     completedTodayCount,
     unclaimedCount,
     claimReward,
-    loading 
+    loading,
+    refreshProgress
   } = useChallenges();
 
+  // Pull-to-refresh
+  const handleRefresh = useCallback(async () => {
+    await refreshProgress();
+  }, [refreshProgress]);
+
+  const { isRefreshing, pullDistance, pullProgress, handlers } = usePullToRefresh({
+    onRefresh: handleRefresh,
+  });
+
   return (
-    <div className="min-h-screen bg-background pb-28">
+    <div 
+      className="min-h-screen bg-background pb-28 overflow-y-auto"
+      {...handlers}
+    >
+      <PullToRefreshIndicator 
+        isRefreshing={isRefreshing} 
+        pullDistance={pullDistance} 
+        pullProgress={pullProgress} 
+      />
+      
       {/* Header */}
       <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-white/[0.08] px-5 py-4">
         <div className="flex items-center gap-4">

@@ -120,6 +120,11 @@ const translations: Record<string, Partial<Record<Language | 'HI', string>>> = {
   appReplayTutorial: { EN: "Replay Tutorial", ES: "Repetir tutorial", FR: "Rejouer le tutoriel", DE: "Tutorial wiederholen", RU: "Повторить обучение", ZH: "重播教程", JA: "チュートリアルを再生", PT: "Repetir tutorial", AR: "إعادة التشغيل التعليمي", IT: "Ripeti tutorial" },
   appTutorialReset: { EN: "Tutorial reset", ES: "Tutorial reiniciado", FR: "Tutoriel réinitialisé", DE: "Tutorial zurückgesetzt", RU: "Обучение сброшено", ZH: "教程已重置", JA: "チュートリアルをリセットしました", PT: "Tutorial reiniciado", AR: "تم إعادة تعيين البرنامج التعليمي", IT: "Tutorial reimpostato" },
   appTutorialResetDesc: { EN: "You'll see the onboarding next time you open the app", ES: "Verás la introducción la próxima vez que abras la app", FR: "Vous verrez l'introduction la prochaine fois que vous ouvrirez l'app", DE: "Du siehst das Onboarding beim nächsten Öffnen der App", RU: "Вы увидите обучение при следующем открытии приложения", ZH: "下次打开应用时将显示新手引导", JA: "次回アプリを開いたときにオンボーディングが表示されます", PT: "Você verá a introdução na próxima vez que abrir o app", AR: "سترى البرنامج التعليمي في المرة القادمة التي تفتح فيها التطبيق", IT: "Vedrai l'introduzione la prossima volta che apri l'app" },
+  // ========== APP - Offline Screen ==========
+  appOfflineTitle: { EN: "No Internet Connection", ES: "Sin conexión a Internet", FR: "Pas de connexion Internet", DE: "Keine Internetverbindung", RU: "Нет подключения к интернету", ZH: "无网络连接", JA: "インターネット接続なし", PT: "Sem conexão com a Internet", AR: "لا يوجد اتصال بالإنترنت", IT: "Nessuna connessione Internet" },
+  appOfflineDescription: { EN: "Please check your connection and try again. The app requires an internet connection to work.", ES: "Por favor verifica tu conexión e intenta de nuevo. La app requiere conexión a Internet.", FR: "Veuillez vérifier votre connexion et réessayer. L'application nécessite une connexion Internet.", DE: "Bitte überprüfen Sie Ihre Verbindung und versuchen Sie es erneut. Die App erfordert eine Internetverbindung.", RU: "Проверьте подключение и попробуйте снова. Приложение требует интернет-соединения.", ZH: "请检查您的网络连接后重试。该应用需要互联网连接才能正常工作。", JA: "接続を確認して再試行してください。アプリにはインターネット接続が必要です。", PT: "Verifique sua conexão e tente novamente. O app precisa de conexão com a Internet para funcionar.", AR: "يرجى التحقق من اتصالك والمحاولة مرة أخرى. يتطلب التطبيق اتصالاً بالإنترنت للعمل.", IT: "Controlla la connessione e riprova. L'app richiede una connessione Internet per funzionare." },
+  appOfflineRetry: { EN: "Try Again", ES: "Reintentar", FR: "Réessayer", DE: "Erneut versuchen", RU: "Повторить", ZH: "重试", JA: "再試行", PT: "Tentar novamente", AR: "أعد المحاولة", IT: "Riprova" },
+  appOfflineHint: { EN: "Make sure Wi-Fi or mobile data is turned on", ES: "Asegúrate de que Wi-Fi o datos móviles estén activados", FR: "Assurez-vous que le Wi-Fi ou les données mobiles sont activés", DE: "Stellen Sie sicher, dass WLAN oder mobile Daten aktiviert sind", RU: "Убедитесь, что Wi-Fi или мобильные данные включены", ZH: "请确保Wi-Fi或移动数据已开启", JA: "Wi-Fiまたはモバイルデータがオンになっていることを確認してください", PT: "Certifique-se de que o Wi-Fi ou dados móveis estejam ativados", AR: "تأكد من تشغيل Wi-Fi أو بيانات الجوال", IT: "Assicurati che Wi-Fi o dati mobili siano attivi" },
 
   checkoutBackToShop: { EN: "Back to Shop", ES: "Volver a la Tienda", FR: "Retour à la Boutique", DE: "Zurück zum Shop", RU: "Вернуться в магазин", ZH: "返回商店", JA: "ショップに戻る", PT: "Voltar à Loja", AR: "العودة إلى المتجر", IT: "Torna al Negozio" },
   checkoutTitle: { EN: "Checkout", ES: "Pagar", FR: "Commander", DE: "Zur Kasse", RU: "Оформление заказа", ZH: "结账", JA: "お会計", PT: "Finalizar Compra", AR: "الدفع", IT: "Checkout" },
@@ -1472,6 +1477,10 @@ export function TranslationProvider({ children }: { children: ReactNode }) {
       'app.onboarding.shop.description': 'appOnboardingShopDesc',
       'app.onboarding.rewards.title': 'appOnboardingRewardsTitle',
       'app.onboarding.rewards.description': 'appOnboardingRewardsDesc',
+      'app.offline.title': 'appOfflineTitle',
+      'app.offline.description': 'appOfflineDescription',
+      'app.offline.retry': 'appOfflineRetry',
+      'app.offline.hint': 'appOfflineHint',
     };
     
     return (key: string) => {
