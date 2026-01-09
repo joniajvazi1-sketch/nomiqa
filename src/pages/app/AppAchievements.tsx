@@ -1,0 +1,138 @@
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft, Trophy, Lock } from 'lucide-react';
+import { useHaptics } from '@/hooks/useHaptics';
+import { useAchievements } from '@/hooks/useAchievements';
+import { AchievementBadge, StreakBonus } from '@/components/app/AchievementSystem';
+import { cn } from '@/lib/utils';
+
+export const AppAchievements: React.FC = () => {
+  const navigate = useNavigate();
+  const { lightTap } = useHaptics();
+  const { 
+    achievements, 
+    unlockedCount, 
+    totalCount, 
+    streakDays,
+    loading 
+  } = useAchievements();
+
+  // Group achievements by category
+  const grouped = achievements.reduce((acc, achievement) => {
+    const category = achievement.category || 'other';
+    if (!acc[category]) acc[category] = [];
+    acc[category].push(achievement);
+    return acc;
+  }, {} as Record<string, typeof achievements>);
+
+  const categoryLabels: Record<string, string> = {
+    contribution: 'Contributions',
+    streak: 'Streaks',
+    referral: 'Referrals',
+    milestone: 'Milestones',
+    other: 'Other'
+  };
+
+  return (
+    <div className="min-h-screen bg-background pb-28">
+      {/* Header */}
+      <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-white/[0.08] px-5 py-4">
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => { lightTap(); navigate(-1); }}
+            className="w-10 h-10 rounded-full bg-white/[0.05] border border-white/[0.08] flex items-center justify-center hover:bg-white/[0.08] active:scale-95 transition-all"
+          >
+            <ArrowLeft className="w-5 h-5 text-foreground" />
+          </button>
+          <div>
+            <h1 className="text-xl font-bold text-foreground">Achievements</h1>
+            <p className="text-sm text-muted-foreground">{unlockedCount} of {totalCount} unlocked</p>
+          </div>
+        </div>
+      </header>
+
+      <div className="px-5 py-6 space-y-6">
+        {/* Streak Bonus */}
+        {streakDays >= 1 && (
+          <StreakBonus streakDays={streakDays} isActive={true} />
+        )}
+
+        {/* Progress Overview */}
+        <div className="rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] p-5">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                <Trophy className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-foreground">{unlockedCount}</div>
+                <div className="text-sm text-muted-foreground">Unlocked</div>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-2xl font-bold text-muted-foreground">{totalCount - unlockedCount}</div>
+              <div className="text-sm text-muted-foreground flex items-center gap-1 justify-end">
+                <Lock className="w-3 h-3" />
+                Locked
+              </div>
+            </div>
+          </div>
+          
+          {/* Progress bar */}
+          <div className="h-2 rounded-full bg-white/[0.08] overflow-hidden">
+            <div 
+              className="h-full rounded-full bg-gradient-to-r from-primary to-neon-cyan transition-all duration-500"
+              style={{ width: `${totalCount > 0 ? (unlockedCount / totalCount) * 100 : 0}%` }}
+            />
+          </div>
+        </div>
+
+        {/* Achievement Categories */}
+        {loading ? (
+          <div className="space-y-4">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="h-32 rounded-2xl bg-white/[0.05] animate-pulse" />
+            ))}
+          </div>
+        ) : (
+          Object.entries(grouped).map(([category, items]) => (
+            <div key={category}>
+              <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+                {categoryLabels[category] || category}
+              </h2>
+              <div className="grid grid-cols-3 gap-3">
+                {items.map((achievement) => (
+                  <div 
+                    key={achievement.id}
+                    className={cn(
+                      "flex flex-col items-center p-4 rounded-2xl border transition-all",
+                      achievement.unlocked 
+                        ? "bg-white/[0.05] border-primary/20" 
+                        : "bg-white/[0.02] border-white/[0.05] opacity-60"
+                    )}
+                  >
+                    <AchievementBadge 
+                      achievement={achievement} 
+                      size="md"
+                      showProgress={!achievement.unlocked}
+                    />
+                    <span className="text-xs text-center text-foreground/80 mt-2 line-clamp-2">
+                      {achievement.title}
+                    </span>
+                    {!achievement.unlocked && achievement.progress !== undefined && (
+                      <span className="text-[10px] text-muted-foreground mt-1">
+                        {Math.round(achievement.progress)}%
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default AppAchievements;

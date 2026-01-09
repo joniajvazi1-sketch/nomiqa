@@ -481,7 +481,7 @@ export const AppHome: React.FC = () => {
               ))}
               {achievements.length > 6 && (
                 <button
-                  onClick={() => handleNavigation('/app/profile')}
+                  onClick={() => handleNavigation('/app/achievements')}
                   className="flex items-center justify-center w-12 h-12 rounded-full bg-white/[0.05] border border-white/10 text-muted-foreground hover:bg-white/[0.08] transition-all"
                 >
                   <ChevronRight className="w-4 h-4" />
@@ -499,7 +499,7 @@ export const AppHome: React.FC = () => {
           >
             <ChallengesSection 
               compact={true} 
-              onViewAll={() => handleNavigation('/app/profile')}
+              onViewAll={() => handleNavigation('/app/challenges')}
             />
           </div>
         )}
