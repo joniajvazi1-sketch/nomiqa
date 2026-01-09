@@ -11,7 +11,6 @@ const HowYouEarn = lazy(() => import("@/components/HowYouEarn").then(m => ({ def
 const GlobalNetworkMap = lazy(() => import("@/components/GlobalNetworkMap").then(m => ({ default: m.GlobalNetworkMap })));
 const TrustPartners = lazy(() => import("@/components/TrustPartners").then(m => ({ default: m.TrustPartners })));
 const FeaturedProducts = lazy(() => import("@/components/FeaturedProducts").then(m => ({ default: m.FeaturedProducts })));
-const WhyNomiqa = lazy(() => import("@/components/WhyNomiqa").then(m => ({ default: m.WhyNomiqa })));
 const HowItWorksSteps = lazy(() => import("@/components/HowItWorksSteps").then(m => ({ default: m.HowItWorksSteps })));
 const ScrollableFeatures = lazy(() => import("@/components/ScrollableFeatures").then(m => ({ default: m.ScrollableFeatures })));
 const CoverageSection = lazy(() => import("@/components/CoverageSection").then(m => ({ default: m.CoverageSection })));
@@ -50,10 +49,6 @@ const Index = () => {
         <GlobalNetworkMap />
         <TrustPartners />
       </Suspense>
-      <Suspense fallback={<LoadingSpinner />}>
-        <WhyNomiqa />
-      </Suspense>
-      {/* Products moved lower - network value proposition first */}
       <Suspense fallback={<LoadingSpinner />}>
         <FeaturedProducts />
       </Suspense>
