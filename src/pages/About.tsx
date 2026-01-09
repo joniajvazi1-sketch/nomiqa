@@ -1,11 +1,8 @@
 import { SiteNavigation } from "@/components/SiteNavigation";
 import { SupportChatbot } from "@/components/SupportChatbot";
 import { NetworkBackground } from "@/components/NetworkBackground";
-import { Globe, Heart, Users, Zap } from "lucide-react";
+import { Globe, Heart, Users, Zap, Wifi, Shield, Coins } from "lucide-react";
 import { useTranslation } from "@/contexts/TranslationContext";
-import heroHappy from "@/assets/hero-happy.jpg";
-import worldTravelers from "@/assets/world-travelers.jpg";
-import teamCollaboration from "@/assets/team-collaboration.png";
 
 export default function About() {
   const { t } = useTranslation();
@@ -42,7 +39,8 @@ export default function About() {
         <div className="absolute bottom-20 right-10 w-[500px] h-[500px] bg-neon-coral/30 rounded-full blur-3xl"></div>
         <div className="absolute top-1/2 left-1/3 w-80 h-80 bg-rose-500/20 rounded-full blur-3xl"></div>
       </div>
-      {/* Hero Section with warm imagery */}
+      
+      {/* Hero Section */}
       <section className="relative pt-32 md:pt-40 pb-20 px-4 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-deep-space/40 to-black/60"></div>
         
@@ -71,34 +69,23 @@ export default function About() {
             </p>
           </div>
 
-          {/* Image Grid - Human Photography - Horizontal Scroll on Mobile */}
-          <div className="flex md:grid md:grid-cols-3 gap-4 md:gap-6 mb-12 md:mb-16 overflow-x-auto md:overflow-x-visible pb-4 md:pb-0 snap-x snap-mandatory md:snap-none scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
-            <div className="min-w-[85vw] md:min-w-0 rounded-2xl overflow-hidden shadow-2xl animate-fade-in-up group snap-center relative">
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10"></div>
-              <img 
-                src={heroHappy} 
-                alt="Traveler with laptop" 
-                className="w-full h-56 md:h-64 object-cover group-hover:scale-110 transition-transform duration-700"
-              />
+          {/* Icon Grid instead of images */}
+          <div className="grid grid-cols-3 gap-4 md:gap-6 mb-12 md:mb-16 max-w-2xl mx-auto">
+            <div className="rounded-2xl overflow-hidden shadow-2xl animate-fade-in-up group relative bg-white/[0.03] backdrop-blur-xl border border-white/10 p-8 flex items-center justify-center">
+              <div className="absolute inset-0 bg-gradient-to-br from-neon-cyan/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <Wifi className="w-12 h-12 md:w-16 md:h-16 text-neon-cyan" />
             </div>
-            <div className="min-w-[85vw] md:min-w-0 rounded-2xl overflow-hidden shadow-2xl animate-fade-in-up group snap-center relative" style={{ animationDelay: "0.1s" }}>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10"></div>
-              <img 
-                src={worldTravelers} 
-                alt="People traveling" 
-                className="w-full h-56 md:h-64 object-cover group-hover:scale-110 transition-transform duration-700"
-              />
+            <div className="rounded-2xl overflow-hidden shadow-2xl animate-fade-in-up group relative bg-white/[0.03] backdrop-blur-xl border border-white/10 p-8 flex items-center justify-center" style={{ animationDelay: "0.1s" }}>
+              <div className="absolute inset-0 bg-gradient-to-br from-neon-violet/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <Shield className="w-12 h-12 md:w-16 md:h-16 text-neon-violet" />
             </div>
-            <div className="min-w-[85vw] md:min-w-0 rounded-2xl overflow-hidden shadow-2xl animate-fade-in-up group snap-center relative" style={{ animationDelay: "0.2s" }}>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10"></div>
-              <img 
-                src={teamCollaboration} 
-                alt="Team collaboration" 
-                className="w-full h-56 md:h-64 object-cover group-hover:scale-110 transition-transform duration-700"
-              />
+            <div className="rounded-2xl overflow-hidden shadow-2xl animate-fade-in-up group relative bg-white/[0.03] backdrop-blur-xl border border-white/10 p-8 flex items-center justify-center" style={{ animationDelay: "0.2s" }}>
+              <div className="absolute inset-0 bg-gradient-to-br from-neon-coral/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <Coins className="w-12 h-12 md:w-16 md:h-16 text-neon-coral" />
             </div>
           </div>
 
+          {/* Story Section */}
           <div className="max-w-4xl mx-auto mb-12 md:mb-16">
             <div className="relative group p-8 md:p-12 rounded-2xl bg-white/[0.02] backdrop-blur-xl border border-white/10 hover:border-white/20 animate-fade-in-up transition-all duration-500">
               <div className="absolute inset-0 bg-gradient-to-br from-neon-cyan/5 via-transparent to-neon-violet/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
