@@ -130,15 +130,15 @@ export const AppProfile: React.FC = () => {
 
   const selectedAffiliate = allAffiliates.find(a => a.id === selectedAffiliateId) || allAffiliates[0];
 
-  // Generate mock weekly contribution data based on user points
-  const weeklyData = useMemo(() => {
-    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    const baseValue = userPoints?.total_points ? Math.floor(userPoints.total_points / 30) : 10;
-    return days.map((day, i) => ({
-      day,
-      value: Math.floor(baseValue * (0.5 + Math.random() * 1.2) * (i === 6 ? 1.5 : 1))
-    }));
-  }, [userPoints]);
+  const [weeklyData, setWeeklyData] = useState<{ day: string; value: number }[]>([
+    { day: 'Mon', value: 0 },
+    { day: 'Tue', value: 0 },
+    { day: 'Wed', value: 0 },
+    { day: 'Thu', value: 0 },
+    { day: 'Fri', value: 0 },
+    { day: 'Sat', value: 0 },
+    { day: 'Sun', value: 0 },
+  ]);
 
   useEffect(() => {
     loadData();
@@ -215,6 +215,52 @@ export const AppProfile: React.FC = () => {
           .order('created_at', { ascending: false })
           .limit(10);
         setOrders(ordersData || []);
+
+        // Load weekly contribution data (last 7 days)
+        const now = new Date();
+        const weekAgo = new Date(now);
+        weekAgo.setDate(weekAgo.getDate() - 6);
+        weekAgo.setHours(0, 0, 0, 0);
+        
+        const { data: sessionsData } = await supabase
+          .from('contribution_sessions')
+          .select('started_at, total_points_earned')
+          .eq('user_id', currentUser.id)
+          .gte('started_at', weekAgo.toISOString())
+          .order('started_at', { ascending: true });
+
+        // Aggregate by day of week
+        const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        const dailyPoints: Record<string, number> = {};
+        
+        // Initialize all 7 days
+        for (let i = 0; i < 7; i++) {
+          const date = new Date(weekAgo);
+          date.setDate(date.getDate() + i);
+          const dayName = dayNames[date.getDay()];
+          dailyPoints[`${i}-${dayName}`] = 0;
+        }
+        
+        // Sum points per day
+        sessionsData?.forEach(session => {
+          const sessionDate = new Date(session.started_at);
+          const daysSinceStart = Math.floor((sessionDate.getTime() - weekAgo.getTime()) / (1000 * 60 * 60 * 24));
+          if (daysSinceStart >= 0 && daysSinceStart < 7) {
+            const dayName = dayNames[sessionDate.getDay()];
+            const key = `${daysSinceStart}-${dayName}`;
+            dailyPoints[key] = (dailyPoints[key] || 0) + (session.total_points_earned || 0);
+          }
+        });
+
+        // Convert to array format for chart
+        const chartData = Object.entries(dailyPoints)
+          .sort((a, b) => parseInt(a[0]) - parseInt(b[0]))
+          .map(([key, value]) => ({
+            day: key.split('-')[1],
+            value: Number(value)
+          }));
+        
+        setWeeklyData(chartData);
       }
     } catch (error) {
       console.error('Error loading data:', error);
