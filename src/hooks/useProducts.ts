@@ -29,37 +29,53 @@ export const useProducts = () => {
   return useQuery({
     queryKey: ['products'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .order('price_usd', { ascending: true })
-        .order('is_popular', { ascending: false });
+      // Use AbortController for timeout on slow mobile networks
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
 
-      if (error) throw error;
-      
-      // Filter out packages with SMS or Voice (keep data-only)
-      // Also filter out local packages without country images
-      const filteredData = (data as Product[]).filter(product => {
-        const name = product.name.toLowerCase();
-        const hasNoSmsOrVoice = !name.includes('sms') && !name.includes('mins');
+      try {
+        const { data, error } = await supabase
+          .from('products')
+          .select('*')
+          .order('price_usd', { ascending: true })
+          .order('is_popular', { ascending: false })
+          .abortSignal(controller.signal);
+
+        clearTimeout(timeoutId);
+
+        if (error) throw error;
         
-        // For local packages, require a country image
-        // For regional packages, we use our own region images so no filter needed
-        const hasValidImage = product.package_type === 'regional' || 
-          (product.country_image_url && product.country_image_url.trim() !== '');
+        // Filter out packages with SMS or Voice (keep data-only)
+        // Also filter out local packages without country images
+        const filteredData = (data as Product[]).filter(product => {
+          const name = product.name.toLowerCase();
+          const hasNoSmsOrVoice = !name.includes('sms') && !name.includes('mins');
+          
+          // For local packages, require a country image
+          // For regional packages, we use our own region images so no filter needed
+          const hasValidImage = product.package_type === 'regional' || 
+            (product.country_image_url && product.country_image_url.trim() !== '');
+          
+          return hasNoSmsOrVoice && hasValidImage;
+        });
         
-        return hasNoSmsOrVoice && hasValidImage;
-      });
-      
-      // Sort: local packages first, then regional, both sorted by price
-      return filteredData.sort((a, b) => {
-        // Local packages come before regional
-        if (a.package_type === 'local' && b.package_type === 'regional') return -1;
-        if (a.package_type === 'regional' && b.package_type === 'local') return 1;
-        // Within same type, sort by price
-        return a.price_usd - b.price_usd;
-      });
+        // Sort: local packages first, then regional, both sorted by price
+        return filteredData.sort((a, b) => {
+          // Local packages come before regional
+          if (a.package_type === 'local' && b.package_type === 'regional') return -1;
+          if (a.package_type === 'regional' && b.package_type === 'local') return 1;
+          // Within same type, sort by price
+          return a.price_usd - b.price_usd;
+        });
+      } catch (err) {
+        clearTimeout(timeoutId);
+        console.error('Products fetch error:', err);
+        throw err;
+      }
     },
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 5000),
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
   });
 };
 
