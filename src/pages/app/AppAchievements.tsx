@@ -105,7 +105,7 @@ export const AppAchievements: React.FC = () => {
                   <div 
                     key={achievement.id}
                     className={cn(
-                      "flex flex-col items-center p-4 rounded-2xl border transition-all",
+                      "flex flex-col items-center p-3 rounded-2xl border transition-all",
                       achievement.unlocked 
                         ? "bg-white/[0.05] border-primary/20" 
                         : "bg-white/[0.02] border-white/[0.05] opacity-60"
@@ -117,9 +117,6 @@ export const AppAchievements: React.FC = () => {
                       showProgress={!achievement.unlocked}
                       showDetailsOnTap={true}
                     />
-                    <span className="text-xs text-center text-foreground/80 mt-2 line-clamp-2">
-                      {achievement.title}
-                    </span>
                     {!achievement.unlocked && achievement.progress !== undefined && (
                       <span className="text-[10px] text-muted-foreground mt-1">
                         {Math.round(achievement.progress)}%
