@@ -4,15 +4,19 @@ import { useMemo } from 'react';
 /**
  * Check for dev preview mode via URL parameter
  * Add ?appPreview=true to URL to see native app UI in browser
- * SECURITY: Only works on localhost to prevent production users from discovering app UI
+ * SECURITY: Only works on localhost or Lovable staging - blocked on production
  */
 const isAppPreviewMode = (): boolean => {
   if (typeof window === 'undefined') return false;
   
-  // Only allow preview mode on localhost (not production)
   const hostname = window.location.hostname;
+  
+  // Allow preview on: localhost, 127.0.0.1, *.lovableproject.com (staging)
+  // Block on production domains (e.g., nomiqa.io)
   const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
-  if (!isLocalhost) return false;
+  const isLovableStaging = hostname.endsWith('.lovableproject.com');
+  
+  if (!isLocalhost && !isLovableStaging) return false;
   
   // Check both search params and hash (in case of hash routing)
   const urlParams = new URLSearchParams(window.location.search);
