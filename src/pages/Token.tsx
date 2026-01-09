@@ -1,6 +1,6 @@
 import { SiteNavigation } from "@/components/SiteNavigation";
 import { SupportChatbot } from "@/components/SupportChatbot";
-import { Coins, Rocket, Users, Globe, Shield, TrendingUp, ArrowRight, Sparkles } from "lucide-react";
+import { Rocket, Users, Globe, Shield, TrendingUp, ArrowRight, Sparkles } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import { useTranslation } from "@/contexts/TranslationContext";
 import { Button } from "@/components/ui/button";
@@ -87,23 +87,15 @@ const Token = () => {
               {t("tokenSubtitle")}
             </p>
 
-            {/* Token visual */}
-            <div className="py-12 md:py-16">
-              <div className="relative inline-flex items-center justify-center">
-                {/* Glow effect */}
-                <div className="absolute w-40 h-40 md:w-52 md:h-52 bg-primary/20 rounded-full blur-2xl animate-pulse" />
-                
-                {/* Token icon container */}
-                <div className="relative w-32 h-32 md:w-40 md:h-40 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 border border-primary/30 flex items-center justify-center backdrop-blur-sm">
-                  <Coins className="w-14 h-14 md:w-18 md:h-18 text-primary" />
-                </div>
-              </div>
-              
-              {/* Launch info */}
-              <div className="flex items-center justify-center gap-2 mt-8 text-muted-foreground">
-                <Rocket className="w-5 h-5 text-accent" />
-                <span className="font-light">{t("tokenLaunchingOn")}</span>
-              </div>
+            {/* Subtle glow effect */}
+            <div className="py-8 md:py-12">
+              <div className="w-24 h-1 mx-auto bg-gradient-to-r from-transparent via-primary/50 to-transparent rounded-full" />
+            </div>
+            
+            {/* Launch info */}
+            <div className="flex items-center justify-center gap-2 text-muted-foreground">
+              <Rocket className="w-5 h-5 text-accent" />
+              <span className="font-light">{t("tokenLaunchingOn")}</span>
             </div>
           </div>
 
