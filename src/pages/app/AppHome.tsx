@@ -503,7 +503,7 @@ export const AppHome: React.FC = () => {
           >
             <LeaderboardSection 
               compact={true}
-              onViewAll={() => handleNavigation('/app/profile')}
+              onViewAll={() => handleNavigation('/app/leaderboard')}
             />
           </div>
         )}
