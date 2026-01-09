@@ -163,8 +163,9 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Track affiliate referral if code provided
     if (referralCode) {
+      console.log(`Tracking referral registration - code: ${referralCode}, userId: ${userId}`);
       try {
-        await fetch(`${supabaseUrl}/functions/v1/track-affiliate-registration`, {
+        const trackResponse = await fetch(`${supabaseUrl}/functions/v1/track-affiliate-registration`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -176,10 +177,21 @@ const handler = async (req: Request): Promise<Response> => {
             referrer: '',
           }),
         });
+        
+        const trackResult = await trackResponse.json();
+        console.log(`Affiliate tracking response:`, trackResult);
+        
+        if (!trackResponse.ok) {
+          console.error(`Affiliate tracking failed: ${trackResponse.status}`, trackResult);
+        } else {
+          console.log(`✓ Referral registration tracked successfully for code: ${referralCode}`);
+        }
       } catch (trackError) {
         console.error("Error tracking affiliate:", trackError);
         // Don't fail signup if tracking fails
       }
+    } else {
+      console.log('No referral code provided for this signup');
     }
 
     // Send verification email

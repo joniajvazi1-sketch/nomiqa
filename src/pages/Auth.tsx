@@ -104,9 +104,25 @@ export default function Auth() {
 
           if (insertError) throw insertError;
 
-          // Track affiliate if applicable
-          const { referralCode, clearReferralCode } = useAffiliateTracking.getState();
+          // Track affiliate if applicable - get from zustand AND localStorage fallback
+          let { referralCode, clearReferralCode } = useAffiliateTracking.getState();
+          
+          // Fallback: also check localStorage directly in case zustand hasn't rehydrated
+          if (!referralCode) {
+            try {
+              const storedData = localStorage.getItem('affiliate-tracking');
+              if (storedData) {
+                const parsed = JSON.parse(storedData);
+                referralCode = parsed?.state?.referralCode || null;
+                console.log('OAuth: Referral code from localStorage fallback:', referralCode);
+              }
+            } catch (e) {
+              console.error('Error reading referral code from localStorage:', e);
+            }
+          }
+          
           if (referralCode) {
+            console.log('OAuth: Tracking referral with code:', referralCode);
             try {
               await supabase.functions.invoke("track-affiliate-registration", {
                 body: {
@@ -116,6 +132,18 @@ export default function Auth() {
                 },
               });
               clearReferralCode();
+              // Also clear localStorage
+              try {
+                const storedData = localStorage.getItem('affiliate-tracking');
+                if (storedData) {
+                  const parsed = JSON.parse(storedData);
+                  parsed.state.referralCode = null;
+                  parsed.state.referralTimestamp = null;
+                  localStorage.setItem('affiliate-tracking', JSON.stringify(parsed));
+                }
+              } catch (e) {
+                console.error('Error clearing referral code from localStorage:', e);
+              }
             } catch (trackError) {
               console.error("Error tracking affiliate:", trackError);
             }
@@ -258,7 +286,24 @@ export default function Auth() {
     try {
       if (isSignup) {
         // Use signup-user edge function to handle signup with service role
-        const { referralCode, clearReferralCode } = useAffiliateTracking.getState();
+        // Get referral code from zustand store AND localStorage fallback for reliability
+        let { referralCode, clearReferralCode } = useAffiliateTracking.getState();
+        
+        // Fallback: also check localStorage directly in case zustand hasn't rehydrated
+        if (!referralCode) {
+          try {
+            const storedData = localStorage.getItem('affiliate-tracking');
+            if (storedData) {
+              const parsed = JSON.parse(storedData);
+              referralCode = parsed?.state?.referralCode || null;
+              console.log('Referral code from localStorage fallback:', referralCode);
+            }
+          } catch (e) {
+            console.error('Error reading referral code from localStorage:', e);
+          }
+        }
+        
+        console.log('Signup with referral code:', referralCode);
         
         const { data, error } = await supabase.functions.invoke('signup-user', {
           body: {
