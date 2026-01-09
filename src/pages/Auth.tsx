@@ -353,8 +353,22 @@ export default function Auth() {
         }
 
         if (data?.success && data?.userId) {
+          // Clear referral code from both zustand and localStorage
           if (referralCode) {
+            console.log('Clearing referral code after successful signup:', referralCode);
             clearReferralCode();
+            // Also clear directly from localStorage
+            try {
+              const storedData = localStorage.getItem('affiliate-tracking');
+              if (storedData) {
+                const parsed = JSON.parse(storedData);
+                parsed.state.referralCode = null;
+                parsed.state.referralTimestamp = null;
+                localStorage.setItem('affiliate-tracking', JSON.stringify(parsed));
+              }
+            } catch (e) {
+              console.error('Error clearing referral code from localStorage:', e);
+            }
           }
           setCurrentUser({ id: data.userId, email: email.toLowerCase() });
           setShowEmailVerification(true);
