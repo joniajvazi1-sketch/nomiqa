@@ -60,7 +60,7 @@ export const LeaderboardSection: React.FC<LeaderboardSectionProps> = ({
   compact = false,
   onViewAll 
 }) => {
-  const { lightTap, mediumTap } = useHaptics();
+  const { lightTap } = useHaptics();
   const { 
     entries, 
     userRank, 
@@ -87,18 +87,88 @@ export const LeaderboardSection: React.FC<LeaderboardSectionProps> = ({
             <span className="font-semibold text-foreground">Leaderboard</span>
           </div>
         </div>
-        <div className="space-y-2">
-          {[1, 2, 3, 4, 5].map(i => (
-            <div 
-              key={i}
-              className="h-14 rounded-xl bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] animate-pulse"
-            />
-          ))}
+        <div className="h-24 rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] animate-pulse" />
+      </div>
+    );
+  }
+
+  // Compact view - simplified rank card with View All button
+  if (compact) {
+    return (
+      <div 
+        className="rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] overflow-hidden cursor-pointer active:scale-[0.98] transition-all group"
+        onClick={() => { lightTap(); onViewAll?.(); }}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 pt-4 pb-2">
+          <div className="flex items-center gap-2">
+            <Trophy className="w-4 h-4 text-primary" />
+            <span className="text-sm font-semibold text-foreground">Leaderboard</span>
+            <span className="text-xs text-muted-foreground">
+              ({totalParticipants} contributors)
+            </span>
+          </div>
+        </div>
+
+        {/* User Rank Display */}
+        <div className="px-4 pb-4">
+          <div className="flex items-center gap-4">
+            {/* Rank badge */}
+            <div className="relative">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/20 to-neon-cyan/10 border border-primary/30 flex flex-col items-center justify-center">
+                <span className="text-xs text-muted-foreground">Rank</span>
+                <span 
+                  className="text-2xl font-bold text-primary"
+                  style={{ fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace' }}
+                >
+                  #{userRank?.rank || '-'}
+                </span>
+              </div>
+              {userRank && userRank.rank <= 3 && (
+                <div className="absolute -top-1 -right-1">
+                  {userRank.rank === 1 && <Crown className="w-5 h-5 text-amber-400" />}
+                  {userRank.rank === 2 && <Medal className="w-5 h-5 text-slate-300" />}
+                  {userRank.rank === 3 && <Medal className="w-5 h-5 text-amber-600" />}
+                </div>
+              )}
+            </div>
+
+            {/* Stats */}
+            <div className="flex-1">
+              <div className="flex items-baseline gap-2 mb-1">
+                <span 
+                  className="text-xl font-bold text-foreground"
+                  style={{ fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace' }}
+                >
+                  {formatPoints(userRank?.totalPoints || 0)}
+                </span>
+                <span className="text-sm text-muted-foreground">points</span>
+              </div>
+              {userRank && (
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <TrendingUp className="w-3 h-3 text-green-400" />
+                  <span>Top {Math.max(1, 100 - userRank.percentile)}% of contributors</span>
+                </div>
+              )}
+              {!userRank && (
+                <div className="text-xs text-muted-foreground">
+                  Start contributing to join the leaderboard
+                </div>
+              )}
+            </div>
+
+            {/* View All arrow */}
+            <div className="flex items-center gap-1 text-sm text-primary font-medium">
+              <span>View</span>
+              <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </div>
+          </div>
         </div>
       </div>
     );
   }
 
+  // Full leaderboard view
   return (
     <div className="space-y-4">
       {/* Header */}
@@ -110,36 +180,25 @@ export const LeaderboardSection: React.FC<LeaderboardSectionProps> = ({
             ({totalParticipants} contributors)
           </span>
         </div>
-        {compact && onViewAll && (
-          <button 
-            onClick={() => { lightTap(); onViewAll(); }}
-            className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors"
-          >
-            View All
-            <ChevronRight className="w-3 h-3" />
-          </button>
-        )}
       </div>
 
       {/* Period tabs */}
-      {!compact && (
-        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-          {periods.map((p) => (
-            <button
-              key={p.id}
-              onClick={() => { lightTap(); setPeriod(p.id); }}
-              className={cn(
-                'px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap',
-                period === p.id
-                  ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/30'
-                  : 'bg-white/[0.05] text-muted-foreground border border-white/10 hover:bg-white/[0.08]'
-              )}
-            >
-              {p.label}
-            </button>
-          ))}
-        </div>
-      )}
+      <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+        {periods.map((p) => (
+          <button
+            key={p.id}
+            onClick={() => { lightTap(); setPeriod(p.id); }}
+            className={cn(
+              'px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap',
+              period === p.id
+                ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/30'
+                : 'bg-white/[0.05] text-muted-foreground border border-white/10 hover:bg-white/[0.08]'
+            )}
+          >
+            {p.label}
+          </button>
+        ))}
+      </div>
 
       {/* User's rank card */}
       {userRank && (
@@ -165,7 +224,7 @@ export const LeaderboardSection: React.FC<LeaderboardSectionProps> = ({
                       #{userRank.rank}
                     </span>
                     <span className="text-xs text-muted-foreground">
-                      Top {100 - userRank.percentile}%
+                      Top {Math.max(1, 100 - userRank.percentile)}%
                     </span>
                   </div>
                 </div>
@@ -252,16 +311,6 @@ export const LeaderboardSection: React.FC<LeaderboardSectionProps> = ({
           })}
         </AnimatePresence>
       </div>
-
-      {/* View more button for compact mode */}
-      {compact && entries.length > 5 && onViewAll && (
-        <button
-          onClick={() => { lightTap(); onViewAll(); }}
-          className="w-full py-2 text-center text-sm text-muted-foreground hover:text-foreground transition-colors"
-        >
-          View full leaderboard
-        </button>
-      )}
     </div>
   );
 };
