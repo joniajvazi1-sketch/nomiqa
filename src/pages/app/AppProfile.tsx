@@ -1033,15 +1033,12 @@ export const AppProfile: React.FC = () => {
               <div className="flex flex-col items-center py-4">
                 <AnimatedAvatar
                   initial={(selectedAffiliate.username || selectedAffiliate.affiliate_code).charAt(0)}
-                  tier="adventurer"
+                  tier="explorer"
                   className="mb-3"
                 />
                 <h2 className="text-xl font-bold text-foreground animate-fade-in">
                   {selectedAffiliate.username || selectedAffiliate.affiliate_code}
                 </h2>
-                <Badge variant="outline" className="mt-1 text-xs animate-stat-pop" style={{ animationDelay: '200ms' }}>
-                  {affiliateTierInfo?.currentTier.name || 'Friend'}
-                </Badge>
               </div>
 
               {/* Total Earnings */}
@@ -1065,11 +1062,9 @@ export const AppProfile: React.FC = () => {
                 Share with Friends
               </Button>
 
-              {/* 3 Referral Program Tiers */}
+              {/* Referral Program Tiers */}
               <div className="space-y-3">
-                <p className="text-sm font-semibold text-foreground text-center">3 Ways to Earn 💰</p>
-                
-                {/* Tier 1: Reward Boost */}
+                {/* Tier 1: Reward Boost - Matches DB levels: 5→10%, 15→20%, 30→40%, 50→70%, 100→100% */}
                 <Card className="bg-gradient-to-br from-neon-cyan/10 to-transparent border-neon-cyan/30">
                   <CardContent className="p-4">
                     <div className="flex items-center gap-3 mb-3">
@@ -1085,22 +1080,30 @@ export const AppProfile: React.FC = () => {
                         <p className="text-[10px] text-muted-foreground">active</p>
                       </div>
                     </div>
-                    <div className="grid grid-cols-4 gap-1 text-center text-[10px]">
-                      <div className={`p-2 rounded-lg ${(selectedAffiliate.total_registrations || 0) >= 0 ? 'bg-neon-cyan/20 text-neon-cyan' : 'bg-muted/20 text-muted-foreground'}`}>
-                        <p className="font-bold">0</p>
-                        <p>+0%</p>
-                      </div>
-                      <div className={`p-2 rounded-lg ${(selectedAffiliate.total_registrations || 0) >= 10 ? 'bg-neon-cyan/20 text-neon-cyan' : 'bg-muted/20 text-muted-foreground'}`}>
-                        <p className="font-bold">10</p>
+                    <div className="grid grid-cols-6 gap-1 text-center text-[10px]">
+                      <div className={`p-1.5 rounded-lg ${(selectedAffiliate.total_registrations || 0) >= 5 ? 'bg-neon-cyan/20 text-neon-cyan' : 'bg-muted/20 text-muted-foreground'}`}>
+                        <p className="font-bold">5</p>
                         <p>+10%</p>
                       </div>
-                      <div className={`p-2 rounded-lg ${(selectedAffiliate.total_registrations || 0) >= 50 ? 'bg-neon-cyan/20 text-neon-cyan' : 'bg-muted/20 text-muted-foreground'}`}>
-                        <p className="font-bold">50</p>
-                        <p>+25%</p>
+                      <div className={`p-1.5 rounded-lg ${(selectedAffiliate.total_registrations || 0) >= 15 ? 'bg-neon-cyan/20 text-neon-cyan' : 'bg-muted/20 text-muted-foreground'}`}>
+                        <p className="font-bold">15</p>
+                        <p>+20%</p>
                       </div>
-                      <div className={`p-2 rounded-lg ${(selectedAffiliate.total_registrations || 0) >= 200 ? 'bg-neon-cyan/20 text-neon-cyan' : 'bg-muted/20 text-muted-foreground'}`}>
-                        <p className="font-bold">200</p>
+                      <div className={`p-1.5 rounded-lg ${(selectedAffiliate.total_registrations || 0) >= 30 ? 'bg-neon-cyan/20 text-neon-cyan' : 'bg-muted/20 text-muted-foreground'}`}>
+                        <p className="font-bold">30</p>
+                        <p>+40%</p>
+                      </div>
+                      <div className={`p-1.5 rounded-lg ${(selectedAffiliate.total_registrations || 0) >= 50 ? 'bg-neon-cyan/20 text-neon-cyan' : 'bg-muted/20 text-muted-foreground'}`}>
+                        <p className="font-bold">50</p>
+                        <p>+70%</p>
+                      </div>
+                      <div className={`p-1.5 rounded-lg ${(selectedAffiliate.total_registrations || 0) >= 100 ? 'bg-neon-cyan/20 text-neon-cyan' : 'bg-muted/20 text-muted-foreground'}`}>
+                        <p className="font-bold">100</p>
                         <p>+100%</p>
+                      </div>
+                      <div className="p-1.5 rounded-lg bg-muted/10 text-muted-foreground/50">
+                        <p className="font-bold text-[9px]">∞</p>
+                        <p className="text-[9px]">max</p>
                       </div>
                     </div>
                   </CardContent>
