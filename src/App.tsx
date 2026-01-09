@@ -41,6 +41,7 @@ const AppShop = lazy(() => import("./pages/app/AppShop").then(m => ({ default: m
 const AppProfile = lazy(() => import("./pages/app/AppProfile").then(m => ({ default: m.AppProfile })));
 const AppAchievements = lazy(() => import("./pages/app/AppAchievements").then(m => ({ default: m.AppAchievements })));
 const AppChallenges = lazy(() => import("./pages/app/AppChallenges").then(m => ({ default: m.AppChallenges })));
+const AppLeaderboard = lazy(() => import("./pages/app/AppLeaderboard").then(m => ({ default: m.AppLeaderboard })));
 
 // Loading fallback component (with a safety timeout for slow/blocked mobile networks)
 const PageLoader = () => {
@@ -132,6 +133,7 @@ const NativeAppRoutes = () => (
       <Route path="/app/profile" element={<AppProfile />} />
       <Route path="/app/achievements" element={<AppAchievements />} />
       <Route path="/app/challenges" element={<AppChallenges />} />
+      <Route path="/app/leaderboard" element={<AppLeaderboard />} />
       {/* Redirect old wallet route to profile */}
       <Route path="/app/wallet" element={<Navigate to="/app/profile" replace />} />
       <Route path="/auth" element={<Auth />} />
