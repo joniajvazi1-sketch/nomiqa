@@ -81,6 +81,22 @@ const translations: Record<string, Partial<Record<Language | 'HI', string>>> = {
   appScanning: { EN: "SCANNING", ES: "ESCANEANDO", FR: "SCAN EN COURS", DE: "SCANNT", RU: "СКАНИРОВАНИЕ", ZH: "扫描中", JA: "スキャン中", PT: "ESCANEANDO", AR: "جارٍ المسح", IT: "SCANSIONE" },
   appPaused: { EN: "PAUSED", ES: "PAUSADO", FR: "EN PAUSE", DE: "PAUSIERT", RU: "ПАУЗА", ZH: "已暂停", JA: "一時停止", PT: "PAUSADO", AR: "متوقف", IT: "IN PAUSA" },
   appStartScan: { EN: "START SCAN", ES: "INICIAR ESCANEO", FR: "DÉMARRER LE SCAN", DE: "SCAN STARTEN", RU: "НАЧАТЬ СКАНИРОВАНИЕ", ZH: "开始扫描", JA: "スキャン開始", PT: "INICIAR VARREDURA", AR: "بدء المسح", IT: "INIZIA SCANSIONE" },
+  appCellularActive: { EN: "Cellular Active", ES: "Red celular activa", FR: "Réseau cellulaire actif", DE: "Mobilfunk aktiv", RU: "Сотовая связь активна", ZH: "蜂窝网络活动", JA: "モバイル通信中", PT: "Celular ativo", AR: "الشبكة الخلوية نشطة", IT: "Rete cellulare attiva" },
+  appSessionPoints: { EN: "Session Points", ES: "Puntos de sesión", FR: "Points de session", DE: "Sitzungspunkte", RU: "Очки сессии", ZH: "会话积分", JA: "セッションポイント", PT: "Pontos da sessão", AR: "نقاط الجلسة", IT: "Punti sessione" },
+  appSessionPointsPaused: { EN: "Session points (paused)", ES: "Puntos de sesión (pausados)", FR: "Points de session (en pause)", DE: "Sitzungspunkte (pausiert)", RU: "Очки сессии (пауза)", ZH: "会话积分（已暂停）", JA: "セッションポイント（一時停止中）", PT: "Pontos da sessão (pausados)", AR: "نقاط الجلسة (متوقفة)", IT: "Punti sessione (in pausa)" },
+  appTime: { EN: "Time", ES: "Tiempo", FR: "Temps", DE: "Zeit", RU: "Время", ZH: "时间", JA: "時間", PT: "Tempo", AR: "الوقت", IT: "Tempo" },
+  appDistance: { EN: "Distance", ES: "Distancia", FR: "Distance", DE: "Distanz", RU: "Расстояние", ZH: "距离", JA: "距離", PT: "Distância", AR: "المسافة", IT: "Distanza" },
+  appSpeedTests: { EN: "Speed Tests", ES: "Pruebas de velocidad", FR: "Tests de vitesse", DE: "Geschwindigkeitstests", RU: "Тесты скорости", ZH: "速度测试", JA: "速度テスト", PT: "Testes de velocidade", AR: "اختبارات السرعة", IT: "Test di velocità" },
+  appRunSpeedTest: { EN: "Run Speed Test", ES: "Ejecutar prueba de velocidad", FR: "Lancer test de vitesse", DE: "Geschwindigkeitstest starten", RU: "Запустить тест скорости", ZH: "运行速度测试", JA: "速度テストを実行", PT: "Executar teste de velocidade", AR: "تشغيل اختبار السرعة", IT: "Esegui test di velocità" },
+  appTesting: { EN: "Testing...", ES: "Probando...", FR: "Test en cours...", DE: "Teste...", RU: "Тестирование...", ZH: "测试中...", JA: "テスト中...", PT: "Testando...", AR: "جاري الاختبار...", IT: "Test in corso..." },
+  appMeasuringNetwork: { EN: "Measuring network performance", ES: "Midiendo rendimiento de la red", FR: "Mesure des performances réseau", DE: "Netzwerkleistung messen", RU: "Измерение производительности сети", ZH: "测量网络性能", JA: "ネットワーク性能を測定中", PT: "Medindo desempenho da rede", AR: "قياس أداء الشبكة", IT: "Misurazione prestazioni di rete" },
+  appTestsThisSession: { EN: "tests this session", ES: "pruebas en esta sesión", FR: "tests cette session", DE: "Tests diese Sitzung", RU: "тестов за сессию", ZH: "本次会话测试", JA: "このセッションのテスト", PT: "testes nesta sessão", AR: "اختبارات هذه الجلسة", IT: "test questa sessione" },
+  appAutoRunsEvery10Min: { EN: "Auto runs every 10 min", ES: "Se ejecuta automáticamente cada 10 min", FR: "S'exécute automatiquement toutes les 10 min", DE: "Läuft automatisch alle 10 Min", RU: "Автоматически каждые 10 мин", ZH: "每10分钟自动运行", JA: "10分ごとに自動実行", PT: "Executa automaticamente a cada 10 min", AR: "يعمل تلقائياً كل 10 دقائق", IT: "Esecuzione automatica ogni 10 min" },
+  appBonusPoints: { EN: "bonus pts", ES: "pts de bonificación", FR: "pts bonus", DE: "Bonuspunkte", RU: "бонусных очков", ZH: "奖励积分", JA: "ボーナスポイント", PT: "pts de bônus", AR: "نقاط المكافأة", IT: "punti bonus" },
+  appIndoorMode: { EN: "Indoor Mode", ES: "Modo interior", FR: "Mode intérieur", DE: "Innenmodus", RU: "Режим внутри помещения", ZH: "室内模式", JA: "屋内モード", PT: "Modo interno", AR: "وضع داخلي", IT: "Modalità interni" },
+  appIndoorModeDesc: { EN: "Enable for 1.5x points indoors", ES: "Activa para 1.5x puntos en interiores", FR: "Activer pour 1,5x points en intérieur", DE: "Aktivieren für 1,5x Punkte drinnen", RU: "Включите для 1,5x очков внутри", ZH: "开启室内1.5倍积分", JA: "屋内で1.5倍ポイントを有効化", PT: "Ative para 1.5x pontos em interiores", AR: "تفعيل للحصول على 1.5x نقاط في الداخل", IT: "Attiva per 1.5x punti al chiuso" },
+  appDataPointsSynced: { EN: "data points synced", ES: "puntos de datos sincronizados", FR: "points de données synchronisés", DE: "Datenpunkte synchronisiert", RU: "точек данных синхронизировано", ZH: "数据点已同步", JA: "データポイント同期済み", PT: "pontos de dados sincronizados", AR: "نقاط البيانات متزامنة", IT: "punti dati sincronizzati" },
+  appTelcoDataCollection: { EN: "Telco Data Collection", ES: "Recopilación de datos de telecomunicaciones", FR: "Collecte de données télécom", DE: "Telekommunikationsdatenerfassung", RU: "Сбор телеком-данных", ZH: "电信数据收集", JA: "通信データ収集", PT: "Coleta de dados de telecomunicações", AR: "جمع بيانات الاتصالات", IT: "Raccolta dati telecomunicazioni" },
   // ========== APP - Achievements/Challenges ==========
   appLocked: { EN: "Locked", ES: "Bloqueado", FR: "Verrouillé", DE: "Gesperrt", RU: "Заблокировано", ZH: "已锁定", JA: "ロック中", PT: "Bloqueado", AR: "مقفل", IT: "Bloccato" },
   appContributions: { EN: "Contributions", ES: "Contribuciones", FR: "Contributions", DE: "Beiträge", RU: "Вклады", ZH: "贡献", JA: "貢献", PT: "Contribuições", AR: "المساهمات", IT: "Contributi" },
@@ -105,6 +121,15 @@ const translations: Record<string, Partial<Record<Language | 'HI', string>>> = {
   appPlans: { EN: "plans", ES: "planes", FR: "forfaits", DE: "Pläne", RU: "планы", ZH: "套餐", JA: "プラン", PT: "planos", AR: "خطط", IT: "piani" },
   appClearFilter: { EN: "Clear filter", ES: "Limpiar filtro", FR: "Effacer le filtre", DE: "Filter löschen", RU: "Очистить фильтр", ZH: "清除筛选", JA: "フィルターをクリア", PT: "Limpar filtro", AR: "مسح الفلتر", IT: "Cancella filtro" },
   appCellular: { EN: "Cellular", ES: "Celular", FR: "Cellulaire", DE: "Mobilfunk", RU: "Сотовая связь", ZH: "蜂窝网络", JA: "モバイル", PT: "Celular", AR: "شبكة خلوية", IT: "Cellulare" },
+  // ========== APP - Home Additional ==========
+  appJoinNetwork: { EN: "Join the Network", ES: "Únete a la Red", FR: "Rejoignez le Réseau", DE: "Tritt dem Netzwerk bei", RU: "Присоединяйтесь к сети", ZH: "加入网络", JA: "ネットワークに参加", PT: "Junte-se à Rede", AR: "انضم إلى الشبكة", IT: "Unisciti alla Rete" },
+  appSignUpToEarn: { EN: "Sign up to start earning rewards for your contributions", ES: "Regístrate para comenzar a ganar recompensas por tus contribuciones", FR: "Inscrivez-vous pour commencer à gagner des récompenses pour vos contributions", DE: "Registriere dich, um Belohnungen für deine Beiträge zu verdienen", RU: "Зарегистрируйтесь, чтобы получать награды за ваш вклад", ZH: "注册开始为您的贡献获得奖励", JA: "登録して貢献で報酬を獲得しましょう", PT: "Cadastre-se para começar a ganhar recompensas por suas contribuições", AR: "سجّل لتبدأ في كسب المكافآت مقابل مساهماتك", IT: "Registrati per iniziare a guadagnare premi per i tuoi contributi" },
+  // ========== APP - Wallet Additional ==========
+  appStartEarningMore: { EN: "Start Earning More", ES: "Comienza a ganar más", FR: "Commencez à gagner plus", DE: "Fang an mehr zu verdienen", RU: "Начните зарабатывать больше", ZH: "开始赚取更多", JA: "もっと稼ぎ始める", PT: "Comece a ganhar mais", AR: "ابدأ بكسب المزيد", IT: "Inizia a guadagnare di più" },
+  appReferFriendsCommission: { EN: "Refer friends and earn up to 18% commission", ES: "Recomienda amigos y gana hasta 18% de comisión", FR: "Parrainez des amis et gagnez jusqu'à 18% de commission", DE: "Empfehle Freunde und verdiene bis zu 18% Provision", RU: "Приглашайте друзей и получайте до 18% комиссии", ZH: "推荐好友赚取高达18%的佣金", JA: "友達を紹介して最大18%のコミッションを獲得", PT: "Indique amigos e ganhe até 18% de comissão", AR: "قم بإحالة الأصدقاء واكسب حتى 18٪ عمولة", IT: "Invita amici e guadagna fino al 18% di commissione" },
+  // ========== APP - Profile Additional ==========
+  app3WaysToEarn: { EN: "3 Ways to Earn", ES: "3 Formas de ganar", FR: "3 Façons de gagner", DE: "3 Möglichkeiten zu verdienen", RU: "3 способа заработать", ZH: "3种赚取方式", JA: "3つの稼ぐ方法", PT: "3 Maneiras de ganhar", AR: "3 طرق للكسب", IT: "3 Modi per guadagnare" },
+  appCreateLinkEarn: { EN: "Create your link and start earning from referrals", ES: "Crea tu enlace y comienza a ganar por referidos", FR: "Créez votre lien et commencez à gagner avec les parrainages", DE: "Erstelle deinen Link und verdiene durch Empfehlungen", RU: "Создайте ссылку и начните зарабатывать на рефералах", ZH: "创建您的链接并开始从推荐中获得收益", JA: "リンクを作成してリファラルで稼ぎ始める", PT: "Crie seu link e comece a ganhar com indicações", AR: "أنشئ رابطك وابدأ بالكسب من الإحالات", IT: "Crea il tuo link e inizia a guadagnare dai referral" },
   // ========== APP - Onboarding ==========
   appOnboardingSkip: { EN: "Skip", ES: "Omitir", FR: "Passer", DE: "Überspringen", RU: "Пропустить", ZH: "跳过", JA: "スキップ", PT: "Pular", AR: "تخطي", IT: "Salta" },
   appOnboardingNext: { EN: "Next", ES: "Siguiente", FR: "Suivant", DE: "Weiter", RU: "Далее", ZH: "下一步", JA: "次へ", PT: "Próximo", AR: "التالي", IT: "Avanti" },
@@ -1448,6 +1473,31 @@ export function TranslationProvider({ children }: { children: ReactNode }) {
       'app.network.paused': 'appPaused',
       'app.network.startScan': 'appStartScan',
       'app.network.cellular': 'appCellular',
+      'app.network.cellularActive': 'appCellularActive',
+      'app.network.sessionPoints': 'appSessionPoints',
+      'app.network.sessionPointsPaused': 'appSessionPointsPaused',
+      'app.network.time': 'appTime',
+      'app.network.distance': 'appDistance',
+      'app.network.speedTests': 'appSpeedTests',
+      'app.network.runSpeedTest': 'appRunSpeedTest',
+      'app.network.testing': 'appTesting',
+      'app.network.measuringNetwork': 'appMeasuringNetwork',
+      'app.network.testsThisSession': 'appTestsThisSession',
+      'app.network.autoRunsEvery10Min': 'appAutoRunsEvery10Min',
+      'app.network.bonusPoints': 'appBonusPoints',
+      'app.network.indoorMode': 'appIndoorMode',
+      'app.network.indoorModeDesc': 'appIndoorModeDesc',
+      'app.network.dataPointsSynced': 'appDataPointsSynced',
+      'app.network.telcoDataCollection': 'appTelcoDataCollection',
+      // Home Additional
+      'app.home.joinNetwork': 'appJoinNetwork',
+      'app.home.signUpToEarn': 'appSignUpToEarn',
+      // Wallet Additional
+      'app.wallet.startEarningMore': 'appStartEarningMore',
+      'app.wallet.referFriendsCommission': 'appReferFriendsCommission',
+      // Profile Additional
+      'app.profile.3WaysToEarn': 'app3WaysToEarn',
+      'app.profile.createLinkEarn': 'appCreateLinkEarn',
       // Achievements
       'app.achievements': 'appAchievements',
       'app.achievements.unlocked': 'appUnlocked',
@@ -1467,6 +1517,8 @@ export function TranslationProvider({ children }: { children: ReactNode }) {
       'app.challenges.checkBackLater': 'appCheckBackLater',
       // Leaderboard
       'app.leaderboard': 'appLeaderboard',
+      // Settings
+      'app.settings.selectLanguage': 'appSelectLanguage',
       // Onboarding
       'app.onboarding.skip': 'appOnboardingSkip',
       'app.onboarding.next': 'appOnboardingNext',
