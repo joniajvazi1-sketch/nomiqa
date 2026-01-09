@@ -200,6 +200,8 @@ const WebRoutes = () => (
         <Route path="token" element={<Token />} />
         <Route path="help" element={<Help />} />
         <Route path="rewards" element={<Rewards />} />
+        <Route path="download" element={<Download />} />
+        <Route path="how-it-works" element={<HowItWorks />} />
       </Route>
       {/** English */}
       <Route path="/english">
@@ -218,6 +220,8 @@ const WebRoutes = () => (
         <Route path="token" element={<Token />} />
         <Route path="help" element={<Help />} />
         <Route path="rewards" element={<Rewards />} />
+        <Route path="download" element={<Download />} />
+        <Route path="how-it-works" element={<HowItWorks />} />
       </Route>
       {/** French */}
       <Route path="/francais">
@@ -236,6 +240,8 @@ const WebRoutes = () => (
         <Route path="token" element={<Token />} />
         <Route path="help" element={<Help />} />
         <Route path="rewards" element={<Rewards />} />
+        <Route path="download" element={<Download />} />
+        <Route path="how-it-works" element={<HowItWorks />} />
       </Route>
       {/** Spanish */}
       <Route path="/espanol">
@@ -254,6 +260,8 @@ const WebRoutes = () => (
         <Route path="token" element={<Token />} />
         <Route path="help" element={<Help />} />
         <Route path="rewards" element={<Rewards />} />
+        <Route path="download" element={<Download />} />
+        <Route path="how-it-works" element={<HowItWorks />} />
       </Route>
       {/** Portuguese */}
       <Route path="/portugues">
@@ -272,6 +280,8 @@ const WebRoutes = () => (
         <Route path="token" element={<Token />} />
         <Route path="help" element={<Help />} />
         <Route path="rewards" element={<Rewards />} />
+        <Route path="download" element={<Download />} />
+        <Route path="how-it-works" element={<HowItWorks />} />
       </Route>
       {/** Russian */}
       <Route path="/russian">
@@ -290,6 +300,8 @@ const WebRoutes = () => (
         <Route path="token" element={<Token />} />
         <Route path="help" element={<Help />} />
         <Route path="rewards" element={<Rewards />} />
+        <Route path="download" element={<Download />} />
+        <Route path="how-it-works" element={<HowItWorks />} />
       </Route>
       {/** Chinese */}
       <Route path="/chinese">
@@ -308,6 +320,8 @@ const WebRoutes = () => (
         <Route path="token" element={<Token />} />
         <Route path="help" element={<Help />} />
         <Route path="rewards" element={<Rewards />} />
+        <Route path="download" element={<Download />} />
+        <Route path="how-it-works" element={<HowItWorks />} />
       </Route>
       {/** Japanese */}
       <Route path="/japanese">
@@ -325,6 +339,9 @@ const WebRoutes = () => (
         <Route path="about" element={<About />} />
         <Route path="token" element={<Token />} />
         <Route path="help" element={<Help />} />
+        <Route path="rewards" element={<Rewards />} />
+        <Route path="download" element={<Download />} />
+        <Route path="how-it-works" element={<HowItWorks />} />
       </Route>
       {/** Arabic */}
       <Route path="/arabic">
@@ -341,7 +358,10 @@ const WebRoutes = () => (
         <Route path="terms" element={<Terms />} />
         <Route path="about" element={<About />} />
         <Route path="token" element={<Token />} />
+        <Route path="help" element={<Help />} />
         <Route path="rewards" element={<Rewards />} />
+        <Route path="download" element={<Download />} />
+        <Route path="how-it-works" element={<HowItWorks />} />
       </Route>
       {/** Italian */}
       <Route path="/italiano">
@@ -360,6 +380,8 @@ const WebRoutes = () => (
         <Route path="token" element={<Token />} />
         <Route path="help" element={<Help />} />
         <Route path="rewards" element={<Rewards />} />
+        <Route path="download" element={<Download />} />
+        <Route path="how-it-works" element={<HowItWorks />} />
       </Route>
 
       {/* Username-based affiliate links - must be last before catch-all */}
