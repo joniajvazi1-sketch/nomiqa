@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
@@ -16,6 +16,17 @@ interface WebLayoutProps {
 export const WebLayout: React.FC<WebLayoutProps> = ({ children }) => {
   const location = useLocation();
   const isAdminPage = location.pathname.startsWith('/admin');
+
+  // Scroll to top on route change
+  useEffect(() => {
+    // Scroll the container to top
+    const scrollContainer = document.querySelector('.fixed.inset-0.overflow-y-auto');
+    if (scrollContainer) {
+      scrollContainer.scrollTo(0, 0);
+    }
+    // Also scroll window just in case
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
 
   return (
     <div className="fixed inset-0 overflow-y-auto overflow-x-hidden bg-background">

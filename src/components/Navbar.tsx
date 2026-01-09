@@ -400,7 +400,7 @@ export const Navbar = () => {
                   </SheetHeader>
                   <div className="flex flex-col gap-0.5 mt-6 relative z-10">
                     {/* Featured: Download App */}
-                    <button onClick={() => handleNavClick('/app')} className="group text-left text-white hover:text-white bg-gradient-to-r from-neon-cyan/20 to-neon-violet/20 hover:from-neon-cyan/30 hover:to-neon-violet/30 transition-all duration-300 py-4 px-5 rounded-lg font-normal text-base tracking-wide backdrop-blur-sm border border-neon-cyan/30 hover:border-neon-cyan/50 shadow-lg shadow-neon-cyan/10 mb-2">
+                    <button onClick={() => handleNavClick('/download')} className="group text-left text-white hover:text-white bg-gradient-to-r from-neon-cyan/20 to-neon-violet/20 hover:from-neon-cyan/30 hover:to-neon-violet/30 transition-all duration-300 py-4 px-5 rounded-lg font-normal text-base tracking-wide backdrop-blur-sm border border-neon-cyan/30 hover:border-neon-cyan/50 shadow-lg shadow-neon-cyan/10 mb-2">
                       <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5 flex items-center gap-2">
                         📱 {t("navDownloadApp")}
                       </span>
@@ -477,7 +477,7 @@ export const Navbar = () => {
                   </SheetHeader>
                   <div className="flex flex-col gap-0.5 mt-6 relative z-10">
                     {/* Featured: Download App */}
-                    <button onClick={() => handleNavClick('/app')} className="group text-left text-white hover:text-white bg-gradient-to-r from-neon-cyan/20 to-neon-violet/20 hover:from-neon-cyan/30 hover:to-neon-violet/30 transition-all duration-300 py-4 px-5 rounded-lg font-normal text-[15px] tracking-wide backdrop-blur-sm border border-neon-cyan/30 hover:border-neon-cyan/50 shadow-lg shadow-neon-cyan/10 mb-2">
+                    <button onClick={() => handleNavClick('/download')} className="group text-left text-white hover:text-white bg-gradient-to-r from-neon-cyan/20 to-neon-violet/20 hover:from-neon-cyan/30 hover:to-neon-violet/30 transition-all duration-300 py-4 px-5 rounded-lg font-normal text-[15px] tracking-wide backdrop-blur-sm border border-neon-cyan/30 hover:border-neon-cyan/50 shadow-lg shadow-neon-cyan/10 mb-2">
                       <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5 flex items-center gap-2">
                         📱 {t("navDownloadApp")}
                       </span>
