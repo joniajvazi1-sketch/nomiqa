@@ -47,7 +47,7 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        // Neon Gradient Palette
+        // Trustworthy Color Palette
         "neon-blue": "hsl(var(--neon-blue))",
         "neon-cyan": "hsl(var(--neon-cyan))",
         "neon-violet": "hsl(var(--neon-violet))",
@@ -58,7 +58,11 @@ export default {
         "deep-space": "hsl(var(--deep-space))",
         "midnight-blue": "hsl(var(--midnight-blue))",
         "warm-sand": "hsl(var(--warm-sand))",
-        "soft-cream": "hsl(var(--soft-cream))",
+        // Reward & Trust Colors
+        "success": "hsl(var(--success))",
+        "reward-gold": "hsl(var(--reward-gold))",
+        "reward-bronze": "hsl(var(--reward-bronze))",
+        "reward-silver": "hsl(var(--reward-silver))",
         // Brand Identity
         midnight: "hsl(var(--midnight))",
         "midnight-foreground": "hsl(var(--midnight-foreground))",
@@ -82,8 +86,8 @@ export default {
         'gradient-sunrise': 'var(--gradient-sunrise)',
         'gradient-digital': 'var(--gradient-digital)',
         'gradient-warmth': 'var(--gradient-warmth)',
-        'gradient-neon': 'var(--gradient-neon)',
-        'gradient-sunset': 'var(--gradient-sunset)',
+        'gradient-reward': 'var(--gradient-reward)',
+        'gradient-trust': 'var(--gradient-trust)',
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
@@ -95,7 +99,7 @@ export default {
         'glow-cyan': 'var(--glow-cyan)',
         'glow-violet': 'var(--glow-violet)',
         'glow-coral': 'var(--glow-coral)',
-        'glow-orange': 'var(--glow-orange)',
+        'glow-gold': 'var(--glow-gold)',
         'shadow-warm': 'var(--shadow-warm)',
         'shadow-signal': 'var(--shadow-signal)',
         'shadow-neon': 'var(--shadow-neon)',
@@ -192,8 +196,8 @@ export default {
           "100%": { opacity: "1", transform: "translateY(0)" },
         },
         "glow-pulse": {
-          "0%, 100%": { boxShadow: "0 0 20px hsla(180, 100%, 70%, 0.3)" },
-          "50%": { boxShadow: "0 0 40px hsla(180, 100%, 70%, 0.6)" },
+          "0%, 100%": { boxShadow: "0 0 20px hsla(175, 70%, 48%, 0.3)" },
+          "50%": { boxShadow: "0 0 40px hsla(175, 70%, 48%, 0.5)" },
         },
         "radar-sweep": {
           "0%": { transform: "rotate(0deg)" },
@@ -269,8 +273,8 @@ export default {
         },
         // Gentle pulse for CTAs
         "gentle-pulse": {
-          "0%, 100%": { boxShadow: "0 10px 25px -5px hsla(180, 100%, 65%, 0.3)" },
-          "50%": { boxShadow: "0 10px 35px -5px hsla(180, 100%, 65%, 0.5)" },
+          "0%, 100%": { boxShadow: "0 10px 25px -5px hsla(175, 70%, 48%, 0.3)" },
+          "50%": { boxShadow: "0 10px 35px -5px hsla(175, 70%, 48%, 0.5)" },
         },
         // Sonar ping for idle buttons
         "sonar-ping": {
