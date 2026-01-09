@@ -1,7 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Capacitor } from '@capacitor/core';
-import { PushNotifications, Token, ActionPerformed, PushNotificationSchema } from '@capacitor/push-notifications';
-import { LocalNotifications } from '@capacitor/local-notifications';
+
+// Type-only imports
+type PushNotificationsModule = typeof import('@capacitor/push-notifications');
+type LocalNotificationsModule = typeof import('@capacitor/local-notifications');
 
 interface NotificationPayload {
   title: string;
@@ -27,8 +29,12 @@ export const usePushNotifications = (): UsePushNotificationsReturn => {
   const [isSupported, setIsSupported] = useState(false);
   const [isEnabled, setIsEnabled] = useState(false);
   const [permissionStatus, setPermissionStatus] = useState<'prompt' | 'granted' | 'denied' | 'unknown'>('unknown');
+  
+  // Refs to hold dynamically loaded modules
+  const pushRef = useRef<PushNotificationsModule | null>(null);
+  const localRef = useRef<LocalNotificationsModule | null>(null);
 
-  // Check if push notifications are supported
+  // Check if push notifications are supported and load modules
   useEffect(() => {
     const checkSupport = async () => {
       const isNative = Capacitor.isNativePlatform();
@@ -36,18 +42,28 @@ export const usePushNotifications = (): UsePushNotificationsReturn => {
       
       if (isNative) {
         try {
+          // Dynamically load modules
+          pushRef.current = await import('@capacitor/push-notifications');
+          localRef.current = await import('@capacitor/local-notifications');
+          
+          const { PushNotifications } = pushRef.current;
+          
           // Check current permission status
           const status = await PushNotifications.checkPermissions();
           setPermissionStatus(status.receive as 'prompt' | 'granted' | 'denied');
           setIsEnabled(status.receive === 'granted');
           
           // Load user preference
-          const savedPref = localStorage.getItem(NOTIFICATION_PREF_KEY);
-          if (savedPref !== null) {
-            setIsEnabled(savedPref === 'true' && status.receive === 'granted');
+          try {
+            const savedPref = localStorage.getItem(NOTIFICATION_PREF_KEY);
+            if (savedPref !== null) {
+              setIsEnabled(savedPref === 'true' && status.receive === 'granted');
+            }
+          } catch (e) {
+            // localStorage not available
           }
         } catch (error) {
-          console.error('Error checking notification permissions:', error);
+          console.error('Error loading notification modules:', error);
         }
       }
     };
@@ -57,11 +73,13 @@ export const usePushNotifications = (): UsePushNotificationsReturn => {
 
   // Set up push notification listeners
   useEffect(() => {
-    if (!isSupported) return;
+    if (!isSupported || !pushRef.current) return;
 
     const setupListeners = async () => {
+      const { PushNotifications } = pushRef.current!;
+      
       // Handle registration success
-      await PushNotifications.addListener('registration', (token: Token) => {
+      await PushNotifications.addListener('registration', (token) => {
         console.log('Push registration success, token:', token.value);
       });
 
@@ -71,12 +89,12 @@ export const usePushNotifications = (): UsePushNotificationsReturn => {
       });
 
       // Handle push notification received while app is in foreground
-      await PushNotifications.addListener('pushNotificationReceived', (notification: PushNotificationSchema) => {
+      await PushNotifications.addListener('pushNotificationReceived', (notification) => {
         console.log('Push notification received:', notification);
       });
 
       // Handle notification action (user tapped on notification)
-      await PushNotifications.addListener('pushNotificationActionPerformed', (action: ActionPerformed) => {
+      await PushNotifications.addListener('pushNotificationActionPerformed', (action) => {
         console.log('Push notification action:', action);
       });
     };
@@ -84,24 +102,29 @@ export const usePushNotifications = (): UsePushNotificationsReturn => {
     setupListeners();
 
     return () => {
-      PushNotifications.removeAllListeners();
+      pushRef.current?.PushNotifications.removeAllListeners();
     };
   }, [isSupported]);
 
   // Request notification permission
   const requestPermission = useCallback(async (): Promise<boolean> => {
-    if (!isSupported) {
+    if (!isSupported || !pushRef.current) {
       console.log('Push notifications not supported on this platform');
       return false;
     }
 
     try {
+      const { PushNotifications } = pushRef.current;
       const status = await PushNotifications.requestPermissions();
       const granted = status.receive === 'granted';
       
       setPermissionStatus(status.receive as 'prompt' | 'granted' | 'denied');
       setIsEnabled(granted);
-      localStorage.setItem(NOTIFICATION_PREF_KEY, granted.toString());
+      try {
+        localStorage.setItem(NOTIFICATION_PREF_KEY, granted.toString());
+      } catch (e) {
+        // localStorage not available
+      }
       
       if (granted) {
         await PushNotifications.register();
@@ -116,12 +139,14 @@ export const usePushNotifications = (): UsePushNotificationsReturn => {
 
   // Send a local notification
   const sendLocalNotification = useCallback(async (payload: NotificationPayload): Promise<void> => {
-    if (!isSupported || !isEnabled) {
+    if (!isSupported || !isEnabled || !localRef.current) {
       console.log('Notifications not enabled, skipping:', payload.title);
       return;
     }
 
     try {
+      const { LocalNotifications } = localRef.current;
+      
       // Check/request permission for local notifications
       const permStatus = await LocalNotifications.checkPermissions();
       if (permStatus.display !== 'granted') {

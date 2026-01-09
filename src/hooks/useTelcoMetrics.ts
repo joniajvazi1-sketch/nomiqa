@@ -1,14 +1,15 @@
 import { useCallback, useRef, useState } from 'react';
 import { Capacitor } from '@capacitor/core';
-import { Position } from '@capacitor/geolocation';
-import { Device } from '@capacitor/device';
-import { usePlatform } from './usePlatform';
 import { 
   TelephonyInfoPlugin, 
   isTelephonyPluginAvailable
 } from '@/plugins/TelephonyInfoPlugin';
 import { calculateDataQualityScore } from '@/utils/dataQualityScoring';
 import { runSpeedTest, type SpeedTestResult as ProviderSpeedTestResult } from '@/utils/speedTestProviders';
+
+// Type-only imports
+type Position = import('@capacitor/geolocation').Position;
+type DeviceModule = typeof import('@capacitor/device');
 
 /**
  * Telco-Grade Signal Metrics
@@ -85,7 +86,9 @@ const MAX_TIME_THRESHOLD = 5 * 60 * 1000; // 5 minutes
  * - iOS: Limited to Carrier name, Radio Technology, and derived metrics
  */
 export const useTelcoMetrics = () => {
-  const { isNative, isIOS, isAndroid } = usePlatform();
+  const isNative = Capacitor.isNativePlatform();
+  const isIOS = Capacitor.getPlatform() === 'ios';
+  const isAndroid = Capacitor.getPlatform() === 'android';
   const [deviceInfo, setDeviceInfo] = useState<{
     model: string;
     manufacturer: string;
@@ -104,6 +107,7 @@ export const useTelcoMetrics = () => {
     latencyError?: string;
     timestamp: number;
   } | null>(null);
+  const deviceModuleRef = useRef<DeviceModule | null>(null);
   
   /**
    * Initialize device info (call once on mount)
@@ -120,6 +124,12 @@ export const useTelcoMetrics = () => {
     }
     
     try {
+      // Dynamically load Device module
+      if (!deviceModuleRef.current) {
+        deviceModuleRef.current = await import('@capacitor/device');
+      }
+      const { Device } = deviceModuleRef.current;
+      
       const info = await Device.getInfo();
       setDeviceInfo({
         model: info.model || 'Unknown',

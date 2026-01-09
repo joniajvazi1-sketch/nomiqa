@@ -1,6 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Geolocation, Position } from '@capacitor/geolocation';
-import { usePlatform } from './usePlatform';
+import { Capacitor } from '@capacitor/core';
+
+// Type-only imports
+type GeolocationModule = typeof import('@capacitor/geolocation');
+type Position = import('@capacitor/geolocation').Position;
 
 interface BackgroundGeolocationState {
   hasPermission: boolean | null;
@@ -19,12 +22,13 @@ interface BackgroundGeolocationOptions {
  * Foreground Geolocation Hook
  * Uses @capacitor/geolocation on native, navigator.geolocation on web
  * Handles location permissions and continuous tracking for Network Contribution
+ * Uses dynamic imports to avoid bundling Capacitor geolocation on web
  */
 export const useBackgroundGeolocation = (
   onPositionUpdate?: (position: Position) => void,
   options: BackgroundGeolocationOptions = {}
 ) => {
-  const { isNative } = usePlatform();
+  const isNative = Capacitor.isNativePlatform();
   const [state, setState] = useState<BackgroundGeolocationState>({
     hasPermission: null,
     isTracking: false,
@@ -34,20 +38,34 @@ export const useBackgroundGeolocation = (
   
   const watchIdRef = useRef<string | number | null>(null);
   const onPositionUpdateRef = useRef(onPositionUpdate);
+  const geoRef = useRef<GeolocationModule | null>(null);
   
   // Keep callback ref updated
   useEffect(() => {
     onPositionUpdateRef.current = onPositionUpdate;
   }, [onPositionUpdate]);
 
-  // Check permissions on mount
+  // Load geolocation module and check permissions on mount
   useEffect(() => {
-    checkPermissions();
-  }, []);
+    const init = async () => {
+      if (isNative) {
+        try {
+          geoRef.current = await import('@capacitor/geolocation');
+          await checkPermissions();
+        } catch (error) {
+          console.warn('Failed to load geolocation module:', error);
+        }
+      } else {
+        await checkPermissions();
+      }
+    };
+    init();
+  }, [isNative]);
 
   const checkPermissions = async (): Promise<boolean> => {
     try {
-      if (isNative) {
+      if (isNative && geoRef.current) {
+        const { Geolocation } = geoRef.current;
         const status = await Geolocation.checkPermissions();
         const granted = status.location === 'granted' || status.coarseLocation === 'granted';
         setState(prev => ({ ...prev, hasPermission: granted }));
@@ -81,6 +99,10 @@ export const useBackgroundGeolocation = (
   const requestPermissions = async (): Promise<boolean> => {
     try {
       if (isNative) {
+        if (!geoRef.current) {
+          geoRef.current = await import('@capacitor/geolocation');
+        }
+        const { Geolocation } = geoRef.current;
         const status = await Geolocation.requestPermissions();
         const granted = status.location === 'granted' || status.coarseLocation === 'granted';
         setState(prev => ({ ...prev, hasPermission: granted }));
@@ -163,6 +185,11 @@ export const useBackgroundGeolocation = (
 
     try {
       if (isNative) {
+        if (!geoRef.current) {
+          geoRef.current = await import('@capacitor/geolocation');
+        }
+        const { Geolocation } = geoRef.current;
+        
         // Use Capacitor Geolocation
         const watchId = await Geolocation.watchPosition(
           {
@@ -244,8 +271,8 @@ export const useBackgroundGeolocation = (
   const stopTracking = async () => {
     if (watchIdRef.current !== null) {
       try {
-        if (isNative && typeof watchIdRef.current === 'string') {
-          await Geolocation.clearWatch({ id: watchIdRef.current });
+        if (isNative && typeof watchIdRef.current === 'string' && geoRef.current) {
+          await geoRef.current.Geolocation.clearWatch({ id: watchIdRef.current });
         } else if (!isNative && typeof watchIdRef.current === 'number') {
           navigator.geolocation.clearWatch(watchIdRef.current);
         }
@@ -260,6 +287,11 @@ export const useBackgroundGeolocation = (
   const getCurrentPosition = async (): Promise<Position | null> => {
     try {
       if (isNative) {
+        if (!geoRef.current) {
+          geoRef.current = await import('@capacitor/geolocation');
+        }
+        const { Geolocation } = geoRef.current;
+        
         const position = await Geolocation.getCurrentPosition({
           enableHighAccuracy: options.enableHighAccuracy ?? true,
           timeout: options.timeout ?? 15000,
@@ -309,8 +341,8 @@ export const useBackgroundGeolocation = (
   useEffect(() => {
     return () => {
       if (watchIdRef.current !== null) {
-        if (isNative && typeof watchIdRef.current === 'string') {
-          Geolocation.clearWatch({ id: watchIdRef.current }).catch(console.warn);
+        if (isNative && typeof watchIdRef.current === 'string' && geoRef.current) {
+          geoRef.current.Geolocation.clearWatch({ id: watchIdRef.current }).catch(console.warn);
         } else if (!isNative && typeof watchIdRef.current === 'number') {
           navigator.geolocation.clearWatch(watchIdRef.current);
         }
