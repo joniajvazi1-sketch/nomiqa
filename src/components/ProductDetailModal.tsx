@@ -1,12 +1,10 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
-import { ShoppingCart, HandCoins, Wifi, Calendar, Globe, Zap, Shield, Clock, Smartphone } from "lucide-react";
+import { ShoppingCart, HandCoins, Wifi, Calendar, Globe, Zap, Shield, Clock, Smartphone, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
 import { useTranslation } from "@/contexts/TranslationContext";
 import { getTranslatedCountryName } from "@/utils/countryTranslations";
-import { CompatibilityChecker } from "./CompatibilityChecker";
-import { useState } from "react";
-
+import { useDeviceCompatibility } from "@/hooks/useDeviceCompatibility";
 
 interface ProductDetailModalProps {
   open: boolean;
@@ -24,7 +22,7 @@ export const ProductDetailModal = ({
   onReferEarn 
 }: ProductDetailModalProps) => {
   const { language, t, formatPrice } = useTranslation();
-  const [compatibilityOpen, setCompatibilityOpen] = useState(false);
+  const { isCompatible, platform, isLoading } = useDeviceCompatibility();
 
   if (!product) return null;
 
@@ -90,20 +88,75 @@ export const ProductDetailModal = ({
     );
   };
 
+  const renderCompatibilityStatus = () => {
+    if (isLoading) {
+      return (
+        <div className="flex items-center gap-3 p-4 rounded-xl bg-white/[0.03] border border-white/[0.08]">
+          <div className="w-5 h-5 border-2 border-white/30 border-t-neon-cyan rounded-full animate-spin" />
+          <span className="text-sm text-white/60">Checking device...</span>
+        </div>
+      );
+    }
+
+    if (isCompatible === true) {
+      return (
+        <div className="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-green-500/10 to-green-500/5 border border-green-500/30">
+          <div className="p-2 rounded-lg bg-green-500/20">
+            <CheckCircle2 className="w-5 h-5 text-green-400" />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-medium text-green-400">Device Compatible</p>
+            <p className="text-xs text-white/50">{platform} • Ready for eSIM</p>
+          </div>
+        </div>
+      );
+    }
+
+    if (isCompatible === false) {
+      return (
+        <div className="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-red-500/10 to-red-500/5 border border-red-500/30">
+          <div className="p-2 rounded-lg bg-red-500/20">
+            <XCircle className="w-5 h-5 text-red-400" />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-medium text-red-400">May Not Be Compatible</p>
+            <p className="text-xs text-white/50">{platform} • Update your device or use QR code</p>
+          </div>
+        </div>
+      );
+    }
+
+    // Unknown (desktop or undetectable)
+    return (
+      <div className="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-neon-cyan/10 to-neon-cyan/5 border border-neon-cyan/30">
+        <div className="p-2 rounded-lg bg-neon-cyan/20">
+          <AlertCircle className="w-5 h-5 text-neon-cyan" />
+        </div>
+        <div className="flex-1">
+          <p className="text-sm font-medium text-neon-cyan">Check on Your Phone</p>
+          <p className="text-xs text-white/50">Install via QR code on supported device</p>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto bg-gradient-to-br from-deep-space/98 via-black/95 to-deep-space/98 backdrop-blur-2xl border-neon-cyan/20">
+      <DialogContent 
+        variant="popup"
+        className="sm:max-w-md max-h-[90vh] overflow-y-auto bg-gradient-to-br from-deep-space/98 via-black/95 to-deep-space/98 backdrop-blur-2xl border border-white/[0.08] rounded-3xl"
+      >
         {/* Premium background decorations */}
-        <div className="absolute inset-0 opacity-10 pointer-events-none">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-neon-cyan/30 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-0 left-0 w-64 h-64 bg-neon-violet/30 rounded-full blur-3xl"></div>
+        <div className="absolute inset-0 opacity-10 pointer-events-none rounded-3xl overflow-hidden">
+          <div className="absolute top-0 right-0 w-48 h-48 bg-neon-cyan/30 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-neon-violet/30 rounded-full blur-3xl"></div>
         </div>
 
         <DialogHeader className="relative z-10">
           {/* Clean Header Layout */}
-          <div className="flex flex-col items-center text-center mb-6">
+          <div className="flex flex-col items-center text-center mb-4">
             {/* Flag */}
-            <div className="relative mb-4">
+            <div className="relative mb-3">
               <div className="absolute inset-0 bg-neon-cyan/20 rounded-xl blur-lg"></div>
               <div className="relative">
                 {getCountryFlag(product.country_code, product.package_type, product.country_image_url)}
@@ -111,163 +164,112 @@ export const ProductDetailModal = ({
             </div>
             
             {/* Country Name */}
-            <DialogTitle className="text-2xl md:text-3xl mb-1 bg-gradient-to-r from-neon-cyan via-white to-neon-violet bg-clip-text text-transparent font-light">
+            <DialogTitle className="text-xl md:text-2xl mb-1 bg-gradient-to-r from-neon-cyan via-white to-neon-violet bg-clip-text text-transparent font-light">
               {getTranslatedCountryName(product.country_code, language)}
             </DialogTitle>
             
             {/* Package Info */}
-            <p className="text-white/50 font-light text-sm mb-3">{product.name}</p>
+            <p className="text-white/50 font-light text-xs mb-2">{product.name}</p>
             
             {/* Badges */}
-            <div className="flex gap-2 mb-4">
+            <div className="flex gap-2 mb-3">
               {product.package_type === 'regional' && (
-                <Badge className="bg-gradient-to-r from-neon-violet to-neon-coral text-white border-0 shadow-glow-violet font-light text-xs px-3">
+                <Badge className="bg-gradient-to-r from-neon-violet to-neon-coral text-white border-0 shadow-glow-violet font-light text-xs px-2.5 py-0.5">
                   Regional
                 </Badge>
               )}
               {product.is_popular && (
-                <Badge className="bg-gradient-to-r from-neon-coral to-neon-orange text-white border-0 shadow-glow-coral font-light text-xs px-3">
+                <Badge className="bg-gradient-to-r from-neon-coral to-neon-orange text-white border-0 shadow-glow-coral font-light text-xs px-2.5 py-0.5">
                   {t('popular')}
                 </Badge>
               )}
             </div>
             
             {/* Price */}
-            <div className="bg-white/[0.03] border border-white/10 rounded-2xl px-8 py-4">
-              <div className="text-4xl md:text-5xl font-semibold bg-gradient-to-r from-white via-neon-cyan to-white bg-clip-text text-transparent drop-shadow-[0_0_12px_rgba(6,182,212,0.4)]">
+            <div className="bg-white/[0.03] border border-white/[0.08] rounded-2xl px-6 py-3">
+              <div className="text-3xl font-semibold bg-gradient-to-r from-white via-neon-cyan to-white bg-clip-text text-transparent drop-shadow-[0_0_12px_rgba(6,182,212,0.4)]">
                 {formatPrice(product.price_usd)}
               </div>
-              <p className="text-xs text-white/40 mt-1 font-light">{t('oneTimePayment')}</p>
+              <p className="text-xs text-white/40 mt-0.5 font-light">{t('oneTimePayment')}</p>
             </div>
           </div>
-
-          {/* Operator Image */}
-          {product.operator_image_url && (
-            <div className="mb-6 p-6 rounded-xl bg-white/[0.02] border border-white/10 flex items-center justify-center">
-              <div className="relative">
-                <div className="absolute inset-0 bg-neon-cyan/10 rounded-lg blur-xl"></div>
-                <img 
-                  src={product.operator_image_url} 
-                  alt={product.operator_name || 'Operator'} 
-                  className="relative h-16 md:h-20 object-contain rounded-lg"
-                  loading="lazy"
-                  onError={(e) => {
-                    e.currentTarget.style.display = 'none';
-                  }}
-                />
-              </div>
-              {product.operator_name && (
-                <p className="ml-4 text-sm text-white/60 font-light">{t('poweredBy')} {product.operator_name}</p>
-              )}
-            </div>
-          )}
-
-          {/* Device Compatibility - Prominent */}
-          <Button 
-            onClick={() => setCompatibilityOpen(true)}
-            variant="outline"
-            size="lg"
-            className="w-full mb-6 bg-gradient-to-br from-neon-cyan/10 to-neon-cyan/5 border-neon-cyan/40 text-neon-cyan hover:bg-neon-cyan/20 hover:border-neon-cyan/60 transition-all duration-200 font-light h-14 rounded-xl shadow-lg shadow-neon-cyan/10"
-          >
-            <Smartphone className="mr-2 h-5 w-5" />
-            {t('checkDeviceCompatibility')}
-          </Button>
         </DialogHeader>
 
+        {/* Device Compatibility - Auto-detected */}
+        <div className="relative z-10 mb-4">
+          {renderCompatibilityStatus()}
+        </div>
+
         {/* Main Features Grid */}
-        <div className="grid grid-cols-2 gap-4 mb-8 relative z-10">
-          <div className="p-5 rounded-xl bg-gradient-to-br from-neon-cyan/10 to-neon-cyan/5 border border-neon-cyan/20 hover:border-neon-cyan/40 transition-all duration-300">
-            <div className="flex items-center gap-2 mb-3">
-              <Wifi className="h-5 w-5 text-neon-cyan" />
-              <span className="font-light text-white/80">{t('data')}</span>
+        <div className="grid grid-cols-2 gap-3 mb-4 relative z-10">
+          <div className="p-4 rounded-xl bg-gradient-to-br from-neon-cyan/10 to-neon-cyan/5 border border-white/[0.08]">
+            <div className="flex items-center gap-2 mb-2">
+              <Wifi className="h-4 w-4 text-neon-cyan" />
+              <span className="font-light text-white/70 text-xs">{t('data')}</span>
             </div>
-            <p className="text-2xl md:text-3xl font-extralight text-white">{product.data_amount}</p>
+            <p className="text-xl font-light text-white">{product.data_amount}</p>
           </div>
 
-          <div className="p-5 rounded-xl bg-gradient-to-br from-neon-violet/10 to-neon-violet/5 border border-neon-violet/20 hover:border-neon-violet/40 transition-all duration-300">
-            <div className="flex items-center gap-2 mb-3">
-              <Calendar className="h-5 w-5 text-neon-violet" />
-              <span className="font-light text-white/80">{t('validity')}</span>
+          <div className="p-4 rounded-xl bg-gradient-to-br from-neon-violet/10 to-neon-violet/5 border border-white/[0.08]">
+            <div className="flex items-center gap-2 mb-2">
+              <Calendar className="h-4 w-4 text-neon-violet" />
+              <span className="font-light text-white/70 text-xs">{t('validity')}</span>
             </div>
-            <p className="text-2xl md:text-3xl font-extralight text-white">{product.validity_days} {t('days')}</p>
+            <p className="text-xl font-light text-white">{product.validity_days} {t('days')}</p>
           </div>
         </div>
 
-        {/* Detailed Features */}
-        <div className="space-y-3 mb-8 relative z-10">
-          <h3 className="font-light text-lg mb-4 text-white">{t('planDetails')}</h3>
-          
+        {/* Compact Features */}
+        <div className="space-y-2 mb-4 relative z-10">
           {product.features?.coverage && (
-            <div className="flex items-start gap-3 p-4 rounded-xl bg-white/[0.02] border border-white/10 hover:border-neon-cyan/30 transition-all duration-300">
-              <Globe className="h-5 w-5 text-neon-cyan mt-0.5 shrink-0" />
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/[0.05]">
+              <Globe className="h-4 w-4 text-neon-cyan shrink-0" />
               <div className="flex-1 min-w-0">
-                <p className="font-normal text-white break-words">{t('coverage')}</p>
-                <p className="text-sm text-white/60 font-light mt-1 break-words">{product.features.coverage}</p>
+                <p className="text-xs text-white/50 font-light truncate">{product.features.coverage}</p>
               </div>
             </div>
           )}
 
           {product.features?.speed && (
-            <div className="flex items-start gap-3 p-4 rounded-xl bg-white/[0.02] border border-white/10 hover:border-neon-cyan/30 transition-all duration-300">
-              <Zap className="h-5 w-5 text-neon-cyan mt-0.5 shrink-0" />
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/[0.05]">
+              <Zap className="h-4 w-4 text-neon-cyan shrink-0" />
               <div className="flex-1 min-w-0">
-                <p className="font-normal text-white break-words">{t('networkSpeed')}</p>
-                <p className="text-sm text-white/60 font-light mt-1 break-words">{product.features.speed}</p>
+                <p className="text-xs text-white/50 font-light truncate">{product.features.speed}</p>
               </div>
             </div>
           )}
 
-          {product.features?.activation && (
-            <div className="flex items-start gap-3 p-4 rounded-xl bg-white/[0.02] border border-white/10 hover:border-neon-cyan/30 transition-all duration-300">
-              <Clock className="h-5 w-5 text-neon-cyan mt-0.5 shrink-0" />
-              <div className="flex-1 min-w-0">
-                <p className="font-normal text-white break-words">{t('activation')}</p>
-                <p className="text-sm text-white/60 font-light mt-1 break-words">{product.features.activation}</p>
-              </div>
-            </div>
-          )}
-
-          <div className="flex items-start gap-3 p-4 rounded-xl bg-gradient-to-br from-green-500/10 to-green-500/5 border border-green-500/30 hover:border-green-500/50 transition-all duration-300">
-            <Shield className="h-5 w-5 text-green-400 mt-0.5 shrink-0" />
-            <div>
-              <p className="font-normal text-green-400">{t('privacyProtected')}</p>
-              <p className="text-sm text-white/60 font-light mt-1">{t('privacyProtectedDesc')}</p>
-            </div>
+          <div className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-br from-green-500/5 to-green-500/[0.02] border border-green-500/20">
+            <Shield className="h-4 w-4 text-green-400 shrink-0" />
+            <p className="text-xs text-green-400/80 font-light">{t('privacyProtected')}</p>
           </div>
         </div>
 
-        {/* Removed duplicate Check Compatibility Button - now in header */}
-
-        {/* Action Buttons - Premium & Much Bigger */}
-        <div className="flex flex-col gap-4 relative z-10">
+        {/* Action Buttons */}
+        <div className="flex flex-col gap-3 relative z-10">
           <Button 
             onClick={() => {
               onAddToCart(product);
               onOpenChange(false);
             }}
-            className="w-full bg-white/[0.05] backdrop-blur-xl border-2 border-neon-cyan/40 text-neon-cyan hover:bg-neon-cyan/10 hover:border-neon-cyan/60 font-light h-16 rounded-2xl transition-all duration-300 hover:scale-[1.02] shadow-lg hover:shadow-neon-cyan/20 text-lg px-8"
+            className="w-full bg-white/[0.05] backdrop-blur-xl border border-neon-cyan/40 text-neon-cyan hover:bg-neon-cyan/10 hover:border-neon-cyan/60 font-light h-14 rounded-2xl transition-all duration-300 active:scale-[0.98] shadow-lg text-base"
             size="lg"
           >
-            <ShoppingCart className="mr-3 h-6 w-6 shrink-0" />
-            <span className="break-words">{t('addToCart')}</span>
+            <ShoppingCart className="mr-2 h-5 w-5 shrink-0" />
+            <span>{t('addToCart')}</span>
           </Button>
           <Button 
             onClick={() => {
               onOpenChange(false);
               onReferEarn(product);
             }}
-            className="w-full bg-white/[0.05] backdrop-blur-xl border-2 border-neon-coral/40 text-neon-coral hover:bg-neon-coral/10 hover:border-neon-coral/60 font-light h-16 rounded-2xl transition-all duration-300 hover:scale-[1.02] shadow-lg hover:shadow-neon-coral/20 text-lg px-8"
+            className="w-full bg-white/[0.03] backdrop-blur-xl border border-white/[0.1] text-white/70 hover:bg-white/[0.05] hover:text-white font-light h-12 rounded-xl transition-all duration-300 active:scale-[0.98] text-sm"
             size="lg"
           >
-            <HandCoins className="mr-3 h-6 w-6 shrink-0" />
-            <span className="break-words">{t('referAndEarn')}</span>
+            <HandCoins className="mr-2 h-4 w-4 shrink-0" />
+            <span>{t('referAndEarn')}</span>
           </Button>
         </div>
-        
-        <CompatibilityChecker 
-          open={compatibilityOpen} 
-          onOpenChange={setCompatibilityOpen} 
-        />
       </DialogContent>
     </Dialog>
   );
