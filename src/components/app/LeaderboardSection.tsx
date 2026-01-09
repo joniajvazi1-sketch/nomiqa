@@ -145,9 +145,8 @@ export const LeaderboardSection: React.FC<LeaderboardSectionProps> = ({
                 <span className="text-sm text-muted-foreground">points</span>
               </div>
               {userRank && (
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <TrendingUp className="w-3 h-3 text-green-400" />
-                  <span>Top {Math.max(1, 100 - userRank.percentile)}% of contributors</span>
+                <div className="text-xs text-muted-foreground">
+                  Keep contributing to climb the ranks!
                 </div>
               )}
               {!userRank && (
