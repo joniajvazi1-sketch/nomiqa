@@ -8,88 +8,93 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Lighter, brighter foundation with depth */
-    --background: 220 35% 8%;           /* Lighter dark blue */
-    --foreground: 40 40% 98%;           /* Brighter text */
-    --card: 220 30% 12%;                /* Lighter cards */
-    --card-foreground: 40 40% 98%;
-    --popover: 220 35% 10%;
-    --popover-foreground: 40 40% 98%;
+    /* Trustworthy dark foundation with warmth */
+    --background: 222 30% 7%;             /* Deep navy-blue */
+    --foreground: 45 30% 97%;             /* Warm white */
+    --card: 222 25% 11%;                  /* Slightly warmer cards */
+    --card-foreground: 45 30% 97%;
+    --popover: 222 28% 9%;
+    --popover-foreground: 45 30% 97%;
     
-    /* Vibrant, electric freedom colors - BRIGHTENED */
-    --primary: 190 100% 65%;            /* Brighter Electric Cyan */
-    --primary-foreground: 220 35% 8%;
-    --secondary: 270 80% 70%;           /* Brighter Electric Violet */
-    --secondary-foreground: 40 40% 98%;
-    --accent: 10 95% 68%;               /* Brighter Coral Spark */
-    --accent-foreground: 40 40% 98%;
+    /* Trustworthy primary - friendly blue-green */
+    --primary: 175 70% 48%;               /* Trustworthy teal */
+    --primary-foreground: 222 30% 7%;
+    --secondary: 255 60% 65%;             /* Soft purple */
+    --secondary-foreground: 45 30% 97%;
+    --accent: 38 95% 55%;                 /* Warm gold/amber */
+    --accent-foreground: 222 30% 7%;
     
-    /* Supporting colors - brighter contrast */
-    --muted: 220 30% 16%;               /* Lighter muted */
-    --muted-foreground: 215 20% 65%;    /* Brighter muted text */
-    --destructive: 0 75% 55%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 220 35% 22%;              /* Lighter borders */
-    --input: 220 35% 22%;
-    --ring: 190 100% 65%;
-    --radius: 0.5rem;
+    /* Supporting colors */
+    --muted: 222 25% 15%;
+    --muted-foreground: 220 15% 60%;
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 45 30% 97%;
+    --border: 222 25% 18%;
+    --input: 222 25% 18%;
+    --ring: 175 70% 48%;
+    --radius: 0.75rem;
     
-    /* ELECTRIFIED brand color palette - maximum vibrancy */
-    --neon-cyan: 190 100% 65%;          /* Brighter cyan */
-    --neon-blue: 235 100% 70%;          /* Brighter blue */
-    --neon-violet: 270 85% 72%;         /* Brighter violet */
-    --neon-pink: 330 85% 72%;           /* Brighter pink */
-    --neon-coral: 10 95% 68%;           /* Brighter coral */
-    --neon-orange: 25 100% 65%;         /* Brighter orange */
-    --neon-yellow: 48 100% 70%;         /* Brighter yellow */
-    --warm-sand: 40 35% 85%;            /* Lighter sand */
-    --deep-space: 220 30% 12%;          /* Lighter space */
-    --midnight-blue: 220 35% 8%;        /* Lighter midnight */
+    /* TRUSTWORTHY color palette - blues, greens, golds */
+    --neon-cyan: 175 70% 48%;             /* Trustworthy teal (primary) */
+    --neon-blue: 210 80% 60%;             /* Friendly blue */
+    --neon-violet: 255 55% 62%;           /* Soft violet */
+    --neon-pink: 330 65% 62%;             /* Softer pink */
+    --neon-coral: 15 80% 58%;             /* Warm coral */
+    --neon-orange: 32 95% 55%;            /* Warm amber */
+    --neon-yellow: 45 95% 55%;            /* Gold for rewards */
+    --warm-sand: 42 40% 88%;              /* Warm sand */
+    --deep-space: 222 25% 11%;
+    --midnight-blue: 222 30% 7%;
     
+    /* Success/Reward greens */
+    --success: 145 65% 45%;               /* Fresh green */
+    --reward-gold: 45 95% 55%;            /* Celebratory gold */
+    --reward-bronze: 30 60% 50%;          /* Bronze tier */
+    --reward-silver: 220 10% 70%;         /* Silver tier */
     
-    /* Freedom gradient definitions */
-    --gradient-freedom: linear-gradient(135deg, hsl(var(--neon-cyan)) 0%, hsl(var(--neon-violet)) 50%, hsl(var(--neon-coral)) 100%);
-    --gradient-sunrise: linear-gradient(135deg, hsl(var(--neon-coral)) 0%, hsl(var(--neon-cyan)) 100%);
+    /* Friendly gradient definitions */
+    --gradient-freedom: linear-gradient(135deg, hsl(var(--neon-cyan)) 0%, hsl(var(--neon-blue)) 100%);
+    --gradient-sunrise: linear-gradient(135deg, hsl(var(--neon-orange)) 0%, hsl(var(--neon-yellow)) 100%);
     --gradient-digital: linear-gradient(135deg, hsl(var(--neon-cyan)) 0%, hsl(var(--neon-violet)) 100%);
-    --gradient-warmth: linear-gradient(135deg, hsl(var(--neon-coral)) 0%, hsl(var(--warm-sand)) 100%);
-    --gradient-neon: linear-gradient(135deg, hsl(var(--neon-cyan)) 0%, hsl(var(--neon-violet)) 50%, hsl(var(--neon-pink)) 100%);
-    --gradient-sunset: linear-gradient(135deg, hsl(var(--neon-orange)) 0%, hsl(var(--neon-coral)) 50%, hsl(var(--neon-pink)) 100%);
+    --gradient-warmth: linear-gradient(135deg, hsl(var(--neon-orange)) 0%, hsl(var(--warm-sand)) 100%);
+    --gradient-reward: linear-gradient(135deg, hsl(45 95% 55%) 0%, hsl(32 95% 55%) 100%);
+    --gradient-trust: linear-gradient(135deg, hsl(175 70% 48%) 0%, hsl(210 80% 60%) 100%);
     
-    /* AMPLIFIED Neon Glow Effects - brighter and more intense */
-    --glow-neon: 0 0 50px hsl(190 100% 65% / 0.7), 0 0 100px hsl(270 85% 72% / 0.5);
-    --glow-cyan: 0 0 40px hsl(190 100% 65% / 0.6), 0 0 80px hsl(190 100% 65% / 0.3);
-    --glow-violet: 0 0 40px hsl(270 85% 72% / 0.6), 0 0 80px hsl(270 85% 72% / 0.3);
-    --glow-coral: 0 0 40px hsl(10 95% 68% / 0.6), 0 0 80px hsl(10 95% 68% / 0.3);
-    --glow-orange: 0 0 50px hsl(25 100% 65% / 0.5), 0 0 100px hsl(25 100% 65% / 0.3);
-    --shadow-warm: 0 10px 50px -10px hsl(190 100% 65% / 0.4);
-    --shadow-signal: 0 0 100px hsl(190 100% 65% / 0.45), 0 0 150px hsl(270 85% 72% / 0.3);
-    --shadow-neon: 0 0 80px hsl(190 100% 65% / 0.5), 0 0 120px hsl(270 85% 72% / 0.4);
+    /* Softer glow effects - less harsh, more inviting */
+    --glow-neon: 0 0 30px hsl(175 70% 48% / 0.4), 0 0 60px hsl(210 80% 60% / 0.2);
+    --glow-cyan: 0 0 25px hsl(175 70% 48% / 0.4), 0 0 50px hsl(175 70% 48% / 0.2);
+    --glow-violet: 0 0 25px hsl(255 55% 62% / 0.4), 0 0 50px hsl(255 55% 62% / 0.2);
+    --glow-coral: 0 0 25px hsl(15 80% 58% / 0.4), 0 0 50px hsl(15 80% 58% / 0.2);
+    --glow-gold: 0 0 30px hsl(45 95% 55% / 0.5), 0 0 60px hsl(45 95% 55% / 0.3);
+    --shadow-warm: 0 10px 40px -10px hsl(175 70% 48% / 0.3);
+    --shadow-signal: 0 0 60px hsl(175 70% 48% / 0.3), 0 0 100px hsl(210 80% 60% / 0.2);
+    --shadow-neon: 0 0 50px hsl(175 70% 48% / 0.35), 0 0 80px hsl(210 80% 60% / 0.2);
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     --transition-glow: all 0.4s ease-in-out;
 
-    /* Brand Colors (brightened) */
-    --midnight: 220 30% 14%;            /* Lighter midnight */
-    --midnight-foreground: 40 40% 98%;
-    --cyan: 190 100% 65%;               /* Brighter cyan */
-    --cyan-foreground: 220 35% 8%;
-    --sand: 40 35% 85%;                 /* Lighter sand */
-    --sand-foreground: 220 35% 8%;
+    /* Brand Colors */
+    --midnight: 222 25% 12%;
+    --midnight-foreground: 45 30% 97%;
+    --cyan: 175 70% 48%;
+    --cyan-foreground: 222 30% 7%;
+    --sand: 42 40% 88%;
+    --sand-foreground: 222 30% 7%;
     
-    /* Legacy Colors (brightened) */
-    --nomiqa-orange: 25 100% 65%;
-    --nomiqa-teal: 190 100% 65%;
-    --nomiqa-green: 145 75% 50%;
-    --nomiqa-cream: 40 45% 98%;
-    --nomiqa-peach: 40 100% 95%;
-    --nomiqa-blue: 190 100% 65%;
-    --nomiqa-dark: 220 35% 8%;
+    /* Legacy Colors (updated) */
+    --nomiqa-orange: 32 95% 55%;
+    --nomiqa-teal: 175 70% 48%;
+    --nomiqa-green: 145 65% 45%;
+    --nomiqa-cream: 45 45% 97%;
+    --nomiqa-peach: 38 100% 92%;
+    --nomiqa-blue: 210 80% 60%;
+    --nomiqa-dark: 222 30% 7%;
   }
 
   .dark {
-    /* Lightened dark mode */
-    --background: 220 35% 8%;
-    --foreground: 40 40% 98%;
+    /* Dark mode uses same values */
+    --background: 222 30% 7%;
+    --foreground: 45 30% 97%;
   }
 }
 
@@ -115,7 +120,7 @@ All colors MUST be HSL.
   html {
     @apply bg-background;
     /* Exact background color for overscroll rubber band effect */
-    background-color: hsl(220 35% 8%);
+    background-color: hsl(222 30% 7%);
     /* CRITICAL: Stop rubber band bounce completely */
     overscroll-behavior: none;
     overflow: hidden;
@@ -125,7 +130,7 @@ All colors MUST be HSL.
   body {
     @apply bg-background text-foreground font-sans antialiased;
     /* Match exact background for seamless overscroll */
-    background-color: hsl(220 35% 8%);
+    background-color: hsl(222 30% 7%);
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
     text-rendering: optimizeLegibility;
