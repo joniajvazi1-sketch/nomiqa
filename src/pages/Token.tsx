@@ -92,30 +92,14 @@ const Token = () => {
             <div className="relative z-10 flex flex-col items-center gap-6 md:gap-8">
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-r from-neon-cyan/30 to-neon-violet/30 rounded-full blur-xl animate-pulse" />
-                <img 
-                  src="/nomiqa-token-logo.gif" 
-                  alt="Nomiqa Token" 
-                  width="224"
-                  height="224"
-                  className="w-32 md:w-40 lg:w-48 xl:w-56 h-auto relative z-10 rounded-2xl shadow-2xl shadow-neon-cyan/50 object-contain" 
-                />
+                <div className="w-32 md:w-40 lg:w-48 xl:w-56 h-32 md:h-40 lg:h-48 xl:h-56 relative z-10 rounded-2xl shadow-2xl shadow-neon-cyan/50 bg-gradient-to-br from-neon-cyan/20 via-neon-violet/20 to-primary/20 border border-white/10 flex items-center justify-center backdrop-blur-xl">
+                  <Coins className="w-16 md:w-20 lg:w-24 xl:w-28 h-16 md:h-20 lg:h-24 xl:h-28 text-neon-cyan" />
+                </div>
               </div>
               <div className="flex items-center gap-3 text-white/60 font-light text-sm md:text-base lg:text-lg">
-                <img 
-                  src="/nomiqa-token-logo.gif" 
-                  alt="Nomiqa" 
-                  width="40"
-                  height="40"
-                  className="w-6 h-auto md:w-8 lg:w-10 rounded-lg object-contain" 
-                />
+                <Rocket className="w-5 h-5 md:w-6 lg:w-7 text-neon-violet" />
                 <span>{t("tokenLaunchingOn")}</span>
-                <img 
-                  src="/nomiqa-token-logo.gif" 
-                  alt="Nomiqa" 
-                  width="40"
-                  height="40"
-                  className="w-6 h-auto md:w-8 lg:w-10 rounded-lg object-contain" 
-                />
+                <TrendingUp className="w-5 h-5 md:w-6 lg:w-7 text-neon-cyan" />
               </div>
             </div>
           </div>
