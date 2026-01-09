@@ -41,44 +41,44 @@ export const DePINAdvantage = () => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+        <div className="grid md:grid-cols-2 gap-4 sm:gap-8 max-w-5xl mx-auto">
           {/* Traditional Telcos */}
           <div className="relative group animate-fade-in" style={{ animationDelay: '0.1s' }}>
-            <div className="absolute inset-0 bg-gradient-to-br from-red-500/10 to-orange-500/5 rounded-3xl blur-2xl opacity-50 group-hover:opacity-70 transition-opacity duration-500" />
-            <div className="relative backdrop-blur-xl bg-white/[0.02] border border-white/10 rounded-3xl p-8 h-full shadow-2xl shadow-black/20 hover:border-red-500/20 transition-all duration-500">
-              <div className="flex items-center gap-4 mb-8">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-red-500/20 to-red-500/5 backdrop-blur-sm flex items-center justify-center border border-red-500/20">
-                  <Building2 className="w-7 h-7 text-red-400" />
+            <div className="absolute inset-0 bg-gradient-to-br from-red-500/10 to-orange-500/5 rounded-2xl sm:rounded-3xl blur-2xl opacity-50 group-hover:opacity-70 transition-opacity duration-500" />
+            <div className="relative backdrop-blur-xl bg-white/[0.02] border border-white/10 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 h-full shadow-2xl shadow-black/20 hover:border-red-500/20 transition-all duration-500">
+              <div className="flex items-center gap-3 sm:gap-4 mb-5 sm:mb-8">
+                <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-gradient-to-br from-red-500/20 to-red-500/5 backdrop-blur-sm flex items-center justify-center border border-red-500/20 flex-shrink-0">
+                  <Building2 className="w-5 h-5 sm:w-7 sm:h-7 text-red-400" />
                 </div>
-                <h3 className="text-2xl font-semibold text-foreground">{t("depinTraditionalTitle")}</h3>
+                <h3 className="text-base sm:text-xl md:text-2xl font-semibold text-foreground leading-tight">{t("depinTraditionalTitle")}</h3>
               </div>
               
-              <div className="space-y-4">
+              <div className="space-y-2 sm:space-y-4">
                 {traditionalTelcos.map((item, index) => {
                   const Icon = item.icon;
                   return (
                     <div 
                       key={index}
-                      className="flex items-center gap-4 p-4 rounded-2xl bg-white/[0.02] backdrop-blur-sm border border-red-500/10 hover:border-red-500/20 transition-all duration-300"
+                      className="flex items-center gap-2 sm:gap-4 p-2.5 sm:p-4 rounded-xl sm:rounded-2xl bg-white/[0.02] backdrop-blur-sm border border-red-500/10 hover:border-red-500/20 transition-all duration-300"
                     >
-                      <div className="w-11 h-11 rounded-xl bg-red-500/10 flex items-center justify-center flex-shrink-0 border border-red-500/10">
-                        <Icon className="w-5 h-5 text-red-400" />
+                      <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl bg-red-500/10 flex items-center justify-center flex-shrink-0 border border-red-500/10">
+                        <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-red-400" />
                       </div>
-                      <span className="text-muted-foreground font-light">{t(item.textKey)}</span>
+                      <span className="text-xs sm:text-sm md:text-base text-muted-foreground font-light leading-snug">{t(item.textKey)}</span>
                     </div>
                   );
                 })}
               </div>
 
               {/* Centralized tower visual */}
-              <div className="mt-10 flex justify-center">
+              <div className="mt-6 sm:mt-10 flex justify-center">
                 <div className="relative">
-                  <div className="w-24 h-36 bg-gradient-to-t from-red-500/10 to-transparent rounded-t-2xl flex flex-col items-center justify-end pb-3 backdrop-blur-sm border border-red-500/10 border-b-0">
-                    <div className="w-1.5 h-28 bg-gradient-to-t from-red-400/60 to-red-400/20 rounded-full" />
-                    <div className="w-10 h-10 bg-red-400/20 rounded-full absolute top-3 animate-pulse border border-red-400/20" />
-                    <div className="w-6 h-6 bg-red-400/40 rounded-full absolute top-5 animate-pulse" style={{ animationDelay: '0.5s' }} />
+                  <div className="w-16 h-24 sm:w-24 sm:h-36 bg-gradient-to-t from-red-500/10 to-transparent rounded-t-xl sm:rounded-t-2xl flex flex-col items-center justify-end pb-2 sm:pb-3 backdrop-blur-sm border border-red-500/10 border-b-0">
+                    <div className="w-1 h-18 sm:w-1.5 sm:h-28 bg-gradient-to-t from-red-400/60 to-red-400/20 rounded-full" />
+                    <div className="w-7 h-7 sm:w-10 sm:h-10 bg-red-400/20 rounded-full absolute top-2 sm:top-3 animate-pulse border border-red-400/20" />
+                    <div className="w-4 h-4 sm:w-6 sm:h-6 bg-red-400/40 rounded-full absolute top-3 sm:top-5 animate-pulse" style={{ animationDelay: '0.5s' }} />
                   </div>
-                  <div className="text-xs text-red-400/50 text-center mt-3 font-light tracking-wide">{t("depinCentralizedTower")}</div>
+                  <div className="text-[10px] sm:text-xs text-red-400/50 text-center mt-2 sm:mt-3 font-light tracking-wide">{t("depinCentralizedTower")}</div>
                 </div>
               </div>
             </div>
@@ -86,35 +86,35 @@ export const DePINAdvantage = () => {
 
           {/* Nomiqa Network */}
           <div className="relative group animate-fade-in" style={{ animationDelay: '0.2s' }}>
-            <div className="absolute inset-0 bg-gradient-to-br from-neon-cyan/10 to-nomiqa-teal/5 rounded-3xl blur-2xl opacity-50 group-hover:opacity-70 transition-opacity duration-500" />
-            <div className="relative backdrop-blur-xl bg-white/[0.02] border border-white/10 rounded-3xl p-8 h-full shadow-2xl shadow-black/20 hover:border-neon-cyan/20 transition-all duration-500">
-              <div className="flex items-center gap-4 mb-8">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-neon-cyan/20 to-neon-cyan/5 backdrop-blur-sm flex items-center justify-center border border-neon-cyan/20">
-                  <Network className="w-7 h-7 text-neon-cyan" />
+            <div className="absolute inset-0 bg-gradient-to-br from-neon-cyan/10 to-nomiqa-teal/5 rounded-2xl sm:rounded-3xl blur-2xl opacity-50 group-hover:opacity-70 transition-opacity duration-500" />
+            <div className="relative backdrop-blur-xl bg-white/[0.02] border border-white/10 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 h-full shadow-2xl shadow-black/20 hover:border-neon-cyan/20 transition-all duration-500">
+              <div className="flex items-center gap-3 sm:gap-4 mb-5 sm:mb-8">
+                <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-gradient-to-br from-neon-cyan/20 to-neon-cyan/5 backdrop-blur-sm flex items-center justify-center border border-neon-cyan/20 flex-shrink-0">
+                  <Network className="w-5 h-5 sm:w-7 sm:h-7 text-neon-cyan" />
                 </div>
-                <h3 className="text-2xl font-semibold text-foreground">{t("depinNomiqaTitle")}</h3>
+                <h3 className="text-base sm:text-xl md:text-2xl font-semibold text-foreground leading-tight">{t("depinNomiqaTitle")}</h3>
               </div>
               
-              <div className="space-y-4">
+              <div className="space-y-2 sm:space-y-4">
                 {nomiqaNetwork.map((item, index) => {
                   const Icon = item.icon;
                   return (
                     <div 
                       key={index}
-                      className="flex items-center gap-4 p-4 rounded-2xl bg-white/[0.02] backdrop-blur-sm border border-neon-cyan/10 hover:border-neon-cyan/20 transition-all duration-300"
+                      className="flex items-center gap-2 sm:gap-4 p-2.5 sm:p-4 rounded-xl sm:rounded-2xl bg-white/[0.02] backdrop-blur-sm border border-neon-cyan/10 hover:border-neon-cyan/20 transition-all duration-300"
                     >
-                      <div className="w-11 h-11 rounded-xl bg-neon-cyan/10 flex items-center justify-center flex-shrink-0 border border-neon-cyan/10">
-                        <Icon className="w-5 h-5 text-neon-cyan" />
+                      <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl bg-neon-cyan/10 flex items-center justify-center flex-shrink-0 border border-neon-cyan/10">
+                        <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-neon-cyan" />
                       </div>
-                      <span className="text-foreground font-light">{t(item.textKey)}</span>
+                      <span className="text-xs sm:text-sm md:text-base text-foreground font-light leading-snug">{t(item.textKey)}</span>
                     </div>
                   );
                 })}
               </div>
 
               {/* Distributed mesh visual */}
-              <div className="mt-10 flex justify-center">
-                <div className="relative w-36 h-36">
+              <div className="mt-6 sm:mt-10 flex justify-center">
+                <div className="relative w-24 h-24 sm:w-36 sm:h-36">
                   {/* Mesh nodes */}
                   {[
                     { x: '50%', y: '8%' },
@@ -134,7 +134,7 @@ export const DePINAdvantage = () => {
                       }}
                     >
                       <div 
-                        className={`w-3.5 h-3.5 rounded-full bg-gradient-to-br from-neon-cyan to-nomiqa-teal shadow-lg shadow-neon-cyan/40 ${i === 5 ? 'w-5 h-5' : ''}`}
+                        className={`w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 rounded-full bg-gradient-to-br from-neon-cyan to-nomiqa-teal shadow-lg shadow-neon-cyan/40 ${i === 5 ? 'w-3.5 h-3.5 sm:w-5 sm:h-5' : ''}`}
                         style={{ animationDelay: `${i * 0.15}s` }}
                       >
                         <div className="absolute inset-0 rounded-full bg-neon-cyan animate-ping opacity-30" />
@@ -160,7 +160,7 @@ export const DePINAdvantage = () => {
                     <line x1="50%" y1="50%" x2="25%" y2="78%" stroke="rgba(0,255,200,0.2)" strokeWidth="1" />
                     <line x1="50%" y1="50%" x2="12%" y2="35%" stroke="rgba(0,255,200,0.2)" strokeWidth="1" />
                   </svg>
-                  <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-xs text-neon-cyan/50 whitespace-nowrap font-light tracking-wide">{t("depinDistributedMesh")}</div>
+                  <div className="absolute -bottom-5 sm:-bottom-6 left-1/2 -translate-x-1/2 text-[10px] sm:text-xs text-neon-cyan/50 whitespace-nowrap font-light tracking-wide">{t("depinDistributedMesh")}</div>
                 </div>
               </div>
             </div>
