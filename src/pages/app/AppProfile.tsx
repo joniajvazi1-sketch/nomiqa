@@ -1015,6 +1015,30 @@ export const AppProfile: React.FC = () => {
             </CardContent>
           </Card>
 
+          {/* App Settings */}
+          <Card className="bg-card/50 border-border/50">
+            <CardContent className="p-4 space-y-3">
+              <div className="flex items-center gap-2 mb-2">
+                <Sparkles className="w-4 h-4 text-primary" />
+                <h3 className="font-medium text-foreground">{t('appSettings')}</h3>
+              </div>
+              
+              {/* Replay Tutorial Button */}
+              <Button 
+                variant="outline" 
+                className="w-full justify-between"
+                onClick={() => {
+                  lightTap();
+                  localStorage.removeItem('hasSeenOnboarding');
+                  toast({ title: t('appTutorialReset'), description: t('appTutorialResetDesc') });
+                }}
+              >
+                <span>{t('appReplayTutorial')}</span>
+                <RefreshCw className="w-4 h-4" />
+              </Button>
+            </CardContent>
+          </Card>
+
           {/* Privacy Controls */}
           <PrivacyControls />
         </TabsContent>
