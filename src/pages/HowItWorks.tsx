@@ -2,9 +2,9 @@ import { Smartphone, Wifi, MapPin, Coins, Network, Globe, Users, ArrowRight, Che
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/contexts/TranslationContext";
 import { SiteNavigation } from "@/components/SiteNavigation";
+import { SEO } from "@/components/SEO";
 import { lazy, Suspense, useRef, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Helmet } from "react-helmet-async";
 
 const SupportChatbot = lazy(() => import("@/components/SupportChatbot").then(m => ({ default: m.SupportChatbot })));
 
@@ -74,10 +74,7 @@ const HowItWorks = () => {
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
-      <Helmet>
-        <title>{t("howItWorksPageTitle")} | Nomiqa</title>
-        <meta name="description" content={t("howItWorksPageSubtitle")} />
-      </Helmet>
+      <SEO page="howItWorks" />
       
       {/* Background effects */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,rgba(0,255,200,0.08),transparent_50%)]" />

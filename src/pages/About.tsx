@@ -1,6 +1,7 @@
 import { SiteNavigation } from "@/components/SiteNavigation";
 import { SupportChatbot } from "@/components/SupportChatbot";
 import { NetworkBackground } from "@/components/NetworkBackground";
+import { SEO } from "@/components/SEO";
 import { Globe, Heart, Users, Zap, Wifi, Shield, Coins } from "lucide-react";
 import { useTranslation } from "@/contexts/TranslationContext";
 
@@ -32,6 +33,7 @@ export default function About() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black/40 via-deep-space/60 to-black/40 relative">
+      <SEO page="about" />
       <NetworkBackground color="rgb(251, 146, 60)" />
       
       <div className="fixed inset-0 -z-10 overflow-hidden opacity-20">

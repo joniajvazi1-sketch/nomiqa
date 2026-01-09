@@ -2,7 +2,7 @@ import { Helmet } from "react-helmet-async";
 import { useTranslation, Language } from "@/contexts/TranslationContext";
 
 interface SEOProps {
-  page?: "home" | "shop" | "about" | "privacy" | "affiliate" | "gettingStarted" | "terms" | "token" | "help" | "rewards";
+  page?: "home" | "shop" | "about" | "privacy" | "affiliate" | "gettingStarted" | "terms" | "token" | "help" | "rewards" | "download" | "howItWorks" | "roadmap";
 }
 
 const seoData: Record<string, Record<Language, { title: string; description: string }>> = {
@@ -424,6 +424,132 @@ const seoData: Record<string, Record<Language, { title: string; description: str
     AR: {
       title: "برنامج مكافآت الولاء - اربح استرداد نقدي بالعملات المشفرة | Nomiqa",
       description: "اربح ما يصل إلى 10% استرداد نقدي بالعملات المشفرة على كل عملية شراء eSIM. ارتقِ في مستويات الولاء من البرونزية إلى البلاتينية واحصل على مكافآت حصرية."
+    }
+  },
+  download: {
+    EN: {
+      title: "Download Nomiqa App - Earn While You Connect | iOS & Android",
+      description: "Download the Nomiqa app to start earning rewards by contributing network data. Available on iOS and Android. Join the world's first user-owned connectivity network."
+    },
+    DE: {
+      title: "Nomiqa App herunterladen - Verdiene beim Verbinden | iOS & Android",
+      description: "Lade die Nomiqa App herunter und verdiene Belohnungen durch Netzwerkdaten-Beiträge. Verfügbar für iOS und Android. Werde Teil des ersten nutzergeführten Konnektivitätsnetzwerks."
+    },
+    FR: {
+      title: "Télécharger l'App Nomiqa - Gagnez en vous Connectant | iOS & Android",
+      description: "Téléchargez l'application Nomiqa pour commencer à gagner des récompenses en contribuant des données réseau. Disponible sur iOS et Android. Rejoignez le premier réseau de connectivité appartenant aux utilisateurs."
+    },
+    ES: {
+      title: "Descargar la App Nomiqa - Gana Mientras Te Conectas | iOS & Android",
+      description: "Descarga la app Nomiqa para comenzar a ganar recompensas contribuyendo datos de red. Disponible en iOS y Android. Únete a la primera red de conectividad propiedad de los usuarios."
+    },
+    IT: {
+      title: "Scarica l'App Nomiqa - Guadagna Mentre Ti Connetti | iOS & Android",
+      description: "Scarica l'app Nomiqa per iniziare a guadagnare premi contribuendo dati di rete. Disponibile su iOS e Android. Unisciti alla prima rete di connettività di proprietà degli utenti."
+    },
+    PT: {
+      title: "Baixar App Nomiqa - Ganhe Enquanto Se Conecta | iOS & Android",
+      description: "Baixe o app Nomiqa para começar a ganhar recompensas contribuindo dados de rede. Disponível para iOS e Android. Junte-se à primeira rede de conectividade pertencente aos usuários."
+    },
+    JA: {
+      title: "Nomiqaアプリをダウンロード - 接続しながら稼ぐ | iOS & Android",
+      description: "Nomiqaアプリをダウンロードして、ネットワークデータを提供しながら報酬を獲得。iOS・Androidで利用可能。世界初のユーザー所有コネクティビティネットワークに参加。"
+    },
+    ZH: {
+      title: "下载Nomiqa应用 - 连接即赚取 | iOS & Android",
+      description: "下载Nomiqa应用，通过贡献网络数据开始赚取奖励。iOS和Android可用。加入世界上第一个用户拥有的连接网络。"
+    },
+    RU: {
+      title: "Скачать приложение Nomiqa - Зарабатывайте при подключении | iOS & Android",
+      description: "Скачайте приложение Nomiqa и зарабатывайте награды, предоставляя сетевые данные. Доступно для iOS и Android. Присоединяйтесь к первой в мире сети связи, принадлежащей пользователям."
+    },
+    AR: {
+      title: "تحميل تطبيق Nomiqa - اربح أثناء الاتصال | iOS & Android",
+      description: "قم بتنزيل تطبيق Nomiqa للبدء في كسب المكافآت من خلال المساهمة ببيانات الشبكة. متوفر على iOS و Android. انضم إلى أول شبكة اتصال مملوكة للمستخدمين في العالم."
+    }
+  },
+  howItWorks: {
+    EN: {
+      title: "How Nomiqa DePIN Works - Earn Rewards for Network Data",
+      description: "Learn how Nomiqa's decentralized network works. Download the app, contribute anonymized network data, and earn crypto rewards. No technical knowledge required."
+    },
+    DE: {
+      title: "So funktioniert Nomiqa DePIN - Verdiene Belohnungen für Netzwerkdaten",
+      description: "Erfahre, wie Nomiqas dezentrales Netzwerk funktioniert. Lade die App herunter, trage anonymisierte Netzwerkdaten bei und verdiene Krypto-Belohnungen. Kein technisches Wissen erforderlich."
+    },
+    FR: {
+      title: "Comment fonctionne Nomiqa DePIN - Gagnez des récompenses pour les données réseau",
+      description: "Découvrez comment fonctionne le réseau décentralisé Nomiqa. Téléchargez l'app, contribuez des données réseau anonymisées et gagnez des récompenses crypto. Aucune connaissance technique requise."
+    },
+    ES: {
+      title: "Cómo funciona Nomiqa DePIN - Gana recompensas por datos de red",
+      description: "Aprende cómo funciona la red descentralizada de Nomiqa. Descarga la app, contribuye datos de red anonimizados y gana recompensas crypto. Sin conocimientos técnicos requeridos."
+    },
+    IT: {
+      title: "Come funziona Nomiqa DePIN - Guadagna premi per i dati di rete",
+      description: "Scopri come funziona la rete decentralizzata Nomiqa. Scarica l'app, contribuisci dati di rete anonimizzati e guadagna premi crypto. Nessuna conoscenza tecnica richiesta."
+    },
+    PT: {
+      title: "Como funciona Nomiqa DePIN - Ganhe recompensas por dados de rede",
+      description: "Aprenda como a rede descentralizada Nomiqa funciona. Baixe o app, contribua dados de rede anonimizados e ganhe recompensas crypto. Nenhum conhecimento técnico necessário."
+    },
+    JA: {
+      title: "Nomiqa DePINの仕組み - ネットワークデータで報酬を獲得",
+      description: "Nomiqaの分散型ネットワークの仕組みを学ぶ。アプリをダウンロードし、匿名化されたネットワークデータを提供して、暗号報酬を獲得。技術的知識は不要。"
+    },
+    ZH: {
+      title: "Nomiqa DePIN 如何工作 - 通过网络数据赚取奖励",
+      description: "了解Nomiqa的去中心化网络如何运作。下载应用，贡献匿名化的网络数据，赚取加密货币奖励。无需技术知识。"
+    },
+    RU: {
+      title: "Как работает Nomiqa DePIN - Зарабатывайте за сетевые данные",
+      description: "Узнайте, как работает децентрализованная сеть Nomiqa. Скачайте приложение, предоставляйте анонимизированные сетевые данные и зарабатывайте крипто-награды. Технические знания не требуются."
+    },
+    AR: {
+      title: "كيف يعمل Nomiqa DePIN - اربح مكافآت مقابل بيانات الشبكة",
+      description: "تعرف على كيفية عمل شبكة Nomiqa اللامركزية. قم بتنزيل التطبيق، وساهم ببيانات الشبكة المجهولة، واربح مكافآت العملات المشفرة. لا يلزم معرفة تقنية."
+    }
+  },
+  roadmap: {
+    EN: {
+      title: "Nomiqa Roadmap 2026 - Our Journey to Decentralized Connectivity",
+      description: "Explore Nomiqa's roadmap from platform launch to full decentralization. See completed milestones and upcoming features for 2026 and beyond."
+    },
+    DE: {
+      title: "Nomiqa Roadmap 2026 - Unser Weg zur dezentralen Konnektivität",
+      description: "Entdecke Nomiqas Roadmap vom Plattform-Launch bis zur vollständigen Dezentralisierung. Sieh abgeschlossene Meilensteine und kommende Features für 2026 und darüber hinaus."
+    },
+    FR: {
+      title: "Feuille de route Nomiqa 2026 - Notre parcours vers la connectivité décentralisée",
+      description: "Explorez la feuille de route Nomiqa du lancement de la plateforme à la décentralisation complète. Découvrez les jalons accomplis et les fonctionnalités à venir pour 2026 et au-delà."
+    },
+    ES: {
+      title: "Roadmap Nomiqa 2026 - Nuestro camino hacia la conectividad descentralizada",
+      description: "Explora el roadmap de Nomiqa desde el lanzamiento de la plataforma hasta la descentralización completa. Ve los hitos completados y las próximas características para 2026 y más allá."
+    },
+    IT: {
+      title: "Roadmap Nomiqa 2026 - Il nostro percorso verso la connettività decentralizzata",
+      description: "Esplora la roadmap Nomiqa dal lancio della piattaforma alla decentralizzazione completa. Scopri i traguardi raggiunti e le funzionalità in arrivo per il 2026 e oltre."
+    },
+    PT: {
+      title: "Roadmap Nomiqa 2026 - Nossa jornada para conectividade descentralizada",
+      description: "Explore o roadmap da Nomiqa do lançamento da plataforma à descentralização completa. Veja marcos concluídos e recursos futuros para 2026 e além."
+    },
+    JA: {
+      title: "Nomiqa ロードマップ 2026 - 分散型コネクティビティへの道",
+      description: "プラットフォームのローンチから完全な分散化までのNomiqaのロードマップを探索。2026年以降の完了したマイルストーンと今後の機能をご覧ください。"
+    },
+    ZH: {
+      title: "Nomiqa 路线图 2026 - 我们迈向去中心化连接的旅程",
+      description: "探索Nomiqa从平台发布到完全去中心化的路线图。查看已完成的里程碑和2026年及以后的即将推出功能。"
+    },
+    RU: {
+      title: "Дорожная карта Nomiqa 2026 - Наш путь к децентрализованной связи",
+      description: "Изучите дорожную карту Nomiqa от запуска платформы до полной децентрализации. Смотрите выполненные вехи и предстоящие функции на 2026 год и далее."
+    },
+    AR: {
+      title: "خارطة طريق Nomiqa 2026 - رحلتنا نحو الاتصال اللامركزي",
+      description: "استكشف خارطة طريق Nomiqa من إطلاق المنصة إلى اللامركزية الكاملة. شاهد المعالم المكتملة والميزات القادمة لعام 2026 وما بعده."
     }
   }
 };
