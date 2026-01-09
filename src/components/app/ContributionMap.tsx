@@ -388,31 +388,31 @@ export const ContributionMap: React.FC<ContributionMapProps> = ({
           className="absolute top-4 left-4 right-4 z-20 flex items-center justify-center gap-2"
           style={{ marginTop: 'env(safe-area-inset-top, 0px)' }}
         >
-          <div className="flex items-center gap-1 p-1 rounded-full bg-background/80 backdrop-blur-xl border border-white/10">
+          <div className="flex items-center gap-1 p-1.5 rounded-2xl bg-white/[0.03] backdrop-blur-2xl border border-white/[0.08] shadow-xl">
             <button
               onClick={coverageMode === 'personal' ? undefined : onToggleCoverageMode}
               className={cn(
-                'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all',
+                'flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all active:scale-95',
                 coverageMode === 'personal'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-muted-foreground hover:text-foreground'
+                  ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/30'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-white/[0.05]'
               )}
             >
-              <User className="w-3.5 h-3.5" />
+              <User className="w-4 h-4" />
               My Coverage
             </button>
             <button
               onClick={coverageMode === 'global' ? undefined : onToggleCoverageMode}
               className={cn(
-                'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all',
+                'flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all active:scale-95',
                 coverageMode === 'global'
-                  ? 'bg-neon-cyan text-black'
-                  : 'text-muted-foreground hover:text-foreground'
+                  ? 'bg-neon-cyan text-black shadow-lg shadow-neon-cyan/30'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-white/[0.05]'
               )}
             >
-              <Globe2 className="w-3.5 h-3.5" />
+              <Globe2 className="w-4 h-4" />
               Global
-              {globalCoverageLoading && <Loader2 className="w-3 h-3 animate-spin" />}
+              {globalCoverageLoading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
             </button>
           </div>
         </div>
@@ -423,21 +423,21 @@ export const ContributionMap: React.FC<ContributionMapProps> = ({
         <button
           onClick={onToggleHeatmap}
           className={cn(
-            'absolute top-16 right-4 z-20',
-            'w-10 h-10 rounded-full',
-            'backdrop-blur-xl border shadow-lg',
+            'absolute top-20 right-4 z-20',
+            'w-12 h-12 rounded-2xl',
+            'backdrop-blur-2xl border shadow-xl',
             'flex items-center justify-center',
             'transition-all active:scale-95',
             showHeatmap 
-              ? 'bg-neon-cyan/20 border-neon-cyan/50 shadow-neon-cyan/20'
-              : 'bg-white/10 border-white/20'
+              ? 'bg-neon-cyan/20 border-neon-cyan/40 shadow-neon-cyan/20'
+              : 'bg-white/[0.03] border-white/[0.08] hover:bg-white/[0.08]'
           )}
           style={{ marginTop: 'env(safe-area-inset-top, 0px)' }}
         >
           {showHeatmap ? (
-            <MapIcon className="w-4 h-4 text-neon-cyan" />
+            <MapIcon className="w-5 h-5 text-neon-cyan" />
           ) : (
-            <Layers className="w-4 h-4 text-foreground" />
+            <Layers className="w-5 h-5 text-foreground" />
           )}
         </button>
       )}
@@ -445,22 +445,23 @@ export const ContributionMap: React.FC<ContributionMapProps> = ({
       {/* Network type filter (global mode only) */}
       {coverageMode === 'global' && onNetworkFilterChange && isLoaded && !error && (
         <div 
-          className="absolute top-16 left-4 right-4 z-20 flex items-center justify-center"
+          className="absolute top-20 left-4 right-4 z-20 flex items-center justify-center"
           style={{ marginTop: 'env(safe-area-inset-top, 0px)' }}
         >
-          <div className="flex items-center gap-1 p-1 rounded-full bg-background/80 backdrop-blur-xl border border-white/10">
+          <div className="flex items-center gap-1 p-1.5 rounded-2xl bg-white/[0.03] backdrop-blur-2xl border border-white/[0.08] shadow-xl">
             {(['5g', 'lte', '3g', null] as const).map((filter) => (
               <button
                 key={filter || 'all'}
                 onClick={() => onNetworkFilterChange(filter)}
                 className={cn(
-                  'px-3 py-1 rounded-full text-xs font-mono font-medium transition-all',
+                  'px-4 py-1.5 rounded-xl text-xs font-mono font-semibold transition-all active:scale-95',
                   networkFilter === filter
-                    ? 'text-black'
-                    : 'text-muted-foreground hover:text-foreground'
+                    ? 'text-black shadow-lg'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-white/[0.05]'
                 )}
                 style={networkFilter === filter ? {
                   backgroundColor: filter ? NETWORK_COLORS[filter] : '#10b981',
+                  boxShadow: `0 4px 15px ${filter ? NETWORK_COLORS[filter] : '#10b981'}40`,
                 } : undefined}
               >
                 {filter ? filter.toUpperCase() : 'All'}
@@ -476,15 +477,15 @@ export const ContributionMap: React.FC<ContributionMapProps> = ({
           className="absolute bottom-24 left-4 right-4 z-20 pointer-events-none animate-fade-in"
           style={{ marginBottom: 'env(safe-area-inset-bottom, 0px)' }}
         >
-          <div className="bg-background/80 backdrop-blur-xl rounded-2xl p-4 border border-white/10">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs text-muted-foreground">Signal Strength</span>
-              <span className="text-xs font-medium text-foreground">{heatmapPoints.length} data points</span>
+          <div className="bg-white/[0.03] backdrop-blur-2xl rounded-2xl p-4 border border-white/[0.08]">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-xs font-medium text-foreground">Signal Strength</span>
+              <span className="text-xs text-muted-foreground">{heatmapPoints.length} data points</span>
             </div>
-            <div className="h-2 rounded-full overflow-hidden" style={{
+            <div className="h-2.5 rounded-full overflow-hidden" style={{
               background: 'linear-gradient(to right, #6366f1, #22d3ee, #10b981, #f59e0b)'
             }} />
-            <div className="flex justify-between mt-1">
+            <div className="flex justify-between mt-2">
               <span className="text-[10px] text-muted-foreground">Weak</span>
               <span className="text-[10px] text-muted-foreground">Excellent</span>
             </div>
@@ -498,27 +499,27 @@ export const ContributionMap: React.FC<ContributionMapProps> = ({
           className="absolute bottom-24 left-4 right-4 z-20 pointer-events-none animate-fade-in"
           style={{ marginBottom: 'env(safe-area-inset-bottom, 0px)' }}
         >
-          <div className="bg-background/80 backdrop-blur-xl rounded-2xl p-4 border border-white/10">
+          <div className="bg-white/[0.03] backdrop-blur-2xl rounded-2xl p-4 border border-white/[0.08]">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-xs text-muted-foreground">Network Types</span>
-              <span className="text-xs font-medium text-foreground">
+              <span className="text-xs font-medium text-foreground">Network Types</span>
+              <span className="text-xs text-muted-foreground">
                 {globalCoverage.length} locations
               </span>
             </div>
-            <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center justify-around">
               {Object.entries(NETWORK_COLORS).filter(([k]) => k !== 'other').map(([network, color]) => (
                 <div 
                   key={network} 
                   className={cn(
-                    "flex items-center gap-1.5 px-2 py-1 rounded-lg transition-all",
-                    networkFilter === network ? "bg-white/10" : ""
+                    "flex items-center gap-2 px-3 py-1.5 rounded-xl transition-all",
+                    networkFilter === network ? "bg-white/[0.08]" : ""
                   )}
                 >
                   <div 
-                    className="w-3 h-3 rounded-full" 
-                    style={{ backgroundColor: color }}
+                    className="w-3 h-3 rounded-full shadow-lg" 
+                    style={{ backgroundColor: color, boxShadow: `0 0 10px ${color}40` }}
                   />
-                  <span className="text-[10px] font-mono font-medium text-foreground">
+                  <span className="text-xs font-mono font-semibold text-foreground">
                     {network.toUpperCase()}
                   </span>
                 </div>
@@ -531,8 +532,11 @@ export const ContributionMap: React.FC<ContributionMapProps> = ({
       {/* Error fallback */}
       {error && (
         <div className="absolute inset-0 flex items-center justify-center bg-background z-20">
-          <div className="text-center p-6">
-            <MapPin className="w-12 h-12 mx-auto mb-3 text-muted-foreground opacity-50" />
+          <div className="text-center p-8 mx-4 rounded-3xl bg-white/[0.03] backdrop-blur-2xl border border-white/[0.08]">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-red-500/10 flex items-center justify-center">
+              <MapPin className="w-8 h-8 text-red-400" />
+            </div>
+            <p className="text-lg font-semibold text-foreground mb-1">Map Error</p>
             <p className="text-muted-foreground text-sm">{error}</p>
           </div>
         </div>
@@ -541,9 +545,12 @@ export const ContributionMap: React.FC<ContributionMapProps> = ({
       {/* Loading overlay */}
       {!isLoaded && !error && (
         <div className="absolute inset-0 flex items-center justify-center bg-background z-20">
-          <div className="text-center">
-            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2 text-primary" />
-            <p className="text-muted-foreground text-sm">Loading map...</p>
+          <div className="text-center p-8 mx-4 rounded-3xl bg-white/[0.03] backdrop-blur-2xl border border-white/[0.08]">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-primary/10 flex items-center justify-center">
+              <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            </div>
+            <p className="text-lg font-semibold text-foreground mb-1">Loading Map</p>
+            <p className="text-muted-foreground text-sm">Initializing coverage view...</p>
           </div>
         </div>
       )}
@@ -551,24 +558,29 @@ export const ContributionMap: React.FC<ContributionMapProps> = ({
       {/* Global coverage loading overlay */}
       {globalCoverageLoading && coverageMode === 'global' && isLoaded && (
         <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
-          <div className="text-center bg-background/80 backdrop-blur-sm rounded-2xl p-6 mx-4">
-            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2 text-neon-cyan" />
-            <p className="text-foreground font-medium">Loading Global Coverage</p>
-            <p className="text-muted-foreground text-sm mt-1">Aggregating community data...</p>
+          <div className="text-center bg-white/[0.03] backdrop-blur-2xl rounded-3xl p-8 mx-4 border border-white/[0.08] shadow-2xl">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-neon-cyan/10 flex items-center justify-center">
+              <Loader2 className="w-8 h-8 animate-spin text-neon-cyan" />
+            </div>
+            <p className="text-lg font-semibold text-foreground mb-1">Loading Global Coverage</p>
+            <p className="text-sm text-muted-foreground">Aggregating community data...</p>
           </div>
         </div>
       )}
       
-      {/* GPS Acquiring overlay */}
+      {/* GPS Acquiring overlay - styled to match premium glassmorphism */}
       {isLoaded && !error && !validPosition && isActive && coverageMode === 'personal' && !showHeatmap && (
         <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
-          <div className="text-center bg-background/80 backdrop-blur-sm rounded-2xl p-6 mx-4">
-            <div className="relative mx-auto w-12 h-12 mb-3">
-              <div className="absolute inset-0 border-2 border-primary/30 rounded-full animate-ping" />
-              <MapPin className="w-12 h-12 text-primary" />
+          <div className="text-center bg-white/[0.03] backdrop-blur-2xl rounded-3xl p-8 mx-4 border border-white/[0.08] shadow-2xl">
+            <div className="relative mx-auto w-16 h-16 mb-4">
+              <div className="absolute inset-0 rounded-full bg-primary/10 animate-ping" />
+              <div className="absolute inset-2 rounded-full bg-primary/20 animate-pulse" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <MapPin className="w-8 h-8 text-primary" />
+              </div>
             </div>
-            <p className="text-foreground font-medium">Acquiring GPS Signal</p>
-            <p className="text-muted-foreground text-sm mt-1">Please wait for location lock...</p>
+            <p className="text-lg font-semibold text-foreground mb-1">Acquiring GPS Signal</p>
+            <p className="text-sm text-muted-foreground">Please wait for location lock...</p>
           </div>
         </div>
       )}
@@ -576,10 +588,12 @@ export const ContributionMap: React.FC<ContributionMapProps> = ({
       {/* Empty heatmap state (personal) */}
       {coverageMode === 'personal' && showHeatmap && heatmapPoints.length === 0 && isLoaded && !error && (
         <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
-          <div className="text-center bg-background/80 backdrop-blur-sm rounded-2xl p-6 mx-4">
-            <Layers className="w-12 h-12 mx-auto mb-3 text-muted-foreground opacity-50" />
-            <p className="text-foreground font-medium">No Coverage Data Yet</p>
-            <p className="text-muted-foreground text-sm mt-1">Start scanning to build your coverage map</p>
+          <div className="text-center bg-white/[0.03] backdrop-blur-2xl rounded-3xl p-8 mx-4 border border-white/[0.08] shadow-2xl">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-white/[0.05] flex items-center justify-center">
+              <Layers className="w-8 h-8 text-muted-foreground" />
+            </div>
+            <p className="text-lg font-semibold text-foreground mb-1">No Coverage Data Yet</p>
+            <p className="text-sm text-muted-foreground">Start scanning to build your coverage map</p>
           </div>
         </div>
       )}
@@ -587,10 +601,12 @@ export const ContributionMap: React.FC<ContributionMapProps> = ({
       {/* Empty global coverage state */}
       {coverageMode === 'global' && globalCoverage.length === 0 && !globalCoverageLoading && isLoaded && !error && (
         <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
-          <div className="text-center bg-background/80 backdrop-blur-sm rounded-2xl p-6 mx-4">
-            <Globe2 className="w-12 h-12 mx-auto mb-3 text-muted-foreground opacity-50" />
-            <p className="text-foreground font-medium">No Global Coverage Yet</p>
-            <p className="text-muted-foreground text-sm mt-1">Be the first to contribute!</p>
+          <div className="text-center bg-white/[0.03] backdrop-blur-2xl rounded-3xl p-8 mx-4 border border-white/[0.08] shadow-2xl">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-neon-cyan/10 flex items-center justify-center">
+              <Globe2 className="w-8 h-8 text-neon-cyan" />
+            </div>
+            <p className="text-lg font-semibold text-foreground mb-1">No Global Coverage Yet</p>
+            <p className="text-sm text-muted-foreground">Be the first to contribute!</p>
           </div>
         </div>
       )}
