@@ -1047,11 +1047,11 @@ export const AppProfile: React.FC = () => {
           <PrivacyControls />
         </TabsContent>
 
-        {/* Earn Tab - iOS Style Layout */}
+        {/* Earn Tab - Shows all 3 referral program tiers */}
         <TabsContent value="earn" className="mt-4 space-y-4 animate-tab-content-in">
           {allAffiliates.length > 0 && selectedAffiliate ? (
             <>
-              {/* Centered Avatar & Name - Using Animated Avatar */}
+              {/* Centered Avatar & Name */}
               <div className="flex flex-col items-center py-4">
                 <AnimatedAvatar
                   initial={(selectedAffiliate.username || selectedAffiliate.affiliate_code).charAt(0)}
@@ -1062,14 +1062,14 @@ export const AppProfile: React.FC = () => {
                   {selectedAffiliate.username || selectedAffiliate.affiliate_code}
                 </h2>
                 <Badge variant="outline" className="mt-1 text-xs animate-stat-pop" style={{ animationDelay: '200ms' }}>
-                  {affiliateTierInfo?.currentTier.name || 'Recruit'}
+                  {affiliateTierInfo?.currentTier.name || 'Friend'}
                 </Badge>
               </div>
 
-              {/* Total Earnings - Friendly language */}
+              {/* Total Earnings */}
               <Card className="bg-gradient-to-br from-green-500/20 to-green-600/10 border-green-500/30 animate-stat-pop">
                 <CardContent className="p-6 text-center">
-                  <p className="text-sm text-muted-foreground mb-1">You've earned</p>
+                  <p className="text-sm text-muted-foreground mb-1">Total Earned</p>
                   <p className="text-4xl font-bold text-green-500 tabular-nums">
                     $<AnimatedCounter value={selectedAffiliate.total_earnings_usd || 0} decimals={2} duration={1800} />
                   </p>
@@ -1077,7 +1077,7 @@ export const AppProfile: React.FC = () => {
                 </CardContent>
               </Card>
 
-              {/* Invite Friend Button - Large friendly CTA */}
+              {/* Invite Friend Button */}
               <Button 
                 onClick={handleShare} 
                 size="xl" 
@@ -1087,85 +1087,130 @@ export const AppProfile: React.FC = () => {
                 Share with Friends
               </Button>
 
-              {/* Friends Summary - Friendly language */}
-              <Card className="bg-card/50 border-border/50 overflow-hidden">
-                <CardContent className="p-0">
-                  <div className="p-4 border-b border-border/50">
-                    <p className="text-sm font-semibold text-foreground">Your Impact 🌟</p>
-                  </div>
-                  <div className="divide-y divide-border/50">
-                    <div className="flex items-center justify-between p-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-sky-500/20 flex items-center justify-center">
-                          <UserPlus className="w-5 h-5 text-sky-500" />
-                        </div>
-                        <span className="text-sm text-foreground">Friends signed up</span>
+              {/* 3 Referral Program Tiers */}
+              <div className="space-y-3">
+                <p className="text-sm font-semibold text-foreground text-center">3 Ways to Earn 💰</p>
+                
+                {/* Tier 1: Reward Boost */}
+                <Card className="bg-gradient-to-br from-neon-cyan/10 to-transparent border-neon-cyan/30">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="p-2 rounded-xl bg-neon-cyan/20">
+                        <Zap className="w-5 h-5 text-neon-cyan" />
                       </div>
-                      <span className="text-lg font-semibold text-foreground tabular-nums">
-                        <AnimatedCounter value={selectedAffiliate.total_registrations || 0} duration={1200} />
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between p-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-green-500/20 flex items-center justify-center">
-                          <CheckCircle2 className="w-5 h-5 text-green-500" />
-                        </div>
-                        <span className="text-sm text-foreground">Friends who bought</span>
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-foreground text-sm">Reward Boost</h4>
+                        <p className="text-xs text-muted-foreground">More recruits = higher earning rate</p>
                       </div>
-                      <span className="text-lg font-semibold text-foreground tabular-nums">
-                        <AnimatedCounter value={selectedAffiliate.total_conversions || 0} duration={1200} />
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between p-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center">
-                          <Zap className="w-5 h-5 text-amber-500" />
-                        </div>
-                        <span className="text-sm text-foreground">Bonus boost</span>
+                      <div className="text-right">
+                        <p className="text-lg font-bold text-neon-cyan">+{selectedAffiliate.miner_boost_percentage || 0}%</p>
+                        <p className="text-[10px] text-muted-foreground">active</p>
                       </div>
-                      <span className="text-lg font-semibold text-amber-500 tabular-nums">
-                        +{selectedAffiliate.miner_boost_percentage || 0}%
-                      </span>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
+                    <div className="grid grid-cols-4 gap-1 text-center text-[10px]">
+                      <div className={`p-2 rounded-lg ${(selectedAffiliate.total_registrations || 0) >= 0 ? 'bg-neon-cyan/20 text-neon-cyan' : 'bg-muted/20 text-muted-foreground'}`}>
+                        <p className="font-bold">0</p>
+                        <p>+0%</p>
+                      </div>
+                      <div className={`p-2 rounded-lg ${(selectedAffiliate.total_registrations || 0) >= 10 ? 'bg-neon-cyan/20 text-neon-cyan' : 'bg-muted/20 text-muted-foreground'}`}>
+                        <p className="font-bold">10</p>
+                        <p>+10%</p>
+                      </div>
+                      <div className={`p-2 rounded-lg ${(selectedAffiliate.total_registrations || 0) >= 50 ? 'bg-neon-cyan/20 text-neon-cyan' : 'bg-muted/20 text-muted-foreground'}`}>
+                        <p className="font-bold">50</p>
+                        <p>+25%</p>
+                      </div>
+                      <div className={`p-2 rounded-lg ${(selectedAffiliate.total_registrations || 0) >= 200 ? 'bg-neon-cyan/20 text-neon-cyan' : 'bg-muted/20 text-muted-foreground'}`}>
+                        <p className="font-bold">200</p>
+                        <p>+100%</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
 
-              {/* Level Progress - Friendly */}
+                {/* Tier 2: Sales Commission */}
+                <Card className="bg-gradient-to-br from-primary/10 to-transparent border-primary/30">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="p-2 rounded-xl bg-primary/20">
+                        <Users className="w-5 h-5 text-primary" />
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-foreground text-sm">Sales Commission</h4>
+                        <p className="text-xs text-muted-foreground">Earn when referrals buy eSIMs</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-lg font-bold text-primary">{selectedAffiliate.commission_rate || 9}%</p>
+                        <p className="text-[10px] text-muted-foreground">rate</p>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2 text-center">
+                      <div className={`p-2 rounded-lg ${selectedAffiliate.tier_level >= 1 ? 'bg-primary/20' : 'bg-muted/20'}`}>
+                        <p className={`font-bold ${selectedAffiliate.tier_level >= 1 ? 'text-primary' : 'text-muted-foreground'}`}>9%</p>
+                        <p className="text-[10px] text-muted-foreground">Level 1</p>
+                        <p className="text-[9px] text-muted-foreground">Direct</p>
+                      </div>
+                      <div className={`p-2 rounded-lg ${selectedAffiliate.tier_level >= 2 ? 'bg-purple-500/20' : 'bg-muted/20'}`}>
+                        <p className={`font-bold ${selectedAffiliate.tier_level >= 2 ? 'text-purple-500' : 'text-muted-foreground'}`}>+6%</p>
+                        <p className="text-[10px] text-muted-foreground">Level 2</p>
+                        <p className="text-[9px] text-muted-foreground">10+ sales</p>
+                      </div>
+                      <div className={`p-2 rounded-lg ${selectedAffiliate.tier_level >= 3 ? 'bg-amber-500/20' : 'bg-muted/20'}`}>
+                        <p className={`font-bold ${selectedAffiliate.tier_level >= 3 ? 'text-amber-500' : 'text-muted-foreground'}`}>+3%</p>
+                        <p className="text-[10px] text-muted-foreground">Level 3</p>
+                        <p className="text-[9px] text-muted-foreground">30+ sales</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Tier 3: Network Earnings */}
+                <Card className="bg-gradient-to-br from-green-500/10 to-transparent border-green-500/30">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-xl bg-green-500/20">
+                        <TrendingUp className="w-5 h-5 text-green-500" />
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-foreground text-sm">Network Earnings</h4>
+                        <p className="text-xs text-muted-foreground">Earn from your referrals' contributions</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-lg font-bold text-green-500">+5%</p>
+                        <p className="text-[10px] text-muted-foreground">of their rewards</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Stats Summary */}
               <Card className="bg-card/50 border-border/50">
                 <CardContent className="p-4">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 rounded-xl bg-violet-500/20 flex items-center justify-center">
-                      <Crown className="w-5 h-5 text-violet-500" />
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="text-sm font-semibold text-foreground">Your Stats</p>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2 text-center">
+                    <div className="bg-background/40 rounded-lg p-3">
+                      <UserPlus className="w-4 h-4 text-sky-500 mx-auto mb-1" />
+                      <p className="text-lg font-semibold text-foreground">{selectedAffiliate.total_registrations || 0}</p>
+                      <p className="text-[10px] text-muted-foreground">Recruits</p>
                     </div>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between mb-1">
-                        <p className="text-sm font-medium text-foreground">
-                          {affiliateTierInfo?.currentTier.emoji} {affiliateTierInfo?.currentTier.name} Level
-                        </p>
-                        <span className="text-xs text-muted-foreground">{affiliateTierInfo?.currentTier.commission}</span>
-                      </div>
-                      {affiliateTierInfo?.nextTier && (
-                        <p className="text-xs text-muted-foreground">
-                          Invite {affiliateTierInfo.remaining} more friends to become a {affiliateTierInfo.nextTier.emoji} {affiliateTierInfo.nextTier.name}!
-                        </p>
-                      )}
-                      {!affiliateTierInfo?.nextTier && (
-                        <p className="text-xs text-green-500">You're at the top! 🏆</p>
-                      )}
+                    <div className="bg-background/40 rounded-lg p-3">
+                      <CheckCircle2 className="w-4 h-4 text-green-500 mx-auto mb-1" />
+                      <p className="text-lg font-semibold text-foreground">{selectedAffiliate.total_conversions || 0}</p>
+                      <p className="text-[10px] text-muted-foreground">Sales</p>
+                    </div>
+                    <div className="bg-background/40 rounded-lg p-3">
+                      <Zap className="w-4 h-4 text-neon-cyan mx-auto mb-1" />
+                      <p className="text-lg font-semibold text-neon-cyan">+{selectedAffiliate.miner_boost_percentage || 0}%</p>
+                      <p className="text-[10px] text-muted-foreground">Boost</p>
                     </div>
                   </div>
-                  {affiliateTierInfo?.nextTier && (
-                    <AnimatedProgressBar 
-                      value={selectedAffiliate.total_conversions || 0} 
-                      max={affiliateTierInfo.nextTier.conversions} 
-                      showPercentage={false}
-                    />
-                  )}
                 </CardContent>
               </Card>
 
-              {/* Add New Link - Only show if less than 3 links */}
+              {/* Add New Link */}
               {allAffiliates.length < 3 && (
                 <Card className="bg-card/50 border-border/50 border-dashed">
                   <CardContent className="p-4">
@@ -1191,7 +1236,7 @@ export const AppProfile: React.FC = () => {
                 </Card>
               )}
 
-              {/* New Link Input Modal */}
+              {/* New Link Input */}
               {showNewLinkInput && (
                 <Card className="bg-card/50 border-primary/50">
                   <CardContent className="p-4 space-y-3">
@@ -1217,31 +1262,41 @@ export const AppProfile: React.FC = () => {
               )}
             </>
           ) : (
-            /* No Affiliate - Create First */
+            /* No Affiliate - Create First with all 3 tiers explained */
             <Card className="bg-card/50 border-border/50">
               <CardContent className="p-6 text-center space-y-4">
                 <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
                   <Gift className="w-8 h-8 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-lg text-foreground mb-1">Start Earning</h3>
+                  <h3 className="font-bold text-lg text-foreground mb-1">3 Ways to Earn</h3>
                   <p className="text-sm text-muted-foreground">
-                    Create your affiliate link and earn up to 18% commission on sales
+                    Create your link and start earning from referrals
                   </p>
                 </div>
                 
-                <div className="grid grid-cols-3 gap-2 text-center">
-                  <div className="p-2 bg-background/50 rounded-lg">
-                    <p className="text-lg font-bold text-primary">9%</p>
-                    <p className="text-[10px] text-muted-foreground">Direct</p>
+                {/* 3 Tier Overview */}
+                <div className="space-y-2 text-left">
+                  <div className="flex items-center gap-3 p-3 bg-neon-cyan/10 rounded-xl">
+                    <Zap className="w-5 h-5 text-neon-cyan" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-foreground">Reward Boost</p>
+                      <p className="text-xs text-muted-foreground">Up to +100% on your points</p>
+                    </div>
                   </div>
-                  <div className="p-2 bg-background/50 rounded-lg">
-                    <p className="text-lg font-bold text-purple-500">6%</p>
-                    <p className="text-[10px] text-muted-foreground">Level 2</p>
+                  <div className="flex items-center gap-3 p-3 bg-primary/10 rounded-xl">
+                    <Users className="w-5 h-5 text-primary" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-foreground">Sales Commission</p>
+                      <p className="text-xs text-muted-foreground">Up to 18% multi-tier</p>
+                    </div>
                   </div>
-                  <div className="p-2 bg-background/50 rounded-lg">
-                    <p className="text-lg font-bold text-amber-500">3%</p>
-                    <p className="text-[10px] text-muted-foreground">Level 3</p>
+                  <div className="flex items-center gap-3 p-3 bg-green-500/10 rounded-xl">
+                    <TrendingUp className="w-5 h-5 text-green-500" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-foreground">Network Earnings</p>
+                      <p className="text-xs text-muted-foreground">+5% of referrals' rewards</p>
+                    </div>
                   </div>
                 </div>
 
