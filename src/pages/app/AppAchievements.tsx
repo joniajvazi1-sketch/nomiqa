@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Trophy, Lock } from 'lucide-react';
 import { useHaptics } from '@/hooks/useHaptics';
@@ -6,6 +6,8 @@ import { useAchievements } from '@/hooks/useAchievements';
 import { AchievementBadge, StreakBonus } from '@/components/app/AchievementSystem';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/contexts/TranslationContext';
+import { usePullToRefresh } from '@/hooks/usePullToRefresh';
+import { PullToRefreshIndicator } from '@/components/app/PullToRefreshIndicator';
 
 export const AppAchievements: React.FC = () => {
   const navigate = useNavigate();
@@ -16,8 +18,18 @@ export const AppAchievements: React.FC = () => {
     unlockedCount, 
     totalCount, 
     streakDays,
-    loading 
+    loading,
+    refreshAchievements
   } = useAchievements();
+
+  // Pull-to-refresh
+  const handleRefresh = useCallback(async () => {
+    await refreshAchievements();
+  }, [refreshAchievements]);
+
+  const { isRefreshing, pullDistance, pullProgress, handlers } = usePullToRefresh({
+    onRefresh: handleRefresh,
+  });
 
   // Group achievements by category
   const grouped = achievements.reduce((acc, achievement) => {
@@ -36,7 +48,16 @@ export const AppAchievements: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-28">
+    <div 
+      className="min-h-screen bg-background pb-28 overflow-y-auto"
+      {...handlers}
+    >
+      <PullToRefreshIndicator 
+        isRefreshing={isRefreshing} 
+        pullDistance={pullDistance} 
+        pullProgress={pullProgress} 
+      />
+      
       {/* Header */}
       <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-white/[0.08] px-5 py-4">
         <div className="flex items-center gap-4">

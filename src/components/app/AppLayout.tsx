@@ -3,6 +3,8 @@ import { useLocation } from 'react-router-dom';
 import { Capacitor } from '@capacitor/core';
 import { BottomTabBar } from './BottomTabBar';
 import { PageTransition } from './PageTransition';
+import { OfflineScreen } from './OfflineScreen';
+import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 
 // Type imports only - actual module loaded dynamically
 type StatusBarModule = typeof import('@capacitor/status-bar');
@@ -15,12 +17,14 @@ interface AppLayoutProps {
  * Native App Layout - Used only when running as installed app
  * Edge-to-edge display with content flowing behind status bar
  * No header/footer, uses bottom tab navigation
+ * Shows offline screen when no internet connection
  */
 export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const isNative = Capacitor.isNativePlatform();
   const isIOS = Capacitor.getPlatform() === 'ios';
   const location = useLocation();
   const statusBarRef = useRef<StatusBarModule | null>(null);
+  const { isOffline } = useNetworkStatus();
 
   useEffect(() => {
     // Configure status bar for native app - translucent overlay style
@@ -51,6 +55,11 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       configureStatusBar();
     }
   }, [isNative, isIOS]);
+
+  // Show offline screen when no internet connection
+  if (isOffline) {
+    return <OfflineScreen />;
+  }
 
   return (
     <div className="h-full w-full flex flex-col relative overflow-hidden">
