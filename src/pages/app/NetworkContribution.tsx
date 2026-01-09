@@ -357,7 +357,7 @@ export const NetworkContribution: React.FC = () => {
               {/* Paused points indicator */}
               {stats.pointsEarned > 0 && (
                 <div className="mt-3 pt-3 border-t border-amber-500/20 flex items-center justify-between">
-                  <span className="text-xs text-amber-300/60">Session points (paused)</span>
+                  <span className="text-xs text-amber-300/60">{t('app.network.sessionPointsPaused')}</span>
                   <span className="text-sm font-mono text-amber-300">{stats.pointsEarned.toFixed(1)} pts</span>
                 </div>
               )}
@@ -400,7 +400,7 @@ export const NetworkContribution: React.FC = () => {
             <div className="flex items-center justify-center gap-2 py-1.5 animate-fade-in">
               <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-neon-cyan/10 border border-neon-cyan/20">
                 <Signal className="w-3.5 h-3.5 text-neon-cyan" />
-                <span className="text-xs font-medium text-neon-cyan">Cellular Active</span>
+                <span className="text-xs font-medium text-neon-cyan">{t('app.network.cellularActive')}</span>
                 <div className="w-1.5 h-1.5 rounded-full bg-neon-cyan animate-pulse" />
               </div>
             </div>
@@ -502,7 +502,7 @@ export const NetworkContribution: React.FC = () => {
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
                   <Zap className="w-4 h-4 text-neon-cyan" />
-                  <span className="text-sm font-semibold text-foreground">Session Points</span>
+                  <span className="text-sm font-semibold text-foreground">{t('app.network.sessionPoints')}</span>
                   {indoorMode && (
                     <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 text-[10px] font-bold flex items-center gap-1">
                       <Building2 className="w-2.5 h-2.5" />
@@ -521,15 +521,15 @@ export const NetworkContribution: React.FC = () => {
               {/* Points breakdown */}
               <div className="grid grid-cols-3 gap-2 text-xs">
                 <div className="flex flex-col items-center p-2 rounded-lg bg-white/5">
-                  <span className="text-muted-foreground">Time</span>
+                  <span className="text-muted-foreground">{t('app.network.time')}</span>
                   <span className="font-mono text-foreground">+{(stats.timePoints * indoorMultiplier).toFixed(1)}</span>
                 </div>
                 <div className="flex flex-col items-center p-2 rounded-lg bg-white/5">
-                  <span className="text-muted-foreground">Distance</span>
+                  <span className="text-muted-foreground">{t('app.network.distance')}</span>
                   <span className="font-mono text-foreground">+{(stats.distancePoints * indoorMultiplier).toFixed(1)}</span>
                 </div>
                 <div className="flex flex-col items-center p-2 rounded-lg bg-neon-cyan/10 border border-neon-cyan/20">
-                  <span className="text-neon-cyan/80">Speed Tests</span>
+                  <span className="text-neon-cyan/80">{t('app.network.speedTests')}</span>
                   <span className="font-mono text-neon-cyan">+{(stats.speedTestPoints * indoorMultiplier).toFixed(1)}</span>
                 </div>
               </div>
@@ -571,12 +571,12 @@ export const NetworkContribution: React.FC = () => {
               
               <div className="flex-1 text-left">
                 <div className="text-sm font-semibold text-foreground">
-                  {isRunningSpeedTest ? 'Testing...' : 'Run Speed Test'}
+                  {isRunningSpeedTest ? t('app.network.testing') : t('app.network.runSpeedTest')}
                 </div>
                 <div className="text-xs text-muted-foreground">
                   {isRunningSpeedTest 
-                    ? 'Measuring network performance' 
-                    : `+2-3.5 pts • ${stats.speedTestCount} tests this session`}
+                    ? t('app.network.measuringNetwork') 
+                    : `+2-3.5 pts • ${stats.speedTestCount} ${t('app.network.testsThisSession')}`}
                 </div>
               </div>
               
@@ -597,7 +597,7 @@ export const NetworkContribution: React.FC = () => {
             
             {/* Auto speed test info */}
             <div className="mt-2 pt-2 border-t border-white/5 flex items-center justify-between text-xs">
-              <span className="text-muted-foreground">Auto runs every 10 min</span>
+              <span className="text-muted-foreground">{t('app.network.autoRunsEvery10Min')}</span>
               {stats.lastSpeedTest && (
                 <span className="text-muted-foreground font-mono">{stats.lastSpeedTest.latency}ms ping</span>
               )}
