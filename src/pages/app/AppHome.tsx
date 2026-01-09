@@ -335,7 +335,7 @@ export const AppHome: React.FC = () => {
             {/* Label */}
             <div className="flex items-center gap-2 mb-4">
               <Zap className="w-4 h-4 text-neon-cyan" />
-              <span className="text-sm font-semibold text-foreground/70 uppercase tracking-wider">Today</span>
+              <span className="text-sm font-semibold text-foreground/70 uppercase tracking-wider">Today's Earnings</span>
             </div>
             
             {/* Big USD Number */}
@@ -344,47 +344,39 @@ export const AppHome: React.FC = () => {
                 <div className="h-16 w-32 bg-neon-cyan/10 rounded-xl animate-pulse" />
               ) : (
                 <div 
-                  className="text-[56px] font-bold text-foreground tracking-tight leading-none"
-                  style={{ 
-                    fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace'
-                  }}
+                  className="text-[52px] font-bold text-foreground tracking-tight leading-none"
+                  style={{ fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, sans-serif' }}
                 >
                   ${animatedUSD.toFixed(2)}
                 </div>
               )}
             </div>
 
-            {/* Sublines with streak multiplier */}
-            <div className="flex items-center gap-4 mb-5 text-sm text-muted-foreground">
-              <div className="flex items-center gap-1.5">
+            {/* Sublines with friendly language */}
+            <div className="flex items-center flex-wrap gap-3 mb-5 text-sm text-muted-foreground">
+              <div className="flex items-center gap-1.5 bg-white/5 rounded-full px-2.5 py-1">
                 <TrendingUp className="w-3.5 h-3.5 text-neon-cyan" />
-                <span>Multiplier: {streakMultiplier}x</span>
+                <span>{streakMultiplier}x bonus</span>
               </div>
-              <div className="w-px h-4 bg-white/10" />
-              <span>{todayPoints.toLocaleString()} pts</span>
+              <div className="flex items-center gap-1.5 bg-white/5 rounded-full px-2.5 py-1">
+                <span>✨ {todayPoints.toLocaleString()} points</span>
+              </div>
               {streakDays >= 3 && (
-                <>
-                  <div className="w-px h-4 bg-white/10" />
-                  <div className="flex items-center gap-1">
-                    <Flame className="w-3.5 h-3.5 text-orange-500" />
-                    <span className="text-orange-400">{streakDays}d</span>
-                  </div>
-                </>
+                <div className="flex items-center gap-1 bg-orange-500/10 rounded-full px-2.5 py-1">
+                  <Flame className="w-3.5 h-3.5 text-orange-500" />
+                  <span className="text-orange-400">{streakDays} day streak!</span>
+                </div>
               )}
             </div>
 
-            {/* Primary CTA: Start Scan with Shimmer */}
+            {/* Primary CTA: Friendly language */}
             <ShimmerButton
               onClick={() => handleNavigation('/app/map')}
               shimmerEnabled={!loading}
-              className="w-full h-14 rounded-2xl bg-gradient-to-r from-neon-cyan to-neon-cyan/80 text-background font-bold text-lg shadow-lg shadow-neon-cyan/30 hover:shadow-neon-cyan/50 active:scale-[0.98] transition-all duration-300 group"
-              style={{ 
-                fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace',
-                animation: 'gentle-pulse 2s ease-in-out infinite'
-              }}
+              className="w-full h-14 rounded-2xl bg-gradient-to-r from-neon-cyan to-sky-400 text-background font-bold text-lg shadow-lg shadow-neon-cyan/30 hover:shadow-neon-cyan/50 active:scale-[0.98] transition-all duration-300 group"
             >
               <Signal className="w-5 h-5 group-hover:animate-pulse" />
-              START SCAN
+              Start Earning
               <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </ShimmerButton>
           </div>
@@ -400,27 +392,26 @@ export const AppHome: React.FC = () => {
 
         {/* TWO MINI CARDS: Impact & Boost */}
         <div className="grid grid-cols-2 gap-3">
-          {/* Impact Card */}
+          {/* Impact Card - Friendly */}
           <div 
             className="rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] p-4 animate-fade-in"
             style={{ animationDelay: '200ms' }}
           >
             <div className="flex items-center gap-2 mb-3">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-neon-cyan/20 to-neon-cyan/5 flex items-center justify-center">
-                <MapPin className="w-4 h-4 text-neon-cyan" />
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-sky-500/20 to-sky-500/5 flex items-center justify-center">
+                <MapPin className="w-4 h-4 text-sky-400" />
               </div>
-              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Impact</span>
+              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Your Impact</span>
             </div>
             <div 
               className="text-xl font-bold text-foreground mb-0.5"
-              style={{ fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace' }}
             >
               {loading ? '--' : formatDistance(points?.total_distance_meters || 0)}
             </div>
-            <div className="text-xs text-muted-foreground">mapped</div>
+            <div className="text-xs text-muted-foreground">explored 🗺️</div>
           </div>
 
-          {/* Boost Card */}
+          {/* Boost Card - Friendly */}
           <div 
             className="relative rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] p-4 overflow-hidden animate-fade-in"
             style={{ animationDelay: '250ms' }}
@@ -436,13 +427,13 @@ export const AppHome: React.FC = () => {
             />
             <div className="relative">
               <div className="flex items-center gap-2 mb-3">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-                  <Sparkles className="w-4 h-4 text-primary" />
+                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-500/20 to-violet-500/5 flex items-center justify-center">
+                  <Sparkles className="w-4 h-4 text-violet-400" />
                 </div>
-                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Boost</span>
+                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Tip</span>
               </div>
-              <div className="text-sm font-semibold text-foreground mb-0.5">High demand</div>
-              <div className="text-xs text-primary">near you →</div>
+              <div className="text-sm font-semibold text-foreground mb-0.5">Earn more!</div>
+              <div className="text-xs text-violet-400">Explore new areas →</div>
             </div>
           </div>
         </div>

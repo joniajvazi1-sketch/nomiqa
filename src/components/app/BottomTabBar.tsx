@@ -18,9 +18,9 @@ interface TabItem {
 
 const tabs: TabItem[] = [
   { path: '/app', icon: Home, label: 'Home' },
-  { path: '/app/map', icon: Map, label: 'Map' },
+  { path: '/app/map', icon: Map, label: 'Earn' },
   { path: '/app/shop', icon: ShoppingBag, label: 'Shop' },
-  { path: '/app/profile', icon: User, label: 'Profile' }
+  { path: '/app/profile', icon: User, label: 'Me' }
 ];
 
 export const BottomTabBar: React.FC = () => {
