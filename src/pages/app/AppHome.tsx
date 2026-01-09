@@ -87,7 +87,7 @@ export const AppHome: React.FC = () => {
             .from('profiles')
             .select('username')
             .eq('user_id', currentUser.id)
-            .single();
+            .maybeSingle();
           
           if (profileData?.username) {
             setUsername(profileData.username);
@@ -97,7 +97,7 @@ export const AppHome: React.FC = () => {
             .from('user_points')
             .select('*')
             .eq('user_id', currentUser.id)
-            .single();
+            .maybeSingle();
           
           if (pointsData) {
             setPoints(pointsData);
