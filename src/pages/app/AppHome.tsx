@@ -458,10 +458,24 @@ export const AppHome: React.FC = () => {
               <div className="flex items-center gap-2">
                 <Trophy className="w-4 h-4 text-primary" />
                 <span className="text-sm font-semibold text-foreground">Achievements</span>
+                <span className="text-xs text-muted-foreground">({unlockedCount}/{totalCount})</span>
               </div>
-              <span className="text-xs text-muted-foreground">{unlockedCount}/{totalCount}</span>
+              <button 
+                onClick={() => handleNavigation('/app/achievements')}
+                className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors active:scale-95"
+              >
+                View All
+                <ChevronRight className="w-3 h-3" />
+              </button>
             </div>
-            <div className="flex gap-1 overflow-x-auto pb-2 scrollbar-hide">
+            
+            {/* Hint text */}
+            <p className="text-xs text-muted-foreground mb-2">Tap any badge to see all achievements →</p>
+            
+            <div 
+              className="flex gap-1 overflow-x-auto pb-2 scrollbar-hide cursor-pointer"
+              onClick={() => handleNavigation('/app/achievements')}
+            >
               {achievements.slice(0, 6).map((achievement) => (
                 <AchievementBadge 
                   key={achievement.id} 
@@ -471,12 +485,9 @@ export const AppHome: React.FC = () => {
                 />
               ))}
               {achievements.length > 6 && (
-                <button
-                  onClick={() => handleNavigation('/app/achievements')}
-                  className="flex items-center justify-center w-12 h-12 rounded-full bg-white/[0.05] border border-white/10 text-muted-foreground hover:bg-white/[0.08] transition-all"
-                >
-                  <ChevronRight className="w-4 h-4" />
-                </button>
+                <div className="flex items-center justify-center w-12 h-12 rounded-full bg-white/[0.05] border border-white/10 text-muted-foreground">
+                  <span className="text-xs font-medium">+{achievements.length - 6}</span>
+                </div>
               )}
             </div>
           </div>
