@@ -1,65 +1,69 @@
 import { SiteNavigation } from "@/components/SiteNavigation";
 import { SupportChatbot } from "@/components/SupportChatbot";
 import { NetworkBackground } from "@/components/NetworkBackground";
+import { SEO } from "@/components/SEO";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, Circle, Clock } from "lucide-react";
+import { useTranslation } from "@/contexts/TranslationContext";
 
 export default function Roadmap() {
+  const { t } = useTranslation();
+  
   const phases = [
     {
-      phase: "Q1 2025",
+      phase: t("roadmapPhase1Title"),
       status: "completed",
-      title: "Foundation",
+      title: t("roadmapPhase1Subtitle"),
       items: [
-        { text: "Platform launch with global eSIM coverage", done: true },
-        { text: "Crypto payment integration", done: true },
-        { text: "200+ countries supported", done: true },
-        { text: "Anonymous activation system", done: true }
+        { text: t("roadmapPhase1Item1"), done: true },
+        { text: t("roadmapPhase1Item2"), done: true },
+        { text: t("roadmapPhase1Item3"), done: true },
+        { text: t("roadmapPhase1Item4"), done: true }
       ]
     },
     {
-      phase: "Q2 2025",
+      phase: t("roadmapPhase2Title"),
+      status: "completed",
+      title: t("roadmapPhase2Subtitle"),
+      items: [
+        { text: t("roadmapPhase2Item1"), done: true },
+        { text: t("roadmapPhase2Item2"), done: true },
+        { text: t("roadmapPhase2Item3"), done: true },
+        { text: t("roadmapPhase2Item4"), done: true }
+      ]
+    },
+    {
+      phase: t("roadmapPhase3Title"),
       status: "in-progress",
-      title: "Enhancement",
+      title: t("roadmapPhase3Subtitle"),
       items: [
-        { text: "Mobile app release (iOS & Android)", done: true },
-        { text: "Multi-chain payment support", done: true },
-        { text: "Token rewards program", done: false },
-        { text: "Referral system", done: false }
+        { text: t("roadmapPhase3Item1"), done: true },
+        { text: t("roadmapPhase3Item2"), done: true },
+        { text: t("roadmapPhase3Item3"), done: false },
+        { text: t("roadmapPhase3Item4"), done: false }
       ]
     },
     {
-      phase: "Q3 2025",
+      phase: t("roadmapPhase4Title"),
       status: "upcoming",
-      title: "DeFi Integration",
+      title: t("roadmapPhase4Subtitle"),
       items: [
-        { text: "Staking platform launch", done: false },
-        { text: "Governance token introduction", done: false },
-        { text: "DAO formation", done: false },
-        { text: "Liquidity mining programs", done: false }
+        { text: t("roadmapPhase4Item1"), done: false },
+        { text: t("roadmapPhase4Item2"), done: false },
+        { text: t("roadmapPhase4Item3"), done: false },
+        { text: t("roadmapPhase4Item4"), done: false }
       ]
     },
     {
-      phase: "Q4 2025",
-      status: "upcoming",
-      title: "Expansion",
-      items: [
-        { text: "Partnership with major crypto wallets", done: false },
-        { text: "Web3 identity integration", done: false },
-        { text: "Decentralized roaming network", done: false },
-        { text: "NFT-based membership tiers", done: false }
-      ]
-    },
-    {
-      phase: "2026",
+      phase: t("roadmapPhase5Title"),
       status: "future",
-      title: "Innovation",
+      title: t("roadmapPhase5Subtitle"),
       items: [
-        { text: "AI-powered network optimization", done: false },
-        { text: "Cross-chain bridge for multiple tokens", done: false },
-        { text: "Decentralized marketplace for eSIMs", done: false },
-        { text: "Privacy-first messaging integration", done: false }
+        { text: t("roadmapPhase5Item1"), done: false },
+        { text: t("roadmapPhase5Item2"), done: false },
+        { text: t("roadmapPhase5Item3"), done: false },
+        { text: t("roadmapPhase5Item4"), done: false }
       ]
     }
   ];
@@ -67,13 +71,13 @@ export default function Roadmap() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "completed":
-        return <Badge className="bg-green-500/20 text-green-500 border-green-500/30">Completed</Badge>;
+        return <Badge className="bg-green-500/20 text-green-500 border-green-500/30">{t("roadmapStatusCompleted")}</Badge>;
       case "in-progress":
-        return <Badge className="bg-blue-500/20 text-blue-500 border-blue-500/30">In Progress</Badge>;
+        return <Badge className="bg-blue-500/20 text-blue-500 border-blue-500/30">{t("roadmapStatusInProgress")}</Badge>;
       case "upcoming":
-        return <Badge className="bg-orange-500/20 text-orange-500 border-orange-500/30">Upcoming</Badge>;
+        return <Badge className="bg-orange-500/20 text-orange-500 border-orange-500/30">{t("roadmapStatusUpcoming")}</Badge>;
       case "future":
-        return <Badge className="bg-purple-500/20 text-purple-500 border-purple-500/30">Future</Badge>;
+        return <Badge className="bg-purple-500/20 text-purple-500 border-purple-500/30">{t("roadmapStatusFuture")}</Badge>;
       default:
         return null;
     }
@@ -81,6 +85,7 @@ export default function Roadmap() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black/40 via-deep-space/60 to-black/40 relative overflow-hidden">
+      <SEO page="roadmap" />
       <NetworkBackground />
       
       {/* Premium glowing orbs background */}
@@ -92,9 +97,9 @@ export default function Roadmap() {
       <div className="container mx-auto px-4 py-20 relative z-10">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12 animate-fade-in">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-light mb-4 bg-gradient-to-r from-white via-neon-cyan to-white bg-clip-text text-transparent">Roadmap</h1>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-light mb-4 bg-gradient-to-r from-white via-neon-cyan to-white bg-clip-text text-transparent">{t("roadmapTitle")}</h1>
             <p className="text-lg md:text-xl text-white/70 font-light">
-              Our journey to revolutionize global connectivity with crypto
+              {t("roadmapSubtitle")}
             </p>
           </div>
 
@@ -152,10 +157,9 @@ export default function Roadmap() {
 
           <Card className="mt-12 bg-gradient-to-br from-primary/5 to-secondary/5 border-primary/20">
             <CardContent className="pt-6 text-center">
-              <h3 className="text-xl font-bold mb-2">This roadmap is evolving</h3>
+              <h3 className="text-xl font-bold mb-2">{t("roadmapEvolvingTitle")}</h3>
               <p className="text-muted-foreground">
-                We are constantly listening to our community and adapting our plans. 
-                Follow our progress and share your feedback!
+                {t("roadmapEvolvingDesc")}
               </p>
             </CardContent>
           </Card>

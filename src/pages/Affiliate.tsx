@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { SiteNavigation } from "@/components/SiteNavigation";
 import { SupportChatbot } from "@/components/SupportChatbot";
 import { NetworkBackground } from "@/components/NetworkBackground";
+import { SEO } from "@/components/SEO";
 import { AnimatedCounter } from "@/components/AnimatedCounter";
 import { MiningRewardsSection } from "@/components/MiningRewardsSection";
 import { ConversionRewardsSection } from "@/components/ConversionRewardsSection";
@@ -448,6 +449,7 @@ export default function Affiliate() {
   }
 
   return <div className="min-h-screen bg-gradient-to-br from-black/40 via-deep-space/60 to-black/40 relative">
+      <SEO page="affiliate" />
       {/* Network Background */}
       <NetworkBackground />
       
