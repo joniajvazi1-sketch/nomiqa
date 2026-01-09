@@ -134,17 +134,9 @@ export const AppShop: React.FC = () => {
       success();
       setAddingProductId(null);
       
-      toast.success(
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-green-500/20 flex items-center justify-center">
-            <Check className="w-4 h-4 text-green-400" />
-          </div>
-          <div>
-            <p className="font-medium">{product.country_name} eSIM</p>
-            <p className="text-xs text-muted-foreground">Added to cart</p>
-          </div>
-        </div>
-      );
+      toast.success(`${product.country_name} eSIM`, {
+        description: 'Added to cart'
+      });
     }, 150);
   };
 
