@@ -399,23 +399,27 @@ export const Navbar = () => {
                     <SheetTitle className="text-white font-light text-lg tracking-wider uppercase">{t("menu")}</SheetTitle>
                   </SheetHeader>
                   <div className="flex flex-col gap-0.5 mt-6 relative z-10">
-                    <button onClick={() => handleNavClick('/shop')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-base tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
-                      <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("shop")}</span>
+                    {/* Featured: Download App */}
+                    <button onClick={() => handleNavClick('/app')} className="group text-left text-white hover:text-white bg-gradient-to-r from-neon-cyan/20 to-neon-violet/20 hover:from-neon-cyan/30 hover:to-neon-violet/30 transition-all duration-300 py-4 px-5 rounded-lg font-normal text-base tracking-wide backdrop-blur-sm border border-neon-cyan/30 hover:border-neon-cyan/50 shadow-lg shadow-neon-cyan/10 mb-2">
+                      <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5 flex items-center gap-2">
+                        📱 {t("navDownloadApp")}
+                      </span>
                     </button>
+                    
                     <button onClick={() => handleNavClick('/getting-started')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-base tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
-                      <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("howToBuy")}</span>
+                      <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("navHowItWorks")}</span>
+                    </button>
+                    <button onClick={() => handleNavClick('/shop')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-base tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
+                      <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("navEsimPlans")}</span>
                     </button>
                     <button onClick={() => handleNavClick('/affiliate')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-base tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
-                      <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("affiliate")}</span>
+                      <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("navEarnRefer")}</span>
                     </button>
                     <button onClick={() => handleNavClick('/token')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-base tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
                       <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">$NOMIQA</span>
                     </button>
                     <button onClick={() => handleNavClick('/about')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-base tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
                       <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("aboutUs")}</span>
-                    </button>
-                    <button onClick={() => handleNavClick('/privacy')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-base tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
-                      <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("howWeProtect")}</span>
                     </button>
                     <button onClick={() => handleNavClick('/help')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-base tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
                       <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("help")}</span>
@@ -472,23 +476,27 @@ export const Navbar = () => {
                     <SheetTitle className="text-white font-light text-base tracking-wider uppercase">{t("menu")}</SheetTitle>
                   </SheetHeader>
                   <div className="flex flex-col gap-0.5 mt-6 relative z-10">
-                    <button onClick={() => handleNavClick('/shop')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-[15px] tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
-                      <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("shop")}</span>
+                    {/* Featured: Download App */}
+                    <button onClick={() => handleNavClick('/app')} className="group text-left text-white hover:text-white bg-gradient-to-r from-neon-cyan/20 to-neon-violet/20 hover:from-neon-cyan/30 hover:to-neon-violet/30 transition-all duration-300 py-4 px-5 rounded-lg font-normal text-[15px] tracking-wide backdrop-blur-sm border border-neon-cyan/30 hover:border-neon-cyan/50 shadow-lg shadow-neon-cyan/10 mb-2">
+                      <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5 flex items-center gap-2">
+                        📱 {t("navDownloadApp")}
+                      </span>
                     </button>
+                    
                     <button onClick={() => handleNavClick('/getting-started')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-[15px] tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
-                      <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("howToBuy")}</span>
+                      <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("navHowItWorks")}</span>
+                    </button>
+                    <button onClick={() => handleNavClick('/shop')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-[15px] tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
+                      <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("navEsimPlans")}</span>
                     </button>
                     <button onClick={() => handleNavClick('/affiliate')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-[15px] tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
-                      <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("affiliate")}</span>
+                      <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("navEarnRefer")}</span>
                     </button>
                     <button onClick={() => handleNavClick('/token')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-[15px] tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
                       <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">$NOMIQA</span>
                     </button>
                     <button onClick={() => handleNavClick('/about')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-[15px] tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
                       <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("aboutUs")}</span>
-                    </button>
-                    <button onClick={() => handleNavClick('/privacy')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-[15px] tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
-                      <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("howWeProtect")}</span>
                     </button>
                     <button onClick={() => handleNavClick('/help')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-[15px] tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
                       <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("help")}</span>
