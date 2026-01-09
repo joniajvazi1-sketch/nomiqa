@@ -4,6 +4,9 @@ import { Hero } from "@/components/Hero";
 // Lazy load all below-the-fold components to improve TTI
 const SupportChatbot = lazy(() => import("@/components/SupportChatbot").then(m => ({ default: m.SupportChatbot })));
 const DePINAdvantage = lazy(() => import("@/components/DePINAdvantage").then(m => ({ default: m.DePINAdvantage })));
+const WhatIsDePIN = lazy(() => import("@/components/WhatIsDePIN").then(m => ({ default: m.WhatIsDePIN })));
+const DataMarketplace = lazy(() => import("@/components/DataMarketplace").then(m => ({ default: m.DataMarketplace })));
+const LiveNetworkStats = lazy(() => import("@/components/LiveNetworkStats").then(m => ({ default: m.LiveNetworkStats })));
 const HowYouEarn = lazy(() => import("@/components/HowYouEarn").then(m => ({ default: m.HowYouEarn })));
 const GlobalNetworkMap = lazy(() => import("@/components/GlobalNetworkMap").then(m => ({ default: m.GlobalNetworkMap })));
 const TrustPartners = lazy(() => import("@/components/TrustPartners").then(m => ({ default: m.TrustPartners })));
@@ -27,9 +30,18 @@ const Index = () => {
   return (
     <>
       <Hero />
-      {/* Progressive loading: critical sections first, then lower priority */}
+      {/* DePIN-First: Educate about DePIN before showing products */}
       <Suspense fallback={<LoadingSpinner />}>
         <DePINAdvantage />
+      </Suspense>
+      <Suspense fallback={<LoadingSpinner />}>
+        <WhatIsDePIN />
+      </Suspense>
+      <Suspense fallback={<LoadingSpinner />}>
+        <DataMarketplace />
+      </Suspense>
+      <Suspense fallback={<LoadingSpinner />}>
+        <LiveNetworkStats />
       </Suspense>
       <Suspense fallback={<LoadingSpinner />}>
         <HowYouEarn />
@@ -39,10 +51,13 @@ const Index = () => {
         <TrustPartners />
       </Suspense>
       <Suspense fallback={<LoadingSpinner />}>
+        <WhyNomiqa />
+      </Suspense>
+      {/* Products moved lower - network value proposition first */}
+      <Suspense fallback={<LoadingSpinner />}>
         <FeaturedProducts />
       </Suspense>
       <Suspense fallback={<LoadingSpinner />}>
-        <WhyNomiqa />
         <HowItWorksSteps />
         <ScrollableFeatures />
       </Suspense>
