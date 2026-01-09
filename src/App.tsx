@@ -146,6 +146,10 @@ const NativeAppRoutes = () => (
 const WebRoutes = () => (
   <WebLayout>
     <Routes>
+      {/* Redirect /app routes to home - native app only */}
+      <Route path="/app/*" element={<Navigate to="/" replace />} />
+      <Route path="/app" element={<Navigate to="/" replace />} />
+      
       {/* Base routes (no locale prefix) */}
       <Route path="/" element={<Index />} />
       <Route path="/shop" element={<ShopPage />} />
@@ -358,16 +362,14 @@ const WebRoutes = () => (
  * Main App Router - Detects platform and renders appropriate UI
  * CRITICAL: Website visitors see WebRoutes, Native app users see NativeAppRoutes
  * 
- * Routes starting with /app/* will ALWAYS show the native app UI (for preview)
+ * Web users visiting /app/* are redirected to home page.
+ * Only actual native platform OR localhost preview mode can access app UI.
  */
 const AppRouter = () => {
   const { isNative } = usePlatform();
-  const location = window.location.pathname;
   
-  // Force native app UI for /app routes (allows desktop preview)
-  const isAppRoute = location.startsWith('/app');
-  
-  return (isNative || isAppRoute) ? <NativeAppRoutes /> : <WebRoutes />;
+  // Only native platform (or localhost preview via ?appPreview=true) sees app UI
+  return isNative ? <NativeAppRoutes /> : <WebRoutes />;
 };
 
 const App = () => {

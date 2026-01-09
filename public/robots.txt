@@ -1,14 +1,8 @@
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
-
+# Block all bots from indexing native app routes
 User-agent: *
 Allow: /
+Disallow: /app
+Disallow: /app/
+
+# Sitemap
+Sitemap: https://nomiqa.io/sitemap.xml
