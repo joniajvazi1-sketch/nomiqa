@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "@/contexts/TranslationContext";
-import { localizedPath } from "@/utils/localizedLinks";
+import { Link } from "react-router-dom";
 import socialFacebook from "@/assets/social-facebook.webp";
 import socialInstagram from "@/assets/social-instagram.webp";
 import socialPinterest from "@/assets/social-pinterest.webp";
@@ -9,7 +9,7 @@ import socialX from "@/assets/social-x.webp";
 import socialYoutube from "@/assets/social-youtube.webp";
 
 export const Footer = () => {
-  const { t, language } = useTranslation();
+  const { t } = useTranslation();
   const [openSections, setOpenSections] = useState<string[]>([]);
 
   const toggleSection = (section: string) => {
@@ -67,9 +67,9 @@ export const Footer = () => {
               </a>
             ))}
           </div>
-          <a href={localizedPath("/terms", language)} className="text-white hover:text-neon-cyan transition-colors duration-300 font-light text-xs md:text-sm inline-block bg-black/40 px-3 py-1 rounded-md">
+          <Link to="/terms" className="text-white hover:text-neon-cyan transition-colors duration-300 font-light text-xs md:text-sm inline-block bg-black/40 px-3 py-1 rounded-md">
             {t("footerTermsConditions")}
-          </a>
+          </Link>
         </div>
         
         {/* Copyright */}

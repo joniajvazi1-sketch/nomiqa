@@ -6,6 +6,7 @@ import {
 } from "@/components/ui/accordion";
 import { useTranslation } from "@/contexts/TranslationContext";
 import { memo, useState } from "react";
+import { Link } from "react-router-dom";
 import { CompatibilityChecker } from "./CompatibilityChecker";
 
 export const SiteNavigation = memo(() => {
@@ -31,9 +32,9 @@ export const SiteNavigation = memo(() => {
               </AccordionTrigger>
               <AccordionContent className="pb-8">
                 <ul className="space-y-4 text-white/60 text-sm md:text-base pl-0">
-                  <li><a href="/getting-started" className="hover:text-neon-cyan transition-colors duration-200 font-light block">{t("footerHowDepinWorks")}</a></li>
-                  <li><a href="/app" className="hover:text-neon-cyan transition-colors duration-200 font-light block">{t("footerDownloadApp")}</a></li>
-                  <li><a href="/#datamarketplace" className="hover:text-neon-cyan transition-colors duration-200 font-light block">{t("footerDataMarketplace")}</a></li>
+                  <li><Link to="/getting-started" className="hover:text-neon-cyan transition-colors duration-200 font-light block">{t("footerHowDepinWorks")}</Link></li>
+                  <li><Link to="/app" className="hover:text-neon-cyan transition-colors duration-200 font-light block">{t("footerDownloadApp")}</Link></li>
+                  <li><Link to="/#datamarketplace" className="hover:text-neon-cyan transition-colors duration-200 font-light block">{t("footerDataMarketplace")}</Link></li>
                 </ul>
               </AccordionContent>
             </AccordionItem>
@@ -46,9 +47,9 @@ export const SiteNavigation = memo(() => {
               </AccordionTrigger>
               <AccordionContent className="pb-8">
                 <ul className="space-y-4 text-white/60 text-sm md:text-base pl-0">
-                  <li><a href="/affiliate" className="hover:text-neon-cyan transition-colors duration-200 font-light block">{t("footerReferEarn")}</a></li>
-                  <li><a href="/rewards" className="hover:text-neon-cyan transition-colors duration-200 font-light block">{t("footerLoyaltyPrograms")}</a></li>
-                  <li><a href="/token" className="hover:text-neon-cyan transition-colors duration-200 font-light block">{t("footerNomiqaToken")}</a></li>
+                  <li><Link to="/affiliate" className="hover:text-neon-cyan transition-colors duration-200 font-light block">{t("footerReferEarn")}</Link></li>
+                  <li><Link to="/rewards" className="hover:text-neon-cyan transition-colors duration-200 font-light block">{t("footerLoyaltyPrograms")}</Link></li>
+                  <li><Link to="/token" className="hover:text-neon-cyan transition-colors duration-200 font-light block">{t("footerNomiqaToken")}</Link></li>
                 </ul>
               </AccordionContent>
             </AccordionItem>
@@ -61,8 +62,8 @@ export const SiteNavigation = memo(() => {
               </AccordionTrigger>
               <AccordionContent className="pb-8">
                 <ul className="space-y-4 text-white/60 text-sm md:text-base pl-0">
-                  <li><a href="/shop" className="hover:text-neon-cyan transition-colors duration-200 font-light block">{t("navEsimPlans")}</a></li>
-                  <li><a href="/shop?type=regional" className="hover:text-neon-cyan transition-colors duration-200 font-light block">{t("footerRegionalData")}</a></li>
+                  <li><Link to="/shop" className="hover:text-neon-cyan transition-colors duration-200 font-light block">{t("navEsimPlans")}</Link></li>
+                  <li><Link to="/shop?type=regional" className="hover:text-neon-cyan transition-colors duration-200 font-light block">{t("footerRegionalData")}</Link></li>
                   <li>
                     <button 
                       onClick={() => setCompatibilityOpen(true)} 
@@ -83,8 +84,8 @@ export const SiteNavigation = memo(() => {
               </AccordionTrigger>
               <AccordionContent className="pb-8">
                 <ul className="space-y-4 text-white/60 text-sm md:text-base pl-0">
-                  <li><a href="/help" className="hover:text-neon-cyan transition-colors duration-200 font-light block">{t("footerContactUs")}</a></li>
-                  <li><a href="/getting-started" className="hover:text-neon-cyan transition-colors duration-200 font-light block">{t("footerGettingStarted")}</a></li>
+                  <li><Link to="/help" className="hover:text-neon-cyan transition-colors duration-200 font-light block">{t("footerContactUs")}</Link></li>
+                  <li><Link to="/getting-started" className="hover:text-neon-cyan transition-colors duration-200 font-light block">{t("footerGettingStarted")}</Link></li>
                 </ul>
               </AccordionContent>
             </AccordionItem>
@@ -97,8 +98,8 @@ export const SiteNavigation = memo(() => {
               </AccordionTrigger>
               <AccordionContent className="pb-8">
                 <ul className="space-y-4 text-white/60 text-sm md:text-base pl-0">
-                  <li><a href="/about" className="hover:text-neon-cyan transition-colors duration-200 font-light block">{t("footerAboutNomiqa")}</a></li>
-                  <li><a href="/privacy" className="hover:text-neon-cyan transition-colors duration-200 font-light block">{t("footerPrivacySecurity")}</a></li>
+                  <li><Link to="/about" className="hover:text-neon-cyan transition-colors duration-200 font-light block">{t("footerAboutNomiqa")}</Link></li>
+                  <li><Link to="/privacy" className="hover:text-neon-cyan transition-colors duration-200 font-light block">{t("footerPrivacySecurity")}</Link></li>
                 </ul>
               </AccordionContent>
               <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mt-4"></div>
