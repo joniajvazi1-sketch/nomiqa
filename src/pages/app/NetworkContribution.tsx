@@ -360,15 +360,6 @@ export const NetworkContribution: React.FC = () => {
             </div>
           )}
 
-          {/* Permission Error */}
-          {hasPermission === false && (
-            <Alert className="border-red-500/50 bg-red-500/20 backdrop-blur-xl py-2">
-              <AlertTriangle className="h-4 w-4 text-red-400" />
-              <AlertDescription className="text-red-200 text-sm">
-                Location permission required
-              </AlertDescription>
-            </Alert>
-          )}
 
           {/* Offline */}
           {!isOnline && (
@@ -407,12 +398,6 @@ export const NetworkContribution: React.FC = () => {
           <button
             ref={startButtonRef}
             onClick={() => {
-              if (!isActive && hasPermission === false) {
-                errorHaptic();
-                startButtonRef.current?.classList.add('animate-error-shake');
-                setTimeout(() => startButtonRef.current?.classList.remove('animate-error-shake'), 400);
-                return;
-              }
               mediumTap();
               isActive ? handleStopContribution() : startContribution();
             }}
