@@ -412,10 +412,14 @@ export const AppHome: React.FC = () => {
             <div className="text-xs text-muted-foreground">explored 🗺️</div>
           </div>
 
-          {/* Boost Card - Friendly */}
+          {/* Boost Card - Pressable to go to Invite */}
           <div 
-            className="relative rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] p-4 overflow-hidden animate-fade-in"
+            className="relative rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] p-4 overflow-hidden animate-fade-in cursor-pointer active:scale-[0.98] transition-transform"
             style={{ animationDelay: '250ms' }}
+            onClick={() => {
+              lightTap();
+              navigate('/app/profile?tab=earn');
+            }}
           >
             {/* Shimmer animation */}
             <div 

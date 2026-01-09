@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { 
   User,
   Award,
@@ -102,6 +102,7 @@ const AFFILIATE_TIERS = [
 
 export const AppProfile: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { lightTap, success } = useHaptics();
   const { soundEnabled, toggleSound } = useSoundEffects();
   const { share, copyToClipboard } = useNativeShare();
@@ -122,7 +123,13 @@ export const AppProfile: React.FC = () => {
   const [showNewLinkInput, setShowNewLinkInput] = useState(false);
   const [newLinkUsername, setNewLinkUsername] = useState('');
   const [userPoints, setUserPoints] = useState<{ total_points: number; total_distance_meters: number } | null>(null);
-  const [activeTab, setActiveTab] = useState('account');
+  const [activeTab, setActiveTab] = useState(() => {
+    // Check for tab param in URL on initial load
+    const tabParam = searchParams.get('tab');
+    return tabParam && ['account', 'membership', 'orders', 'earn', 'settings'].includes(tabParam) 
+      ? tabParam 
+      : 'account';
+  });
   const [solanaWallet, setSolanaWallet] = useState('');
   const [isEditingWallet, setIsEditingWallet] = useState(false);
   const [savingWallet, setSavingWallet] = useState(false);
