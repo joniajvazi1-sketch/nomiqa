@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  Zap, 
+  Zap,
   ChevronRight,
   Signal,
   MapPin,
@@ -31,6 +31,7 @@ import { OnboardingFlow } from '@/components/app/OnboardingFlow';
 import { AnimatePresence } from 'framer-motion';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from '@/components/app/PullToRefreshIndicator';
+import { LanguageSelector } from '@/components/app/LanguageSelector';
 
 interface DailyEarning {
   date: string;
@@ -323,6 +324,10 @@ export const AppHome: React.FC = () => {
                 <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-primary animate-pulse" />
               )}
             </button>
+            
+            {/* Language Selector */}
+            <LanguageSelector />
+            
             <button 
               onClick={() => { lightTap(); navigate('/app/profile'); }}
               className="w-10 h-10 rounded-full bg-white/[0.05] backdrop-blur-xl border border-white/[0.08] flex items-center justify-center hover:bg-white/[0.08] active:scale-95 transition-all"
