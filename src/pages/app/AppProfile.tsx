@@ -685,7 +685,7 @@ export const AppProfile: React.FC = () => {
           <AnalyticsDashboard />
         </TabsContent>
 
-        {/* Rewards Tab - Priority: Mining Boosts > Referral Commission > Cashback */}
+        {/* Rewards Tab - Priority: Contribution Boosts > Referral Commission > Cashback */}
         <TabsContent value="membership" className="mt-4 space-y-4 animate-tab-content-in">
           {/* Total Earnings Summary (Referral + Cashback only - real money) */}
           <Card className="bg-gradient-to-br from-primary/20 via-neon-cyan/10 to-green-500/10 border-0 overflow-hidden animate-stat-pop">
@@ -718,7 +718,7 @@ export const AppProfile: React.FC = () => {
             </CardContent>
           </Card>
 
-          {/* Mining Boosts - Priority 1 */}
+          {/* Contribution Boosts - Priority 1 (shows recruits & bonus earning rate) */}
           <Card className="bg-gradient-to-br from-neon-cyan/20 to-transparent border-neon-cyan/30 overflow-hidden" style={{ animationDelay: '50ms' }}>
             <CardContent className="p-4">
               <div className="flex items-center gap-3 mb-3">
@@ -726,59 +726,52 @@ export const AppProfile: React.FC = () => {
                   <Zap className="w-5 h-5 text-neon-cyan" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-base font-bold text-foreground">Mining Boosts</h3>
-                  <p className="text-xs text-muted-foreground">Boost earned from referrals & contributions</p>
+                  <h3 className="text-base font-bold text-foreground">Reward Boost</h3>
+                  <p className="text-xs text-muted-foreground">Earn more points when you refer friends</p>
                 </div>
                 <div className="text-right">
                   <p className="text-lg font-bold text-neon-cyan">
                     +{selectedAffiliate?.miner_boost_percentage || 0}%
                   </p>
-                  <p className="text-[10px] text-muted-foreground">boost active</p>
+                  <p className="text-[10px] text-muted-foreground">bonus active</p>
                 </div>
               </div>
               
-              <div className="grid grid-cols-3 gap-2 mb-3">
-                <div className="bg-background/40 rounded-lg p-2 text-center">
-                  <Activity className="w-4 h-4 text-neon-cyan mx-auto mb-1" />
-                  <p className="text-sm font-semibold text-foreground">
-                    <AnimatedCounter value={userPoints?.total_points || 0} duration={1000} />
-                  </p>
-                  <p className="text-[10px] text-muted-foreground">Points</p>
-                </div>
-                <div className="bg-background/40 rounded-lg p-2 text-center">
-                  <MapPin className="w-4 h-4 text-muted-foreground mx-auto mb-1" />
-                  <p className="text-sm font-semibold text-foreground">
-                    {((userPoints?.total_distance_meters || 0) / 1000).toFixed(1)}km
-                  </p>
-                  <p className="text-[10px] text-muted-foreground">Distance</p>
-                </div>
-                <div className="bg-background/40 rounded-lg p-2 text-center">
-                  <UserPlus className="w-4 h-4 text-muted-foreground mx-auto mb-1" />
-                  <p className="text-sm font-semibold text-foreground">
+              <div className="grid grid-cols-2 gap-2 mb-3">
+                <div className="bg-background/40 rounded-lg p-3 text-center">
+                  <UserPlus className="w-4 h-4 text-neon-cyan mx-auto mb-1" />
+                  <p className="text-xl font-semibold text-foreground">
                     {selectedAffiliate?.total_registrations || 0}
                   </p>
                   <p className="text-[10px] text-muted-foreground">Recruits</p>
                 </div>
+                <div className="bg-background/40 rounded-lg p-3 text-center">
+                  <TrendingUp className="w-4 h-4 text-green-500 mx-auto mb-1" />
+                  <p className="text-xl font-semibold text-neon-cyan">
+                    +{selectedAffiliate?.miner_boost_percentage || 0}%
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">Bonus Earning</p>
+                </div>
               </div>
 
               <div className="bg-white/5 rounded-xl p-3 text-center">
-                <p className="text-xs text-muted-foreground mb-1">Refer friends to increase your mining boost!</p>
-                <p className="text-sm font-medium text-neon-cyan">More recruits = Higher boost % 🚀</p>
+                <p className="text-xs text-muted-foreground mb-1">Invite friends to increase your boost!</p>
+                <p className="text-sm font-medium text-neon-cyan">More recruits = Higher bonus % 🚀</p>
               </div>
 
               <Button 
                 variant="outline" 
                 size="sm" 
                 className="w-full text-xs mt-3 border-neon-cyan/30 text-neon-cyan hover:bg-neon-cyan/10" 
-                onClick={() => navigate('/app')}
+                onClick={() => setActiveTab('earn')}
               >
-                <Zap className="w-3 h-3 mr-1" />
-                Start Mining
+                <Gift className="w-3 h-3 mr-1" />
+                Invite Friends
               </Button>
             </CardContent>
           </Card>
 
-          {/* Referral Commission - Priority 2 */}
+          {/* Referral Commission - Priority 2 (only shows sales/conversions, not recruits) */}
           <Card className="bg-card/50 border-border/50 overflow-hidden" style={{ animationDelay: '100ms' }}>
             <CardContent className="p-4">
               <div className="flex items-center gap-3 mb-3">
@@ -799,20 +792,15 @@ export const AppProfile: React.FC = () => {
               
               {selectedAffiliate ? (
                 <>
-                  <div className="grid grid-cols-2 gap-2 mb-3">
-                    <div className="bg-background/40 rounded-lg p-2 text-center">
-                      <UserPlus className="w-4 h-4 text-muted-foreground mx-auto mb-1" />
-                      <p className="text-sm font-semibold text-foreground">
-                        {selectedAffiliate.total_registrations || 0}
-                      </p>
-                      <p className="text-[10px] text-muted-foreground">Recruits</p>
-                    </div>
-                    <div className="bg-background/40 rounded-lg p-2 text-center">
-                      <CheckCircle2 className="w-4 h-4 text-green-500 mx-auto mb-1" />
-                      <p className="text-sm font-semibold text-foreground">
+                  <div className="bg-background/40 rounded-xl p-3 mb-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-green-500" />
+                        <span className="text-sm text-muted-foreground">Sales</span>
+                      </div>
+                      <p className="text-lg font-semibold text-foreground">
                         {selectedAffiliate.total_conversions || 0}
                       </p>
-                      <p className="text-[10px] text-muted-foreground">Sales</p>
                     </div>
                   </div>
 
