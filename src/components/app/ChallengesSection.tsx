@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { useChallenges } from '@/hooks/useChallenges';
 import { ChallengeCard } from './ChallengeCard';
 import { useHaptics } from '@/hooks/useHaptics';
+import { useTranslation } from '@/contexts/TranslationContext';
 
 type ChallengeTab = 'daily' | 'weekly' | 'special';
 
@@ -18,6 +19,7 @@ export const ChallengesSection: React.FC<ChallengesSectionProps> = ({
   onViewAll 
 }) => {
   const { lightTap } = useHaptics();
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<ChallengeTab>('daily');
   const { 
     dailyChallenges, 
@@ -29,9 +31,9 @@ export const ChallengesSection: React.FC<ChallengesSectionProps> = ({
   } = useChallenges();
 
   const tabs = [
-    { id: 'daily' as const, label: 'Daily', icon: Flame, count: dailyChallenges.length },
-    { id: 'weekly' as const, label: 'Weekly', icon: Calendar, count: weeklyChallenges.length },
-    { id: 'special' as const, label: 'Special', icon: Star, count: specialChallenges.length }
+    { id: 'daily' as const, label: t('appDaily'), icon: Flame, count: dailyChallenges.length },
+    { id: 'weekly' as const, label: t('appWeekly'), icon: Calendar, count: weeklyChallenges.length },
+    { id: 'special' as const, label: t('appSpecial'), icon: Star, count: specialChallenges.length }
   ];
 
   const currentChallenges = activeTab === 'daily' ? dailyChallenges :
@@ -46,7 +48,7 @@ export const ChallengesSection: React.FC<ChallengesSectionProps> = ({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Target className="w-4 h-4 text-primary" />
-            <span className="font-semibold text-foreground">Challenges</span>
+            <span className="font-semibold text-foreground">{t('appChallenges')}</span>
           </div>
         </div>
         <div className="space-y-3">
@@ -67,7 +69,7 @@ export const ChallengesSection: React.FC<ChallengesSectionProps> = ({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Target className="w-4 h-4 text-primary" />
-          <span className="font-semibold text-foreground">Challenges</span>
+          <span className="font-semibold text-foreground">{t('appChallenges')}</span>
           {unclaimedCount > 0 && (
             <span className="px-2 py-0.5 rounded-full bg-primary text-primary-foreground text-xs font-bold">
               {unclaimedCount}
@@ -79,7 +81,7 @@ export const ChallengesSection: React.FC<ChallengesSectionProps> = ({
             onClick={() => { lightTap(); onViewAll(); }}
             className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors"
           >
-            View All
+            {t('appViewAll')}
             <ChevronRight className="w-3 h-3" />
           </button>
         )}
