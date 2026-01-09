@@ -3,6 +3,7 @@ import { SupportChatbot } from "@/components/SupportChatbot";
 import { NetworkBackground } from "@/components/NetworkBackground";
 import { Shield, Eye, Lock, Globe, Fingerprint, Database } from "lucide-react";
 import { useTranslation } from "@/contexts/TranslationContext";
+import { SEO } from "@/components/SEO";
 
 export default function Privacy() {
   const { t } = useTranslation();
@@ -32,6 +33,7 @@ export default function Privacy() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black/40 via-deep-space/60 to-black/40 relative">
+      <SEO page="privacy" />
       <NetworkBackground color="rgb(34, 211, 238)" />
       
       <div className="fixed inset-0 -z-10 overflow-hidden opacity-20">

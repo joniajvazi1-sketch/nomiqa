@@ -6,6 +6,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Wallet, Shield, Coins, ArrowRight, ExternalLink, Download, TrendingUp, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/contexts/TranslationContext";
+import { SEO } from "@/components/SEO";
 
 export default function GettingStarted() {
   const { t, language } = useTranslation();
@@ -80,6 +81,7 @@ export default function GettingStarted() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black/40 via-deep-space/60 to-black/40 relative overflow-hidden">
+      <SEO page="gettingStarted" />
       <NetworkBackground />
       
       {/* Premium background decorations */}

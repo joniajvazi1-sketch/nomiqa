@@ -1,5 +1,6 @@
 import { lazy, Suspense, memo } from "react";
 import { Hero } from "@/components/Hero";
+import { SEO } from "@/components/SEO";
 
 // Lazy load all below-the-fold components to improve TTI
 const SupportChatbot = lazy(() => import("@/components/SupportChatbot").then(m => ({ default: m.SupportChatbot })));
@@ -28,6 +29,7 @@ LoadingSpinner.displayName = "LoadingSpinner";
 const Index = () => {
   return (
     <>
+      <SEO page="home" />
       <Hero />
       {/* DePIN-First: Educate about DePIN before showing products */}
       <Suspense fallback={<LoadingSpinner />}>
