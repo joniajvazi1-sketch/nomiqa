@@ -1,17 +1,48 @@
-import { Share } from '@capacitor/share';
-import { Clipboard } from '@capacitor/clipboard';
-import { usePlatform } from './usePlatform';
+import { useCallback, useRef, useEffect } from 'react';
+import { Capacitor } from '@capacitor/core';
 import { useToast } from './use-toast';
+
+// Type-only imports
+type ShareModule = typeof import('@capacitor/share');
+type ClipboardModule = typeof import('@capacitor/clipboard');
 
 /**
  * Native sharing and clipboard hook
  * Falls back to web APIs when not on native platform
+ * Uses dynamic imports to avoid bundling Capacitor on web
  */
 export const useNativeShare = () => {
-  const { isNative } = usePlatform();
+  const isNative = Capacitor.isNativePlatform();
   const { toast } = useToast();
+  const shareRef = useRef<ShareModule | null>(null);
+  const clipboardRef = useRef<ClipboardModule | null>(null);
 
-  const share = async (options: {
+  // Preload modules on native
+  useEffect(() => {
+    if (isNative) {
+      import('@capacitor/share').then(m => { shareRef.current = m; }).catch(() => {});
+      import('@capacitor/clipboard').then(m => { clipboardRef.current = m; }).catch(() => {});
+    }
+  }, [isNative]);
+
+  const copyToClipboard = useCallback(async (text: string) => {
+    try {
+      if (isNative) {
+        if (!clipboardRef.current) {
+          clipboardRef.current = await import('@capacitor/clipboard');
+        }
+        await clipboardRef.current.Clipboard.write({ string: text });
+      } else {
+        await navigator.clipboard.writeText(text);
+      }
+      return true;
+    } catch (error) {
+      console.warn('Clipboard write failed:', error);
+      return false;
+    }
+  }, [isNative]);
+
+  const share = useCallback(async (options: {
     title?: string;
     text?: string;
     url?: string;
@@ -19,7 +50,10 @@ export const useNativeShare = () => {
   }) => {
     try {
       if (isNative) {
-        await Share.share({
+        if (!shareRef.current) {
+          shareRef.current = await import('@capacitor/share');
+        }
+        await shareRef.current.Share.share({
           title: options.title,
           text: options.text,
           url: options.url,
@@ -42,26 +76,15 @@ export const useNativeShare = () => {
     } catch (error) {
       console.warn('Share failed:', error);
     }
-  };
+  }, [isNative, copyToClipboard, toast]);
 
-  const copyToClipboard = async (text: string) => {
+  const readFromClipboard = useCallback(async (): Promise<string | null> => {
     try {
       if (isNative) {
-        await Clipboard.write({ string: text });
-      } else {
-        await navigator.clipboard.writeText(text);
-      }
-      return true;
-    } catch (error) {
-      console.warn('Clipboard write failed:', error);
-      return false;
-    }
-  };
-
-  const readFromClipboard = async (): Promise<string | null> => {
-    try {
-      if (isNative) {
-        const { value } = await Clipboard.read();
+        if (!clipboardRef.current) {
+          clipboardRef.current = await import('@capacitor/clipboard');
+        }
+        const { value } = await clipboardRef.current.Clipboard.read();
         return value;
       } else {
         return await navigator.clipboard.readText();
@@ -70,7 +93,7 @@ export const useNativeShare = () => {
       console.warn('Clipboard read failed:', error);
       return null;
     }
-  };
+  }, [isNative]);
 
   return {
     share,

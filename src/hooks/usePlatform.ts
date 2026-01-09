@@ -4,15 +4,20 @@ import { useMemo } from 'react';
 /**
  * Check for dev preview mode via URL parameter
  * Add ?appPreview=true to URL to see native app UI in browser
+ * SECURITY: Only works on localhost to prevent production users from discovering app UI
  */
 const isAppPreviewMode = (): boolean => {
-  if (typeof window !== 'undefined') {
-    // Check both search params and hash (in case of hash routing)
-    const urlParams = new URLSearchParams(window.location.search);
-    const hashParams = new URLSearchParams(window.location.hash.split('?')[1] || '');
-    return urlParams.get('appPreview') === 'true' || hashParams.get('appPreview') === 'true';
-  }
-  return false;
+  if (typeof window === 'undefined') return false;
+  
+  // Only allow preview mode on localhost (not production)
+  const hostname = window.location.hostname;
+  const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
+  if (!isLocalhost) return false;
+  
+  // Check both search params and hash (in case of hash routing)
+  const urlParams = new URLSearchParams(window.location.search);
+  const hashParams = new URLSearchParams(window.location.hash.split('?')[1] || '');
+  return urlParams.get('appPreview') === 'true' || hashParams.get('appPreview') === 'true';
 };
 
 // Store preview mode at module level to persist across re-renders

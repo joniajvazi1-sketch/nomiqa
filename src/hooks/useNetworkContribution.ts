@@ -1,11 +1,14 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { Geolocation, Position } from '@capacitor/geolocation';
+import { Capacitor } from '@capacitor/core';
 import { supabase } from '@/integrations/supabase/client';
 import { useBackgroundGeolocation } from './useBackgroundGeolocation';
 import { useNetworkStatus } from './useNetworkStatus';
 import { useHaptics } from './useHaptics';
-import { usePlatform } from './usePlatform';
 import { useTelcoMetrics, SignalLogEntry } from './useTelcoMetrics';
+
+// Type-only import
+type GeolocationModule = typeof import('@capacitor/geolocation');
+type Position = import('@capacitor/geolocation').Position;
 
 interface SpeedTestResult {
   down: number;
@@ -66,9 +69,13 @@ const isCellularConnection = (type: string): boolean => {
 /**
  * Request location permission explicitly (user-initiated only)
  * Apple requires this to be triggered by user action, not on app load
+ * Uses dynamic import to avoid bundling Capacitor geolocation on web
  */
 const ensureLocationPermission = async (): Promise<boolean> => {
+  if (!Capacitor.isNativePlatform()) return false;
+  
   try {
+    const { Geolocation } = await import('@capacitor/geolocation');
     const perm = await Geolocation.checkPermissions();
     
     if (perm.location === 'granted') return true;
@@ -95,7 +102,9 @@ const ensureLocationPermission = async (): Promise<boolean> => {
  * 4. SPEED TESTS - Run lightweight speed test every 10 minutes
  */
 export const useNetworkContribution = () => {
-  const { isNative, isIOS, isAndroid } = usePlatform();
+  const isNative = Capacitor.isNativePlatform();
+  const isIOS = Capacitor.getPlatform() === 'ios';
+  const isAndroid = Capacitor.getPlatform() === 'android';
   const { isOnline, connectionType } = useNetworkStatus();
   const { heavyTap, success, warning } = useHaptics();
   const telcoMetrics = useTelcoMetrics();

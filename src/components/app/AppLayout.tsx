@@ -1,9 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
-import { StatusBar, Style } from '@capacitor/status-bar';
+import { Capacitor } from '@capacitor/core';
 import { BottomTabBar } from './BottomTabBar';
 import { PageTransition } from './PageTransition';
-import { usePlatform } from '@/hooks/usePlatform';
+
+// Type imports only - actual module loaded dynamically
+type StatusBarModule = typeof import('@capacitor/status-bar');
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -15,14 +17,22 @@ interface AppLayoutProps {
  * No header/footer, uses bottom tab navigation
  */
 export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
-  const { isNative, isIOS } = usePlatform();
+  const isNative = Capacitor.isNativePlatform();
+  const isIOS = Capacitor.getPlatform() === 'ios';
   const location = useLocation();
+  const statusBarRef = useRef<StatusBarModule | null>(null);
 
   useEffect(() => {
     // Configure status bar for native app - translucent overlay style
     if (isNative) {
       const configureStatusBar = async () => {
         try {
+          // Dynamically load StatusBar module
+          if (!statusBarRef.current) {
+            statusBarRef.current = await import('@capacitor/status-bar');
+          }
+          const { StatusBar, Style } = statusBarRef.current;
+          
           // Light content (white text/icons) for dark backgrounds
           await StatusBar.setStyle({ style: Style.Dark });
           
