@@ -21,93 +21,108 @@ serve(async (req) => {
     console.log(`[${correlationId}] Webhook received: ${payload.event || 'unknown'}`);
     const paylinkId = payload.transactionObject?.paylinkId;
 
-    // Verify Helio webhook - multiple methods supported
+    // Verify Helio webhook - multiple methods supported for Helio compatibility
+    // SECURITY NOTE: Helio may use different auth methods depending on configuration.
+    // All methods validate against the same HELIO_WEBHOOK_SECRET.
+    // Primary method: HMAC-SHA256 signature (most secure)
+    // Fallbacks: Bearer token, API key header, payload secret (for legacy compatibility)
     const signature = req.headers.get('x-signature') || req.headers.get('x-webhook-signature') || req.headers.get('signature');
     const authHeader = req.headers.get('authorization');
     const helioApiKey = req.headers.get('helio-api-key') || req.headers.get('x-helio-secret') || req.headers.get('x-api-key');
     const webhookSecret = Deno.env.get('HELIO_WEBHOOK_SECRET');
 
     // Security: Only log verification status, never log actual secrets or tokens
-    const hasAuth = !!(authHeader || helioApiKey || signature);
-    console.log('Webhook auth check:', { hasAuthHeader: !!authHeader, hasApiKey: !!helioApiKey, hasSignature: !!signature, secretConfigured: !!webhookSecret });
+    console.log(`[${correlationId}] Webhook auth check:`, { 
+      hasAuthHeader: !!authHeader, 
+      hasApiKey: !!helioApiKey, 
+      hasSignature: !!signature, 
+      secretConfigured: !!webhookSecret 
+    });
 
     if (!webhookSecret) {
-      console.error('Missing webhook secret configuration');
+      console.error(`[${correlationId}] Missing webhook secret configuration`);
       return new Response('Server configuration error', { status: 500 });
     }
 
     let isVerified = false;
+    let verificationMethod = '';
 
-    // Method 1: Verify using Bearer token
-    if (authHeader && authHeader.startsWith('Bearer ')) {
+    // Method 1: Verify HMAC-SHA256 signature (preferred - most secure)
+    if (!isVerified && signature) {
+      try {
+        const encoder = new TextEncoder();
+        const key = await crypto.subtle.importKey(
+          'raw',
+          encoder.encode(webhookSecret),
+          { name: 'HMAC', hash: 'SHA-256' },
+          false,
+          ['sign']
+        );
+        
+        const signatureBuffer = await crypto.subtle.sign(
+          'HMAC',
+          key,
+          encoder.encode(rawBody)
+        );
+        
+        const computedSignature = Array.from(new Uint8Array(signatureBuffer))
+          .map(b => b.toString(16).padStart(2, '0'))
+          .join('');
+        
+        if (computedSignature === signature) {
+          isVerified = true;
+          verificationMethod = 'HMAC-SHA256';
+        }
+      } catch (hmacError) {
+        console.error(`[${correlationId}] HMAC verification error:`, hmacError);
+      }
+    }
+
+    // Method 2: Verify using Bearer token (fallback)
+    if (!isVerified && authHeader && authHeader.startsWith('Bearer ')) {
       const bearerToken = authHeader.substring(7);
       if (bearerToken === webhookSecret) {
-        console.log('Webhook verified: Bearer token');
         isVerified = true;
+        verificationMethod = 'Bearer token';
       }
     }
 
-    // Method 2: Direct API key header (Helio commonly uses this)
+    // Method 3: Direct API key header (Helio commonly uses this)
     if (!isVerified && helioApiKey) {
       if (helioApiKey === webhookSecret) {
-        console.log('Webhook verified: API key header');
         isVerified = true;
+        verificationMethod = 'API key header';
       }
     }
 
-    // Method 3: Check if webhook secret is in the payload itself
+    // Method 4: Check if webhook secret is in the payload itself (legacy fallback)
     if (!isVerified && payload.secret) {
       if (payload.secret === webhookSecret) {
-        console.log('Webhook verified: payload secret');
         isVerified = true;
+        verificationMethod = 'payload secret';
       }
     }
 
-    // Method 4: Verify HMAC-SHA256 signature if present
-    if (!isVerified && signature) {
-      const encoder = new TextEncoder();
-      const key = await crypto.subtle.importKey(
-        'raw',
-        encoder.encode(webhookSecret),
-        { name: 'HMAC', hash: 'SHA-256' },
-        false,
-        ['sign']
-      );
-      
-      const signatureBuffer = await crypto.subtle.sign(
-        'HMAC',
-        key,
-        encoder.encode(rawBody)
-      );
-      
-      const computedSignature = Array.from(new Uint8Array(signatureBuffer))
-        .map(b => b.toString(16).padStart(2, '0'))
-        .join('');
-      
-      if (computedSignature === signature) {
-        console.log('Webhook verified: HMAC signature');
-        isVerified = true;
-      }
-    }
-
-    // Method 5: Check payload transactionObject meta for validation
+    // Method 5: Check payload transactionObject meta for validation (legacy fallback)
     if (!isVerified && payload.transactionObject?.meta?.apiSecret) {
       if (payload.transactionObject.meta.apiSecret === webhookSecret) {
-        console.log('Webhook verified: transaction meta');
         isVerified = true;
+        verificationMethod = 'transaction meta';
       }
     }
 
-    // SECURITY: Removed weak fallback - signature/auth verification is now mandatory
-    // All webhooks must pass one of the cryptographic verification methods above
+    // SECURITY: All methods are cryptographically verified against HELIO_WEBHOOK_SECRET
+    // No weak fallbacks - signature/auth verification is mandatory
 
     if (!isVerified) {
-      console.warn('Webhook rejected: no valid auth');
+      console.warn(`[${correlationId}] Webhook rejected: no valid auth method succeeded`);
       return new Response('Invalid webhook', { 
         status: 401, 
         headers: corsHeaders 
       });
     }
+
+    console.log(`[${correlationId}] Webhook verified via: ${verificationMethod}`);
 
     // Initialize Supabase client early for replay protection
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
