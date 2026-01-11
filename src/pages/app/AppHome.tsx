@@ -3,15 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { 
   Zap,
   ChevronRight,
-  Signal,
   MapPin,
   TrendingUp,
   Settings,
   Bell,
   Flame,
   Trophy,
-  Gift,
-  Calendar
+  Calendar,
+  Crown
 } from 'lucide-react';
 import { useHaptics } from '@/hooks/useHaptics';
 import { useEnhancedSounds } from '@/hooks/useEnhancedSounds';
@@ -26,7 +25,6 @@ import { StreakBonus, MilestonePopup, AchievementBadge } from '@/components/app/
 import { NotificationToggle } from '@/components/app/NotificationToggle';
 import { ChallengesSection } from '@/components/app/ChallengesSection';
 import { RewardCelebration } from '@/components/app/RewardCelebration';
-import { ShimmerButton } from '@/components/app/ShimmerButton';
 import { OnboardingFlow } from '@/components/app/OnboardingFlow';
 import { AnimatePresence } from 'framer-motion';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
@@ -38,9 +36,9 @@ import { DailyCheckIn } from '@/components/app/DailyCheckIn';
 import { SectionErrorBoundary } from '@/components/app/SectionErrorBoundary';
 import { StreakCalendar } from '@/components/app/StreakCalendar';
 import { SpinWheel } from '@/components/app/SpinWheel';
-// SocialProofToast removed - was causing fake spam notifications
 import { PersonalizedGoals } from '@/components/app/PersonalizedGoals';
 import { RatingPrompt, useRatingPrompt } from '@/components/app/RatingPrompt';
+import { useLeaderboard } from '@/hooks/useLeaderboard';
 
 interface DailyEarning {
   date: string;
@@ -438,17 +436,6 @@ export const AppHome: React.FC = () => {
                   </button>
                 )}
               </div>
-
-              {/* Primary CTA - smaller */}
-              <ShimmerButton
-                onClick={() => handleNavigation('/app/map')}
-                shimmerEnabled={!loading}
-                className="w-full h-11 rounded-xl bg-gradient-to-r from-neon-cyan to-sky-400 text-background font-bold text-sm shadow-lg shadow-neon-cyan/30 active:scale-[0.98] transition-all group"
-              >
-                <Signal className="w-4 h-4" />
-                {t('app.home.startEarning')}
-                <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </ShimmerButton>
             </div>
           </div>
 
@@ -486,19 +473,22 @@ export const AppHome: React.FC = () => {
               </div>
             </div>
 
-            {/* Boost Card */}
-            <div 
-              className="rounded-xl bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] p-3 cursor-pointer active:scale-[0.98] transition-transform"
-              onClick={() => { lightTap(); navigate('/app/profile?tab=earn'); }}
+            {/* Leaderboard Rank Card */}
+            <button 
+              className="rounded-xl bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] p-3 cursor-pointer active:scale-[0.98] transition-transform text-left"
+              onClick={() => { lightTap(); navigate('/app/leaderboard'); }}
             >
               <div className="flex items-center gap-1.5 mb-2">
-                <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-violet-500/20 to-violet-500/5 flex items-center justify-center">
-                  <Gift className="w-3 h-3 text-violet-400" />
+                <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-amber-500/20 to-amber-500/5 flex items-center justify-center">
+                  <Crown className="w-3 h-3 text-amber-400" />
                 </div>
-                <span className="text-[10px] font-semibold text-muted-foreground uppercase">{t('app.home.tip')}</span>
+                <span className="text-[10px] font-semibold text-muted-foreground uppercase">Leaderboard</span>
               </div>
-              <div className="text-sm font-semibold text-foreground">{t('app.home.earnMore')}</div>
-            </div>
+              <div className="flex items-center gap-1">
+                <span className="text-lg font-bold text-foreground">View Rank</span>
+                <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              </div>
+            </button>
           </div>
 
           {/* STREAK BADGE (inline, small) */}
