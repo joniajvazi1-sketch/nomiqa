@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { 
   Signal, 
   Pause,
@@ -22,6 +22,7 @@ import { useGlobalCoverage } from '@/hooks/useGlobalCoverage';
 import { usePlatform } from '@/hooks/usePlatform';
 import { useEnhancedHaptics } from '@/hooks/useEnhancedHaptics';
 import { useEnhancedSounds } from '@/hooks/useEnhancedSounds';
+import { useSessionMilestones } from '@/hooks/useSessionMilestones';
 import { useTranslation } from '@/contexts/TranslationContext';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { ContributionMap } from '@/components/app/ContributionMap';
@@ -45,6 +46,7 @@ type CoverageMode = 'personal' | 'global';
 export const NetworkContribution: React.FC = () => {
   const { errorPattern, buttonTap, successPattern, pointsEarnedPattern, milestonePattern } = useEnhancedHaptics();
   const { playCoin, playSuccess, playCelebration, playError } = useEnhancedSounds();
+  const { checkAllMilestones, resetMilestones } = useSessionMilestones();
   const { t } = useTranslation();
   const [showCelebration, setShowCelebration] = useState(false);
   const [celebrationPoints, setCelebrationPoints] = useState(0);
@@ -53,6 +55,7 @@ export const NetworkContribution: React.FC = () => {
   const [indoorMode, setIndoorMode] = useState(false);
   const [coverageMode, setCoverageMode] = useState<CoverageMode>('personal');
   const startButtonRef = useRef<HTMLButtonElement>(null);
+  const prevPointsRef = useRef(0);
   
   // Network contribution hook
   const {
@@ -119,6 +122,24 @@ export const NetworkContribution: React.FC = () => {
   const uploadSpeed = stats.lastSpeedTest?.up ?? (isActive ? (signalStrength * 0.3 + Math.random() * 10) : 0);
   const latency = stats.lastSpeedTest?.latency ?? (isActive ? Math.max(10, 100 - signalStrength + Math.random() * 20) : 0);
 
+  // Check milestones during active session
+  useEffect(() => {
+    if (isActive && isCellular) {
+      const elapsedMinutes = stats.duration / 60;
+      // Use dataPointsCount as a proxy for distance (each point ~ 10m movement)
+      const estimatedDistanceMeters = stats.dataPointsCount * 10;
+      checkAllMilestones(stats.pointsEarned, elapsedMinutes, estimatedDistanceMeters);
+    }
+  }, [isActive, isCellular, stats.pointsEarned, stats.duration, stats.dataPointsCount, checkAllMilestones]);
+
+  // Reset milestones when session ends
+  useEffect(() => {
+    if (!isActive) {
+      resetMilestones();
+      prevPointsRef.current = 0;
+    }
+  }, [isActive, resetMilestones]);
+
   // Handle session end celebration
   const handleStopContribution = useCallback(() => {
     if (stats.pointsEarned > 0) {
@@ -127,7 +148,8 @@ export const NetworkContribution: React.FC = () => {
       setShowCelebration(true);
     }
     stopContribution();
-  }, [stats.pointsEarned, stopContribution]);
+    resetMilestones();
+  }, [stats.pointsEarned, stopContribution, resetMilestones]);
 
   // Handle manual speed test
   const handleSpeedTest = useCallback(async () => {

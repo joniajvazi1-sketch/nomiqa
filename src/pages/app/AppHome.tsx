@@ -35,6 +35,8 @@ import { PullToRefreshIndicator } from '@/components/app/PullToRefreshIndicator'
 import { LanguageSelector } from '@/components/app/LanguageSelector';
 import { HomeScreenSkeleton } from '@/components/app/skeletons';
 import { AnimatedGradientBorder } from '@/components/app/AnimatedGradientBorder';
+import { FloatingQuickEarn } from '@/components/app/FloatingQuickEarn';
+import { DailyCheckIn } from '@/components/app/DailyCheckIn';
 
 interface DailyEarning {
   date: string;
@@ -666,6 +668,12 @@ export const AppHome: React.FC = () => {
         }
       `}</style>
       </div>
+
+      {/* Floating Quick Earn Button */}
+      <FloatingQuickEarn />
+
+      {/* Daily Check-in Modal */}
+      {user && <DailyCheckIn userId={user.id} />}
     </>
   );
 };
