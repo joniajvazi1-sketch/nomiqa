@@ -62,22 +62,16 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   }
 
   return (
-    <div className="h-full w-full flex flex-col relative overflow-hidden">
-      {/* FIXED fullscreen background - extends behind notch and home indicator */}
-      <div 
-        className="fixed inset-0 bg-background pointer-events-none"
-        style={{ zIndex: -1 }}
-      />
-      
+    <div className="fixed inset-0 flex flex-col overflow-hidden bg-background">
       {/* Scrollable content area */}
       <main 
-        className="flex-1 overflow-y-auto overflow-x-hidden"
+        className="flex-1 overflow-y-auto overflow-x-hidden overscroll-none"
         style={{ 
           paddingTop: 'env(safe-area-inset-top, 0px)',
           paddingLeft: 'env(safe-area-inset-left, 0px)',
           paddingRight: 'env(safe-area-inset-right, 0px)',
-          paddingBottom: 'calc(72px + env(safe-area-inset-bottom, 0px))',
-          /* Smooth iOS scrolling */
+          // Bottom nav height (64px) + safe area
+          paddingBottom: 'calc(64px + env(safe-area-inset-bottom, 0px))',
           WebkitOverflowScrolling: 'touch',
         }}
       >
@@ -86,7 +80,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         </PageTransition>
       </main>
       
-      {/* Bottom navigation - pinned to absolute bottom */}
+      {/* Bottom navigation - fixed to screen bottom */}
       <BottomTabBar />
     </div>
   );
