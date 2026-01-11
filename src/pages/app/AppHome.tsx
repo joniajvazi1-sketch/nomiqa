@@ -38,6 +38,10 @@ import { AnimatedGradientBorder } from '@/components/app/AnimatedGradientBorder'
 import { FloatingQuickEarn } from '@/components/app/FloatingQuickEarn';
 import { DailyCheckIn } from '@/components/app/DailyCheckIn';
 import { SectionErrorBoundary } from '@/components/app/SectionErrorBoundary';
+import { StreakCalendar } from '@/components/app/StreakCalendar';
+import { SpinWheel } from '@/components/app/SpinWheel';
+import { SocialProofIndicator, SocialProofToast } from '@/components/app/SocialProofIndicator';
+import { PersonalizedGoals } from '@/components/app/PersonalizedGoals';
 
 interface DailyEarning {
   date: string;
@@ -92,6 +96,9 @@ export const AppHome: React.FC = () => {
   const [earningsData, setEarningsData] = useState<DailyEarning[]>([]);
   const [showDailyGoalCelebration, setShowDailyGoalCelebration] = useState(false);
   const [dailyGoalCelebrated, setDailyGoalCelebrated] = useState(false);
+  const [showStreakCalendar, setShowStreakCalendar] = useState(false);
+  const [showSpinWheel, setShowSpinWheel] = useState(false);
+  const [checkinHistory, setCheckinHistory] = useState<{ date: string; points: number }[]>([]);
   const usdRef = useRef<HTMLDivElement>(null);
 
   const loadData = useCallback(async () => {
@@ -165,6 +172,35 @@ export const AppHome: React.FC = () => {
           }));
           
           setEarningsData(earnings);
+        }
+
+        // Fetch checkin history for streak calendar
+        const { data: checkins } = await supabase
+          .from('daily_checkins')
+          .select('check_in_date, bonus_points')
+          .eq('user_id', currentUser.id)
+          .order('check_in_date', { ascending: false })
+          .limit(90);
+
+        if (checkins) {
+          setCheckinHistory(checkins.map(c => ({
+            date: c.check_in_date,
+            points: c.bonus_points,
+          })));
+        }
+
+        // Check if user can spin today
+        const today = new Date().toISOString().split('T')[0];
+        const { data: todaySpin } = await supabase
+          .from('spin_wheel_results')
+          .select('id')
+          .eq('user_id', currentUser.id)
+          .eq('spin_date', today)
+          .maybeSingle();
+
+        // Show spin wheel if no spin today (after a delay)
+        if (!todaySpin) {
+          setTimeout(() => setShowSpinWheel(true), 3000);
         }
       }
     } catch (error) {
@@ -444,6 +480,21 @@ export const AppHome: React.FC = () => {
           onComplete={() => setShowDailyGoalCelebration(false)}
         />
 
+        {/* SOCIAL PROOF INDICATOR */}
+        <SectionErrorBoundary fallbackTitle="Activity feed unavailable">
+          <SocialProofIndicator />
+        </SectionErrorBoundary>
+
+        {/* PERSONALIZED GOALS */}
+        {user && (
+          <SectionErrorBoundary fallbackTitle="Goals unavailable">
+            <PersonalizedGoals 
+              userId={user.id} 
+              currentPoints={todayPoints}
+            />
+          </SectionErrorBoundary>
+        )}
+
         {/* TWO MINI CARDS: Impact & Boost */}
         <div className="grid grid-cols-2 gap-3">
           {/* Impact Card - Friendly */}
@@ -679,6 +730,35 @@ export const AppHome: React.FC = () => {
 
       {/* Daily Check-in Modal */}
       {user && <DailyCheckIn userId={user.id} />}
+
+      {/* Spin Wheel Modal */}
+      <AnimatePresence>
+        {showSpinWheel && user && (
+          <SpinWheel 
+            userId={user.id} 
+            onClose={() => setShowSpinWheel(false)}
+            onPrizeWon={() => loadData()}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Streak Calendar Modal */}
+      <AnimatePresence>
+        {showStreakCalendar && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setShowStreakCalendar(false)}>
+            <div onClick={(e) => e.stopPropagation()}>
+              <StreakCalendar 
+                checkins={checkinHistory}
+                currentStreak={streakDays}
+                onClose={() => setShowStreakCalendar(false)}
+              />
+            </div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Social Proof Toast */}
+      <SocialProofToast />
     </>
   );
 };
