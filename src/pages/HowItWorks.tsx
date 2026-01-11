@@ -110,7 +110,7 @@ const HowItWorks = () => {
       >
         <div className="container max-w-6xl mx-auto">
           <div className={`grid md:grid-cols-2 gap-12 items-center transition-all duration-1000 delay-100 ${visibleSections.has('what-is-depin') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-            <div>
+            <div className="text-center md:text-left">
               <h2 className="text-3xl md:text-4xl font-light mb-6">
                 <span className="bg-gradient-to-r from-neon-cyan to-white bg-clip-text text-transparent">
                   {t("howItWorksWhatIsDePINTitle")}
@@ -123,7 +123,7 @@ const HowItWorks = () => {
                 {t("howItWorksWhatIsDePINDesc2")}
               </p>
               
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap gap-3 justify-center md:justify-start">
                 {dataTypes.map((item, index) => {
                   const Icon = item.icon;
                   return (
