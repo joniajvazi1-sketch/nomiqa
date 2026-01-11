@@ -38,7 +38,15 @@ const Token = () => {
   const handleWaitlistSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!email || !email.includes("@")) {
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !emailRegex.test(email)) {
+      toast.error(t("tokenInvalidEmail"));
+      return;
+    }
+
+    // Length limit
+    if (email.length > 255) {
       toast.error(t("tokenInvalidEmail"));
       return;
     }
@@ -46,21 +54,30 @@ const Token = () => {
     setIsSubmitting(true);
 
     try {
-      const { error } = await supabase
-        .from("token_waitlist")
-        .insert({ email, source: "token_page" });
+      // Use secure Edge Function with rate limiting
+      const { data, error } = await supabase.functions.invoke('join-waitlist', {
+        body: { email: email.trim().toLowerCase(), source: "token_page" }
+      });
 
       if (error) {
-        if (error.code === "23505") {
-          // Unique constraint violation - already subscribed
-          toast.info(t("tokenAlreadySubscribed"));
-          setIsSubscribed(true);
-        } else {
-          throw error;
-        }
-      } else {
+        // Handle edge function errors
+        console.error("Waitlist error:", error);
+        toast.error(t("tokenWaitlistError"));
+        return;
+      }
+
+      if (data?.code === "ALREADY_EXISTS") {
+        toast.info(t("tokenAlreadySubscribed"));
+        setIsSubscribed(true);
+      } else if (data?.code === "RATE_LIMITED") {
+        toast.error("Too many requests. Please try again later.");
+      } else if (data?.code === "DISPOSABLE_EMAIL") {
+        toast.error("Please use a permanent email address.");
+      } else if (data?.success) {
         setIsSubscribed(true);
         toast.success(t("tokenWaitlistSuccess"));
+      } else if (data?.error) {
+        toast.error(data.error);
       }
     } catch (error) {
       console.error("Waitlist error:", error);
