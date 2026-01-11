@@ -20,7 +20,8 @@ import { useNetworkContribution } from '@/hooks/useNetworkContribution';
 import { useContributionHeatmap } from '@/hooks/useContributionHeatmap';
 import { useGlobalCoverage } from '@/hooks/useGlobalCoverage';
 import { usePlatform } from '@/hooks/usePlatform';
-import { useHaptics } from '@/hooks/useHaptics';
+import { useEnhancedHaptics } from '@/hooks/useEnhancedHaptics';
+import { useEnhancedSounds } from '@/hooks/useEnhancedSounds';
 import { useTranslation } from '@/contexts/TranslationContext';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { ContributionMap } from '@/components/app/ContributionMap';
@@ -42,8 +43,8 @@ type CoverageMode = 'personal' | 'global';
  * - Toggle between personal heatmap and global community coverage
  */
 export const NetworkContribution: React.FC = () => {
-  const { isAndroid } = usePlatform();
-  const { error: errorHaptic, mediumTap, success } = useHaptics();
+  const { errorPattern, buttonTap, successPattern, pointsEarnedPattern, milestonePattern } = useEnhancedHaptics();
+  const { playCoin, playSuccess, playCelebration, playError } = useEnhancedSounds();
   const { t } = useTranslation();
   const [showCelebration, setShowCelebration] = useState(false);
   const [celebrationPoints, setCelebrationPoints] = useState(0);
@@ -131,11 +132,12 @@ export const NetworkContribution: React.FC = () => {
   // Handle manual speed test
   const handleSpeedTest = useCallback(async () => {
     if (!isActive || !isCellular || isRunningSpeedTest) {
-      errorHaptic();
+      errorPattern();
+      playError();
       return;
     }
     
-    mediumTap();
+    buttonTap();
     const result = await triggerManualSpeedTest();
     
     if (result) {
@@ -144,8 +146,10 @@ export const NetworkContribution: React.FC = () => {
       setCelebrationPoints(bonusPoints);
       setCelebrationType('milestone');
       setShowCelebration(true);
+      pointsEarnedPattern();
+      playCoin();
     }
-  }, [isActive, isCellular, isRunningSpeedTest, errorHaptic, mediumTap, triggerManualSpeedTest]);
+  }, [isActive, isCellular, isRunningSpeedTest, errorPattern, playError, buttonTap, triggerManualSpeedTest, pointsEarnedPattern, playCoin]);
 
   // Get connection label
   const getConnectionLabel = () => {
@@ -160,16 +164,16 @@ export const NetworkContribution: React.FC = () => {
 
   // Toggle heatmap view (personal mode)
   const handleToggleHeatmap = useCallback(() => {
-    mediumTap();
+    buttonTap();
     setShowHeatmap(prev => !prev);
     if (!showHeatmap) {
       refreshHeatmap();
     }
-  }, [showHeatmap, mediumTap, refreshHeatmap]);
+  }, [showHeatmap, buttonTap, refreshHeatmap]);
 
   // Toggle coverage mode (personal <-> global)
   const handleToggleCoverageMode = useCallback(() => {
-    mediumTap();
+    buttonTap();
     setCoverageMode(prev => {
       const next = prev === 'personal' ? 'global' : 'personal';
       if (next === 'global') {
@@ -177,13 +181,13 @@ export const NetworkContribution: React.FC = () => {
       }
       return next;
     });
-  }, [mediumTap, refreshGlobalCoverage]);
+  }, [buttonTap, refreshGlobalCoverage]);
 
   // Handle network filter change
   const handleNetworkFilterChange = useCallback((filter: '5g' | 'lte' | '3g' | null) => {
-    mediumTap();
+    buttonTap();
     setNetworkFilter(filter);
-  }, [mediumTap, setNetworkFilter]);
+  }, [buttonTap, setNetworkFilter]);
 
   // Pull-to-refresh handler
   const handleRefresh = useCallback(async () => {
@@ -422,8 +426,14 @@ export const NetworkContribution: React.FC = () => {
           <button
             ref={startButtonRef}
             onClick={() => {
-              mediumTap();
-              isActive ? handleStopContribution() : startContribution();
+              buttonTap();
+              if (isActive) {
+                handleStopContribution();
+                playSuccess();
+              } else {
+                startContribution();
+                playCoin();
+              }
             }}
             disabled={!user}
             className={cn(

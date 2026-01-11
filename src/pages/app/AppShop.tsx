@@ -36,6 +36,8 @@ import { SkeletonProductCard } from '@/components/app/SkeletonProductCard';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from '@/components/app/PullToRefreshIndicator';
 import { AnimatedCard } from '@/components/app/PageTransition';
+import { ProductContextMenu } from '@/components/app/ProductContextMenu';
+import { SwipeableDismiss } from '@/components/app/SwipeableDismiss';
 import {
   Dialog,
   DialogContent,
@@ -394,75 +396,81 @@ export const AppShop: React.FC = () => {
         ) : (
           <div className="grid grid-cols-2 gap-3">
             {displayedProducts.map((product, index) => (
-              <div 
+              <ProductContextMenu
                 key={product.id}
-                onClick={() => handleProductClick(product)}
-                className={cn(
-                  'group relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-300',
-                  'hover:scale-[1.02] hover:shadow-xl hover:shadow-primary/10',
-                  'active:scale-[0.97]'
-                )}
-                style={{ 
-                  animation: `stagger-in 0.4s ease-out ${Math.min(index, 10) * 40}ms backwards`
-                }}
+                product={product}
+                onQuickAdd={() => handleAddToCart(product)}
+                onViewDetails={() => handleProductClick(product)}
               >
-                {/* Glass background */}
-                <div className="absolute inset-0 bg-white/[0.03] backdrop-blur-xl transition-colors group-hover:bg-white/[0.06]" />
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-br from-primary/10 to-transparent" />
-                
-                {/* Content */}
-                <div className="relative p-3 border border-white/[0.08] rounded-2xl group-hover:border-primary/20 transition-colors">
-                  {/* Popular badge */}
-                  {product.is_popular && (
-                    <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded-md bg-orange-500/20 border border-orange-500/30 flex items-center gap-0.5">
-                      <Flame className="w-2.5 h-2.5 text-orange-400" />
-                      <span className="text-[9px] font-medium text-orange-400">HOT</span>
-                    </div>
+                <div 
+                  onClick={() => handleProductClick(product)}
+                  className={cn(
+                    'group relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-300',
+                    'hover:scale-[1.02] hover:shadow-xl hover:shadow-primary/10',
+                    'active:scale-[0.97]'
                   )}
+                  style={{ 
+                    animation: `stagger-in 0.4s ease-out ${Math.min(index, 10) * 40}ms backwards`
+                  }}
+                >
+                  {/* Glass background */}
+                  <div className="absolute inset-0 bg-white/[0.03] backdrop-blur-xl transition-colors group-hover:bg-white/[0.06]" />
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-br from-primary/10 to-transparent" />
                   
-                  {/* Flag */}
-                  <div className="flex justify-center mb-3">
-                    {getCountryFlag(product)}
-                  </div>
-                  
-                  {/* Country/Region name */}
-                  <h3 className="font-semibold text-foreground text-center truncate mb-1 group-hover:text-primary transition-colors">
-                    {product.country_name}
-                  </h3>
-                  
-                  {/* Data & Validity */}
-                  <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground mb-3">
-                    <span className="flex items-center gap-0.5">
-                      <Wifi className="w-3 h-3" />
-                      {product.data_amount}
-                    </span>
-                    <span className="w-1 h-1 rounded-full bg-muted-foreground/30" />
-                    <span>{product.validity_days}d</span>
-                  </div>
-                  
-                  {/* Price & Add Button */}
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-lg font-bold text-foreground tabular-nums">
-                      ${product.price_usd.toFixed(2)}
-                    </span>
-                    <Button 
-                      size="sm"
-                      onClick={(e) => handleAddToCart(product, e)}
-                      disabled={addingProductId === product.id}
-                      className={cn(
-                        'h-9 w-9 p-0 rounded-xl bg-gradient-to-r from-primary to-primary/80 shadow-lg shadow-primary/30 hover:opacity-90 transition-all',
-                        addingProductId === product.id && 'animate-bounce scale-110'
-                      )}
-                    >
-                      {addingProductId === product.id ? (
-                        <Check className="w-4 h-4 animate-scale-in" />
-                      ) : (
-                        <Plus className="w-4 h-4" />
-                      )}
-                    </Button>
+                  {/* Content */}
+                  <div className="relative p-3 border border-white/[0.08] rounded-2xl group-hover:border-primary/20 transition-colors">
+                    {/* Popular badge */}
+                    {product.is_popular && (
+                      <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded-md bg-orange-500/20 border border-orange-500/30 flex items-center gap-0.5">
+                        <Flame className="w-2.5 h-2.5 text-orange-400" />
+                        <span className="text-[9px] font-medium text-orange-400">HOT</span>
+                      </div>
+                    )}
+                    
+                    {/* Flag */}
+                    <div className="flex justify-center mb-3">
+                      {getCountryFlag(product)}
+                    </div>
+                    
+                    {/* Country/Region name */}
+                    <h3 className="font-semibold text-foreground text-center truncate mb-1 group-hover:text-primary transition-colors">
+                      {product.country_name}
+                    </h3>
+                    
+                    {/* Data & Validity */}
+                    <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground mb-3">
+                      <span className="flex items-center gap-0.5">
+                        <Wifi className="w-3 h-3" />
+                        {product.data_amount}
+                      </span>
+                      <span className="w-1 h-1 rounded-full bg-muted-foreground/30" />
+                      <span>{product.validity_days}d</span>
+                    </div>
+                    
+                    {/* Price & Add Button */}
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-lg font-bold text-foreground tabular-nums">
+                        ${product.price_usd.toFixed(2)}
+                      </span>
+                      <Button 
+                        size="sm"
+                        onClick={(e) => handleAddToCart(product, e)}
+                        disabled={addingProductId === product.id}
+                        className={cn(
+                          'h-9 w-9 p-0 rounded-xl bg-gradient-to-r from-primary to-primary/80 shadow-lg shadow-primary/30 hover:opacity-90 transition-all',
+                          addingProductId === product.id && 'animate-bounce scale-110'
+                        )}
+                      >
+                        {addingProductId === product.id ? (
+                          <Check className="w-4 h-4 animate-scale-in" />
+                        ) : (
+                          <Plus className="w-4 h-4" />
+                        )}
+                      </Button>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </ProductContextMenu>
             ))}
           </div>
         )}
@@ -501,14 +509,14 @@ export const AppShop: React.FC = () => {
           </div>
         )}
 
-        {/* Enhanced Plan Selection Modal - Popup Animation */}
+        {/* Enhanced Plan Selection Modal - Popup Animation with Swipe-to-Dismiss */}
         <Dialog open={detailModalOpen} onOpenChange={setDetailModalOpen}>
           <DialogContent 
             variant="popup"
             className="w-[calc(100%-2rem)] max-w-[380px] rounded-3xl border border-white/[0.08] bg-background/98 backdrop-blur-2xl p-0 overflow-hidden max-h-[85vh] overflow-y-auto"
           >
             {selectedProduct && (
-              <>
+              <SwipeableDismiss onDismiss={() => setDetailModalOpen(false)}>
                 {/* Header with large flag */}
                 <div className="relative p-5 pb-4">
                   <div className="absolute inset-0 bg-gradient-to-b from-primary/15 via-primary/5 to-transparent" />
@@ -663,7 +671,7 @@ export const AppShop: React.FC = () => {
                     )}
                   </Button>
                 </div>
-              </>
+              </SwipeableDismiss>
             )}
           </DialogContent>
         </Dialog>

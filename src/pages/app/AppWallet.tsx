@@ -26,7 +26,8 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useHaptics } from '@/hooks/useHaptics';
+import { useEnhancedHaptics } from '@/hooks/useEnhancedHaptics';
+import { useEnhancedSounds } from '@/hooks/useEnhancedSounds';
 import { useTranslation } from '@/contexts/TranslationContext';
 import { useNativeShare } from '@/hooks/useNativeShare';
 import { supabase } from '@/integrations/supabase/client';
@@ -69,7 +70,8 @@ const POINTS_TO_USD = 0.001; // 1000 points = $1
  */
 export const AppWallet: React.FC = () => {
   const navigate = useNavigate();
-  const { lightTap, success, mediumTap } = useHaptics();
+  const { buttonTap, successPattern, navigationTap, selectionTap } = useEnhancedHaptics();
+  const { playCoin, playPop, playSuccess, playSwoosh } = useEnhancedSounds();
   const { share, copyToClipboard } = useNativeShare();
   const { toast } = useToast();
   const { t } = useTranslation();
@@ -169,18 +171,20 @@ export const AppWallet: React.FC = () => {
 
   const handleCopyLink = async () => {
     if (!affiliate) return;
-    lightTap();
+    buttonTap();
     const link = `https://nomiqa.com?ref=${affiliate.affiliate_code}`;
     const copied = await copyToClipboard(link);
     if (copied) {
-      success();
+      successPattern();
+      playSuccess();
       toast({ title: 'Link copied!' });
     }
   };
 
   const handleShare = async () => {
     if (!affiliate) return;
-    lightTap();
+    buttonTap();
+    playSwoosh();
     const link = `https://nomiqa.com?ref=${affiliate.affiliate_code}`;
     await share({
       title: 'Join Nomiqa',
@@ -190,13 +194,14 @@ export const AppWallet: React.FC = () => {
   };
 
   const handleLogout = async () => {
-    lightTap();
+    buttonTap();
     await supabase.auth.signOut();
     navigate('/auth');
   };
 
   const handleQuickAction = (action: string) => {
-    mediumTap();
+    navigationTap();
+    playPop();
     if (action === 'earn') navigate('/app/map');
     else if (action === 'shop') navigate('/app/shop');
     else if (action === 'invite') handleShare();
@@ -318,7 +323,7 @@ export const AppWallet: React.FC = () => {
         {/* Animated Balance Card */}
         <div 
           className="relative rounded-[28px] overflow-hidden cursor-pointer group"
-          onClick={() => { lightTap(); setShowBalanceDetails(!showBalanceDetails); }}
+          onClick={() => { buttonTap(); playCoin(); setShowBalanceDetails(!showBalanceDetails); }}
         >
           {/* Animated gradient border */}
           <div className="absolute -inset-[1px] bg-gradient-to-r from-primary via-neon-cyan to-primary rounded-[29px] opacity-50 group-hover:opacity-70 transition-opacity animate-gradient-x" />
@@ -460,7 +465,7 @@ export const AppWallet: React.FC = () => {
             {(['all', 'earned', 'spent', 'bonus'] as TransactionFilter[]).map((filter) => (
               <button
                 key={filter}
-                onClick={() => { lightTap(); setActiveFilter(filter); }}
+                onClick={() => { selectionTap(); setActiveFilter(filter); }}
                 className={cn(
                   "px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap",
                   activeFilter === filter
@@ -543,7 +548,7 @@ export const AppWallet: React.FC = () => {
         {affiliate && (
           <div 
             className="rounded-2xl bg-gradient-to-br from-primary/10 via-background to-neon-cyan/5 border border-white/10 p-4 cursor-pointer hover:border-primary/30 transition-all active:scale-[0.98]"
-            onClick={() => { lightTap(); navigate('/affiliate'); }}
+            onClick={() => { navigationTap(); playSwoosh(); navigate('/affiliate'); }}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
