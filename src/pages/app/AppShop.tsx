@@ -33,7 +33,7 @@ import { useDeviceCompatibility } from '@/hooks/useDeviceCompatibility';
 import { useImagePreload, preloadCountryFlags } from '@/hooks/useImagePreload';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
-import { SkeletonProductCard } from '@/components/app/SkeletonProductCard';
+import { AppSpinner } from '@/components/app/AppSpinner';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from '@/components/app/PullToRefreshIndicator';
 import { AnimatedCard } from '@/components/app/PageTransition';
@@ -402,8 +402,8 @@ export const AppShop: React.FC = () => {
 
         {/* Products Grid */}
         {isLoading ? (
-          <div className="grid grid-cols-2 gap-3">
-            <SkeletonProductCard count={8} />
+          <div className="flex items-center justify-center py-14">
+            <AppSpinner size="lg" label="Loading plans..." />
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-3">
