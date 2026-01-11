@@ -882,6 +882,7 @@ const translations: Record<string, Partial<Record<Language | 'HI', string>>> = {
   navDownloadApp: { EN: "Download App", ES: "Descargar App", FR: "Télécharger l'App", DE: "App herunterladen", RU: "Скачать приложение", ZH: "下载应用", JA: "アプリをダウンロード", PT: "Baixar App", AR: "تحميل التطبيق", IT: "Scarica App" },
   navHowItWorks: { EN: "How It Works", ES: "Cómo Funciona", FR: "Comment ça marche", DE: "So funktioniert's", RU: "Как это работает", ZH: "如何运作", JA: "仕組み", PT: "Como Funciona", AR: "كيف يعمل", IT: "Come Funziona" },
   navHowDePINWorks: { EN: "How DePIN Works", ES: "Cómo Funciona DePIN", FR: "Comment Fonctionne DePIN", DE: "Wie DePIN Funktioniert", RU: "Как работает DePIN", ZH: "DePIN 如何运作", JA: "DePIN の仕組み", PT: "Como o DePIN Funciona", AR: "كيف يعمل DePIN", IT: "Come Funziona DePIN" },
+  navHowToBuyNomiqa: { EN: "How to Buy Nomiqa", ES: "Cómo Comprar Nomiqa", FR: "Comment Acheter Nomiqa", DE: "Wie man Nomiqa kauft", RU: "Как купить Nomiqa", ZH: "如何购买 Nomiqa", JA: "Nomiqa の購入方法", PT: "Como Comprar Nomiqa", AR: "كيفية شراء Nomiqa", IT: "Come Acquistare Nomiqa" },
   navEsimPlans: { EN: "eSIM Plans", ES: "Planes eSIM", FR: "Forfaits eSIM", DE: "eSIM-Pläne", RU: "Планы eSIM", ZH: "eSIM 套餐", JA: "eSIM プラン", PT: "Planos eSIM", AR: "خطط eSIM", IT: "Piani eSIM" },
   navEarnRefer: { EN: "Earn & Refer", ES: "Ganar y Referir", FR: "Gagner et Parrainer", DE: "Verdienen & Empfehlen", RU: "Зарабатывать и приглашать", ZH: "赚钱与推荐", JA: "稼ぐ＆紹介", PT: "Ganhar e Indicar", AR: "اكسب وأحِل", IT: "Guadagna e Invita" },
   
