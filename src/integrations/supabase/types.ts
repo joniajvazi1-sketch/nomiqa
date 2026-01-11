@@ -399,6 +399,33 @@ export type Database = {
           },
         ]
       }
+      daily_checkins: {
+        Row: {
+          bonus_points: number
+          check_in_date: string
+          created_at: string | null
+          id: string
+          streak_day: number
+          user_id: string
+        }
+        Insert: {
+          bonus_points?: number
+          check_in_date?: string
+          created_at?: string | null
+          id?: string
+          streak_day?: number
+          user_id: string
+        }
+        Update: {
+          bonus_points?: number
+          check_in_date?: string
+          created_at?: string | null
+          id?: string
+          streak_day?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       email_rate_limits: {
         Row: {
           created_at: string
