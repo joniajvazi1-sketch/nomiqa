@@ -106,20 +106,25 @@ export const NetworkBackground = ({ color }: NetworkBackgroundProps = {}) => {
     );
     observer.observe(canvas);
 
-    // Throttled animation loop (30fps instead of 60fps)
+    // Throttled animation loop (24fps for better battery - still smooth)
     let lastTime = 0;
-    const frameInterval = 1000 / 30;
+    const frameInterval = 1000 / 24; // 24fps is plenty for ambient background
+    let frameSkip = 0;
 
     const animate = (currentTime?: number) => {
       if (isPausedRef.current || !isVisibleRef.current) {
         return;
       }
 
+      // Frame skip for ultra-smooth perceived animation
       if (currentTime && currentTime - lastTime < frameInterval) {
         animationRef.current = requestAnimationFrame(animate);
         return;
       }
       lastTime = currentTime || 0;
+      
+      // Skip every other physics update for performance
+      frameSkip = (frameSkip + 1) % 2;
 
       const width = window.innerWidth;
       const height = window.innerHeight;
@@ -127,50 +132,50 @@ export const NetworkBackground = ({ color }: NetworkBackgroundProps = {}) => {
       ctx.clearRect(0, 0, width, height);
 
       // Batch all drawing operations
-      const nodeColor = color ? color.replace('rgb(', 'rgba(').replace(')', ', 0.5)') : 'rgba(147, 51, 234, 0.5)';
-      const glowColor = color ? color.replace('rgb(', 'rgba(').replace(')', ', 0.15)') : 'rgba(147, 51, 234, 0.15)';
+      const nodeColor = color ? color.replace('rgb(', 'rgba(').replace(')', ', 0.4)') : 'rgba(147, 51, 234, 0.4)';
 
-      // Update and draw nodes
+      // Update physics only on alternate frames
+      if (frameSkip === 0) {
+        for (let i = 0; i < nodes.length; i++) {
+          const node = nodes[i];
+          node.x += node.vx;
+          node.y += node.vy;
+          if (node.x < 0 || node.x > width) node.vx *= -1;
+          if (node.y < 0 || node.y > height) node.vy *= -1;
+          node.x = Math.max(0, Math.min(width, node.x));
+          node.y = Math.max(0, Math.min(height, node.y));
+        }
+      }
+
+      // Draw connections (simplified - fewer checks)
+      const maxDistSq = maxDistance * maxDistance;
+      ctx.beginPath();
       for (let i = 0; i < nodes.length; i++) {
         const node = nodes[i];
-        
-        // Update position
-        node.x += node.vx;
-        node.y += node.vy;
-
-        // Bounce off edges
-        if (node.x < 0 || node.x > width) node.vx *= -1;
-        if (node.y < 0 || node.y > height) node.vy *= -1;
-
-        // Keep within bounds
-        node.x = Math.max(0, Math.min(width, node.x));
-        node.y = Math.max(0, Math.min(height, node.y));
-
-        // Draw connections (check fewer pairs)
         for (let j = i + 1; j < nodes.length; j++) {
           const otherNode = nodes[j];
           const dx = node.x - otherNode.x;
           const dy = node.y - otherNode.y;
           const distSq = dx * dx + dy * dy;
-          const maxDistSq = maxDistance * maxDistance;
-
           if (distSq < maxDistSq) {
-            const opacity = (1 - Math.sqrt(distSq) / maxDistance) * 0.25;
-            ctx.beginPath();
+            const opacity = (1 - Math.sqrt(distSq) / maxDistance) * 0.2;
             ctx.strokeStyle = color 
               ? `${color.replace('rgb(', 'rgba(').replace(')', `, ${opacity})`)}` 
               : `rgba(147, 51, 234, ${opacity})`;
-            ctx.lineWidth = 1;
             ctx.moveTo(node.x, node.y);
             ctx.lineTo(otherNode.x, otherNode.y);
-            ctx.stroke();
           }
         }
+      }
+      ctx.lineWidth = 1;
+      ctx.stroke();
 
-        // Draw node (simplified - no glow for performance)
+      // Draw nodes in single batch
+      ctx.fillStyle = nodeColor;
+      for (let i = 0; i < nodes.length; i++) {
+        const node = nodes[i];
         ctx.beginPath();
         ctx.arc(node.x, node.y, 2, 0, Math.PI * 2);
-        ctx.fillStyle = nodeColor;
         ctx.fill();
       }
 

@@ -106,14 +106,79 @@ All colors MUST be HSL.
     -webkit-touch-callout: none;
   }
 
-  /* Performance: Enable GPU acceleration for common animations */
+  /* ============================================
+     GPU ACCELERATION & PERFORMANCE LAYER
+     Force hardware acceleration for smooth 60fps
+     ============================================ */
+  
+  /* GPU-accelerated transforms for all animated elements */
   .animate-fade-in,
   .animate-fade-out,
   .animate-scale-in,
   .animate-slide-in-right,
-  [class*="animate-"] {
+  [class*="animate-"],
+  .motion-safe,
+  .gpu-accelerated {
     will-change: transform, opacity;
     backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+  }
+
+  /* Force GPU layer for critical UI elements */
+  .backdrop-blur-xl,
+  .backdrop-blur-2xl,
+  [class*="backdrop-blur"] {
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    isolation: isolate;
+  }
+
+  /* Optimize transitions for 60fps */
+  .transition-all,
+  .transition-transform,
+  .transition-opacity,
+  .transition-colors,
+  [class*="transition-"] {
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Reduce paint areas with contain */
+  .contain-paint {
+    contain: paint;
+  }
+  
+  .contain-layout {
+    contain: layout;
+  }
+  
+  .contain-strict {
+    contain: strict;
+  }
+
+  /* ============================================
+     REDUCED MOTION SUPPORT
+     Respect user preferences for accessibility
+     ============================================ */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+    
+    .animate-pulse,
+    .animate-bounce,
+    .animate-spin,
+    .animate-float,
+    .animate-shimmer,
+    [class*="animate-"] {
+      animation: none !important;
+    }
   }
 
   /* Ensure html and body match for rubber band overscroll */
@@ -520,4 +585,92 @@ All colors MUST be HSL.
 
 .scrollbar-none::-webkit-scrollbar {
   display: none;
+}
+
+/* ============================================
+   MAX FPS PERFORMANCE OPTIMIZATIONS
+   Hardware acceleration and smooth scrolling
+   ============================================ */
+
+/* Compositor-only transforms for buttery smooth animations */
+.transform-gpu {
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  perspective: 1000px;
+  -webkit-perspective: 1000px;
+}
+
+/* Smooth 60fps scrolling */
+.scroll-smooth {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Optimized rendering for frequent updates */
+.render-optimized {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 500px;
+}
+
+/* Layer promotion for fixed/sticky elements */
+.layer-promote {
+  transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
+}
+
+/* Prevent layout thrashing on animated elements */
+.no-layout-shift {
+  contain: layout style;
+}
+
+/* Fast tap response - remove 300ms delay */
+.tap-instant {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Optimized opacity transitions (compositor-only) */
+.opacity-gpu {
+  will-change: opacity;
+  backface-visibility: hidden;
+}
+
+/* Ultra-smooth gradients (reduce banding) */
+.gradient-smooth {
+  background-size: 100% 100%;
+  image-rendering: auto;
+}
+
+/* Hardware-accelerated shadows */
+.shadow-gpu {
+  filter: drop-shadow(0 0 0 transparent);
+  will-change: filter;
+}
+
+/* Prevent sub-pixel rendering issues */
+.pixel-perfect {
+  transform: translateZ(0);
+  -webkit-font-smoothing: subpixel-antialiased;
+}
+
+/* iOS momentum scrolling with GPU */
+.ios-scroll {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  transform: translateZ(0);
+}
+
+/* Optimized border-radius rendering */
+.rounded-gpu {
+  transform: translateZ(0);
+  isolation: isolate;
+}
+
+/* Prevent composite layer explosions */
+.layer-contained {
+  contain: layout paint style;
+  isolation: isolate;
 }

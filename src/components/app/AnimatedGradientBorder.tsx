@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { cn } from '@/lib/utils';
 
 interface AnimatedGradientBorderProps {
@@ -11,9 +11,14 @@ interface AnimatedGradientBorderProps {
   glowIntensity?: 'none' | 'subtle' | 'medium' | 'strong';
 }
 
+// Check for reduced motion preference
+const prefersReducedMotion = () => 
+  typeof window !== 'undefined' && 
+  window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+
 /**
- * Animated gradient border wrapper
- * Creates a rotating gradient border effect around content
+ * GPU-optimized animated gradient border wrapper
+ * Uses CSS custom properties for smooth rotation
  */
 export const AnimatedGradientBorder: React.FC<AnimatedGradientBorderProps> = ({
   children,
@@ -21,46 +26,55 @@ export const AnimatedGradientBorder: React.FC<AnimatedGradientBorderProps> = ({
   borderWidth = 2,
   borderRadius = 28,
   gradientColors = ['hsl(var(--primary))', 'hsl(var(--neon-cyan))', 'hsl(var(--primary))'],
-  animationDuration = 3,
+  animationDuration = 4, // Slower = less GPU work
   glowIntensity = 'subtle'
 }) => {
   const glowStyles = {
     none: '',
-    subtle: 'shadow-lg shadow-primary/20',
-    medium: 'shadow-xl shadow-primary/30',
-    strong: 'shadow-2xl shadow-primary/40'
+    subtle: 'shadow-lg shadow-primary/15',
+    medium: 'shadow-xl shadow-primary/20',
+    strong: 'shadow-2xl shadow-primary/30'
   };
+
+  // Memoize gradient string
+  const gradientStyle = useMemo(() => ({
+    background: `conic-gradient(from var(--gradient-angle, 0deg), ${gradientColors.join(', ')})`,
+    borderRadius: borderRadius + 1,
+    // GPU acceleration
+    transform: 'translateZ(0)',
+    WebkitTransform: 'translateZ(0)',
+    willChange: prefersReducedMotion() ? 'auto' : 'transform',
+    animation: prefersReducedMotion() ? 'none' : `gradient-rotate ${animationDuration}s linear infinite`,
+  }), [gradientColors, borderRadius, animationDuration]);
+
+  const innerStyle = useMemo(() => ({
+    margin: borderWidth,
+    borderRadius: borderRadius - borderWidth,
+  }), [borderWidth, borderRadius]);
 
   return (
     <div 
-      className={cn('relative group', className)}
+      className={cn('relative group transform-gpu', className)}
       style={{ borderRadius }}
     >
-      {/* Animated gradient border */}
+      {/* GPU-accelerated animated gradient border */}
       <div 
         className={cn(
-          'absolute -inset-px rounded-[inherit] opacity-60 group-hover:opacity-100 transition-opacity',
+          'absolute -inset-px rounded-[inherit] opacity-50 group-hover:opacity-80 transition-opacity duration-300',
           glowStyles[glowIntensity]
         )}
-        style={{
-          background: `linear-gradient(var(--gradient-angle, 0deg), ${gradientColors.join(', ')})`,
-          borderRadius: borderRadius + 1,
-          animation: `gradient-rotate ${animationDuration}s linear infinite`
-        }}
+        style={gradientStyle}
       />
       
       {/* Inner content container */}
       <div 
-        className="relative bg-background/95 backdrop-blur-xl rounded-[inherit]"
-        style={{ 
-          margin: borderWidth,
-          borderRadius: borderRadius - borderWidth 
-        }}
+        className="relative bg-background/95 backdrop-blur-xl rounded-[inherit] transform-gpu"
+        style={innerStyle}
       >
         {children}
       </div>
       
-      {/* CSS for gradient rotation */}
+      {/* CSS for gradient rotation - using conic-gradient for smoother animation */}
       <style>{`
         @property --gradient-angle {
           syntax: '<angle>';
@@ -69,8 +83,7 @@ export const AnimatedGradientBorder: React.FC<AnimatedGradientBorderProps> = ({
         }
         
         @keyframes gradient-rotate {
-          0% { --gradient-angle: 0deg; }
-          100% { --gradient-angle: 360deg; }
+          to { --gradient-angle: 360deg; }
         }
       `}</style>
     </div>
