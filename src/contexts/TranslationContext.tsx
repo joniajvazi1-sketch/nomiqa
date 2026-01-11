@@ -1840,6 +1840,11 @@ function getPathLanguage(): Language | null {
 function getInitialLanguage(): Language {
   if (typeof window === 'undefined') return "EN";
 
+  // FORCE ENGLISH for native app routes (/app/*) to prevent broken translations
+  if (window.location.pathname.startsWith('/app')) {
+    return "EN";
+  }
+
   // 1) From path slug
   const fromPath = getPathLanguage();
   if (fromPath) return fromPath;

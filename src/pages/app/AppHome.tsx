@@ -38,7 +38,7 @@ import { DailyCheckIn } from '@/components/app/DailyCheckIn';
 import { SectionErrorBoundary } from '@/components/app/SectionErrorBoundary';
 import { StreakCalendar } from '@/components/app/StreakCalendar';
 import { SpinWheel } from '@/components/app/SpinWheel';
-import { SocialProofToast } from '@/components/app/SocialProofIndicator';
+// SocialProofToast removed - was causing fake spam notifications
 import { PersonalizedGoals } from '@/components/app/PersonalizedGoals';
 import { RatingPrompt, useRatingPrompt } from '@/components/app/RatingPrompt';
 
@@ -664,8 +664,7 @@ export const AppHome: React.FC = () => {
         )}
       </AnimatePresence>
 
-      {/* Social Proof Toast - only toast, no inline card */}
-      <SocialProofToast />
+      {/* Social Proof Toast removed - was causing spam */}
 
       {/* App Rating Prompt */}
       <RatingPrompt
