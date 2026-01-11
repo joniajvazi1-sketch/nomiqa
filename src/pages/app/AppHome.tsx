@@ -37,6 +37,7 @@ import { HomeScreenSkeleton } from '@/components/app/skeletons';
 import { AnimatedGradientBorder } from '@/components/app/AnimatedGradientBorder';
 import { FloatingQuickEarn } from '@/components/app/FloatingQuickEarn';
 import { DailyCheckIn } from '@/components/app/DailyCheckIn';
+import { SectionErrorBoundary } from '@/components/app/SectionErrorBoundary';
 
 interface DailyEarning {
   date: string;
@@ -556,10 +557,12 @@ export const AppHome: React.FC = () => {
             className="animate-fade-in"
             style={{ animationDelay: '400ms' }}
           >
-            <ChallengesSection 
-              compact={true} 
-              onViewAll={() => handleNavigation('/app/challenges')}
-            />
+            <SectionErrorBoundary fallbackTitle="Challenges unavailable">
+              <ChallengesSection 
+                compact={true} 
+                onViewAll={() => handleNavigation('/app/challenges')}
+              />
+            </SectionErrorBoundary>
           </div>
         )}
 
@@ -569,10 +572,12 @@ export const AppHome: React.FC = () => {
             className="animate-fade-in"
             style={{ animationDelay: '450ms' }}
           >
-            <LeaderboardSection 
-              compact={true}
-              onViewAll={() => handleNavigation('/app/leaderboard')}
-            />
+            <SectionErrorBoundary fallbackTitle="Leaderboard unavailable">
+              <LeaderboardSection 
+                compact={true}
+                onViewAll={() => handleNavigation('/app/leaderboard')}
+              />
+            </SectionErrorBoundary>
           </div>
         )}
 
