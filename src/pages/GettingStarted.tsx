@@ -1,230 +1,275 @@
 import { SiteNavigation } from "@/components/SiteNavigation";
 import { SupportChatbot } from "@/components/SupportChatbot";
 import { NetworkBackground } from "@/components/NetworkBackground";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Wallet, Shield, Coins, ArrowRight, ExternalLink, Download, TrendingUp, CheckCircle2 } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { 
+  Smartphone, Shield, Coins, ArrowRight, Download, 
+  Wifi, Globe, Users, Zap, Lock, CheckCircle2, 
+  Network, Wallet, TrendingUp, ShieldCheck
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/contexts/TranslationContext";
 import { SEO } from "@/components/SEO";
+import { useNavigate } from "react-router-dom";
+import { localizedPath } from "@/utils/localizedLinks";
 
 export default function GettingStarted() {
   const { t, language } = useTranslation();
-  
-  // Language-aware resource URLs
-  const getResourceUrls = () => {
-    const langMap: Record<string, string> = {
-      EN: 'en', ES: 'es', FR: 'fr', DE: 'de', RU: 'ru', 
-      ZH: 'zh', JA: 'ja', PT: 'pt', AR: 'ar', IT: 'it'
-    };
-    const lang = langMap[language] || 'en';
-    
-    return {
-      phantom: 'https://phantom.app/',
-      solana: `https://solana.com/${lang === 'en' ? 'learn' : lang}`,
-      usdc: 'https://www.circle.com/usdc'
-    };
-  };
-  
-  const resourceUrls = getResourceUrls();
-  
-  const guides = [
+  const navigate = useNavigate();
+
+  const steps = [
     {
-      titleKey: "guidePhantomTitle",
-      descKey: "guidePhantomDesc",
-      icon: Wallet,
-      stepKeys: ["guidePhantomStep1", "guidePhantomStep2", "guidePhantomStep3", "guidePhantomStep4", "guidePhantomStep5"]
-    },
-    {
-      titleKey: "guideSolanaTitle",
-      descKey: "guideSolanaDesc",
-      icon: Coins,
-      stepKeys: ["guideSolanaStep1", "guideSolanaStep2", "guideSolanaStep3", "guideSolanaStep4", "guideSolanaStep5"]
-    },
-    {
-      titleKey: "guideNomiqaTitle",
-      descKey: "guideNomiqaDesc",
-      icon: TrendingUp,
-      stepKeys: ["guideNomiqaStep1", "guideNomiqaStep2", "guideNomiqaStep3", "guideNomiqaStep4", "guideNomiqaStep5", "guideNomiqaStep6", "guideNomiqaStep7", "guideNomiqaStep8"]
-    },
-    {
-      titleKey: "guidePaymentTitle",
-      descKey: "guidePaymentDesc",
+      number: "01",
       icon: Download,
-      stepKeys: ["guidePaymentStep1", "guidePaymentStep2", "guidePaymentStep3", "guidePaymentStep4", "guidePaymentStep5", "guidePaymentStep6"]
+      title: t("gsStep1Title"),
+      description: t("gsStep1Desc"),
+      color: "from-neon-cyan to-neon-cyan/50",
     },
     {
-      titleKey: "guideSecurityTitle",
-      descKey: "guideSecurityDesc",
-      icon: Shield,
-      stepKeys: ["guideSecurityStep1", "guideSecurityStep2", "guideSecurityStep3", "guideSecurityStep4", "guideSecurityStep5"]
-    }
+      number: "02",
+      icon: Smartphone,
+      title: t("gsStep2Title"),
+      description: t("gsStep2Desc"),
+      color: "from-neon-violet to-neon-violet/50",
+    },
+    {
+      number: "03",
+      icon: Wifi,
+      title: t("gsStep3Title"),
+      description: t("gsStep3Desc"),
+      color: "from-neon-coral to-neon-coral/50",
+    },
+    {
+      number: "04",
+      icon: Coins,
+      title: t("gsStep4Title"),
+      description: t("gsStep4Desc"),
+      color: "from-primary to-primary/50",
+    },
   ];
 
-  const resources = [
-    {
-      titleKey: "resourcePhantomTitle",
-      descKey: "resourcePhantomDesc",
-      url: resourceUrls.phantom
-    },
-    {
-      titleKey: "resourceSolanaTitle",
-      descKey: "resourceSolanaDesc",
-      url: resourceUrls.solana
-    },
-    {
-      titleKey: "resourceUsdcTitle",
-      descKey: "resourceUsdcDesc",
-      url: resourceUrls.usdc
-    }
+  const depinBenefits = [
+    { icon: Network, title: t("gsDePINBenefit1Title"), desc: t("gsDePINBenefit1Desc") },
+    { icon: Shield, title: t("gsDePINBenefit2Title"), desc: t("gsDePINBenefit2Desc") },
+    { icon: Users, title: t("gsDePINBenefit3Title"), desc: t("gsDePINBenefit3Desc") },
+  ];
+
+  const privacyFeatures = [
+    { icon: Lock, text: t("gsPrivacy1") },
+    { icon: ShieldCheck, text: t("gsPrivacy2") },
+    { icon: Globe, text: t("gsPrivacy3") },
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black/40 via-deep-space/60 to-black/40 relative overflow-hidden">
+    <div className="min-h-screen bg-background relative overflow-hidden">
       <SEO page="gettingStarted" />
       <NetworkBackground />
       
-      {/* Premium background decorations */}
-      <div className="absolute inset-0 opacity-10 pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-neon-cyan rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-neon-violet rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1.5s' }}></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-neon-coral rounded-full blur-3xl animate-pulse" style={{ animationDelay: '3s' }}></div>
-      </div>
+      {/* Background effects */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,hsl(var(--primary)/0.08),transparent_50%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_70%,hsl(var(--accent)/0.08),transparent_50%)]" />
+
       {/* Hero Section */}
-      <section className="relative pt-32 pb-16 md:pb-20 px-4">
-        <div className="container max-w-5xl mx-auto relative z-10">
-          <div className="text-center mb-12 md:mb-16 animate-fade-in-up">
-            <div className="inline-block mb-4 md:mb-5">
-              <span className="text-neon-cyan text-xs md:text-sm font-light tracking-[0.25em] uppercase">
-                {t("journeyStartsHere")}
-              </span>
+      <section className="relative pt-28 pb-12 md:pt-36 md:pb-16 px-4">
+        <div className="container max-w-5xl mx-auto relative z-10 text-center">
+          <span className="inline-block px-5 py-2 rounded-full bg-white/[0.03] backdrop-blur-xl text-primary text-sm font-medium mb-6 border border-white/10">
+            {t("gsWelcomeBadge")}
+          </span>
+          
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-light mb-6">
+            <span className="bg-gradient-to-r from-primary via-white to-accent bg-clip-text text-transparent">
+              {t("gsTitle")}
+            </span>
+          </h1>
+          
+          <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+            {t("gsSubtitle")}
+          </p>
+        </div>
+      </section>
+
+      {/* What is DePIN Section */}
+      <section className="relative py-12 md:py-16 px-4">
+        <div className="container max-w-5xl mx-auto">
+          <div className="text-center mb-10">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent/10 border border-accent/20 mb-4">
+              <Network className="w-4 h-4 text-accent" />
+              <span className="text-xs font-medium text-accent uppercase tracking-wider">{t("gsDePINLabel")}</span>
             </div>
-            
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-light mb-5 md:mb-6">
-              <span className="block bg-gradient-to-r from-neon-cyan via-white to-neon-violet bg-clip-text text-transparent">
-                {t("gettingStartedTitle1")}
-              </span>
-              <span className="block bg-gradient-to-r from-neon-coral via-neon-orange to-neon-pink bg-clip-text text-transparent mt-2">
-                {t("gettingStartedTitle2")}
-              </span>
-            </h1>
-            
-            <p className="text-base md:text-lg lg:text-xl text-white/70 max-w-3xl mx-auto font-light leading-relaxed">
-              {t("gettingStartedSubtitle")}
-            </p>
+            <h2 className="text-2xl md:text-3xl font-light text-white mb-4">{t("gsDePINTitle")}</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">{t("gsDePINDesc")}</p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {depinBenefits.map((benefit, index) => {
+              const Icon = benefit.icon;
+              return (
+                <div key={index} className="p-6 rounded-2xl bg-white/[0.02] border border-white/10 text-center hover:border-primary/30 transition-all">
+                  <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-4 border border-primary/20">
+                    <Icon className="w-7 h-7 text-primary" />
+                  </div>
+                  <h3 className="text-lg font-medium text-white mb-2">{benefit.title}</h3>
+                  <p className="text-sm text-muted-foreground">{benefit.desc}</p>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* Content Section */}
-      <section className="relative pb-20 px-4">
-        <div className="container mx-auto max-w-5xl relative z-10">
-
-          {/* Guide Cards with Accordion */}
-          <div className="mb-16">
-            <Accordion type="single" collapsible className="space-y-6">
-              {guides.map((guide, index) => (
-                <AccordionItem 
-                  key={index} 
-                  value={`item-${index}`}
-                  className="border-0 bg-white/[0.02] backdrop-blur-xl rounded-2xl overflow-hidden border border-white/10 hover:border-neon-cyan/30 transition-all duration-300 shadow-lg"
-                >
-                  <AccordionTrigger className="px-6 md:px-8 py-6 md:py-7 hover:no-underline group">
-                    <div className="flex items-center gap-4 text-left w-full">
-                      <div className="flex-shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-xl bg-gradient-to-br from-neon-cyan/10 to-neon-violet/10 flex items-center justify-center border border-neon-cyan/30 group-hover:border-neon-cyan/60 transition-all duration-300 group-hover:shadow-glow-cyan">
-                        <guide.icon className="w-6 h-6 md:w-7 md:h-7 text-neon-cyan group-hover:scale-110 transition-transform duration-300" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-lg md:text-xl font-light text-white group-hover:text-neon-cyan transition-colors mb-1">
-                          {t(guide.titleKey)}
-                        </h3>
-                        <p className="text-sm text-white/60 mb-2 font-light">
-                          {t(guide.descKey)}
-                        </p>
-                        <p className="text-xs text-neon-cyan/70 md:hidden flex items-center gap-1 font-light">
-                          <span>{t("tapToExpand")}</span>
-                          <span className="animate-pulse">→</span>
-                        </p>
-                      </div>
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent className="px-6 md:px-8 pb-6 md:pb-7">
-                    <div className="pt-4 space-y-4">
-                      {guide.stepKeys.map((stepKey, stepIndex) => (
-                        <div 
-                          key={stepIndex} 
-                          className="flex items-start gap-4 p-4 md:p-5 rounded-xl bg-white/[0.02] border border-white/5 hover:border-neon-cyan/20 transition-all group/step"
-                        >
-                          <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-neon-cyan to-neon-violet flex items-center justify-center text-white font-light text-sm shadow-glow-cyan">
-                            {stepIndex + 1}
-                          </div>
-                          <p className="text-sm md:text-base text-white/80 leading-relaxed pt-1 font-light">
-                            {t(stepKey)}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
+      {/* 4-Step Journey */}
+      <section className="relative py-12 md:py-16 px-4">
+        <div className="container max-w-5xl mx-auto">
+          <div className="text-center mb-10">
+            <h2 className="text-2xl md:text-3xl font-light text-white mb-4">{t("gsStepsTitle")}</h2>
+            <p className="text-muted-foreground">{t("gsStepsSubtitle")}</p>
           </div>
 
-          {/* Resources Section */}
-          <div className="mb-12">
-            <div className="text-center mb-10">
-              <h2 className="text-3xl md:text-4xl font-light mb-3 bg-gradient-to-r from-neon-cyan via-white to-neon-violet bg-clip-text text-transparent">
-                {t("resourcesTitle")}
-              </h2>
-              <p className="text-white/60 font-light">{t("resourcesSubtitle")}</p>
-            </div>
-            <div className="grid md:grid-cols-3 gap-6">
-              {resources.map((resource, index) => (
-                <Card 
-                  key={index} 
-                  className="bg-white/[0.02] backdrop-blur-xl border border-white/10 hover:border-neon-cyan/40 transition-all hover:shadow-glow-cyan cursor-pointer group hover:-translate-y-1 duration-300"
-                  onClick={() => window.open(resource.url, '_blank')}
-                >
-                  <CardHeader className="pb-4">
-                    <CardTitle className="text-lg font-light text-white group-hover:text-neon-cyan transition-colors">
-                      {t(resource.titleKey)}
-                    </CardTitle>
-                    <CardDescription className="text-sm text-white/60 font-light">
-                      {t(resource.descKey)}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="pt-0">
-                    <div className="flex items-center gap-2 text-sm text-neon-cyan group-hover:gap-3 transition-all font-light">
-                      <span>{t("resourceVisit")}</span>
-                      <ExternalLink className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-
-          {/* Call to Action - Premium */}
-          <Card className="relative overflow-hidden bg-white/[0.03] backdrop-blur-2xl border border-white/20 shadow-2xl">
-            <div className="absolute inset-0 bg-gradient-to-br from-neon-cyan/10 via-neon-violet/10 to-neon-coral/10 pointer-events-none"></div>
-            <div className="absolute top-0 right-0 w-64 h-64 bg-white/[0.05] rounded-full blur-3xl pointer-events-none"></div>
-            <CardContent className="pt-12 pb-12 md:pt-16 md:pb-16 relative z-10">
-              <div className="flex flex-col items-center justify-center text-center gap-8">
-                <div className="space-y-4">
-                  <h3 className="text-3xl md:text-4xl lg:text-5xl font-light bg-gradient-to-r from-neon-cyan via-white to-neon-violet bg-clip-text text-transparent">
-                    {t("gettingStartedCtaTitle")}
-                  </h3>
-                  <p className="text-white/70 text-base md:text-lg lg:text-xl max-w-2xl mx-auto font-light leading-relaxed">
-                    {t("gettingStartedCtaDesc")}
-                  </p>
+          <div className="grid md:grid-cols-2 gap-6">
+            {steps.map((step, index) => {
+              const Icon = step.icon;
+              return (
+                <div key={index} className="relative p-6 rounded-2xl bg-white/[0.02] border border-white/10 hover:border-primary/30 transition-all group">
+                  <div className="absolute top-4 right-4 text-4xl font-light text-white/10 group-hover:text-primary/20 transition-colors">
+                    {step.number}
+                  </div>
+                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${step.color} flex items-center justify-center mb-4`}>
+                    <Icon className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="text-lg font-medium text-white mb-2">{step.title}</h3>
+                  <p className="text-sm text-muted-foreground">{step.description}</p>
                 </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* How to Buy Token Section */}
+      <section className="relative py-12 md:py-16 px-4">
+        <div className="container max-w-5xl mx-auto">
+          <div className="relative p-8 md:p-10 rounded-3xl bg-white/[0.02] border border-white/10 overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5" />
+            
+            <div className="relative grid md:grid-cols-2 gap-8 items-center">
+              <div>
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 mb-4">
+                  <Coins className="w-4 h-4 text-primary" />
+                  <span className="text-xs font-medium text-primary uppercase tracking-wider">{t("gsTokenLabel")}</span>
+                </div>
+                <h2 className="text-2xl md:text-3xl font-light text-white mb-4">{t("gsTokenTitle")}</h2>
+                <p className="text-muted-foreground mb-6">{t("gsTokenDesc")}</p>
+                
+                <div className="space-y-3 mb-6">
+                  {[t("gsTokenStep1"), t("gsTokenStep2"), t("gsTokenStep3")].map((step, i) => (
+                    <div key={i} className="flex items-start gap-3">
+                      <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                      <span className="text-sm text-white/80">{step}</span>
+                    </div>
+                  ))}
+                </div>
+
                 <Button 
-                  size="lg" 
-                  onClick={() => window.location.href = '/shop'}
-                  className="w-full sm:w-auto h-auto py-4 px-10 md:py-5 md:px-14 text-base md:text-lg font-light bg-white/[0.05] backdrop-blur-xl border-2 border-neon-cyan/40 text-white hover:bg-neon-cyan/10 hover:border-neon-cyan/60 rounded-2xl transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-neon-cyan/20 group"
+                  onClick={() => navigate(localizedPath('/token', language))}
+                  className="bg-primary/10 border border-primary/30 text-white hover:bg-primary/20 gap-2"
                 >
-                  <span className="break-words">{t("browsePlans")}</span>
-                  <ArrowRight className="w-5 h-5 md:w-6 md:h-6 ml-2 group-hover:translate-x-1 transition-transform shrink-0" />
+                  {t("gsLearnAboutToken")}
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-4 rounded-xl bg-white/[0.03] border border-white/10 text-center">
+                  <Wallet className="w-8 h-8 text-neon-cyan mx-auto mb-2" />
+                  <span className="text-xs text-white/80">{t("gsTokenFeature1")}</span>
+                </div>
+                <div className="p-4 rounded-xl bg-white/[0.03] border border-white/10 text-center">
+                  <TrendingUp className="w-8 h-8 text-neon-violet mx-auto mb-2" />
+                  <span className="text-xs text-white/80">{t("gsTokenFeature2")}</span>
+                </div>
+                <div className="p-4 rounded-xl bg-white/[0.03] border border-white/10 text-center">
+                  <Zap className="w-8 h-8 text-neon-coral mx-auto mb-2" />
+                  <span className="text-xs text-white/80">{t("gsTokenFeature3")}</span>
+                </div>
+                <div className="p-4 rounded-xl bg-white/[0.03] border border-white/10 text-center">
+                  <Globe className="w-8 h-8 text-primary mx-auto mb-2" />
+                  <span className="text-xs text-white/80">{t("gsTokenFeature4")}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Privacy Promise Section */}
+      <section className="relative py-12 md:py-16 px-4">
+        <div className="container max-w-5xl mx-auto">
+          <div className="text-center mb-10">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-neon-cyan/10 border border-neon-cyan/20 mb-4">
+              <Shield className="w-4 h-4 text-neon-cyan" />
+              <span className="text-xs font-medium text-neon-cyan uppercase tracking-wider">{t("gsPrivacyLabel")}</span>
+            </div>
+            <h2 className="text-2xl md:text-3xl font-light text-white mb-4">{t("gsPrivacyTitle")}</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">{t("gsPrivacyDesc")}</p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6 mb-8">
+            {privacyFeatures.map((feature, index) => {
+              const Icon = feature.icon;
+              return (
+                <div key={index} className="flex items-start gap-4 p-5 rounded-xl bg-white/[0.02] border border-white/10">
+                  <div className="w-10 h-10 rounded-lg bg-neon-cyan/10 flex items-center justify-center flex-shrink-0 border border-neon-cyan/20">
+                    <Icon className="w-5 h-5 text-neon-cyan" />
+                  </div>
+                  <p className="text-sm text-white/80">{feature.text}</p>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="text-center">
+            <Button 
+              variant="outline"
+              onClick={() => navigate(localizedPath('/privacy', language))}
+              className="border-white/20 text-white/80 hover:bg-white/5 gap-2"
+            >
+              {t("gsReadPrivacyPolicy")}
+              <ArrowRight className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Final CTA */}
+      <section className="relative py-16 md:py-20 px-4">
+        <div className="container max-w-4xl mx-auto">
+          <Card className="relative overflow-hidden bg-white/[0.03] backdrop-blur-xl border border-white/20">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-accent/10 to-neon-cyan/10" />
+            <CardContent className="relative pt-10 pb-10 md:pt-14 md:pb-14 text-center">
+              <Zap className="w-12 h-12 text-primary mx-auto mb-6" />
+              <h3 className="text-2xl md:text-3xl lg:text-4xl font-light text-white mb-4">
+                {t("gsCtaTitle")}
+              </h3>
+              <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
+                {t("gsCtaDesc")}
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button 
+                  size="lg"
+                  onClick={() => navigate(localizedPath('/download', language))}
+                  className="bg-primary hover:bg-primary/90 text-white gap-2"
+                >
+                  <Download className="w-5 h-5" />
+                  {t("gsCtaDownload")}
+                </Button>
+                <Button 
+                  size="lg"
+                  variant="outline"
+                  onClick={() => navigate(localizedPath('/shop', language))}
+                  className="border-white/20 text-white hover:bg-white/5 gap-2"
+                >
+                  {t("gsCtaBrowse")}
+                  <ArrowRight className="w-5 h-5" />
                 </Button>
               </div>
             </CardContent>
