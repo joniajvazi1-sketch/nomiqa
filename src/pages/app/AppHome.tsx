@@ -14,6 +14,7 @@ import {
   Gift
 } from 'lucide-react';
 import { useHaptics } from '@/hooks/useHaptics';
+import { useEnhancedSounds } from '@/hooks/useEnhancedSounds';
 import { useTranslation } from '@/contexts/TranslationContext';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
@@ -32,6 +33,7 @@ import { AnimatePresence } from 'framer-motion';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from '@/components/app/PullToRefreshIndicator';
 import { LanguageSelector } from '@/components/app/LanguageSelector';
+import { HomeScreenSkeleton } from '@/components/app/skeletons';
 
 interface DailyEarning {
   date: string;
@@ -50,6 +52,7 @@ const DAILY_GOAL_POINTS = 100;
 export const AppHome: React.FC = () => {
   const navigate = useNavigate();
   const { mediumTap, lightTap } = useHaptics();
+  const { playCoin, playTick } = useEnhancedSounds();
   const { t } = useTranslation();
   const { isOnline, connectionType } = useNetworkStatus();
   const { 
@@ -221,8 +224,14 @@ export const AppHome: React.FC = () => {
 
   const handleNavigation = (path: string) => {
     mediumTap();
+    playTick();
     navigate(path);
   };
+
+  // Show skeleton while loading
+  if (loading) {
+    return <HomeScreenSkeleton />;
+  }
 
   // Format distance to km
   const formatDistance = (meters: number) => {

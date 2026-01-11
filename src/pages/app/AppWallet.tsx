@@ -39,6 +39,7 @@ import { ChallengesSection } from '@/components/app/ChallengesSection';
 import { LeaderboardSection } from '@/components/app/LeaderboardSection';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from '@/components/app/PullToRefreshIndicator';
+import { WalletScreenSkeleton } from '@/components/app/skeletons';
 
 interface RecentSession {
   id: string;
@@ -247,7 +248,12 @@ export const AppWallet: React.FC = () => {
   const totalPoints = points?.total_points || 0;
   const estimatedUSD = (totalPoints * POINTS_TO_USD).toFixed(2);
 
-  if (!user && !loading) {
+  // Show skeleton while loading
+  if (loading) {
+    return <WalletScreenSkeleton />;
+  }
+
+  if (!user) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6">
         <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center mb-6 animate-float">
