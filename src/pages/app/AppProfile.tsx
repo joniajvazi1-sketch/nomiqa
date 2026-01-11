@@ -36,7 +36,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useEnhancedHaptics } from '@/hooks/useEnhancedHaptics';
 import { useEnhancedSounds } from '@/hooks/useEnhancedSounds';
-import { ProfileScreenSkeleton } from '@/components/app/skeletons';
+import { AppSpinner } from '@/components/app/AppSpinner';
 import { useNativeShare } from '@/hooks/useNativeShare';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -491,7 +491,11 @@ export const AppProfile: React.FC = () => {
   }
 
   if (loading) {
-    return <ProfileScreenSkeleton />;
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center px-6">
+        <AppSpinner size="lg" label="Loading..." />
+      </div>
+    );
   }
 
   const tierConfig = membership ? getTierConfig(membership.membership_tier) : getTierConfig('beginner');

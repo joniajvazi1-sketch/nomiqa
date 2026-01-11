@@ -33,7 +33,7 @@ import { AnimatePresence } from 'framer-motion';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from '@/components/app/PullToRefreshIndicator';
 import { LanguageSelector } from '@/components/app/LanguageSelector';
-import { HomeScreenSkeleton } from '@/components/app/skeletons';
+import { AppSpinner } from '@/components/app/AppSpinner';
 // FloatingQuickEarn removed per user request
 import { DailyCheckIn } from '@/components/app/DailyCheckIn';
 import { SectionErrorBoundary } from '@/components/app/SectionErrorBoundary';
@@ -282,9 +282,13 @@ export const AppHome: React.FC = () => {
     navigate(path);
   };
 
-  // Show skeleton while loading
+  // Show spinner while loading (skeletons removed)
   if (loading) {
-    return <HomeScreenSkeleton />;
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center px-6">
+        <AppSpinner size="lg" label="Loading..." />
+      </div>
+    );
   }
 
   // Format distance to km

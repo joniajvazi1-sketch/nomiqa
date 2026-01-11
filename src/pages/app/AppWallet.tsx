@@ -40,7 +40,7 @@ import { ChallengesSection } from '@/components/app/ChallengesSection';
 import { LeaderboardSection } from '@/components/app/LeaderboardSection';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from '@/components/app/PullToRefreshIndicator';
-import { WalletScreenSkeleton } from '@/components/app/skeletons';
+import { AppSpinner } from '@/components/app/AppSpinner';
 import { TiltCard3D } from '@/components/app/TiltCard3D';
 import { AnimatedGradientBorder } from '@/components/app/AnimatedGradientBorder';
 import { EmptyStateIllustration } from '@/components/app/EmptyStateIllustration';
@@ -258,9 +258,13 @@ export const AppWallet: React.FC = () => {
   const totalPoints = points?.total_points || 0;
   const estimatedUSD = (totalPoints * POINTS_TO_USD).toFixed(2);
 
-  // Show skeleton while loading
+  // Show spinner while loading (skeletons removed)
   if (loading) {
-    return <WalletScreenSkeleton />;
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center px-6">
+        <AppSpinner size="lg" label="Loading..." />
+      </div>
+    );
   }
 
   if (!user) {
