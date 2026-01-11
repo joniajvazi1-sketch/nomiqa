@@ -29,6 +29,7 @@ const isAppPreviewMode = (): boolean => {
 let cachedPreviewMode: boolean | null = null;
 
 const getPreviewMode = (): boolean => {
+  // Always re-check on first call or if not yet cached
   if (cachedPreviewMode === null) {
     cachedPreviewMode = isAppPreviewMode();
     if (cachedPreviewMode) {
@@ -37,6 +38,19 @@ const getPreviewMode = (): boolean => {
   }
   return cachedPreviewMode;
 };
+
+// Force re-evaluate preview mode - useful for hot reloads
+export const resetPreviewModeCache = () => {
+  cachedPreviewMode = null;
+};
+
+// Initialize on module load
+if (typeof window !== 'undefined') {
+  cachedPreviewMode = isAppPreviewMode();
+  if (cachedPreviewMode) {
+    console.log('[usePlatform] App Preview Mode ENABLED on initial load');
+  }
+}
 
 /**
  * Platform detection hook for conditional rendering between web and native app
