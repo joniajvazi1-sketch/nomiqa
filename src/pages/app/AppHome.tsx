@@ -10,7 +10,9 @@ import {
   Flame,
   Trophy,
   Calendar,
-  Crown
+  Crown,
+  Signal,
+  Users
 } from 'lucide-react';
 import { useHaptics } from '@/hooks/useHaptics';
 import { useEnhancedSounds } from '@/hooks/useEnhancedSounds';
@@ -25,6 +27,7 @@ import { StreakBonus, MilestonePopup, AchievementBadge } from '@/components/app/
 import { NotificationToggle } from '@/components/app/NotificationToggle';
 import { ChallengesSection } from '@/components/app/ChallengesSection';
 import { RewardCelebration } from '@/components/app/RewardCelebration';
+import { LeaderboardSection } from '@/components/app/LeaderboardSection';
 import { OnboardingFlow } from '@/components/app/OnboardingFlow';
 import { AnimatePresence } from 'framer-motion';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
@@ -38,7 +41,7 @@ import { StreakCalendar } from '@/components/app/StreakCalendar';
 import { SpinWheel } from '@/components/app/SpinWheel';
 import { PersonalizedGoals } from '@/components/app/PersonalizedGoals';
 import { RatingPrompt, useRatingPrompt } from '@/components/app/RatingPrompt';
-import { useLeaderboard } from '@/hooks/useLeaderboard';
+// useLeaderboard hook not needed - using LeaderboardSection component
 
 interface DailyEarning {
   date: string;
@@ -436,6 +439,16 @@ export const AppHome: React.FC = () => {
                   </button>
                 )}
               </div>
+
+              {/* Start Earning Button */}
+              <button
+                onClick={() => handleNavigation('/app/map')}
+                className="w-full h-11 rounded-xl bg-gradient-to-r from-neon-cyan to-sky-400 text-background font-bold text-sm shadow-lg shadow-neon-cyan/30 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+              >
+                <Signal className="w-4 h-4" />
+                Start Earning
+                <ChevronRight className="w-4 h-4" />
+              </button>
             </div>
           </div>
 
@@ -473,19 +486,19 @@ export const AppHome: React.FC = () => {
               </div>
             </div>
 
-            {/* Leaderboard Rank Card */}
+            {/* Invite Friends Card */}
             <button 
               className="rounded-xl bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] p-3 cursor-pointer active:scale-[0.98] transition-transform text-left"
-              onClick={() => { lightTap(); navigate('/app/leaderboard'); }}
+              onClick={() => { lightTap(); navigate('/app/profile?tab=earn'); }}
             >
               <div className="flex items-center gap-1.5 mb-2">
-                <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-amber-500/20 to-amber-500/5 flex items-center justify-center">
-                  <Crown className="w-3 h-3 text-amber-400" />
+                <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-violet-500/20 to-violet-500/5 flex items-center justify-center">
+                  <Users className="w-3 h-3 text-violet-400" />
                 </div>
-                <span className="text-[10px] font-semibold text-muted-foreground uppercase">Leaderboard</span>
+                <span className="text-[10px] font-semibold text-muted-foreground uppercase">Invite</span>
               </div>
               <div className="flex items-center gap-1">
-                <span className="text-lg font-bold text-foreground">View Rank</span>
+                <span className="text-sm font-semibold text-foreground">Invite Friends</span>
                 <ChevronRight className="w-4 h-4 text-muted-foreground" />
               </div>
             </button>
@@ -563,6 +576,29 @@ export const AppHome: React.FC = () => {
               dataPointsCount={dataPointsCount}
             />
           </div>
+
+          {/* LEADERBOARD SECTION - compact at bottom */}
+          {user && (
+            <SectionErrorBoundary fallbackTitle="Leaderboard unavailable">
+              <div className="rounded-xl bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] p-3">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-500/20 to-amber-500/5 flex items-center justify-center">
+                      <Crown className="w-4 h-4 text-amber-400" />
+                    </div>
+                    <span className="text-sm font-semibold text-foreground">Leaderboard</span>
+                  </div>
+                  <button 
+                    onClick={() => handleNavigation('/app/leaderboard')}
+                    className="text-xs text-primary active:scale-95 flex items-center gap-1"
+                  >
+                    View All <ChevronRight className="w-3 h-3" />
+                  </button>
+                </div>
+                <LeaderboardSection compact={true} />
+              </div>
+            </SectionErrorBoundary>
+          )}
 
           {/* Milestone Popup */}
           <MilestonePopup 
