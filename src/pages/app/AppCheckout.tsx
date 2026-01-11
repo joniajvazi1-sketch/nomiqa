@@ -234,7 +234,7 @@ export const AppCheckout = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden pb-8">
+    <div className="min-h-screen bg-background relative overflow-hidden pb-8 app-container momentum-scroll">
       {/* Background effects */}
       <div className="fixed inset-0 pointer-events-none">
         <div 

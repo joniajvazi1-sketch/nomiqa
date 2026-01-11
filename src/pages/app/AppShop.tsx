@@ -267,7 +267,7 @@ export const AppShop: React.FC = () => {
 
   return (
     <div 
-      className="min-h-screen bg-background relative overflow-hidden overflow-y-auto"
+      className="min-h-screen bg-background relative overflow-hidden overflow-y-auto app-container momentum-scroll"
       {...handlers}
     >
       {/* Pull to refresh indicator */}

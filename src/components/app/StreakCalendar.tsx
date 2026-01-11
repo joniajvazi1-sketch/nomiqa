@@ -68,7 +68,7 @@ export const StreakCalendar = ({ checkins, currentStreak, onClose }: StreakCalen
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
-      className="bg-card rounded-2xl border border-border p-4 shadow-xl max-w-[300px] w-full"
+      className="bg-card rounded-2xl border border-border p-4 shadow-xl max-w-[300px] w-full max-h-[70vh] overflow-hidden"
     >
       {/* Header - compact */}
       <div className="flex items-center justify-between mb-3">

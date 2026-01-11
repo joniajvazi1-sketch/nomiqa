@@ -450,3 +450,74 @@ All colors MUST be HSL.
   background-color: hsl(var(--neon-cyan) / 0.3);
   color: hsl(var(--foreground));
 }
+
+/* ===== APP UX OPTIMIZATIONS ===== */
+
+/* Minimum tap target size (44x44px) for accessibility */
+.tap-target {
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Momentum scrolling for iOS */
+.momentum-scroll {
+  -webkit-overflow-scrolling: touch;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* Safe area padding utility classes */
+.safe-area-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.safe-area-inset {
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+}
+
+/* Modal optimizations */
+.modal-viewport {
+  max-height: 80vh;
+  max-height: 80dvh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Prevent rubber-band gap when overscrolling on app screens */
+.app-container {
+  overscroll-behavior: none;
+  overscroll-behavior-y: contain;
+}
+
+/* Keyboard-aware bottom padding */
+.keyboard-aware {
+  padding-bottom: env(keyboard-inset-height, 0px);
+}
+
+/* CSS custom properties for viewport height */
+:root {
+  --safe-area-inset-top: env(safe-area-inset-top, 0px);
+  --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-inset-left: env(safe-area-inset-left, 0px);
+  --safe-area-inset-right: env(safe-area-inset-right, 0px);
+}
+
+/* Hide scrollbar utility that works everywhere */
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}

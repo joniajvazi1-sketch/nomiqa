@@ -34,7 +34,7 @@ export const AppChallenges: React.FC = () => {
 
   return (
     <div 
-      className="min-h-screen bg-background pb-28 overflow-y-auto"
+      className="min-h-screen bg-background pb-28 overflow-y-auto app-container momentum-scroll"
       {...handlers}
     >
       <PullToRefreshIndicator 

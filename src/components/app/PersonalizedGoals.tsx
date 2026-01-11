@@ -317,7 +317,7 @@ const GoalEditorModal = ({
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
           onClick={(e) => e.stopPropagation()}
-          className="w-full max-w-xs bg-card rounded-2xl p-4 shadow-xl border border-border max-h-[70vh]"
+          className="w-full max-w-xs bg-card rounded-2xl p-4 shadow-xl border border-border max-h-[65vh]"
         >
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-base font-bold">Set Goal</h3>

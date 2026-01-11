@@ -500,7 +500,7 @@ export const AppProfile: React.FC = () => {
   const affiliateTierInfo = getAffiliateTierInfo();
 
   return (
-    <div className="px-4 py-6 space-y-6 pb-24">
+    <div className="px-4 py-6 space-y-6 pb-24 app-container momentum-scroll min-h-screen overflow-y-auto">
       {/* Header with Animated Avatar */}
       <div className="flex items-center gap-4">
         <AnimatedAvatar

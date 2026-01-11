@@ -25,7 +25,7 @@ export const AppLeaderboard: React.FC = () => {
 
   return (
     <div 
-      className="min-h-screen bg-background overflow-y-auto"
+      className="min-h-screen bg-background overflow-y-auto app-container momentum-scroll"
       {...handlers}
     >
       <PullToRefreshIndicator 
