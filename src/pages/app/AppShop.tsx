@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef, useCallback } from 'react';
+import React, { useState, useMemo, useRef, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Search, 
@@ -30,6 +30,7 @@ import { useEnhancedHaptics } from '@/hooks/useEnhancedHaptics';
 import { useEnhancedSounds } from '@/hooks/useEnhancedSounds';
 import { useTranslation } from '@/contexts/TranslationContext';
 import { useDeviceCompatibility } from '@/hooks/useDeviceCompatibility';
+import { useImagePreload, preloadCountryFlags } from '@/hooks/useImagePreload';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { SkeletonProductCard } from '@/components/app/SkeletonProductCard';
@@ -38,6 +39,7 @@ import { PullToRefreshIndicator } from '@/components/app/PullToRefreshIndicator'
 import { AnimatedCard } from '@/components/app/PageTransition';
 import { ProductContextMenu } from '@/components/app/ProductContextMenu';
 import { SwipeableDismiss } from '@/components/app/SwipeableDismiss';
+import { SectionErrorBoundary } from '@/components/app/SectionErrorBoundary';
 import {
   Dialog,
   DialogContent,
@@ -140,6 +142,16 @@ export const AppShop: React.FC = () => {
   const displayedProducts = filteredProducts.slice(0, displayCount);
   const hasMore = filteredProducts.length > displayCount;
   const cartItemCount = items.reduce((sum, item) => sum + item.quantity, 0);
+
+  // Preload country flag images for displayed products
+  useEffect(() => {
+    if (displayedProducts.length > 0) {
+      const countryCodes = displayedProducts
+        .map(p => p.country_code)
+        .filter(code => code && code.length === 2);
+      preloadCountryFlags(countryCodes);
+    }
+  }, [displayedProducts]);
 
   const handleAddToCart = (product: Product, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();

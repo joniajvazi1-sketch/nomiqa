@@ -45,6 +45,7 @@ import { TiltCard3D } from '@/components/app/TiltCard3D';
 import { AnimatedGradientBorder } from '@/components/app/AnimatedGradientBorder';
 import { EmptyStateIllustration } from '@/components/app/EmptyStateIllustration';
 import { motion } from 'framer-motion';
+import { SectionErrorBoundary } from '@/components/app/SectionErrorBoundary';
 
 interface RecentSession {
   id: string;
@@ -429,10 +430,14 @@ export const AppWallet: React.FC = () => {
         )}
 
         {/* CHALLENGES SECTION - Full view */}
-        <ChallengesSection compact={false} />
+        <SectionErrorBoundary fallbackTitle="Challenges unavailable">
+          <ChallengesSection compact={false} />
+        </SectionErrorBoundary>
 
         {/* LEADERBOARD SECTION - Full view */}
-        <LeaderboardSection compact={false} />
+        <SectionErrorBoundary fallbackTitle="Leaderboard unavailable">
+          <LeaderboardSection compact={false} />
+        </SectionErrorBoundary>
 
         {/* Quick Actions */}
         <div className="grid grid-cols-4 gap-3">
