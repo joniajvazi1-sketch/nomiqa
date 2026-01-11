@@ -31,7 +31,7 @@ import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from '@/components/app/PullToRefreshIndicator';
 import { LanguageSelector } from '@/components/app/LanguageSelector';
 import { HomeScreenSkeleton } from '@/components/app/skeletons';
-import { FloatingQuickEarn } from '@/components/app/FloatingQuickEarn';
+// FloatingQuickEarn removed per user request
 import { DailyCheckIn } from '@/components/app/DailyCheckIn';
 import { SectionErrorBoundary } from '@/components/app/SectionErrorBoundary';
 import { StreakCalendar } from '@/components/app/StreakCalendar';
@@ -606,11 +606,6 @@ export const AppHome: React.FC = () => {
           }
         `}</style>
       </div>
-
-      {/* Floating Quick Earn Button */}
-      <FloatingQuickEarn />
-
-      {/* Daily Check-in Modal */}
       {user && <DailyCheckIn userId={user.id} />}
 
       {/* Spin Wheel Modal */}
