@@ -4,7 +4,8 @@ import { Target, ChevronRight, Flame, Calendar, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useChallenges } from '@/hooks/useChallenges';
 import { ChallengeCard } from './ChallengeCard';
-import { useHaptics } from '@/hooks/useHaptics';
+import { useEnhancedHaptics } from '@/hooks/useEnhancedHaptics';
+import { useEnhancedSounds } from '@/hooks/useEnhancedSounds';
 import { useTranslation } from '@/contexts/TranslationContext';
 
 type ChallengeTab = 'daily' | 'weekly' | 'special';
@@ -18,7 +19,8 @@ export const ChallengesSection: React.FC<ChallengesSectionProps> = ({
   compact = false,
   onViewAll 
 }) => {
-  const { lightTap } = useHaptics();
+  const { buttonTap, selectionTap } = useEnhancedHaptics();
+  const { playPop } = useEnhancedSounds();
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<ChallengeTab>('daily');
   const { 
@@ -78,7 +80,7 @@ export const ChallengesSection: React.FC<ChallengesSectionProps> = ({
         </div>
         {compact && onViewAll && (
           <button 
-            onClick={() => { lightTap(); onViewAll(); }}
+            onClick={() => { buttonTap(); playPop(); onViewAll(); }}
             className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors"
           >
             {t('appViewAll')}
@@ -92,7 +94,7 @@ export const ChallengesSection: React.FC<ChallengesSectionProps> = ({
         {tabs.map((tab) => (
           <button
             key={tab.id}
-            onClick={() => { lightTap(); setActiveTab(tab.id); }}
+            onClick={() => { selectionTap(); setActiveTab(tab.id); }}
             className={cn(
               'flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap',
               activeTab === tab.id
@@ -155,7 +157,7 @@ export const ChallengesSection: React.FC<ChallengesSectionProps> = ({
       {/* View more button for compact mode */}
       {compact && currentChallenges.length > 1 && onViewAll && (
         <button
-          onClick={() => { lightTap(); onViewAll(); }}
+          onClick={() => { buttonTap(); playPop(); onViewAll(); }}
           className="w-full py-3 text-center text-sm font-medium text-primary hover:text-primary/80 transition-colors rounded-xl bg-white/[0.03] border border-white/[0.08] active:scale-[0.98]"
         >
           +{currentChallenges.length - 1} more challenges

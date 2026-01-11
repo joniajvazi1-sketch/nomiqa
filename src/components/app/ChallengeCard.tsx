@@ -13,7 +13,8 @@ import {
   Clock
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useHaptics } from '@/hooks/useHaptics';
+import { useEnhancedHaptics } from '@/hooks/useEnhancedHaptics';
+import { useEnhancedSounds } from '@/hooks/useEnhancedSounds';
 import { AnimatedProgressBar } from './AnimatedProgressBar';
 import { Confetti } from '@/components/Confetti';
 
@@ -73,7 +74,8 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({
   isClaimed,
   onClaim
 }) => {
-  const { mediumTap, success: successHaptic } = useHaptics();
+  const { buttonTap, successPattern, pointsEarnedPattern } = useEnhancedHaptics();
+  const { playSuccess, playCelebration, playCoin } = useEnhancedSounds();
   const [claiming, setClaiming] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
 
@@ -83,13 +85,15 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({
   const handleClaim = async () => {
     if (!isCompleted || isClaimed || claiming) return;
     
-    mediumTap();
+    buttonTap();
     setClaiming(true);
     
     const success = await onClaim(id);
     
     if (success) {
-      successHaptic();
+      pointsEarnedPattern();
+      playCoin();
+      playCelebration();
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 3000);
     }

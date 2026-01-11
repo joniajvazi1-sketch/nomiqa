@@ -27,7 +27,6 @@ import {
   BarChart3,
   Shield
 } from 'lucide-react';
-import { AppSpinner } from '@/components/app/AppSpinner';
 import { Loader2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -35,7 +34,9 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useHaptics } from '@/hooks/useHaptics';
+import { useEnhancedHaptics } from '@/hooks/useEnhancedHaptics';
+import { useEnhancedSounds } from '@/hooks/useEnhancedSounds';
+import { ProfileScreenSkeleton } from '@/components/app/skeletons';
 import { useNativeShare } from '@/hooks/useNativeShare';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -103,8 +104,8 @@ const AFFILIATE_TIERS = [
 export const AppProfile: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { lightTap, success } = useHaptics();
-  const { soundEnabled, toggleSound } = useSoundEffects();
+  const { buttonTap, successPattern, navigationTap, selectionTap, errorPattern } = useEnhancedHaptics();
+  const { soundEnabled, toggleSound, playSuccess, playPop, playError } = useEnhancedSounds();
   const { share, copyToClipboard } = useNativeShare();
   const { toast } = useToast();
   const { t } = useTranslation();
@@ -248,20 +249,22 @@ export const AppProfile: React.FC = () => {
   };
 
   const handleCopyLink = async (code: string, isUsername = false) => {
-    lightTap();
+    buttonTap();
+    playPop();
     const link = isUsername 
       ? `https://nomiqa.com/${code}`
       : `https://nomiqa.com/r/${code}`;
     const copied = await copyToClipboard(link);
     if (copied) {
-      success();
+      successPattern();
+      playSuccess();
       toast({ title: 'Link copied!' });
     }
   };
 
   const handleShare = async () => {
     if (!selectedAffiliate) return;
-    lightTap();
+    buttonTap();
     const link = selectedAffiliate.username 
       ? `https://nomiqa.com/${selectedAffiliate.username}`
       : `https://nomiqa.com/r/${selectedAffiliate.affiliate_code}`;
@@ -273,7 +276,7 @@ export const AppProfile: React.FC = () => {
   };
 
   const handleLogout = async () => {
-    lightTap();
+    buttonTap();
     await supabase.auth.signOut();
     navigate('/auth');
   };
@@ -311,7 +314,8 @@ export const AppProfile: React.FC = () => {
 
       setProfile(prev => prev ? { ...prev, username: editedUsername.trim() } : null);
       setIsEditingUsername(false);
-      success();
+      successPattern();
+      playSuccess();
       toast({ title: 'Username updated!' });
     } catch (error) {
       console.error('Error updating username:', error);
@@ -352,7 +356,8 @@ export const AppProfile: React.FC = () => {
 
       setProfile(prev => prev ? { ...prev, solana_wallet: trimmedWallet || null } : null);
       setIsEditingWallet(false);
-      success();
+      successPattern();
+      playSuccess();
       toast({ title: trimmedWallet ? 'Wallet saved!' : 'Wallet removed!' });
     } catch (error) {
       console.error('Error saving wallet:', error);
@@ -415,7 +420,8 @@ export const AppProfile: React.FC = () => {
       await loadData();
       setShowNewLinkInput(false);
       setNewLinkUsername('');
-      success();
+      successPattern();
+      playSuccess();
       toast({ title: `Affiliate link created!` });
     } catch (error: any) {
       console.error('Error creating affiliate:', error);
@@ -483,11 +489,7 @@ export const AppProfile: React.FC = () => {
   }
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <AppSpinner size="lg" label="Loading profile..." />
-      </div>
-    );
+    return <ProfileScreenSkeleton />;
   }
 
   const tierConfig = membership ? getTierConfig(membership.membership_tier) : getTierConfig('beginner');
@@ -553,7 +555,7 @@ export const AppProfile: React.FC = () => {
           <TabsTrigger 
             value="account" 
             className="flex flex-col items-center gap-1 py-2.5 text-[11px] rounded-xl transition-all data-[state=active]:animate-stat-pop data-[state=active]:bg-white/10"
-            onClick={() => lightTap()}
+            onClick={() => selectionTap()}
           >
             <User className="w-4 h-4" />
             Me
@@ -561,7 +563,7 @@ export const AppProfile: React.FC = () => {
           <TabsTrigger 
             value="membership" 
             className="flex flex-col items-center gap-1 py-2.5 text-[11px] rounded-xl transition-all data-[state=active]:animate-stat-pop data-[state=active]:bg-white/10"
-            onClick={() => lightTap()}
+            onClick={() => selectionTap()}
           >
             <Award className="w-4 h-4" />
             Rewards
@@ -569,7 +571,7 @@ export const AppProfile: React.FC = () => {
           <TabsTrigger 
             value="orders" 
             className="flex flex-col items-center gap-1 py-2.5 text-[11px] rounded-xl transition-all data-[state=active]:animate-stat-pop data-[state=active]:bg-white/10"
-            onClick={() => lightTap()}
+            onClick={() => selectionTap()}
           >
             <Package className="w-4 h-4" />
             My eSIMs
@@ -577,7 +579,7 @@ export const AppProfile: React.FC = () => {
           <TabsTrigger 
             value="earn" 
             className="flex flex-col items-center gap-1 py-2.5 text-[11px] rounded-xl transition-all data-[state=active]:animate-stat-pop data-[state=active]:bg-white/10"
-            onClick={() => lightTap()}
+            onClick={() => selectionTap()}
           >
             <Gift className="w-4 h-4" />
             Invite
@@ -585,7 +587,7 @@ export const AppProfile: React.FC = () => {
           <TabsTrigger 
             value="settings" 
             className="flex flex-col items-center gap-1 py-2.5 text-[11px] rounded-xl transition-all data-[state=active]:animate-stat-pop data-[state=active]:bg-white/10"
-            onClick={() => lightTap()}
+            onClick={() => selectionTap()}
           >
             <Shield className="w-4 h-4" />
             Settings
@@ -643,7 +645,7 @@ export const AppProfile: React.FC = () => {
                 <Switch 
                   checked={soundEnabled}
                   onCheckedChange={() => {
-                    lightTap();
+                    selectionTap();
                     toggleSound();
                   }}
                 />
@@ -1028,7 +1030,7 @@ export const AppProfile: React.FC = () => {
                 variant="outline" 
                 className="w-full justify-between"
                 onClick={() => {
-                  lightTap();
+                  buttonTap();
                   localStorage.removeItem('hasSeenOnboarding');
                   toast({ title: t('appTutorialReset'), description: t('appTutorialResetDesc') });
                 }}
@@ -1216,7 +1218,7 @@ export const AppProfile: React.FC = () => {
                     <div 
                       className="flex items-center justify-between cursor-pointer active:scale-[0.98] transition-all"
                       onClick={() => {
-                        lightTap();
+                        buttonTap();
                         setShowNewLinkInput(true);
                       }}
                     >
