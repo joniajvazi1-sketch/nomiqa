@@ -562,31 +562,16 @@ export const AppHome: React.FC = () => {
             </SectionErrorBoundary>
           )}
 
-          {/* MAP PREVIEW CARD - smaller */}
+          {/* MAP PREVIEW CARD - Premium styled */}
           <div 
-            className="relative rounded-xl overflow-hidden cursor-pointer active:scale-[0.98] transition-all group border border-white/[0.08]"
+            className="relative rounded-2xl overflow-hidden cursor-pointer active:scale-[0.98] transition-all group"
             onClick={() => handleNavigation('/app/map')}
           >
             <MiniContributionMap 
-              className="w-full h-20"
+              className="w-full h-36"
               contributionPoints={points?.total_points || 0}
               dataPointsCount={dataPointsCount}
             />
-            
-            <div className="absolute inset-0 flex items-end">
-              <div className="w-full px-3 py-2 bg-gradient-to-t from-background via-background/90 to-transparent">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1.5">
-                    <MapPin className="w-3 h-3 text-neon-cyan" />
-                    <span className="text-xs font-semibold text-foreground">Coverage Map</span>
-                    <span className="text-[10px] text-muted-foreground">
-                      {dataPointsCount > 0 ? `${dataPointsCount.toLocaleString()} pts` : ''}
-                    </span>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-neon-cyan group-hover:translate-x-1 transition-transform" />
-                </div>
-              </div>
-            </div>
           </div>
 
           {/* Milestone Popup */}
