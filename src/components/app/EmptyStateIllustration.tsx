@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 interface EmptyStateIllustrationProps {
-  type: 'wallet' | 'orders' | 'achievements' | 'transactions';
+  type: 'wallet' | 'orders' | 'achievements' | 'transactions' | 'leaderboard' | 'challenges';
   className?: string;
 }
 
@@ -19,7 +19,9 @@ export const EmptyStateIllustration: React.FC<EmptyStateIllustrationProps> = ({
     wallet: <WalletIllustration />,
     orders: <OrdersIllustration />,
     achievements: <AchievementsIllustration />,
-    transactions: <TransactionsIllustration />
+    transactions: <TransactionsIllustration />,
+    leaderboard: <LeaderboardIllustration />,
+    challenges: <ChallengesIllustration />
   };
 
   return (
@@ -424,6 +426,187 @@ const TransactionsIllustration: React.FC = () => (
     
     <defs>
       <radialGradient id="txGradient" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stopColor="hsl(var(--primary))" />
+        <stop offset="100%" stopColor="transparent" />
+      </radialGradient>
+    </defs>
+  </motion.svg>
+);
+
+// Animated leaderboard illustration
+const LeaderboardIllustration: React.FC = () => (
+  <motion.svg
+    width="120"
+    height="120"
+    viewBox="0 0 120 120"
+    fill="none"
+    initial={{ opacity: 0, scale: 0.8 }}
+    animate={{ opacity: 1, scale: 1 }}
+    transition={{ duration: 0.5, ease: 'easeOut' }}
+  >
+    {/* Background glow */}
+    <motion.circle
+      cx="60"
+      cy="60"
+      r="45"
+      fill="url(#leaderboardGradient)"
+      opacity="0.15"
+      animate={{ scale: [1, 1.05, 1] }}
+      transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+    />
+    
+    {/* Podium bars */}
+    {[
+      { x: 25, height: 35, y: 55, delay: 0, color: 'hsl(var(--muted-foreground))' },
+      { x: 50, height: 50, y: 40, delay: 0.1, color: 'hsl(var(--primary))' },
+      { x: 75, height: 28, y: 62, delay: 0.2, color: 'hsl(var(--muted-foreground))' }
+    ].map((bar, i) => (
+      <motion.rect
+        key={i}
+        x={bar.x}
+        y={bar.y}
+        width="20"
+        height={bar.height}
+        rx="4"
+        fill={bar.color}
+        opacity={i === 1 ? 0.8 : 0.3}
+        initial={{ scaleY: 0 }}
+        animate={{ scaleY: 1 }}
+        transition={{ delay: bar.delay, duration: 0.4, ease: 'easeOut' }}
+        style={{ transformOrigin: 'bottom' }}
+      />
+    ))}
+    
+    {/* Crown on winner */}
+    <motion.path
+      d="M55 35 L60 28 L65 35 L62 35 L60 32 L58 35 Z"
+      fill="hsl(38, 95%, 55%)"
+      animate={{ y: [0, -2, 0] }}
+      transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+    />
+    
+    {/* Rank numbers */}
+    <motion.text x="35" y="80" textAnchor="middle" fill="hsl(var(--muted-foreground))" fontSize="10" opacity="0.5">2</motion.text>
+    <motion.text x="60" y="65" textAnchor="middle" fill="hsl(var(--primary-foreground))" fontSize="12" fontWeight="bold">1</motion.text>
+    <motion.text x="85" y="82" textAnchor="middle" fill="hsl(var(--muted-foreground))" fontSize="10" opacity="0.5">3</motion.text>
+    
+    {/* Empty state text */}
+    <motion.text
+      x="60"
+      y="105"
+      textAnchor="middle"
+      fill="hsl(var(--muted-foreground))"
+      fontSize="10"
+      opacity="0.5"
+      animate={{ opacity: [0.3, 0.6, 0.3] }}
+      transition={{ duration: 2, repeat: Infinity }}
+    >
+      Be the first!
+    </motion.text>
+    
+    <defs>
+      <radialGradient id="leaderboardGradient" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stopColor="hsl(var(--primary))" />
+        <stop offset="100%" stopColor="transparent" />
+      </radialGradient>
+    </defs>
+  </motion.svg>
+);
+
+// Animated challenges illustration
+const ChallengesIllustration: React.FC = () => (
+  <motion.svg
+    width="120"
+    height="120"
+    viewBox="0 0 120 120"
+    fill="none"
+    initial={{ opacity: 0, scale: 0.8 }}
+    animate={{ opacity: 1, scale: 1 }}
+    transition={{ duration: 0.5, ease: 'easeOut' }}
+  >
+    {/* Background */}
+    <motion.circle
+      cx="60"
+      cy="60"
+      r="45"
+      fill="url(#challengesGradient)"
+      opacity="0.1"
+    />
+    
+    {/* Target circles */}
+    <motion.circle
+      cx="60"
+      cy="55"
+      r="35"
+      stroke="hsl(var(--primary))"
+      strokeWidth="2"
+      fill="none"
+      opacity="0.2"
+      animate={{ scale: [1, 1.05, 1] }}
+      transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+    />
+    <motion.circle
+      cx="60"
+      cy="55"
+      r="25"
+      stroke="hsl(var(--primary))"
+      strokeWidth="2"
+      fill="none"
+      opacity="0.4"
+      animate={{ scale: [1, 1.03, 1] }}
+      transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut', delay: 0.2 }}
+    />
+    <motion.circle
+      cx="60"
+      cy="55"
+      r="15"
+      stroke="hsl(var(--primary))"
+      strokeWidth="2"
+      fill="none"
+      opacity="0.6"
+      animate={{ scale: [1, 1.02, 1] }}
+      transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut', delay: 0.4 }}
+    />
+    
+    {/* Center bullseye */}
+    <motion.circle
+      cx="60"
+      cy="55"
+      r="6"
+      fill="hsl(var(--primary))"
+      animate={{ 
+        scale: [1, 1.2, 1],
+        opacity: [0.8, 1, 0.8]
+      }}
+      transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+    />
+    
+    {/* Flag at center */}
+    <motion.path
+      d="M60 55 L60 40 L72 45 L60 50"
+      fill="hsl(var(--neon-cyan))"
+      opacity="0.8"
+      animate={{ rotate: [-5, 5, -5] }}
+      transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+      style={{ transformOrigin: '60px 55px' }}
+    />
+    
+    {/* Text */}
+    <motion.text
+      x="60"
+      y="105"
+      textAnchor="middle"
+      fill="hsl(var(--muted-foreground))"
+      fontSize="10"
+      opacity="0.5"
+      animate={{ opacity: [0.3, 0.6, 0.3] }}
+      transition={{ duration: 2, repeat: Infinity }}
+    >
+      No challenges yet
+    </motion.text>
+    
+    <defs>
+      <radialGradient id="challengesGradient" cx="50%" cy="50%" r="50%">
         <stop offset="0%" stopColor="hsl(var(--primary))" />
         <stop offset="100%" stopColor="transparent" />
       </radialGradient>

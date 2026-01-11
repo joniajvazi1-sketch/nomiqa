@@ -40,6 +40,7 @@ import { StreakCalendar } from '@/components/app/StreakCalendar';
 import { SpinWheel } from '@/components/app/SpinWheel';
 import { SocialProofToast } from '@/components/app/SocialProofIndicator';
 import { PersonalizedGoals } from '@/components/app/PersonalizedGoals';
+import { RatingPrompt, useRatingPrompt } from '@/components/app/RatingPrompt';
 
 interface DailyEarning {
   date: string;
@@ -74,7 +75,15 @@ export const AppHome: React.FC = () => {
     requestNotificationPermission
   } = useAchievements();
   const { isSupported: notificationsSupported, permissionStatus } = usePushNotifications();
-  
+  const { 
+    isOpen: ratingPromptOpen, 
+    triggerReason, 
+    triggerRatingPrompt, 
+    handleRate, 
+    handleDismiss, 
+    trackSession,
+    close: closeRatingPrompt 
+  } = useRatingPrompt();
   const [showNotificationPrompt, setShowNotificationPrompt] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(() => {
     if (typeof window === 'undefined') return false;
@@ -236,8 +245,13 @@ export const AppHome: React.FC = () => {
       setShowDailyGoalCelebration(true);
       setDailyGoalCelebrated(true);
       localStorage.setItem(celebratedKey, 'true');
+      
+      // Trigger rating prompt after milestone (with delay for celebration)
+      setTimeout(() => {
+        triggerRatingPrompt('milestone');
+      }, 3000);
     }
-  }, [todayPoints, dailyGoalCelebrated]);
+  }, [todayPoints, dailyGoalCelebrated, triggerRatingPrompt]);
 
   // Animate USD counter
   useEffect(() => {
@@ -652,6 +666,15 @@ export const AppHome: React.FC = () => {
 
       {/* Social Proof Toast - only toast, no inline card */}
       <SocialProofToast />
+
+      {/* App Rating Prompt */}
+      <RatingPrompt
+        isOpen={ratingPromptOpen}
+        onClose={closeRatingPrompt}
+        onRate={handleRate}
+        onDismiss={handleDismiss}
+        triggerReason={triggerReason}
+      />
     </>
   );
 };
