@@ -41,6 +41,10 @@ import { LeaderboardSection } from '@/components/app/LeaderboardSection';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from '@/components/app/PullToRefreshIndicator';
 import { WalletScreenSkeleton } from '@/components/app/skeletons';
+import { TiltCard3D } from '@/components/app/TiltCard3D';
+import { AnimatedGradientBorder } from '@/components/app/AnimatedGradientBorder';
+import { EmptyStateIllustration } from '@/components/app/EmptyStateIllustration';
+import { motion } from 'framer-motion';
 
 interface RecentSession {
   id: string;
@@ -320,78 +324,81 @@ export const AppWallet: React.FC = () => {
           </button>
         </header>
 
-        {/* Animated Balance Card */}
-        <div 
-          className="relative rounded-[28px] overflow-hidden cursor-pointer group"
-          onClick={() => { buttonTap(); playCoin(); setShowBalanceDetails(!showBalanceDetails); }}
-        >
-          {/* Animated gradient border */}
-          <div className="absolute -inset-[1px] bg-gradient-to-r from-primary via-neon-cyan to-primary rounded-[29px] opacity-50 group-hover:opacity-70 transition-opacity animate-gradient-x" />
-          
-          <div className="relative bg-background/95 backdrop-blur-xl m-[1px] rounded-[27px] overflow-hidden">
-            {/* Inner glow */}
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-neon-cyan/10" />
-            <div className="absolute -top-20 -right-20 w-60 h-60 bg-gradient-to-br from-primary/40 to-transparent rounded-full blur-3xl animate-pulse-slow" />
-            
-            <div className="relative p-6">
-              {/* Top row */}
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg shadow-primary/40 animate-float">
-                    <Zap className="w-6 h-6 text-primary-foreground" />
-                  </div>
-                  <div>
-                    <span className="text-sm text-foreground/80 font-semibold">{t('app.wallet.totalBalance')}</span>
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                      <span className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('app.wallet.live')}</span>
+        {/* Animated Balance Card with 3D Tilt */}
+        <TiltCard3D maxTilt={8} scale={1.01} glareEnabled={true}>
+          <AnimatedGradientBorder 
+            borderRadius={28} 
+            glowIntensity="medium"
+            animationDuration={4}
+          >
+            <div 
+              className="relative overflow-hidden cursor-pointer"
+              onClick={() => { buttonTap(); playCoin(); setShowBalanceDetails(!showBalanceDetails); }}
+            >
+              {/* Inner glow */}
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-neon-cyan/10" />
+              <div className="absolute -top-20 -right-20 w-60 h-60 bg-gradient-to-br from-primary/40 to-transparent rounded-full blur-3xl animate-pulse-slow" />
+              
+              <div className="relative p-6">
+                {/* Top row */}
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg shadow-primary/40 animate-float">
+                      <Zap className="w-6 h-6 text-primary-foreground" />
+                    </div>
+                    <div>
+                      <span className="text-sm text-foreground/80 font-semibold">{t('app.wallet.totalBalance')}</span>
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                        <span className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('app.wallet.live')}</span>
+                      </div>
                     </div>
                   </div>
+                  <ChevronRight className={cn(
+                    "w-5 h-5 text-muted-foreground transition-transform",
+                    showBalanceDetails && "rotate-90"
+                  )} />
                 </div>
-                <ChevronRight className={cn(
-                  "w-5 h-5 text-muted-foreground transition-transform",
-                  showBalanceDetails && "rotate-90"
-                )} />
-              </div>
-              
-              {/* Balance display */}
-              <div className="mb-1">
-                <span 
-                  className="text-5xl font-bold text-foreground tracking-tighter animate-count-up"
-                  style={{ fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace' }}
-                >
-                  {loading ? '---' : formatNumber(totalPoints)}
-                </span>
-                <span className="text-xl text-muted-foreground ml-2">pts</span>
-              </div>
-              
-              {/* USD estimate */}
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <span>≈ ${estimatedUSD} USD</span>
-                <TrendingUp className="w-3.5 h-3.5 text-green-400" />
-              </div>
+                
+                {/* Balance display */}
+                <div className="mb-1">
+                  <span 
+                    className="text-5xl font-bold text-foreground tracking-tighter animate-count-up"
+                    style={{ fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace' }}
+                  >
+                    {loading ? '---' : formatNumber(totalPoints)}
+                  </span>
+                  <span className="text-xl text-muted-foreground ml-2">pts</span>
+                </div>
+                
+                {/* USD estimate */}
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <span>≈ ${estimatedUSD} USD</span>
+                  <TrendingUp className="w-3.5 h-3.5 text-green-400" />
+                </div>
 
-              {/* Expandable details */}
-              <div className={cn(
-                "grid grid-cols-3 gap-3 transition-all overflow-hidden",
-                showBalanceDetails ? "mt-5 max-h-24 opacity-100" : "max-h-0 opacity-0"
-              )}>
-                <div className="bg-white/[0.05] rounded-xl p-3 text-center">
-                  <div className="text-lg font-bold text-foreground">{points?.contribution_streak_days || 0}</div>
-                  <div className="text-[10px] text-muted-foreground uppercase">Day Streak</div>
-                </div>
-                <div className="bg-white/[0.05] rounded-xl p-3 text-center">
-                  <div className="text-lg font-bold text-foreground">{formatDistance(points?.total_distance_meters)}</div>
-                  <div className="text-[10px] text-muted-foreground uppercase">Total Dist</div>
-                </div>
-                <div className="bg-white/[0.05] rounded-xl p-3 text-center">
-                  <div className="text-lg font-bold text-foreground">{affiliate?.total_registrations || 0}</div>
-                  <div className="text-[10px] text-muted-foreground uppercase">Referrals</div>
+                {/* Expandable details */}
+                <div className={cn(
+                  "grid grid-cols-3 gap-3 transition-all overflow-hidden",
+                  showBalanceDetails ? "mt-5 max-h-24 opacity-100" : "max-h-0 opacity-0"
+                )}>
+                  <div className="bg-white/[0.05] rounded-xl p-3 text-center">
+                    <div className="text-lg font-bold text-foreground">{points?.contribution_streak_days || 0}</div>
+                    <div className="text-[10px] text-muted-foreground uppercase">Day Streak</div>
+                  </div>
+                  <div className="bg-white/[0.05] rounded-xl p-3 text-center">
+                    <div className="text-lg font-bold text-foreground">{formatDistance(points?.total_distance_meters)}</div>
+                    <div className="text-[10px] text-muted-foreground uppercase">Total Dist</div>
+                  </div>
+                  <div className="bg-white/[0.05] rounded-xl p-3 text-center">
+                    <div className="text-lg font-bold text-foreground">{affiliate?.total_registrations || 0}</div>
+                    <div className="text-[10px] text-muted-foreground uppercase">Referrals</div>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
+          </AnimatedGradientBorder>
+        </TiltCard3D>
 
         {/* Streak Bonus */}
         {streakDays >= 1 && (
@@ -495,18 +502,23 @@ export const AppWallet: React.FC = () => {
             </div>
           ) : filteredTransactions.length === 0 ? (
             <div className="rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] border-dashed p-8 text-center">
-              <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-muted/20 to-muted/5 flex items-center justify-center">
-                <Filter className="w-7 h-7 text-muted-foreground/50" />
-              </div>
+              <EmptyStateIllustration type="transactions" className="mb-2" />
               <p className="text-muted-foreground">No transactions found</p>
+              <p className="text-xs text-muted-foreground/60 mt-1">Start earning to see your activity here</p>
             </div>
           ) : (
             <div className="space-y-2">
               {filteredTransactions.map((tx, index) => (
-                <div 
-                  key={tx.id} 
-                  className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] hover:bg-white/[0.05] transition-all animate-fade-in"
-                  style={{ animationDelay: `${index * 50}ms` }}
+                <motion.div 
+                  key={tx.id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ 
+                    delay: index * 0.05, 
+                    duration: 0.3,
+                    ease: [0.25, 0.1, 0.25, 1]
+                  }}
+                  className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] hover:bg-white/[0.05] transition-all"
                 >
                   <div className="flex items-center gap-4">
                     <div className={cn(
@@ -538,7 +550,7 @@ export const AppWallet: React.FC = () => {
                     )}
                     <span>{tx.type === 'spent' ? '-' : '+'}{tx.amount}</span>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
           )}

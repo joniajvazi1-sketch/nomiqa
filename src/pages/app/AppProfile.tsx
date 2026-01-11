@@ -52,6 +52,8 @@ import { PrivacyControls } from '@/components/app/PrivacyControls';
 import { useSoundEffects } from '@/hooks/useSoundEffects';
 import { Switch } from '@/components/ui/switch';
 import { Volume2, VolumeX } from 'lucide-react';
+import { EmptyStateIllustration } from '@/components/app/EmptyStateIllustration';
+import { motion } from 'framer-motion';
 
 interface UserProfile {
   username: string;
@@ -881,8 +883,9 @@ export const AppProfile: React.FC = () => {
           {orders.length === 0 ? (
             <Card className="bg-card/50 border-border/50 border-dashed animate-fade-in">
               <CardContent className="p-6 text-center">
-                <Package className="w-10 h-10 mx-auto mb-3 text-muted-foreground/50 animate-bounce-slow" />
-                <p className="text-muted-foreground text-sm mb-3">No eSIMs yet</p>
+                <EmptyStateIllustration type="orders" className="mb-2" />
+                <p className="text-muted-foreground text-sm mb-1">No eSIMs yet</p>
+                <p className="text-xs text-muted-foreground/60 mb-4">Your travel plans will appear here</p>
                 <Button onClick={() => navigate('/app/shop')} className="active:scale-95 transition-transform">Browse Plans</Button>
               </CardContent>
             </Card>

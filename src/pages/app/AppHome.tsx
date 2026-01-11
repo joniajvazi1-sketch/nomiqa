@@ -34,6 +34,7 @@ import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from '@/components/app/PullToRefreshIndicator';
 import { LanguageSelector } from '@/components/app/LanguageSelector';
 import { HomeScreenSkeleton } from '@/components/app/skeletons';
+import { AnimatedGradientBorder } from '@/components/app/AnimatedGradientBorder';
 
 interface DailyEarning {
   date: string;
