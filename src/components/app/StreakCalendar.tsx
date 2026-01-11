@@ -26,12 +26,10 @@ export const StreakCalendar = ({ checkins, currentStreak, onClose }: StreakCalen
 
     const days: (number | null)[] = [];
     
-    // Add empty slots for days before the first of the month
     for (let i = 0; i < startingDay; i++) {
       days.push(null);
     }
     
-    // Add the days of the month
     for (let i = 1; i <= daysInMonth; i++) {
       days.push(i);
     }
@@ -63,20 +61,20 @@ export const StreakCalendar = ({ checkins, currentStreak, onClose }: StreakCalen
     }
   };
 
-  const monthName = currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  const monthName = currentMonth.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
 
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
-      className="bg-card rounded-3xl border border-border p-5 shadow-xl"
+      className="bg-card rounded-2xl border border-border p-4 shadow-xl max-w-[300px] w-full"
     >
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <Flame className="w-5 h-5 text-orange-500" />
-          <span className="font-bold text-foreground">{currentStreak} Day Streak</span>
+      {/* Header - compact */}
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-1.5">
+          <Flame className="w-4 h-4 text-orange-500" />
+          <span className="font-bold text-sm text-foreground">{currentStreak} Day Streak</span>
         </div>
         {onClose && (
           <button onClick={onClose} className="p-1 hover:bg-muted rounded-full">
@@ -85,20 +83,20 @@ export const StreakCalendar = ({ checkins, currentStreak, onClose }: StreakCalen
         )}
       </div>
 
-      {/* Month navigation */}
-      <div className="flex items-center justify-between mb-4">
+      {/* Month navigation - compact */}
+      <div className="flex items-center justify-between mb-3">
         <button
           onClick={prevMonth}
-          className="p-2 rounded-full hover:bg-muted transition-colors"
+          className="p-1.5 rounded-full hover:bg-muted transition-colors"
         >
           <ChevronLeft className="w-4 h-4" />
         </button>
-        <span className="font-semibold text-foreground">{monthName}</span>
+        <span className="font-semibold text-sm text-foreground">{monthName}</span>
         <button
           onClick={nextMonth}
           disabled={isCurrentMonth}
           className={cn(
-            "p-2 rounded-full transition-colors",
+            "p-1.5 rounded-full transition-colors",
             isCurrentMonth ? "opacity-30" : "hover:bg-muted"
           )}
         >
@@ -107,16 +105,16 @@ export const StreakCalendar = ({ checkins, currentStreak, onClose }: StreakCalen
       </div>
 
       {/* Day headers */}
-      <div className="grid grid-cols-7 gap-1 mb-2">
+      <div className="grid grid-cols-7 gap-0.5 mb-1">
         {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, i) => (
-          <div key={i} className="text-center text-xs text-muted-foreground font-medium py-1">
+          <div key={i} className="text-center text-[10px] text-muted-foreground font-medium py-1">
             {day}
           </div>
         ))}
       </div>
 
-      {/* Calendar grid */}
-      <div className="grid grid-cols-7 gap-1">
+      {/* Calendar grid - smaller cells */}
+      <div className="grid grid-cols-7 gap-0.5">
         {days.map((day, index) => {
           if (day === null) {
             return <div key={`empty-${index}`} className="aspect-square" />;
@@ -132,43 +130,40 @@ export const StreakCalendar = ({ checkins, currentStreak, onClose }: StreakCalen
               key={day}
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
-              transition={{ delay: index * 0.01 }}
+              transition={{ delay: index * 0.005 }}
               className={cn(
-                "aspect-square rounded-lg flex items-center justify-center text-sm font-medium relative",
+                "aspect-square rounded-md flex items-center justify-center text-xs font-medium relative",
                 hasCheckin && "bg-gradient-to-br from-orange-500 to-amber-500 text-white",
-                isToday && !hasCheckin && "ring-2 ring-primary",
+                isToday && !hasCheckin && "ring-1 ring-primary",
                 isFuture && "opacity-30",
                 !hasCheckin && !isToday && !isFuture && "text-muted-foreground"
               )}
             >
               {hasCheckin ? (
-                <Check className="w-4 h-4" />
+                <Check className="w-3 h-3" />
               ) : (
-                day
-              )}
-              {isToday && (
-                <div className="absolute -bottom-0.5 w-1 h-1 rounded-full bg-primary" />
+                <span className="text-[10px]">{day}</span>
               )}
             </motion.div>
           );
         })}
       </div>
 
-      {/* Stats footer */}
-      <div className="mt-4 pt-4 border-t border-border grid grid-cols-3 gap-2 text-center">
+      {/* Stats footer - compact */}
+      <div className="mt-3 pt-3 border-t border-border grid grid-cols-3 gap-1 text-center">
         <div>
-          <div className="text-lg font-bold text-foreground">{checkins.length}</div>
-          <div className="text-[10px] text-muted-foreground uppercase">Total Days</div>
+          <div className="text-sm font-bold text-foreground">{checkins.length}</div>
+          <div className="text-[9px] text-muted-foreground uppercase">Days</div>
         </div>
         <div>
-          <div className="text-lg font-bold text-orange-500">{currentStreak}</div>
-          <div className="text-[10px] text-muted-foreground uppercase">Current</div>
+          <div className="text-sm font-bold text-orange-500">{currentStreak}</div>
+          <div className="text-[9px] text-muted-foreground uppercase">Streak</div>
         </div>
         <div>
-          <div className="text-lg font-bold text-foreground">
+          <div className="text-sm font-bold text-foreground">
             {checkins.reduce((sum, c) => sum + c.points, 0)}
           </div>
-          <div className="text-[10px] text-muted-foreground uppercase">Pts Earned</div>
+          <div className="text-[9px] text-muted-foreground uppercase">Pts</div>
         </div>
       </div>
     </motion.div>

@@ -8,10 +8,10 @@ import {
   TrendingUp,
   Settings,
   Bell,
-  Sparkles,
   Flame,
   Trophy,
-  Gift
+  Gift,
+  Calendar
 } from 'lucide-react';
 import { useHaptics } from '@/hooks/useHaptics';
 import { useEnhancedSounds } from '@/hooks/useEnhancedSounds';
@@ -25,7 +25,6 @@ import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { StreakBonus, MilestonePopup, AchievementBadge } from '@/components/app/AchievementSystem';
 import { NotificationToggle } from '@/components/app/NotificationToggle';
 import { ChallengesSection } from '@/components/app/ChallengesSection';
-import { LeaderboardSection } from '@/components/app/LeaderboardSection';
 import { RewardCelebration } from '@/components/app/RewardCelebration';
 import { ShimmerButton } from '@/components/app/ShimmerButton';
 import { OnboardingFlow } from '@/components/app/OnboardingFlow';
@@ -34,13 +33,12 @@ import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from '@/components/app/PullToRefreshIndicator';
 import { LanguageSelector } from '@/components/app/LanguageSelector';
 import { HomeScreenSkeleton } from '@/components/app/skeletons';
-import { AnimatedGradientBorder } from '@/components/app/AnimatedGradientBorder';
 import { FloatingQuickEarn } from '@/components/app/FloatingQuickEarn';
 import { DailyCheckIn } from '@/components/app/DailyCheckIn';
 import { SectionErrorBoundary } from '@/components/app/SectionErrorBoundary';
 import { StreakCalendar } from '@/components/app/StreakCalendar';
 import { SpinWheel } from '@/components/app/SpinWheel';
-import { SocialProofIndicator, SocialProofToast } from '@/components/app/SocialProofIndicator';
+import { SocialProofToast } from '@/components/app/SocialProofIndicator';
 import { PersonalizedGoals } from '@/components/app/PersonalizedGoals';
 
 interface DailyEarning {
@@ -53,9 +51,10 @@ const POINTS_TO_USD = 0.01;
 
 // Daily goal threshold for celebration
 const DAILY_GOAL_POINTS = 100;
+
 /**
- * App Home Dashboard - Command Center
- * Clean, focused layout with Today's earnings hero, streaks, and achievements
+ * App Home Dashboard - Compact Single-Screen Layout
+ * Optimized to fit all key information in one viewport without scrolling
  */
 export const AppHome: React.FC = () => {
   const navigate = useNavigate();
@@ -311,418 +310,312 @@ export const AppHome: React.FC = () => {
           isRefreshing={isRefreshing}
         />
 
-        {/* Subtle animated background */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div 
-          className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[500px] rounded-full opacity-15"
-          style={{
-            background: 'radial-gradient(circle, hsl(var(--neon-cyan)) 0%, transparent 70%)',
-            filter: 'blur(100px)',
-            animation: 'pulse 8s ease-in-out infinite'
-          }}
-        />
-        <div 
-          className="absolute bottom-1/3 -right-20 w-[300px] h-[300px] rounded-full opacity-10"
-          style={{
-            background: 'radial-gradient(circle, hsl(var(--primary)) 0%, transparent 70%)',
-            filter: 'blur(80px)',
-            animation: 'pulse 6s ease-in-out infinite 2s'
-          }}
-        />
-      </div>
-
-      <div className="relative z-10 px-5 py-6 pb-28 space-y-5">
-        {/* NEW TOP BAR: Status pill left, icons right */}
-        <header className="flex items-center justify-between animate-fade-in">
-          {/* Status Pill */}
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.05] backdrop-blur-xl border border-white/[0.08]">
-            <div className={cn(
-              "w-2 h-2 rounded-full",
-              isOnline ? "bg-neon-cyan animate-pulse shadow-lg shadow-neon-cyan/50" : "bg-red-500"
-            )} />
-            <span 
-              className="text-xs text-foreground/80 font-medium"
-              style={{ fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace' }}
-            >
-              {isOnline ? t('app.home.online') : t('app.home.offline')} • {getConnectionLabel()}
-            </span>
-          </div>
-
-          {/* Icon buttons */}
-          <div className="flex items-center gap-2">
-            {/* Notification button - shows different states */}
-            <button 
-              onClick={() => { 
-                lightTap(); 
-                if (notificationsSupported && !notificationsEnabled) {
-                  setShowNotificationPrompt(prev => !prev);
-                }
-              }}
-              className={cn(
-                "w-10 h-10 rounded-full backdrop-blur-xl border flex items-center justify-center hover:bg-white/[0.08] active:scale-95 transition-all relative",
-                notificationsEnabled 
-                  ? "bg-primary/10 border-primary/30" 
-                  : "bg-white/[0.05] border-white/[0.08]"
-              )}
-            >
-              <Bell className={cn(
-                "w-4.5 h-4.5",
-                notificationsEnabled ? "text-primary" : "text-muted-foreground"
-              )} />
-              {notificationsSupported && !notificationsEnabled && (
-                <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-primary animate-pulse" />
-              )}
-            </button>
-            
-            {/* Language Selector */}
-            <LanguageSelector />
-            
-            <button 
-              onClick={() => { lightTap(); navigate('/app/profile'); }}
-              className="w-10 h-10 rounded-full bg-white/[0.05] backdrop-blur-xl border border-white/[0.08] flex items-center justify-center hover:bg-white/[0.08] active:scale-95 transition-all"
-            >
-              <Settings className="w-4.5 h-4.5 text-muted-foreground" />
-            </button>
-          </div>
-        </header>
-
-        {/* Notification Permission Prompt */}
-        {showNotificationPrompt && notificationsSupported && !notificationsEnabled && (
-          <div className="animate-fade-in">
-            <NotificationToggle
-              isEnabled={notificationsEnabled}
-              permissionStatus={permissionStatus}
-              onRequestPermission={async () => {
-                const granted = await requestNotificationPermission();
-                if (granted) {
-                  setShowNotificationPrompt(false);
-                }
-                return granted;
-              }}
-            />
-          </div>
-        )}
-
-        {/* "TODAY" HERO CARD */}
-        <div 
-          className="relative rounded-[24px] overflow-hidden animate-fade-in"
-          style={{ animationDelay: '100ms' }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-br from-neon-cyan/15 via-primary/10 to-transparent" />
-          <div className="absolute inset-0 backdrop-blur-3xl" />
-          
-          {/* Subtle shimmer effect */}
+        {/* Subtle animated background - reduced size */}
+        <div className="fixed inset-0 pointer-events-none">
           <div 
-            className="absolute inset-0 opacity-30"
+            className="absolute top-0 left-1/2 -translate-x-1/2 w-[400px] h-[400px] rounded-full opacity-10"
             style={{
-              background: 'linear-gradient(90deg, transparent 0%, rgba(0,255,255,0.08) 50%, transparent 100%)',
-              backgroundSize: '200% 100%',
-              animation: 'shimmer 3s ease-in-out infinite'
+              background: 'radial-gradient(circle, hsl(var(--neon-cyan)) 0%, transparent 70%)',
+              filter: 'blur(80px)',
             }}
           />
-          
-          <div className="relative p-6 border border-neon-cyan/15 rounded-[24px]">
-            {/* Label */}
-            <div className="flex items-center gap-2 mb-4">
-              <Zap className="w-4 h-4 text-neon-cyan" />
-              <span className="text-sm font-semibold text-foreground/70 uppercase tracking-wider">{t('app.home.todaysEarnings')}</span>
-            </div>
-            
-            {/* Big USD Number */}
-            <div ref={usdRef} className="mb-2">
-              {loading ? (
-                <div className="h-16 w-32 bg-neon-cyan/10 rounded-xl animate-pulse" />
-              ) : (
-                <div 
-                  className="text-[52px] font-bold text-foreground tracking-tight leading-none"
-                  style={{ fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, sans-serif' }}
-                >
-                  ${animatedUSD.toFixed(2)}
-                </div>
-              )}
-            </div>
-
-            {/* Sublines with friendly language */}
-            <div className="flex items-center flex-wrap gap-3 mb-5 text-sm text-muted-foreground">
-              <div className="flex items-center gap-1.5 bg-white/5 rounded-full px-2.5 py-1">
-                <TrendingUp className="w-3.5 h-3.5 text-neon-cyan" />
-                <span>{streakMultiplier}x bonus</span>
-              </div>
-              <div className="flex items-center gap-1.5 bg-white/5 rounded-full px-2.5 py-1">
-                <span>✨ {todayPoints.toLocaleString()} points</span>
-              </div>
-              {streakDays >= 3 && (
-                <div className="flex items-center gap-1 bg-orange-500/10 rounded-full px-2.5 py-1">
-                  <Flame className="w-3.5 h-3.5 text-orange-500" />
-                  <span className="text-orange-400">{streakDays} day streak!</span>
-                </div>
-              )}
-            </div>
-
-            {/* Primary CTA: Friendly language */}
-            <ShimmerButton
-              onClick={() => handleNavigation('/app/map')}
-              shimmerEnabled={!loading}
-              className="w-full h-14 rounded-2xl bg-gradient-to-r from-neon-cyan to-sky-400 text-background font-bold text-lg shadow-lg shadow-neon-cyan/30 hover:shadow-neon-cyan/50 active:scale-[0.98] transition-all duration-300 group"
-            >
-              <Signal className="w-5 h-5 group-hover:animate-pulse" />
-              {t('app.home.startEarning')}
-              <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </ShimmerButton>
-          </div>
         </div>
 
-        {/* Daily Goal Celebration */}
-        <RewardCelebration
-          trigger={showDailyGoalCelebration}
-          points={todayPoints}
-          type="milestone"
-          onComplete={() => setShowDailyGoalCelebration(false)}
-        />
-
-        {/* SOCIAL PROOF INDICATOR */}
-        <SectionErrorBoundary fallbackTitle="Activity feed unavailable">
-          <SocialProofIndicator />
-        </SectionErrorBoundary>
-
-        {/* PERSONALIZED GOALS */}
-        {user && (
-          <SectionErrorBoundary fallbackTitle="Goals unavailable">
-            <PersonalizedGoals 
-              userId={user.id} 
-              currentPoints={todayPoints}
-            />
-          </SectionErrorBoundary>
-        )}
-
-        {/* TWO MINI CARDS: Impact & Boost */}
-        <div className="grid grid-cols-2 gap-3">
-          {/* Impact Card - Friendly */}
-          <div 
-            className="rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] p-4 animate-fade-in"
-            style={{ animationDelay: '200ms' }}
-          >
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-sky-500/20 to-sky-500/5 flex items-center justify-center">
-                <MapPin className="w-4 h-4 text-sky-400" />
-              </div>
-              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t('app.home.yourImpact')}</span>
+        <div className="relative z-10 px-4 py-4 pb-24 space-y-3">
+          {/* COMPACT TOP BAR */}
+          <header className="flex items-center justify-between">
+            {/* Status Pill - smaller */}
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/[0.05] backdrop-blur-xl border border-white/[0.08]">
+              <div className={cn(
+                "w-1.5 h-1.5 rounded-full",
+                isOnline ? "bg-neon-cyan animate-pulse" : "bg-red-500"
+              )} />
+              <span className="text-[10px] text-foreground/80 font-medium">
+                {isOnline ? 'Online' : 'Offline'} • {getConnectionLabel()}
+              </span>
             </div>
-            <div 
-              className="text-xl font-bold text-foreground mb-0.5"
-            >
-              {loading ? '--' : formatDistance(points?.total_distance_meters || 0)}
-            </div>
-            <div className="text-xs text-muted-foreground">{t('app.home.explored')} 🗺️</div>
-          </div>
 
-          {/* Boost Card - Pressable to go to Invite */}
-          <div 
-            className="relative rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] p-4 overflow-hidden animate-fade-in cursor-pointer active:scale-[0.98] transition-transform"
-            style={{ animationDelay: '250ms' }}
-            onClick={() => {
-              lightTap();
-              navigate('/app/profile?tab=earn');
-            }}
-          >
-            {/* Shimmer animation */}
-            <div 
-              className="absolute inset-0 pointer-events-none"
-              style={{
-                background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.05) 50%, transparent 100%)',
-                backgroundSize: '200% 100%',
-                animation: 'shimmer 8s ease-in-out infinite'
-              }}
-            />
-            <div className="relative">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-500/20 to-violet-500/5 flex items-center justify-center">
-                  <Gift className="w-4 h-4 text-violet-400" />
-                </div>
-                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t('app.home.tip')}</span>
-              </div>
-              <div className="text-sm font-semibold text-foreground mb-0.5">{t('app.home.earnMore')}</div>
-              <div className="text-xs text-violet-400">{t('app.home.inviteFriends')} →</div>
-            </div>
-          </div>
-        </div>
-
-        {/* STREAK BONUS (if streak >= 1) */}
-        {user && streakDays >= 1 && (
-          <div 
-            className="animate-fade-in"
-            style={{ animationDelay: '300ms' }}
-          >
-            <StreakBonus streakDays={streakDays} isActive={true} />
-          </div>
-        )}
-
-        {/* ACHIEVEMENTS ROW */}
-        {user && achievements.length > 0 && (
-          <div 
-            className="animate-fade-in"
-            style={{ animationDelay: '350ms' }}
-          >
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <Trophy className="w-4 h-4 text-primary" />
-                <span className="text-sm font-semibold text-foreground">Achievements</span>
-                <span className="text-xs text-muted-foreground">({unlockedCount}/{totalCount})</span>
-              </div>
+            {/* Icon buttons - smaller */}
+            <div className="flex items-center gap-1.5">
               <button 
-                onClick={() => handleNavigation('/app/achievements')}
-                className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors active:scale-95"
+                onClick={() => { 
+                  lightTap(); 
+                  if (notificationsSupported && !notificationsEnabled) {
+                    setShowNotificationPrompt(prev => !prev);
+                  }
+                }}
+                className={cn(
+                  "w-8 h-8 rounded-full backdrop-blur-xl border flex items-center justify-center active:scale-95 transition-all relative",
+                  notificationsEnabled 
+                    ? "bg-primary/10 border-primary/30" 
+                    : "bg-white/[0.05] border-white/[0.08]"
+                )}
               >
-                View All
-                <ChevronRight className="w-3 h-3" />
+                <Bell className={cn(
+                  "w-3.5 h-3.5",
+                  notificationsEnabled ? "text-primary" : "text-muted-foreground"
+                )} />
+                {notificationsSupported && !notificationsEnabled && (
+                  <div className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-primary" />
+                )}
+              </button>
+              
+              <LanguageSelector />
+              
+              <button 
+                onClick={() => { lightTap(); navigate('/app/profile'); }}
+                className="w-8 h-8 rounded-full bg-white/[0.05] backdrop-blur-xl border border-white/[0.08] flex items-center justify-center active:scale-95 transition-all"
+              >
+                <Settings className="w-3.5 h-3.5 text-muted-foreground" />
               </button>
             </div>
+          </header>
+
+          {/* Notification Permission Prompt */}
+          {showNotificationPrompt && notificationsSupported && !notificationsEnabled && (
+            <div className="animate-fade-in">
+              <NotificationToggle
+                isEnabled={notificationsEnabled}
+                permissionStatus={permissionStatus}
+                onRequestPermission={async () => {
+                  const granted = await requestNotificationPermission();
+                  if (granted) {
+                    setShowNotificationPrompt(false);
+                  }
+                  return granted;
+                }}
+              />
+            </div>
+          )}
+
+          {/* COMPACT HERO CARD */}
+          <div className="relative rounded-2xl overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-neon-cyan/15 via-primary/10 to-transparent" />
+            <div className="absolute inset-0 backdrop-blur-2xl" />
             
-            {/* Hint text */}
-            <p className="text-xs text-muted-foreground mb-2">Tap any badge to see all achievements →</p>
-            
-            <div 
-              className="flex gap-1 overflow-x-auto pb-2 scrollbar-hide cursor-pointer"
-              onClick={() => handleNavigation('/app/achievements')}
-            >
-              {achievements.slice(0, 6).map((achievement) => (
-                <AchievementBadge 
-                  key={achievement.id} 
-                  achievement={achievement} 
-                  size="sm"
-                  showProgress={true}
-                />
-              ))}
-              {achievements.length > 6 && (
-                <div className="flex items-center justify-center w-12 h-12 rounded-full bg-white/[0.05] border border-white/10 text-muted-foreground">
-                  <span className="text-xs font-medium">+{achievements.length - 6}</span>
+            <div className="relative p-4 border border-neon-cyan/15 rounded-2xl">
+              {/* Label */}
+              <div className="flex items-center gap-1.5 mb-2">
+                <Zap className="w-3.5 h-3.5 text-neon-cyan" />
+                <span className="text-[10px] font-semibold text-foreground/70 uppercase tracking-wider">{t('app.home.todaysEarnings')}</span>
+              </div>
+              
+              {/* Big USD Number - smaller */}
+              <div ref={usdRef} className="mb-1">
+                <div className="text-4xl font-bold text-foreground tracking-tight leading-none">
+                  ${animatedUSD.toFixed(2)}
                 </div>
-              )}
+              </div>
+
+              {/* Sublines - more compact */}
+              <div className="flex items-center flex-wrap gap-2 mb-3 text-xs text-muted-foreground">
+                <div className="flex items-center gap-1 bg-white/5 rounded-full px-2 py-0.5">
+                  <TrendingUp className="w-3 h-3 text-neon-cyan" />
+                  <span>{streakMultiplier}x</span>
+                </div>
+                <span>✨ {todayPoints.toLocaleString()} pts</span>
+                {streakDays >= 3 && (
+                  <button 
+                    onClick={() => setShowStreakCalendar(true)}
+                    className="flex items-center gap-1 bg-orange-500/10 rounded-full px-2 py-0.5 active:scale-95"
+                  >
+                    <Flame className="w-3 h-3 text-orange-500" />
+                    <span className="text-orange-400">{streakDays}d</span>
+                  </button>
+                )}
+              </div>
+
+              {/* Primary CTA - smaller */}
+              <ShimmerButton
+                onClick={() => handleNavigation('/app/map')}
+                shimmerEnabled={!loading}
+                className="w-full h-11 rounded-xl bg-gradient-to-r from-neon-cyan to-sky-400 text-background font-bold text-sm shadow-lg shadow-neon-cyan/30 active:scale-[0.98] transition-all group"
+              >
+                <Signal className="w-4 h-4" />
+                {t('app.home.startEarning')}
+                <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </ShimmerButton>
             </div>
           </div>
-        )}
 
-        {/* CHALLENGES SECTION */}
-        {user && (
-          <div 
-            className="animate-fade-in"
-            style={{ animationDelay: '400ms' }}
-          >
+          {/* Daily Goal Celebration */}
+          <RewardCelebration
+            trigger={showDailyGoalCelebration}
+            points={todayPoints}
+            type="milestone"
+            onComplete={() => setShowDailyGoalCelebration(false)}
+          />
+
+          {/* PERSONALIZED GOALS - COMPACT INLINE */}
+          {user && (
+            <SectionErrorBoundary fallbackTitle="Goals unavailable">
+              <PersonalizedGoals 
+                userId={user.id} 
+                currentPoints={todayPoints}
+                compact={true}
+              />
+            </SectionErrorBoundary>
+          )}
+
+          {/* TWO MINI CARDS: Impact & Tip - more compact */}
+          <div className="grid grid-cols-2 gap-2">
+            {/* Impact Card */}
+            <div className="rounded-xl bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] p-3">
+              <div className="flex items-center gap-1.5 mb-2">
+                <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-sky-500/20 to-sky-500/5 flex items-center justify-center">
+                  <MapPin className="w-3 h-3 text-sky-400" />
+                </div>
+                <span className="text-[10px] font-semibold text-muted-foreground uppercase">{t('app.home.yourImpact')}</span>
+              </div>
+              <div className="text-lg font-bold text-foreground">
+                {formatDistance(points?.total_distance_meters || 0)}
+              </div>
+            </div>
+
+            {/* Boost Card */}
+            <div 
+              className="rounded-xl bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] p-3 cursor-pointer active:scale-[0.98] transition-transform"
+              onClick={() => { lightTap(); navigate('/app/profile?tab=earn'); }}
+            >
+              <div className="flex items-center gap-1.5 mb-2">
+                <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-violet-500/20 to-violet-500/5 flex items-center justify-center">
+                  <Gift className="w-3 h-3 text-violet-400" />
+                </div>
+                <span className="text-[10px] font-semibold text-muted-foreground uppercase">{t('app.home.tip')}</span>
+              </div>
+              <div className="text-sm font-semibold text-foreground">{t('app.home.earnMore')}</div>
+            </div>
+          </div>
+
+          {/* STREAK BADGE (inline, small) */}
+          {user && streakDays >= 1 && (
+            <button 
+              onClick={() => setShowStreakCalendar(true)}
+              className="flex items-center gap-2 px-3 py-2 rounded-xl bg-gradient-to-r from-orange-500/10 to-amber-500/10 border border-orange-500/20 active:scale-[0.98] transition-transform w-full"
+            >
+              <Flame className="w-4 h-4 text-orange-500" />
+              <span className="text-sm font-semibold text-foreground flex-1 text-left">{streakDays} Day Streak</span>
+              <span className="text-xs text-orange-400">{streakMultiplier}x bonus</span>
+              <Calendar className="w-4 h-4 text-muted-foreground" />
+            </button>
+          )}
+
+          {/* ACHIEVEMENTS ROW - compact */}
+          {user && achievements.length > 0 && (
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-1.5">
+                  <Trophy className="w-3.5 h-3.5 text-primary" />
+                  <span className="text-xs font-semibold text-foreground">Achievements</span>
+                  <span className="text-[10px] text-muted-foreground">({unlockedCount}/{totalCount})</span>
+                </div>
+                <button 
+                  onClick={() => handleNavigation('/app/achievements')}
+                  className="text-[10px] text-primary active:scale-95"
+                >
+                  View All →
+                </button>
+              </div>
+              
+              <div 
+                className="flex gap-1 overflow-x-auto pb-1 scrollbar-hide cursor-pointer"
+                onClick={() => handleNavigation('/app/achievements')}
+              >
+                {achievements.slice(0, 5).map((achievement) => (
+                  <AchievementBadge 
+                    key={achievement.id} 
+                    achievement={achievement} 
+                    size="sm"
+                    showProgress={false}
+                  />
+                ))}
+                {achievements.length > 5 && (
+                  <div className="flex items-center justify-center w-10 h-10 rounded-full bg-white/[0.05] border border-white/10 text-muted-foreground flex-shrink-0">
+                    <span className="text-[10px] font-medium">+{achievements.length - 5}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* CHALLENGES SECTION - only 1 card shown */}
+          {user && (
             <SectionErrorBoundary fallbackTitle="Challenges unavailable">
               <ChallengesSection 
                 compact={true} 
                 onViewAll={() => handleNavigation('/app/challenges')}
               />
             </SectionErrorBoundary>
-          </div>
-        )}
+          )}
 
-        {/* LEADERBOARD SECTION */}
-        {user && (
+          {/* MAP PREVIEW CARD - smaller */}
           <div 
-            className="animate-fade-in"
-            style={{ animationDelay: '450ms' }}
+            className="relative rounded-xl overflow-hidden cursor-pointer active:scale-[0.98] transition-all group border border-white/[0.08]"
+            onClick={() => handleNavigation('/app/map')}
           >
-            <SectionErrorBoundary fallbackTitle="Leaderboard unavailable">
-              <LeaderboardSection 
-                compact={true}
-                onViewAll={() => handleNavigation('/app/leaderboard')}
-              />
-            </SectionErrorBoundary>
-          </div>
-        )}
-
-        {/* MAP PREVIEW CARD */}
-        <div 
-          className="relative rounded-2xl overflow-hidden cursor-pointer active:scale-[0.98] transition-all duration-300 group animate-fade-in border border-white/[0.08]"
-          style={{ animationDelay: '500ms' }}
-          onClick={() => handleNavigation('/app/map')}
-        >
-          {/* Map preview as background */}
-          <MiniContributionMap 
-            className="w-full h-32"
-            contributionPoints={points?.total_points || 0}
-            dataPointsCount={dataPointsCount}
-          />
-          
-          {/* Content overlay */}
-          <div className="absolute inset-0 flex items-end">
-            <div className="w-full p-4 bg-gradient-to-t from-background via-background/90 to-transparent">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="flex items-center gap-2 mb-0.5">
-                    <MapPin className="w-4 h-4 text-neon-cyan" />
-                    <span className="text-sm font-semibold text-foreground">Your Coverage Map</span>
+            <MiniContributionMap 
+              className="w-full h-20"
+              contributionPoints={points?.total_points || 0}
+              dataPointsCount={dataPointsCount}
+            />
+            
+            <div className="absolute inset-0 flex items-end">
+              <div className="w-full px-3 py-2 bg-gradient-to-t from-background via-background/90 to-transparent">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <MapPin className="w-3 h-3 text-neon-cyan" />
+                    <span className="text-xs font-semibold text-foreground">Coverage Map</span>
+                    <span className="text-[10px] text-muted-foreground">
+                      {dataPointsCount > 0 ? `${dataPointsCount.toLocaleString()} pts` : ''}
+                    </span>
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    {dataPointsCount > 0 
-                      ? `${dataPointsCount.toLocaleString()} recent data points collected`
-                      : 'Start contributing to see your coverage'
-                    }
-                  </p>
-                </div>
-                <div className="flex items-center gap-1 text-xs text-neon-cyan font-medium">
-                  <span>View</span>
-                  <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  <ChevronRight className="w-4 h-4 text-neon-cyan group-hover:translate-x-1 transition-transform" />
                 </div>
               </div>
             </div>
           </div>
+
+          {/* Milestone Popup */}
+          <MilestonePopup 
+            show={!!recentUnlock} 
+            achievement={recentUnlock} 
+            onClose={clearRecentUnlock} 
+          />
+
+          {/* Auth CTA for non-logged-in users */}
+          {!user && !loading && (
+            <div className="rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 p-4">
+              <div className="text-center">
+                <h3 className="text-base font-bold text-foreground mb-1">Join the Network</h3>
+                <p className="text-xs text-muted-foreground mb-3">
+                  Sign up to start earning rewards
+                </p>
+                <button
+                  onClick={() => navigate('/auth')}
+                  className="px-4 py-2 rounded-xl bg-primary text-primary-foreground font-semibold text-sm active:scale-[0.98] transition-all"
+                >
+                  Get Started
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Milestone Popup */}
-        <MilestonePopup 
-          show={!!recentUnlock} 
-          achievement={recentUnlock} 
-          onClose={clearRecentUnlock} 
-        />
-
-        {/* Auth CTA for non-logged-in users */}
-        {!user && !loading && (
-          <div 
-            className="rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 p-5 animate-fade-in"
-            style={{ animationDelay: '400ms' }}
-          >
-            <div className="text-center">
-              <h3 className="text-lg font-bold text-foreground mb-2">Join the Network</h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Sign up to start earning rewards for your contributions
-              </p>
-              <button
-                onClick={() => navigate('/auth')}
-                className="px-6 py-3 rounded-xl bg-primary text-primary-foreground font-semibold hover:bg-primary/90 active:scale-[0.98] transition-all"
-              >
-                Get Started
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* CSS Animations */}
-      <style>{`
-        @keyframes shimmer {
-          0%, 100% { background-position: 200% 0; }
-          50% { background-position: -200% 0; }
-        }
-        
-        @keyframes gentle-pulse {
-          0%, 100% { 
-            box-shadow: 0 10px 25px -5px hsl(var(--neon-cyan) / 0.3);
+        {/* CSS Animations */}
+        <style>{`
+          @keyframes shimmer {
+            0%, 100% { background-position: 200% 0; }
+            50% { background-position: -200% 0; }
           }
-          50% { 
-            box-shadow: 0 10px 35px -5px hsl(var(--neon-cyan) / 0.5);
+          
+          .scrollbar-hide::-webkit-scrollbar {
+            display: none;
           }
-        }
-        
-        .scrollbar-hide::-webkit-scrollbar {
-          display: none;
-        }
-        .scrollbar-hide {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-      `}</style>
+          .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+          }
+        `}</style>
       </div>
 
       {/* Floating Quick Earn Button */}
@@ -757,7 +650,7 @@ export const AppHome: React.FC = () => {
         )}
       </AnimatePresence>
 
-      {/* Social Proof Toast */}
+      {/* Social Proof Toast - only toast, no inline card */}
       <SocialProofToast />
     </>
   );

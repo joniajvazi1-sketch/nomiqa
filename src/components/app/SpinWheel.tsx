@@ -14,12 +14,12 @@ interface SpinWheelProps {
 }
 
 const PRIZES = [
-  { type: 'points', value: 5, label: '5 pts', color: 'from-blue-500 to-cyan-500', weight: 30 },
-  { type: 'points', value: 10, label: '10 pts', color: 'from-green-500 to-emerald-500', weight: 25 },
-  { type: 'points', value: 15, label: '15 pts', color: 'from-yellow-500 to-amber-500', weight: 20 },
-  { type: 'points', value: 25, label: '25 pts', color: 'from-orange-500 to-red-500', weight: 12 },
-  { type: 'points', value: 50, label: '50 pts', color: 'from-purple-500 to-violet-500', weight: 8 },
-  { type: 'jackpot', value: 100, label: '100 pts!', color: 'from-pink-500 to-rose-500', weight: 5 },
+  { type: 'points', value: 5, label: '5', color: 'from-blue-500 to-cyan-500', weight: 30 },
+  { type: 'points', value: 10, label: '10', color: 'from-green-500 to-emerald-500', weight: 25 },
+  { type: 'points', value: 15, label: '15', color: 'from-yellow-500 to-amber-500', weight: 20 },
+  { type: 'points', value: 25, label: '25', color: 'from-orange-500 to-red-500', weight: 12 },
+  { type: 'points', value: 50, label: '50', color: 'from-purple-500 to-violet-500', weight: 8 },
+  { type: 'jackpot', value: 100, label: '100', color: 'from-pink-500 to-rose-500', weight: 5 },
 ];
 
 const SEGMENT_ANGLE = 360 / PRIZES.length;
@@ -54,9 +54,8 @@ export const SpinWheel = ({ userId, onClose, onPrizeWon }: SpinWheelProps) => {
     const { prize, index } = getRandomPrize();
     
     // Calculate rotation to land on prize
-    // Each segment is SEGMENT_ANGLE degrees, we want to land in the middle of the segment
     const targetAngle = 360 - (index * SEGMENT_ANGLE + SEGMENT_ANGLE / 2);
-    const spins = 5 + Math.random() * 3; // 5-8 full rotations
+    const spins = 5 + Math.random() * 3;
     const finalRotation = rotation + (spins * 360) + targetAngle;
     
     setRotation(finalRotation);
@@ -78,7 +77,6 @@ export const SpinWheel = ({ userId, onClose, onPrizeWon }: SpinWheelProps) => {
       try {
         const today = new Date().toISOString().split('T')[0];
         
-        // Insert spin result
         await supabase
           .from('spin_wheel_results')
           .insert({
@@ -89,7 +87,6 @@ export const SpinWheel = ({ userId, onClose, onPrizeWon }: SpinWheelProps) => {
             claimed: true,
           });
 
-        // Update user points
         const { data: userPoints } = await supabase
           .from('user_points')
           .select('total_points, pending_points')
@@ -128,30 +125,30 @@ export const SpinWheel = ({ userId, onClose, onPrizeWon }: SpinWheelProps) => {
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.8, opacity: 0 }}
         onClick={(e) => e.stopPropagation()}
-        className="relative bg-card rounded-3xl p-6 shadow-2xl border border-border max-w-sm w-full"
+        className="relative bg-card rounded-2xl p-4 shadow-2xl border border-border max-w-[280px] w-full max-h-[85vh] overflow-hidden"
       >
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-full hover:bg-muted z-10"
+          className="absolute top-3 right-3 p-1.5 rounded-full hover:bg-muted z-10"
         >
-          <X className="w-5 h-5" />
+          <X className="w-4 h-4" />
         </button>
 
-        {/* Title */}
-        <div className="text-center mb-6">
-          <h2 className="text-2xl font-bold text-foreground flex items-center justify-center gap-2">
-            <Sparkles className="w-6 h-6 text-amber-500" />
+        {/* Title - compact */}
+        <div className="text-center mb-4">
+          <h2 className="text-lg font-bold text-foreground flex items-center justify-center gap-1.5">
+            <Sparkles className="w-5 h-5 text-amber-500" />
             Daily Spin
           </h2>
-          <p className="text-sm text-muted-foreground">Spin to win bonus points!</p>
+          <p className="text-[10px] text-muted-foreground">Spin to win bonus points!</p>
         </div>
 
-        {/* Wheel container */}
-        <div className="relative w-64 h-64 mx-auto mb-6">
+        {/* Wheel container - smaller */}
+        <div className="relative w-48 h-48 mx-auto mb-4">
           {/* Pointer */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-2 z-10">
-            <div className="w-0 h-0 border-l-[12px] border-r-[12px] border-t-[20px] border-l-transparent border-r-transparent border-t-primary drop-shadow-lg" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1 z-10">
+            <div className="w-0 h-0 border-l-[10px] border-r-[10px] border-t-[16px] border-l-transparent border-r-transparent border-t-primary drop-shadow-lg" />
           </div>
 
           {/* Wheel */}
@@ -175,9 +172,9 @@ export const SpinWheel = ({ userId, onClose, onPrizeWon }: SpinWheelProps) => {
                 }}
               >
                 <div
-                  className="absolute text-white text-xs font-bold"
+                  className="absolute text-white text-[10px] font-bold"
                   style={{
-                    top: '25%',
+                    top: '22%',
                     left: '50%',
                     transform: `translateX(-50%) rotate(${SEGMENT_ANGLE / 2}deg)`,
                   }}
@@ -188,8 +185,8 @@ export const SpinWheel = ({ userId, onClose, onPrizeWon }: SpinWheelProps) => {
             ))}
             
             {/* Center circle */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-card border-4 border-white/30 flex items-center justify-center shadow-lg">
-              <Gift className="w-5 h-5 text-primary" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-card border-4 border-white/30 flex items-center justify-center shadow-lg">
+              <Gift className="w-4 h-4 text-primary" />
             </div>
           </motion.div>
         </div>
@@ -199,25 +196,25 @@ export const SpinWheel = ({ userId, onClose, onPrizeWon }: SpinWheelProps) => {
           {showResult && wonPrize ? (
             <motion.div
               key="result"
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
+              exit={{ opacity: 0, y: -10 }}
               className="text-center"
             >
               <div className={cn(
-                "inline-flex items-center gap-2 px-6 py-3 rounded-2xl font-bold text-white mb-4",
+                "inline-flex items-center gap-1.5 px-4 py-2 rounded-xl font-bold text-sm text-white mb-3",
                 `bg-gradient-to-r ${wonPrize.color}`
               )}>
                 {wonPrize.type === 'jackpot' ? (
-                  <Star className="w-5 h-5" />
+                  <Star className="w-4 h-4" />
                 ) : (
-                  <Zap className="w-5 h-5" />
+                  <Zap className="w-4 h-4" />
                 )}
-                You won {wonPrize.label}!
+                You won {wonPrize.label} pts!
               </div>
               <button
                 onClick={onClose}
-                className="block w-full py-3 rounded-2xl bg-primary text-primary-foreground font-semibold"
+                className="block w-full py-2.5 rounded-xl bg-primary text-primary-foreground font-semibold text-sm"
               >
                 Awesome!
               </button>
@@ -225,16 +222,16 @@ export const SpinWheel = ({ userId, onClose, onPrizeWon }: SpinWheelProps) => {
           ) : (
             <motion.button
               key="spin"
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
+              exit={{ opacity: 0, y: -10 }}
               onClick={handleSpin}
               disabled={isSpinning}
               className={cn(
-                "w-full py-4 rounded-2xl font-bold text-lg transition-all",
+                "w-full py-3 rounded-xl font-bold text-base transition-all",
                 isSpinning
                   ? "bg-muted text-muted-foreground"
-                  : "bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:shadow-lg hover:shadow-orange-500/30"
+                  : "bg-gradient-to-r from-amber-500 to-orange-500 text-white"
               )}
             >
               {isSpinning ? (
@@ -242,7 +239,7 @@ export const SpinWheel = ({ userId, onClose, onPrizeWon }: SpinWheelProps) => {
                   <motion.div
                     animate={{ rotate: 360 }}
                     transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                    className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full"
+                    className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
                   />
                   Spinning...
                 </span>

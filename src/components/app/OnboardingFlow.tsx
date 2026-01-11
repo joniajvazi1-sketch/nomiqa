@@ -6,10 +6,7 @@ import {
   ShoppingBag, 
   Gift, 
   Sparkles,
-  ChevronRight,
-  MapPin,
-  Zap,
-  Globe
+  ChevronRight
 } from 'lucide-react';
 import { useHaptics } from '@/hooks/useHaptics';
 import { useTranslation } from '@/contexts/TranslationContext';
@@ -119,7 +116,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
       exit={{ opacity: 0 }}
       className="fixed inset-0 z-[100] bg-background"
     >
-      {/* Background gradient effects */}
+      {/* Background gradient effects - smaller */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <motion.div
           key={currentIndex}
@@ -127,18 +124,18 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
           className={cn(
-            "absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full",
+            "absolute top-0 left-1/2 -translate-x-1/2 w-[400px] h-[400px] rounded-full",
             `bg-gradient-to-b ${slides[currentIndex].gradient}`
           )}
-          style={{ filter: 'blur(100px)' }}
+          style={{ filter: 'blur(80px)' }}
         />
       </div>
 
       {/* Skip button */}
-      <div className="absolute top-0 left-0 right-0 z-10 px-6 pt-14">
+      <div className="absolute top-0 left-0 right-0 z-10 px-4 pt-12">
         <button
           onClick={handleSkip}
-          className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          className="text-xs text-muted-foreground hover:text-foreground transition-colors"
         >
           {t('app.onboarding.skip')}
         </button>
@@ -156,9 +153,9 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
               return (
                 <div 
                   key={slide.id} 
-                  className="flex-[0_0_100%] min-w-0 flex flex-col items-center justify-center px-8"
+                  className="flex-[0_0_100%] min-w-0 flex flex-col items-center justify-center px-6"
                 >
-                  {/* Animated Icon */}
+                  {/* Animated Icon - smaller */}
                   <motion.div
                     initial={{ scale: 0, rotate: -180 }}
                     animate={{ 
@@ -172,44 +169,44 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
                       damping: 20,
                       delay: currentIndex === index ? 0.1 : 0
                     }}
-                    className="relative mb-8"
+                    className="relative mb-6"
                   >
                     {/* Glow ring */}
                     <div 
                       className={cn(
-                        "absolute inset-0 rounded-full blur-2xl opacity-50",
+                        "absolute inset-0 rounded-full blur-xl opacity-50",
                         slide.accentColor.replace('text-', 'bg-')
                       )}
-                      style={{ transform: 'scale(1.5)' }}
+                      style={{ transform: 'scale(1.3)' }}
                     />
                     
-                    {/* Icon container */}
+                    {/* Icon container - smaller */}
                     <div className={cn(
-                      "relative w-32 h-32 rounded-[32px] flex items-center justify-center",
+                      "relative w-20 h-20 rounded-2xl flex items-center justify-center",
                       "bg-white/[0.05] backdrop-blur-xl border border-white/[0.1]",
-                      "shadow-2xl"
+                      "shadow-xl"
                     )}>
-                      <Icon className={cn("w-16 h-16", slide.accentColor)} strokeWidth={1.5} />
+                      <Icon className={cn("w-10 h-10", slide.accentColor)} strokeWidth={1.5} />
                     </div>
 
-                    {/* Floating particles */}
+                    {/* Floating particles - fewer */}
                     {currentIndex === index && (
                       <>
-                        {[...Array(4)].map((_, i) => (
+                        {[...Array(3)].map((_, i) => (
                           <motion.div
                             key={i}
-                            className={cn("absolute w-2 h-2 rounded-full", slide.accentColor.replace('text-', 'bg-'))}
+                            className={cn("absolute w-1.5 h-1.5 rounded-full", slide.accentColor.replace('text-', 'bg-'))}
                             initial={{ opacity: 0, scale: 0 }}
                             animate={{
                               opacity: [0, 1, 0],
                               scale: [0, 1, 0],
-                              x: [0, (i % 2 === 0 ? 1 : -1) * (40 + i * 10)],
-                              y: [0, -30 - i * 15]
+                              x: [0, (i % 2 === 0 ? 1 : -1) * (30 + i * 8)],
+                              y: [0, -25 - i * 10]
                             }}
                             transition={{
                               duration: 2,
                               repeat: Infinity,
-                              delay: i * 0.3,
+                              delay: i * 0.4,
                               ease: 'easeOut'
                             }}
                             style={{ left: '50%', top: '50%' }}
@@ -219,7 +216,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
                     )}
                   </motion.div>
 
-                  {/* Text content */}
+                  {/* Text content - smaller */}
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ 
@@ -227,12 +224,12 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
                       y: currentIndex === index ? 0 : 20
                     }}
                     transition={{ delay: 0.2, duration: 0.4 }}
-                    className="text-center max-w-[300px]"
+                    className="text-center max-w-[260px]"
                   >
-                    <h2 className="text-3xl font-bold text-foreground mb-4 leading-tight">
+                    <h2 className="text-2xl font-bold text-foreground mb-3 leading-tight">
                       {t(slide.titleKey)}
                     </h2>
-                    <p className="text-base text-muted-foreground leading-relaxed">
+                    <p className="text-sm text-muted-foreground leading-relaxed">
                       {t(slide.descriptionKey)}
                     </p>
                   </motion.div>
@@ -242,46 +239,46 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
           </div>
         </div>
 
-        {/* Bottom controls */}
-        <div className="px-8 pb-8 space-y-6">
+        {/* Bottom controls - more compact */}
+        <div className="px-6 pb-6 space-y-4">
           {/* Pagination dots */}
-          <div className="flex items-center justify-center gap-2">
+          <div className="flex items-center justify-center gap-1.5">
             {slides.map((_, index) => (
               <button
                 key={index}
                 onClick={() => { lightTap(); scrollTo(index); }}
                 className={cn(
-                  "h-2 rounded-full transition-all duration-300",
+                  "h-1.5 rounded-full transition-all duration-300",
                   currentIndex === index 
-                    ? "w-8 bg-primary" 
-                    : "w-2 bg-white/20 hover:bg-white/30"
+                    ? "w-6 bg-primary" 
+                    : "w-1.5 bg-white/20 hover:bg-white/30"
                 )}
               />
             ))}
           </div>
 
-          {/* Action button */}
+          {/* Action button - smaller */}
           <motion.button
             onClick={handleNext}
             whileTap={{ scale: 0.97 }}
             className={cn(
-              "w-full h-14 rounded-2xl font-bold text-lg",
+              "w-full h-12 rounded-xl font-bold text-base",
               "flex items-center justify-center gap-2",
               "transition-all duration-300",
               isLastSlide 
                 ? "bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-lg shadow-primary/30"
-                : "bg-white/[0.08] backdrop-blur-xl border border-white/[0.1] text-foreground hover:bg-white/[0.12]"
+                : "bg-white/[0.08] backdrop-blur-xl border border-white/[0.1] text-foreground"
             )}
           >
             {isLastSlide ? (
               <>
                 {t('app.onboarding.getStarted')}
-                <Sparkles className="w-5 h-5" />
+                <Sparkles className="w-4 h-4" />
               </>
             ) : (
               <>
                 {t('app.onboarding.next')}
-                <ChevronRight className="w-5 h-5" />
+                <ChevronRight className="w-4 h-4" />
               </>
             )}
           </motion.button>
