@@ -13,6 +13,7 @@ import {
 import { cn } from '@/lib/utils';
 import { useLeaderboard } from '@/hooks/useLeaderboard';
 import { useHaptics } from '@/hooks/useHaptics';
+import { RankChangeIndicator } from '@/components/app/RankChangeIndicator';
 
 interface LeaderboardSectionProps {
   compact?: boolean;
@@ -280,8 +281,14 @@ export const LeaderboardSection: React.FC<LeaderboardSectionProps> = ({
 
                 {/* User info */}
                 <div className="flex-1 min-w-0">
-                  <div className="font-medium text-foreground truncate">
-                    {anonymizeUsername(entry.username, entry.user_id)}
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium text-foreground truncate">
+                      {anonymizeUsername(entry.username, entry.user_id)}
+                    </span>
+                    {/* Rank change indicator */}
+                    {entry.rank_change !== 0 && (
+                      <RankChangeIndicator change={entry.rank_change} size="sm" />
+                    )}
                   </div>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <MapPin className="w-3 h-3" />

@@ -11,6 +11,7 @@ interface LeaderboardEntry {
   rank_all_time: number | null;
   rank_weekly: number | null;
   rank_monthly: number | null;
+  rank_change: number; // positive = moved up, negative = moved down
 }
 
 interface UserRank {
@@ -99,6 +100,18 @@ export const useLeaderboard = (): UseLeaderboardReturn => {
         monthlyPointsMap.set(s.user_id, current + (s.total_points_earned || 0));
       });
 
+      // Get cached ranks for comparison (to calculate rank changes)
+      const { data: cachedData } = await supabase
+        .from('leaderboard_cache')
+        .select('user_id, rank_all_time, rank_weekly, rank_monthly')
+        .in('user_id', userIds);
+      
+      const cachedRanksMap = new Map(cachedData?.map(c => [c.user_id, {
+        rank_all_time: c.rank_all_time,
+        rank_weekly: c.rank_weekly,
+        rank_monthly: c.rank_monthly
+      }]) || []);
+
       // Build entries with accurate data
       const entriesData: LeaderboardEntry[] = (pointsData || []).map((entry, index) => ({
         user_id: entry.user_id,
@@ -109,7 +122,8 @@ export const useLeaderboard = (): UseLeaderboardReturn => {
         total_distance_meters: entry.total_distance_meters || 0,
         rank_all_time: index + 1,
         rank_weekly: null, // Will be calculated below
-        rank_monthly: null // Will be calculated below
+        rank_monthly: null, // Will be calculated below
+        rank_change: 0 // Will be calculated after sorting
       }));
 
       // Calculate weekly and monthly ranks
@@ -123,6 +137,25 @@ export const useLeaderboard = (): UseLeaderboardReturn => {
       sortedByMonthly.forEach((entry, index) => {
         const original = entriesData.find(e => e.user_id === entry.user_id);
         if (original) original.rank_monthly = index + 1;
+      });
+
+      // Calculate rank changes based on cached ranks
+      entriesData.forEach(entry => {
+        const cached = cachedRanksMap.get(entry.user_id);
+        if (cached) {
+          // Get the relevant old and new ranks based on period
+          const oldRank = period === 'weekly' ? cached.rank_weekly :
+                         period === 'monthly' ? cached.rank_monthly :
+                         cached.rank_all_time;
+          const newRank = period === 'weekly' ? entry.rank_weekly :
+                         period === 'monthly' ? entry.rank_monthly :
+                         entry.rank_all_time;
+          
+          if (oldRank && newRank) {
+            // Positive change means moved UP (lower rank number is better)
+            entry.rank_change = oldRank - newRank;
+          }
+        }
       });
 
       // Sort by selected period
