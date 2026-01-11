@@ -15,7 +15,6 @@ const FeaturedProducts = lazy(() => import("@/components/FeaturedProducts").then
 const HowItWorksSteps = lazy(() => import("@/components/HowItWorksSteps").then(m => ({ default: m.HowItWorksSteps })));
 const ScrollableFeatures = lazy(() => import("@/components/ScrollableFeatures").then(m => ({ default: m.ScrollableFeatures })));
 const CoverageSection = lazy(() => import("@/components/CoverageSection").then(m => ({ default: m.CoverageSection })));
-const InviteReminderSection = lazy(() => import("@/components/InviteReminderSection").then(m => ({ default: m.InviteReminderSection })));
 const FAQ = lazy(() => import("@/components/FAQ").then(m => ({ default: m.FAQ })));
 const SiteNavigation = lazy(() => import("@/components/SiteNavigation").then(m => ({ default: m.SiteNavigation })));
 
@@ -56,7 +55,6 @@ const Index = () => {
       </Suspense>
       <Suspense fallback={<LoadingSpinner />}>
         <CoverageSection />
-        <InviteReminderSection />
         <FAQ />
         <SiteNavigation />
       </Suspense>

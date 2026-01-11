@@ -1,9 +1,10 @@
 import { Button } from "@/components/ui/button";
-import { Trophy, Users, Coins, Gift } from "lucide-react";
+import { Trophy, Users, Coins, Gift, Zap, Percent, TrendingUp, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "@/contexts/TranslationContext";
 import { localizedPath } from "@/utils/localizedLinks";
 import { useEffect, useRef, useState } from "react";
+import { Badge } from "@/components/ui/badge";
 
 // Use static path instead of importing large GIF to avoid bundling
 const tokenLogoUrl = "/nomiqa-token-logo.gif";
@@ -28,6 +29,7 @@ export const ScrollableFeatures = () => {
     return () => observer.disconnect();
   }, []);
 
+  // Main earning categories
   const features = [
     {
       icon: Trophy,
@@ -41,20 +43,6 @@ export const ScrollableFeatures = () => {
       ],
       cta: t("loyaltyViewRewards"),
       path: "/rewards",
-      showImage: false
-    },
-    {
-      icon: Users,
-      title: t("referEarnTitle"),
-      description: t("referEarnSubtitle"),
-      highlights: [
-        { text: t("affiliateCommissionDirect"), gradient: "from-neon-cyan to-neon-cyan", icon: Users },
-        { text: t("affiliateCommissionTier2"), gradient: "from-neon-violet to-neon-violet", icon: Users },
-        { text: t("affiliateCommissionTier3"), gradient: "from-neon-coral to-neon-coral", icon: Users },
-        { text: t("affiliateRealEarnings"), gradient: "from-warm-sand to-warm-sand", icon: Coins },
-      ],
-      cta: t("getStarted"),
-      path: "/affiliate",
       showImage: false
     },
     {
@@ -72,11 +60,48 @@ export const ScrollableFeatures = () => {
     },
   ];
 
+  // Referral program tiers - 3 ways to earn
+  const referralTiers = [
+    {
+      title: t("inviteRewardBoostTitle"),
+      description: t("inviteRewardBoostDesc"),
+      icon: Zap,
+      color: 'text-neon-cyan',
+      bg: 'bg-neon-cyan/20',
+      borderColor: 'border-neon-cyan/30',
+      highlight: t("inviteRewardBoostHighlight"),
+      detail: t("inviteRewardBoostDetail")
+    },
+    {
+      title: t("inviteSalesCommissionTitle"),
+      description: t("inviteSalesCommissionDesc"),
+      icon: Percent,
+      color: 'text-primary',
+      bg: 'bg-primary/20',
+      borderColor: 'border-primary/30',
+      highlight: t("inviteSalesCommissionHighlight"),
+      detail: t("inviteSalesCommissionDetail")
+    },
+    {
+      title: t("inviteNetworkEarningsTitle"),
+      description: t("inviteNetworkEarningsDesc"),
+      icon: TrendingUp,
+      color: 'text-green-500',
+      bg: 'bg-green-500/20',
+      borderColor: 'border-green-500/30',
+      highlight: t("inviteNetworkEarningsHighlight"),
+      detail: t("inviteNetworkEarningsDetail")
+    }
+  ];
+
   return (
     <section ref={sectionRef} className="py-16 md:py-20 lg:py-24 px-4 sm:px-6 bg-gradient-to-b from-black/40 via-deep-space/60 to-black/40 overflow-hidden">
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
         <div className={`text-center mb-12 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+          <Badge variant="outline" className="mb-4 border-neon-cyan/30 text-neon-cyan bg-neon-cyan/5">
+            💰 {t("earnRealCryptoBadge")}
+          </Badge>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-light mb-4 bg-gradient-to-r from-white via-white/95 to-white/90 bg-clip-text text-transparent">
             {t('earnMoreTitle')}
           </h2>
@@ -88,8 +113,75 @@ export const ScrollableFeatures = () => {
           </p>
         </div>
 
-        {/* Scrollable Cards Container */}
-        <div className={`transition-all duration-1000 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+        {/* Referral Program - 3 Ways to Earn */}
+        <div className={`mb-16 transition-all duration-1000 delay-100 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+          <div className="text-center mb-8">
+            <h3 className="text-2xl md:text-3xl font-light text-white mb-2">
+              {t("inviteTitle")} <span className="text-gradient-primary">{t("inviteTitleHighlight")}</span>
+            </h3>
+            <p className="text-white/60 text-sm md:text-base max-w-2xl mx-auto">
+              {t("inviteSubtitle")}
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-4 mb-8">
+            {referralTiers.map((tier, index) => {
+              const Icon = tier.icon;
+              return (
+                <div 
+                  key={tier.title}
+                  className={`relative overflow-hidden rounded-2xl border ${tier.borderColor} bg-white/[0.03] backdrop-blur-sm p-6 hover:bg-white/[0.06] transition-all duration-300 hover:scale-[1.02]`}
+                  style={{ animationDelay: `${index * 100}ms` }}
+                >
+                  <div className="flex items-start gap-4 mb-4">
+                    <div className={`p-3 rounded-xl ${tier.bg}`}>
+                      <Icon className={`w-6 h-6 ${tier.color}`} />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-white mb-1">{tier.title}</h4>
+                      <p className="text-xs text-white/60">{tier.description}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-white/[0.05] rounded-xl p-4 text-center">
+                    <p className={`text-2xl font-bold ${tier.color}`}>{tier.highlight}</p>
+                    <p className="text-xs text-white/50">{tier.detail}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          
+          {/* Referral CTA */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <Button 
+              size="lg"
+              onClick={() => navigate(localizedPath('/affiliate', language))}
+              className="bg-gradient-to-r from-neon-cyan to-neon-violet hover:from-neon-cyan/90 hover:to-neon-violet/90 text-white font-semibold px-8 border-0"
+            >
+              <Users className="w-5 h-5 mr-2" />
+              {t("inviteStartButton")}
+            </Button>
+            <Button 
+              variant="outline"
+              size="lg"
+              onClick={() => navigate(localizedPath('/affiliate', language))}
+              className="border-white/20 hover:border-white/40 hover:bg-white/5"
+            >
+              {t("learnMore")}
+              <ChevronRight className="w-4 h-4 ml-1" />
+            </Button>
+          </div>
+        </div>
+
+        {/* Other Ways to Earn - Cashback & Token */}
+        <div className={`transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+          <div className="text-center mb-8">
+            <h3 className="text-xl md:text-2xl font-light text-white/80">
+              {t("moreWaysToEarn")}
+            </h3>
+          </div>
+          
           {/* Mobile: Scrollable | Desktop: Grid */}
           <div className="lg:hidden overflow-x-auto overflow-y-visible pb-6 -mx-4 px-4 md:-mx-6 md:px-6 scrollbar-glass">
             <div className="flex gap-6 min-w-min">
@@ -170,8 +262,8 @@ export const ScrollableFeatures = () => {
             </div>
           </div>
 
-          {/* Desktop: Grid Layout */}
-          <div className="hidden lg:grid lg:grid-cols-3 gap-5">
+          {/* Desktop: Grid Layout - 2 columns for remaining features */}
+          <div className="hidden lg:grid lg:grid-cols-2 gap-5 max-w-4xl mx-auto">
             {features.map((feature, index) => {
               const Icon = feature.icon;
               return (
@@ -254,7 +346,6 @@ export const ScrollableFeatures = () => {
               <span>Swipe to explore</span>
               <div className="flex gap-1">
                 <div className="w-1.5 h-1.5 rounded-full bg-white/40" />
-                <div className="w-1.5 h-1.5 rounded-full bg-white/20" />
                 <div className="w-1.5 h-1.5 rounded-full bg-white/20" />
               </div>
             </div>
