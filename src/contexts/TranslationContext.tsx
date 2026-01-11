@@ -98,6 +98,7 @@ const translations: Record<string, Partial<Record<Language | 'HI', string>>> = {
   appDataPointsSynced: { EN: "data points synced", ES: "puntos de datos sincronizados", FR: "points de données synchronisés", DE: "Datenpunkte synchronisiert", RU: "точек данных синхронизировано", ZH: "数据点已同步", JA: "データポイント同期済み", PT: "pontos de dados sincronizados", AR: "نقاط البيانات متزامنة", IT: "punti dati sincronizzati" },
   appTelcoDataCollection: { EN: "Telco Data Collection", ES: "Recopilación de datos de telecomunicaciones", FR: "Collecte de données télécom", DE: "Telekommunikationsdatenerfassung", RU: "Сбор телеком-данных", ZH: "电信数据收集", JA: "通信データ収集", PT: "Coleta de dados de telecomunicações", AR: "جمع بيانات الاتصالات", IT: "Raccolta dati telecomunicazioni" },
   // ========== APP - Achievements/Challenges ==========
+  appOf: { EN: "of", ES: "de", FR: "sur", DE: "von", RU: "из", ZH: "共", JA: "/", PT: "de", AR: "من", IT: "di" },
   appLocked: { EN: "Locked", ES: "Bloqueado", FR: "Verrouillé", DE: "Gesperrt", RU: "Заблокировано", ZH: "已锁定", JA: "ロック中", PT: "Bloqueado", AR: "مقفل", IT: "Bloccato" },
   appContributions: { EN: "Contributions", ES: "Contribuciones", FR: "Contributions", DE: "Beiträge", RU: "Вклады", ZH: "贡献", JA: "貢献", PT: "Contribuições", AR: "المساهمات", IT: "Contributi" },
   appStreaks: { EN: "Streaks", ES: "Rachas", FR: "Séries", DE: "Serien", RU: "Серии", ZH: "连续", JA: "ストリーク", PT: "Sequências", AR: "السلسلات", IT: "Serie" },
