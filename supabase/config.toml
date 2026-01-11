@@ -101,3 +101,6 @@ verify_jwt = false
 
 [functions.get-affiliate-referrals]
 verify_jwt = true
+
+[functions.sync-affiliate-stats]
+verify_jwt = false
