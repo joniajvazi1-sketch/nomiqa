@@ -18,7 +18,22 @@ export const FAQ = memo(({ showAll = false }: FAQProps) => {
   const { t, language } = useTranslation();
   const navigate = useNavigate();
   
+  // Reordered: 3 DePIN FAQs first, then 2 eSIM FAQs for homepage display
   const faqs = useMemo(() => [
+    // DePIN FAQs (first 3 shown on homepage)
+    {
+      question: t("faq11Q"),
+      answer: t("faq11A")
+    },
+    {
+      question: t("faq12Q"),
+      answer: t("faq12A")
+    },
+    {
+      question: t("faq13Q"),
+      answer: t("faq13A")
+    },
+    // eSIM FAQs (2 shown on homepage, rest on Help page)
     {
       question: t("faq1Q"),
       answer: t("faq1A")
@@ -58,18 +73,6 @@ export const FAQ = memo(({ showAll = false }: FAQProps) => {
     {
       question: t("faq10Q"),
       answer: t("faq10A")
-    },
-    {
-      question: t("faq11Q"),
-      answer: t("faq11A")
-    },
-    {
-      question: t("faq12Q"),
-      answer: t("faq12A")
-    },
-    {
-      question: t("faq13Q"),
-      answer: t("faq13A")
     }
   ], [t]);
 
