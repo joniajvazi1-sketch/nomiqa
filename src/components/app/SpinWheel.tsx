@@ -125,7 +125,7 @@ export const SpinWheel = ({ userId, onClose, onPrizeWon }: SpinWheelProps) => {
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.8, opacity: 0 }}
         onClick={(e) => e.stopPropagation()}
-        className="relative bg-card rounded-2xl p-4 shadow-2xl border border-border max-w-[280px] w-full max-h-[85vh] overflow-hidden"
+        className="relative bg-card rounded-2xl p-4 shadow-2xl border border-border max-w-[280px] w-full max-h-[75vh] overflow-hidden"
       >
         {/* Close button */}
         <button

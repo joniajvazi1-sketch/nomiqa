@@ -155,7 +155,7 @@ export const DailyCheckIn = ({ userId, onClose }: DailyCheckInProps) => {
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
           onClick={(e) => e.stopPropagation()}
-          className="relative w-full max-w-xs bg-card rounded-2xl p-4 shadow-2xl border border-border overflow-hidden max-h-[80vh]"
+          className="relative w-full max-w-xs bg-card rounded-2xl p-4 shadow-2xl border border-border overflow-hidden max-h-[75vh]"
         >
           {/* Background decoration */}
           <div className="absolute top-0 left-0 right-0 h-20 bg-gradient-to-b from-primary/20 to-transparent" />

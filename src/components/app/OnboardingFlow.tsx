@@ -163,7 +163,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
                       rotate: currentIndex === index ? 0 : -30,
                       opacity: currentIndex === index ? 1 : 0.5
                     }}
-                    transition={{ 
+                    transition={{
                       type: 'spring',
                       stiffness: 200,
                       damping: 20,
@@ -180,13 +180,13 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
                       style={{ transform: 'scale(1.3)' }}
                     />
                     
-                    {/* Icon container - smaller */}
+                    {/* Icon container - optimized for small screens */}
                     <div className={cn(
-                      "relative w-20 h-20 rounded-2xl flex items-center justify-center",
+                      "relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center",
                       "bg-white/[0.05] backdrop-blur-xl border border-white/[0.1]",
                       "shadow-xl"
                     )}>
-                      <Icon className={cn("w-10 h-10", slide.accentColor)} strokeWidth={1.5} />
+                      <Icon className={cn("w-8 h-8 sm:w-10 sm:h-10", slide.accentColor)} strokeWidth={1.5} />
                     </div>
 
                     {/* Floating particles - fewer */}
@@ -224,12 +224,12 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
                       y: currentIndex === index ? 0 : 20
                     }}
                     transition={{ delay: 0.2, duration: 0.4 }}
-                    className="text-center max-w-[260px]"
+                    className="text-center max-w-[280px] px-2"
                   >
-                    <h2 className="text-2xl font-bold text-foreground mb-3 leading-tight">
+                    <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2 sm:mb-3 leading-tight">
                       {t(slide.titleKey)}
                     </h2>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
+                    <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
                       {t(slide.descriptionKey)}
                     </p>
                   </motion.div>
@@ -240,7 +240,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
         </div>
 
         {/* Bottom controls - more compact */}
-        <div className="px-6 pb-6 space-y-4">
+        <div className="px-4 sm:px-6 pb-4 sm:pb-6 space-y-3 sm:space-y-4">
           {/* Pagination dots */}
           <div className="flex items-center justify-center gap-1.5">
             {slides.map((_, index) => (
@@ -260,6 +260,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
           {/* Action button - smaller */}
           <motion.button
             onClick={handleNext}
+            style={{ minHeight: '44px' }}
             whileTap={{ scale: 0.97 }}
             className={cn(
               "w-full h-12 rounded-xl font-bold text-base",
