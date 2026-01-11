@@ -1120,6 +1120,36 @@ export type Database = {
           },
         ]
       }
+      spin_wheel_results: {
+        Row: {
+          claimed: boolean | null
+          created_at: string | null
+          id: string
+          prize_type: string
+          prize_value: number
+          spin_date: string
+          user_id: string
+        }
+        Insert: {
+          claimed?: boolean | null
+          created_at?: string | null
+          id?: string
+          prize_type: string
+          prize_value: number
+          spin_date?: string
+          user_id: string
+        }
+        Update: {
+          claimed?: boolean | null
+          created_at?: string | null
+          id?: string
+          prize_type?: string
+          prize_value?: number
+          spin_date?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       token_waitlist: {
         Row: {
           created_at: string
@@ -1187,6 +1217,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_goals: {
+        Row: {
+          completed: boolean | null
+          created_at: string | null
+          current_points: number | null
+          goal_type: string
+          id: string
+          period_start: string
+          target_points: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean | null
+          created_at?: string | null
+          current_points?: number | null
+          goal_type: string
+          id?: string
+          period_start?: string
+          target_points?: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          completed?: boolean | null
+          created_at?: string | null
+          current_points?: number | null
+          goal_type?: string
+          id?: string
+          period_start?: string
+          target_points?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       user_points: {
         Row: {
