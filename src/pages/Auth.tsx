@@ -14,6 +14,7 @@ import nomiqaAnimatedLogo from "@/assets/nomiqa-animated-logo.gif";
 import { useAffiliateTracking } from "@/hooks/useAffiliateTracking";
 import { UsernameSelection } from "@/components/UsernameSelection";
 import { EmailVerification } from "@/components/EmailVerification";
+import { validateRedirectUrl } from "@/utils/secureRedirect";
 
 export default function Auth() {
   const navigate = useNavigate();
@@ -179,7 +180,7 @@ export default function Auth() {
         } else {
           // Existing user with proper profile - just redirect
           if (isNewSignIn) toast.success("Successfully signed in!");
-          const redirectUrl = searchParams.get("redirect") || "/";
+          const redirectUrl = validateRedirectUrl(searchParams.get("redirect"));
           navigate(redirectUrl);
         }
 
@@ -236,7 +237,7 @@ export default function Auth() {
   const handleUsernameComplete = () => {
     toast.success("Welcome to Nomiqa!");
     const params = new URLSearchParams(window.location.search);
-    const redirectUrl = params.get('redirect') || '/';
+    const redirectUrl = validateRedirectUrl(params.get('redirect'));
     navigate(redirectUrl);
   };
 
@@ -248,7 +249,7 @@ export default function Auth() {
     
     setLoading(true);
     try {
-      const redirect = searchParams.get("redirect") || "/";
+      const redirect = validateRedirectUrl(searchParams.get("redirect"));
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
