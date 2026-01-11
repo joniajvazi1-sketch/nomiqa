@@ -26,7 +26,8 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useProducts, Product } from '@/hooks/useProducts';
 import { useCart } from '@/hooks/useCart';
-import { useHaptics } from '@/hooks/useHaptics';
+import { useEnhancedHaptics } from '@/hooks/useEnhancedHaptics';
+import { useEnhancedSounds } from '@/hooks/useEnhancedSounds';
 import { useTranslation } from '@/contexts/TranslationContext';
 import { useDeviceCompatibility } from '@/hooks/useDeviceCompatibility';
 import { toast } from 'sonner';
@@ -34,6 +35,7 @@ import { cn } from '@/lib/utils';
 import { SkeletonProductCard } from '@/components/app/SkeletonProductCard';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from '@/components/app/PullToRefreshIndicator';
+import { AnimatedCard } from '@/components/app/PageTransition';
 import {
   Dialog,
   DialogContent,
@@ -64,7 +66,8 @@ export const AppShop: React.FC = () => {
   const navigate = useNavigate();
   const { data: products, isLoading, refetch } = useProducts();
   const { items, addItem } = useCart();
-  const { lightTap, success, error: hapticError } = useHaptics();
+  const { buttonTap, addToCartPattern, errorPattern, navigationTap, selectionTap } = useEnhancedHaptics();
+  const { playPop, playError, playSwoosh } = useEnhancedSounds();
   const { isCompatible, platform, isLoading: compatLoading } = useDeviceCompatibility();
   const { t } = useTranslation();
   
@@ -139,12 +142,13 @@ export const AppShop: React.FC = () => {
   const handleAddToCart = (product: Product, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
     
-    lightTap();
+    buttonTap();
     setAddingProductId(product.id);
     
     setTimeout(() => {
       addItem(product);
-      success();
+      addToCartPattern();
+      playPop();
       setAddingProductId(null);
       
       toast.success(`${product.country_name} eSIM`, {
@@ -154,32 +158,34 @@ export const AppShop: React.FC = () => {
   };
 
   const handleCartClick = () => {
-    lightTap();
+    buttonTap();
     if (cartItemCount === 0) {
-      hapticError();
+      errorPattern();
+      playError();
       setCartShaking(true);
       setTimeout(() => setCartShaking(false), 500);
       toast.error(t('app.shop.cartEmpty'), {
         description: t('app.shop.addPlansFirst')
       });
     } else {
+      playSwoosh();
       navigate('/checkout');
     }
   };
 
   const handleProductClick = (product: Product) => {
-    lightTap();
+    buttonTap();
     setSelectedProduct(product);
     setDetailModalOpen(true);
   };
 
   const handleLoadMore = () => {
-    lightTap();
+    buttonTap();
     setDisplayCount(prev => prev + 12);
   };
 
   const handleTabChange = (tab: CoverageTab) => {
-    lightTap();
+    selectionTap();
     setActiveTab(tab);
     setDisplayCount(12);
     setDataFilter('all');
@@ -351,7 +357,7 @@ export const AppShop: React.FC = () => {
           {dataFilters.map((filter) => (
             <button
               key={filter.key}
-              onClick={() => { lightTap(); setDataFilter(filter.key); }}
+              onClick={() => { selectionTap(); setDataFilter(filter.key); }}
               className={cn(
                 'flex-shrink-0 px-4 py-2 rounded-xl text-sm font-medium transition-all active:scale-95',
                 dataFilter === filter.key 

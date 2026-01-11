@@ -1,17 +1,20 @@
 import React, { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Trophy, Lock } from 'lucide-react';
-import { useHaptics } from '@/hooks/useHaptics';
+import { useEnhancedHaptics } from '@/hooks/useEnhancedHaptics';
+import { useEnhancedSounds } from '@/hooks/useEnhancedSounds';
 import { useAchievements } from '@/hooks/useAchievements';
 import { AchievementBadge, StreakBonus } from '@/components/app/AchievementSystem';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/contexts/TranslationContext';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from '@/components/app/PullToRefreshIndicator';
+import { AnimatedCard } from '@/components/app/PageTransition';
 
 export const AppAchievements: React.FC = () => {
   const navigate = useNavigate();
-  const { lightTap } = useHaptics();
+  const { buttonTap, navigationTap, achievementPattern } = useEnhancedHaptics();
+  const { playCelebration, playSwoosh } = useEnhancedSounds();
   const { t } = useTranslation();
   const { 
     achievements, 
@@ -62,7 +65,7 @@ export const AppAchievements: React.FC = () => {
       <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-white/[0.08] px-5 py-4">
         <div className="flex items-center gap-4">
           <button
-            onClick={() => { lightTap(); navigate(-1); }}
+            onClick={() => { navigationTap(); playSwoosh(); navigate(-1); }}
             className="w-10 h-10 rounded-full bg-white/[0.05] border border-white/[0.08] flex items-center justify-center hover:bg-white/[0.08] active:scale-95 transition-all"
           >
             <ArrowLeft className="w-5 h-5 text-foreground" />
@@ -124,28 +127,35 @@ export const AppAchievements: React.FC = () => {
                 {categoryLabels[category] || category}
               </h2>
               <div className="grid grid-cols-3 gap-3">
-                {items.map((achievement) => (
-                  <div 
-                    key={achievement.id}
-                    className={cn(
-                      "flex flex-col items-center p-3 rounded-2xl border transition-all",
-                      achievement.unlocked 
-                        ? "bg-white/[0.05] border-primary/20" 
-                        : "bg-white/[0.02] border-white/[0.05] opacity-60"
-                    )}
-                  >
-                    <AchievementBadge 
-                      achievement={achievement} 
-                      size="md"
-                      showProgress={!achievement.unlocked}
-                      showDetailsOnTap={true}
-                    />
-                    {!achievement.unlocked && achievement.progress !== undefined && (
-                      <span className="text-[10px] text-muted-foreground mt-1">
-                        {Math.round(achievement.progress)}%
-                      </span>
-                    )}
-                  </div>
+                {items.map((achievement, index) => (
+                  <AnimatedCard key={achievement.id} delay={index * 0.05}>
+                    <div 
+                      className={cn(
+                        "flex flex-col items-center p-3 rounded-2xl border transition-all",
+                        achievement.unlocked 
+                          ? "bg-white/[0.05] border-primary/20" 
+                          : "bg-white/[0.02] border-white/[0.05] opacity-60"
+                      )}
+                      onClick={() => {
+                        if (achievement.unlocked) {
+                          achievementPattern();
+                          playCelebration();
+                        }
+                      }}
+                    >
+                      <AchievementBadge 
+                        achievement={achievement} 
+                        size="md"
+                        showProgress={!achievement.unlocked}
+                        showDetailsOnTap={true}
+                      />
+                      {!achievement.unlocked && achievement.progress !== undefined && (
+                        <span className="text-[10px] text-muted-foreground mt-1">
+                          {Math.round(achievement.progress)}%
+                        </span>
+                      )}
+                    </div>
+                  </AnimatedCard>
                 ))}
               </div>
             </div>

@@ -10,7 +10,8 @@ import { toast } from "sonner";
 import { z } from "zod";
 import { useAffiliateTracking } from "@/hooks/useAffiliateTracking";
 import { useTranslation } from "@/contexts/TranslationContext";
-import { useHaptics } from "@/hooks/useHaptics";
+import { useEnhancedHaptics } from "@/hooks/useEnhancedHaptics";
+import { useEnhancedSounds } from "@/hooks/useEnhancedSounds";
 import { cn } from "@/lib/utils";
 
 const emailSchema = z.string().email("Please enter a valid email address");
@@ -20,7 +21,8 @@ export const AppCheckout = () => {
   const { items, removeItem, updateQuantity, clearCart, total } = useCartWithTotal();
   const { referralCode } = useAffiliateTracking();
   const { t, formatPrice } = useTranslation();
-  const { lightTap, success, error: hapticError } = useHaptics();
+  const { buttonTap, successPattern, errorPattern, navigationTap, selectionTap } = useEnhancedHaptics();
+  const { playSuccess, playError, playPop, playSwoosh } = useEnhancedSounds();
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -53,10 +55,11 @@ export const AppCheckout = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    lightTap();
+    buttonTap();
     
     if (!user) {
-      hapticError();
+      errorPattern();
+      playError();
       toast.error("Please log in to complete your purchase");
       navigate('/auth?redirect=/checkout');
       return;
@@ -64,19 +67,22 @@ export const AppCheckout = () => {
     
     const result = emailSchema.safeParse(email);
     if (!result.success) {
-      hapticError();
+      errorPattern();
+      playError();
       toast.error(result.error.errors[0].message);
       return;
     }
 
     if (!fullName || fullName.trim().length < 2) {
-      hapticError();
+      errorPattern();
+      playError();
       toast.error("Please enter your full name");
       return;
     }
 
     if (items.length === 0) {
-      hapticError();
+      errorPattern();
+      playError();
       toast.error("Your cart is empty");
       return;
     }
@@ -110,11 +116,13 @@ export const AppCheckout = () => {
       setCurrentOrderId(paylinkData.orderId);
       setPaylinkUrl(paylinkData.paylinkUrl);
       setShowPaymentModal(true);
-      success();
+      successPattern();
+      playSuccess();
       setIsSubmitting(false);
       
     } catch (error: any) {
-      hapticError();
+      errorPattern();
+      playError();
       toast.error(error.message || "Failed to create payment. Please try again.");
       setIsSubmitting(false);
     }
@@ -215,7 +223,7 @@ export const AppCheckout = () => {
           <h2 className="text-2xl font-bold mb-2 text-foreground">Cart is Empty</h2>
           <p className="text-muted-foreground mb-6">Add some eSIM plans to get started</p>
           <Button 
-            onClick={() => { lightTap(); navigate('/app/shop'); }}
+            onClick={() => { navigationTap(); playSwoosh(); navigate('/app/shop'); }}
             className="w-full h-14 rounded-2xl bg-gradient-to-r from-primary to-primary/80 shadow-lg shadow-primary/30 active:scale-[0.98]"
           >
             Browse Plans
@@ -249,7 +257,7 @@ export const AppCheckout = () => {
         {/* Header */}
         <header className="flex items-center gap-4">
           <button 
-            onClick={() => { lightTap(); navigate(-1); }}
+            onClick={() => { navigationTap(); navigate(-1); }}
             className="w-10 h-10 rounded-xl bg-white/[0.05] border border-white/[0.08] flex items-center justify-center active:scale-90 transition-transform"
           >
             <ArrowLeft className="w-5 h-5 text-foreground" />
@@ -290,21 +298,21 @@ export const AppCheckout = () => {
               <div className="flex items-center justify-between mt-4 pt-3 border-t border-white/[0.05]">
                 <div className="flex items-center gap-3">
                   <button
-                    onClick={() => { lightTap(); updateQuantity(item.product.id, item.quantity - 1); }}
+                    onClick={() => { selectionTap(); playPop(); updateQuantity(item.product.id, item.quantity - 1); }}
                     className="w-8 h-8 rounded-lg bg-white/[0.05] border border-white/[0.1] flex items-center justify-center active:scale-90 transition-transform"
                   >
                     <Minus className="w-4 h-4 text-muted-foreground" />
                   </button>
                   <span className="w-8 text-center font-medium text-foreground tabular-nums">{item.quantity}</span>
                   <button
-                    onClick={() => { lightTap(); updateQuantity(item.product.id, item.quantity + 1); }}
+                    onClick={() => { selectionTap(); playPop(); updateQuantity(item.product.id, item.quantity + 1); }}
                     className="w-8 h-8 rounded-lg bg-white/[0.05] border border-white/[0.1] flex items-center justify-center active:scale-90 transition-transform"
                   >
                     <Plus className="w-4 h-4 text-muted-foreground" />
                   </button>
                 </div>
                 <button
-                  onClick={() => { lightTap(); removeItem(item.product.id); }}
+                  onClick={() => { buttonTap(); removeItem(item.product.id); }}
                   className="p-2 rounded-lg text-muted-foreground hover:text-red-400 hover:bg-red-500/10 active:scale-90 transition-all"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -419,7 +427,8 @@ export const AppCheckout = () => {
             {paymentCompleted ? (
               <Button 
                 onClick={() => {
-                  lightTap();
+                  successPattern();
+                  playSuccess();
                   setShowPaymentModal(false);
                   navigate('/orders');
                 }}
@@ -432,7 +441,7 @@ export const AppCheckout = () => {
               <Button 
                 variant="outline"
                 onClick={() => {
-                  lightTap();
+                  buttonTap();
                   setShowPaymentModal(false);
                   navigate('/orders');
                 }}
