@@ -54,10 +54,9 @@ export default function About() {
   ];
 
   const stats = [
-    { value: "190+", label: t("aboutStatCountries") },
+    { value: "200+", label: t("aboutStatCountries") },
     { value: "100K+", label: t("aboutStatUsers") },
     { value: "24/7", label: t("aboutStatSupport") },
-    { value: "100%", label: t("aboutStatUptime") },
   ];
 
   const trustPoints = [
@@ -111,7 +110,7 @@ export default function About() {
         className="py-12 px-4 relative z-10"
       >
         <div className={`container max-w-5xl mx-auto transition-all duration-1000 ${visibleSections.has('stats') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+          <div className="grid grid-cols-3 gap-4 md:gap-6">
             {stats.map((stat, index) => (
               <div 
                 key={index}
@@ -160,7 +159,7 @@ export default function About() {
                   </div>
                   <div className="p-4 rounded-xl bg-accent/10 border border-accent/20 text-center">
                     <Database className="w-8 h-8 text-accent mx-auto mb-2" />
-                    <span className="text-sm text-white/80">{t("aboutMissionDecentralized")}</span>
+                    <span className="text-xs text-white/80">{t("aboutMissionDecentralized")}</span>
                   </div>
                   <div className="p-4 rounded-xl bg-neon-cyan/10 border border-neon-cyan/20 text-center">
                     <Shield className="w-8 h-8 text-neon-cyan mx-auto mb-2" />
