@@ -82,10 +82,10 @@ export const NotificationToggle: React.FC<NotificationToggleProps> = ({
       disabled={loading || isEnabled}
       className={cn(
         'w-full flex items-center gap-4 px-4 py-4 rounded-2xl transition-all',
-        'bg-gradient-to-r backdrop-blur-xl border',
+        'bg-gradient-to-r border',
         isEnabled 
           ? 'from-primary/20 to-primary/10 border-primary/30' 
-          : 'from-white/[0.03] to-white/[0.02] border-white/[0.08] hover:border-white/20'
+          : 'from-muted/50 to-muted/30 border-border hover:border-primary/20'
       )}
     >
       <div className={cn(

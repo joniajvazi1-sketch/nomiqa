@@ -64,9 +64,9 @@ export const RippleButton: React.FC<RippleButtonProps> = ({
   const baseStyles = 'relative overflow-hidden transition-all duration-300 active:scale-[0.97]';
   
   const variantStyles = {
-    primary: 'bg-gradient-to-r from-neon-cyan to-neon-cyan/80 text-background shadow-lg shadow-neon-cyan/30',
-    secondary: 'bg-white/[0.05] backdrop-blur-xl border border-white/[0.08] text-foreground hover:bg-white/[0.08]',
-    ghost: 'bg-transparent text-foreground hover:bg-white/[0.05]',
+    primary: 'bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-lg shadow-primary/30',
+    secondary: 'bg-card border border-border text-foreground hover:bg-muted',
+    ghost: 'bg-transparent text-foreground hover:bg-muted/50',
   };
 
   return (

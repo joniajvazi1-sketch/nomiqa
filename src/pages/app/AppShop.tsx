@@ -239,13 +239,13 @@ export const AppShop: React.FC = () => {
           height={size === 'sm' ? 56 : 64}
           loading="lazy"
           decoding="async"
-          className={cn(sizeClasses, 'object-cover border border-white/10 shadow-lg transition-transform group-hover:scale-105')}
+          className={cn(sizeClasses, 'object-cover border border-border shadow-lg transition-transform group-hover:scale-105')}
         />
       );
     }
     
     return (
-      <div className={cn(sizeClasses, 'bg-white/[0.05] border border-white/10 flex items-center justify-center transition-transform group-hover:scale-105')}>
+      <div className={cn(sizeClasses, 'bg-muted border border-border flex items-center justify-center transition-transform group-hover:scale-105')}>
         <Globe className={size === 'sm' ? 'w-7 h-7' : 'w-10 h-10'} style={{ color: 'hsl(var(--muted-foreground))' }} />
       </div>
     );
@@ -548,8 +548,8 @@ export const AppShop: React.FC = () => {
                   {/* Device Compatibility - Auto-detected */}
                   <div className="rounded-2xl overflow-hidden">
                     {compatLoading ? (
-                      <div className="flex items-center gap-3 p-4 bg-white/[0.03] border border-white/[0.08]">
-                        <div className="w-5 h-5 border-2 border-white/30 border-t-primary rounded-full animate-spin" />
+                      <div className="flex items-center gap-3 p-4 bg-muted/50 border border-border">
+                        <div className="w-5 h-5 border-2 border-muted-foreground/30 border-t-primary rounded-full animate-spin" />
                         <span className="text-sm text-muted-foreground">Checking device...</span>
                       </div>
                     ) : isCompatible === true ? (
@@ -587,14 +587,14 @@ export const AppShop: React.FC = () => {
 
                   {/* Data & Validity Cards */}
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.08]">
+                    <div className="p-4 rounded-2xl bg-card border border-border">
                       <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
                         <Wifi className="w-4 h-4 text-primary" />
                         Data
                       </div>
                       <span className="text-xl font-bold text-foreground">{selectedProduct.data_amount}</span>
                     </div>
-                    <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.08]">
+                    <div className="p-4 rounded-2xl bg-card border border-border">
                       <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
                         <Calendar className="w-4 h-4 text-primary" />
                         Validity
@@ -605,7 +605,7 @@ export const AppShop: React.FC = () => {
 
                   {/* Operator */}
                   {selectedProduct.operator_image_url && (
-                    <div className="p-3 rounded-2xl bg-white/[0.03] border border-white/[0.08] flex items-center gap-3">
+                    <div className="p-3 rounded-2xl bg-card border border-border flex items-center gap-3">
                       <img 
                         src={selectedProduct.operator_image_url} 
                         alt={selectedProduct.operator_name || 'Operator'} 
@@ -624,14 +624,14 @@ export const AppShop: React.FC = () => {
                   {/* Plan Features */}
                   <div className="space-y-2">
                     {selectedProduct.features?.coverage && (
-                      <div className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/[0.05]">
+                      <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/30 border border-border/50">
                         <Globe className="h-4 w-4 text-primary shrink-0" />
                         <p className="text-xs text-muted-foreground truncate">{selectedProduct.features.coverage}</p>
                       </div>
                     )}
 
                     {selectedProduct.features?.speed && (
-                      <div className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/[0.05]">
+                      <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/30 border border-border/50">
                         <Zap className="h-4 w-4 text-primary shrink-0" />
                         <p className="text-xs text-muted-foreground truncate">{selectedProduct.features.speed}</p>
                       </div>

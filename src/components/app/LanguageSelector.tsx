@@ -21,7 +21,7 @@ export const LanguageSelector: React.FC = () => {
   return (
     <button 
       onClick={handlePress}
-      className="w-10 h-10 rounded-full bg-white/[0.05] backdrop-blur-xl border border-white/[0.08] flex items-center justify-center hover:bg-white/[0.08] active:scale-95 transition-all"
+      className="w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center hover:bg-muted active:scale-95 transition-all"
     >
       <Globe className="w-4.5 h-4.5 text-muted-foreground" />
     </button>

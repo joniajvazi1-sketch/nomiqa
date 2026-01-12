@@ -116,10 +116,10 @@ const AchievementDetailsDrawer: React.FC<{
   
   return (
     <Drawer open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <DrawerContent className="bg-background border-t border-white/[0.08] max-h-[85vh]">
+      <DrawerContent className="bg-background border-t border-border max-h-[85vh]">
         <div className="mx-auto w-full max-w-md">
           {/* Close button */}
-          <DrawerClose className="absolute right-4 top-4 p-2 rounded-full bg-white/[0.05] hover:bg-white/[0.1] transition-colors">
+          <DrawerClose className="absolute right-4 top-4 p-2 rounded-full bg-muted hover:bg-muted/80 transition-colors">
             <X className="w-4 h-4 text-muted-foreground" />
           </DrawerClose>
           
@@ -175,7 +175,7 @@ const AchievementDetailsDrawer: React.FC<{
             </p>
             
             {/* Progress section */}
-            <div className="rounded-xl bg-white/[0.03] border border-white/[0.08] p-4 mb-4">
+            <div className="rounded-xl bg-muted/50 border border-border p-4 mb-4">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm text-muted-foreground">Progress</span>
                 <span className={cn(
@@ -187,7 +187,7 @@ const AchievementDetailsDrawer: React.FC<{
               </div>
               
               {/* Progress bar */}
-              <div className="h-3 rounded-full bg-white/[0.08] overflow-hidden">
+              <div className="h-3 rounded-full bg-muted overflow-hidden">
                 <div 
                   className={cn(
                     'h-full rounded-full transition-all duration-500',
@@ -350,10 +350,10 @@ export const StreakBonus: React.FC<StreakBonusProps> = ({ streakDays, isActive }
   
   return (
     <div className={cn(
-      'flex items-center gap-3 px-4 py-3 rounded-2xl backdrop-blur-xl border transition-all',
+      'flex items-center gap-3 px-4 py-3 rounded-2xl border transition-all',
       streakDays >= 3 
-        ? `bg-gradient-to-r ${bonus.bg} border-white/10` 
-        : 'bg-white/[0.03] border-white/[0.08]'
+        ? `bg-gradient-to-r ${bonus.bg} border-border` 
+        : 'bg-card border-border'
     )}>
       {/* Flame icon with animation */}
       <div className="relative">
@@ -380,7 +380,7 @@ export const StreakBonus: React.FC<StreakBonusProps> = ({ streakDays, isActive }
           </span>
           <span className="text-sm text-muted-foreground">day streak</span>
           {bonus.label && (
-            <span className={cn('text-[10px] font-bold px-1.5 py-0.5 rounded', bonus.color, 'bg-white/10')}>
+            <span className={cn('text-[10px] font-bold px-1.5 py-0.5 rounded', bonus.color, 'bg-muted')}>
               {bonus.label}
             </span>
           )}
