@@ -36,6 +36,7 @@ export const AppHome: React.FC = () => {
   const { streakDays, streakMultiplier, unlockedCount, totalCount } = useAchievements();
   const { unclaimedCount } = useChallenges();
   const [showSpinWheel, setShowSpinWheel] = useState(false);
+  const [spinReady, setSpinReady] = useState(false);
   
   const [showOnboarding, setShowOnboarding] = useState(() => {
     if (typeof window === 'undefined') return false;
@@ -86,6 +87,16 @@ export const AppHome: React.FC = () => {
           setPoints(pointsData);
         }
 
+        // Check spin status for today
+        const today = new Date().toISOString().split('T')[0];
+        const { data: spinData } = await supabase
+          .from('spin_wheel_results')
+          .select('id')
+          .eq('user_id', currentUser.id)
+          .eq('spin_date', today)
+          .maybeSingle();
+        setSpinReady(!spinData);
+
         // Load recent sessions for activity
         const { data: sessionsData } = await supabase
           .from('contribution_sessions')
@@ -96,7 +107,6 @@ export const AppHome: React.FC = () => {
 
         if (sessionsData && sessionsData.length > 0) {
           // Calculate today's points
-          const today = new Date().toISOString().split('T')[0];
           const todayTotal = sessionsData
             .filter(s => s.started_at.startsWith(today))
             .reduce((sum, s) => sum + (s.total_points_earned || 0), 0);
@@ -294,11 +304,14 @@ export const AppHome: React.FC = () => {
           <div className="grid grid-cols-3 gap-2">
             <button
               onClick={() => { mediumTap(); setShowSpinWheel(true); }}
-              className="rounded-xl bg-card border border-border p-3 text-center active:scale-[0.98] transition-transform"
+              className="rounded-xl bg-card border border-border p-3 text-center active:scale-[0.98] transition-transform relative"
             >
+              {spinReady && (
+                <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+              )}
               <Gift className="w-4 h-4 text-pink-500 mx-auto mb-1" />
               <p className="text-xs font-medium text-foreground">Daily Spin</p>
-              <p className="text-[10px] text-muted-foreground">Tap to play</p>
+              <p className="text-[10px] text-muted-foreground">{spinReady ? 'Ready!' : 'Tap to play'}</p>
             </button>
             
             <button
@@ -444,7 +457,10 @@ export const AppHome: React.FC = () => {
         <SpinWheel 
           userId={user.id} 
           onClose={() => setShowSpinWheel(false)}
-          onPrizeWon={() => loadData()}
+          onPrizeWon={() => {
+            setSpinReady(false);
+            loadData();
+          }}
         />
       )}
     </>

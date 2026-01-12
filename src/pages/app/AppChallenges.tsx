@@ -44,11 +44,11 @@ export const AppChallenges: React.FC = () => {
       />
       
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-white/[0.08] px-5 py-4">
+      <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
         <div className="flex items-center gap-4">
           <button
             onClick={() => { lightTap(); navigate(-1); }}
-            className="w-10 h-10 rounded-full bg-white/[0.05] border border-white/[0.08] flex items-center justify-center hover:bg-white/[0.08] active:scale-95 transition-all"
+            className="w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center hover:bg-card/80 active:scale-95 transition-all"
           >
             <ArrowLeft className="w-5 h-5 text-foreground" />
           </button>
@@ -84,7 +84,7 @@ export const AppChallenges: React.FC = () => {
         {loading ? (
           <div className="space-y-4">
             {[1, 2, 3].map(i => (
-              <div key={i} className="h-32 rounded-2xl bg-white/[0.05] animate-pulse" />
+              <div key={i} className="h-32 rounded-2xl bg-muted animate-pulse" />
             ))}
           </div>
         ) : (
