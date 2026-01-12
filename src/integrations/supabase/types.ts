@@ -1150,6 +1150,54 @@ export type Database = {
           },
         ]
       }
+      speed_test_results: {
+        Row: {
+          carrier: string | null
+          created_at: string | null
+          download_mbps: number | null
+          error: string | null
+          id: string
+          latency_ms: number | null
+          latitude: number | null
+          longitude: number | null
+          network_type: string | null
+          provider: string | null
+          recorded_at: string | null
+          upload_mbps: number | null
+          user_id: string
+        }
+        Insert: {
+          carrier?: string | null
+          created_at?: string | null
+          download_mbps?: number | null
+          error?: string | null
+          id?: string
+          latency_ms?: number | null
+          latitude?: number | null
+          longitude?: number | null
+          network_type?: string | null
+          provider?: string | null
+          recorded_at?: string | null
+          upload_mbps?: number | null
+          user_id: string
+        }
+        Update: {
+          carrier?: string | null
+          created_at?: string | null
+          download_mbps?: number | null
+          error?: string | null
+          id?: string
+          latency_ms?: number | null
+          latitude?: number | null
+          longitude?: number | null
+          network_type?: string | null
+          provider?: string | null
+          recorded_at?: string | null
+          upload_mbps?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       spin_wheel_results: {
         Row: {
           claimed: boolean | null
@@ -1414,6 +1462,10 @@ export type Database = {
       cleanup_old_email_rate_limits: { Args: never; Returns: undefined }
       cleanup_old_mining_logs: { Args: never; Returns: number }
       cleanup_old_webhook_requests: { Args: never; Returns: undefined }
+      get_user_daily_speed_tests: {
+        Args: { p_user_id: string }
+        Returns: number
+      }
       get_user_email: { Args: never; Returns: string }
       has_role: {
         Args: {

@@ -6,7 +6,8 @@ import {
   CloudOff,
   Radio,
   Zap,
-  Loader2
+  Loader2,
+  Activity
 } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useNetworkContribution } from '@/hooks/useNetworkContribution';
@@ -19,6 +20,7 @@ import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { ContributionMap } from '@/components/app/ContributionMap';
 import { RewardCelebration } from '@/components/app/RewardCelebration';
 import { PullToRefreshIndicator } from '@/components/app/PullToRefreshIndicator';
+import { SpeedTest } from '@/components/app/SpeedTest';
 import { cn } from '@/lib/utils';
 
 type CoverageMode = 'personal' | 'global';
@@ -36,6 +38,7 @@ export const NetworkContribution: React.FC = () => {
   const [celebrationPoints, setCelebrationPoints] = useState(0);
   const [showHeatmap, setShowHeatmap] = useState(false);
   const [coverageMode, setCoverageMode] = useState<CoverageMode>('personal');
+  const [showSpeedTest, setShowSpeedTest] = useState(false);
   const startButtonRef = useRef<HTMLButtonElement>(null);
   
   const {
@@ -183,7 +186,7 @@ export const NetworkContribution: React.FC = () => {
         />
         
         {/* Top Status - Clean capsule like NATIX */}
-        <div className="flex items-center justify-center mb-4">
+        <div className="flex items-center justify-between mb-4">
           <div className={cn(
             'flex items-center gap-3 px-4 py-2 rounded-full border',
             'bg-card/80 backdrop-blur-sm',
@@ -211,6 +214,22 @@ export const NetworkContribution: React.FC = () => {
               </>
             )}
           </div>
+          
+          {/* Speed Test Button */}
+          <button
+            onClick={() => {
+              buttonTap();
+              setShowSpeedTest(prev => !prev);
+            }}
+            className={cn(
+              'flex items-center gap-2 px-4 py-2 rounded-full border',
+              'bg-card/80 backdrop-blur-sm transition-colors',
+              showSpeedTest ? 'border-primary/50 text-primary' : 'border-border text-muted-foreground hover:text-foreground'
+            )}
+          >
+            <Activity className="w-4 h-4" />
+            <span className="text-sm font-medium">Speed</span>
+          </button>
         </div>
 
         {/* WiFi Warning - Simple banner */}
@@ -234,6 +253,22 @@ export const NetworkContribution: React.FC = () => {
               Offline • {offlineQueueCount} points queued
             </AlertDescription>
           </Alert>
+        )}
+
+        {/* Speed Test Panel */}
+        {showSpeedTest && (
+          <div className="mb-4 animate-fade-in">
+            <SpeedTest
+              latitude={lastPosition?.coords.latitude}
+              longitude={lastPosition?.coords.longitude}
+              networkType={String(connectionType)}
+              carrier={undefined}
+              onPointsEarned={(pts) => {
+                playCoin();
+                // Refresh stats could be added here
+              }}
+            />
+          </div>
         )}
 
         {/* Spacer */}
