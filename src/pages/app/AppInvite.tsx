@@ -155,64 +155,70 @@ export const AppInvite: React.FC = () => {
       </div>
 
       <div className="px-4 space-y-4">
-        {/* Reward Structure Card */}
+        {/* Reward Structure Card - Premium Styling */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <Card className="bg-gradient-to-br from-primary/10 via-card to-card border-primary/20 overflow-hidden">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
-                  <Gift className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-foreground">Referral Rewards</h3>
-                  <p className="text-xs text-muted-foreground">Both you and your friend earn</p>
-                </div>
-              </div>
+          <Card className="card-reward overflow-hidden">
+            <CardContent className="p-4 relative">
+              {/* Subtle shimmer effect */}
+              <div className="absolute inset-0 shimmer opacity-30 pointer-events-none" />
               
-              <div className="grid grid-cols-2 gap-3">
-                <div className="bg-card/50 rounded-lg p-3 border border-border">
-                  <div className="text-2xl font-bold text-primary">
-                    {TOKENOMICS.REFERRAL_BONUS_POINTS}
+              <div className="relative z-10">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-accent/20 flex items-center justify-center">
+                    <Gift className="w-5 h-5 text-accent" />
                   </div>
-                  <div className="text-xs text-muted-foreground">pts when they join</div>
-                </div>
-                <div className="bg-card/50 rounded-lg p-3 border border-border">
-                  <div className="text-2xl font-bold text-success">
-                    {(TOKENOMICS.REFERRAL_COMMISSION_RATE * 100).toFixed(0)}%
+                  <div>
+                    <h3 className="font-semibold text-foreground">Referral Rewards</h3>
+                    <p className="text-xs text-muted-foreground">Both you and your friend earn</p>
                   </div>
-                  <div className="text-xs text-muted-foreground">of their earnings</div>
                 </div>
-              </div>
+                
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="card-premium rounded-lg p-3">
+                    <div className="text-2xl font-bold text-gradient-primary">
+                      {TOKENOMICS.REFERRAL_BONUS_POINTS}
+                    </div>
+                    <div className="text-xs text-muted-foreground">pts when they join</div>
+                  </div>
+                  <div className="card-premium rounded-lg p-3">
+                    <div className="text-2xl font-bold text-gradient-reward">
+                      {(TOKENOMICS.REFERRAL_COMMISSION_RATE * 100).toFixed(0)}%
+                    </div>
+                    <div className="text-xs text-muted-foreground">of their earnings</div>
+                  </div>
+                </div>
 
-              <p className="text-xs text-muted-foreground mt-3 text-center">
-                Earn ongoing commission from your friends' network contributions
-              </p>
+                <p className="text-xs text-muted-foreground mt-3 text-center">
+                  Earn ongoing commission from your friends' network contributions
+                </p>
+              </div>
             </CardContent>
           </Card>
         </motion.div>
 
-        {/* Referral Link Section */}
+        {/* Referral Link Section - Premium */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <Card className="bg-card border-border">
+          <Card className="card-premium">
             <CardContent className="p-4">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-sm font-medium text-foreground">Your Invite Link</span>
-                <Badge variant="outline" className="text-xs">
+                <Badge variant="outline" className="text-xs border-primary/30 text-primary">
                   @{affiliate?.username || 'your-link'}
                 </Badge>
               </div>
               
               {/* Link display */}
-              <div 
-                className="bg-muted/50 rounded-lg p-3 flex items-center justify-between mb-4 cursor-pointer active:opacity-80"
+              <motion.div 
+                whileTap={{ scale: 0.98 }}
+                className="bg-muted/50 rounded-xl p-3 flex items-center justify-between mb-4 cursor-pointer border border-border/50"
                 onClick={handleCopyLink}
               >
                 <span className="text-sm text-foreground truncate pr-2 font-mono">
@@ -225,68 +231,75 @@ export const AppInvite: React.FC = () => {
                   onClick={handleCopyLink}
                 >
                   {copied ? (
-                    <Check className="w-4 h-4 text-success" />
+                    <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}>
+                      <Check className="w-4 h-4 text-success" />
+                    </motion.div>
                   ) : (
                     <Copy className="w-4 h-4" />
                   )}
                 </Button>
-              </div>
+              </motion.div>
 
               {/* Main share button */}
               <Button 
-                className="w-full h-12 text-base font-medium gap-2"
+                className="w-full h-12 text-base font-medium gap-2 pulse-glow"
                 onClick={handleShare}
               >
                 <Share2 className="w-5 h-5" />
                 Share Invite Link
               </Button>
 
-              {/* Quick share buttons */}
+              {/* Quick share buttons - Enhanced */}
               <div className="flex items-center justify-center gap-3 mt-4">
-                <button
+                <motion.button
+                  whileTap={{ scale: 0.95 }}
                   onClick={() => handleShareVia('whatsapp')}
-                  className="w-12 h-12 rounded-full bg-[#25D366]/10 flex items-center justify-center active:scale-95 transition-transform"
+                  className="w-12 h-12 rounded-full bg-[#25D366]/15 flex items-center justify-center hover:bg-[#25D366]/25 transition-colors"
                 >
                   <MessageCircle className="w-5 h-5 text-[#25D366]" />
-                </button>
-                <button
+                </motion.button>
+                <motion.button
+                  whileTap={{ scale: 0.95 }}
                   onClick={() => handleShareVia('telegram')}
-                  className="w-12 h-12 rounded-full bg-[#0088cc]/10 flex items-center justify-center active:scale-95 transition-transform"
+                  className="w-12 h-12 rounded-full bg-[#0088cc]/15 flex items-center justify-center hover:bg-[#0088cc]/25 transition-colors"
                 >
                   <svg className="w-5 h-5 text-[#0088cc]" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/>
                   </svg>
-                </button>
-                <button
+                </motion.button>
+                <motion.button
+                  whileTap={{ scale: 0.95 }}
                   onClick={() => handleShareVia('sms')}
-                  className="w-12 h-12 rounded-full bg-muted flex items-center justify-center active:scale-95 transition-transform"
+                  className="w-12 h-12 rounded-full bg-muted/50 flex items-center justify-center hover:bg-muted transition-colors"
                 >
                   <MessageCircle className="w-5 h-5 text-foreground" />
-                </button>
-                <button
+                </motion.button>
+                <motion.button
+                  whileTap={{ scale: 0.95 }}
                   onClick={() => handleShareVia('email')}
-                  className="w-12 h-12 rounded-full bg-muted flex items-center justify-center active:scale-95 transition-transform"
+                  className="w-12 h-12 rounded-full bg-muted/50 flex items-center justify-center hover:bg-muted transition-colors"
                 >
                   <Mail className="w-5 h-5 text-foreground" />
-                </button>
-                <button
+                </motion.button>
+                <motion.button
+                  whileTap={{ scale: 0.95 }}
                   onClick={handleCopyLink}
-                  className="w-12 h-12 rounded-full bg-muted flex items-center justify-center active:scale-95 transition-transform"
+                  className="w-12 h-12 rounded-full bg-muted/50 flex items-center justify-center hover:bg-muted transition-colors"
                 >
                   <Link2 className="w-5 h-5 text-foreground" />
-                </button>
+                </motion.button>
               </div>
             </CardContent>
           </Card>
         </motion.div>
 
-        {/* Stats Dashboard */}
+        {/* Stats Dashboard - Premium */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
         >
-          <Card className="bg-card border-border">
+          <Card className="card-premium">
             <CardContent className="p-4">
               <div className="flex items-center gap-2 mb-4">
                 <TrendingUp className="w-5 h-5 text-primary" />
@@ -294,24 +307,39 @@ export const AppInvite: React.FC = () => {
               </div>
 
               <div className="grid grid-cols-3 gap-3">
-                <div className="text-center">
+                <motion.div 
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.35 }}
+                  className="text-center p-2 rounded-lg bg-muted/30"
+                >
                   <div className="text-2xl font-bold text-foreground">
                     {affiliate?.total_registrations || 0}
                   </div>
                   <div className="text-xs text-muted-foreground">Recruits</div>
-                </div>
-                <div className="text-center">
+                </motion.div>
+                <motion.div 
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.4 }}
+                  className="text-center p-2 rounded-lg bg-muted/30"
+                >
                   <div className="text-2xl font-bold text-foreground">
                     {affiliate?.total_conversions || 0}
                   </div>
                   <div className="text-xs text-muted-foreground">Purchases</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-success">
+                </motion.div>
+                <motion.div 
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.45 }}
+                  className="text-center p-2 rounded-lg bg-muted/30"
+                >
+                  <div className="text-2xl font-bold text-gradient-reward">
                     ${(affiliate?.total_earnings_usd || 0).toFixed(2)}
                   </div>
                   <div className="text-xs text-muted-foreground">Earned</div>
-                </div>
+                </motion.div>
               </div>
             </CardContent>
           </Card>
