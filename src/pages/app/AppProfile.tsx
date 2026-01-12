@@ -22,6 +22,7 @@ import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { PrivacyControls } from '@/components/app/PrivacyControls';
 import { EmptyStateIllustration } from '@/components/app/EmptyStateIllustration';
+import { NotificationSettings } from '@/components/app/NotificationSettings';
 
 interface UserProfile {
   username: string;
@@ -515,6 +516,9 @@ export const AppProfile: React.FC = () => {
 
         {/* Settings Tab */}
         <TabsContent value="settings" className="mt-4 space-y-4">
+          {/* Notification Settings */}
+          <NotificationSettings />
+
           {/* Sound Toggle */}
           <Card className="bg-card border-border">
             <CardContent className="p-4">

@@ -578,6 +578,48 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_preferences: {
+        Row: {
+          achievement_unlocks: boolean
+          created_at: string
+          daily_reminders: boolean
+          id: string
+          push_enabled: boolean
+          referral_conversions: boolean
+          reminder_time: string | null
+          streak_warnings: boolean
+          updated_at: string
+          user_id: string
+          weekly_summaries: boolean
+        }
+        Insert: {
+          achievement_unlocks?: boolean
+          created_at?: string
+          daily_reminders?: boolean
+          id?: string
+          push_enabled?: boolean
+          referral_conversions?: boolean
+          reminder_time?: string | null
+          streak_warnings?: boolean
+          updated_at?: string
+          user_id: string
+          weekly_summaries?: boolean
+        }
+        Update: {
+          achievement_unlocks?: boolean
+          created_at?: string
+          daily_reminders?: boolean
+          id?: string
+          push_enabled?: boolean
+          referral_conversions?: boolean
+          reminder_time?: string | null
+          streak_warnings?: boolean
+          updated_at?: string
+          user_id?: string
+          weekly_summaries?: boolean
+        }
+        Relationships: []
+      }
       offline_contribution_queue: {
         Row: {
           accuracy_meters: number | null
