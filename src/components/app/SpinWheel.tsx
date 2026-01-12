@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Gift, Zap, Star, Sparkles, X, Trophy } from 'lucide-react';
 import { useEnhancedHaptics } from '@/hooks/useEnhancedHaptics';
@@ -24,13 +24,85 @@ const PRIZES = [
 const SEGMENT_COUNT = PRIZES.length;
 const SEGMENT_ANGLE = 360 / SEGMENT_COUNT;
 
+// Create tick sound using Web Audio API
+const createTickSound = () => {
+  try {
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.frequency.value = 1200 + Math.random() * 200; // Slight pitch variation
+    oscillator.type = 'square';
+    
+    gainNode.gain.setValueAtTime(0.08, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.05);
+    
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.05);
+  } catch (e) {
+    // Silently fail if audio context not available
+  }
+};
+
 export const SpinWheel = ({ userId, onClose, onPrizeWon }: SpinWheelProps) => {
   const [isSpinning, setIsSpinning] = useState(false);
   const [rotation, setRotation] = useState(0);
+  const [displayRotation, setDisplayRotation] = useState(0);
   const [wonPrize, setWonPrize] = useState<typeof PRIZES[0] | null>(null);
   const [showResult, setShowResult] = useState(false);
-  const { successPattern, milestonePattern } = useEnhancedHaptics();
+  const lastSegmentRef = useRef<number>(-1);
+  const animationRef = useRef<number | null>(null);
+  const startTimeRef = useRef<number>(0);
+  const startRotationRef = useRef<number>(0);
+  const targetRotationRef = useRef<number>(0);
+  const { successPattern, milestonePattern, buttonTap } = useEnhancedHaptics();
   const { playCelebration, playCoin } = useEnhancedSounds();
+
+  // Easing function for smooth deceleration
+  const easeOutQuart = (t: number): number => {
+    return 1 - Math.pow(1 - t, 4);
+  };
+
+  // Animation loop for smooth rotation with tick sounds
+  const animateWheel = useCallback((timestamp: number) => {
+    if (!startTimeRef.current) startTimeRef.current = timestamp;
+    
+    const elapsed = timestamp - startTimeRef.current;
+    const duration = 4000; // 4 seconds total
+    const progress = Math.min(elapsed / duration, 1);
+    const easedProgress = easeOutQuart(progress);
+    
+    const totalRotation = targetRotationRef.current - startRotationRef.current;
+    const currentRotation = startRotationRef.current + (totalRotation * easedProgress);
+    
+    setDisplayRotation(currentRotation);
+    
+    // Calculate current segment (normalize to 0-360 and find segment)
+    const normalizedAngle = ((currentRotation % 360) + 360) % 360;
+    const currentSegment = Math.floor(normalizedAngle / SEGMENT_ANGLE);
+    
+    // Play tick when crossing segment boundary
+    if (currentSegment !== lastSegmentRef.current && lastSegmentRef.current !== -1) {
+      createTickSound();
+    }
+    lastSegmentRef.current = currentSegment;
+    
+    if (progress < 1) {
+      animationRef.current = requestAnimationFrame(animateWheel);
+    }
+  }, []);
+
+  // Cleanup animation on unmount
+  useEffect(() => {
+    return () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+    };
+  }, []);
 
   const getRandomPrize = useCallback(() => {
     const totalWeight = PRIZES.reduce((sum, p) => sum + p.weight, 0);
@@ -48,17 +120,28 @@ export const SpinWheel = ({ userId, onClose, onPrizeWon }: SpinWheelProps) => {
 
     setIsSpinning(true);
     setShowResult(false);
+    lastSegmentRef.current = -1;
 
     const { prize, index } = getRandomPrize();
     
     // Calculate rotation - pointer is at top, segments start from top going clockwise
     const targetAngle = 360 - (index * SEGMENT_ANGLE + SEGMENT_ANGLE / 2);
     const spins = 5 + Math.random() * 3;
-    const finalRotation = rotation + (spins * 360) + targetAngle;
+    const finalRotation = displayRotation + (spins * 360) + targetAngle;
     
+    // Setup animation
+    startTimeRef.current = 0;
+    startRotationRef.current = displayRotation;
+    targetRotationRef.current = finalRotation;
     setRotation(finalRotation);
+    
+    // Start animation loop
+    animationRef.current = requestAnimationFrame(animateWheel);
 
     setTimeout(async () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
       setWonPrize(prize);
       setIsSpinning(false);
       
@@ -238,14 +321,9 @@ export const SpinWheel = ({ userId, onClose, onPrizeWon }: SpinWheelProps) => {
             </div>
 
             {/* SVG Wheel */}
-            <motion.div
+            <div
               className="absolute inset-0 rounded-full overflow-hidden shadow-inner"
-              style={{ rotate: rotation }}
-              animate={{ rotate: rotation }}
-              transition={{ 
-                duration: 4, 
-                ease: [0.2, 0.8, 0.2, 1],
-              }}
+              style={{ transform: `rotate(${displayRotation}deg)` }}
             >
               <svg viewBox="0 0 240 240" className="w-full h-full">
                 <defs>
@@ -259,7 +337,7 @@ export const SpinWheel = ({ userId, onClose, onPrizeWon }: SpinWheelProps) => {
                   {generateWheelSegments()}
                 </g>
               </svg>
-            </motion.div>
+            </div>
             
             {/* Center hub */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-xl border-4 border-white/30 z-10">
