@@ -10,9 +10,10 @@ import {
   Flame,
   Trophy,
   Calendar,
-  Crown,
   Signal,
-  Users
+  Users,
+  Target,
+  Crown
 } from 'lucide-react';
 import { useHaptics } from '@/hooks/useHaptics';
 import { useEnhancedSounds } from '@/hooks/useEnhancedSounds';
@@ -34,37 +35,25 @@ import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from '@/components/app/PullToRefreshIndicator';
 import { LanguageSelector } from '@/components/app/LanguageSelector';
 import { AppSpinner } from '@/components/app/AppSpinner';
-// FloatingQuickEarn removed per user request
 import { DailyCheckIn } from '@/components/app/DailyCheckIn';
 import { SectionErrorBoundary } from '@/components/app/SectionErrorBoundary';
 import { StreakCalendar } from '@/components/app/StreakCalendar';
 import { SpinWheel } from '@/components/app/SpinWheel';
 import { PersonalizedGoals } from '@/components/app/PersonalizedGoals';
 import { RatingPrompt, useRatingPrompt } from '@/components/app/RatingPrompt';
-import { HowYouEarnCard } from '@/components/app/HowYouEarnCard';
-import { TestPhaseBadge } from '@/components/app/TestPhaseBadge';
-import { PersonalizedGreeting } from '@/components/app/PersonalizedGreeting';
 import { FloatingPoints, useFloatingPoints } from '@/components/app/FloatingPoints';
 import { Confetti } from '@/components/Confetti';
-import { SpotlightTooltip, PullToRefreshHint } from '@/components/app/SpotlightTooltip';
-import { Hand, Zap as ZapIcon } from 'lucide-react';
-// useLeaderboard hook not needed - using LeaderboardSection component
 
 interface DailyEarning {
   date: string;
   points: number;
 }
 
-// Point to USD conversion rate (mock for now)
 const POINTS_TO_USD = 0.01;
-
-// Daily goal threshold for celebration
 const DAILY_GOAL_POINTS = 100;
 
-/**
- * App Home Dashboard - Compact Single-Screen Layout
- * Optimized to fit all key information in one viewport without scrolling
- */
+type ContentTab = 'activity' | 'challenges' | 'community';
+
 export const AppHome: React.FC = () => {
   const navigate = useNavigate();
   const { mediumTap, lightTap } = useHaptics();
@@ -92,6 +81,7 @@ export const AppHome: React.FC = () => {
     trackSession,
     close: closeRatingPrompt 
   } = useRatingPrompt();
+  
   const [showNotificationPrompt, setShowNotificationPrompt] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(() => {
     if (typeof window === 'undefined') return false;
@@ -117,6 +107,7 @@ export const AppHome: React.FC = () => {
   const [checkinHistory, setCheckinHistory] = useState<{ date: string; points: number }[]>([]);
   const [lastActiveDate, setLastActiveDate] = useState<Date | null>(null);
   const [showFirstPurchaseConfetti, setShowFirstPurchaseConfetti] = useState(false);
+  const [activeTab, setActiveTab] = useState<ContentTab>('activity');
   const usdRef = useRef<HTMLDivElement>(null);
   const { trigger: floatingTrigger, points: floatingPointsValue, showPoints } = useFloatingPoints();
 
@@ -126,7 +117,6 @@ export const AppHome: React.FC = () => {
       setUser(currentUser);
 
       if (currentUser) {
-        // Fetch profile username
         const { data: profileData } = await supabase
           .from('profiles')
           .select('username')
@@ -147,7 +137,6 @@ export const AppHome: React.FC = () => {
           setPoints(pointsData);
         }
 
-        // Get recent session data (bounded) for chart + summary
         const { data: sessionsData } = await supabase
           .from('contribution_sessions')
           .select('data_points_count, started_at, total_points_earned')
@@ -159,15 +148,12 @@ export const AppHome: React.FC = () => {
           const totalDataPoints = sessionsData.reduce((sum, s) => sum + (s.data_points_count || 0), 0);
           setDataPointsCount(totalDataPoints);
 
-          // Filter last 7 days for earnings chart
           const sevenDaysAgo = new Date();
           sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
           
-          // Aggregate by day
           const dailyMap = new Map<string, number>();
           const today = new Date();
           
-          // Initialize all 7 days with 0
           for (let i = 6; i >= 0; i--) {
             const date = new Date(today);
             date.setDate(date.getDate() - i);
@@ -175,7 +161,6 @@ export const AppHome: React.FC = () => {
             dailyMap.set(dateKey, 0);
           }
           
-          // Sum points per day
           sessionsData.forEach(session => {
             const sessionDate = new Date(session.started_at);
             if (sessionDate >= sevenDaysAgo) {
@@ -193,7 +178,6 @@ export const AppHome: React.FC = () => {
           setEarningsData(earnings);
         }
 
-        // Fetch checkin history for streak calendar
         const { data: checkins } = await supabase
           .from('daily_checkins')
           .select('check_in_date, bonus_points')
@@ -206,13 +190,11 @@ export const AppHome: React.FC = () => {
             date: c.check_in_date,
             points: c.bonus_points,
           })));
-          // Set last active date from most recent checkin
           if (checkins.length > 0) {
             setLastActiveDate(new Date(checkins[0].check_in_date));
           }
         }
 
-        // Check if user can spin today
         const today = new Date().toISOString().split('T')[0];
         const { data: todaySpin } = await supabase
           .from('spin_wheel_results')
@@ -221,7 +203,6 @@ export const AppHome: React.FC = () => {
           .eq('spin_date', today)
           .maybeSingle();
 
-        // Show spin wheel if no spin today (after a delay)
         if (!todaySpin) {
           setTimeout(() => setShowSpinWheel(true), 3000);
         }
@@ -237,21 +218,17 @@ export const AppHome: React.FC = () => {
     loadData();
   }, [loadData]);
 
-  // Pull-to-refresh
   const { isRefreshing, pullDistance, pullProgress, handlers } = usePullToRefresh({
     onRefresh: loadData
   });
 
-  // Today's points from earnings data
   const todayPoints = useMemo(() => {
     if (earningsData.length === 0) return 0;
     return earningsData[earningsData.length - 1].points;
   }, [earningsData]);
 
-  // Today's USD value
   const todayUSD = useMemo(() => todayPoints * POINTS_TO_USD, [todayPoints]);
 
-  // Check for daily goal achievement
   useEffect(() => {
     const celebratedKey = `daily-goal-celebrated-${new Date().toISOString().split('T')[0]}`;
     const alreadyCelebrated = localStorage.getItem(celebratedKey) === 'true';
@@ -261,14 +238,12 @@ export const AppHome: React.FC = () => {
       setDailyGoalCelebrated(true);
       localStorage.setItem(celebratedKey, 'true');
       
-      // Trigger rating prompt after milestone (with delay for celebration)
       setTimeout(() => {
         triggerRatingPrompt('milestone');
       }, 3000);
     }
   }, [todayPoints, dailyGoalCelebrated, triggerRatingPrompt]);
 
-  // Animate USD counter
   useEffect(() => {
     if (loading) return;
     
@@ -296,7 +271,11 @@ export const AppHome: React.FC = () => {
     navigate(path);
   };
 
-  // Show spinner while loading (skeletons removed)
+  const handleTabChange = (tab: ContentTab) => {
+    lightTap();
+    setActiveTab(tab);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center px-6">
@@ -305,27 +284,32 @@ export const AppHome: React.FC = () => {
     );
   }
 
-  // Format distance to km
   const formatDistance = (meters: number) => {
     const km = meters / 1000;
     if (km >= 1) return km.toFixed(1) + ' km';
     return meters.toFixed(0) + ' m';
   };
 
-  // Get connection type display
   const getConnectionLabel = () => {
-    if (!isOnline) return t('app.home.offline');
+    if (!isOnline) return 'Offline';
     const type = connectionType?.toLowerCase() || 'wifi';
     if (type === 'wifi') return 'WiFi';
-    if (type === 'cellular') return t('app.network.cellular');
+    if (type === 'cellular') return 'Cellular';
     if (type === '4g') return 'LTE';
     if (type === '5g') return '5G';
     return type.toUpperCase();
   };
 
+  const displayName = username || 'Explorer';
+
+  const tabs = [
+    { id: 'activity' as const, label: 'Activity', icon: Zap },
+    { id: 'challenges' as const, label: 'Challenges', icon: Target },
+    { id: 'community' as const, label: 'Community', icon: Users },
+  ];
+
   return (
     <>
-      {/* Onboarding Flow for first-time users */}
       <AnimatePresence>
         {showOnboarding && (
           <OnboardingFlow onComplete={() => setShowOnboarding(false)} />
@@ -333,34 +317,28 @@ export const AppHome: React.FC = () => {
       </AnimatePresence>
 
       <div 
-        className="min-h-screen bg-background relative overflow-hidden overflow-y-auto app-container momentum-scroll"
+        className="min-h-screen bg-background overflow-y-auto"
         {...handlers}
       >
-        {/* Pull to refresh indicator */}
         <PullToRefreshIndicator 
           pullDistance={pullDistance}
           pullProgress={pullProgress}
           isRefreshing={isRefreshing}
         />
 
-        {/* Background - clean, no blur effects */}
-        <div className="fixed inset-0 bg-background" />
-
-        <div className="relative z-10 px-4 py-4 pb-24 space-y-4">
-          {/* TOP BAR - simplified */}
+        <div className="px-4 py-4 pb-24 space-y-4">
+          {/* ZONE 1: Header */}
           <header className="flex items-center justify-between">
-            {/* Status Pill */}
-            <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-card border border-border">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-card border border-border">
               <div className={cn(
-                "w-1.5 h-1.5 rounded-full",
+                "w-2 h-2 rounded-full",
                 isOnline ? "bg-green-500" : "bg-red-500"
               )} />
               <span className="text-xs text-muted-foreground font-medium">
-                {isOnline ? 'Online' : 'Offline'} • {getConnectionLabel()}
+                {getConnectionLabel()}
               </span>
             </div>
 
-            {/* Icon buttons */}
             <div className="flex items-center gap-2">
               <button 
                 onClick={() => { 
@@ -370,7 +348,7 @@ export const AppHome: React.FC = () => {
                   }
                 }}
                 className={cn(
-                  "w-9 h-9 rounded-full border flex items-center justify-center active:scale-95 transition-transform relative",
+                  "w-9 h-9 rounded-full border flex items-center justify-center active:scale-95 transition-transform",
                   notificationsEnabled 
                     ? "bg-primary/10 border-primary/30" 
                     : "bg-card border-border"
@@ -380,9 +358,6 @@ export const AppHome: React.FC = () => {
                   "w-4 h-4",
                   notificationsEnabled ? "text-primary" : "text-muted-foreground"
                 )} />
-                {notificationsSupported && !notificationsEnabled && (
-                  <div className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-primary" />
-                )}
               </button>
               
               <LanguageSelector />
@@ -396,7 +371,6 @@ export const AppHome: React.FC = () => {
             </div>
           </header>
 
-          {/* Notification Permission Prompt */}
           {showNotificationPrompt && notificationsSupported && !notificationsEnabled && (
             <div className="animate-fade-in">
               <NotificationToggle
@@ -413,257 +387,190 @@ export const AppHome: React.FC = () => {
             </div>
           )}
 
-          {/* PERSONALIZED GREETING */}
-          {user && (
-            <PersonalizedGreeting 
-              username={username}
-              lastActiveDate={lastActiveDate}
-              streakDays={streakDays}
-            />
-          )}
-
-          {/* HERO CARD - simplified */}
-          <div className="rounded-2xl bg-card border border-border p-4">
-            {/* Label */}
-            <div className="flex items-center gap-1.5 mb-2">
-              <Zap className="w-4 h-4 text-primary" />
-              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t('app.home.todaysEarnings')}</span>
-            </div>
-            
-            {/* Big USD Number */}
-            <div ref={usdRef} className="mb-2">
-              <div className="text-4xl font-bold text-foreground tracking-tight tabular-nums">
-                ${animatedUSD.toFixed(2)}
+          {/* ZONE 2: Hero - Greeting + Balance */}
+          <div className="space-y-3">
+            {/* Greeting - simplified, no animation */}
+            {user && (
+              <div>
+                <h1 className="text-xl font-bold text-foreground">
+                  Hi, {displayName}
+                </h1>
+                {streakDays >= 3 && (
+                  <p className="text-sm text-muted-foreground flex items-center gap-1">
+                    <Flame className="w-3.5 h-3.5 text-orange-500" />
+                    {streakDays} day streak
+                  </p>
+                )}
               </div>
-            </div>
+            )}
 
-            {/* Sublines */}
-            <div className="flex items-center flex-wrap gap-2 mb-4 text-sm text-muted-foreground">
-              <div className="flex items-center gap-1 bg-muted/50 rounded-full px-2 py-0.5">
-                <TrendingUp className="w-3 h-3 text-primary" />
-                <span>{streakMultiplier}x</span>
+            {/* Balance Card */}
+            <div className="rounded-2xl bg-card border border-border p-4">
+              <div className="flex items-center gap-1.5 mb-2">
+                <Zap className="w-4 h-4 text-primary" />
+                <span className="text-xs font-medium text-muted-foreground">Today's Earnings</span>
               </div>
-              <span>✨ {todayPoints.toLocaleString()} pts</span>
-              {streakDays >= 3 && (
-                <button 
-                  onClick={() => setShowStreakCalendar(true)}
-                  className="flex items-center gap-1 bg-orange-500/10 rounded-full px-2 py-0.5 active:scale-95"
-                >
-                  <Flame className="w-3 h-3 text-orange-500" />
-                  <span className="text-orange-400">{streakDays}d</span>
-                </button>
-              )}
-            </div>
+              
+              <div ref={usdRef} className="mb-3">
+                <div className="text-4xl font-bold text-foreground tabular-nums">
+                  ${animatedUSD.toFixed(2)}
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  {todayPoints.toLocaleString()} pts • {streakMultiplier}x multiplier
+                </p>
+              </div>
 
-            {/* Start Earning Button */}
-            <SpotlightTooltip
-              id="start-earning-hint"
-              message="Tap here to start earning points!"
-              position="top"
-              icon={<Hand className="w-3.5 h-3.5" />}
-              delay={2000}
-            >
               <button
                 onClick={() => handleNavigation('/app/map')}
                 className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-semibold text-sm active:scale-[0.98] transition-transform flex items-center justify-center gap-2"
               >
                 <Signal className="w-4 h-4" />
                 Start Earning
-                <ChevronRight className="w-4 h-4" />
               </button>
-            </SpotlightTooltip>
-          </div>
-
-          {/* Pull-to-refresh first-use hint */}
-          <PullToRefreshHint />
-
-          {/* Daily Goal Celebration */}
-          <RewardCelebration
-            trigger={showDailyGoalCelebration}
-            points={todayPoints}
-            type="milestone"
-            onComplete={() => setShowDailyGoalCelebration(false)}
-          />
-
-          {/* Floating Points Animation */}
-          <FloatingPoints 
-            trigger={floatingTrigger} 
-            points={floatingPointsValue} 
-          />
-
-          {/* First purchase confetti */}
-          <Confetti 
-            trigger={showFirstPurchaseConfetti} 
-            onComplete={() => setShowFirstPurchaseConfetti(false)} 
-          />
-
-          {/* HOW YOU EARN EXPLAINER - Shows users how earning works */}
-          <HowYouEarnCard compact={true} />
-
-          {/* PERSONALIZED GOALS - COMPACT INLINE */}
-          {user && (
-            <SectionErrorBoundary fallbackTitle="Goals unavailable">
-              <PersonalizedGoals 
-                userId={user.id} 
-                currentPoints={todayPoints}
-                compact={true}
-              />
-            </SectionErrorBoundary>
-          )}
-
-          {/* TWO MINI CARDS: Impact & Invite */}
-          <div className="grid grid-cols-2 gap-3">
-            {/* Impact Card */}
-            <div className="rounded-xl bg-card border border-border p-3">
-              <div className="flex items-center gap-1.5 mb-2">
-                <div className="w-6 h-6 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <MapPin className="w-3 h-3 text-primary" />
-                </div>
-                <span className="text-[10px] font-semibold text-muted-foreground uppercase">{t('app.home.yourImpact')}</span>
-              </div>
-              <div className="text-lg font-bold text-foreground tabular-nums">
-                {formatDistance(points?.total_distance_meters || 0)}
-              </div>
-              {(points?.total_distance_meters || 0) === 0 && (
-                <p className="text-[10px] text-muted-foreground mt-1">Tracking starts soon</p>
-              )}
             </div>
 
-            {/* Invite Friends Card */}
-            <button 
-              className="rounded-xl bg-card border border-border p-3 cursor-pointer active:scale-[0.98] transition-transform text-left"
-              onClick={() => { lightTap(); navigate('/app/profile?tab=earn'); }}
-            >
-              <div className="flex items-center gap-1.5 mb-2">
-                <div className="w-6 h-6 rounded-lg bg-violet-500/10 flex items-center justify-center">
-                  <Users className="w-3 h-3 text-violet-400" />
+            {/* Quick Stats Row */}
+            <div className="grid grid-cols-3 gap-2">
+              <div className="rounded-xl bg-card border border-border p-3 text-center">
+                <MapPin className="w-4 h-4 text-primary mx-auto mb-1" />
+                <div className="text-sm font-semibold text-foreground">
+                  {formatDistance(points?.total_distance_meters || 0)}
                 </div>
-                <span className="text-[10px] font-semibold text-muted-foreground uppercase">Invite</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <span className="text-sm font-semibold text-foreground">Invite Friends</span>
-                <ChevronRight className="w-4 h-4 text-muted-foreground" />
-              </div>
-            </button>
-          </div>
-
-          {/* STREAK BADGE (inline, small) - with first-use hint for new users */}
-          {user && streakDays >= 1 && (
-            <SpotlightTooltip
-              id="daily-checkin-hint"
-              message="Check in daily for streak bonuses!"
-              position="bottom"
-              icon={<Flame className="w-3.5 h-3.5" />}
-              delay={4000}
-            >
-              <button 
-                onClick={() => setShowStreakCalendar(true)}
-                className="flex items-center gap-2 px-3 py-2 rounded-xl bg-gradient-to-r from-orange-500/10 to-amber-500/10 border border-orange-500/20 active:scale-[0.98] transition-transform w-full"
-              >
-                <Flame className="w-4 h-4 text-orange-500" />
-                <span className="text-sm font-semibold text-foreground flex-1 text-left">{streakDays} Day Streak</span>
-                <span className="text-xs text-orange-400">{streakMultiplier}x bonus</span>
-                <Calendar className="w-4 h-4 text-muted-foreground" />
-              </button>
-            </SpotlightTooltip>
-          )}
-
-          {/* ACHIEVEMENTS ROW - compact */}
-          {user && achievements.length > 0 && (
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-1.5">
-                  <Trophy className="w-3.5 h-3.5 text-primary" />
-                  <span className="text-xs font-semibold text-foreground">Achievements</span>
-                  <span className="text-[10px] text-muted-foreground">({unlockedCount}/{totalCount})</span>
-                </div>
-                <button 
-                  onClick={() => handleNavigation('/app/achievements')}
-                  className="text-[10px] text-primary active:scale-95"
-                >
-                  View All →
-                </button>
+                <p className="text-xs text-muted-foreground">Distance</p>
               </div>
               
-              <div 
-                className="flex gap-1 overflow-x-auto pb-1 scrollbar-hide cursor-pointer"
-                onClick={() => handleNavigation('/app/achievements')}
+              <button 
+                onClick={() => setShowStreakCalendar(true)}
+                className="rounded-xl bg-card border border-border p-3 text-center active:scale-[0.98] transition-transform"
               >
-                {achievements.slice(0, 5).map((achievement) => (
-                  <AchievementBadge 
-                    key={achievement.id} 
-                    achievement={achievement} 
-                    size="sm"
-                    showProgress={false}
-                  />
+                <Flame className="w-4 h-4 text-orange-500 mx-auto mb-1" />
+                <div className="text-sm font-semibold text-foreground">
+                  {streakDays}
+                </div>
+                <p className="text-xs text-muted-foreground">Streak</p>
+              </button>
+              
+              <button 
+                onClick={() => handleNavigation('/app/leaderboard')}
+                className="rounded-xl bg-card border border-border p-3 text-center active:scale-[0.98] transition-transform"
+              >
+                <Crown className="w-4 h-4 text-amber-500 mx-auto mb-1" />
+                <div className="text-sm font-semibold text-foreground">
+                  #{points?.total_points ? Math.max(1, Math.floor(1000 / (points.total_points || 1))) : '-'}
+                </div>
+                <p className="text-xs text-muted-foreground">Rank</p>
+              </button>
+            </div>
+          </div>
+
+          {/* ZONE 3: Tabbed Content */}
+          {user && (
+            <div className="space-y-4">
+              {/* Tab Navigation */}
+              <div className="flex gap-2 overflow-x-auto pb-1">
+                {tabs.map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => handleTabChange(tab.id)}
+                    className={cn(
+                      'flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap',
+                      activeTab === tab.id
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted/50 text-muted-foreground'
+                    )}
+                  >
+                    <tab.icon className="w-3.5 h-3.5" />
+                    {tab.label}
+                  </button>
                 ))}
-                {achievements.length > 5 && (
-                  <div className="flex items-center justify-center w-10 h-10 rounded-full bg-white/[0.05] border border-white/10 text-muted-foreground flex-shrink-0">
-                    <span className="text-[10px] font-medium">+{achievements.length - 5}</span>
+              </div>
+
+              {/* Tab Content */}
+              <div className="min-h-[200px]">
+                {activeTab === 'activity' && (
+                  <div className="space-y-4">
+                    {/* Map Preview */}
+                    <button
+                      onClick={() => handleNavigation('/app/map')}
+                      className="w-full rounded-2xl overflow-hidden active:scale-[0.99] transition-transform"
+                    >
+                      <MiniContributionMap 
+                        className="w-full h-32"
+                        contributionPoints={points?.total_points || 0}
+                        dataPointsCount={dataPointsCount}
+                      />
+                    </button>
+
+                    {/* Goals */}
+                    <SectionErrorBoundary fallbackTitle="Goals unavailable">
+                      <PersonalizedGoals 
+                        userId={user.id} 
+                        currentPoints={todayPoints}
+                        compact={true}
+                      />
+                    </SectionErrorBoundary>
+
+                    {/* Achievements Row */}
+                    {achievements.length > 0 && (
+                      <div className="rounded-xl bg-card border border-border p-3">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-1.5">
+                            <Trophy className="w-4 h-4 text-primary" />
+                            <span className="text-sm font-medium text-foreground">Achievements</span>
+                            <span className="text-xs text-muted-foreground">({unlockedCount}/{totalCount})</span>
+                          </div>
+                          <button 
+                            onClick={() => handleNavigation('/app/achievements')}
+                            className="text-xs text-primary"
+                          >
+                            View All
+                          </button>
+                        </div>
+                        
+                        <div className="flex gap-1.5 overflow-x-auto">
+                          {achievements.slice(0, 5).map((achievement) => (
+                            <AchievementBadge 
+                              key={achievement.id} 
+                              achievement={achievement} 
+                              size="sm"
+                              showProgress={false}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
+                )}
+
+                {activeTab === 'challenges' && (
+                  <SectionErrorBoundary fallbackTitle="Challenges unavailable">
+                    <ChallengesSection 
+                      compact={false}
+                      maxItems={3}
+                      onViewAll={() => handleNavigation('/app/challenges')}
+                    />
+                  </SectionErrorBoundary>
+                )}
+
+                {activeTab === 'community' && (
+                  <SectionErrorBoundary fallbackTitle="Leaderboard unavailable">
+                    <LeaderboardSection 
+                      compact={false}
+                      maxItems={5}
+                      onViewAll={() => handleNavigation('/app/leaderboard')}
+                    />
+                  </SectionErrorBoundary>
                 )}
               </div>
             </div>
           )}
 
-          {/* CHALLENGES SECTION - only 1 card shown */}
-          {user && (
-            <SectionErrorBoundary fallbackTitle="Challenges unavailable">
-              <ChallengesSection 
-                compact={true} 
-                onViewAll={() => handleNavigation('/app/challenges')}
-              />
-            </SectionErrorBoundary>
-          )}
-
-          {/* MAP PREVIEW CARD - Premium styled */}
-          <div 
-            className="relative rounded-2xl overflow-hidden cursor-pointer active:scale-[0.98] transition-all group"
-            onClick={() => handleNavigation('/app/map')}
-          >
-            <MiniContributionMap 
-              className="w-full h-36"
-              contributionPoints={points?.total_points || 0}
-              dataPointsCount={dataPointsCount}
-            />
-          </div>
-
-          {/* LEADERBOARD SECTION - compact at bottom */}
-          {user && (
-            <SectionErrorBoundary fallbackTitle="Leaderboard unavailable">
-              <div className="rounded-xl bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] p-3">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-500/20 to-amber-500/5 flex items-center justify-center">
-                      <Crown className="w-4 h-4 text-amber-400" />
-                    </div>
-                    <span className="text-sm font-semibold text-foreground">Leaderboard</span>
-                  </div>
-                  <button 
-                    onClick={() => handleNavigation('/app/leaderboard')}
-                    className="text-xs text-primary active:scale-95 flex items-center gap-1"
-                  >
-                    View All <ChevronRight className="w-3 h-3" />
-                  </button>
-                </div>
-                <LeaderboardSection compact={true} />
-              </div>
-            </SectionErrorBoundary>
-          )}
-
-          {/* Milestone Popup */}
-          <MilestonePopup 
-            show={!!recentUnlock} 
-            achievement={recentUnlock} 
-            onClose={clearRecentUnlock} 
-          />
-
           {/* Auth CTA for non-logged-in users */}
           {!user && !loading && (
-            <div className="rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 p-4">
+            <div className="rounded-xl bg-card border border-border p-4">
               <div className="text-center">
                 <h3 className="text-base font-bold text-foreground mb-1">Join the Network</h3>
-                <p className="text-xs text-muted-foreground mb-3">
+                <p className="text-sm text-muted-foreground mb-3">
                   Sign up to start earning rewards
                 </p>
                 <button
@@ -676,26 +583,11 @@ export const AppHome: React.FC = () => {
             </div>
           )}
         </div>
-
-        {/* CSS Animations */}
-        <style>{`
-          @keyframes shimmer {
-            0%, 100% { background-position: 200% 0; }
-            50% { background-position: -200% 0; }
-          }
-          
-          .scrollbar-hide::-webkit-scrollbar {
-            display: none;
-          }
-          .scrollbar-hide {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-          }
-        `}</style>
       </div>
+
+      {/* Modals */}
       {user && <DailyCheckIn userId={user.id} />}
 
-      {/* Spin Wheel Modal */}
       <AnimatePresence>
         {showSpinWheel && user && (
           <SpinWheel 
@@ -706,10 +598,12 @@ export const AppHome: React.FC = () => {
         )}
       </AnimatePresence>
 
-      {/* Streak Calendar Modal */}
       <AnimatePresence>
         {showStreakCalendar && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setShowStreakCalendar(false)}>
+          <div 
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60" 
+            onClick={() => setShowStreakCalendar(false)}
+          >
             <div onClick={(e) => e.stopPropagation()}>
               <StreakCalendar 
                 checkins={checkinHistory}
@@ -721,9 +615,29 @@ export const AppHome: React.FC = () => {
         )}
       </AnimatePresence>
 
-      {/* Social Proof Toast removed - was causing spam */}
+      <RewardCelebration
+        trigger={showDailyGoalCelebration}
+        points={todayPoints}
+        type="milestone"
+        onComplete={() => setShowDailyGoalCelebration(false)}
+      />
 
-      {/* App Rating Prompt */}
+      <FloatingPoints 
+        trigger={floatingTrigger} 
+        points={floatingPointsValue} 
+      />
+
+      <Confetti 
+        trigger={showFirstPurchaseConfetti} 
+        onComplete={() => setShowFirstPurchaseConfetti(false)} 
+      />
+
+      <MilestonePopup 
+        show={!!recentUnlock} 
+        achievement={recentUnlock} 
+        onClose={clearRecentUnlock} 
+      />
+
       <RatingPrompt
         isOpen={ratingPromptOpen}
         onClose={closeRatingPrompt}
