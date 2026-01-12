@@ -46,6 +46,8 @@ import { TestPhaseBadge } from '@/components/app/TestPhaseBadge';
 import { PersonalizedGreeting } from '@/components/app/PersonalizedGreeting';
 import { FloatingPoints, useFloatingPoints } from '@/components/app/FloatingPoints';
 import { Confetti } from '@/components/Confetti';
+import { SpotlightTooltip, PullToRefreshHint } from '@/components/app/SpotlightTooltip';
+import { Hand, Zap as ZapIcon } from 'lucide-react';
 // useLeaderboard hook not needed - using LeaderboardSection component
 
 interface DailyEarning {
@@ -465,17 +467,28 @@ export const AppHome: React.FC = () => {
                 )}
               </div>
 
-              {/* Start Earning Button */}
-              <button
-                onClick={() => handleNavigation('/app/map')}
-                className="w-full h-11 rounded-xl bg-gradient-to-r from-neon-cyan to-sky-400 text-background font-bold text-sm shadow-lg shadow-neon-cyan/30 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+              {/* Start Earning Button - with first-use tooltip */}
+              <SpotlightTooltip
+                id="start-earning-hint"
+                message="Tap here to start earning points!"
+                position="top"
+                icon={<Hand className="w-3.5 h-3.5" />}
+                delay={2000}
               >
-                <Signal className="w-4 h-4" />
-                Start Earning
-                <ChevronRight className="w-4 h-4" />
-              </button>
+                <button
+                  onClick={() => handleNavigation('/app/map')}
+                  className="w-full h-11 rounded-xl bg-gradient-to-r from-neon-cyan to-sky-400 text-background font-bold text-sm shadow-lg shadow-neon-cyan/30 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                >
+                  <Signal className="w-4 h-4" />
+                  Start Earning
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </SpotlightTooltip>
             </div>
           </div>
+
+          {/* Pull-to-refresh first-use hint */}
+          <PullToRefreshHint />
 
           {/* Daily Goal Celebration */}
           <RewardCelebration
@@ -548,17 +561,25 @@ export const AppHome: React.FC = () => {
             </button>
           </div>
 
-          {/* STREAK BADGE (inline, small) */}
+          {/* STREAK BADGE (inline, small) - with first-use hint for new users */}
           {user && streakDays >= 1 && (
-            <button 
-              onClick={() => setShowStreakCalendar(true)}
-              className="flex items-center gap-2 px-3 py-2 rounded-xl bg-gradient-to-r from-orange-500/10 to-amber-500/10 border border-orange-500/20 active:scale-[0.98] transition-transform w-full"
+            <SpotlightTooltip
+              id="daily-checkin-hint"
+              message="Check in daily for streak bonuses!"
+              position="bottom"
+              icon={<Flame className="w-3.5 h-3.5" />}
+              delay={4000}
             >
-              <Flame className="w-4 h-4 text-orange-500" />
-              <span className="text-sm font-semibold text-foreground flex-1 text-left">{streakDays} Day Streak</span>
-              <span className="text-xs text-orange-400">{streakMultiplier}x bonus</span>
-              <Calendar className="w-4 h-4 text-muted-foreground" />
-            </button>
+              <button 
+                onClick={() => setShowStreakCalendar(true)}
+                className="flex items-center gap-2 px-3 py-2 rounded-xl bg-gradient-to-r from-orange-500/10 to-amber-500/10 border border-orange-500/20 active:scale-[0.98] transition-transform w-full"
+              >
+                <Flame className="w-4 h-4 text-orange-500" />
+                <span className="text-sm font-semibold text-foreground flex-1 text-left">{streakDays} Day Streak</span>
+                <span className="text-xs text-orange-400">{streakMultiplier}x bonus</span>
+                <Calendar className="w-4 h-4 text-muted-foreground" />
+              </button>
+            </SpotlightTooltip>
           )}
 
           {/* ACHIEVEMENTS ROW - compact */}
