@@ -6,19 +6,24 @@ import {
   Settings,
   Flame,
   Signal,
-  Crown
+  Crown,
+  Gift,
+  Target,
+  Trophy
 } from 'lucide-react';
 import { useHaptics } from '@/hooks/useHaptics';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import { useAchievements } from '@/hooks/useAchievements';
+import { useChallenges } from '@/hooks/useChallenges';
 import { OnboardingFlow } from '@/components/app/OnboardingFlow';
 import { AnimatePresence } from 'framer-motion';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from '@/components/app/PullToRefreshIndicator';
 import { AppSpinner } from '@/components/app/AppSpinner';
 import { DailyCheckIn } from '@/components/app/DailyCheckIn';
+import { SpinWheel } from '@/components/app/SpinWheel';
 
 const POINTS_TO_USD = 0.01;
 
@@ -26,7 +31,9 @@ export const AppHome: React.FC = () => {
   const navigate = useNavigate();
   const { mediumTap } = useHaptics();
   const { isOnline, connectionType } = useNetworkStatus();
-  const { streakDays, streakMultiplier } = useAchievements();
+  const { streakDays, streakMultiplier, unlockedCount, totalCount } = useAchievements();
+  const { unclaimedCount } = useChallenges();
+  const [showSpinWheel, setShowSpinWheel] = useState(false);
   
   const [showOnboarding, setShowOnboarding] = useState(() => {
     if (typeof window === 'undefined') return false;
@@ -266,6 +273,41 @@ export const AppHome: React.FC = () => {
             </button>
           </div>
 
+          {/* Quick Actions - Gamification Entry Points */}
+          <div className="grid grid-cols-3 gap-2">
+            <button
+              onClick={() => { mediumTap(); setShowSpinWheel(true); }}
+              className="rounded-xl bg-card border border-border p-3 text-center active:scale-[0.98] transition-transform"
+            >
+              <Gift className="w-4 h-4 text-pink-500 mx-auto mb-1" />
+              <p className="text-xs font-medium text-foreground">Daily Spin</p>
+              <p className="text-[10px] text-muted-foreground">Tap to play</p>
+            </button>
+            
+            <button
+              onClick={() => { mediumTap(); navigate('/app/challenges'); }}
+              className="rounded-xl bg-card border border-border p-3 text-center active:scale-[0.98] transition-transform relative"
+            >
+              <Target className="w-4 h-4 text-blue-500 mx-auto mb-1" />
+              <p className="text-xs font-medium text-foreground">Challenges</p>
+              <p className="text-[10px] text-muted-foreground">
+                {unclaimedCount > 0 ? `${unclaimedCount} ready` : 'View all'}
+              </p>
+              {unclaimedCount > 0 && (
+                <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-primary animate-pulse" />
+              )}
+            </button>
+            
+            <button
+              onClick={() => { mediumTap(); navigate('/app/achievements'); }}
+              className="rounded-xl bg-card border border-border p-3 text-center active:scale-[0.98] transition-transform"
+            >
+              <Trophy className="w-4 h-4 text-amber-500 mx-auto mb-1" />
+              <p className="text-xs font-medium text-foreground">Badges</p>
+              <p className="text-[10px] text-muted-foreground">{unlockedCount}/{totalCount}</p>
+            </button>
+          </div>
+
           {/* Recent Activity - Simple list like Helium */}
           {recentActivity.length > 0 && (
             <div className="rounded-xl bg-card border border-border p-4">
@@ -318,6 +360,15 @@ export const AppHome: React.FC = () => {
 
       {/* Daily Check-in modal */}
       {user && <DailyCheckIn userId={user.id} />}
+
+      {/* Spin Wheel modal */}
+      {user && showSpinWheel && (
+        <SpinWheel 
+          userId={user.id} 
+          onClose={() => setShowSpinWheel(false)}
+          onPrizeWon={() => loadData()}
+        />
+      )}
     </>
   );
 };

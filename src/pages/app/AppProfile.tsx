@@ -3,7 +3,8 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { 
   User, Package, LogOut, Crown, Star, Sparkles,
   Share2, Pencil, Check, X, RefreshCw, Users,
-  Wallet, MapPin, Activity, Shield, Loader2, Gift
+  Wallet, MapPin, Activity, Shield, Loader2, Gift,
+  Target, Trophy, ChevronRight
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -338,6 +339,55 @@ export const AppProfile: React.FC = () => {
 
         {/* Account Tab */}
         <TabsContent value="account" className="mt-4 space-y-4">
+          {/* Your Progress Section */}
+          <Card className="bg-card border-border">
+            <CardContent className="p-4">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Your Progress</p>
+              <div className="space-y-1">
+                <button
+                  onClick={() => { selectionTap(); navigate('/app/challenges'); }}
+                  className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 active:scale-[0.99] transition-all -mx-1"
+                >
+                  <div className="flex items-center gap-3">
+                    <Target className="w-5 h-5 text-blue-500" />
+                    <div className="text-left">
+                      <p className="text-sm font-medium text-foreground">Challenges</p>
+                      <p className="text-xs text-muted-foreground">Complete tasks, earn rewards</p>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                </button>
+                <button
+                  onClick={() => { selectionTap(); navigate('/app/achievements'); }}
+                  className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 active:scale-[0.99] transition-all -mx-1"
+                >
+                  <div className="flex items-center gap-3">
+                    <Trophy className="w-5 h-5 text-amber-500" />
+                    <div className="text-left">
+                      <p className="text-sm font-medium text-foreground">Achievements</p>
+                      <p className="text-xs text-muted-foreground">Unlock badges as you progress</p>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                </button>
+                <button
+                  onClick={() => { selectionTap(); navigate('/app/leaderboard'); }}
+                  className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 active:scale-[0.99] transition-all -mx-1"
+                >
+                  <div className="flex items-center gap-3">
+                    <Crown className="w-5 h-5 text-violet-500" />
+                    <div className="text-left">
+                      <p className="text-sm font-medium text-foreground">Leaderboard</p>
+                      <p className="text-xs text-muted-foreground">See where you rank</p>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                </button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Account Details */}
           <Card className="bg-card border-border">
             <CardContent className="p-4 space-y-4">
               <div>
