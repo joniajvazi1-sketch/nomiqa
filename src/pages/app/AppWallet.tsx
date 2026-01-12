@@ -11,21 +11,16 @@ import {
   MapPin,
   Clock,
   ChevronRight,
-  Sparkles,
   ArrowUpRight,
   ArrowDownRight,
-  Filter,
   Gift,
   ShoppingBag,
   Coins,
-  CreditCard,
   Star,
   Trophy,
-  Flame,
-  Target
+  Flame
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { useEnhancedHaptics } from '@/hooks/useEnhancedHaptics';
 import { useEnhancedSounds } from '@/hooks/useEnhancedSounds';
 import { useTranslation } from '@/contexts/TranslationContext';
@@ -33,19 +28,13 @@ import { useNativeShare } from '@/hooks/useNativeShare';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { formatDistanceToNow } from 'date-fns';
 import { formatRelativeTime } from '@/utils/timeFormatters';
 import { useAchievements } from '@/hooks/useAchievements';
-import { AchievementBadge, MilestonePopup, StreakBonus } from '@/components/app/AchievementSystem';
-import { ChallengesSection } from '@/components/app/ChallengesSection';
-import { LeaderboardSection } from '@/components/app/LeaderboardSection';
+import { AchievementBadge, MilestonePopup } from '@/components/app/AchievementSystem';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from '@/components/app/PullToRefreshIndicator';
 import { AppSpinner } from '@/components/app/AppSpinner';
 import { EmptyState } from '@/components/app/EmptyState';
-import { motion } from 'framer-motion';
-import { SectionErrorBoundary } from '@/components/app/SectionErrorBoundary';
-import { TestPhaseBadge } from '@/components/app/TestPhaseBadge';
 import { LevelUpCelebration, useLevelUpCelebration } from '@/components/app/LevelUpCelebration';
 
 interface RecentSession {
@@ -57,9 +46,8 @@ interface RecentSession {
   status: string | null;
 }
 
-type TransactionFilter = 'all' | 'earned' | 'spent' | 'bonus';
+type TransactionFilter = 'all' | 'earned' | 'bonus';
 
-// Mock transaction data for premium UI (combines real sessions with sample data)
 interface Transaction {
   id: string;
   type: 'earned' | 'spent' | 'bonus' | 'referral';
@@ -69,11 +57,8 @@ interface Transaction {
   icon: 'zap' | 'shopping' | 'gift' | 'users';
 }
 
-const POINTS_TO_USD = 0.001; // 1000 points = $1
+const POINTS_TO_USD = 0.001;
 
-/**
- * App Wallet - Premium earnings dashboard with animated cards and filters
- */
 export const AppWallet: React.FC = () => {
   const navigate = useNavigate();
   const { buttonTap, successPattern, navigationTap, selectionTap } = useEnhancedHaptics();
@@ -90,10 +75,8 @@ export const AppWallet: React.FC = () => {
   const [activeFilter, setActiveFilter] = useState<TransactionFilter>('all');
   const [showBalanceDetails, setShowBalanceDetails] = useState(false);
   
-  // Level up celebration hook
   const { isOpen: showLevelUp, previousTier, newTier, triggerLevelUp, close: closeLevelUp } = useLevelUpCelebration();
   
-  // Achievement system
   const { 
     achievements, 
     unlockedCount, 
@@ -124,7 +107,6 @@ export const AppWallet: React.FC = () => {
           .single();
         setAffiliate(affiliateData);
         
-        // Check for tier level up (affiliate tier)
         if (affiliateData) {
           const storedTier = parseInt(localStorage.getItem('affiliate_tier_level') || '1');
           if (affiliateData.tier_level > storedTier) {
@@ -146,18 +128,16 @@ export const AppWallet: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [triggerLevelUp]);
 
   useEffect(() => {
     loadData();
   }, [loadData]);
 
-  // Pull-to-refresh
   const { isRefreshing, pullDistance, pullProgress, handlers } = usePullToRefresh({
     onRefresh: loadData
   });
 
-  // Convert sessions to transactions and add mock data for UI demo
   const transactions = useMemo<Transaction[]>(() => {
     const txs: Transaction[] = recentSessions.map(session => ({
       id: session.id,
@@ -168,7 +148,6 @@ export const AppWallet: React.FC = () => {
       icon: 'zap' as const
     }));
 
-    // Add sample transactions for demo (only if we have few real ones)
     if (txs.length < 3) {
       txs.push(
         { id: 'demo-1', type: 'bonus', amount: 500, description: 'Welcome bonus', timestamp: new Date(Date.now() - 86400000 * 2), icon: 'gift' },
@@ -182,7 +161,6 @@ export const AppWallet: React.FC = () => {
   const filteredTransactions = useMemo(() => {
     if (activeFilter === 'all') return transactions;
     if (activeFilter === 'earned') return transactions.filter(t => t.type === 'earned');
-    if (activeFilter === 'spent') return transactions.filter(t => t.type === 'spent');
     if (activeFilter === 'bonus') return transactions.filter(t => t.type === 'bonus' || t.type === 'referral');
     return transactions;
   }, [transactions, activeFilter]);
@@ -249,15 +227,6 @@ export const AppWallet: React.FC = () => {
     }
   };
 
-  const getTierGradient = (level: number) => {
-    switch (level) {
-      case 1: return 'from-slate-400 to-slate-500';
-      case 2: return 'from-blue-400 to-blue-500';
-      case 3: return 'from-amber-400 to-amber-500';
-      default: return 'from-slate-400 to-slate-500';
-    }
-  };
-
   const getTransactionIcon = (icon: string) => {
     switch (icon) {
       case 'zap': return <Zap className="w-4 h-4" />;
@@ -271,7 +240,6 @@ export const AppWallet: React.FC = () => {
   const totalPoints = points?.total_points || 0;
   const estimatedUSD = (totalPoints * POINTS_TO_USD).toFixed(2);
 
-  // Show spinner while loading (skeletons removed)
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center px-6">
@@ -283,192 +251,172 @@ export const AppWallet: React.FC = () => {
   if (!user) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6">
-        <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center mb-6 animate-float">
-          <WalletIcon className="w-10 h-10 text-primary" />
+        <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
+          <WalletIcon className="w-8 h-8 text-primary" />
         </div>
-        <h2 className="text-2xl font-bold text-foreground mb-2">Sign in to view wallet</h2>
-        <p className="text-muted-foreground text-center mb-8 max-w-[280px]">
-          Track your earnings, points, and referrals
+        <h2 className="text-xl font-bold text-foreground mb-2">Sign in to view wallet</h2>
+        <p className="text-muted-foreground text-center mb-6 text-sm">
+          Track your earnings and rewards
         </p>
-        <Button onClick={() => navigate('/auth')} className="shadow-lg shadow-primary/30">
-          Sign In
-        </Button>
+        <Button onClick={() => navigate('/auth')}>Sign In</Button>
       </div>
     );
   }
 
   return (
     <div 
-      className="min-h-screen bg-background relative overflow-hidden overflow-y-auto app-container momentum-scroll"
+      className="min-h-screen bg-background overflow-y-auto"
       {...handlers}
     >
-      {/* Pull to refresh indicator */}
       <PullToRefreshIndicator 
         pullDistance={pullDistance}
         pullProgress={pullProgress}
         isRefreshing={isRefreshing}
       />
 
-      {/* Background - simplified */}
-      <div className="fixed inset-0 bg-background" />
-
-      <div className="relative z-10 px-5 py-6 pb-28 space-y-5">
+      <div className="px-4 py-4 pb-28 space-y-4">
         {/* Header */}
         <header className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-foreground tracking-tight">{t('app.wallet.title')}</h1>
+            <h1 className="text-xl font-bold text-foreground">{t('app.wallet.title')}</h1>
             <p className="text-sm text-muted-foreground">{t('app.wallet.subtitle')}</p>
           </div>
           <button 
             onClick={handleLogout}
-            className="w-11 h-11 rounded-full bg-card border border-border flex items-center justify-center hover:bg-muted transition-colors active:scale-95"
+            className="w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center active:scale-95 transition-transform"
           >
-            <LogOut className="w-5 h-5 text-muted-foreground" />
+            <LogOut className="w-4 h-4 text-muted-foreground" />
           </button>
         </header>
 
-        {/* Balance Card - simplified, no 3D effects */}
-        <div 
-          className="rounded-2xl border border-border bg-card overflow-hidden cursor-pointer"
+        {/* Balance Card */}
+        <button 
+          className="w-full rounded-2xl border border-border bg-card p-4 text-left active:scale-[0.99] transition-transform"
           onClick={() => { buttonTap(); playCoin(); setShowBalanceDetails(!showBalanceDetails); }}
         >
-          <div className="p-6">
-            {/* Top row */}
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center">
-                  <Zap className="w-6 h-6 text-primary" />
-                </div>
-                <div>
-                  <span className="text-sm text-foreground/80 font-semibold">{t('app.wallet.totalBalance')}</span>
-                  <div className="flex items-center gap-1.5">
-                    <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('app.wallet.live')}</span>
-                  </div>
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                <Zap className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <span className="text-sm font-medium text-foreground">{t('app.wallet.totalBalance')}</span>
+                <div className="flex items-center gap-1">
+                  <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                  <span className="text-xs text-muted-foreground">{t('app.wallet.live')}</span>
                 </div>
               </div>
-              <ChevronRight className={cn(
-                "w-5 h-5 text-muted-foreground transition-transform",
-                showBalanceDetails && "rotate-90"
-              )} />
             </div>
-            
-            {/* Balance display */}
-            <div className="mb-1">
-              <span 
-                className="text-5xl font-bold text-foreground tracking-tighter tabular-nums"
-              >
-                {loading ? '---' : formatNumber(totalPoints)}
-              </span>
-              <span className="text-xl text-muted-foreground ml-2">pts</span>
-            </div>
-            
-            {/* USD estimate */}
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span>≈ ${estimatedUSD} USD</span>
-              {totalPoints > 0 && <TrendingUp className="w-3.5 h-3.5 text-green-400" />}
-            </div>
+            <ChevronRight className={cn(
+              "w-5 h-5 text-muted-foreground transition-transform",
+              showBalanceDetails && "rotate-90"
+            )} />
+          </div>
+          
+          <div className="mb-1">
+            <span className="text-4xl font-bold text-foreground tabular-nums">
+              {formatNumber(totalPoints)}
+            </span>
+            <span className="text-lg text-muted-foreground ml-2">pts</span>
+          </div>
+          
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <span>≈ ${estimatedUSD} USD</span>
+            {totalPoints > 0 && <TrendingUp className="w-3.5 h-3.5 text-green-500" />}
+          </div>
 
-            {/* Expandable details */}
-            <div className={cn(
-              "grid grid-cols-3 gap-3 transition-all overflow-hidden",
-              showBalanceDetails ? "mt-5 max-h-24 opacity-100" : "max-h-0 opacity-0"
-            )}>
-              <div className="bg-muted/50 rounded-xl p-3 text-center">
-                <div className="text-lg font-bold text-foreground">{points?.contribution_streak_days || 0}</div>
-                <div className="text-[10px] text-muted-foreground uppercase">Day Streak</div>
-              </div>
-              <div className="bg-muted/50 rounded-xl p-3 text-center">
-                <div className="text-lg font-bold text-foreground">{formatDistance(points?.total_distance_meters)}</div>
-                <div className="text-[10px] text-muted-foreground uppercase">Total Dist</div>
-              </div>
-              <div className="bg-muted/50 rounded-xl p-3 text-center">
-                <div className="text-lg font-bold text-foreground">{affiliate?.total_registrations || 0}</div>
-                <div className="text-[10px] text-muted-foreground uppercase">Referrals</div>
-              </div>
+          <div className={cn(
+            "grid grid-cols-3 gap-2 transition-all overflow-hidden",
+            showBalanceDetails ? "mt-4 max-h-20 opacity-100" : "max-h-0 opacity-0"
+          )}>
+            <div className="bg-muted/50 rounded-xl p-2.5 text-center">
+              <div className="text-base font-bold text-foreground">{points?.contribution_streak_days || 0}</div>
+              <div className="text-xs text-muted-foreground">Streak</div>
+            </div>
+            <div className="bg-muted/50 rounded-xl p-2.5 text-center">
+              <div className="text-base font-bold text-foreground">{formatDistance(points?.total_distance_meters)}</div>
+              <div className="text-xs text-muted-foreground">Distance</div>
+            </div>
+            <div className="bg-muted/50 rounded-xl p-2.5 text-center">
+              <div className="text-base font-bold text-foreground">{affiliate?.total_registrations || 0}</div>
+              <div className="text-xs text-muted-foreground">Referrals</div>
             </div>
           </div>
-        </div>
+        </button>
 
-        {/* Streak Bonus */}
+        {/* Streak Banner */}
         {streakDays >= 1 && (
-          <StreakBonus streakDays={streakDays} isActive={true} />
+          <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-orange-500/10 border border-orange-500/20">
+            <Flame className="w-5 h-5 text-orange-500" />
+            <div className="flex-1">
+              <span className="text-sm font-medium text-foreground">{streakDays} Day Streak</span>
+              <p className="text-xs text-muted-foreground">{streakMultiplier}x earning bonus active</p>
+            </div>
+          </div>
         )}
 
-        {/* Achievements Section */}
+        {/* Achievements Row */}
         {achievements.length > 0 && (
-          <div className="space-y-3">
+          <div className="space-y-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Trophy className="w-4 h-4 text-primary" />
-                <h2 className="font-semibold text-foreground">Achievements</h2>
+                <span className="text-sm font-medium text-foreground">Achievements</span>
               </div>
-              <span className="text-xs text-muted-foreground">{unlockedCount}/{totalCount} unlocked</span>
+              <span className="text-xs text-muted-foreground">{unlockedCount}/{totalCount}</span>
             </div>
-            <div className="flex gap-1 overflow-x-auto pb-2 scrollbar-hide">
-              {achievements.map((achievement) => (
+            <div className="flex gap-1.5 overflow-x-auto pb-1">
+              {achievements.slice(0, 6).map((achievement) => (
                 <AchievementBadge 
                   key={achievement.id} 
                   achievement={achievement} 
                   size="sm"
-                  showProgress={true}
+                  showProgress={false}
                 />
               ))}
             </div>
           </div>
         )}
 
-        {/* CHALLENGES SECTION - Full view */}
-        <SectionErrorBoundary fallbackTitle="Challenges unavailable">
-          <ChallengesSection compact={false} />
-        </SectionErrorBoundary>
-
-        {/* LEADERBOARD SECTION - Full view */}
-        <SectionErrorBoundary fallbackTitle="Leaderboard unavailable">
-          <LeaderboardSection compact={false} />
-        </SectionErrorBoundary>
-
-        {/* Quick Actions - simplified */}
-        <div className="grid grid-cols-4 gap-3">
+        {/* Quick Actions */}
+        <div className="grid grid-cols-4 gap-2">
           {[
-            { id: 'earn', icon: MapPin, label: 'Scan', color: 'text-green-400 bg-green-500/10' },
-            { id: 'shop', icon: ShoppingBag, label: 'Shop', color: 'text-blue-400 bg-blue-500/10' },
-            { id: 'invite', icon: Users, label: 'Invite', color: 'text-violet-400 bg-violet-500/10' },
-            { id: 'redeem', icon: Gift, label: 'Redeem', color: 'text-amber-400 bg-amber-500/10' },
+            { id: 'earn', icon: MapPin, label: 'Scan', color: 'text-green-500 bg-green-500/10' },
+            { id: 'shop', icon: ShoppingBag, label: 'Shop', color: 'text-blue-500 bg-blue-500/10' },
+            { id: 'invite', icon: Users, label: 'Invite', color: 'text-violet-500 bg-violet-500/10' },
+            { id: 'redeem', icon: Gift, label: 'Redeem', color: 'text-amber-500 bg-amber-500/10' },
           ].map((action) => (
             <button
               key={action.id}
               onClick={() => handleQuickAction(action.id)}
-              className="flex flex-col items-center gap-2 p-3 rounded-xl bg-card border border-border hover:bg-muted/50 transition-colors active:scale-95"
+              className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-card border border-border active:scale-95 transition-transform"
             >
-              <div className={cn('w-10 h-10 rounded-xl flex items-center justify-center', action.color)}>
-                <action.icon className="w-5 h-5" />
+              <div className={cn('w-9 h-9 rounded-lg flex items-center justify-center', action.color)}>
+                <action.icon className="w-4 h-4" />
               </div>
               <span className="text-xs font-medium text-foreground">{action.label}</span>
             </button>
           ))}
         </div>
 
-        {/* Transaction List with Filters */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-primary" />
-              <h2 className="font-semibold text-foreground">Transactions</h2>
-            </div>
+        {/* Transactions */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Clock className="w-4 h-4 text-primary" />
+            <span className="text-sm font-medium text-foreground">Transactions</span>
           </div>
 
           {/* Filter chips */}
-          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-            {(['all', 'earned', 'spent', 'bonus'] as TransactionFilter[]).map((filter) => (
+          <div className="flex gap-2">
+            {(['all', 'earned', 'bonus'] as TransactionFilter[]).map((filter) => (
               <button
                 key={filter}
                 onClick={() => { selectionTap(); setActiveFilter(filter); }}
                 className={cn(
-                  "px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap",
+                  "px-3 py-1.5 rounded-full text-sm font-medium transition-colors",
                   activeFilter === filter
-                    ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30"
-                    : "bg-white/[0.05] text-muted-foreground border border-white/10 hover:bg-white/[0.08]"
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted/50 text-muted-foreground"
                 )}
               >
                 {filter.charAt(0).toUpperCase() + filter.slice(1)}
@@ -477,63 +425,42 @@ export const AppWallet: React.FC = () => {
           </div>
 
           {/* Transaction list */}
-          {loading ? (
-            <div className="rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] p-6">
-              <div className="animate-pulse space-y-4">
-                {[1, 2, 3].map(i => (
-                  <div key={i} className="flex items-center gap-4">
-                    <div className="w-11 h-11 rounded-xl bg-white/10" />
-                    <div className="flex-1 space-y-2">
-                      <div className="h-4 bg-white/10 rounded w-3/4" />
-                      <div className="h-3 bg-white/10 rounded w-1/2" />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : filteredTransactions.length === 0 ? (
+          {filteredTransactions.length === 0 ? (
             <EmptyState 
               type="transactions" 
               title="No activity yet"
-              description="Your earning history will appear here as you scan"
+              description="Your earning history will appear here"
               compact={true}
             />
           ) : (
             <div className="space-y-2">
-              {filteredTransactions.map((tx, index) => (
-                <motion.div 
+              {filteredTransactions.map((tx) => (
+                <div 
                   key={tx.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ 
-                    delay: index * 0.05, 
-                    duration: 0.3,
-                    ease: [0.25, 0.1, 0.25, 1]
-                  }}
-                  className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] hover:bg-white/[0.05] transition-all"
+                  className="flex items-center justify-between p-3 rounded-xl bg-card border border-border"
                 >
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-3">
                     <div className={cn(
-                      'w-11 h-11 rounded-xl flex items-center justify-center',
+                      'w-10 h-10 rounded-lg flex items-center justify-center',
                       tx.type === 'earned' || tx.type === 'bonus' || tx.type === 'referral'
-                        ? 'bg-gradient-to-br from-green-500/25 to-green-500/5 text-green-400' 
-                        : 'bg-gradient-to-br from-red-500/25 to-red-500/5 text-red-400'
+                        ? 'bg-green-500/10 text-green-500' 
+                        : 'bg-red-500/10 text-red-500'
                     )}>
                       {getTransactionIcon(tx.icon)}
                     </div>
                     <div>
-                      <div className="font-semibold text-foreground text-sm">
+                      <div className="font-medium text-foreground text-sm">
                         {tx.description}
                       </div>
-                      <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
                         <Clock className="w-3 h-3" />
                         {formatRelativeTime(tx.timestamp)}
                       </div>
                     </div>
                   </div>
                   <div className={cn(
-                    "flex items-center gap-1 font-bold",
-                    tx.type === 'spent' ? 'text-red-400' : 'text-green-400'
+                    "flex items-center gap-1 font-semibold text-sm",
+                    tx.type === 'spent' ? 'text-red-500' : 'text-green-500'
                   )}>
                     {tx.type === 'spent' ? (
                       <ArrowDownRight className="w-4 h-4" />
@@ -542,28 +469,25 @@ export const AppWallet: React.FC = () => {
                     )}
                     <span>{tx.type === 'spent' ? '-' : '+'}{tx.amount}</span>
                   </div>
-                </motion.div>
+                </div>
               ))}
             </div>
           )}
         </div>
 
-        {/* Affiliate Mini Card */}
+        {/* Affiliate Card */}
         {affiliate && (
-          <div 
-            className="rounded-2xl bg-gradient-to-br from-primary/10 via-background to-neon-cyan/5 border border-white/10 p-4 cursor-pointer hover:border-primary/30 transition-all active:scale-[0.98]"
+          <button 
+            className="w-full rounded-xl bg-card border border-border p-4 text-left active:scale-[0.98] transition-transform"
             onClick={() => { navigationTap(); playSwoosh(); navigate('/affiliate'); }}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className={cn(
-                  "w-10 h-10 rounded-xl bg-gradient-to-br flex items-center justify-center",
-                  getTierGradient(affiliate.tier_level)
-                )}>
-                  <Star className="w-5 h-5 text-white" />
+                <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center">
+                  <Star className="w-5 h-5 text-amber-500" />
                 </div>
                 <div>
-                  <div className="font-semibold text-foreground text-sm">
+                  <div className="font-medium text-foreground text-sm">
                     {getTierName(affiliate.tier_level)} Affiliate
                   </div>
                   <div className="text-xs text-muted-foreground">
@@ -574,91 +498,44 @@ export const AppWallet: React.FC = () => {
               <div className="flex items-center gap-2">
                 <button 
                   onClick={(e) => { e.stopPropagation(); handleCopyLink(); }}
-                  className="w-9 h-9 rounded-lg bg-white/[0.05] border border-white/10 flex items-center justify-center hover:bg-white/[0.08] transition-all active:scale-95"
+                  className="w-9 h-9 rounded-lg bg-muted/50 flex items-center justify-center active:scale-95 transition-transform"
                 >
                   <Copy className="w-4 h-4 text-foreground" />
                 </button>
                 <button 
                   onClick={(e) => { e.stopPropagation(); handleShare(); }}
-                  className="w-9 h-9 rounded-lg bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg shadow-primary/30 active:scale-95 transition-all"
+                  className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center active:scale-95 transition-transform"
                 >
                   <Share2 className="w-4 h-4 text-primary-foreground" />
                 </button>
               </div>
             </div>
-          </div>
+          </button>
         )}
 
-        {/* Create Affiliate CTA */}
-        {!affiliate && !loading && (
-          <div className="relative rounded-2xl overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-neon-cyan/10" />
-            <div className="absolute inset-0 backdrop-blur-xl" />
-            <div className="relative p-6 border border-white/10 border-dashed rounded-2xl text-center">
-              <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center animate-float">
-                <Sparkles className="w-7 h-7 text-primary" />
-              </div>
-              <h3 className="font-bold text-lg text-foreground mb-2">Start Earning More</h3>
-              <p className="text-sm text-muted-foreground mb-5">
-                Refer friends and earn up to 18% commission
-              </p>
-              <Button 
-                onClick={() => navigate('/affiliate')}
-                className="shadow-lg shadow-primary/30"
-              >
-                Join Program
-              </Button>
+        {/* Join Affiliate CTA */}
+        {!affiliate && (
+          <div className="rounded-xl bg-card border border-border p-4 text-center">
+            <div className="w-12 h-12 mx-auto mb-3 rounded-xl bg-primary/10 flex items-center justify-center">
+              <Gift className="w-6 h-6 text-primary" />
             </div>
+            <h3 className="font-semibold text-foreground mb-1">Start Earning More</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              Refer friends and earn up to 18% commission
+            </p>
+            <Button onClick={() => navigate('/affiliate')}>
+              Join Program
+            </Button>
           </div>
         )}
       </div>
 
-      {/* Milestone Popup */}
       <MilestonePopup 
         show={!!recentUnlock} 
         achievement={recentUnlock} 
         onClose={clearRecentUnlock} 
       />
-      <style>{`
-        @keyframes gradient-x {
-          0%, 100% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-        }
-        .animate-gradient-x {
-          background-size: 200% 200%;
-          animation: gradient-x 3s ease infinite;
-        }
-        @keyframes pulse-slow {
-          0%, 100% { opacity: 0.2; }
-          50% { opacity: 0.35; }
-        }
-        .animate-pulse-slow {
-          animation: pulse-slow 4s ease-in-out infinite;
-        }
-        @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-4px); }
-        }
-        .animate-float {
-          animation: float 3s ease-in-out infinite;
-        }
-        @keyframes count-up {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-count-up {
-          animation: count-up 0.5s ease-out forwards;
-        }
-        .scrollbar-hide::-webkit-scrollbar {
-          display: none;
-        }
-        .scrollbar-hide {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-      `}</style>
 
-      {/* Level Up Celebration Modal */}
       <LevelUpCelebration
         isOpen={showLevelUp}
         onClose={closeLevelUp}
