@@ -674,3 +674,104 @@ All colors MUST be HSL.
   contain: layout paint style;
   isolation: isolate;
 }
+
+/* ============================================
+   ACCESSIBILITY ENHANCEMENTS
+   Focus rings, touch targets, contrast fixes
+   ============================================ */
+
+/* Visible focus rings for keyboard navigation */
+.focus-visible-ring:focus-visible,
+button:focus-visible,
+a:focus-visible,
+[role="button"]:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+  border-radius: var(--radius);
+}
+
+/* Ensure focus is visible but not intrusive on touch */
+@media (hover: none) and (pointer: coarse) {
+  .focus-visible-ring:focus-visible,
+  button:focus-visible,
+  a:focus-visible,
+  [role="button"]:focus-visible {
+    outline: none;
+  }
+}
+
+/* Minimum touch target size (44x44px per WCAG) */
+.tap-target,
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Larger touch targets for important actions */
+.tap-target-lg {
+  min-height: 48px;
+  min-width: 48px;
+}
+
+/* Skip to main content link (screen readers) */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  padding: 8px 16px;
+  z-index: 100;
+  text-decoration: none;
+  font-weight: 600;
+  border-radius: 0 0 var(--radius) 0;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --muted-foreground: 220 10% 70%;
+    --border: 220 15% 30%;
+  }
+  
+  .text-muted-foreground {
+    color: hsl(220 10% 70%);
+  }
+}
+
+/* Screen reader only content */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Improved color contrast for muted text */
+.text-muted-accessible {
+  color: hsl(220 15% 65%);
+}
+
+/* Ensure sufficient contrast on interactive elements */
+.contrast-safe {
+  color: hsl(220 15% 65%);
+}
+
+.contrast-safe:hover {
+  color: hsl(220 15% 80%);
+}
