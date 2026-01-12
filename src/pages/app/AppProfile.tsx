@@ -54,6 +54,7 @@ import { Switch } from '@/components/ui/switch';
 import { Volume2, VolumeX } from 'lucide-react';
 import { EmptyStateIllustration } from '@/components/app/EmptyStateIllustration';
 import { motion } from 'framer-motion';
+import { InlineExplainer } from '@/components/app/EarningExplainer';
 
 interface UserProfile {
   username: string;
@@ -723,20 +724,20 @@ export const AppProfile: React.FC = () => {
                   <p className="text-xl font-semibold text-foreground">
                     {selectedAffiliate?.total_registrations || 0}
                   </p>
-                  <p className="text-[10px] text-muted-foreground">Recruits</p>
+                  <p className="text-[10px] text-muted-foreground">Friends Joined</p>
                 </div>
                 <div className="bg-background/40 rounded-lg p-3 text-center">
                   <TrendingUp className="w-4 h-4 text-green-500 mx-auto mb-1" />
                   <p className="text-xl font-semibold text-neon-cyan">
                     +{selectedAffiliate?.miner_boost_percentage || 0}%
                   </p>
-                  <p className="text-[10px] text-muted-foreground">Bonus Earning</p>
+                  <p className="text-[10px] text-muted-foreground">Earning Bonus</p>
                 </div>
               </div>
 
               <div className="bg-white/5 rounded-xl p-3 text-center">
-                <p className="text-xs text-muted-foreground mb-1">Invite friends to increase your boost!</p>
-                <p className="text-sm font-medium text-neon-cyan">More recruits = Higher bonus % 🚀</p>
+                <p className="text-xs text-muted-foreground mb-1">Build an active community for higher rewards</p>
+                <InlineExplainer text="More friends = higher bonus on all your earnings" />
               </div>
 
               <Button 

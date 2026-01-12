@@ -41,6 +41,8 @@ import { StreakCalendar } from '@/components/app/StreakCalendar';
 import { SpinWheel } from '@/components/app/SpinWheel';
 import { PersonalizedGoals } from '@/components/app/PersonalizedGoals';
 import { RatingPrompt, useRatingPrompt } from '@/components/app/RatingPrompt';
+import { HowYouEarnCard } from '@/components/app/HowYouEarnCard';
+import { TestPhaseBadge } from '@/components/app/TestPhaseBadge';
 // useLeaderboard hook not needed - using LeaderboardSection component
 
 interface DailyEarning {
@@ -464,6 +466,9 @@ export const AppHome: React.FC = () => {
             onComplete={() => setShowDailyGoalCelebration(false)}
           />
 
+          {/* HOW YOU EARN EXPLAINER - Shows users how earning works */}
+          <HowYouEarnCard compact={true} />
+
           {/* PERSONALIZED GOALS - COMPACT INLINE */}
           {user && (
             <SectionErrorBoundary fallbackTitle="Goals unavailable">
@@ -488,6 +493,10 @@ export const AppHome: React.FC = () => {
               <div className="text-lg font-bold text-foreground">
                 {formatDistance(points?.total_distance_meters || 0)}
               </div>
+              {/* Test phase notice for zero values */}
+              {(points?.total_distance_meters || 0) === 0 && (
+                <p className="text-[9px] text-amber-300/60 mt-1">Tracking starts soon</p>
+              )}
             </div>
 
             {/* Invite Friends Card */}

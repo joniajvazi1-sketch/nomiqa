@@ -46,6 +46,7 @@ import { AnimatedGradientBorder } from '@/components/app/AnimatedGradientBorder'
 import { EmptyStateIllustration } from '@/components/app/EmptyStateIllustration';
 import { motion } from 'framer-motion';
 import { SectionErrorBoundary } from '@/components/app/SectionErrorBoundary';
+import { TestPhaseBadge } from '@/components/app/TestPhaseBadge';
 
 interface RecentSession {
   id: string;
@@ -376,10 +377,14 @@ export const AppWallet: React.FC = () => {
                   <span className="text-xl text-muted-foreground ml-2">pts</span>
                 </div>
                 
-                {/* USD estimate */}
+                {/* USD estimate with test phase context */}
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <span>≈ ${estimatedUSD} USD</span>
-                  <TrendingUp className="w-3.5 h-3.5 text-green-400" />
+                  {totalPoints > 0 ? (
+                    <TrendingUp className="w-3.5 h-3.5 text-green-400" />
+                  ) : (
+                    <span className="text-[10px] text-amber-300/60">• Activates at launch</span>
+                  )}
                 </div>
 
                 {/* Expandable details */}
