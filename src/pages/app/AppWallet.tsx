@@ -34,6 +34,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
+import { formatRelativeTime } from '@/utils/timeFormatters';
 import { useAchievements } from '@/hooks/useAchievements';
 import { AchievementBadge, MilestonePopup, StreakBonus } from '@/components/app/AchievementSystem';
 import { ChallengesSection } from '@/components/app/ChallengesSection';
@@ -44,6 +45,7 @@ import { AppSpinner } from '@/components/app/AppSpinner';
 import { TiltCard3D } from '@/components/app/TiltCard3D';
 import { AnimatedGradientBorder } from '@/components/app/AnimatedGradientBorder';
 import { EmptyStateIllustration } from '@/components/app/EmptyStateIllustration';
+import { EmptyState } from '@/components/app/EmptyState';
 import { motion } from 'framer-motion';
 import { SectionErrorBoundary } from '@/components/app/SectionErrorBoundary';
 import { TestPhaseBadge } from '@/components/app/TestPhaseBadge';
@@ -515,11 +517,12 @@ export const AppWallet: React.FC = () => {
               </div>
             </div>
           ) : filteredTransactions.length === 0 ? (
-            <div className="rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] border-dashed p-8 text-center">
-              <EmptyStateIllustration type="transactions" className="mb-2" />
-              <p className="text-muted-foreground">No transactions found</p>
-              <p className="text-xs text-muted-foreground/60 mt-1">Start earning to see your activity here</p>
-            </div>
+            <EmptyState 
+              type="transactions" 
+              title="No activity yet"
+              description="Your earning history will appear here as you scan"
+              compact={true}
+            />
           ) : (
             <div className="space-y-2">
               {filteredTransactions.map((tx, index) => (
@@ -549,7 +552,7 @@ export const AppWallet: React.FC = () => {
                       </div>
                       <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
                         <Clock className="w-3 h-3" />
-                        {formatDistanceToNow(tx.timestamp, { addSuffix: true })}
+                        {formatRelativeTime(tx.timestamp)}
                       </div>
                     </div>
                   </div>
