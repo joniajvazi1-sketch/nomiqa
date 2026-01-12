@@ -49,6 +49,7 @@ import { EmptyState } from '@/components/app/EmptyState';
 import { motion } from 'framer-motion';
 import { SectionErrorBoundary } from '@/components/app/SectionErrorBoundary';
 import { TestPhaseBadge } from '@/components/app/TestPhaseBadge';
+import { LevelUpCelebration, useLevelUpCelebration } from '@/components/app/LevelUpCelebration';
 
 interface RecentSession {
   id: string;
@@ -92,6 +93,9 @@ export const AppWallet: React.FC = () => {
   const [activeFilter, setActiveFilter] = useState<TransactionFilter>('all');
   const [showBalanceDetails, setShowBalanceDetails] = useState(false);
   
+  // Level up celebration hook
+  const { isOpen: showLevelUp, previousTier, newTier, triggerLevelUp, close: closeLevelUp } = useLevelUpCelebration();
+  
   // Achievement system
   const { 
     achievements, 
@@ -122,6 +126,15 @@ export const AppWallet: React.FC = () => {
           .or(`user_id.eq.${currentUser.id},email.eq.${currentUser.email}`)
           .single();
         setAffiliate(affiliateData);
+        
+        // Check for tier level up (affiliate tier)
+        if (affiliateData) {
+          const storedTier = parseInt(localStorage.getItem('affiliate_tier_level') || '1');
+          if (affiliateData.tier_level > storedTier) {
+            triggerLevelUp(storedTier, affiliateData.tier_level);
+          }
+          localStorage.setItem('affiliate_tier_level', String(affiliateData.tier_level));
+        }
 
         const { data: sessionsData } = await supabase
           .from('contribution_sessions')
@@ -682,6 +695,14 @@ export const AppWallet: React.FC = () => {
           scrollbar-width: none;
         }
       `}</style>
+
+      {/* Level Up Celebration Modal */}
+      <LevelUpCelebration
+        isOpen={showLevelUp}
+        onClose={closeLevelUp}
+        previousTier={previousTier}
+        newTier={newTier}
+      />
     </div>
   );
 };
