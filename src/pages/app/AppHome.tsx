@@ -11,7 +11,8 @@ import {
   Target,
   Trophy,
   Footprints,
-  Info
+  Info,
+  Coins
 } from 'lucide-react';
 import { useHaptics } from '@/hooks/useHaptics';
 import { supabase } from '@/integrations/supabase/client';
@@ -20,14 +21,14 @@ import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import { useAchievements } from '@/hooks/useAchievements';
 import { useChallenges } from '@/hooks/useChallenges';
 import { OnboardingFlow } from '@/components/app/OnboardingFlow';
-import { AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from '@/components/app/PullToRefreshIndicator';
 import { AppSpinner } from '@/components/app/AppSpinner';
 import { DailyCheckIn } from '@/components/app/DailyCheckIn';
 import { SpinWheel } from '@/components/app/SpinWheel';
-
-const POINTS_TO_USD = 0.01;
+import { TokenInfoModal } from '@/components/app/TokenInfoModal';
+import { TOKENOMICS, pointsToUsd, formatTokens } from '@/utils/tokenomics';
 
 export const AppHome: React.FC = () => {
   const navigate = useNavigate();
@@ -37,6 +38,7 @@ export const AppHome: React.FC = () => {
   const { unclaimedCount } = useChallenges();
   const [showSpinWheel, setShowSpinWheel] = useState(false);
   const [spinReady, setSpinReady] = useState(false);
+  const [showTokenInfo, setShowTokenInfo] = useState(false);
   
   const [showOnboarding, setShowOnboarding] = useState(() => {
     if (typeof window === 'undefined') return false;
@@ -174,8 +176,9 @@ export const AppHome: React.FC = () => {
   }
 
   const displayName = username || 'Explorer';
-  const todayUSD = todayPoints * POINTS_TO_USD;
+  const todayUSD = pointsToUsd(todayPoints);
   const totalPoints = points?.total_points || 0;
+  const totalUSD = pointsToUsd(totalPoints);
   const isNewUser = totalPoints === 0 && recentActivity.length === 0;
 
   return (
@@ -232,7 +235,7 @@ export const AppHome: React.FC = () => {
             </div>
           )}
 
-          {/* Balance Card - Enhanced with visual depth */}
+          {/* Balance Card - Enhanced with token info */}
           <div className="rounded-2xl bg-card border border-border p-5 relative overflow-hidden">
             {/* Subtle background pattern */}
             <div className="absolute inset-0 opacity-5 pointer-events-none">
@@ -244,18 +247,46 @@ export const AppHome: React.FC = () => {
               <div className="flex items-center gap-1.5 mb-2">
                 <Zap className="w-4 h-4 text-primary" />
                 <span className="text-xs font-medium text-muted-foreground">Today</span>
-                <span className="ml-auto px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-500/20 text-amber-400">
-                  Beta
-                </span>
+                <button 
+                  onClick={() => { mediumTap(); setShowTokenInfo(true); }}
+                  className="ml-auto flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 active:scale-95 transition-transform"
+                >
+                  <span className="text-[10px] font-medium">Beta</span>
+                  <Info className="w-3 h-3" />
+                </button>
               </div>
               
-              <div className="mb-4">
-                <div className="text-4xl font-bold text-foreground tabular-nums">
+              {/* Today's earnings */}
+              <div className="mb-3">
+                <motion.div 
+                  key={todayUSD}
+                  initial={{ scale: 1.05 }}
+                  animate={{ scale: 1 }}
+                  className="text-4xl font-bold text-foreground tabular-nums"
+                >
                   ${todayUSD.toFixed(2)}
+                </motion.div>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <span>{todayPoints.toLocaleString()} pts</span>
+                  <span className="text-xs">•</span>
+                  <span className="flex items-center gap-1">
+                    <Coins className="w-3 h-3 text-primary" />
+                    {todayPoints.toLocaleString()} tokens
+                  </span>
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  {todayPoints.toLocaleString()} pts • {streakMultiplier}x multiplier
-                </p>
+              </div>
+
+              {/* Total balance row */}
+              <div className="flex items-center justify-between bg-muted/30 rounded-lg px-3 py-2 mb-4">
+                <div className="text-xs text-muted-foreground">Total Balance</div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-semibold text-foreground">
+                    ${totalUSD.toFixed(2)}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    ({formatTokens(totalPoints)} tokens)
+                  </span>
+                </div>
               </div>
 
               <button
@@ -463,6 +494,12 @@ export const AppHome: React.FC = () => {
           }}
         />
       )}
+
+      {/* Token Info modal */}
+      <TokenInfoModal 
+        isOpen={showTokenInfo} 
+        onClose={() => setShowTokenInfo(false)} 
+      />
     </>
   );
 };
