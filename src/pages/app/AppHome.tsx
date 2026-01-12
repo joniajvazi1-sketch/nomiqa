@@ -235,12 +235,17 @@ export const AppHome: React.FC = () => {
             </div>
           )}
 
-          {/* Balance Card - Enhanced with token info */}
-          <div className="rounded-2xl bg-card border border-border p-5 relative overflow-hidden">
-            {/* Subtle background pattern */}
-            <div className="absolute inset-0 opacity-5 pointer-events-none">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-primary rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-              <div className="absolute bottom-0 left-0 w-24 h-24 bg-primary rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+          {/* Balance Card - Premium Hero Style */}
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className="rounded-2xl card-hero p-5 relative overflow-hidden"
+          >
+            {/* Animated background gradient */}
+            <div className="absolute inset-0 opacity-10 pointer-events-none">
+              <div className="absolute top-0 right-0 w-40 h-40 bg-primary rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 animate-pulse-soft" />
+              <div className="absolute bottom-0 left-0 w-32 h-32 bg-accent rounded-full blur-3xl translate-y-1/2 -translate-x-1/2 animate-pulse-soft" style={{ animationDelay: '1s' }} />
             </div>
             
             <div className="relative z-10">
@@ -249,38 +254,46 @@ export const AppHome: React.FC = () => {
                 <span className="text-xs font-medium text-muted-foreground">Today</span>
                 <button 
                   onClick={() => { mediumTap(); setShowTokenInfo(true); }}
-                  className="ml-auto flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 active:scale-95 transition-transform"
+                  className="ml-auto flex items-center gap-1 px-2 py-1 rounded-full bg-amber-500/20 text-amber-400 active:scale-95 transition-transform hover:bg-amber-500/30"
                 >
                   <span className="text-[10px] font-medium">Beta</span>
                   <Info className="w-3 h-3" />
                 </button>
               </div>
               
-              {/* Today's earnings */}
+              {/* Today's earnings with counting animation */}
               <div className="mb-3">
                 <motion.div 
                   key={todayUSD}
-                  initial={{ scale: 1.05 }}
-                  animate={{ scale: 1 }}
-                  className="text-4xl font-bold text-foreground tabular-nums"
+                  initial={{ scale: 1.1, color: 'hsl(var(--primary))' }}
+                  animate={{ scale: 1, color: 'hsl(var(--foreground))' }}
+                  transition={{ duration: 0.2 }}
+                  className="text-4xl font-bold tabular-nums"
                 >
                   ${todayUSD.toFixed(2)}
                 </motion.div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <span>{todayPoints.toLocaleString()} pts</span>
-                  <span className="text-xs">•</span>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
+                  <motion.span
+                    key={todayPoints}
+                    initial={{ scale: 1.05 }}
+                    animate={{ scale: 1 }}
+                    className="font-medium"
+                  >
+                    {todayPoints.toLocaleString()} pts
+                  </motion.span>
+                  <span className="text-xs opacity-60">•</span>
                   <span className="flex items-center gap-1">
                     <Coins className="w-3 h-3 text-primary" />
-                    {todayPoints.toLocaleString()} tokens
+                    <span className="text-gradient-primary font-medium">{todayPoints.toLocaleString()} tokens</span>
                   </span>
                 </div>
               </div>
 
               {/* Total balance row */}
-              <div className="flex items-center justify-between bg-muted/30 rounded-lg px-3 py-2 mb-4">
+              <div className="flex items-center justify-between bg-muted/40 rounded-xl px-3 py-2.5 mb-4 border border-border/50">
                 <div className="text-xs text-muted-foreground">Total Balance</div>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-semibold text-foreground">
+                  <span className="text-sm font-bold text-foreground">
                     ${totalUSD.toFixed(2)}
                   </span>
                   <span className="text-xs text-muted-foreground">
@@ -291,63 +304,92 @@ export const AppHome: React.FC = () => {
 
               <button
                 onClick={() => { mediumTap(); navigate('/app/map'); }}
-                className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-semibold text-sm active:scale-[0.98] transition-transform flex items-center justify-center gap-2 relative overflow-hidden group"
+                className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-semibold text-sm press-effect relative overflow-hidden group pulse-glow"
               >
-                {/* Subtle glow effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-                <Signal className="w-4 h-4 relative z-10" />
+                {/* Shimmer effect on hover */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+                <Signal className="w-4 h-4 relative z-10 inline-block mr-2" />
                 <span className="relative z-10">{isNewUser ? 'Start Your First Scan' : 'Start Earning'}</span>
               </button>
             </div>
-          </div>
+          </motion.div>
 
-          {/* Quick Stats - Simple row like DIMO */}
+          {/* Quick Stats - Premium cards with stagger */}
           <div className="grid grid-cols-3 gap-2">
-            <div className="rounded-xl bg-card border border-border p-3 text-center">
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.05 }}
+              className="rounded-xl card-premium p-3 text-center"
+            >
               <MapPin className="w-4 h-4 text-primary mx-auto mb-1" />
-              <div className="text-sm font-semibold text-foreground">
+              <motion.div 
+                key={points?.total_distance_meters}
+                className="text-sm font-semibold text-foreground"
+              >
                 {formatDistance(points?.total_distance_meters || 0)}
-              </div>
+              </motion.div>
               <p className="text-xs text-muted-foreground">Distance</p>
-            </div>
+            </motion.div>
             
-            <div className="rounded-xl bg-card border border-border p-3 text-center">
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="rounded-xl card-premium p-3 text-center"
+            >
               <Flame className="w-4 h-4 text-orange-500 mx-auto mb-1" />
               <div className="text-sm font-semibold text-foreground">
                 {streakDays}
               </div>
               <p className="text-xs text-muted-foreground">Streak</p>
-            </div>
+            </motion.div>
             
-            <button 
+            <motion.button 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15 }}
               onClick={() => { mediumTap(); navigate('/app/leaderboard'); }}
-              className="rounded-xl bg-card border border-border p-3 text-center active:scale-[0.98] transition-transform"
+              whileTap={{ scale: 0.97 }}
+              className="rounded-xl card-premium p-3 text-center"
             >
               <Crown className="w-4 h-4 text-amber-500 mx-auto mb-1" />
               <div className="text-sm font-semibold text-foreground">
                 #{points?.total_points ? Math.max(1, Math.floor(1000 / (points.total_points || 1))) : '-'}
               </div>
               <p className="text-xs text-muted-foreground">Rank</p>
-            </button>
+            </motion.button>
           </div>
 
-          {/* Quick Actions - Gamification Entry Points */}
+          {/* Quick Actions - Premium Gamification Cards */}
           <div className="grid grid-cols-3 gap-2">
-            <button
+            <motion.button
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              whileTap={{ scale: 0.97 }}
               onClick={() => { mediumTap(); setShowSpinWheel(true); }}
-              className="rounded-xl bg-card border border-border p-3 text-center active:scale-[0.98] transition-transform relative"
+              className="rounded-xl card-premium p-3 text-center relative overflow-hidden"
             >
               {spinReady && (
-                <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                <motion.span 
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="absolute top-2 right-2 w-2 h-2 rounded-full bg-green-500 animate-pulse-soft"
+                />
               )}
               <Gift className="w-4 h-4 text-pink-500 mx-auto mb-1" />
               <p className="text-xs font-medium text-foreground">Daily Spin</p>
               <p className="text-[10px] text-muted-foreground">{spinReady ? 'Ready!' : 'Tap to play'}</p>
-            </button>
+            </motion.button>
             
-            <button
+            <motion.button
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.25 }}
+              whileTap={{ scale: 0.97 }}
               onClick={() => { mediumTap(); navigate('/app/challenges'); }}
-              className="rounded-xl bg-card border border-border p-3 text-center active:scale-[0.98] transition-transform relative"
+              className="rounded-xl card-premium p-3 text-center relative overflow-hidden"
             >
               <Target className="w-4 h-4 text-blue-500 mx-auto mb-1" />
               <p className="text-xs font-medium text-foreground">Challenges</p>
@@ -355,18 +397,26 @@ export const AppHome: React.FC = () => {
                 {unclaimedCount > 0 ? `${unclaimedCount} ready` : 'View all'}
               </p>
               {unclaimedCount > 0 && (
-                <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-primary animate-pulse" />
+                <motion.span 
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="absolute top-2 right-2 w-2 h-2 rounded-full bg-primary animate-pulse-soft"
+                />
               )}
-            </button>
+            </motion.button>
             
-            <button
+            <motion.button
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              whileTap={{ scale: 0.97 }}
               onClick={() => { mediumTap(); navigate('/app/achievements'); }}
-              className="rounded-xl bg-card border border-border p-3 text-center active:scale-[0.98] transition-transform"
+              className="rounded-xl card-premium p-3 text-center"
             >
               <Trophy className="w-4 h-4 text-amber-500 mx-auto mb-1" />
               <p className="text-xs font-medium text-foreground">Badges</p>
               <p className="text-[10px] text-muted-foreground">{unlockedCount}/{totalCount}</p>
-            </button>
+            </motion.button>
           </div>
 
           {/* Getting Started Card - For new users */}
@@ -413,34 +463,42 @@ export const AppHome: React.FC = () => {
             </div>
           )}
 
-          {/* Recent Activity - Simple list like Helium */}
+          {/* Recent Activity - Premium list with animations */}
           {recentActivity.length > 0 ? (
-            <div className="rounded-xl bg-card border border-border p-4">
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.35 }}
+              className="rounded-xl card-premium p-4"
+            >
               <h3 className="text-sm font-semibold text-foreground mb-3">Recent Activity</h3>
               <div className="space-y-2">
                 {recentActivity.map((activity, index) => (
-                  <div 
+                  <motion.div 
                     key={index}
-                    className="flex items-center justify-between py-2 border-b border-border last:border-0"
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.4 + index * 0.05 }}
+                    className="flex items-center justify-between py-2 border-b border-border/50 last:border-0"
                   >
                     <div className="flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse-soft" />
                       <span className="text-sm text-foreground">
                         Scanned {activity.distance ? formatDistance(activity.distance) : ''}
                       </span>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="text-sm font-medium text-primary">
+                      <span className="text-sm font-medium text-gradient-primary">
                         +{activity.points.toFixed(0)} pts
                       </span>
                       <span className="text-xs text-muted-foreground">
                         {activity.time}
                       </span>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
-            </div>
+            </motion.div>
           ) : user && !isNewUser ? (
             /* Empty state for returning users with no recent activity */
             <div className="rounded-xl bg-card border border-border border-dashed p-6 text-center">

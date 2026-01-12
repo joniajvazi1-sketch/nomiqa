@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Home, Map, ShoppingBag, User, Users } from 'lucide-react';
 import { useHaptics } from '@/hooks/useHaptics';
 import { cn } from '@/lib/utils';
+import { motion } from 'framer-motion';
 
 interface TabItem {
   path: string;
@@ -11,8 +12,7 @@ interface TabItem {
 }
 
 /**
- * Clean, professional bottom navigation bar
- * Matches Helium/NATIX style - simple icons + labels
+ * Premium bottom navigation bar with animations
  * 5 tabs: Home, Earn, Invite, Shop, Me
  */
 export const BottomTabBar: React.FC = () => {
@@ -42,37 +42,54 @@ export const BottomTabBar: React.FC = () => {
 
   return (
     <nav 
-      className="fixed bottom-0 left-0 right-0 z-50 bg-card border-t border-border"
+      className="fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-xl border-t border-border/50"
       style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
     >
+      {/* Subtle top glow */}
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
+      
       <div className="flex items-stretch h-16">
         {tabs.map((tab) => {
           const active = isActive(tab.path);
           const Icon = tab.icon;
           
           return (
-            <button
+            <motion.button
               key={tab.path}
               onClick={() => handleTabPress(tab.path)}
               aria-label={tab.label}
+              whileTap={{ scale: 0.95 }}
               className={cn(
                 'flex-1 flex flex-col items-center justify-center gap-1',
                 'touch-manipulation min-h-[48px]',
-                'active:opacity-70 transition-opacity',
+                'transition-colors duration-200',
                 active ? 'text-primary' : 'text-muted-foreground'
               )}
             >
-              <Icon 
-                className="w-5 h-5" 
-                strokeWidth={active ? 2.5 : 2}
-              />
+              <div className="relative">
+                <Icon 
+                  className={cn(
+                    "w-5 h-5 transition-all duration-200",
+                    active && "text-glow"
+                  )}
+                  strokeWidth={active ? 2.5 : 2}
+                />
+                {/* Active indicator dot */}
+                {active && (
+                  <motion.div
+                    layoutId="activeTab"
+                    className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary"
+                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                  />
+                )}
+              </div>
               <span className={cn(
-                'text-xs font-medium',
-                active ? 'text-primary' : 'text-muted-foreground'
+                'text-xs transition-all duration-200',
+                active ? 'font-semibold text-primary' : 'font-medium text-muted-foreground'
               )}>
                 {tab.label}
               </span>
-            </button>
+            </motion.button>
           );
         })}
       </div>

@@ -323,6 +323,276 @@ All colors MUST be HSL.
     transform: translateZ(0);
     will-change: transform;
   }
+
+  /* ============================================
+     PREMIUM CARD STYLING (Phase 5)
+     Elevated glassmorphism with glow effects
+     ============================================ */
+  
+  /* Premium card with subtle gradient and glow */
+  .card-premium {
+    background: linear-gradient(135deg, 
+      hsl(var(--card) / 0.9) 0%, 
+      hsl(var(--card) / 0.7) 100%);
+    border: 1px solid hsl(var(--border) / 0.8);
+    box-shadow: 
+      0 4px 24px hsl(0 0% 0% / 0.15),
+      0 1px 2px hsl(0 0% 0% / 0.1),
+      inset 0 1px 0 hsl(var(--foreground) / 0.05);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .card-premium:hover {
+    border-color: hsl(var(--primary) / 0.3);
+    box-shadow: 
+      0 8px 32px hsl(0 0% 0% / 0.2),
+      0 2px 4px hsl(0 0% 0% / 0.1),
+      0 0 0 1px hsl(var(--primary) / 0.1),
+      inset 0 1px 0 hsl(var(--foreground) / 0.08);
+    transform: translateY(-2px);
+  }
+
+  /* Hero balance card with glow effect */
+  .card-hero {
+    background: linear-gradient(145deg, 
+      hsl(var(--card)) 0%, 
+      hsl(222 25% 13%) 50%,
+      hsl(var(--card)) 100%);
+    border: 1px solid hsl(var(--border));
+    box-shadow: 
+      0 8px 32px hsl(0 0% 0% / 0.25),
+      0 0 60px hsl(var(--primary) / 0.08),
+      inset 0 1px 0 hsl(var(--foreground) / 0.05);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, 
+      transparent, 
+      hsl(var(--primary) / 0.4), 
+      transparent);
+  }
+
+  /* Reward/gold accent card */
+  .card-reward {
+    background: linear-gradient(135deg, 
+      hsl(var(--card)) 0%, 
+      hsl(38 30% 12%) 100%);
+    border: 1px solid hsl(var(--accent) / 0.2);
+    box-shadow: 
+      0 4px 24px hsl(0 0% 0% / 0.15),
+      0 0 40px hsl(var(--accent) / 0.05);
+  }
+
+  /* Animated gradient border */
+  .border-gradient-animated {
+    position: relative;
+    background: hsl(var(--card));
+    border-radius: var(--radius);
+  }
+
+  .border-gradient-animated::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      135deg,
+      hsl(var(--primary) / 0.5),
+      hsl(var(--accent) / 0.3),
+      hsl(var(--primary) / 0.5)
+    );
+    -webkit-mask: 
+      linear-gradient(#fff 0 0) content-box, 
+      linear-gradient(#fff 0 0);
+    mask: 
+      linear-gradient(#fff 0 0) content-box, 
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: border-rotate 4s linear infinite;
+  }
+
+  @keyframes border-rotate {
+    0% { 
+      background: linear-gradient(135deg, hsl(var(--primary) / 0.5), hsl(var(--accent) / 0.3), hsl(var(--primary) / 0.5));
+    }
+    50% { 
+      background: linear-gradient(315deg, hsl(var(--primary) / 0.5), hsl(var(--accent) / 0.3), hsl(var(--primary) / 0.5));
+    }
+    100% { 
+      background: linear-gradient(135deg, hsl(var(--primary) / 0.5), hsl(var(--accent) / 0.3), hsl(var(--primary) / 0.5));
+    }
+  }
+
+  /* ============================================
+     MICRO-ANIMATIONS (Phase 5)
+     Subtle, delightful interactions
+     ============================================ */
+  
+  /* Pulse glow effect for CTAs */
+  .pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% { 
+      box-shadow: 0 0 20px hsl(var(--primary) / 0.3);
+    }
+    50% { 
+      box-shadow: 0 0 30px hsl(var(--primary) / 0.5);
+    }
+  }
+
+  /* Shimmer effect for loading states */
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      hsl(var(--muted)) 0%,
+      hsl(var(--muted-foreground) / 0.1) 50%,
+      hsl(var(--muted)) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  /* Float animation for decorative elements */
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  /* Scale pop for success states */
+  .animate-pop {
+    animation: pop 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+
+  @keyframes pop {
+    0% { transform: scale(0.8); opacity: 0; }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  /* Counting animation helper */
+  .counting-animation {
+    display: inline-block;
+    animation: count-pulse 0.15s ease-out;
+  }
+
+  @keyframes count-pulse {
+    0% { transform: scale(1.15); color: hsl(var(--primary)); }
+    100% { transform: scale(1); }
+  }
+
+  /* Points earned indicator */
+  .points-earned {
+    animation: points-float 1.5s ease-out forwards;
+  }
+
+  @keyframes points-float {
+    0% { 
+      opacity: 1; 
+      transform: translateY(0) scale(1); 
+    }
+    100% { 
+      opacity: 0; 
+      transform: translateY(-40px) scale(0.8); 
+    }
+  }
+
+  /* Subtle bounce for buttons */
+  .bounce-subtle {
+    transition: transform 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+
+  .bounce-subtle:active {
+    transform: scale(0.95);
+  }
+
+  /* Progress bar fill animation */
+  .progress-fill {
+    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Icon spin for loading */
+  .spin-slow {
+    animation: spin 2s linear infinite;
+  }
+
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  /* Success checkmark animation */
+  .check-animate {
+    animation: check-draw 0.4s ease-out forwards;
+  }
+
+  @keyframes check-draw {
+    0% { stroke-dashoffset: 100; }
+    100% { stroke-dashoffset: 0; }
+  }
+
+  /* Glow text effect */
+  .text-glow {
+    text-shadow: 0 0 20px hsl(var(--primary) / 0.5);
+  }
+
+  .text-glow-accent {
+    text-shadow: 0 0 20px hsl(var(--accent) / 0.5);
+  }
+
+  /* Stagger animation delay utilities */
+  .stagger-1 { animation-delay: 0.05s; }
+  .stagger-2 { animation-delay: 0.1s; }
+  .stagger-3 { animation-delay: 0.15s; }
+  .stagger-4 { animation-delay: 0.2s; }
+  .stagger-5 { animation-delay: 0.25s; }
+
+  /* Interactive press state */
+  .press-effect {
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .press-effect:active {
+    transform: scale(0.97) translateY(1px);
+    box-shadow: 0 2px 8px hsl(0 0% 0% / 0.2);
+  }
+
+  /* Gradient text */
+  .text-gradient-primary {
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(175 70% 60%));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .text-gradient-reward {
+    background: linear-gradient(135deg, hsl(var(--accent)), hsl(45 95% 65%));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
 }
 
 /* Premium scrollbar styling */
