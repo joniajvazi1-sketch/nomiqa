@@ -21,6 +21,7 @@ import { ContributionMap } from '@/components/app/ContributionMap';
 import { RewardCelebration } from '@/components/app/RewardCelebration';
 import { PullToRefreshIndicator } from '@/components/app/PullToRefreshIndicator';
 import { SpeedTest } from '@/components/app/SpeedTest';
+import { CarrierComparison } from '@/components/app/CarrierComparison';
 import { cn } from '@/lib/utils';
 
 type CoverageMode = 'personal' | 'global';
@@ -39,6 +40,7 @@ export const NetworkContribution: React.FC = () => {
   const [showHeatmap, setShowHeatmap] = useState(false);
   const [coverageMode, setCoverageMode] = useState<CoverageMode>('personal');
   const [showSpeedTest, setShowSpeedTest] = useState(false);
+  const [showCarrierComparison, setShowCarrierComparison] = useState(false);
   const startButtonRef = useRef<HTMLButtonElement>(null);
   
   const {
@@ -215,21 +217,39 @@ export const NetworkContribution: React.FC = () => {
             )}
           </div>
           
-          {/* Speed Test Button */}
-          <button
-            onClick={() => {
-              buttonTap();
-              setShowSpeedTest(prev => !prev);
-            }}
-            className={cn(
-              'flex items-center gap-2 px-4 py-2 rounded-full border',
-              'bg-card/80 backdrop-blur-sm transition-colors',
-              showSpeedTest ? 'border-primary/50 text-primary' : 'border-border text-muted-foreground hover:text-foreground'
-            )}
-          >
-            <Activity className="w-4 h-4" />
-            <span className="text-sm font-medium">Speed</span>
-          </button>
+          {/* Action Buttons */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                buttonTap();
+                setShowSpeedTest(prev => !prev);
+                if (!showSpeedTest) setShowCarrierComparison(false);
+              }}
+              className={cn(
+                'flex items-center gap-2 px-3 py-2 rounded-full border',
+                'bg-card/80 backdrop-blur-sm transition-colors',
+                showSpeedTest ? 'border-primary/50 text-primary' : 'border-border text-muted-foreground hover:text-foreground'
+              )}
+            >
+              <Activity className="w-4 h-4" />
+              <span className="text-xs font-medium">Speed</span>
+            </button>
+            <button
+              onClick={() => {
+                buttonTap();
+                setShowCarrierComparison(prev => !prev);
+                if (!showCarrierComparison) setShowSpeedTest(false);
+              }}
+              className={cn(
+                'flex items-center gap-2 px-3 py-2 rounded-full border',
+                'bg-card/80 backdrop-blur-sm transition-colors',
+                showCarrierComparison ? 'border-primary/50 text-primary' : 'border-border text-muted-foreground hover:text-foreground'
+              )}
+            >
+              <Signal className="w-4 h-4" />
+              <span className="text-xs font-medium">Carriers</span>
+            </button>
+          </div>
         </div>
 
         {/* WiFi Warning - Simple banner */}
@@ -265,8 +285,18 @@ export const NetworkContribution: React.FC = () => {
               carrier={undefined}
               onPointsEarned={(pts) => {
                 playCoin();
-                // Refresh stats could be added here
               }}
+            />
+          </div>
+        )}
+
+        {/* Carrier Comparison Panel */}
+        {showCarrierComparison && (
+          <div className="mb-4 animate-fade-in">
+            <CarrierComparison
+              latitude={lastPosition?.coords.latitude}
+              longitude={lastPosition?.coords.longitude}
+              radiusKm={15}
             />
           </div>
         )}
