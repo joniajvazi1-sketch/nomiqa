@@ -8,20 +8,30 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Trustworthy dark foundation with warmth */
-    --background: 222 30% 7%;             /* Deep navy-blue */
-    --foreground: 45 30% 97%;             /* Warm white */
-    --card: 222 25% 11%;                  /* Slightly warmer cards */
+    /* ============================================
+       SIMPLIFIED DESIGN SYSTEM (Phase 1)
+       3 core colors: Primary teal, Accent gold, Muted gray
+       Matches competitor apps: Helium, NATIX, Grass
+       ============================================ */
+    
+    /* Dark foundation */
+    --background: 222 30% 7%;
+    --foreground: 45 30% 97%;
+    --card: 222 25% 11%;
     --card-foreground: 45 30% 97%;
     --popover: 222 28% 9%;
     --popover-foreground: 45 30% 97%;
     
-    /* Trustworthy primary - friendly blue-green */
-    --primary: 175 70% 48%;               /* Trustworthy teal */
+    /* Primary - Trustworthy teal (main brand color) */
+    --primary: 175 70% 48%;
     --primary-foreground: 222 30% 7%;
-    --secondary: 255 60% 65%;             /* Soft purple */
+    
+    /* Secondary - Soft purple (rarely used) */
+    --secondary: 255 60% 65%;
     --secondary-foreground: 45 30% 97%;
-    --accent: 38 95% 55%;                 /* Warm gold/amber */
+    
+    /* Accent - Gold for rewards only */
+    --accent: 38 95% 55%;
     --accent-foreground: 222 30% 7%;
     
     /* Supporting colors */
@@ -34,65 +44,27 @@ All colors MUST be HSL.
     --ring: 175 70% 48%;
     --radius: 0.75rem;
     
-    /* TRUSTWORTHY color palette - blues, greens, golds */
-    --neon-cyan: 175 70% 48%;             /* Trustworthy teal (primary) */
-    --neon-blue: 210 80% 60%;             /* Friendly blue */
-    --neon-violet: 255 55% 62%;           /* Soft violet */
-    --neon-pink: 330 65% 62%;             /* Softer pink */
-    --neon-coral: 15 80% 58%;             /* Warm coral */
-    --neon-orange: 32 95% 55%;            /* Warm amber */
-    --neon-yellow: 45 95% 55%;            /* Gold for rewards */
-    --warm-sand: 42 40% 88%;              /* Warm sand */
+    /* Status colors */
+    --success: 145 65% 45%;
+    --reward-gold: 45 95% 55%;
+    --reward-bronze: 30 60% 50%;
+    --reward-silver: 220 10% 70%;
+    
+    /* Simplified gradients (only 2 core ones) */
+    --gradient-primary: linear-gradient(135deg, hsl(175 70% 48%) 0%, hsl(175 70% 55%) 100%);
+    --gradient-reward: linear-gradient(135deg, hsl(45 95% 55%) 0%, hsl(38 95% 55%) 100%);
+    
+    /* Minimal shadow (no glows) */
+    --shadow-card: 0 4px 20px hsl(0 0% 0% / 0.2);
+    --transition-smooth: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* Brand aliases (simplified) */
+    --neon-cyan: 175 70% 48%;  /* Keep for compatibility, = primary */
     --deep-space: 222 25% 11%;
     --midnight-blue: 222 30% 7%;
-    
-    /* Success/Reward greens */
-    --success: 145 65% 45%;               /* Fresh green */
-    --reward-gold: 45 95% 55%;            /* Celebratory gold */
-    --reward-bronze: 30 60% 50%;          /* Bronze tier */
-    --reward-silver: 220 10% 70%;         /* Silver tier */
-    
-    /* Friendly gradient definitions */
-    --gradient-freedom: linear-gradient(135deg, hsl(var(--neon-cyan)) 0%, hsl(var(--neon-blue)) 100%);
-    --gradient-sunrise: linear-gradient(135deg, hsl(var(--neon-orange)) 0%, hsl(var(--neon-yellow)) 100%);
-    --gradient-digital: linear-gradient(135deg, hsl(var(--neon-cyan)) 0%, hsl(var(--neon-violet)) 100%);
-    --gradient-warmth: linear-gradient(135deg, hsl(var(--neon-orange)) 0%, hsl(var(--warm-sand)) 100%);
-    --gradient-reward: linear-gradient(135deg, hsl(45 95% 55%) 0%, hsl(32 95% 55%) 100%);
-    --gradient-trust: linear-gradient(135deg, hsl(175 70% 48%) 0%, hsl(210 80% 60%) 100%);
-    
-    /* Softer glow effects - less harsh, more inviting */
-    --glow-neon: 0 0 30px hsl(175 70% 48% / 0.4), 0 0 60px hsl(210 80% 60% / 0.2);
-    --glow-cyan: 0 0 25px hsl(175 70% 48% / 0.4), 0 0 50px hsl(175 70% 48% / 0.2);
-    --glow-violet: 0 0 25px hsl(255 55% 62% / 0.4), 0 0 50px hsl(255 55% 62% / 0.2);
-    --glow-coral: 0 0 25px hsl(15 80% 58% / 0.4), 0 0 50px hsl(15 80% 58% / 0.2);
-    --glow-gold: 0 0 30px hsl(45 95% 55% / 0.5), 0 0 60px hsl(45 95% 55% / 0.3);
-    --shadow-warm: 0 10px 40px -10px hsl(175 70% 48% / 0.3);
-    --shadow-signal: 0 0 60px hsl(175 70% 48% / 0.3), 0 0 100px hsl(210 80% 60% / 0.2);
-    --shadow-neon: 0 0 50px hsl(175 70% 48% / 0.35), 0 0 80px hsl(210 80% 60% / 0.2);
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    --transition-glow: all 0.4s ease-in-out;
-
-    /* Brand Colors */
-    --midnight: 222 25% 12%;
-    --midnight-foreground: 45 30% 97%;
-    --cyan: 175 70% 48%;
-    --cyan-foreground: 222 30% 7%;
-    --sand: 42 40% 88%;
-    --sand-foreground: 222 30% 7%;
-    
-    /* Legacy Colors (updated) */
-    --nomiqa-orange: 32 95% 55%;
-    --nomiqa-teal: 175 70% 48%;
-    --nomiqa-green: 145 65% 45%;
-    --nomiqa-cream: 45 45% 97%;
-    --nomiqa-peach: 38 100% 92%;
-    --nomiqa-blue: 210 80% 60%;
-    --nomiqa-dark: 222 30% 7%;
   }
 
   .dark {
-    /* Dark mode uses same values */
     --background: 222 30% 7%;
     --foreground: 45 30% 97%;
   }
@@ -286,93 +258,27 @@ All colors MUST be HSL.
     font-family: 'Cormorant Garamond', serif;
   }
 
-  /* Premium neon glow animation */
-  @keyframes neon-pulse {
-    0%, 100% {
-      filter: drop-shadow(0 0 5px currentColor) drop-shadow(0 0 15px currentColor);
-    }
-    50% {
-      filter: drop-shadow(0 0 10px currentColor) drop-shadow(0 0 25px currentColor);
-    }
-  }
-
-  .animate-fade-up {
-    animation: fade-up 0.6s ease-out;
-  }
-
-  @keyframes float {
-    0%, 100% {
-      transform: translateY(0px);
-    }
-    50% {
-      transform: translateY(-10px);
-    }
-  }
-
-  @keyframes shimmer {
-    0% {
-      background-position: -200% center;
-    }
-    100% {
-      background-position: 200% center;
-    }
-  }
-
-  /* Premium fade-in-up animation */
+  /* ============================================
+     SIMPLIFIED ANIMATIONS (Phase 1)
+     Keep only: fade-in, spin, pulse, button press
+     ============================================ */
+  
   @keyframes fade-in-up {
-    from {
-      opacity: 0;
-      transform: translateY(30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
   .animate-fade-in-up {
-    animation: fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: fade-in-up 0.3s ease-out forwards;
   }
 
-  /* Sonar/Radar ping animation for Start button */
-  @keyframes sonar-ping {
-    0% {
-      transform: scale(1);
-      opacity: 0.6;
-    }
-    50% {
-      opacity: 0.3;
-    }
-    100% {
-      transform: scale(1.8);
-      opacity: 0;
-    }
+  .animate-fade-up {
+    animation: fade-in-up 0.3s ease-out;
   }
 
-  .animate-sonar {
-    animation: sonar-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
-  }
-
-  /* Scanline animation for map/scanner effects */
-  @keyframes scanline {
-    0% { background-position: 0% 0%; }
-    100% { background-position: 0% 100%; }
-  }
-
-  /* Shimmer animation for loading states */
-  @keyframes shimmer {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
-  }
-
-  /* Error feedback utility classes */
+  /* Error shake - keep for form validation */
   .animate-error-shake {
     animation: error-shake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97);
-  }
-
-  .error-highlight {
-    box-shadow: 0 0 0 2px hsl(0 75% 55% / 0.5), 0 0 16px hsl(0 75% 55% / 0.3);
-    border-color: hsl(0 75% 55%) !important;
   }
 
   @keyframes error-shake {
@@ -383,45 +289,18 @@ All colors MUST be HSL.
 }
 
 @layer utilities {
-  .bg-gradient-neon {
-    background: var(--gradient-neon);
+  /* Simplified gradient utilities */
+  .bg-gradient-primary {
+    background: var(--gradient-primary);
   }
   
-  .bg-gradient-freedom {
-    background: var(--gradient-freedom);
+  .bg-gradient-reward {
+    background: var(--gradient-reward);
   }
   
-  .bg-gradient-sunrise {
-    background: var(--gradient-sunrise);
-  }
-  
-  .bg-gradient-digital {
-    background: var(--gradient-digital);
-  }
-
-  .bg-gradient-warmth {
-    background: var(--gradient-warmth);
-  }
-
-  .bg-gradient-sunset {
-    background: var(--gradient-sunset);
-  }
-  
-  /* Shadow Utilities */
-  .shadow-glow-cyan {
-    box-shadow: var(--glow-cyan);
-  }
-  
-  .shadow-glow-violet {
-    box-shadow: var(--glow-violet);
-  }
-  
-  .shadow-glow-coral {
-    box-shadow: var(--glow-coral);
-  }
-
-  .shadow-glow-neon {
-    box-shadow: var(--glow-neon);
+  /* Minimal shadow utility */
+  .shadow-card {
+    box-shadow: var(--shadow-card);
   }
 
   /* Premium text utilities */
@@ -430,35 +309,19 @@ All colors MUST be HSL.
     letter-spacing: 0.02em;
   }
 
-  /* Premium hover effects */
+  /* Simple hover effect */
   .hover-lift {
-    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: transform 0.2s ease;
   }
 
   .hover-lift:hover {
-    transform: translateY(-4px);
+    transform: translateY(-2px);
   }
 
-  /* Content visibility optimization for off-screen content */
-  .content-auto {
-    content-visibility: auto;
-    contain-intrinsic-size: auto 500px;
-  }
-
-  /* GPU-accelerated transitions */
+  /* GPU acceleration utilities */
   .gpu-accelerated {
     transform: translateZ(0);
     will-change: transform;
-  }
-
-  /* Optimized card hover - prevent layout shifts */
-  .card-hover-optimized {
-    transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
-    transform: translateZ(0);
-  }
-  
-  .card-hover-optimized:hover {
-    transform: translateY(-2px) translateZ(0);
   }
 }
 
