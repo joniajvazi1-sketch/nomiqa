@@ -28,6 +28,7 @@ import { AppSpinner } from '@/components/app/AppSpinner';
 import { DailyCheckIn } from '@/components/app/DailyCheckIn';
 import { SpinWheel } from '@/components/app/SpinWheel';
 import { TokenInfoModal } from '@/components/app/TokenInfoModal';
+import { NetworkStatsCard } from '@/components/app/NetworkStatsCard';
 import { TOKENOMICS, pointsToUsd, formatTokens } from '@/utils/tokenomics';
 
 export const AppHome: React.FC = () => {
@@ -504,6 +505,17 @@ export const AppHome: React.FC = () => {
                 </div>
               </div>
             </div>
+          )}
+
+          {/* Network Stats Card - Show for users with activity */}
+          {user && !isNewUser && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              <NetworkStatsCard />
+            </motion.div>
           )}
 
           {/* Recent Activity - Premium list with animations */}
