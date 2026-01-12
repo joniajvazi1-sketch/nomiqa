@@ -40,6 +40,7 @@ import { AnimatedCard } from '@/components/app/PageTransition';
 import { ProductContextMenu } from '@/components/app/ProductContextMenu';
 import { SwipeableDismiss } from '@/components/app/SwipeableDismiss';
 import { SectionErrorBoundary } from '@/components/app/SectionErrorBoundary';
+import { SwipeHint } from '@/components/app/GestureHints';
 import {
   Dialog,
   DialogContent,
@@ -431,6 +432,16 @@ export const AppShop: React.FC = () => {
                   
                   {/* Content */}
                   <div className="relative p-3 border border-white/[0.08] rounded-2xl group-hover:border-primary/20 transition-colors">
+                    {/* Swipe hint for first product card */}
+                    {index === 0 && (
+                      <SwipeHint 
+                        id="shop-product-tap" 
+                        direction="left" 
+                        message="Tap for details" 
+                        delay={2500}
+                      />
+                    )}
+                    
                     {/* Popular badge */}
                     {product.is_popular && (
                       <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded-md bg-orange-500/20 border border-orange-500/30 flex items-center gap-0.5">

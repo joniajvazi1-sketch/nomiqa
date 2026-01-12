@@ -4,7 +4,7 @@ import { useCartWithTotal } from "@/hooks/useCart";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ArrowLeft, ShoppingCart, Trash2, Minus, Plus, Check, CreditCard, Shield } from "lucide-react";
+import { ArrowLeft, ShoppingCart, Trash2, Minus, Plus, Check, CreditCard, Shield, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -13,6 +13,7 @@ import { useTranslation } from "@/contexts/TranslationContext";
 import { useEnhancedHaptics } from "@/hooks/useEnhancedHaptics";
 import { useEnhancedSounds } from "@/hooks/useEnhancedSounds";
 import { cn } from "@/lib/utils";
+import { FirstPurchaseCelebration, useFirstPurchaseCelebration } from "@/components/app/FirstPurchaseCelebration";
 
 const emailSchema = z.string().email("Please enter a valid email address");
 
@@ -31,6 +32,15 @@ export const AppCheckout = () => {
   const [currentOrderId, setCurrentOrderId] = useState<string | null>(null);
   const [paymentCompleted, setPaymentCompleted] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [checkoutStep, setCheckoutStep] = useState<1 | 2 | 3>(1);
+  
+  // First purchase celebration hook
+  const { 
+    isOpen: showCelebration, 
+    productName: celebrationProductName, 
+    checkAndTrigger: triggerFirstPurchase, 
+    close: closeCelebration 
+  } = useFirstPurchaseCelebration();
 
   // Check authentication status without redirecting
   useEffect(() => {
@@ -88,6 +98,7 @@ export const AppCheckout = () => {
     }
 
     setIsSubmitting(true);
+    setCheckoutStep(1);
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -116,6 +127,7 @@ export const AppCheckout = () => {
       setCurrentOrderId(paylinkData.orderId);
       setPaylinkUrl(paylinkData.paylinkUrl);
       setShowPaymentModal(true);
+      setCheckoutStep(2);
       successPattern();
       playSuccess();
       setIsSubmitting(false);
@@ -134,10 +146,11 @@ export const AppCheckout = () => {
       if (!event.origin.includes('hel.io') && !event.origin.includes('moonpay.com')) return;
       
       if (event.data?.status === 'success' || event.data?.type === 'payment_success') {
-        setShowPaymentModal(false);
+        setCheckoutStep(3);
+        setPaymentCompleted(true);
+        triggerFirstPurchase(items[0]?.product?.country_name);
         clearCart();
         toast.success('Payment successful! Your eSIM will arrive shortly.');
-        navigate('/orders');
       }
     };
 
@@ -164,10 +177,11 @@ export const AppCheckout = () => {
         (payload) => {
           const newStatus = payload.new?.status;
           if (newStatus === 'completed' || newStatus === 'paid') {
+            setCheckoutStep(3);
             setPaymentCompleted(true);
+            triggerFirstPurchase(items[0]?.product?.country_name);
             clearCart();
             toast.success('Payment successful! Your eSIM is ready.');
-            navigate('/orders');
           }
         }
       )
@@ -184,10 +198,11 @@ export const AppCheckout = () => {
         if (error || !data) return;
 
         if (data.status === 'completed' || data.status === 'paid') {
+          setCheckoutStep(3);
           setPaymentCompleted(true);
+          triggerFirstPurchase(items[0]?.product?.country_name);
           clearCart();
           toast.success('Payment successful! Your eSIM is ready.');
-          navigate('/orders');
         }
       } catch (err) {
         console.error('Error polling order status:', err);
@@ -411,6 +426,39 @@ export const AppCheckout = () => {
         <DialogContent className="w-[calc(100%-1rem)] max-w-full h-[90vh] p-0 overflow-hidden flex flex-col rounded-t-3xl border-white/[0.08] bg-background/98 backdrop-blur-2xl">
           <DialogHeader className="p-4 pb-2 flex-shrink-0 border-b border-white/[0.05]">
             <DialogTitle className="text-lg font-semibold">Complete Payment</DialogTitle>
+            {/* Checkout Progress Indicator */}
+            <div className="flex items-center justify-center gap-3 mt-2">
+              {[
+                { step: 1, label: 'Processing' },
+                { step: 2, label: 'Payment' },
+                { step: 3, label: 'Confirmed' }
+              ].map(({ step, label }) => (
+                <div key={step} className="flex items-center gap-1.5">
+                  <div className={cn(
+                    'w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold transition-all',
+                    checkoutStep > step 
+                      ? 'bg-green-500 text-white' 
+                      : checkoutStep === step 
+                        ? 'bg-primary text-primary-foreground animate-pulse' 
+                        : 'bg-white/10 text-muted-foreground'
+                  )}>
+                    {checkoutStep > step ? <Check className="w-3 h-3" /> : step}
+                  </div>
+                  <span className={cn(
+                    'text-xs transition-colors',
+                    checkoutStep >= step ? 'text-foreground' : 'text-muted-foreground'
+                  )}>
+                    {label}
+                  </span>
+                  {step < 3 && (
+                    <div className={cn(
+                      'w-4 h-0.5 rounded-full transition-colors',
+                      checkoutStep > step ? 'bg-green-500' : 'bg-white/10'
+                    )} />
+                  )}
+                </div>
+              ))}
+            </div>
           </DialogHeader>
           {paylinkUrl && (
             <iframe
@@ -453,6 +501,16 @@ export const AppCheckout = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* First Purchase Celebration Modal */}
+      <FirstPurchaseCelebration
+        isOpen={showCelebration}
+        onClose={() => {
+          closeCelebration();
+          navigate('/orders');
+        }}
+        productName={celebrationProductName}
+      />
     </div>
   );
 };
