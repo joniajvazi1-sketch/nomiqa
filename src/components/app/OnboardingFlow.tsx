@@ -1,57 +1,69 @@
-import React, { useState, useCallback } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useCallback, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import useEmblaCarousel from 'embla-carousel-react';
 import { 
   Signal, 
   Coins, 
   Lock,
   ChevronRight,
-  MapPin,
-  Smartphone
+  Smartphone,
+  ArrowRight
 } from 'lucide-react';
 import { useHaptics } from '@/hooks/useHaptics';
 import { cn } from '@/lib/utils';
+import OnboardingSlide from './onboarding/OnboardingSlide';
+import LocationPermissionRequest from './onboarding/LocationPermissionRequest';
+import ReferralCodeEntry from './onboarding/ReferralCodeEntry';
+import WelcomeBonus from './onboarding/WelcomeBonus';
 
 interface OnboardingFlowProps {
   onComplete: () => void;
 }
 
-interface OnboardingSlide {
+type OnboardingStep = 
+  | 'slides' 
+  | 'permissions' 
+  | 'referral' 
+  | 'welcome';
+
+interface SlideContent {
   id: number;
   icon: React.ElementType;
+  iconColor: string;
   title: string;
   description: string;
-  accentColor: string;
 }
 
-// Competitor-inspired: 3 slides max, value prop first
-const slides: OnboardingSlide[] = [
+// 3 informational slides - concise and impactful
+const slides: SlideContent[] = [
   {
     id: 1,
     icon: Signal,
+    iconColor: 'text-primary',
     title: 'Turn Your Signal Into Rewards',
-    description: 'Contribute network data while you travel. Earn points. Redeem for eSIMs.',
-    accentColor: 'text-primary'
+    description: 'Contribute network data while you travel. Earn points. Redeem for eSIMs & tokens.',
   },
   {
     id: 2,
     icon: Smartphone,
+    iconColor: 'text-success',
     title: "It's This Simple",
-    description: '1. Open app  2. Connect to cellular  3. Earn automatically',
-    accentColor: 'text-green-400'
+    description: '1. Open app  2. Connect to cellular  3. Earn automatically in the background',
   },
   {
     id: 3,
     icon: Lock,
+    iconColor: 'text-secondary',
     title: 'Your Privacy Matters',
-    description: 'Location maps coverage, not you. Data is anonymized. Never sold.',
-    accentColor: 'text-blue-400'
+    description: 'Location maps coverage, not you. Data is anonymized and never sold.',
   }
 ];
 
 export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) => {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false });
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [step, setStep] = useState<OnboardingStep>('slides');
+  const [referralApplied, setReferralApplied] = useState(false);
   const { mediumTap, lightTap, success } = useHaptics();
 
   const scrollTo = useCallback((index: number) => {
@@ -63,11 +75,11 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
   const onSelect = useCallback(() => {
     if (!emblaApi) return;
     const index = emblaApi.selectedScrollSnap();
-    setCurrentIndex(index);
+    setCurrentSlide(index);
     lightTap();
   }, [emblaApi, lightTap]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!emblaApi) return;
     emblaApi.on('select', onSelect);
     return () => {
@@ -75,18 +87,36 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
     };
   }, [emblaApi, onSelect]);
 
-  const handleNext = () => {
+  const handleNextSlide = () => {
     mediumTap();
-    if (currentIndex < slides.length - 1) {
-      scrollTo(currentIndex + 1);
+    if (currentSlide < slides.length - 1) {
+      scrollTo(currentSlide + 1);
     } else {
-      handleComplete();
+      // Move to permissions step
+      setStep('permissions');
     }
   };
 
-  const handleSkip = () => {
+  const handleSkipToEnd = () => {
     lightTap();
-    handleComplete();
+    setStep('permissions');
+  };
+
+  const handlePermissionGranted = () => {
+    setStep('referral');
+  };
+
+  const handlePermissionSkipped = () => {
+    setStep('referral');
+  };
+
+  const handleReferralContinue = (code: string | null) => {
+    setReferralApplied(!!code);
+    setStep('welcome');
+  };
+
+  const handleReferralSkip = () => {
+    setStep('welcome');
   };
 
   const handleComplete = () => {
@@ -95,7 +125,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
     onComplete();
   };
 
-  const isLastSlide = currentIndex === slides.length - 1;
+  const isLastSlide = currentSlide === slides.length - 1;
 
   return (
     <motion.div
@@ -104,106 +134,139 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
       exit={{ opacity: 0 }}
       className="fixed inset-0 z-[100] bg-background"
     >
-      {/* Skip button - small text link */}
-      <div className="absolute top-0 left-0 right-0 z-10 px-4 pt-12">
-        <button
-          onClick={handleSkip}
-          className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-        >
-          Skip
-        </button>
-      </div>
-
-      {/* Carousel */}
-      <div 
-        className="h-full flex flex-col"
-        style={{ paddingTop: 'env(safe-area-inset-top, 0px)', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
-      >
-        <div className="flex-1 overflow-hidden" ref={emblaRef}>
-          <div className="flex h-full">
-            {slides.map((slide, index) => {
-              const Icon = slide.icon;
-              return (
-                <div 
-                  key={slide.id} 
-                  className="flex-[0_0_100%] min-w-0 flex flex-col items-center justify-center px-8"
-                >
-                  {/* Simple Icon */}
-                  <motion.div
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{ 
-                      scale: currentIndex === index ? 1 : 0.8,
-                      opacity: currentIndex === index ? 1 : 0.5
-                    }}
-                    transition={{ type: 'spring', stiffness: 200, damping: 20 }}
-                    className="mb-8"
-                  >
-                    <div className={cn(
-                      "w-20 h-20 rounded-2xl flex items-center justify-center",
-                      "bg-card border border-border"
-                    )}>
-                      <Icon className={cn("w-10 h-10", slide.accentColor)} strokeWidth={1.5} />
-                    </div>
-                  </motion.div>
-
-                  {/* Text content - clean and minimal */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ 
-                      opacity: currentIndex === index ? 1 : 0.3,
-                      y: currentIndex === index ? 0 : 20
-                    }}
-                    transition={{ delay: 0.1, duration: 0.3 }}
-                    className="text-center max-w-[300px]"
-                  >
-                    <h2 className="text-2xl font-bold text-foreground mb-3 leading-tight">
-                      {slide.title}
-                    </h2>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      {slide.description}
-                    </p>
-                  </motion.div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Bottom controls */}
-        <div className="px-6 pb-6 space-y-4">
-          {/* Pagination dots */}
-          <div className="flex items-center justify-center gap-2">
-            {slides.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => { lightTap(); scrollTo(index); }}
-                className={cn(
-                  "h-2 rounded-full transition-all duration-300",
-                  currentIndex === index 
-                    ? "w-6 bg-primary" 
-                    : "w-2 bg-muted"
-                )}
-              />
-            ))}
-          </div>
-
-          {/* Action button - solid, no glow */}
-          <button
-            onClick={handleNext}
-            className={cn(
-              "w-full h-12 rounded-xl font-semibold text-sm",
-              "flex items-center justify-center gap-2",
-              "active:scale-[0.98] transition-transform",
-              isLastSlide 
-                ? "bg-primary text-primary-foreground"
-                : "bg-card border border-border text-foreground"
-            )}
+      <AnimatePresence mode="wait">
+        {step === 'slides' && (
+          <motion.div
+            key="slides"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, x: -50 }}
+            className="h-full flex flex-col"
+            style={{ 
+              paddingTop: 'env(safe-area-inset-top, 0px)', 
+              paddingBottom: 'env(safe-area-inset-bottom, 0px)' 
+            }}
           >
-            {isLastSlide ? 'Get Started' : 'Next'}
-            <ChevronRight className="w-4 h-4" />
-          </button>
-        </div>
-      </div>
+            {/* Skip button */}
+            <div className="absolute top-0 left-0 right-0 z-10 px-4 pt-12">
+              <button
+                onClick={handleSkipToEnd}
+                className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Skip
+              </button>
+            </div>
+
+            {/* Carousel */}
+            <div className="flex-1 overflow-hidden" ref={emblaRef}>
+              <div className="flex h-full">
+                {slides.map((slide, index) => (
+                  <OnboardingSlide
+                    key={slide.id}
+                    icon={slide.icon}
+                    iconColor={slide.iconColor}
+                    title={slide.title}
+                    description={slide.description}
+                    isActive={currentSlide === index}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Bottom controls */}
+            <div className="px-6 pb-6 space-y-4">
+              {/* Pagination dots */}
+              <div className="flex items-center justify-center gap-2">
+                {slides.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => { lightTap(); scrollTo(index); }}
+                    className={cn(
+                      "h-2 rounded-full transition-all duration-300",
+                      currentSlide === index 
+                        ? "w-6 bg-primary" 
+                        : "w-2 bg-muted"
+                    )}
+                  />
+                ))}
+              </div>
+
+              {/* Next button */}
+              <button
+                onClick={handleNextSlide}
+                className={cn(
+                  "w-full h-12 rounded-xl font-semibold text-sm",
+                  "flex items-center justify-center gap-2",
+                  "active:scale-[0.98] transition-transform",
+                  isLastSlide 
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-card border border-border text-foreground"
+                )}
+              >
+                {isLastSlide ? 'Get Started' : 'Next'}
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          </motion.div>
+        )}
+
+        {step === 'permissions' && (
+          <motion.div
+            key="permissions"
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -50 }}
+            className="h-full"
+            style={{ 
+              paddingTop: 'env(safe-area-inset-top, 0px)', 
+              paddingBottom: 'env(safe-area-inset-bottom, 0px)' 
+            }}
+          >
+            <LocationPermissionRequest
+              onPermissionGranted={handlePermissionGranted}
+              onSkip={handlePermissionSkipped}
+            />
+          </motion.div>
+        )}
+
+        {step === 'referral' && (
+          <motion.div
+            key="referral"
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -50 }}
+            className="h-full"
+            style={{ 
+              paddingTop: 'env(safe-area-inset-top, 0px)', 
+              paddingBottom: 'env(safe-area-inset-bottom, 0px)' 
+            }}
+          >
+            <ReferralCodeEntry
+              onContinue={handleReferralContinue}
+              onSkip={handleReferralSkip}
+            />
+          </motion.div>
+        )}
+
+        {step === 'welcome' && (
+          <motion.div
+            key="welcome"
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0 }}
+            className="h-full"
+            style={{ 
+              paddingTop: 'env(safe-area-inset-top, 0px)', 
+              paddingBottom: 'env(safe-area-inset-bottom, 0px)' 
+            }}
+          >
+            <WelcomeBonus
+              referralApplied={referralApplied}
+              onComplete={handleComplete}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 };
