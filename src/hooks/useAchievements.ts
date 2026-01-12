@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Achievement, generateAchievements } from '@/components/app/AchievementSystem';
 import { usePushNotifications } from './usePushNotifications';
+import { useNotificationTriggers } from './useNotificationTriggers';
 
 interface UserStats {
   totalPoints: number;
@@ -30,7 +31,8 @@ interface UseAchievementsReturn {
 const UNLOCKED_CACHE_KEY = 'nomiqa_unlocked_achievements';
 
 export const useAchievements = (): UseAchievementsReturn => {
-  const { notifyAchievementUnlock, notifyMilestone, isEnabled, requestPermission } = usePushNotifications();
+  const { isEnabled, requestPermission } = usePushNotifications();
+  const { triggerAchievementUnlock, scheduleStreakReminder } = useNotificationTriggers();
   
   const [stats, setStats] = useState<UserStats>({
     totalPoints: 0,
@@ -108,6 +110,11 @@ export const useAchievements = (): UseAchievementsReturn => {
     fetchStats();
   }, [fetchStats]);
 
+  // Schedule streak reminder on mount
+  useEffect(() => {
+    scheduleStreakReminder();
+  }, [scheduleStreakReminder]);
+
   // Generate achievements from stats
   const achievements = useMemo(() => {
     return generateAchievements(stats);
@@ -125,13 +132,8 @@ export const useAchievements = (): UseAchievementsReturn => {
       const latestUnlock = newUnlocks[newUnlocks.length - 1];
       setRecentUnlock(latestUnlock);
       
-      // Send push notification for achievement unlock
-      notifyAchievementUnlock(latestUnlock.title, latestUnlock.reward);
-      
-      // Check for milestone achievements and send special notification
-      if (latestUnlock.category === 'milestone') {
-        notifyMilestone(latestUnlock.title, stats.totalPoints);
-      }
+      // Send push notification for achievement unlock using the new trigger
+      triggerAchievementUnlock(latestUnlock.title, latestUnlock.reward);
 
       // Update cache
       const newCache = new Set(previouslyUnlocked);
@@ -144,7 +146,7 @@ export const useAchievements = (): UseAchievementsReturn => {
         console.error('Error saving achievement cache:', e);
       }
     }
-  }, [achievements, previouslyUnlocked, loading, notifyAchievementUnlock, notifyMilestone, stats.totalPoints]);
+  }, [achievements, previouslyUnlocked, loading, triggerAchievementUnlock]);
 
   // Calculate streak multiplier
   const streakMultiplier = useMemo(() => {
