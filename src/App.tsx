@@ -45,6 +45,7 @@ const AppAchievements = lazy(() => import("./pages/app/AppAchievements").then(m 
 const AppChallenges = lazy(() => import("./pages/app/AppChallenges").then(m => ({ default: m.AppChallenges })));
 const AppLeaderboard = lazy(() => import("./pages/app/AppLeaderboard").then(m => ({ default: m.AppLeaderboard })));
 const AppCheckout = lazy(() => import("./pages/app/AppCheckout").then(m => ({ default: m.AppCheckout })));
+const AppInvite = lazy(() => import("./pages/app/AppInvite").then(m => ({ default: m.AppInvite })));
 
 // Loading fallback component (with a safety timeout for slow/blocked mobile networks)
 const PageLoader = () => {
@@ -132,6 +133,7 @@ const NativeAppRoutes = () => (
           </AppErrorBoundary>
         }
       />
+      <Route path="/app/invite" element={<AppInvite />} />
       <Route path="/app/shop" element={<AppShop />} />
       <Route path="/app/profile" element={<AppProfile />} />
       <Route path="/app/achievements" element={<AppAchievements />} />
