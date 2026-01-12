@@ -62,11 +62,11 @@ export const AppAchievements: React.FC = () => {
       />
       
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-white/[0.08] px-5 py-4">
+      <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
         <div className="flex items-center gap-4">
           <button
             onClick={() => { navigationTap(); playSwoosh(); navigate(-1); }}
-            className="w-10 h-10 rounded-full bg-white/[0.05] border border-white/[0.08] flex items-center justify-center hover:bg-white/[0.08] active:scale-95 transition-all"
+            className="w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center hover:bg-card/80 active:scale-95 transition-all"
           >
             <ArrowLeft className="w-5 h-5 text-foreground" />
           </button>
@@ -84,7 +84,7 @@ export const AppAchievements: React.FC = () => {
         )}
 
         {/* Progress Overview */}
-        <div className="rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] p-5">
+        <div className="rounded-2xl bg-card border border-border p-5">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
@@ -105,9 +105,9 @@ export const AppAchievements: React.FC = () => {
           </div>
           
           {/* Progress bar */}
-          <div className="h-2 rounded-full bg-white/[0.08] overflow-hidden">
+          <div className="h-2 rounded-full bg-muted overflow-hidden">
             <div 
-              className="h-full rounded-full bg-gradient-to-r from-primary to-neon-cyan transition-all duration-500"
+              className="h-full rounded-full bg-gradient-to-r from-primary to-primary/60 transition-all duration-500"
               style={{ width: `${totalCount > 0 ? (unlockedCount / totalCount) * 100 : 0}%` }}
             />
           </div>
@@ -117,7 +117,7 @@ export const AppAchievements: React.FC = () => {
         {loading ? (
           <div className="space-y-4">
             {[1, 2, 3].map(i => (
-              <div key={i} className="h-32 rounded-2xl bg-white/[0.05] animate-pulse" />
+              <div key={i} className="h-32 rounded-2xl bg-muted animate-pulse" />
             ))}
           </div>
         ) : (
