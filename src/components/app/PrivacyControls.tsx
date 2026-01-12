@@ -112,18 +112,24 @@ export const PrivacyControls: React.FC = () => {
 
   return (
     <div className="space-y-4">
-      {/* Privacy Overview */}
-      <Card className="bg-gradient-to-br from-primary/10 to-accent/10 border-primary/20">
+      {/* Privacy Framing - Emotional Context */}
+      <Card className="bg-gradient-to-br from-neon-cyan/10 via-primary/5 to-transparent border-neon-cyan/20">
         <CardContent className="p-4">
           <div className="flex items-start gap-3">
-            <div className="p-2 rounded-full bg-primary/20 mt-0.5">
-              <Shield className="w-5 h-5 text-primary" />
+            <div className="p-2 rounded-full bg-neon-cyan/20 mt-0.5">
+              <Shield className="w-5 h-5 text-neon-cyan" />
             </div>
             <div>
-              <h3 className="font-semibold text-foreground text-sm mb-1">Your Privacy Matters</h3>
-              <p className="text-xs text-muted-foreground">
-                Control how your data is collected and used. All network data is anonymized before being shared.
+              <h3 className="font-semibold text-foreground text-sm mb-1">Why this data?</h3>
+              <p className="text-xs text-muted-foreground mb-3">
+                To measure network quality and reward you fairly — not to track or monitor individuals.
               </p>
+              <div className="bg-white/5 rounded-lg p-2.5 border border-white/10">
+                <p className="text-xs text-foreground/80 font-medium mb-1">You are in control</p>
+                <p className="text-[10px] text-muted-foreground">
+                  More data = better measurements = higher rewards. All options are voluntary and anonymized.
+                </p>
+              </div>
             </div>
           </div>
         </CardContent>
