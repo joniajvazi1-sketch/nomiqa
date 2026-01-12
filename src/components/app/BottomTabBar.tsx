@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Home, Map, ShoppingBag, User } from 'lucide-react';
+import { Home, Map, ShoppingBag, User, Users } from 'lucide-react';
 import { useHaptics } from '@/hooks/useHaptics';
 import { cn } from '@/lib/utils';
 
@@ -13,6 +13,7 @@ interface TabItem {
 /**
  * Clean, professional bottom navigation bar
  * Matches Helium/NATIX style - simple icons + labels
+ * 5 tabs: Home, Earn, Invite, Shop, Me
  */
 export const BottomTabBar: React.FC = () => {
   const navigate = useNavigate();
@@ -22,6 +23,7 @@ export const BottomTabBar: React.FC = () => {
   const tabs: TabItem[] = [
     { path: '/app', icon: Home, label: 'Home' },
     { path: '/app/map', icon: Map, label: 'Earn' },
+    { path: '/app/invite', icon: Users, label: 'Invite' },
     { path: '/app/shop', icon: ShoppingBag, label: 'Shop' },
     { path: '/app/profile', icon: User, label: 'Me' }
   ];
