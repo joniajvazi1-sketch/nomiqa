@@ -239,6 +239,16 @@ export const NetworkContribution: React.FC = () => {
         {/* Spacer */}
         <div className="flex-1" />
 
+        {/* Pre-scan encouragement for non-active state */}
+        {!isActive && user && (
+          <div className="text-center mb-6 animate-fade-in">
+            <p className="text-lg font-medium text-foreground mb-1">Ready when you are</p>
+            <p className="text-sm text-muted-foreground">
+              {isCellular ? 'Tap to start earning points' : 'Connect to cellular to earn'}
+            </p>
+          </div>
+        )}
+
         {/* Center Points Display - Large and prominent */}
         {isActive && isCellular && (
           <div className="text-center mb-8 animate-fade-in">
@@ -249,50 +259,57 @@ export const NetworkContribution: React.FC = () => {
           </div>
         )}
 
-        {/* Main Button - Simple like Nodle */}
+        {/* Main Button - Simple like Nodle with pulse effect when not active */}
         <div className="flex flex-col items-center gap-3 mb-4">
-          <button
-            ref={startButtonRef}
-            onClick={() => {
-              buttonTap();
-              if (isActive) {
-                handleStopContribution();
-                playSuccess();
-              } else {
-                startContribution();
-                playCoin();
-              }
-            }}
-            disabled={!user}
-            className={cn(
-              'w-20 h-20 rounded-full',
-              'flex items-center justify-center',
-              'shadow-lg active:scale-95',
-              'border-2 transition-all duration-200',
-              isActive 
-                ? isPaused
-                  ? 'bg-amber-500/20 border-amber-400/50' 
-                  : 'bg-primary/20 border-primary/50' 
-                : 'bg-primary/10 border-primary/30',
-              !user && 'opacity-50 cursor-not-allowed'
+          <div className="relative">
+            {/* Pulse ring when not active */}
+            {!isActive && user && isCellular && (
+              <div className="absolute inset-0 rounded-full bg-primary/30 animate-ping" style={{ animationDuration: '2s' }} />
             )}
-          >
-            {isActive ? (
-              isPaused ? (
-                <Wifi className="w-8 h-8 text-amber-400" />
+            
+            <button
+              ref={startButtonRef}
+              onClick={() => {
+                buttonTap();
+                if (isActive) {
+                  handleStopContribution();
+                  playSuccess();
+                } else {
+                  startContribution();
+                  playCoin();
+                }
+              }}
+              disabled={!user}
+              className={cn(
+                'w-20 h-20 rounded-full relative z-10',
+                'flex items-center justify-center',
+                'shadow-lg active:scale-95',
+                'border-2 transition-all duration-200',
+                isActive 
+                  ? isPaused
+                    ? 'bg-amber-500/20 border-amber-400/50' 
+                    : 'bg-primary/20 border-primary/50' 
+                  : 'bg-primary/10 border-primary/30',
+                !user && 'opacity-50 cursor-not-allowed'
+              )}
+            >
+              {isActive ? (
+                isPaused ? (
+                  <Wifi className="w-8 h-8 text-amber-400" />
+                ) : (
+                  <Pause className="w-8 h-8 text-primary" />
+                )
               ) : (
-                <Pause className="w-8 h-8 text-primary" />
-              )
-            ) : (
-              <Radio className="w-8 h-8 text-primary" />
-            )}
-          </button>
+                <Radio className="w-8 h-8 text-primary" />
+              )}
+            </button>
+          </div>
 
           <p className={cn(
             'text-sm font-medium',
             isActive && isCellular ? 'text-primary' : 'text-muted-foreground'
           )}>
-            {isActive ? (isPaused ? 'Paused' : 'Scanning') : 'Start'}
+            {isActive ? (isPaused ? 'Paused' : 'Scanning...') : 'Tap to Start'}
           </p>
           
           {!user && (

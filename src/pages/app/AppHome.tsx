@@ -9,7 +9,9 @@ import {
   Crown,
   Gift,
   Target,
-  Trophy
+  Trophy,
+  Footprints,
+  Info
 } from 'lucide-react';
 import { useHaptics } from '@/hooks/useHaptics';
 import { supabase } from '@/integrations/supabase/client';
@@ -163,6 +165,8 @@ export const AppHome: React.FC = () => {
 
   const displayName = username || 'Explorer';
   const todayUSD = todayPoints * POINTS_TO_USD;
+  const totalPoints = points?.total_points || 0;
+  const isNewUser = totalPoints === 0 && recentActivity.length === 0;
 
   return (
     <>
@@ -218,29 +222,42 @@ export const AppHome: React.FC = () => {
             </div>
           )}
 
-          {/* Balance Card - Clean like Grass */}
-          <div className="rounded-2xl bg-card border border-border p-5">
-            <div className="flex items-center gap-1.5 mb-2">
-              <Zap className="w-4 h-4 text-primary" />
-              <span className="text-xs font-medium text-muted-foreground">Today</span>
+          {/* Balance Card - Enhanced with visual depth */}
+          <div className="rounded-2xl bg-card border border-border p-5 relative overflow-hidden">
+            {/* Subtle background pattern */}
+            <div className="absolute inset-0 opacity-5 pointer-events-none">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-primary rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+              <div className="absolute bottom-0 left-0 w-24 h-24 bg-primary rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
             </div>
             
-            <div className="mb-4">
-              <div className="text-4xl font-bold text-foreground tabular-nums">
-                ${todayUSD.toFixed(2)}
+            <div className="relative z-10">
+              <div className="flex items-center gap-1.5 mb-2">
+                <Zap className="w-4 h-4 text-primary" />
+                <span className="text-xs font-medium text-muted-foreground">Today</span>
+                <span className="ml-auto px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-500/20 text-amber-400">
+                  Beta
+                </span>
               </div>
-              <p className="text-sm text-muted-foreground">
-                {todayPoints.toLocaleString()} pts • {streakMultiplier}x
-              </p>
-            </div>
+              
+              <div className="mb-4">
+                <div className="text-4xl font-bold text-foreground tabular-nums">
+                  ${todayUSD.toFixed(2)}
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  {todayPoints.toLocaleString()} pts • {streakMultiplier}x multiplier
+                </p>
+              </div>
 
-            <button
-              onClick={() => { mediumTap(); navigate('/app/map'); }}
-              className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-semibold text-sm active:scale-[0.98] transition-transform flex items-center justify-center gap-2"
-            >
-              <Signal className="w-4 h-4" />
-              Start Earning
-            </button>
+              <button
+                onClick={() => { mediumTap(); navigate('/app/map'); }}
+                className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-semibold text-sm active:scale-[0.98] transition-transform flex items-center justify-center gap-2 relative overflow-hidden group"
+              >
+                {/* Subtle glow effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+                <Signal className="w-4 h-4 relative z-10" />
+                <span className="relative z-10">{isNewUser ? 'Start Your First Scan' : 'Start Earning'}</span>
+              </button>
+            </div>
           </div>
 
           {/* Quick Stats - Simple row like DIMO */}
@@ -308,8 +325,52 @@ export const AppHome: React.FC = () => {
             </button>
           </div>
 
+          {/* Getting Started Card - For new users */}
+          {user && isNewUser && (
+            <div className="rounded-xl bg-gradient-to-br from-primary/10 to-transparent border border-primary/20 p-4">
+              <div className="flex items-start gap-3 mb-3">
+                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+                  <Target className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-foreground">Complete your first scan</h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Walk or drive 1 km with cellular data to unlock your first reward
+                  </p>
+                </div>
+              </div>
+              
+              {/* Progress bar */}
+              <div className="mb-3">
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-xs text-muted-foreground">Progress</span>
+                  <span className="text-xs font-medium text-foreground">0 / 1 km</span>
+                </div>
+                <div className="h-2 rounded-full bg-muted overflow-hidden">
+                  <div className="h-full w-0 bg-primary rounded-full transition-all duration-500" />
+                </div>
+              </div>
+
+              {/* How it works */}
+              <div className="grid grid-cols-3 gap-2 text-center">
+                <div className="p-2 rounded-lg bg-card/50">
+                  <Signal className="w-4 h-4 mx-auto mb-1 text-primary" />
+                  <p className="text-[10px] text-muted-foreground">Tap Start</p>
+                </div>
+                <div className="p-2 rounded-lg bg-card/50">
+                  <Footprints className="w-4 h-4 mx-auto mb-1 text-primary" />
+                  <p className="text-[10px] text-muted-foreground">Walk or drive</p>
+                </div>
+                <div className="p-2 rounded-lg bg-card/50">
+                  <Zap className="w-4 h-4 mx-auto mb-1 text-primary" />
+                  <p className="text-[10px] text-muted-foreground">Earn points</p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Recent Activity - Simple list like Helium */}
-          {recentActivity.length > 0 && (
+          {recentActivity.length > 0 ? (
             <div className="rounded-xl bg-card border border-border p-4">
               <h3 className="text-sm font-semibold text-foreground mb-3">Recent Activity</h3>
               <div className="space-y-2">
@@ -335,6 +396,23 @@ export const AppHome: React.FC = () => {
                   </div>
                 ))}
               </div>
+            </div>
+          ) : user && !isNewUser ? (
+            /* Empty state for returning users with no recent activity */
+            <div className="rounded-xl bg-card border border-border border-dashed p-6 text-center">
+              <Signal className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+              <p className="text-sm text-muted-foreground">No recent activity</p>
+              <p className="text-xs text-muted-foreground/70 mt-1">Start scanning to see activity here</p>
+            </div>
+          ) : null}
+
+          {/* Beta info tooltip */}
+          {user && (
+            <div className="rounded-xl bg-muted/50 border border-border p-3 flex items-start gap-3">
+              <Info className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
+              <p className="text-xs text-muted-foreground">
+                <span className="font-medium text-foreground">Beta phase:</span> Points are being tracked. Token rewards and cash-out coming soon!
+              </p>
             </div>
           )}
 

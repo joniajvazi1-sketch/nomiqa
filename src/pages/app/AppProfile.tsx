@@ -230,6 +230,15 @@ export const AppProfile: React.FC = () => {
   const TierIcon = tierConfig.icon;
   const totalCashbackEarned = membership ? (membership.total_spent_usd * membership.cashback_rate) / 100 : 0;
 
+  const getNextTierThreshold = (currentTier: string): number => {
+    switch (currentTier) {
+      case 'beginner': return 50;
+      case 'traveler': return 150;
+      case 'adventurer': return 500;
+      default: return 500;
+    }
+  };
+
   if (!user && !loading) {
     return (
       <div className="px-4 py-6 flex flex-col items-center justify-center min-h-[60vh]">
@@ -251,45 +260,83 @@ export const AppProfile: React.FC = () => {
 
   return (
     <div className="px-4 py-6 space-y-5 pb-24 min-h-screen overflow-y-auto">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <div className={cn("w-14 h-14 rounded-full flex items-center justify-center", tierConfig.bg)}>
-          <span className={cn("text-xl font-bold", tierConfig.color)}>
-            {profile?.username?.charAt(0).toUpperCase() || 'U'}
-          </span>
-        </div>
-        <div className="flex-1">
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold text-foreground">{profile?.username}</h1>
-            <Badge variant="outline" className={cn("text-xs", tierConfig.color, 'border-current')}>
-              {tierConfig.name}
-            </Badge>
+      {/* Header with subtle background */}
+      <div className="relative rounded-2xl bg-gradient-to-br from-card to-muted/30 border border-border p-4 overflow-hidden">
+        {/* Subtle background glow */}
+        <div className="absolute top-0 right-0 w-24 h-24 rounded-full opacity-10 pointer-events-none"
+          style={{ background: `radial-gradient(circle, ${tierConfig.color.includes('amber') ? '#f59e0b' : tierConfig.color.includes('violet') ? '#8b5cf6' : '#14b8a6'} 0%, transparent 70%)` }}
+        />
+        
+        <div className="relative z-10 flex items-center gap-4">
+          <div className={cn("w-16 h-16 rounded-full flex items-center justify-center ring-2 ring-offset-2 ring-offset-background", tierConfig.bg, `ring-current ${tierConfig.color}`)}>
+            <span className={cn("text-2xl font-bold", tierConfig.color)}>
+              {profile?.username?.charAt(0).toUpperCase() || 'U'}
+            </span>
           </div>
-          <p className="text-sm text-muted-foreground">{profile?.email}</p>
+          <div className="flex-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-xl font-bold text-foreground">{profile?.username}</h1>
+              <Badge className={cn("text-xs font-semibold", tierConfig.bg, tierConfig.color)}>
+                <TierIcon className="w-3 h-3 mr-1" />
+                {tierConfig.name}
+              </Badge>
+            </div>
+            <p className="text-sm text-muted-foreground">{profile?.email}</p>
+          </div>
+          <Button variant="ghost" size="icon" onClick={handleLogout} className="active:scale-95">
+            <LogOut className="w-5 h-5" />
+          </Button>
         </div>
-        <Button variant="ghost" size="icon" onClick={handleLogout} className="active:scale-95">
-          <LogOut className="w-5 h-5" />
-        </Button>
       </div>
 
-      {/* Stats Summary */}
+      {/* Stats Summary - Enhanced with subtle depth */}
       <div className="grid grid-cols-3 gap-2">
-        <div className="rounded-xl bg-card border border-border p-3 text-center">
-          <Activity className="w-4 h-4 text-primary mx-auto mb-1" />
-          <p className="text-lg font-bold text-foreground">{(userPoints?.total_points || 0).toLocaleString()}</p>
-          <p className="text-xs text-muted-foreground">Points</p>
+        <div className="rounded-xl bg-card border border-border p-3 text-center relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none" />
+          <Activity className="w-4 h-4 text-primary mx-auto mb-1 relative z-10" />
+          <p className="text-lg font-bold text-foreground relative z-10">
+            {(userPoints?.total_points || 0) > 0 ? (userPoints?.total_points || 0).toLocaleString() : '0'}
+          </p>
+          <p className="text-xs text-muted-foreground relative z-10">
+            {(userPoints?.total_points || 0) === 0 ? 'Start earning!' : 'Points'}
+          </p>
         </div>
-        <div className="rounded-xl bg-card border border-border p-3 text-center">
-          <MapPin className="w-4 h-4 text-green-500 mx-auto mb-1" />
-          <p className="text-lg font-bold text-foreground">{((userPoints?.total_distance_meters || 0) / 1000).toFixed(1)}</p>
-          <p className="text-xs text-muted-foreground">km</p>
+        <div className="rounded-xl bg-card border border-border p-3 text-center relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent pointer-events-none" />
+          <MapPin className="w-4 h-4 text-green-500 mx-auto mb-1 relative z-10" />
+          <p className="text-lg font-bold text-foreground relative z-10">{((userPoints?.total_distance_meters || 0) / 1000).toFixed(1)}</p>
+          <p className="text-xs text-muted-foreground relative z-10">km</p>
         </div>
-        <div className="rounded-xl bg-card border border-border p-3 text-center">
-          <Wallet className="w-4 h-4 text-amber-500 mx-auto mb-1" />
-          <p className="text-lg font-bold text-foreground">${totalCashbackEarned.toFixed(2)}</p>
-          <p className="text-xs text-muted-foreground">Earned</p>
+        <div className="rounded-xl bg-card border border-border p-3 text-center relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent pointer-events-none" />
+          <Wallet className="w-4 h-4 text-amber-500 mx-auto mb-1 relative z-10" />
+          <p className="text-lg font-bold text-foreground relative z-10">${totalCashbackEarned.toFixed(2)}</p>
+          <p className="text-xs text-muted-foreground relative z-10">Earned</p>
         </div>
       </div>
+
+      {/* Tier Progress - Show potential upgrade */}
+      {membership && membership.membership_tier !== 'explorer' && (
+        <Card className="bg-card border-border">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm font-medium text-foreground">Upgrade your tier</p>
+              <span className="text-xs text-muted-foreground">
+                ${membership.total_spent_usd.toFixed(0)} / ${getNextTierThreshold(membership.membership_tier)}
+              </span>
+            </div>
+            <div className="h-2 rounded-full bg-muted overflow-hidden">
+              <div 
+                className="h-full bg-primary rounded-full transition-all duration-500"
+                style={{ width: `${Math.min(100, (membership.total_spent_usd / getNextTierThreshold(membership.membership_tier)) * 100)}%` }}
+              />
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              Spend ${(getNextTierThreshold(membership.membership_tier) - membership.total_spent_usd).toFixed(0)} more to unlock higher cashback
+            </p>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Referral CTA */}
       {affiliate && (
