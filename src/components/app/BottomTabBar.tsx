@@ -3,29 +3,27 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Home, Map, ShoppingBag, User } from 'lucide-react';
 import { useHaptics } from '@/hooks/useHaptics';
 import { cn } from '@/lib/utils';
-import { useTranslation } from '@/contexts/TranslationContext';
 
 interface TabItem {
   path: string;
   icon: React.ElementType;
-  labelKey: string;
+  label: string;
 }
 
 /**
  * Clean, professional bottom navigation bar
- * No animations, no long-press popups - just simple, fast navigation
+ * Matches Helium/NATIX style - simple icons + labels
  */
 export const BottomTabBar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { lightTap } = useHaptics();
-  const { t } = useTranslation();
 
   const tabs: TabItem[] = [
-    { path: '/app', icon: Home, labelKey: 'app.nav.home' },
-    { path: '/app/map', icon: Map, labelKey: 'app.nav.earn' },
-    { path: '/app/shop', icon: ShoppingBag, labelKey: 'app.nav.shop' },
-    { path: '/app/profile', icon: User, labelKey: 'app.nav.me' }
+    { path: '/app', icon: Home, label: 'Home' },
+    { path: '/app/map', icon: Map, label: 'Earn' },
+    { path: '/app/shop', icon: ShoppingBag, label: 'Shop' },
+    { path: '/app/profile', icon: User, label: 'Me' }
   ];
 
   const handleTabPress = (path: string) => {
@@ -54,7 +52,7 @@ export const BottomTabBar: React.FC = () => {
             <button
               key={tab.path}
               onClick={() => handleTabPress(tab.path)}
-              aria-label={t(tab.labelKey)}
+              aria-label={tab.label}
               className={cn(
                 'flex-1 flex flex-col items-center justify-center gap-1',
                 'touch-manipulation min-h-[48px]',
@@ -67,10 +65,10 @@ export const BottomTabBar: React.FC = () => {
                 strokeWidth={active ? 2.5 : 2}
               />
               <span className={cn(
-                'text-[10px] font-medium',
+                'text-xs font-medium',
                 active ? 'text-primary' : 'text-muted-foreground'
               )}>
-                {t(tab.labelKey)}
+                {tab.label}
               </span>
             </button>
           );
