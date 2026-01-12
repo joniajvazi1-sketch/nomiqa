@@ -7,24 +7,30 @@ interface LeaderboardEntry {
   total_points: number;
   weekly_points: number;
   monthly_points: number;
+  daily_points: number;
   total_distance_meters: number;
   rank_all_time: number | null;
   rank_weekly: number | null;
   rank_monthly: number | null;
+  rank_daily: number | null;
   rank_change: number; // positive = moved up, negative = moved down
+  isCurrentUser: boolean;
 }
 
 interface UserRank {
   rank: number;
   totalPoints: number;
   percentile: number;
+  rankChange: number;
+  pointsToNextRank: number | null;
 }
 
-type LeaderboardPeriod = 'all_time' | 'weekly' | 'monthly';
+type LeaderboardPeriod = 'daily' | 'weekly' | 'monthly' | 'all_time';
 
 interface UseLeaderboardReturn {
   entries: LeaderboardEntry[];
   userRank: UserRank | null;
+  userEntry: LeaderboardEntry | null;
   loading: boolean;
   error: string | null;
   period: LeaderboardPeriod;
@@ -36,6 +42,7 @@ interface UseLeaderboardReturn {
 export const useLeaderboard = (): UseLeaderboardReturn => {
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [userRank, setUserRank] = useState<UserRank | null>(null);
+  const [userEntry, setUserEntry] = useState<LeaderboardEntry | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [period, setPeriod] = useState<LeaderboardPeriod>('weekly');
@@ -67,12 +74,27 @@ export const useLeaderboard = (): UseLeaderboardReturn => {
 
       const profileMap = new Map(profilesData?.map(p => [p.user_id, p.username]) || []);
 
-      // Calculate weekly/monthly points from contribution_sessions
+      // Calculate time boundaries
       const now = new Date();
+      const todayStart = new Date(now);
+      todayStart.setHours(0, 0, 0, 0);
       const weekAgo = new Date(now);
       weekAgo.setDate(weekAgo.getDate() - 7);
       const monthAgo = new Date(now);
       monthAgo.setDate(monthAgo.getDate() - 30);
+
+      // Get daily points per user
+      const { data: dailySessions } = await supabase
+        .from('contribution_sessions')
+        .select('user_id, total_points_earned')
+        .gte('started_at', todayStart.toISOString())
+        .in('user_id', userIds);
+
+      const dailyPointsMap = new Map<string, number>();
+      dailySessions?.forEach(s => {
+        const current = dailyPointsMap.get(s.user_id) || 0;
+        dailyPointsMap.set(s.user_id, current + (s.total_points_earned || 0));
+      });
 
       // Get weekly points per user
       const { data: weeklySessions } = await supabase
@@ -117,22 +139,33 @@ export const useLeaderboard = (): UseLeaderboardReturn => {
         user_id: entry.user_id,
         username: profileMap.get(entry.user_id) || null,
         total_points: entry.total_points || 0,
+        daily_points: dailyPointsMap.get(entry.user_id) || 0,
         weekly_points: weeklyPointsMap.get(entry.user_id) || 0,
         monthly_points: monthlyPointsMap.get(entry.user_id) || 0,
         total_distance_meters: entry.total_distance_meters || 0,
         rank_all_time: index + 1,
-        rank_weekly: null, // Will be calculated below
-        rank_monthly: null, // Will be calculated below
-        rank_change: 0 // Will be calculated after sorting
+        rank_daily: null,
+        rank_weekly: null,
+        rank_monthly: null,
+        rank_change: 0,
+        isCurrentUser: entry.user_id === user?.id
       }));
 
-      // Calculate weekly and monthly ranks
+      // Calculate daily ranks
+      const sortedByDaily = [...entriesData].sort((a, b) => b.daily_points - a.daily_points);
+      sortedByDaily.forEach((entry, index) => {
+        const original = entriesData.find(e => e.user_id === entry.user_id);
+        if (original) original.rank_daily = index + 1;
+      });
+
+      // Calculate weekly ranks
       const sortedByWeekly = [...entriesData].sort((a, b) => b.weekly_points - a.weekly_points);
       sortedByWeekly.forEach((entry, index) => {
         const original = entriesData.find(e => e.user_id === entry.user_id);
         if (original) original.rank_weekly = index + 1;
       });
 
+      // Calculate monthly ranks
       const sortedByMonthly = [...entriesData].sort((a, b) => b.monthly_points - a.monthly_points);
       sortedByMonthly.forEach((entry, index) => {
         const original = entriesData.find(e => e.user_id === entry.user_id);
@@ -143,16 +176,16 @@ export const useLeaderboard = (): UseLeaderboardReturn => {
       entriesData.forEach(entry => {
         const cached = cachedRanksMap.get(entry.user_id);
         if (cached) {
-          // Get the relevant old and new ranks based on period
-          const oldRank = period === 'weekly' ? cached.rank_weekly :
+          const oldRank = period === 'daily' ? cached.rank_weekly : // Use weekly as baseline for daily
+                         period === 'weekly' ? cached.rank_weekly :
                          period === 'monthly' ? cached.rank_monthly :
                          cached.rank_all_time;
-          const newRank = period === 'weekly' ? entry.rank_weekly :
+          const newRank = period === 'daily' ? entry.rank_daily :
+                         period === 'weekly' ? entry.rank_weekly :
                          period === 'monthly' ? entry.rank_monthly :
                          entry.rank_all_time;
           
           if (oldRank && newRank) {
-            // Positive change means moved UP (lower rank number is better)
             entry.rank_change = oldRank - newRank;
           }
         }
@@ -160,7 +193,9 @@ export const useLeaderboard = (): UseLeaderboardReturn => {
 
       // Sort by selected period
       let sortedEntries = entriesData;
-      if (period === 'weekly') {
+      if (period === 'daily') {
+        sortedEntries = [...entriesData].sort((a, b) => b.daily_points - a.daily_points);
+      } else if (period === 'weekly') {
         sortedEntries = [...entriesData].sort((a, b) => b.weekly_points - a.weekly_points);
       } else if (period === 'monthly') {
         sortedEntries = [...entriesData].sort((a, b) => b.monthly_points - a.monthly_points);
@@ -168,43 +203,71 @@ export const useLeaderboard = (): UseLeaderboardReturn => {
 
       setEntries(sortedEntries);
 
+      // Find current user entry
+      const currentUserEntry = sortedEntries.find(e => e.user_id === user?.id) || null;
+      setUserEntry(currentUserEntry);
+
       // Update cache for current user (if logged in)
       if (user) {
-        const userEntry = entriesData.find(e => e.user_id === user.id);
-        if (userEntry) {
+        const userEntryData = entriesData.find(e => e.user_id === user.id);
+        if (userEntryData) {
           await supabase
             .from('leaderboard_cache')
             .upsert({
               user_id: user.id,
-              username: userEntry.username,
-              total_points: userEntry.total_points,
-              weekly_points: userEntry.weekly_points,
-              monthly_points: userEntry.monthly_points,
-              total_distance_meters: userEntry.total_distance_meters,
-              rank_all_time: userEntry.rank_all_time,
-              rank_weekly: userEntry.rank_weekly,
-              rank_monthly: userEntry.rank_monthly,
+              username: userEntryData.username,
+              total_points: userEntryData.total_points,
+              weekly_points: userEntryData.weekly_points,
+              monthly_points: userEntryData.monthly_points,
+              total_distance_meters: userEntryData.total_distance_meters,
+              rank_all_time: userEntryData.rank_all_time,
+              rank_weekly: userEntryData.rank_weekly,
+              rank_monthly: userEntryData.rank_monthly,
               updated_at: new Date().toISOString()
             }, { onConflict: 'user_id' });
         }
       }
 
-      // Calculate user's rank
+      // Calculate user's rank and points to next
       if (user) {
-        const userEntry = sortedEntries.find(e => e.user_id === user.id);
-        if (userEntry) {
-          const rank = period === 'weekly' ? userEntry.rank_weekly : 
-                       period === 'monthly' ? userEntry.rank_monthly : 
-                       userEntry.rank_all_time;
+        const userEntryData = sortedEntries.find(e => e.user_id === user.id);
+        if (userEntryData) {
+          const rank = period === 'daily' ? userEntryData.rank_daily :
+                       period === 'weekly' ? userEntryData.rank_weekly : 
+                       period === 'monthly' ? userEntryData.rank_monthly : 
+                       userEntryData.rank_all_time;
           
-          const points = period === 'weekly' ? userEntry.weekly_points :
-                        period === 'monthly' ? userEntry.monthly_points :
-                        userEntry.total_points;
+          const points = period === 'daily' ? userEntryData.daily_points :
+                        period === 'weekly' ? userEntryData.weekly_points :
+                        period === 'monthly' ? userEntryData.monthly_points :
+                        userEntryData.total_points;
+          
+          // Calculate points needed for next rank
+          let pointsToNextRank: number | null = null;
+          const currentRank = rank || 1;
+          if (currentRank > 1) {
+            const entryAbove = sortedEntries.find(e => {
+              const entryRank = period === 'daily' ? e.rank_daily :
+                               period === 'weekly' ? e.rank_weekly :
+                               period === 'monthly' ? e.rank_monthly :
+                               e.rank_all_time;
+              return entryRank === currentRank - 1;
+            });
+            if (entryAbove) {
+              const abovePoints = period === 'daily' ? entryAbove.daily_points :
+                                 period === 'weekly' ? entryAbove.weekly_points :
+                                 period === 'monthly' ? entryAbove.monthly_points :
+                                 entryAbove.total_points;
+              pointsToNextRank = Math.ceil(abovePoints - points) + 1;
+            }
+          }
           
           setUserRank({
             rank: rank || 1,
             totalPoints: points,
-            percentile: Math.round((1 - ((rank || 1) / Math.max(sortedEntries.length, 1))) * 100)
+            percentile: Math.round((1 - ((rank || 1) / Math.max(sortedEntries.length, 1))) * 100),
+            rankChange: userEntryData.rank_change,
+            pointsToNextRank
           });
         } else {
           // User not in top 100, get their data
@@ -227,7 +290,9 @@ export const useLeaderboard = (): UseLeaderboardReturn => {
             setUserRank({
               rank: (count || 0) + 1,
               totalPoints: userPoints.total_points || 0,
-              percentile: Math.round((1 - (((count || 0) + 1) / Math.max(totalCount || 1, 1))) * 100)
+              percentile: Math.round((1 - (((count || 0) + 1) / Math.max(totalCount || 1, 1))) * 100),
+              rankChange: 0,
+              pointsToNextRank: null
             });
           }
         }
@@ -249,6 +314,7 @@ export const useLeaderboard = (): UseLeaderboardReturn => {
   return {
     entries,
     userRank,
+    userEntry,
     loading,
     error,
     period,
