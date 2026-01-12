@@ -43,6 +43,9 @@ import { PersonalizedGoals } from '@/components/app/PersonalizedGoals';
 import { RatingPrompt, useRatingPrompt } from '@/components/app/RatingPrompt';
 import { HowYouEarnCard } from '@/components/app/HowYouEarnCard';
 import { TestPhaseBadge } from '@/components/app/TestPhaseBadge';
+import { PersonalizedGreeting } from '@/components/app/PersonalizedGreeting';
+import { FloatingPoints, useFloatingPoints } from '@/components/app/FloatingPoints';
+import { Confetti } from '@/components/Confetti';
 // useLeaderboard hook not needed - using LeaderboardSection component
 
 interface DailyEarning {
@@ -110,7 +113,10 @@ export const AppHome: React.FC = () => {
   const [showStreakCalendar, setShowStreakCalendar] = useState(false);
   const [showSpinWheel, setShowSpinWheel] = useState(false);
   const [checkinHistory, setCheckinHistory] = useState<{ date: string; points: number }[]>([]);
+  const [lastActiveDate, setLastActiveDate] = useState<Date | null>(null);
+  const [showFirstPurchaseConfetti, setShowFirstPurchaseConfetti] = useState(false);
   const usdRef = useRef<HTMLDivElement>(null);
+  const { trigger: floatingTrigger, points: floatingPointsValue, showPoints } = useFloatingPoints();
 
   const loadData = useCallback(async () => {
     try {
@@ -198,6 +204,10 @@ export const AppHome: React.FC = () => {
             date: c.check_in_date,
             points: c.bonus_points,
           })));
+          // Set last active date from most recent checkin
+          if (checkins.length > 0) {
+            setLastActiveDate(new Date(checkins[0].check_in_date));
+          }
         }
 
         // Check if user can spin today
@@ -409,6 +419,15 @@ export const AppHome: React.FC = () => {
             </div>
           )}
 
+          {/* PERSONALIZED GREETING */}
+          {user && (
+            <PersonalizedGreeting 
+              username={username}
+              lastActiveDate={lastActiveDate}
+              streakDays={streakDays}
+            />
+          )}
+
           {/* COMPACT HERO CARD */}
           <div className="relative rounded-2xl overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-neon-cyan/15 via-primary/10 to-transparent" />
@@ -464,6 +483,18 @@ export const AppHome: React.FC = () => {
             points={todayPoints}
             type="milestone"
             onComplete={() => setShowDailyGoalCelebration(false)}
+          />
+
+          {/* Floating Points Animation */}
+          <FloatingPoints 
+            trigger={floatingTrigger} 
+            points={floatingPointsValue} 
+          />
+
+          {/* First purchase confetti */}
+          <Confetti 
+            trigger={showFirstPurchaseConfetti} 
+            onComplete={() => setShowFirstPurchaseConfetti(false)} 
           />
 
           {/* HOW YOU EARN EXPLAINER - Shows users how earning works */}
