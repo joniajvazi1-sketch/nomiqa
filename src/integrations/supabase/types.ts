@@ -977,6 +977,36 @@ export type Database = {
         }
         Relationships: []
       }
+      referral_commissions: {
+        Row: {
+          commission_points: number
+          commission_rate: number
+          created_at: string
+          id: string
+          points_earned: number
+          referred_user_id: string
+          referrer_user_id: string
+        }
+        Insert: {
+          commission_points: number
+          commission_rate?: number
+          created_at?: string
+          id?: string
+          points_earned: number
+          referred_user_id: string
+          referrer_user_id: string
+        }
+        Update: {
+          commission_points?: number
+          commission_rate?: number
+          created_at?: string
+          id?: string
+          points_earned?: number
+          referred_user_id?: string
+          referrer_user_id?: string
+        }
+        Relationships: []
+      }
       signal_logs: {
         Row: {
           accuracy_meters: number | null
@@ -1259,6 +1289,7 @@ export type Database = {
           contribution_streak_days: number | null
           created_at: string | null
           id: string
+          last_commission_points: number | null
           last_contribution_date: string | null
           pending_points: number | null
           total_contribution_time_seconds: number | null
@@ -1271,6 +1302,7 @@ export type Database = {
           contribution_streak_days?: number | null
           created_at?: string | null
           id?: string
+          last_commission_points?: number | null
           last_contribution_date?: string | null
           pending_points?: number | null
           total_contribution_time_seconds?: number | null
@@ -1283,6 +1315,7 @@ export type Database = {
           contribution_streak_days?: number | null
           created_at?: string | null
           id?: string
+          last_commission_points?: number | null
           last_contribution_date?: string | null
           pending_points?: number | null
           total_contribution_time_seconds?: number | null
