@@ -278,27 +278,12 @@ export const AppShop: React.FC = () => {
         isRefreshing={isRefreshing}
       />
 
-      {/* Background effects */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div 
-          className="absolute top-20 left-0 w-[400px] h-[400px] rounded-full opacity-10"
-          style={{
-            background: 'radial-gradient(circle, hsl(var(--neon-cyan)) 0%, transparent 70%)',
-            filter: 'blur(80px)'
-          }}
-        />
-        <div 
-          className="absolute bottom-40 right-0 w-[300px] h-[300px] rounded-full opacity-10"
-          style={{
-            background: 'radial-gradient(circle, hsl(var(--neon-violet)) 0%, transparent 70%)',
-            filter: 'blur(80px)'
-          }}
-        />
-      </div>
+      {/* Background - clean */}
+      <div className="fixed inset-0 bg-background" />
 
       <div className="relative z-10 px-5 py-6 pb-28 space-y-4">
         {/* Header */}
-        <header className="flex items-center justify-between animate-fade-in">
+        <header className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-foreground tracking-tight">{t('app.shop.title')}</h1>
             <p className="text-sm text-muted-foreground">{t('app.shop.destinations')}</p>
@@ -307,8 +292,8 @@ export const AppShop: React.FC = () => {
             ref={cartButtonRef}
             onClick={handleCartClick}
             className={cn(
-              'relative w-12 h-12 rounded-2xl bg-white/[0.05] backdrop-blur-xl border border-white/10 flex items-center justify-center transition-all active:scale-90',
-              cartItemCount > 0 ? 'hover:bg-primary/20 hover:border-primary/30' : 'hover:bg-white/[0.08]',
+              'relative w-12 h-12 rounded-xl bg-card border border-border flex items-center justify-center transition-colors active:scale-90',
+              cartItemCount > 0 ? 'hover:bg-primary/10 hover:border-primary/30' : 'hover:bg-muted',
               cartShaking && 'animate-shake'
             )}
           >
@@ -317,67 +302,62 @@ export const AppShop: React.FC = () => {
               cartItemCount > 0 ? 'text-primary' : 'text-foreground'
             )} />
             {cartItemCount > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-gradient-to-br from-primary to-primary/80 text-primary-foreground text-xs font-bold rounded-full flex items-center justify-center shadow-lg shadow-primary/40 animate-bounce-in">
+              <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-primary text-primary-foreground text-xs font-bold rounded-full flex items-center justify-center">
                 {cartItemCount}
               </span>
             )}
           </button>
         </header>
 
-        {/* Segmented Tabs */}
-        <div className="relative animate-fade-in" style={{ animationDelay: '50ms' }}>
-          <div className="flex p-1.5 rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/[0.08]">
-            {tabs.map((tab) => (
-              <button
-                key={tab.key}
-                onClick={() => handleTabChange(tab.key)}
-                className={cn(
-                  'flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-sm font-medium transition-all active:scale-95',
-                  activeTab === tab.key 
-                    ? 'bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-lg shadow-primary/30' 
-                    : 'text-muted-foreground hover:text-foreground hover:bg-white/[0.03]'
-                )}
-              >
-                <tab.icon className="w-4 h-4" />
-                {tab.label}
-              </button>
-            ))}
-          </div>
+        {/* Segmented Tabs - simplified */}
+        <div className="flex p-1 rounded-xl bg-card border border-border">
+          {tabs.map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => handleTabChange(tab.key)}
+              className={cn(
+                'flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-sm font-medium transition-colors active:scale-95',
+                activeTab === tab.key 
+                  ? 'bg-primary text-primary-foreground' 
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+              )}
+            >
+              <tab.icon className="w-4 h-4" />
+              {tab.label}
+            </button>
+          ))}
         </div>
 
-        {/* Search Bar */}
-        <div className="relative animate-fade-in" style={{ animationDelay: '100ms' }}>
-          <div className="absolute inset-0 bg-white/[0.03] backdrop-blur-xl rounded-2xl" />
-          <div className="relative flex items-center border border-white/[0.08] rounded-2xl overflow-hidden focus-within:border-primary/30 transition-colors">
-            <Search className="absolute left-4 w-5 h-5 text-muted-foreground" />
-            <Input
-              placeholder={activeTab === 'local' ? t('app.shop.searchCountries') : activeTab === 'regional' ? t('app.shop.searchRegions') : t('app.shop.searchGlobal')}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-12 pr-10 h-12 bg-transparent border-0 text-foreground placeholder:text-muted-foreground/60 focus-visible:ring-0"
-            />
-            {searchQuery && (
-              <button 
-                onClick={() => setSearchQuery('')}
-                className="absolute right-4 w-6 h-6 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
-              >
-                <X className="w-3 h-3 text-muted-foreground" />
-              </button>
-            )}
-          </div>
+        {/* Search Bar - simplified */}
+        <div className="relative flex items-center border border-border rounded-xl overflow-hidden bg-card focus-within:border-primary/50 transition-colors">
+          <Search className="absolute left-4 w-5 h-5 text-muted-foreground" />
+          <Input
+            placeholder={activeTab === 'local' ? t('app.shop.searchCountries') : activeTab === 'regional' ? t('app.shop.searchRegions') : t('app.shop.searchGlobal')}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-12 pr-10 h-12 bg-transparent border-0 text-foreground placeholder:text-muted-foreground/60 focus-visible:ring-0"
+          />
+          {searchQuery && (
+            <button 
+              onClick={() => setSearchQuery('')}
+              className="absolute right-4 w-6 h-6 rounded-full bg-muted flex items-center justify-center hover:bg-muted-foreground/20 transition-colors"
+            >
+              <X className="w-3 h-3 text-muted-foreground" />
+            </button>
+          )}
         </div>
 
-        {/* Data Filter Chips */}
-        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide animate-fade-in" style={{ animationDelay: '150ms' }}>
+        {/* Data Filter Chips - simplified */}
+        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
           {dataFilters.map((filter) => (
             <button
               key={filter.key}
               onClick={() => { selectionTap(); setDataFilter(filter.key); }}
               className={cn(
-                'flex-shrink-0 px-4 py-2 rounded-xl text-sm font-medium transition-all active:scale-95',
+                'flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-colors active:scale-95',
                 dataFilter === filter.key 
-                  ? 'bg-primary/20 border border-primary/40 text-primary' 
-                  : 'bg-white/[0.03] border border-white/[0.08] text-muted-foreground hover:bg-white/[0.06]'
+                  ? 'bg-primary text-primary-foreground' 
+                  : 'bg-card border border-border text-muted-foreground hover:bg-muted'
               )}
             >
               {filter.label}
@@ -386,7 +366,7 @@ export const AppShop: React.FC = () => {
         </div>
 
         {/* Results Count */}
-        <div className="flex items-center justify-between text-sm animate-fade-in" style={{ animationDelay: '200ms' }}>
+        <div className="flex items-center justify-between text-sm">
           <span className="text-muted-foreground">
             {filteredProducts.length} {activeTab === 'local' ? t('app.shop.countries') : activeTab === 'regional' ? t('app.shop.regions') : t('app.shop.plans')}
           </span>
@@ -418,20 +398,16 @@ export const AppShop: React.FC = () => {
                 <div 
                   onClick={() => handleProductClick(product)}
                   className={cn(
-                    'group relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-300',
-                    'hover:scale-[1.02] hover:shadow-xl hover:shadow-primary/10',
-                    'active:scale-[0.97]'
+                    'group relative rounded-xl overflow-hidden cursor-pointer transition-colors',
+                    'hover:bg-muted/50',
+                    'active:scale-[0.98]'
                   )}
-                  style={{ 
-                    animation: `stagger-in 0.4s ease-out ${Math.min(index, 10) * 40}ms backwards`
-                  }}
                 >
-                  {/* Glass background */}
-                  <div className="absolute inset-0 bg-white/[0.03] backdrop-blur-xl transition-colors group-hover:bg-white/[0.06]" />
-                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-br from-primary/10 to-transparent" />
+                  {/* Card background */}
+                  <div className="absolute inset-0 bg-card" />
                   
                   {/* Content */}
-                  <div className="relative p-3 border border-white/[0.08] rounded-2xl group-hover:border-primary/20 transition-colors">
+                  <div className="relative p-3 border border-border rounded-xl">
                     {/* Swipe hint for first product card */}
                     {index === 0 && (
                       <SwipeHint 
@@ -444,7 +420,7 @@ export const AppShop: React.FC = () => {
                     
                     {/* Popular badge */}
                     {product.is_popular && (
-                      <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded-md bg-orange-500/20 border border-orange-500/30 flex items-center gap-0.5">
+                      <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded-md bg-orange-500/10 border border-orange-500/20 flex items-center gap-0.5">
                         <Flame className="w-2.5 h-2.5 text-orange-400" />
                         <span className="text-[9px] font-medium text-orange-400">HOT</span>
                       </div>
@@ -456,7 +432,7 @@ export const AppShop: React.FC = () => {
                     </div>
                     
                     {/* Country/Region name */}
-                    <h3 className="font-semibold text-foreground text-center truncate mb-1 group-hover:text-primary transition-colors">
+                    <h3 className="font-semibold text-foreground text-center truncate mb-1">
                       {product.country_name}
                     </h3>
                     
@@ -480,12 +456,12 @@ export const AppShop: React.FC = () => {
                         onClick={(e) => handleAddToCart(product, e)}
                         disabled={addingProductId === product.id}
                         className={cn(
-                          'h-9 w-9 p-0 rounded-xl bg-gradient-to-r from-primary to-primary/80 shadow-lg shadow-primary/30 hover:opacity-90 transition-all',
-                          addingProductId === product.id && 'animate-bounce scale-110'
+                          'h-9 w-9 p-0 rounded-lg bg-primary hover:bg-primary/90 transition-colors',
+                          addingProductId === product.id && 'scale-110'
                         )}
                       >
                         {addingProductId === product.id ? (
-                          <Check className="w-4 h-4 animate-scale-in" />
+                          <Check className="w-4 h-4" />
                         ) : (
                           <Plus className="w-4 h-4" />
                         )}
@@ -498,33 +474,32 @@ export const AppShop: React.FC = () => {
           </div>
         )}
 
-        {/* Load More Button */}
+        {/* Load More Button - simplified */}
         {hasMore && !isLoading && (
           <button 
             onClick={handleLoadMore}
-            className="w-full p-4 rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] flex items-center justify-center gap-2 text-sm font-medium text-muted-foreground hover:bg-white/[0.05] hover:border-primary/20 transition-all active:scale-[0.98] group"
+            className="w-full p-4 rounded-xl bg-card border border-border flex items-center justify-center gap-2 text-sm font-medium text-muted-foreground hover:bg-muted transition-colors active:scale-[0.98]"
           >
-            <ChevronDown className="w-4 h-4 group-hover:animate-bounce" />
+            <ChevronDown className="w-4 h-4" />
             Load More ({filteredProducts.length - displayCount} remaining)
           </button>
         )}
 
-        {/* Empty State */}
+        {/* Empty State - simplified */}
         {!isLoading && displayedProducts.length === 0 && (
-          <div className="text-center py-16 animate-fade-in">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-white/[0.05] border border-white/[0.08] flex items-center justify-center animate-float">
-              <MapPin className="w-8 h-8 text-muted-foreground/50" />
+          <div className="text-center py-16">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-xl bg-muted flex items-center justify-center">
+              <MapPin className="w-8 h-8 text-muted-foreground" />
             </div>
             <p className="text-muted-foreground mb-2">
               {searchQuery ? `No plans found for "${searchQuery}"` : 'No plans available'}
             </p>
-            <p className="text-xs text-muted-foreground/60 mb-4">
+            <p className="text-xs text-muted-foreground mb-4">
               Try adjusting your filters
             </p>
             <Button 
               variant="outline"
               size="sm"
-              className="bg-white/[0.03] border-white/10 hover:bg-white/[0.06]"
               onClick={() => { setSearchQuery(''); setDataFilter('all'); }}
             >
               Clear all filters
