@@ -55,10 +55,11 @@ export const AppHome: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [todayPoints, setTodayPoints] = useState(0);
   const [recentActivity, setRecentActivity] = useState<Array<{
-    type: string;
+    type: 'scan' | 'referral' | 'bonus';
     points: number;
     time: string;
     distance?: number;
+    username?: string;
   }>>([]);
 
   const loadData = useCallback(async () => {
@@ -107,6 +108,17 @@ export const AppHome: React.FC = () => {
           .order('started_at', { ascending: false })
           .limit(5);
 
+        // Load recent referral commissions earned
+        const { data: commissionsData } = await supabase
+          .from('referral_commissions')
+          .select('commission_points, created_at, referred_user_id')
+          .eq('referrer_user_id', currentUser.id)
+          .order('created_at', { ascending: false })
+          .limit(3);
+
+        // Build combined activity list
+        const allActivity: typeof recentActivity = [];
+
         if (sessionsData && sessionsData.length > 0) {
           // Calculate today's points
           const todayTotal = sessionsData
@@ -114,15 +126,46 @@ export const AppHome: React.FC = () => {
             .reduce((sum, s) => sum + (s.total_points_earned || 0), 0);
           setTodayPoints(todayTotal);
 
-          // Format recent activity
-          const activity = sessionsData.slice(0, 3).map(s => ({
-            type: 'scan',
-            points: s.total_points_earned || 0,
-            distance: s.total_distance_meters || 0,
-            time: formatRelativeTime(new Date(s.started_at))
-          }));
-          setRecentActivity(activity);
+          // Add scan activities
+          sessionsData.slice(0, 3).forEach(s => {
+            allActivity.push({
+              type: 'scan',
+              points: s.total_points_earned || 0,
+              distance: s.total_distance_meters || 0,
+              time: formatRelativeTime(new Date(s.started_at))
+            });
+          });
         }
+
+        // Add referral commission activities
+        if (commissionsData && commissionsData.length > 0) {
+          commissionsData.forEach(c => {
+            allActivity.push({
+              type: 'referral',
+              points: c.commission_points || 0,
+              time: formatRelativeTime(new Date(c.created_at)),
+              username: 'friend' // We could look up the username if needed
+            });
+          });
+        }
+
+        // Sort by most recent and take top 5
+        allActivity.sort((a, b) => {
+          // Parse relative time back for sorting (hacky but works for display)
+          const getMinutes = (t: string) => {
+            const match = t.match(/(\d+)([mhd])/);
+            if (!match) return 0;
+            const [, num, unit] = match;
+            const n = parseInt(num);
+            if (unit === 'm') return n;
+            if (unit === 'h') return n * 60;
+            if (unit === 'd') return n * 1440;
+            return 0;
+          };
+          return getMinutes(a.time) - getMinutes(b.time);
+        });
+
+        setRecentActivity(allActivity.slice(0, 5));
       }
     } catch (error) {
       console.error('Error loading data:', error);
@@ -482,13 +525,22 @@ export const AppHome: React.FC = () => {
                     className="flex items-center justify-between py-2 border-b border-border/50 last:border-0"
                   >
                     <div className="flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse-soft" />
+                      <div className={cn(
+                        "w-1.5 h-1.5 rounded-full animate-pulse-soft",
+                        activity.type === 'referral' ? "bg-accent" : "bg-primary"
+                      )} />
                       <span className="text-sm text-foreground">
-                        Scanned {activity.distance ? formatDistance(activity.distance) : ''}
+                        {activity.type === 'referral' 
+                          ? `Commission from ${activity.username || 'friend'}`
+                          : `Scanned ${activity.distance ? formatDistance(activity.distance) : ''}`
+                        }
                       </span>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="text-sm font-medium text-gradient-primary">
+                      <span className={cn(
+                        "text-sm font-medium",
+                        activity.type === 'referral' ? "text-gradient-reward" : "text-gradient-primary"
+                      )}>
                         +{activity.points.toFixed(0)} pts
                       </span>
                       <span className="text-xs text-muted-foreground">

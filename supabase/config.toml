@@ -104,3 +104,9 @@ verify_jwt = true
 
 [functions.sync-affiliate-stats]
 verify_jwt = false
+
+[functions.process-referral-commission]
+verify_jwt = false
+
+[functions.join-waitlist]
+verify_jwt = false
