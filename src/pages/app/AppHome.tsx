@@ -29,6 +29,7 @@ import { DailyCheckIn } from '@/components/app/DailyCheckIn';
 import { SpinWheel } from '@/components/app/SpinWheel';
 import { TokenInfoModal } from '@/components/app/TokenInfoModal';
 import { NetworkStatsCard } from '@/components/app/NetworkStatsCard';
+import { GlobalCommunityStats } from '@/components/app/GlobalCommunityStats';
 import { TOKENOMICS, pointsToUsd, formatTokens } from '@/utils/tokenomics';
 
 export const AppHome: React.FC = () => {
@@ -571,6 +572,17 @@ export const AppHome: React.FC = () => {
               <p className="text-xs text-muted-foreground/70 mt-1">Start scanning to see activity here</p>
             </div>
           ) : null}
+
+          {/* Global Community Stats */}
+          {user && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+            >
+              <GlobalCommunityStats />
+            </motion.div>
+          )}
 
           {/* Beta info tooltip */}
           {user && (

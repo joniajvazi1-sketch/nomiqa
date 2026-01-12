@@ -133,8 +133,8 @@ export const AppAchievements: React.FC = () => {
                       className={cn(
                         "flex flex-col items-center p-3 rounded-2xl border transition-all",
                         achievement.unlocked 
-                          ? "bg-white/[0.05] border-primary/20" 
-                          : "bg-white/[0.02] border-white/[0.05] opacity-60"
+                          ? "bg-card border-primary/20" 
+                          : "bg-muted/30 border-border opacity-60"
                       )}
                       onClick={() => {
                         if (achievement.unlocked) {
