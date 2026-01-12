@@ -435,6 +435,116 @@ All colors MUST be HSL.
     }
   }
 
+  /* Highlighted/featured card */
+  .card-featured {
+    background: linear-gradient(135deg, 
+      hsl(var(--primary) / 0.08) 0%, 
+      hsl(var(--card)) 50%,
+      hsl(var(--primary) / 0.05) 100%);
+    border: 1px solid hsl(var(--primary) / 0.25);
+    box-shadow: 
+      0 4px 20px hsl(0 0% 0% / 0.15),
+      0 0 40px hsl(var(--primary) / 0.08),
+      inset 0 1px 0 hsl(var(--primary) / 0.1);
+  }
+
+  /* Glass morphism overlay */
+  .glass-overlay {
+    background: hsl(var(--card) / 0.7);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid hsl(var(--foreground) / 0.08);
+  }
+
+  /* Stat card with number emphasis */
+  .card-stat {
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card-stat::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(
+      ellipse at top right,
+      hsl(var(--primary) / 0.06) 0%,
+      transparent 60%
+    );
+    pointer-events: none;
+  }
+
+  /* Interactive card with tap feedback */
+  .card-interactive {
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+
+  .card-interactive:hover {
+    border-color: hsl(var(--primary) / 0.3);
+    background: hsl(var(--card) / 0.9);
+  }
+
+  .card-interactive:active {
+    transform: scale(0.98);
+    background: hsl(var(--muted) / 0.5);
+  }
+
+  /* Leaderboard podium card */
+  .card-podium-gold {
+    background: linear-gradient(145deg,
+      hsl(45 80% 12%) 0%,
+      hsl(var(--card)) 100%);
+    border: 1px solid hsl(45 80% 40% / 0.3);
+    box-shadow: 0 0 30px hsl(45 80% 50% / 0.1);
+  }
+
+  .card-podium-silver {
+    background: linear-gradient(145deg,
+      hsl(220 15% 18%) 0%,
+      hsl(var(--card)) 100%);
+    border: 1px solid hsl(220 15% 50% / 0.3);
+  }
+
+  .card-podium-bronze {
+    background: linear-gradient(145deg,
+      hsl(25 50% 14%) 0%,
+      hsl(var(--card)) 100%);
+    border: 1px solid hsl(25 50% 40% / 0.3);
+  }
+
+  /* Achievement unlocked card */
+  .card-achievement {
+    background: linear-gradient(135deg,
+      hsl(var(--card)) 0%,
+      hsl(var(--accent) / 0.08) 100%);
+    border: 1px solid hsl(var(--accent) / 0.25);
+    box-shadow: 
+      0 4px 20px hsl(0 0% 0% / 0.15),
+      0 0 50px hsl(var(--accent) / 0.1);
+    position: relative;
+  }
+
+  .card-achievement::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg,
+      transparent,
+      hsl(var(--accent)),
+      transparent);
+  }
+
   /* ============================================
      MICRO-ANIMATIONS (Phase 5)
      Subtle, delightful interactions
