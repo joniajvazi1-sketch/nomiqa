@@ -42,9 +42,6 @@ import { LeaderboardSection } from '@/components/app/LeaderboardSection';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from '@/components/app/PullToRefreshIndicator';
 import { AppSpinner } from '@/components/app/AppSpinner';
-import { TiltCard3D } from '@/components/app/TiltCard3D';
-import { AnimatedGradientBorder } from '@/components/app/AnimatedGradientBorder';
-import { EmptyStateIllustration } from '@/components/app/EmptyStateIllustration';
 import { EmptyState } from '@/components/app/EmptyState';
 import { motion } from 'framer-motion';
 import { SectionErrorBoundary } from '@/components/app/SectionErrorBoundary';
@@ -312,23 +309,8 @@ export const AppWallet: React.FC = () => {
         isRefreshing={isRefreshing}
       />
 
-      {/* Background effects */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div 
-          className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full opacity-20 animate-pulse-slow"
-          style={{
-            background: 'radial-gradient(circle, hsl(var(--primary)) 0%, transparent 70%)',
-            filter: 'blur(80px)'
-          }}
-        />
-        <div 
-          className="absolute bottom-20 -left-20 w-[300px] h-[300px] rounded-full opacity-10"
-          style={{
-            background: 'radial-gradient(circle, hsl(var(--neon-cyan)) 0%, transparent 70%)',
-            filter: 'blur(60px)'
-          }}
-        />
-      </div>
+      {/* Background - simplified */}
+      <div className="fixed inset-0 bg-background" />
 
       <div className="relative z-10 px-5 py-6 pb-28 space-y-5">
         {/* Header */}
@@ -339,91 +321,74 @@ export const AppWallet: React.FC = () => {
           </div>
           <button 
             onClick={handleLogout}
-            className="w-11 h-11 rounded-full bg-white/[0.05] backdrop-blur-xl border border-white/10 flex items-center justify-center hover:bg-white/[0.08] transition-all active:scale-95"
+            className="w-11 h-11 rounded-full bg-card border border-border flex items-center justify-center hover:bg-muted transition-colors active:scale-95"
           >
             <LogOut className="w-5 h-5 text-muted-foreground" />
           </button>
         </header>
 
-        {/* Animated Balance Card with 3D Tilt */}
-        <TiltCard3D maxTilt={8} scale={1.01} glareEnabled={true}>
-          <AnimatedGradientBorder 
-            borderRadius={28} 
-            glowIntensity="medium"
-            animationDuration={4}
-          >
-            <div 
-              className="relative overflow-hidden cursor-pointer"
-              onClick={() => { buttonTap(); playCoin(); setShowBalanceDetails(!showBalanceDetails); }}
-            >
-              {/* Inner glow */}
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-neon-cyan/10" />
-              <div className="absolute -top-20 -right-20 w-60 h-60 bg-gradient-to-br from-primary/40 to-transparent rounded-full blur-3xl animate-pulse-slow" />
-              
-              <div className="relative p-6">
-                {/* Top row */}
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg shadow-primary/40 animate-float">
-                      <Zap className="w-6 h-6 text-primary-foreground" />
-                    </div>
-                    <div>
-                      <span className="text-sm text-foreground/80 font-semibold">{t('app.wallet.totalBalance')}</span>
-                      <div className="flex items-center gap-1.5">
-                        <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                        <span className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('app.wallet.live')}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <ChevronRight className={cn(
-                    "w-5 h-5 text-muted-foreground transition-transform",
-                    showBalanceDetails && "rotate-90"
-                  )} />
+        {/* Balance Card - simplified, no 3D effects */}
+        <div 
+          className="rounded-2xl border border-border bg-card overflow-hidden cursor-pointer"
+          onClick={() => { buttonTap(); playCoin(); setShowBalanceDetails(!showBalanceDetails); }}
+        >
+          <div className="p-6">
+            {/* Top row */}
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center">
+                  <Zap className="w-6 h-6 text-primary" />
                 </div>
-                
-                {/* Balance display */}
-                <div className="mb-1">
-                  <span 
-                    className="text-5xl font-bold text-foreground tracking-tighter animate-count-up"
-                    style={{ fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace' }}
-                  >
-                    {loading ? '---' : formatNumber(totalPoints)}
-                  </span>
-                  <span className="text-xl text-muted-foreground ml-2">pts</span>
-                </div>
-                
-                {/* USD estimate with test phase context */}
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <span>≈ ${estimatedUSD} USD</span>
-                  {totalPoints > 0 ? (
-                    <TrendingUp className="w-3.5 h-3.5 text-green-400" />
-                  ) : (
-                    <span className="text-[10px] text-amber-300/60">• Activates at launch</span>
-                  )}
-                </div>
-
-                {/* Expandable details */}
-                <div className={cn(
-                  "grid grid-cols-3 gap-3 transition-all overflow-hidden",
-                  showBalanceDetails ? "mt-5 max-h-24 opacity-100" : "max-h-0 opacity-0"
-                )}>
-                  <div className="bg-white/[0.05] rounded-xl p-3 text-center">
-                    <div className="text-lg font-bold text-foreground">{points?.contribution_streak_days || 0}</div>
-                    <div className="text-[10px] text-muted-foreground uppercase">Day Streak</div>
-                  </div>
-                  <div className="bg-white/[0.05] rounded-xl p-3 text-center">
-                    <div className="text-lg font-bold text-foreground">{formatDistance(points?.total_distance_meters)}</div>
-                    <div className="text-[10px] text-muted-foreground uppercase">Total Dist</div>
-                  </div>
-                  <div className="bg-white/[0.05] rounded-xl p-3 text-center">
-                    <div className="text-lg font-bold text-foreground">{affiliate?.total_registrations || 0}</div>
-                    <div className="text-[10px] text-muted-foreground uppercase">Referrals</div>
+                <div>
+                  <span className="text-sm text-foreground/80 font-semibold">{t('app.wallet.totalBalance')}</span>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('app.wallet.live')}</span>
                   </div>
                 </div>
               </div>
+              <ChevronRight className={cn(
+                "w-5 h-5 text-muted-foreground transition-transform",
+                showBalanceDetails && "rotate-90"
+              )} />
             </div>
-          </AnimatedGradientBorder>
-        </TiltCard3D>
+            
+            {/* Balance display */}
+            <div className="mb-1">
+              <span 
+                className="text-5xl font-bold text-foreground tracking-tighter tabular-nums"
+              >
+                {loading ? '---' : formatNumber(totalPoints)}
+              </span>
+              <span className="text-xl text-muted-foreground ml-2">pts</span>
+            </div>
+            
+            {/* USD estimate */}
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <span>≈ ${estimatedUSD} USD</span>
+              {totalPoints > 0 && <TrendingUp className="w-3.5 h-3.5 text-green-400" />}
+            </div>
+
+            {/* Expandable details */}
+            <div className={cn(
+              "grid grid-cols-3 gap-3 transition-all overflow-hidden",
+              showBalanceDetails ? "mt-5 max-h-24 opacity-100" : "max-h-0 opacity-0"
+            )}>
+              <div className="bg-muted/50 rounded-xl p-3 text-center">
+                <div className="text-lg font-bold text-foreground">{points?.contribution_streak_days || 0}</div>
+                <div className="text-[10px] text-muted-foreground uppercase">Day Streak</div>
+              </div>
+              <div className="bg-muted/50 rounded-xl p-3 text-center">
+                <div className="text-lg font-bold text-foreground">{formatDistance(points?.total_distance_meters)}</div>
+                <div className="text-[10px] text-muted-foreground uppercase">Total Dist</div>
+              </div>
+              <div className="bg-muted/50 rounded-xl p-3 text-center">
+                <div className="text-lg font-bold text-foreground">{affiliate?.total_registrations || 0}</div>
+                <div className="text-[10px] text-muted-foreground uppercase">Referrals</div>
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* Streak Bonus */}
         {streakDays >= 1 && (
@@ -463,24 +428,21 @@ export const AppWallet: React.FC = () => {
           <LeaderboardSection compact={false} />
         </SectionErrorBoundary>
 
-        {/* Quick Actions */}
+        {/* Quick Actions - simplified */}
         <div className="grid grid-cols-4 gap-3">
           {[
-            { id: 'earn', icon: MapPin, label: 'Scan', gradient: 'from-green-500 to-emerald-600' },
-            { id: 'shop', icon: ShoppingBag, label: 'Shop', gradient: 'from-blue-500 to-indigo-600' },
-            { id: 'invite', icon: Users, label: 'Invite', gradient: 'from-purple-500 to-violet-600' },
-            { id: 'redeem', icon: Gift, label: 'Redeem', gradient: 'from-amber-500 to-orange-600' },
+            { id: 'earn', icon: MapPin, label: 'Scan', color: 'text-green-400 bg-green-500/10' },
+            { id: 'shop', icon: ShoppingBag, label: 'Shop', color: 'text-blue-400 bg-blue-500/10' },
+            { id: 'invite', icon: Users, label: 'Invite', color: 'text-violet-400 bg-violet-500/10' },
+            { id: 'redeem', icon: Gift, label: 'Redeem', color: 'text-amber-400 bg-amber-500/10' },
           ].map((action) => (
             <button
               key={action.id}
               onClick={() => handleQuickAction(action.id)}
-              className="flex flex-col items-center gap-2 p-3 rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] hover:bg-white/[0.06] transition-all active:scale-95"
+              className="flex flex-col items-center gap-2 p-3 rounded-xl bg-card border border-border hover:bg-muted/50 transition-colors active:scale-95"
             >
-              <div className={cn(
-                "w-11 h-11 rounded-xl bg-gradient-to-br flex items-center justify-center shadow-lg",
-                action.gradient
-              )}>
-                <action.icon className="w-5 h-5 text-white" />
+              <div className={cn('w-10 h-10 rounded-xl flex items-center justify-center', action.color)}>
+                <action.icon className="w-5 h-5" />
               </div>
               <span className="text-xs font-medium text-foreground">{action.label}</span>
             </button>

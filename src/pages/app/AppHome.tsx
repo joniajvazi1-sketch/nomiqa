@@ -343,33 +343,25 @@ export const AppHome: React.FC = () => {
           isRefreshing={isRefreshing}
         />
 
-        {/* Subtle animated background - reduced size */}
-        <div className="fixed inset-0 pointer-events-none">
-          <div 
-            className="absolute top-0 left-1/2 -translate-x-1/2 w-[400px] h-[400px] rounded-full opacity-10"
-            style={{
-              background: 'radial-gradient(circle, hsl(var(--neon-cyan)) 0%, transparent 70%)',
-              filter: 'blur(80px)',
-            }}
-          />
-        </div>
+        {/* Background - clean, no blur effects */}
+        <div className="fixed inset-0 bg-background" />
 
-        <div className="relative z-10 px-4 py-4 pb-24 space-y-3">
-          {/* COMPACT TOP BAR */}
+        <div className="relative z-10 px-4 py-4 pb-24 space-y-4">
+          {/* TOP BAR - simplified */}
           <header className="flex items-center justify-between">
-            {/* Status Pill - smaller */}
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/[0.05] backdrop-blur-xl border border-white/[0.08]">
+            {/* Status Pill */}
+            <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-card border border-border">
               <div className={cn(
                 "w-1.5 h-1.5 rounded-full",
-                isOnline ? "bg-neon-cyan animate-pulse" : "bg-red-500"
+                isOnline ? "bg-green-500" : "bg-red-500"
               )} />
-              <span className="text-[10px] text-foreground/80 font-medium">
+              <span className="text-xs text-muted-foreground font-medium">
                 {isOnline ? 'Online' : 'Offline'} • {getConnectionLabel()}
               </span>
             </div>
 
-            {/* Icon buttons - smaller */}
-            <div className="flex items-center gap-1.5">
+            {/* Icon buttons */}
+            <div className="flex items-center gap-2">
               <button 
                 onClick={() => { 
                   lightTap(); 
@@ -378,14 +370,14 @@ export const AppHome: React.FC = () => {
                   }
                 }}
                 className={cn(
-                  "w-8 h-8 rounded-full backdrop-blur-xl border flex items-center justify-center active:scale-95 transition-all relative",
+                  "w-9 h-9 rounded-full border flex items-center justify-center active:scale-95 transition-transform relative",
                   notificationsEnabled 
                     ? "bg-primary/10 border-primary/30" 
-                    : "bg-white/[0.05] border-white/[0.08]"
+                    : "bg-card border-border"
                 )}
               >
                 <Bell className={cn(
-                  "w-3.5 h-3.5",
+                  "w-4 h-4",
                   notificationsEnabled ? "text-primary" : "text-muted-foreground"
                 )} />
                 {notificationsSupported && !notificationsEnabled && (
@@ -397,9 +389,9 @@ export const AppHome: React.FC = () => {
               
               <button 
                 onClick={() => { lightTap(); navigate('/app/profile'); }}
-                className="w-8 h-8 rounded-full bg-white/[0.05] backdrop-blur-xl border border-white/[0.08] flex items-center justify-center active:scale-95 transition-all"
+                className="w-9 h-9 rounded-full bg-card border border-border flex items-center justify-center active:scale-95 transition-transform"
               >
-                <Settings className="w-3.5 h-3.5 text-muted-foreground" />
+                <Settings className="w-4 h-4 text-muted-foreground" />
               </button>
             </div>
           </header>
@@ -430,61 +422,56 @@ export const AppHome: React.FC = () => {
             />
           )}
 
-          {/* COMPACT HERO CARD */}
-          <div className="relative rounded-2xl overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-neon-cyan/15 via-primary/10 to-transparent" />
-            <div className="absolute inset-0 backdrop-blur-2xl" />
-            
-            <div className="relative p-4 border border-neon-cyan/15 rounded-2xl">
-              {/* Label */}
-              <div className="flex items-center gap-1.5 mb-2">
-                <Zap className="w-3.5 h-3.5 text-neon-cyan" />
-                <span className="text-[10px] font-semibold text-foreground/70 uppercase tracking-wider">{t('app.home.todaysEarnings')}</span>
-              </div>
-              
-              {/* Big USD Number - smaller */}
-              <div ref={usdRef} className="mb-1">
-                <div className="text-4xl font-bold text-foreground tracking-tight leading-none">
-                  ${animatedUSD.toFixed(2)}
-                </div>
-              </div>
-
-              {/* Sublines - more compact */}
-              <div className="flex items-center flex-wrap gap-2 mb-3 text-xs text-muted-foreground">
-                <div className="flex items-center gap-1 bg-white/5 rounded-full px-2 py-0.5">
-                  <TrendingUp className="w-3 h-3 text-neon-cyan" />
-                  <span>{streakMultiplier}x</span>
-                </div>
-                <span>✨ {todayPoints.toLocaleString()} pts</span>
-                {streakDays >= 3 && (
-                  <button 
-                    onClick={() => setShowStreakCalendar(true)}
-                    className="flex items-center gap-1 bg-orange-500/10 rounded-full px-2 py-0.5 active:scale-95"
-                  >
-                    <Flame className="w-3 h-3 text-orange-500" />
-                    <span className="text-orange-400">{streakDays}d</span>
-                  </button>
-                )}
-              </div>
-
-              {/* Start Earning Button - with first-use tooltip */}
-              <SpotlightTooltip
-                id="start-earning-hint"
-                message="Tap here to start earning points!"
-                position="top"
-                icon={<Hand className="w-3.5 h-3.5" />}
-                delay={2000}
-              >
-                <button
-                  onClick={() => handleNavigation('/app/map')}
-                  className="w-full h-11 rounded-xl bg-gradient-to-r from-neon-cyan to-sky-400 text-background font-bold text-sm shadow-lg shadow-neon-cyan/30 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
-                >
-                  <Signal className="w-4 h-4" />
-                  Start Earning
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              </SpotlightTooltip>
+          {/* HERO CARD - simplified */}
+          <div className="rounded-2xl bg-card border border-border p-4">
+            {/* Label */}
+            <div className="flex items-center gap-1.5 mb-2">
+              <Zap className="w-4 h-4 text-primary" />
+              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t('app.home.todaysEarnings')}</span>
             </div>
+            
+            {/* Big USD Number */}
+            <div ref={usdRef} className="mb-2">
+              <div className="text-4xl font-bold text-foreground tracking-tight tabular-nums">
+                ${animatedUSD.toFixed(2)}
+              </div>
+            </div>
+
+            {/* Sublines */}
+            <div className="flex items-center flex-wrap gap-2 mb-4 text-sm text-muted-foreground">
+              <div className="flex items-center gap-1 bg-muted/50 rounded-full px-2 py-0.5">
+                <TrendingUp className="w-3 h-3 text-primary" />
+                <span>{streakMultiplier}x</span>
+              </div>
+              <span>✨ {todayPoints.toLocaleString()} pts</span>
+              {streakDays >= 3 && (
+                <button 
+                  onClick={() => setShowStreakCalendar(true)}
+                  className="flex items-center gap-1 bg-orange-500/10 rounded-full px-2 py-0.5 active:scale-95"
+                >
+                  <Flame className="w-3 h-3 text-orange-500" />
+                  <span className="text-orange-400">{streakDays}d</span>
+                </button>
+              )}
+            </div>
+
+            {/* Start Earning Button */}
+            <SpotlightTooltip
+              id="start-earning-hint"
+              message="Tap here to start earning points!"
+              position="top"
+              icon={<Hand className="w-3.5 h-3.5" />}
+              delay={2000}
+            >
+              <button
+                onClick={() => handleNavigation('/app/map')}
+                className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-semibold text-sm active:scale-[0.98] transition-transform flex items-center justify-center gap-2"
+              >
+                <Signal className="w-4 h-4" />
+                Start Earning
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </SpotlightTooltip>
           </div>
 
           {/* Pull-to-refresh first-use hint */}
@@ -524,32 +511,31 @@ export const AppHome: React.FC = () => {
             </SectionErrorBoundary>
           )}
 
-          {/* TWO MINI CARDS: Impact & Tip - more compact */}
-          <div className="grid grid-cols-2 gap-2">
+          {/* TWO MINI CARDS: Impact & Invite */}
+          <div className="grid grid-cols-2 gap-3">
             {/* Impact Card */}
-            <div className="rounded-xl bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] p-3">
+            <div className="rounded-xl bg-card border border-border p-3">
               <div className="flex items-center gap-1.5 mb-2">
-                <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-sky-500/20 to-sky-500/5 flex items-center justify-center">
-                  <MapPin className="w-3 h-3 text-sky-400" />
+                <div className="w-6 h-6 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <MapPin className="w-3 h-3 text-primary" />
                 </div>
                 <span className="text-[10px] font-semibold text-muted-foreground uppercase">{t('app.home.yourImpact')}</span>
               </div>
-              <div className="text-lg font-bold text-foreground">
+              <div className="text-lg font-bold text-foreground tabular-nums">
                 {formatDistance(points?.total_distance_meters || 0)}
               </div>
-              {/* Test phase notice for zero values */}
               {(points?.total_distance_meters || 0) === 0 && (
-                <p className="text-[9px] text-amber-300/60 mt-1">Tracking starts soon</p>
+                <p className="text-[10px] text-muted-foreground mt-1">Tracking starts soon</p>
               )}
             </div>
 
             {/* Invite Friends Card */}
             <button 
-              className="rounded-xl bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] p-3 cursor-pointer active:scale-[0.98] transition-transform text-left"
+              className="rounded-xl bg-card border border-border p-3 cursor-pointer active:scale-[0.98] transition-transform text-left"
               onClick={() => { lightTap(); navigate('/app/profile?tab=earn'); }}
             >
               <div className="flex items-center gap-1.5 mb-2">
-                <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-violet-500/20 to-violet-500/5 flex items-center justify-center">
+                <div className="w-6 h-6 rounded-lg bg-violet-500/10 flex items-center justify-center">
                   <Users className="w-3 h-3 text-violet-400" />
                 </div>
                 <span className="text-[10px] font-semibold text-muted-foreground uppercase">Invite</span>
