@@ -10,9 +10,7 @@ import {
   Gift,
   Target,
   Trophy,
-  Footprints,
-  Info,
-  Coins
+  ChevronRight
 } from 'lucide-react';
 import { useHaptics } from '@/hooks/useHaptics';
 import { supabase } from '@/integrations/supabase/client';
@@ -27,22 +25,18 @@ import { PullToRefreshIndicator } from '@/components/app/PullToRefreshIndicator'
 import { AppSpinner } from '@/components/app/AppSpinner';
 import { DailyCheckIn } from '@/components/app/DailyCheckIn';
 import { SpinWheel } from '@/components/app/SpinWheel';
-import { TokenInfoModal } from '@/components/app/TokenInfoModal';
-import { NetworkStatsCard } from '@/components/app/NetworkStatsCard';
-import { GlobalCommunityStats } from '@/components/app/GlobalCommunityStats';
 import { StatusBanner } from '@/components/app/StatusBanner';
 import { WeeklySummaryModal } from '@/components/app/WeeklySummaryModal';
-import { TOKENOMICS, pointsToUsd, formatTokens } from '@/utils/tokenomics';
+import { TOKENOMICS, pointsToUsd } from '@/utils/tokenomics';
 
 export const AppHome: React.FC = () => {
   const navigate = useNavigate();
   const { mediumTap } = useHaptics();
   const { isOnline, connectionType } = useNetworkStatus();
-  const { streakDays, streakMultiplier, unlockedCount, totalCount } = useAchievements();
+  const { streakDays } = useAchievements();
   const { unclaimedCount } = useChallenges();
   const [showSpinWheel, setShowSpinWheel] = useState(false);
   const [spinReady, setSpinReady] = useState(false);
-  const [showTokenInfo, setShowTokenInfo] = useState(false);
   
   const [showOnboarding, setShowOnboarding] = useState(() => {
     if (typeof window === 'undefined') return false;
@@ -148,14 +142,13 @@ export const AppHome: React.FC = () => {
               type: 'referral',
               points: c.commission_points || 0,
               time: formatRelativeTime(new Date(c.created_at)),
-              username: 'friend' // We could look up the username if needed
+              username: 'friend'
             });
           });
         }
 
-        // Sort by most recent and take top 5
+        // Sort and take top 5
         allActivity.sort((a, b) => {
-          // Parse relative time back for sorting (hacky but works for display)
           const getMinutes = (t: string) => {
             const match = t.match(/(\d+)([mhd])/);
             if (!match) return 0;
@@ -247,7 +240,7 @@ export const AppHome: React.FC = () => {
         />
 
         <div className="px-4 py-4 pb-24 space-y-4">
-          {/* Header - Clean like Helium */}
+          {/* Header - Clean banking style */}
           <header className="flex items-center justify-between">
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-card border border-border">
               <div className={cn(
@@ -267,7 +260,7 @@ export const AppHome: React.FC = () => {
             </button>
           </header>
 
-          {/* Greeting - Simple like Nodle */}
+          {/* Greeting */}
           {user && (
             <div>
               <h1 className="text-xl font-bold text-foreground">
@@ -282,413 +275,187 @@ export const AppHome: React.FC = () => {
             </div>
           )}
 
-          {/* Status Banner - Shows when paused/offline */}
+          {/* Status Banner */}
           {user && <StatusBanner />}
-          {/* Balance Card - Premium Hero Style */}
+
+          {/* Hero Balance Card - Clean white card */}
           <motion.div 
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            className="rounded-2xl card-hero p-5 relative overflow-hidden"
+            transition={{ duration: 0.2 }}
+            className="rounded-2xl bg-white border border-border shadow-elevated p-5"
           >
-            {/* Animated background gradient */}
-            <div className="absolute inset-0 opacity-10 pointer-events-none">
-              <div className="absolute top-0 right-0 w-40 h-40 bg-primary rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 animate-pulse-soft" />
-              <div className="absolute bottom-0 left-0 w-32 h-32 bg-accent rounded-full blur-3xl translate-y-1/2 -translate-x-1/2 animate-pulse-soft" style={{ animationDelay: '1s' }} />
+            <div className="flex items-center gap-1.5 mb-2">
+              <div className={cn(
+                "w-2 h-2 rounded-full",
+                isOnline ? "bg-green-500" : "bg-muted-foreground"
+              )} />
+              <span className="text-xs font-medium text-muted-foreground">
+                {isOnline ? 'Collecting' : 'Paused'}
+              </span>
             </div>
             
-            <div className="relative z-10">
-              <div className="flex items-center gap-1.5 mb-2">
-                <Zap className="w-4 h-4 text-primary" />
-                <span className="text-xs font-medium text-muted-foreground">Today</span>
-                <button 
-                  onClick={() => { mediumTap(); setShowTokenInfo(true); }}
-                  className="ml-auto flex items-center gap-1 px-2 py-1 rounded-full bg-amber-500/20 text-amber-400 active:scale-95 transition-transform hover:bg-amber-500/30"
-                >
-                  <span className="text-[10px] font-medium">Beta</span>
-                  <Info className="w-3 h-3" />
-                </button>
+            <p className="text-sm text-muted-foreground mb-1">You're earning</p>
+            
+            {/* Today's earnings */}
+            <div className="mb-3">
+              <div className="text-4xl font-bold text-foreground tabular-nums">
+                {totalPoints.toLocaleString()} <span className="text-lg font-medium text-muted-foreground">points</span>
               </div>
-              
-              {/* Today's earnings with counting animation */}
-              <div className="mb-3">
-                <motion.div 
-                  key={todayUSD}
-                  initial={{ scale: 1.1, color: 'hsl(var(--primary))' }}
-                  animate={{ scale: 1, color: 'hsl(var(--foreground))' }}
-                  transition={{ duration: 0.2 }}
-                  className="text-4xl font-bold tabular-nums"
-                >
-                  ${todayUSD.toFixed(2)}
-                </motion.div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
-                  <motion.span
-                    key={todayPoints}
-                    initial={{ scale: 1.05 }}
-                    animate={{ scale: 1 }}
-                    className="font-medium"
-                  >
-                    {todayPoints.toLocaleString()} pts
-                  </motion.span>
-                  <span className="text-xs opacity-60">•</span>
-                  <span className="flex items-center gap-1">
-                    <Coins className="w-3 h-3 text-primary" />
-                    <span className="text-gradient-primary font-medium">{todayPoints.toLocaleString()} tokens</span>
-                  </span>
-                </div>
+              <div className="text-sm text-muted-foreground mt-1">
+                ≈ ${totalUSD.toFixed(2)}
               </div>
-
-              {/* Total balance row */}
-              <div className="flex items-center justify-between bg-muted/40 rounded-xl px-3 py-2.5 mb-4 border border-border/50">
-                <div className="text-xs text-muted-foreground">Total Balance</div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-bold text-foreground">
-                    ${totalUSD.toFixed(2)}
-                  </span>
-                  <span className="text-xs text-muted-foreground">
-                    ({formatTokens(totalPoints)} tokens)
-                  </span>
-                </div>
-              </div>
-
-              <button
-                onClick={() => { mediumTap(); navigate('/app/map'); }}
-                className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-semibold text-sm press-effect relative overflow-hidden group pulse-glow"
-              >
-                {/* Shimmer effect on hover */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-                <Signal className="w-4 h-4 relative z-10 inline-block mr-2" />
-                <span className="relative z-10">{isNewUser ? 'Start Your First Scan' : 'Start Earning'}</span>
-              </button>
             </div>
+
+            <p className="text-xs text-muted-foreground mb-4">
+              Runs quietly in the background
+            </p>
+
+            <button
+              onClick={() => { mediumTap(); navigate('/app/map'); }}
+              className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-semibold text-sm active:scale-[0.98] transition-transform flex items-center justify-center gap-2"
+            >
+              <Signal className="w-4 h-4" />
+              {isNewUser ? 'Start Your First Scan' : 'Start Earning'}
+            </button>
           </motion.div>
 
-          {/* Quick Stats - Premium cards with stagger */}
+          {/* Quick Stats - Clean cards */}
           <div className="grid grid-cols-3 gap-2">
-            <motion.div 
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.05 }}
-              className="rounded-xl card-premium p-3 text-center"
-            >
+            <div className="rounded-xl bg-card border border-border p-3 text-center">
               <MapPin className="w-4 h-4 text-primary mx-auto mb-1" />
-              <motion.div 
-                key={points?.total_distance_meters}
-                className="text-sm font-semibold text-foreground"
-              >
+              <div className="text-sm font-semibold text-foreground">
                 {formatDistance(points?.total_distance_meters || 0)}
-              </motion.div>
+              </div>
               <p className="text-xs text-muted-foreground">Distance</p>
-            </motion.div>
+            </div>
             
-            <motion.div 
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="rounded-xl card-premium p-3 text-center"
-            >
+            <div className="rounded-xl bg-card border border-border p-3 text-center">
               <Flame className="w-4 h-4 text-orange-500 mx-auto mb-1" />
               <div className="text-sm font-semibold text-foreground">
                 {streakDays}
               </div>
               <p className="text-xs text-muted-foreground">Streak</p>
-            </motion.div>
+            </div>
             
-            <motion.button 
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.15 }}
+            <button 
               onClick={() => { mediumTap(); navigate('/app/leaderboard'); }}
-              whileTap={{ scale: 0.97 }}
-              className="rounded-xl card-premium p-3 text-center"
+              className="rounded-xl bg-card border border-border p-3 text-center active:scale-95 transition-transform"
             >
               <Crown className="w-4 h-4 text-amber-500 mx-auto mb-1" />
               <div className="text-sm font-semibold text-foreground">
                 #{points?.total_points ? Math.max(1, Math.floor(1000 / (points.total_points || 1))) : '-'}
               </div>
               <p className="text-xs text-muted-foreground">Rank</p>
-            </motion.button>
+            </button>
           </div>
 
-          {/* Quick Actions - Premium Gamification Cards */}
+          {/* Quick Actions */}
           <div className="grid grid-cols-3 gap-2">
-            <motion.button
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              whileTap={{ scale: 0.97 }}
+            <button
               onClick={() => { mediumTap(); setShowSpinWheel(true); }}
-              className="rounded-xl card-premium p-3 text-center relative overflow-hidden"
+              className="rounded-xl bg-card border border-border p-3 text-center relative active:scale-95 transition-transform"
             >
               {spinReady && (
-                <motion.span 
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  className="absolute top-2 right-2 w-2 h-2 rounded-full bg-green-500 animate-pulse-soft"
-                />
+                <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-green-500" />
               )}
               <Gift className="w-4 h-4 text-pink-500 mx-auto mb-1" />
               <p className="text-xs font-medium text-foreground">Daily Spin</p>
-              <p className="text-[10px] text-muted-foreground">{spinReady ? 'Ready!' : 'Tap to play'}</p>
-            </motion.button>
+              <p className="text-[10px] text-muted-foreground">{spinReady ? 'Ready!' : 'Done'}</p>
+            </button>
             
-            <motion.button
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.25 }}
-              whileTap={{ scale: 0.97 }}
+            <button
               onClick={() => { mediumTap(); navigate('/app/challenges'); }}
-              className="rounded-xl card-premium p-3 text-center relative overflow-hidden"
+              className="rounded-xl bg-card border border-border p-3 text-center relative active:scale-95 transition-transform"
             >
+              {unclaimedCount > 0 && (
+                <span className="absolute top-2 right-2 w-4 h-4 rounded-full bg-green-500 text-white text-[10px] font-bold flex items-center justify-center">
+                  {unclaimedCount}
+                </span>
+              )}
               <Target className="w-4 h-4 text-blue-500 mx-auto mb-1" />
               <p className="text-xs font-medium text-foreground">Challenges</p>
-              <p className="text-[10px] text-muted-foreground">
-                {unclaimedCount > 0 ? `${unclaimedCount} ready` : 'View all'}
-              </p>
-              {unclaimedCount > 0 && (
-                <motion.span 
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  className="absolute top-2 right-2 w-2 h-2 rounded-full bg-primary animate-pulse-soft"
-                />
-              )}
-            </motion.button>
+              <p className="text-[10px] text-muted-foreground">{unclaimedCount > 0 ? 'Claim!' : 'View'}</p>
+            </button>
             
-            <motion.button
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              whileTap={{ scale: 0.97 }}
-              onClick={() => { mediumTap(); navigate('/app/achievements'); }}
-              className="rounded-xl card-premium p-3 text-center"
+            <button
+              onClick={() => { mediumTap(); navigate('/app/leaderboard'); }}
+              className="rounded-xl bg-card border border-border p-3 text-center active:scale-95 transition-transform"
             >
               <Trophy className="w-4 h-4 text-amber-500 mx-auto mb-1" />
-              <p className="text-xs font-medium text-foreground">Badges</p>
-              <p className="text-[10px] text-muted-foreground">{unlockedCount}/{totalCount}</p>
-            </motion.button>
+              <p className="text-xs font-medium text-foreground">Leaderboard</p>
+              <p className="text-[10px] text-muted-foreground">Compete</p>
+            </button>
           </div>
 
-          {/* Getting Started Card - For new users */}
-          {user && isNewUser && (
-            <div className="rounded-xl bg-gradient-to-br from-primary/10 to-transparent border border-primary/20 p-4">
-              <div className="flex items-start gap-3 mb-3">
-                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
-                  <Target className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-semibold text-foreground">Complete your first scan</h3>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    Walk or drive 1 km with cellular data to unlock your first reward
-                  </p>
-                </div>
-              </div>
-              
-              {/* Progress bar */}
-              <div className="mb-3">
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-xs text-muted-foreground">Progress</span>
-                  <span className="text-xs font-medium text-foreground">0 / 1 km</span>
-                </div>
-                <div className="h-2 rounded-full bg-muted overflow-hidden">
-                  <div className="h-full w-0 bg-primary rounded-full transition-all duration-500" />
-                </div>
-              </div>
-
-              {/* How it works */}
-              <div className="grid grid-cols-3 gap-2 text-center">
-                <div className="p-2 rounded-lg bg-card/50">
-                  <Signal className="w-4 h-4 mx-auto mb-1 text-primary" />
-                  <p className="text-[10px] text-muted-foreground">Tap Start</p>
-                </div>
-                <div className="p-2 rounded-lg bg-card/50">
-                  <Footprints className="w-4 h-4 mx-auto mb-1 text-primary" />
-                  <p className="text-[10px] text-muted-foreground">Walk or drive</p>
-                </div>
-                <div className="p-2 rounded-lg bg-card/50">
-                  <Zap className="w-4 h-4 mx-auto mb-1 text-primary" />
-                  <p className="text-[10px] text-muted-foreground">Earn points</p>
-                </div>
-              </div>
+          {/* Recent Activity */}
+          <div className="rounded-xl bg-card border border-border overflow-hidden">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+              <h3 className="text-sm font-semibold text-foreground">Recent Activity</h3>
+              <button 
+                onClick={() => { mediumTap(); navigate('/app/rewards'); }}
+                className="text-xs text-primary flex items-center gap-0.5"
+              >
+                View all <ChevronRight className="w-3 h-3" />
+              </button>
             </div>
-          )}
-
-          {/* Network Stats Card - Show for users with activity */}
-          {user && !isNewUser && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              <NetworkStatsCard />
-            </motion.div>
-          )}
-
-          {/* Recent Activity - Enhanced with time-based grouping */}
-          {recentActivity.length > 0 ? (
-            <motion.div 
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.35 }}
-              className="rounded-xl card-premium p-4"
-            >
-              <h3 className="text-sm font-semibold text-foreground mb-3">Recent Activity</h3>
-              <div className="space-y-1">
-                {(() => {
-                  // Group activities by time period
-                  const today = new Date().toDateString();
-                  const yesterday = new Date(Date.now() - 86400000).toDateString();
-                  
-                  const grouped: { label: string; items: typeof recentActivity }[] = [];
-                  let currentGroup: string | null = null;
-                  
-                  recentActivity.forEach((activity) => {
-                    // Determine group based on time string
-                    let groupLabel = 'Earlier';
-                    if (activity.time.includes('m ago') || (activity.time.includes('h ago') && parseInt(activity.time) < 24)) {
-                      groupLabel = 'Today';
-                    } else if (activity.time.includes('1d ago')) {
-                      groupLabel = 'Yesterday';
-                    } else {
-                      groupLabel = 'This Week';
-                    }
-                    
-                    if (groupLabel !== currentGroup) {
-                      grouped.push({ label: groupLabel, items: [] });
-                      currentGroup = groupLabel;
-                    }
-                    grouped[grouped.length - 1].items.push(activity);
-                  });
-                  
-                  return grouped.map((group, groupIndex) => (
-                    <div key={group.label}>
-                      <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider py-2">
-                        {group.label}
-                      </p>
-                      {group.items.map((activity, index) => (
-                        <motion.div 
-                          key={`${groupIndex}-${index}`}
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.4 + (groupIndex * 0.1) + (index * 0.05) }}
-                          className="flex items-center justify-between py-2.5 border-b border-border/30 last:border-0"
-                        >
-                          <div className="flex items-center gap-2.5">
-                            <div className={cn(
-                              "w-7 h-7 rounded-full flex items-center justify-center",
-                              activity.type === 'referral' 
-                                ? "bg-accent/20" 
-                                : activity.type === 'bonus'
-                                ? "bg-amber-500/20"
-                                : "bg-primary/20"
-                            )}>
-                              {activity.type === 'referral' ? (
-                                <Gift className="w-3.5 h-3.5 text-accent" />
-                              ) : activity.type === 'bonus' ? (
-                                <Zap className="w-3.5 h-3.5 text-amber-500" />
-                              ) : (
-                                <Signal className="w-3.5 h-3.5 text-primary" />
-                              )}
-                            </div>
-                            <div>
-                              <span className="text-sm text-foreground">
-                                {activity.type === 'referral' 
-                                  ? `Commission from ${activity.username || 'friend'}`
-                                  : activity.type === 'bonus'
-                                  ? 'Bonus reward'
-                                  : `Scanned ${activity.distance ? formatDistance(activity.distance) : ''}`
-                                }
-                              </span>
-                              <p className="text-[10px] text-muted-foreground">{activity.time}</p>
-                            </div>
-                          </div>
-                          <span className={cn(
-                            "text-sm font-semibold",
-                            activity.type === 'referral' ? "text-accent" : 
-                            activity.type === 'bonus' ? "text-amber-500" : "text-primary"
-                          )}>
-                            +{activity.points.toFixed(0)}
-                          </span>
-                        </motion.div>
-                      ))}
+            
+            {recentActivity.length > 0 ? (
+              <div className="divide-y divide-border">
+                {recentActivity.map((activity, i) => (
+                  <div key={i} className="flex items-center gap-3 px-4 py-3">
+                    <div className={cn(
+                      "w-8 h-8 rounded-full flex items-center justify-center",
+                      activity.type === 'scan' ? "bg-green-100" :
+                      activity.type === 'referral' ? "bg-blue-100" : "bg-amber-100"
+                    )}>
+                      {activity.type === 'scan' ? (
+                        <Signal className="w-4 h-4 text-green-600" />
+                      ) : activity.type === 'referral' ? (
+                        <Gift className="w-4 h-4 text-blue-600" />
+                      ) : (
+                        <Zap className="w-4 h-4 text-amber-600" />
+                      )}
                     </div>
-                  ));
-                })()}
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-foreground">
+                        {activity.type === 'scan' ? 'Network scan' :
+                         activity.type === 'referral' ? 'Referral bonus' : 'Bonus'}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {activity.time}
+                        {activity.distance ? ` • ${formatDistance(activity.distance)}` : ''}
+                      </p>
+                    </div>
+                    <span className="text-sm font-semibold text-green-600">
+                      +{activity.points}
+                    </span>
+                  </div>
+                ))}
               </div>
-            </motion.div>
-          ) : user && !isNewUser ? (
-            /* Empty state for returning users with no recent activity */
-            <div className="rounded-xl bg-card border border-border border-dashed p-6 text-center">
-              <Signal className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-              <p className="text-sm text-muted-foreground">No recent activity</p>
-              <p className="text-xs text-muted-foreground/70 mt-1">Start scanning to see activity here</p>
-            </div>
-          ) : null}
-
-          {/* Global Community Stats */}
-          {user && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-            >
-              <GlobalCommunityStats />
-            </motion.div>
-          )}
-
-          {/* Beta info tooltip */}
-          {user && (
-            <div className="rounded-xl bg-muted/50 border border-border p-3 flex items-start gap-3">
-              <Info className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
-              <p className="text-xs text-muted-foreground">
-                <span className="font-medium text-foreground">Beta phase:</span> Points are being tracked. Token rewards and cash-out coming soon!
-              </p>
-            </div>
-          )}
-
-          {/* Auth CTA for non-logged-in users */}
-          {!user && (
-            <div className="rounded-xl bg-card border border-border p-4">
-              <div className="text-center">
-                <h3 className="text-base font-bold text-foreground mb-1">Join the Network</h3>
-                <p className="text-sm text-muted-foreground mb-3">
-                  Sign up to start earning
-                </p>
-                <button
-                  onClick={() => navigate('/auth')}
-                  className="px-4 py-2 rounded-xl bg-primary text-primary-foreground font-semibold text-sm active:scale-[0.98] transition-all"
-                >
-                  Get Started
-                </button>
+            ) : (
+              <div className="px-4 py-8 text-center">
+                <Signal className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+                <p className="text-sm text-muted-foreground">No activity yet</p>
+                <p className="text-xs text-muted-foreground">Start a scan to earn points</p>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Daily Check-in modal */}
+      {/* Modals */}
+      <AnimatePresence>
+        {showSpinWheel && user && (
+          <SpinWheel 
+            userId={user.id}
+            onClose={() => setShowSpinWheel(false)} 
+          />
+        )}
+      </AnimatePresence>
+      
       {user && <DailyCheckIn userId={user.id} />}
-
-      {/* Spin Wheel modal */}
-      {user && showSpinWheel && (
-        <SpinWheel 
-          userId={user.id} 
-          onClose={() => setShowSpinWheel(false)}
-          onPrizeWon={() => {
-            setSpinReady(false);
-            loadData();
-          }}
-        />
-      )}
-
-      {/* Token Info modal */}
-      <TokenInfoModal 
-        isOpen={showTokenInfo} 
-        onClose={() => setShowTokenInfo(false)} 
-      />
-
-      {/* Weekly Summary modal */}
-      {user && <WeeklySummaryModal />}
+      <WeeklySummaryModal />
     </>
   );
 };
-

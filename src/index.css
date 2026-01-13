@@ -9,64 +9,74 @@ All colors MUST be HSL.
 @layer base {
   :root {
     /* ============================================
-       SIMPLIFIED DESIGN SYSTEM (Phase 1)
-       3 core colors: Primary teal, Accent gold, Muted gray
-       Matches competitor apps: Helium, NATIX, Grass
+       BANKING/HEALTH APP COLOR SYSTEM
+       Light mode default - Maximum trust & readability
+       Inspired by Apple Health, Google Maps, banking apps
        ============================================ */
     
-    /* Dark foundation */
+    /* Light foundation - Pure whites and soft grays */
+    --background: 0 0% 100%;           /* Pure White #FFFFFF */
+    --foreground: 0 0% 11%;            /* Near Black #1C1C1E */
+    --card: 210 20% 98%;               /* Light Gray #F5F7FA */
+    --card-foreground: 0 0% 11%;       /* Near Black */
+    --popover: 0 0% 100%;              /* Pure White */
+    --popover-foreground: 0 0% 11%;
+    
+    /* Primary - Deep Blue (Trust, like banks & telcos) */
+    --primary: 213 80% 15%;            /* #0A2540 */
+    --primary-foreground: 0 0% 100%;   /* White text on blue */
+    
+    /* Secondary - Muted gray for secondary elements */
+    --secondary: 215 14% 93%;          /* Light gray */
+    --secondary-foreground: 215 14% 34%;
+    
+    /* Accent - Soft green for success/earning states */
+    --accent: 145 63% 42%;             /* #2ECC71 - Soft Green */
+    --accent-foreground: 0 0% 100%;
+    
+    /* Supporting colors */
+    --muted: 210 20% 96%;              /* Very light gray */
+    --muted-foreground: 215 14% 46%;   /* #6B7280 - readable gray */
+    --destructive: 0 72% 51%;          /* Red for errors */
+    --destructive-foreground: 0 0% 100%;
+    --border: 214 20% 89%;             /* Subtle gray border */
+    --input: 214 20% 89%;
+    --ring: 213 80% 15%;               /* Primary blue */
+    --radius: 0.75rem;
+    
+    /* Status colors - Muted, professional */
+    --success: 145 63% 42%;            /* Soft Green #2ECC71 */
+    --warning: 38 92% 50%;             /* Muted Orange #F59E0B */
+    --reward-gold: 45 93% 47%;         /* Amber for rewards */
+    --reward-bronze: 30 60% 50%;
+    --reward-silver: 220 10% 70%;
+    
+    /* Simplified - no neon, no glows */
+    --gradient-primary: linear-gradient(135deg, hsl(213 80% 15%) 0%, hsl(213 80% 25%) 100%);
+    --gradient-reward: linear-gradient(135deg, hsl(45 93% 47%) 0%, hsl(38 92% 50%) 100%);
+    
+    /* Clean shadows - no glows */
+    --shadow-card: 0 1px 3px hsl(0 0% 0% / 0.1);
+    --shadow-elevated: 0 4px 12px hsl(0 0% 0% / 0.08);
+    --transition-smooth: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* Legacy aliases for compatibility */
+    --neon-cyan: 213 80% 15%;          /* Now maps to primary blue */
+    --deep-space: 210 20% 98%;         /* Now maps to card */
+    --midnight-blue: 0 0% 100%;        /* Now maps to background */
+  }
+
+  /* Dark mode - Optional, light is default */
+  .dark {
     --background: 222 30% 7%;
     --foreground: 45 30% 97%;
     --card: 222 25% 11%;
     --card-foreground: 45 30% 97%;
-    --popover: 222 28% 9%;
-    --popover-foreground: 45 30% 97%;
-    
-    /* Primary - Trustworthy teal (main brand color) */
     --primary: 175 70% 48%;
     --primary-foreground: 222 30% 7%;
-    
-    /* Secondary - Soft purple (rarely used) */
-    --secondary: 255 60% 65%;
-    --secondary-foreground: 45 30% 97%;
-    
-    /* Accent - Gold for rewards only */
-    --accent: 38 95% 55%;
-    --accent-foreground: 222 30% 7%;
-    
-    /* Supporting colors */
     --muted: 222 25% 15%;
     --muted-foreground: 220 15% 60%;
-    --destructive: 0 70% 50%;
-    --destructive-foreground: 45 30% 97%;
     --border: 222 25% 18%;
-    --input: 222 25% 18%;
-    --ring: 175 70% 48%;
-    --radius: 0.75rem;
-    
-    /* Status colors */
-    --success: 145 65% 45%;
-    --reward-gold: 45 95% 55%;
-    --reward-bronze: 30 60% 50%;
-    --reward-silver: 220 10% 70%;
-    
-    /* Simplified gradients (only 2 core ones) */
-    --gradient-primary: linear-gradient(135deg, hsl(175 70% 48%) 0%, hsl(175 70% 55%) 100%);
-    --gradient-reward: linear-gradient(135deg, hsl(45 95% 55%) 0%, hsl(38 95% 55%) 100%);
-    
-    /* Minimal shadow (no glows) */
-    --shadow-card: 0 4px 20px hsl(0 0% 0% / 0.2);
-    --transition-smooth: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    
-    /* Brand aliases (simplified) */
-    --neon-cyan: 175 70% 48%;  /* Keep for compatibility, = primary */
-    --deep-space: 222 25% 11%;
-    --midnight-blue: 222 30% 7%;
-  }
-
-  .dark {
-    --background: 222 30% 7%;
-    --foreground: 45 30% 97%;
   }
 }
 
@@ -96,15 +106,6 @@ All colors MUST be HSL.
     -webkit-backface-visibility: hidden;
     transform: translateZ(0);
     -webkit-transform: translateZ(0);
-  }
-
-  /* Force GPU layer for critical UI elements */
-  .backdrop-blur-xl,
-  .backdrop-blur-2xl,
-  [class*="backdrop-blur"] {
-    transform: translateZ(0);
-    -webkit-transform: translateZ(0);
-    isolation: isolate;
   }
 
   /* Optimize transitions for 60fps */
@@ -156,8 +157,8 @@ All colors MUST be HSL.
   /* Ensure html and body match for rubber band overscroll */
   html {
     @apply bg-background;
-    /* Exact background color for overscroll rubber band effect */
-    background-color: hsl(222 30% 7%);
+    /* Light mode background for overscroll */
+    background-color: hsl(0 0% 100%);
     /* CRITICAL: Stop rubber band bounce completely */
     overscroll-behavior: none;
     overflow: hidden;
@@ -166,9 +167,9 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    /* Match exact background for seamless overscroll */
-    background-color: hsl(222 30% 7%);
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    /* Light mode background */
+    background-color: hsl(0 0% 100%);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
     font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
@@ -235,45 +236,29 @@ All colors MUST be HSL.
     border-radius: 3px;
   }
 
-  /* Reduce motion for users who prefer it */
-  @media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
-      scroll-behavior: auto !important;
-    }
-  }
-
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Space Grotesk', 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     font-weight: 600;
     letter-spacing: -0.02em;
-    font-feature-settings: "kern" 1, "liga" 1, "ss01" 1;
-  }
-  
-  .font-quote {
-    font-family: 'Cormorant Garamond', serif;
+    font-feature-settings: "kern" 1, "liga" 1;
   }
 
   /* ============================================
-     SIMPLIFIED ANIMATIONS (Phase 1)
-     Keep only: fade-in, spin, pulse, button press
+     SIMPLIFIED ANIMATIONS
+     Only essential: fade-in, spin, button press
      ============================================ */
   
   @keyframes fade-in-up {
-    from { opacity: 0; transform: translateY(20px); }
+    from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
   }
 
   .animate-fade-in-up {
-    animation: fade-in-up 0.3s ease-out forwards;
+    animation: fade-in-up 0.2s ease-out forwards;
   }
 
   .animate-fade-up {
-    animation: fade-in-up 0.3s ease-out;
+    animation: fade-in-up 0.2s ease-out;
   }
 
   /* Error shake - keep for form validation */
@@ -298,15 +283,13 @@ All colors MUST be HSL.
     background: var(--gradient-reward);
   }
   
-  /* Minimal shadow utility */
+  /* Clean shadow utilities */
   .shadow-card {
     box-shadow: var(--shadow-card);
   }
 
-  /* Premium text utilities */
-  .text-luxury {
-    font-weight: 300;
-    letter-spacing: 0.02em;
+  .shadow-elevated {
+    box-shadow: var(--shadow-elevated);
   }
 
   /* Simple hover effect */
@@ -315,7 +298,7 @@ All colors MUST be HSL.
   }
 
   .hover-lift:hover {
-    transform: translateY(-2px);
+    transform: translateY(-1px);
   }
 
   /* GPU acceleration utilities */
@@ -325,158 +308,24 @@ All colors MUST be HSL.
   }
 
   /* ============================================
-     PREMIUM CARD STYLING (Phase 5)
-     Elevated glassmorphism with glow effects
+     CLEAN CARD STYLING (Banking/Health App Style)
+     White backgrounds, subtle borders, clean shadows
      ============================================ */
   
-  /* Premium card with subtle gradient and glow */
-  .card-premium {
-    background: linear-gradient(135deg, 
-      hsl(var(--card) / 0.9) 0%, 
-      hsl(var(--card) / 0.7) 100%);
-    border: 1px solid hsl(var(--border) / 0.8);
-    box-shadow: 
-      0 4px 24px hsl(0 0% 0% / 0.15),
-      0 1px 2px hsl(0 0% 0% / 0.1),
-      inset 0 1px 0 hsl(var(--foreground) / 0.05);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .card-premium:hover {
-    border-color: hsl(var(--primary) / 0.3);
-    box-shadow: 
-      0 8px 32px hsl(0 0% 0% / 0.2),
-      0 2px 4px hsl(0 0% 0% / 0.1),
-      0 0 0 1px hsl(var(--primary) / 0.1),
-      inset 0 1px 0 hsl(var(--foreground) / 0.08);
-    transform: translateY(-2px);
-  }
-
-  /* Hero balance card with glow effect */
-  .card-hero {
-    background: linear-gradient(145deg, 
-      hsl(var(--card)) 0%, 
-      hsl(222 25% 13%) 50%,
-      hsl(var(--card)) 100%);
-    border: 1px solid hsl(var(--border));
-    box-shadow: 
-      0 8px 32px hsl(0 0% 0% / 0.25),
-      0 0 60px hsl(var(--primary) / 0.08),
-      inset 0 1px 0 hsl(var(--foreground) / 0.05);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .card-hero::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, 
-      transparent, 
-      hsl(var(--primary) / 0.4), 
-      transparent);
-  }
-
-  /* Reward/gold accent card */
-  .card-reward {
-    background: linear-gradient(135deg, 
-      hsl(var(--card)) 0%, 
-      hsl(38 30% 12%) 100%);
-    border: 1px solid hsl(var(--accent) / 0.2);
-    box-shadow: 
-      0 4px 24px hsl(0 0% 0% / 0.15),
-      0 0 40px hsl(var(--accent) / 0.05);
-  }
-
-  /* Animated gradient border */
-  .border-gradient-animated {
-    position: relative;
+  /* Standard card - Clean white with subtle border */
+  .card-clean {
     background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    box-shadow: var(--shadow-card);
     border-radius: var(--radius);
   }
 
-  .border-gradient-animated::before {
-    content: '';
-    position: absolute;
-    inset: -1px;
-    border-radius: inherit;
-    padding: 1px;
-    background: linear-gradient(
-      135deg,
-      hsl(var(--primary) / 0.5),
-      hsl(var(--accent) / 0.3),
-      hsl(var(--primary) / 0.5)
-    );
-    -webkit-mask: 
-      linear-gradient(#fff 0 0) content-box, 
-      linear-gradient(#fff 0 0);
-    mask: 
-      linear-gradient(#fff 0 0) content-box, 
-      linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    animation: border-rotate 4s linear infinite;
-  }
-
-  @keyframes border-rotate {
-    0% { 
-      background: linear-gradient(135deg, hsl(var(--primary) / 0.5), hsl(var(--accent) / 0.3), hsl(var(--primary) / 0.5));
-    }
-    50% { 
-      background: linear-gradient(315deg, hsl(var(--primary) / 0.5), hsl(var(--accent) / 0.3), hsl(var(--primary) / 0.5));
-    }
-    100% { 
-      background: linear-gradient(135deg, hsl(var(--primary) / 0.5), hsl(var(--accent) / 0.3), hsl(var(--primary) / 0.5));
-    }
-  }
-
-  /* Highlighted/featured card */
-  .card-featured {
-    background: linear-gradient(135deg, 
-      hsl(var(--primary) / 0.08) 0%, 
-      hsl(var(--card)) 50%,
-      hsl(var(--primary) / 0.05) 100%);
-    border: 1px solid hsl(var(--primary) / 0.25);
-    box-shadow: 
-      0 4px 20px hsl(0 0% 0% / 0.15),
-      0 0 40px hsl(var(--primary) / 0.08),
-      inset 0 1px 0 hsl(var(--primary) / 0.1);
-  }
-
-  /* Glass morphism overlay */
-  .glass-overlay {
-    background: hsl(var(--card) / 0.7);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border: 1px solid hsl(var(--foreground) / 0.08);
-  }
-
-  /* Stat card with number emphasis */
-  .card-stat {
-    background: hsl(var(--card));
+  /* Hero balance card - Slightly elevated */
+  .card-hero {
+    background: hsl(0 0% 100%);
     border: 1px solid hsl(var(--border));
-    position: relative;
-    overflow: hidden;
-  }
-
-  .card-stat::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: radial-gradient(
-      ellipse at top right,
-      hsl(var(--primary) / 0.06) 0%,
-      transparent 60%
-    );
-    pointer-events: none;
+    box-shadow: var(--shadow-elevated);
+    border-radius: 1rem;
   }
 
   /* Interactive card with tap feedback */
@@ -485,123 +334,87 @@ All colors MUST be HSL.
     border: 1px solid hsl(var(--border));
     transition: all 0.2s ease;
     cursor: pointer;
+    border-radius: var(--radius);
   }
 
   .card-interactive:hover {
     border-color: hsl(var(--primary) / 0.3);
-    background: hsl(var(--card) / 0.9);
+    box-shadow: var(--shadow-elevated);
   }
 
   .card-interactive:active {
     transform: scale(0.98);
-    background: hsl(var(--muted) / 0.5);
   }
 
-  /* Leaderboard podium card */
+  /* Success/Active card - Green tint */
+  .card-success {
+    background: hsl(145 63% 97%);
+    border: 1px solid hsl(var(--success) / 0.3);
+    border-radius: var(--radius);
+  }
+
+  /* Stat card */
+  .card-stat {
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+  }
+
+  /* Premium card - Keep for compatibility, now just clean */
+  .card-premium {
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    box-shadow: var(--shadow-card);
+    border-radius: var(--radius);
+    transition: all 0.2s ease;
+  }
+
+  .card-premium:hover {
+    box-shadow: var(--shadow-elevated);
+  }
+
+  /* Reward card - Subtle gold accent */
+  .card-reward {
+    background: hsl(45 100% 98%);
+    border: 1px solid hsl(var(--reward-gold) / 0.2);
+    border-radius: var(--radius);
+  }
+
+  /* Featured card - Primary accent */
+  .card-featured {
+    background: hsl(213 80% 98%);
+    border: 1px solid hsl(var(--primary) / 0.2);
+    border-radius: var(--radius);
+  }
+
+  /* Podium cards */
   .card-podium-gold {
-    background: linear-gradient(145deg,
-      hsl(45 80% 12%) 0%,
-      hsl(var(--card)) 100%);
-    border: 1px solid hsl(45 80% 40% / 0.3);
-    box-shadow: 0 0 30px hsl(45 80% 50% / 0.1);
+    background: hsl(45 100% 97%);
+    border: 1px solid hsl(45 80% 70%);
   }
 
   .card-podium-silver {
-    background: linear-gradient(145deg,
-      hsl(220 15% 18%) 0%,
-      hsl(var(--card)) 100%);
-    border: 1px solid hsl(220 15% 50% / 0.3);
+    background: hsl(220 15% 97%);
+    border: 1px solid hsl(220 15% 75%);
   }
 
   .card-podium-bronze {
-    background: linear-gradient(145deg,
-      hsl(25 50% 14%) 0%,
-      hsl(var(--card)) 100%);
-    border: 1px solid hsl(25 50% 40% / 0.3);
+    background: hsl(25 50% 96%);
+    border: 1px solid hsl(25 50% 70%);
   }
 
-  /* Achievement unlocked card */
+  /* Achievement card */
   .card-achievement {
-    background: linear-gradient(135deg,
-      hsl(var(--card)) 0%,
-      hsl(var(--accent) / 0.08) 100%);
-    border: 1px solid hsl(var(--accent) / 0.25);
-    box-shadow: 
-      0 4px 20px hsl(0 0% 0% / 0.15),
-      0 0 50px hsl(var(--accent) / 0.1);
-    position: relative;
-  }
-
-  .card-achievement::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: linear-gradient(90deg,
-      transparent,
-      hsl(var(--accent)),
-      transparent);
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--reward-gold) / 0.3);
+    border-radius: var(--radius);
   }
 
   /* ============================================
-     MICRO-ANIMATIONS (Phase 5)
-     Subtle, delightful interactions
+     MINIMAL ANIMATIONS
+     Only functional transitions
      ============================================ */
   
-  /* Pulse glow effect for CTAs */
-  .pulse-glow {
-    animation: pulse-glow 2s ease-in-out infinite;
-  }
-
-  @keyframes pulse-glow {
-    0%, 100% { 
-      box-shadow: 0 0 20px hsl(var(--primary) / 0.3);
-    }
-    50% { 
-      box-shadow: 0 0 30px hsl(var(--primary) / 0.5);
-    }
-  }
-
-  /* Shimmer effect for loading states */
-  .shimmer {
-    background: linear-gradient(
-      90deg,
-      hsl(var(--muted)) 0%,
-      hsl(var(--muted-foreground) / 0.1) 50%,
-      hsl(var(--muted)) 100%
-    );
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
-  }
-
-  @keyframes shimmer {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
-  }
-
-  /* Float animation for decorative elements */
-  .animate-float {
-    animation: float 3s ease-in-out infinite;
-  }
-
-  @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-8px); }
-  }
-
-  /* Scale pop for success states */
-  .animate-pop {
-    animation: pop 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  }
-
-  @keyframes pop {
-    0% { transform: scale(0.8); opacity: 0; }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); opacity: 1; }
-  }
-
   /* Counting animation helper */
   .counting-animation {
     display: inline-block;
@@ -609,38 +422,13 @@ All colors MUST be HSL.
   }
 
   @keyframes count-pulse {
-    0% { transform: scale(1.15); color: hsl(var(--primary)); }
+    0% { transform: scale(1.05); color: hsl(var(--success)); }
     100% { transform: scale(1); }
-  }
-
-  /* Points earned indicator */
-  .points-earned {
-    animation: points-float 1.5s ease-out forwards;
-  }
-
-  @keyframes points-float {
-    0% { 
-      opacity: 1; 
-      transform: translateY(0) scale(1); 
-    }
-    100% { 
-      opacity: 0; 
-      transform: translateY(-40px) scale(0.8); 
-    }
-  }
-
-  /* Subtle bounce for buttons */
-  .bounce-subtle {
-    transition: transform 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  }
-
-  .bounce-subtle:active {
-    transform: scale(0.95);
   }
 
   /* Progress bar fill animation */
   .progress-fill {
-    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: width 0.5s ease;
   }
 
   /* Icon spin for loading */
@@ -653,109 +441,42 @@ All colors MUST be HSL.
     to { transform: rotate(360deg); }
   }
 
-  /* Success checkmark animation */
-  .check-animate {
-    animation: check-draw 0.4s ease-out forwards;
-  }
-
-  @keyframes check-draw {
-    0% { stroke-dashoffset: 100; }
-    100% { stroke-dashoffset: 0; }
-  }
-
-  /* Glow text effect */
-  .text-glow {
-    text-shadow: 0 0 20px hsl(var(--primary) / 0.5);
-  }
-
-  .text-glow-accent {
-    text-shadow: 0 0 20px hsl(var(--accent) / 0.5);
-  }
-
-  /* Stagger animation delay utilities */
-  .stagger-1 { animation-delay: 0.05s; }
-  .stagger-2 { animation-delay: 0.1s; }
-  .stagger-3 { animation-delay: 0.15s; }
-  .stagger-4 { animation-delay: 0.2s; }
-  .stagger-5 { animation-delay: 0.25s; }
-
   /* Interactive press state */
   .press-effect {
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    transition: transform 0.1s ease;
   }
 
   .press-effect:active {
-    transform: scale(0.97) translateY(1px);
-    box-shadow: 0 2px 8px hsl(0 0% 0% / 0.2);
+    transform: scale(0.97);
   }
 
-  /* Gradient text */
-  .text-gradient-primary {
-    background: linear-gradient(135deg, hsl(var(--primary)), hsl(175 70% 60%));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+  /* Subtle bounce for buttons */
+  .bounce-subtle {
+    transition: transform 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   }
 
+  .bounce-subtle:active {
+    transform: scale(0.95);
+  }
+
+  /* Remove legacy glow/pulse effects - keep classes for compatibility but no-op */
+  .pulse-glow,
+  .text-glow,
+  .text-glow-accent,
+  .animate-pulse-soft {
+    /* No glow effects in banking/health style */
+  }
+
+  .text-gradient-primary,
   .text-gradient-reward {
-    background: linear-gradient(135deg, hsl(var(--accent)), hsl(45 95% 65%));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    /* No gradient text in banking/health style */
+    color: hsl(var(--foreground));
   }
-}
-
-/* Premium scrollbar styling */
-::-webkit-scrollbar {
-  width: 10px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.02);
-  border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.08));
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.15));
-  border-color: rgba(255, 255, 255, 0.2);
-  box-shadow: 0 4px 16px rgba(255, 255, 255, 0.1);
-}
-
-/* Custom scrollbar for horizontal scrollable sections */
-.scrollbar-glass::-webkit-scrollbar {
-  height: 8px;
-}
-
-.scrollbar-glass::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 10px;
-  backdrop-filter: blur(8px);
-}
-
-.scrollbar-glass::-webkit-scrollbar-thumb {
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.12));
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.05), inset 0 1px 2px rgba(255, 255, 255, 0.1);
-}
-
-.scrollbar-glass::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.2));
-  border-color: rgba(255, 255, 255, 0.25);
-  box-shadow: 0 2px 12px rgba(255, 255, 255, 0.15), inset 0 1px 2px rgba(255, 255, 255, 0.2);
 }
 
 /* Selection styling */
 ::selection {
-  background-color: hsl(var(--neon-cyan) / 0.3);
+  background-color: hsl(var(--primary) / 0.15);
   color: hsl(var(--foreground));
 }
 
@@ -831,7 +552,7 @@ All colors MUST be HSL.
 }
 
 /* ============================================
-   MAX FPS PERFORMANCE OPTIMIZATIONS
+   PERFORMANCE OPTIMIZATIONS
    Hardware acceleration and smooth scrolling
    ============================================ */
 
@@ -842,20 +563,12 @@ All colors MUST be HSL.
   will-change: transform;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-  perspective: 1000px;
-  -webkit-perspective: 1000px;
 }
 
 /* Smooth 60fps scrolling */
 .scroll-smooth {
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
-}
-
-/* Optimized rendering for frequent updates */
-.render-optimized {
-  content-visibility: auto;
-  contain-intrinsic-size: 0 500px;
 }
 
 /* Layer promotion for fixed/sticky elements */
@@ -875,41 +588,11 @@ All colors MUST be HSL.
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Optimized opacity transitions (compositor-only) */
-.opacity-gpu {
-  will-change: opacity;
-  backface-visibility: hidden;
-}
-
-/* Ultra-smooth gradients (reduce banding) */
-.gradient-smooth {
-  background-size: 100% 100%;
-  image-rendering: auto;
-}
-
-/* Hardware-accelerated shadows */
-.shadow-gpu {
-  filter: drop-shadow(0 0 0 transparent);
-  will-change: filter;
-}
-
-/* Prevent sub-pixel rendering issues */
-.pixel-perfect {
-  transform: translateZ(0);
-  -webkit-font-smoothing: subpixel-antialiased;
-}
-
 /* iOS momentum scrolling with GPU */
 .ios-scroll {
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
   transform: translateZ(0);
-}
-
-/* Optimized border-radius rendering */
-.rounded-gpu {
-  transform: translateZ(0);
-  isolation: isolate;
 }
 
 /* Prevent composite layer explosions */
@@ -947,7 +630,6 @@ textarea:focus-visible {
 }
 
 /* Minimum touch target size (44x44px per WCAG) */
-.tap-target,
 .touch-target {
   min-height: 44px;
   min-width: 44px;
@@ -960,36 +642,6 @@ textarea:focus-visible {
 .tap-target-lg {
   min-height: 48px;
   min-width: 48px;
-}
-
-/* Skip to main content link (screen readers) */
-.skip-link {
-  position: absolute;
-  top: -40px;
-  left: 0;
-  background: hsl(var(--primary));
-  color: hsl(var(--primary-foreground));
-  padding: 8px 16px;
-  z-index: 100;
-  text-decoration: none;
-  font-weight: 600;
-  border-radius: 0 0 var(--radius) 0;
-}
-
-.skip-link:focus {
-  top: 0;
-}
-
-/* High contrast mode support */
-@media (prefers-contrast: high) {
-  :root {
-    --muted-foreground: 220 10% 70%;
-    --border: 220 15% 30%;
-  }
-  
-  .text-muted-foreground {
-    color: hsl(220 10% 70%);
-  }
 }
 
 /* Screen reader only content */
@@ -1005,16 +657,13 @@ textarea:focus-visible {
   border-width: 0;
 }
 
-/* Improved color contrast for muted text */
-.text-muted-accessible {
-  color: hsl(220 15% 65%);
+/* Shake animation for errors */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+  20%, 40%, 60%, 80% { transform: translateX(4px); }
 }
 
-/* Ensure sufficient contrast on interactive elements */
-.contrast-safe {
-  color: hsl(220 15% 65%);
-}
-
-.contrast-safe:hover {
-  color: hsl(220 15% 80%);
+.animate-shake {
+  animation: shake 0.5s ease-in-out;
 }

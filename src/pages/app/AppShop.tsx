@@ -418,11 +418,10 @@ export const AppShop: React.FC = () => {
                       />
                     )}
                     
-                    {/* Popular badge */}
+                    {/* Popular badge - Clean style */}
                     {product.is_popular && (
-                      <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded-md bg-orange-500/10 border border-orange-500/20 flex items-center gap-0.5">
-                        <Flame className="w-2.5 h-2.5 text-orange-400" />
-                        <span className="text-[9px] font-medium text-orange-400">HOT</span>
+                      <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded-md bg-primary/10 border border-primary/20">
+                        <span className="text-[9px] font-medium text-primary">Popular</span>
                       </div>
                     )}
                     

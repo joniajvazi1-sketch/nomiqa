@@ -67,9 +67,9 @@ export const APP_COPY = {
   earnings: {
     todayLabel: "Today",
     totalBalance: "Total Balance",
-    betaBadge: "Beta",
-    betaExplanation: "Points are being tracked for future rewards. Token conversion and cash-out coming soon!",
-    pointsExplanation: "Points are in-app rewards. 1 point = 1 token. Convert to crypto tokens via our web portal.",
+    betaBadge: "Points",
+    betaExplanation: "Points are being tracked for future rewards. Redemption options coming soon!",
+    pointsExplanation: "Points are in-app rewards that can be redeemed for mobile data, gift cards, and more.",
     earningsEstimate: "Most users earn a few dollars worth of points each month – it adds up over time!",
   },
 

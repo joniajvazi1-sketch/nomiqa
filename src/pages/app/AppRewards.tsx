@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  Coins, TrendingUp, Clock, Zap, Gift, ExternalLink, 
+  Coins, TrendingUp, Clock, Zap, Gift, 
   Info, ChevronRight, Wifi, Activity, Target, ShoppingBag,
-  Heart, CreditCard, Loader2
+  Heart, CreditCard
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { useHaptics } from '@/hooks/useHaptics';
 import { useToast } from '@/hooks/use-toast';
@@ -16,8 +15,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { AppSpinner } from '@/components/app/AppSpinner';
-import { TokenInfoModal } from '@/components/app/TokenInfoModal';
-import { TOKENOMICS, pointsToUsd, formatTokens } from '@/utils/tokenomics';
+import { TOKENOMICS, pointsToUsd } from '@/utils/tokenomics';
 import { APP_COPY } from '@/utils/appCopy';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
 
@@ -60,7 +58,6 @@ export const AppRewards: React.FC = () => {
     areasExplored: 0
   });
   const [timeRange, setTimeRange] = useState<'daily' | 'weekly' | 'monthly'>('daily');
-  const [showTokenInfo, setShowTokenInfo] = useState(false);
 
   useEffect(() => {
     loadRewardsData();
@@ -98,7 +95,6 @@ export const AppRewards: React.FC = () => {
         .gte('started_at', startDate.toISOString())
         .order('started_at', { ascending: true });
 
-      // Aggregate by day/week
       const aggregated = aggregateEarnings(sessions || [], timeRange);
       setEarningsData(aggregated);
 
@@ -114,7 +110,6 @@ export const AppRewards: React.FC = () => {
         .select('id')
         .eq('user_id', user.id);
 
-      // Calculate uptime (sessions in last 7 days / 7)
       const weekAgo = new Date();
       weekAgo.setDate(weekAgo.getDate() - 7);
       const recentSessions = (sessions || []).filter(
@@ -146,7 +141,6 @@ export const AppRewards: React.FC = () => {
     const now = new Date();
 
     if (range === 'daily') {
-      // Last 7 days
       for (let i = 6; i >= 0; i--) {
         const d = new Date(now);
         d.setDate(d.getDate() - i);
@@ -154,7 +148,6 @@ export const AppRewards: React.FC = () => {
         map.set(key, 0);
       }
     } else if (range === 'weekly') {
-      // Last 4 weeks
       for (let i = 3; i >= 0; i--) {
         const d = new Date(now);
         d.setDate(d.getDate() - i * 7);
@@ -162,7 +155,6 @@ export const AppRewards: React.FC = () => {
         map.set(`W${weekNum}`, 0);
       }
     } else {
-      // Last 3 months
       for (let i = 2; i >= 0; i--) {
         const d = new Date(now);
         d.setMonth(d.getMonth() - i);
@@ -203,24 +195,12 @@ export const AppRewards: React.FC = () => {
     return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
   };
 
-  const handleConvertToTokens = () => {
+  const handleRedeemPoints = () => {
     mediumTap();
-    toast({
-      title: 'Token conversion coming soon!',
-      description: 'Points will be convertible to tokens when we launch.',
-    });
+    navigate('/app/shop');
   };
 
   const redemptionOptions: RedemptionOption[] = [
-    {
-      id: 'tokens',
-      icon: Coins,
-      title: 'Convert to Tokens',
-      description: 'Exchange points for crypto tokens',
-      pointsCost: null,
-      available: false,
-      badge: 'Coming Soon'
-    },
     {
       id: 'data',
       icon: Wifi,
@@ -250,15 +230,9 @@ export const AppRewards: React.FC = () => {
   ];
 
   const getFactorColor = (value: number) => {
-    if (value >= 80) return 'text-green-500';
-    if (value >= 50) return 'text-amber-500';
+    if (value >= 80) return 'text-green-600';
+    if (value >= 50) return 'text-amber-600';
     return 'text-muted-foreground';
-  };
-
-  const getFactorBg = (value: number) => {
-    if (value >= 80) return 'bg-green-500';
-    if (value >= 50) return 'bg-amber-500';
-    return 'bg-muted-foreground';
   };
 
   if (loading) {
@@ -280,26 +254,23 @@ export const AppRewards: React.FC = () => {
           <Button 
             variant="ghost" 
             size="sm"
-            onClick={() => { lightTap(); setShowTokenInfo(true); }}
+            onClick={() => { lightTap(); navigate('/app/profile?tab=settings'); }}
             className="text-muted-foreground"
           >
             <Info className="w-4 h-4 mr-1" />
-            About Points
+            Help
           </Button>
         </div>
 
-        {/* Points Balance Card */}
+        {/* Points Balance Card - Clean banking style */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-2xl bg-gradient-to-br from-primary/20 via-card to-card border border-primary/20 p-5"
+          className="rounded-2xl bg-white border border-border shadow-elevated p-5"
         >
           <div className="flex items-center gap-2 mb-1">
             <Coins className="w-5 h-5 text-primary" />
             <span className="text-sm font-medium text-muted-foreground">Total Points</span>
-            <Badge variant="outline" className="ml-auto text-xs border-amber-500/30 text-amber-500">
-              Beta
-            </Badge>
           </div>
           
           <div className="flex items-baseline gap-3 mb-2">
@@ -311,27 +282,21 @@ export const AppRewards: React.FC = () => {
             </span>
           </div>
 
-          <div className="flex items-center gap-4 text-sm">
-            <div className="flex items-center gap-1.5">
-              <div className="w-2 h-2 rounded-full bg-primary" />
-              <span className="text-muted-foreground">1 pt = 1 token</span>
+          {pendingPoints > 0 && (
+            <div className="flex items-center gap-1.5 text-sm text-amber-600">
+              <Clock className="w-3.5 h-3.5" />
+              <span>{pendingPoints} pending</span>
             </div>
-            {pendingPoints > 0 && (
-              <div className="flex items-center gap-1.5">
-                <Clock className="w-3.5 h-3.5 text-amber-500" />
-                <span className="text-amber-500">{pendingPoints} pending</span>
-              </div>
-            )}
-          </div>
+          )}
         </motion.div>
 
         {/* Earnings Chart */}
-        <Card className="bg-card border-border">
+        <Card className="bg-white border-border">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <TrendingUp className="w-4 h-4 text-primary" />
-                <span className="text-sm font-semibold text-foreground">Earnings History</span>
+                <span className="text-sm font-semibold text-foreground">Points Over Time</span>
               </div>
               <Tabs value={timeRange} onValueChange={(v) => { lightTap(); setTimeRange(v as any); }}>
                 <TabsList className="h-8 p-0.5 bg-muted">
@@ -354,7 +319,7 @@ export const AppRewards: React.FC = () => {
                   <YAxis hide />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: 'hsl(var(--card))',
+                      backgroundColor: 'white',
                       border: '1px solid hsl(var(--border))',
                       borderRadius: '8px',
                       fontSize: '12px'
@@ -384,11 +349,11 @@ export const AppRewards: React.FC = () => {
         </Card>
 
         {/* Earning Factors */}
-        <Card className="bg-card border-border">
+        <Card className="bg-white border-border">
           <CardContent className="p-4">
             <div className="flex items-center gap-2 mb-4">
               <Activity className="w-4 h-4 text-primary" />
-              <span className="text-sm font-semibold text-foreground">Earning Factors</span>
+              <span className="text-sm font-semibold text-foreground">Your Earning Factors</span>
             </div>
 
             <div className="space-y-4">
@@ -421,12 +386,12 @@ export const AppRewards: React.FC = () => {
 
               {/* Stats row */}
               <div className="grid grid-cols-2 gap-3 pt-2">
-                <div className="bg-muted/50 rounded-lg p-3 text-center">
+                <div className="bg-card rounded-lg p-3 text-center border border-border">
                   <Target className="w-4 h-4 text-primary mx-auto mb-1" />
                   <p className="text-lg font-bold text-foreground">{earningFactors.speedTests}</p>
                   <p className="text-xs text-muted-foreground">Speed Tests</p>
                 </div>
-                <div className="bg-muted/50 rounded-lg p-3 text-center">
+                <div className="bg-card rounded-lg p-3 text-center border border-border">
                   <Zap className="w-4 h-4 text-amber-500 mx-auto mb-1" />
                   <p className="text-lg font-bold text-foreground">{earningFactors.areasExplored}</p>
                   <p className="text-xs text-muted-foreground">Areas Mapped</p>
@@ -440,7 +405,7 @@ export const AppRewards: React.FC = () => {
         <div>
           <h2 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
             <Gift className="w-4 h-4 text-primary" />
-            Spend Your Points
+            Redeem Your Points
           </h2>
 
           <div className="space-y-2">
@@ -449,23 +414,20 @@ export const AppRewards: React.FC = () => {
               const canRedeem = option.available && option.pointsCost && totalPoints >= option.pointsCost;
 
               return (
-                <motion.button
+                <button
                   key={option.id}
-                  whileTap={{ scale: 0.98 }}
                   onClick={() => {
                     mediumTap();
-                    if (option.id === 'tokens') {
-                      handleConvertToTokens();
-                    } else if (option.id === 'data' && canRedeem) {
+                    if (option.id === 'data' && canRedeem) {
                       navigate('/app/shop');
                     } else if (!option.available) {
                       toast({ title: 'Coming soon!', description: 'This option will be available soon.' });
                     }
                   }}
                   className={cn(
-                    "w-full flex items-center gap-3 p-4 rounded-xl border transition-colors",
+                    "w-full flex items-center gap-3 p-4 rounded-xl border transition-colors text-left",
                     option.available 
-                      ? "bg-card border-border hover:border-primary/30" 
+                      ? "bg-white border-border active:bg-muted" 
                       : "bg-muted/30 border-border/50"
                   )}
                 >
@@ -479,7 +441,7 @@ export const AppRewards: React.FC = () => {
                     )} />
                   </div>
 
-                  <div className="flex-1 text-left">
+                  <div className="flex-1">
                     <div className="flex items-center gap-2">
                       <span className={cn(
                         "font-medium",
@@ -488,70 +450,40 @@ export const AppRewards: React.FC = () => {
                         {option.title}
                       </span>
                       {option.badge && (
-                        <Badge variant="outline" className="text-[10px] py-0 h-4">
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
                           {option.badge}
-                        </Badge>
+                        </span>
                       )}
                     </div>
                     <p className="text-xs text-muted-foreground">{option.description}</p>
                   </div>
 
-                  {option.pointsCost && (
-                    <div className="text-right">
+                  <div className="text-right">
+                    {option.pointsCost && (
                       <p className={cn(
                         "text-sm font-semibold",
                         canRedeem ? "text-primary" : "text-muted-foreground"
                       )}>
-                        {option.pointsCost.toLocaleString()} pts
+                        {option.pointsCost} pts
                       </p>
-                    </div>
-                  )}
-
-                  <ChevronRight className={cn(
-                    "w-4 h-4",
-                    option.available ? "text-muted-foreground" : "text-muted-foreground/50"
-                  )} />
-                </motion.button>
+                    )}
+                    <ChevronRight className="w-4 h-4 text-muted-foreground mt-1" />
+                  </div>
+                </button>
               );
             })}
           </div>
         </div>
 
-        {/* Token Conversion CTA */}
-        <Card className="bg-gradient-to-br from-amber-500/10 to-transparent border-amber-500/20">
-          <CardContent className="p-4">
-            <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center shrink-0">
-                <ExternalLink className="w-5 h-5 text-amber-500" />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-semibold text-foreground mb-1">Token Conversion Portal</h3>
-                <p className="text-xs text-muted-foreground mb-3">
-                  {APP_COPY.rewards.conversionInfo}
-                </p>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={handleConvertToTokens}
-                  className="border-amber-500/30 text-amber-500 hover:bg-amber-500/10"
-                >
-                  Learn More
-                  <ExternalLink className="w-3.5 h-3.5 ml-1.5" />
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Privacy Note */}
-        <p className="text-xs text-center text-muted-foreground px-4">
-          {APP_COPY.rewards.privacyNote}
-        </p>
+        {/* Convert Points CTA */}
+        <button
+          onClick={handleRedeemPoints}
+          className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-semibold text-sm active:scale-[0.98] transition-transform flex items-center justify-center gap-2"
+        >
+          <ShoppingBag className="w-4 h-4" />
+          Shop with Points
+        </button>
       </div>
-
-      <TokenInfoModal isOpen={showTokenInfo} onClose={() => setShowTokenInfo(false)} />
     </div>
   );
 };
-
-export default AppRewards;
