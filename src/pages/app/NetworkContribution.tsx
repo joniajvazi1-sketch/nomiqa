@@ -56,6 +56,7 @@ export const NetworkContribution: React.FC = () => {
     lastPosition,
     isCellular,
     isPaused,
+    isContributionEnabled, // Persisted state
     startContribution,
     stopContribution,
     formatDuration
