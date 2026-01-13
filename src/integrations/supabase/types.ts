@@ -1338,6 +1338,75 @@ export type Database = {
           },
         ]
       }
+      user_collection_preferences: {
+        Row: {
+          battery_saver_mode: boolean | null
+          collection_enabled: boolean | null
+          created_at: string | null
+          id: string
+          low_power_collection: boolean | null
+          pause_until: string | null
+          send_usage_stats: boolean | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          battery_saver_mode?: boolean | null
+          collection_enabled?: boolean | null
+          created_at?: string | null
+          id?: string
+          low_power_collection?: boolean | null
+          pause_until?: string | null
+          send_usage_stats?: boolean | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          battery_saver_mode?: boolean | null
+          collection_enabled?: boolean | null
+          created_at?: string | null
+          id?: string
+          low_power_collection?: boolean | null
+          pause_until?: string | null
+          send_usage_stats?: boolean | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_contribution_levels: {
+        Row: {
+          active_days: number | null
+          areas_mapped: number | null
+          created_at: string | null
+          current_level: number | null
+          id: string
+          level_achieved_at: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          active_days?: number | null
+          areas_mapped?: number | null
+          created_at?: string | null
+          current_level?: number | null
+          id?: string
+          level_achieved_at?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          active_days?: number | null
+          areas_mapped?: number | null
+          created_at?: string | null
+          current_level?: number | null
+          id?: string
+          level_achieved_at?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_goals: {
         Row: {
           completed: boolean | null
