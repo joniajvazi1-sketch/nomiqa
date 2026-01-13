@@ -302,37 +302,17 @@ export const NetworkContribution: React.FC = () => {
           </div>
         )}
 
-        {/* Spacer */}
-        <div className="flex-1" />
+        {/* Spacer - Less space to bring controls up */}
+        <div className="flex-1 min-h-[60px]" />
 
-        {/* Bottom Control Area - Fixed at bottom, centered */}
-        <div className="px-4">
-          {/* Pre-scan encouragement */}
-          {!isActive && user && (
-            <div className="text-center mb-4 animate-fade-in">
-              <p className="text-base font-medium text-foreground mb-0.5">Ready when you are</p>
-              <p className="text-xs text-muted-foreground">
-                {isCellular ? 'Tap to start earning points' : 'Connect to cellular to earn'}
-              </p>
-            </div>
-          )}
-
-          {/* Center Points Display - Large and prominent */}
-          {isActive && isCellular && (
-            <div className="text-center mb-4 animate-fade-in">
-              <div className="text-4xl font-bold text-primary tabular-nums">
-                +{stats.pointsEarned.toFixed(1)}
-              </div>
-              <p className="text-xs text-muted-foreground mt-0.5">points earned</p>
-            </div>
-          )}
-
-          {/* Main Button - Centered, prominent */}
-          <div className="flex flex-col items-center gap-2 mb-4">
+        {/* Center Control Area - Raised higher on screen */}
+        <div className="px-4 pb-6">
+          {/* Main Button - Centered, prominent, VISIBLE */}
+          <div className="flex flex-col items-center gap-3 mb-6">
             <div className="relative">
               {/* Pulse ring when not active */}
               {!isActive && user && isCellular && (
-                <div className="absolute inset-0 rounded-full bg-primary/30 animate-ping" style={{ animationDuration: '2s' }} />
+                <div className="absolute inset-0 rounded-full bg-primary/40 animate-ping" style={{ animationDuration: '2s' }} />
               )}
               
               <button
@@ -349,41 +329,60 @@ export const NetworkContribution: React.FC = () => {
                 }}
                 disabled={!user}
                 className={cn(
-                  'w-16 h-16 rounded-full relative z-10',
+                  'w-20 h-20 rounded-full relative z-10',
                   'flex items-center justify-center',
-                  'shadow-lg active:scale-95',
-                  'border-2 transition-all duration-200',
+                  'shadow-xl active:scale-95',
+                  'transition-all duration-200',
                   isActive 
                     ? isPaused
-                      ? 'bg-amber-500/20 border-amber-400/50' 
-                      : 'bg-primary/20 border-primary/50' 
-                    : 'bg-primary/10 border-primary/30',
+                      ? 'bg-amber-500 border-4 border-amber-300' 
+                      : 'bg-primary border-4 border-primary/60' 
+                    : 'bg-primary border-4 border-primary/60',
                   !user && 'opacity-50 cursor-not-allowed'
                 )}
               >
                 {isActive ? (
                   isPaused ? (
-                    <Wifi className="w-6 h-6 text-amber-400" />
+                    <Wifi className="w-8 h-8 text-white" />
                   ) : (
-                    <Pause className="w-6 h-6 text-primary" />
+                    <Pause className="w-8 h-8 text-white" />
                   )
                 ) : (
-                  <Radio className="w-6 h-6 text-primary" />
+                  <Radio className="w-8 h-8 text-white" />
                 )}
               </button>
             </div>
 
-            <p className={cn(
-              'text-xs font-medium',
-              isActive && isCellular ? 'text-primary' : 'text-muted-foreground'
-            )}>
-              {isActive ? (isPaused ? 'Paused' : 'Scanning...') : 'Tap to Start'}
-            </p>
-            
-            {!user && (
-              <p className="text-[10px] text-muted-foreground">Sign in required</p>
-            )}
+            {/* Text below button - High contrast */}
+            <div className="text-center">
+              <p className={cn(
+                'text-sm font-semibold',
+                isActive && isCellular ? 'text-primary' : 'text-foreground'
+              )}>
+                {isActive ? (isPaused ? 'Paused' : 'Scanning...') : 'Tap to Start'}
+              </p>
+              
+              {!isActive && user && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  {isCellular ? 'Tap to start earning points' : 'Connect to cellular to earn'}
+                </p>
+              )}
+              
+              {!user && (
+                <p className="text-xs text-muted-foreground mt-1">Sign in required</p>
+              )}
+            </div>
           </div>
+
+          {/* Center Points Display - Large and prominent */}
+          {isActive && isCellular && (
+            <div className="text-center mb-4 animate-fade-in">
+              <div className="text-4xl font-bold text-primary tabular-nums">
+                +{stats.pointsEarned.toFixed(1)}
+              </div>
+              <p className="text-xs text-muted-foreground mt-0.5">points earned</p>
+            </div>
+          )}
 
           {/* Session Stats - Compact card */}
           {isActive && (
