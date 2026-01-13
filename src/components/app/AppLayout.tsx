@@ -62,7 +62,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   }
 
   return (
-    <div className="fixed inset-0 flex flex-col overflow-hidden bg-background">
+    <div className="app-theme fixed inset-0 flex flex-col overflow-hidden bg-background">
       {/* Scrollable content area */}
       <main 
         className="flex-1 overflow-y-auto overflow-x-hidden overscroll-none"

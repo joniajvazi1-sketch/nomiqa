@@ -9,70 +9,94 @@ All colors MUST be HSL.
 @layer base {
   :root {
     /* ============================================
-       BANKING/HEALTH APP COLOR SYSTEM
-       Light mode default - Maximum trust & readability
-       Inspired by Apple Health, Google Maps, banking apps
+       WEBSITE COLOR SYSTEM (Dark, premium, DePIN aesthetic)
+       Used for public-facing marketing pages
        ============================================ */
     
+    /* Dark foundation */
+    --background: 222 30% 7%;          /* Deep space dark */
+    --foreground: 45 30% 97%;          /* Warm off-white */
+    --card: 222 25% 11%;               /* Slightly lighter dark */
+    --card-foreground: 45 30% 97%;
+    --popover: 222 25% 11%;
+    --popover-foreground: 45 30% 97%;
+    
+    /* Primary - Neon Cyan (DePIN / tech) */
+    --primary: 175 70% 48%;            /* Cyan */
+    --primary-foreground: 222 30% 7%;
+    
+    /* Secondary */
+    --secondary: 222 25% 15%;
+    --secondary-foreground: 45 30% 97%;
+    
+    /* Accent - Gold for rewards */
+    --accent: 38 95% 55%;              /* Warm gold */
+    --accent-foreground: 222 30% 7%;
+    
+    /* Supporting colors */
+    --muted: 222 25% 15%;
+    --muted-foreground: 220 15% 60%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 222 25% 18%;
+    --input: 222 25% 18%;
+    --ring: 175 70% 48%;
+    --radius: 0.75rem;
+    
+    /* Status colors */
+    --success: 145 63% 42%;
+    --warning: 38 92% 50%;
+    --reward-gold: 45 93% 47%;
+    --reward-bronze: 30 60% 50%;
+    --reward-silver: 220 10% 70%;
+    
+    /* Premium gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(175 70% 48%) 0%, hsl(200 80% 50%) 100%);
+    --gradient-reward: linear-gradient(135deg, hsl(45 93% 47%) 0%, hsl(38 92% 50%) 100%);
+    
+    /* Glows and shadows */
+    --shadow-card: 0 4px 20px hsl(0 0% 0% / 0.3);
+    --shadow-elevated: 0 8px 32px hsl(0 0% 0% / 0.4);
+    --transition-smooth: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* ============================================
+     APP COLOR SYSTEM (Light, banking/health app aesthetic)
+     Applied to /app/* routes via .app-theme class
+     ============================================ */
+  .app-theme {
     /* Light foundation - Pure whites and soft grays */
     --background: 0 0% 100%;           /* Pure White #FFFFFF */
     --foreground: 0 0% 11%;            /* Near Black #1C1C1E */
     --card: 210 20% 98%;               /* Light Gray #F5F7FA */
-    --card-foreground: 0 0% 11%;       /* Near Black */
-    --popover: 0 0% 100%;              /* Pure White */
+    --card-foreground: 0 0% 11%;
+    --popover: 0 0% 100%;
     --popover-foreground: 0 0% 11%;
     
     /* Primary - Deep Blue (Trust, like banks & telcos) */
     --primary: 213 80% 15%;            /* #0A2540 */
-    --primary-foreground: 0 0% 100%;   /* White text on blue */
+    --primary-foreground: 0 0% 100%;
     
-    /* Secondary - Muted gray for secondary elements */
-    --secondary: 215 14% 93%;          /* Light gray */
+    /* Secondary - Muted gray */
+    --secondary: 215 14% 93%;
     --secondary-foreground: 215 14% 34%;
     
     /* Accent - Soft green for success/earning states */
-    --accent: 145 63% 42%;             /* #2ECC71 - Soft Green */
+    --accent: 145 63% 42%;             /* #2ECC71 */
     --accent-foreground: 0 0% 100%;
     
     /* Supporting colors */
-    --muted: 210 20% 96%;              /* Very light gray */
-    --muted-foreground: 215 14% 46%;   /* #6B7280 - readable gray */
-    --destructive: 0 72% 51%;          /* Red for errors */
+    --muted: 210 20% 96%;
+    --muted-foreground: 215 14% 46%;   /* #6B7280 */
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
-    --border: 214 20% 89%;             /* Subtle gray border */
+    --border: 214 20% 89%;
     --input: 214 20% 89%;
-    --ring: 213 80% 15%;               /* Primary blue */
-    --radius: 0.75rem;
-    
-    /* Status colors - Muted, professional */
-    --success: 145 63% 42%;            /* Soft Green #2ECC71 */
-    --warning: 38 92% 50%;             /* Muted Orange #F59E0B */
-    --reward-gold: 45 93% 47%;         /* Amber for rewards */
-    --reward-bronze: 30 60% 50%;
-    --reward-silver: 220 10% 70%;
-    
-    /* Simplified - no neon, no glows */
-    --gradient-primary: linear-gradient(135deg, hsl(213 80% 15%) 0%, hsl(213 80% 25%) 100%);
-    --gradient-reward: linear-gradient(135deg, hsl(45 93% 47%) 0%, hsl(38 92% 50%) 100%);
+    --ring: 213 80% 15%;
     
     /* Clean shadows - no glows */
     --shadow-card: 0 1px 3px hsl(0 0% 0% / 0.1);
     --shadow-elevated: 0 4px 12px hsl(0 0% 0% / 0.08);
-    --transition-smooth: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    
-  }
-
-  /* Dark mode - Optional, light is default */
-  .dark {
-    --background: 222 30% 7%;
-    --foreground: 45 30% 97%;
-    --card: 222 25% 11%;
-    --card-foreground: 45 30% 97%;
-    --primary: 175 70% 48%;
-    --primary-foreground: 222 30% 7%;
-    --muted: 222 25% 15%;
-    --muted-foreground: 220 15% 60%;
-    --border: 222 25% 18%;
   }
 }
 
