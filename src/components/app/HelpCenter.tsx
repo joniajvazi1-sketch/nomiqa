@@ -1,5 +1,5 @@
 import React from 'react';
-import { HelpCircle, Battery, Shield, Gift, ExternalLink, MessageCircle } from 'lucide-react';
+import { HelpCircle, Battery, Shield, Gift, ExternalLink, MessageCircle, X } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -9,6 +9,7 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import { APP_COPY } from '@/utils/appCopy';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface FAQItem {
   question: string;
@@ -39,7 +40,11 @@ const FAQ_ITEMS: FAQItem[] = [
   },
 ];
 
-export const HelpCenter: React.FC = () => {
+interface HelpCenterProps {
+  onClose?: () => void;
+}
+
+export const HelpCenter: React.FC<HelpCenterProps> = ({ onClose }) => {
   const handleContactSupport = () => {
     window.open('mailto:support@nomiqa.com', '_blank');
   };
@@ -48,7 +53,7 @@ export const HelpCenter: React.FC = () => {
     window.open('https://nomiqa.com/help', '_blank');
   };
 
-  return (
+  const content = (
     <div className="space-y-4">
       {/* FAQ Section */}
       <Card className="bg-card border-border">
@@ -104,6 +109,40 @@ export const HelpCenter: React.FC = () => {
         {APP_COPY.privacy.dataAnonymized}
       </p>
     </div>
+  );
+
+  // If no onClose provided, render inline
+  if (!onClose) {
+    return content;
+  }
+
+  // Render as modal
+  return (
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 z-50 bg-background/95 backdrop-blur-sm"
+      >
+        <div className="h-full overflow-y-auto pb-safe">
+          <div className="px-4 py-6">
+            {/* Header */}
+            <div className="flex items-center justify-between mb-6">
+              <h1 className="text-xl font-bold text-foreground">Help & FAQ</h1>
+              <button
+                onClick={onClose}
+                className="w-9 h-9 rounded-full bg-card border border-border flex items-center justify-center active:scale-95 transition-transform"
+              >
+                <X className="w-4 h-4 text-muted-foreground" />
+              </button>
+            </div>
+
+            {content}
+          </div>
+        </div>
+      </motion.div>
+    </AnimatePresence>
   );
 };
 
