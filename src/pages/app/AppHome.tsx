@@ -10,7 +10,9 @@ import {
   Gift,
   Target,
   Trophy,
-  ChevronRight
+  ChevronRight,
+  Users,
+  Share2
 } from 'lucide-react';
 import { useHaptics } from '@/hooks/useHaptics';
 import { supabase } from '@/integrations/supabase/client';
@@ -28,6 +30,8 @@ import { SpinWheel } from '@/components/app/SpinWheel';
 import { StatusBanner } from '@/components/app/StatusBanner';
 import { WeeklySummaryModal } from '@/components/app/WeeklySummaryModal';
 import { TOKENOMICS, pointsToUsd } from '@/utils/tokenomics';
+import { useNativeShare } from '@/hooks/useNativeShare';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 
 export const AppHome: React.FC = () => {
   const navigate = useNavigate();
@@ -35,8 +39,10 @@ export const AppHome: React.FC = () => {
   const { isOnline, connectionType } = useNetworkStatus();
   const { streakDays } = useAchievements();
   const { unclaimedCount } = useChallenges();
+  const { share } = useNativeShare();
   const [showSpinWheel, setShowSpinWheel] = useState(false);
   const [spinReady, setSpinReady] = useState(false);
+  const [showReferralNudge, setShowReferralNudge] = useState(false);
   
   const [showOnboarding, setShowOnboarding] = useState(() => {
     if (typeof window === 'undefined') return false;
@@ -59,6 +65,34 @@ export const AppHome: React.FC = () => {
     distance?: number;
     username?: string;
   }>>([]);
+
+  // Check for one-time referral nudge (after 100 points)
+  useEffect(() => {
+    const hasSeenNudge = localStorage.getItem('hasSeenReferralNudge') === 'true';
+    const currentPoints = points?.total_points || 0;
+    if (!hasSeenNudge && currentPoints >= 100) {
+      // Small delay so it feels natural
+      const timer = setTimeout(() => setShowReferralNudge(true), 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [points?.total_points]);
+
+  const handleDismissNudge = () => {
+    localStorage.setItem('hasSeenReferralNudge', 'true');
+    setShowReferralNudge(false);
+  };
+
+  const handleShareReferral = async () => {
+    const referralLink = username 
+      ? `https://nomiqa.com/${username}` 
+      : 'https://nomiqa.com/download';
+    
+    await share({
+      title: 'Join Nomiqa',
+      text: 'Earn rewards just by using your phone. Join me on Nomiqa!',
+      url: referralLink
+    });
+  };
 
   const loadData = useCallback(async () => {
     try {
@@ -312,6 +346,27 @@ export const AppHome: React.FC = () => {
             </button>
           </motion.div>
 
+          {/* Referral Micro-Card - Small, classy, one-tap share */}
+          <motion.button
+            initial={{ opacity: 0, y: 5 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.2, delay: 0.1 }}
+            onClick={() => { mediumTap(); handleShareReferral(); }}
+            className="w-full rounded-xl bg-card border border-border p-3 flex items-center gap-3 active:scale-[0.98] transition-transform"
+          >
+            <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <Users className="w-4 h-4 text-primary" />
+            </div>
+            <div className="flex-1 text-left">
+              <p className="text-sm font-semibold text-foreground">Invite friends</p>
+              <p className="text-xs text-muted-foreground">Earn 10% of their lifetime rewards</p>
+            </div>
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-medium">
+              <Share2 className="w-3 h-3" />
+              Share
+            </div>
+          </motion.button>
+
           {/* BELOW THE FOLD: Secondary motivators */}
           
           {/* Quick Stats - Clean cards */}
@@ -447,7 +502,37 @@ export const AppHome: React.FC = () => {
           />
         )}
       </AnimatePresence>
-      
+
+      {/* One-time Referral Nudge - After 100 points */}
+      <Sheet open={showReferralNudge} onOpenChange={setShowReferralNudge}>
+        <SheetContent side="bottom" className="rounded-t-2xl pb-8">
+          <SheetHeader className="text-center pb-4">
+            <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-2">
+              <Gift className="w-6 h-6 text-green-600" />
+            </div>
+            <SheetTitle className="text-lg">You're earning automatically 🎉</SheetTitle>
+          </SheetHeader>
+          <p className="text-center text-muted-foreground text-sm mb-6">
+            Invite friends and earn <span className="font-semibold text-foreground">10% of everything they earn</span> — forever.
+          </p>
+          <div className="flex gap-3">
+            <button
+              onClick={handleDismissNudge}
+              className="flex-1 h-11 rounded-xl border border-border text-sm font-medium text-muted-foreground active:scale-95 transition-transform"
+            >
+              Maybe later
+            </button>
+            <button
+              onClick={() => { handleDismissNudge(); handleShareReferral(); }}
+              className="flex-1 h-11 rounded-xl bg-primary text-primary-foreground text-sm font-semibold flex items-center justify-center gap-2 active:scale-95 transition-transform"
+            >
+              <Share2 className="w-4 h-4" />
+              Share now
+            </button>
+          </div>
+        </SheetContent>
+      </Sheet>
+
       {user && <DailyCheckIn userId={user.id} />}
       <WeeklySummaryModal />
     </>
