@@ -30,6 +30,8 @@ import { SpinWheel } from '@/components/app/SpinWheel';
 import { TokenInfoModal } from '@/components/app/TokenInfoModal';
 import { NetworkStatsCard } from '@/components/app/NetworkStatsCard';
 import { GlobalCommunityStats } from '@/components/app/GlobalCommunityStats';
+import { StatusBanner } from '@/components/app/StatusBanner';
+import { WeeklySummaryModal } from '@/components/app/WeeklySummaryModal';
 import { TOKENOMICS, pointsToUsd, formatTokens } from '@/utils/tokenomics';
 
 export const AppHome: React.FC = () => {
@@ -280,6 +282,8 @@ export const AppHome: React.FC = () => {
             </div>
           )}
 
+          {/* Status Banner - Shows when paused/offline */}
+          {user && <StatusBanner />}
           {/* Balance Card - Premium Hero Style */}
           <motion.div 
             initial={{ opacity: 0, y: 10 }}
@@ -634,8 +638,10 @@ export const AppHome: React.FC = () => {
         isOpen={showTokenInfo} 
         onClose={() => setShowTokenInfo(false)} 
       />
+
+      {/* Weekly Summary modal */}
+      {user && <WeeklySummaryModal />}
     </>
   );
 };
 
-export default AppHome;

@@ -23,6 +23,7 @@ import { cn } from '@/lib/utils';
 import { PrivacyControls } from '@/components/app/PrivacyControls';
 import { EmptyStateIllustration } from '@/components/app/EmptyStateIllustration';
 import { NotificationSettings } from '@/components/app/NotificationSettings';
+import { DataCollectionControls } from '@/components/app/DataCollectionControls';
 
 interface UserProfile {
   username: string;
@@ -516,6 +517,9 @@ export const AppProfile: React.FC = () => {
 
         {/* Settings Tab */}
         <TabsContent value="settings" className="mt-4 space-y-4">
+          {/* Data Collection Controls */}
+          <DataCollectionControls />
+
           {/* Notification Settings */}
           <NotificationSettings />
 
