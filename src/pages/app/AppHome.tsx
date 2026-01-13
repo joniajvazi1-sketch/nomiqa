@@ -240,17 +240,13 @@ export const AppHome: React.FC = () => {
         />
 
         <div className="px-4 py-4 pb-24 space-y-4">
-          {/* Header - Clean banking style */}
+          {/* Header - Minimal, just greeting + settings */}
           <header className="flex items-center justify-between">
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-card border border-border">
-              <div className={cn(
-                "w-2 h-2 rounded-full",
-                isOnline ? "bg-green-500" : "bg-red-500"
-              )} />
-              <span className="text-xs text-muted-foreground font-medium">
-                {getConnectionLabel()}
-              </span>
-            </div>
+            {user && (
+              <h1 className="text-xl font-bold text-foreground">
+                Hi, {displayName}
+              </h1>
+            )}
 
             <button 
               onClick={() => { mediumTap(); navigate('/app/profile'); }}
@@ -260,34 +256,33 @@ export const AppHome: React.FC = () => {
             </button>
           </header>
 
-          {/* Greeting - Minimal above fold */}
-          {user && (
-            <div>
-              <h1 className="text-xl font-bold text-foreground">
-                Hi, {displayName}
-              </h1>
-            </div>
-          )}
-
-          {/* Hero Balance Card - ABOVE THE FOLD: Only status, earnings, CTA */}
+          {/* Hero Balance Card - ABOVE THE FOLD: Status integrated, earnings, CTA */}
           <motion.div 
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.2 }}
             className="rounded-2xl bg-white border border-border shadow-elevated p-5"
           >
-            <div className="flex items-center gap-1.5 mb-2">
-              <div className={cn(
-                "w-2 h-2 rounded-full animate-pulse",
-                isOnline ? "bg-green-500" : "bg-muted-foreground"
-              )} />
-              <span className="text-xs font-medium text-muted-foreground">
-                {isOnline ? 'Collecting data ✓' : 'Paused'}
-              </span>
+            {/* Integrated status bar - network + sync + mode */}
+            <div className="flex items-center justify-between mb-3 pb-3 border-b border-border/50">
+              <div className="flex items-center gap-2">
+                <div className={cn(
+                  "w-2 h-2 rounded-full",
+                  isOnline ? "bg-green-500 animate-pulse" : "bg-muted-foreground"
+                )} />
+                <span className="text-xs font-medium text-muted-foreground">
+                  {isOnline ? 'Collecting ✓' : 'Paused'}
+                </span>
+              </div>
+              <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
+                <span>{connectionType || 'WiFi'}</span>
+                <span>•</span>
+                <span>Synced</span>
+              </div>
             </div>
             
             {/* Main earnings display - Points first, value second */}
-            <div className="mb-2">
+            <div className="mb-3">
               <div className="text-3xl font-bold text-foreground tabular-nums">
                 {totalPoints.toLocaleString()} <span className="text-lg font-semibold text-muted-foreground">pts</span>
               </div>
@@ -299,18 +294,9 @@ export const AppHome: React.FC = () => {
               </p>
             </div>
 
-            <p className="text-xs text-muted-foreground mb-3">
+            <p className="text-xs text-muted-foreground mb-4">
               Runs quietly in the background
             </p>
-            
-            {/* Status line - Last sync / Samples / Mode */}
-            <div className="flex items-center justify-between text-[10px] text-muted-foreground mb-4 px-1">
-              <span>Last sync: just now</span>
-              <span>•</span>
-              <span>Today: {todayPoints} pts</span>
-              <span>•</span>
-              <span>Mode: {connectionType || 'WiFi'}</span>
-            </div>
 
             <button
               onClick={() => { mediumTap(); navigate('/app/map'); }}
