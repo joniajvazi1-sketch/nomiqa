@@ -354,7 +354,9 @@ export const useNetworkContribution = () => {
             speed_test_provider: signalLog.speedTestProvider,
             latency_error: signalLog.latencyError,
             latency_provider: signalLog.latencyProvider,
-            latency_method: signalLog.latencyMethod
+            latency_method: signalLog.latencyMethod,
+            // B2B fields
+            app_version: '1.0.0', // TODO: Get from app config
           }]
         }
       });

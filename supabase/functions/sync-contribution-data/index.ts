@@ -60,6 +60,11 @@ interface SignalLogData {
   os_version?: string;
   cell_id?: string;
   tac?: string;
+  // NEW: B2B readiness fields
+  app_version?: string;
+  is_mock_location?: boolean;
+  device_integrity_score?: number;
+  device_integrity_flags?: string[];
 }
 
 interface LocationProof {
@@ -375,6 +380,62 @@ interface SignalLogValidation {
   valid: boolean;
   sanitized: SignalLogData;
   flags: string[];
+  confidenceScore: number;
+}
+
+// Time sanity constants
+const MAX_FUTURE_DRIFT_MS = 15 * 60 * 1000; // 15 minutes into future
+const MAX_PAST_DRIFT_MS = 24 * 60 * 60 * 1000; // 24 hours in past
+
+// Daily rate limits
+const MAX_SIGNAL_LOGS_PER_DAY = 500;
+const MAX_SPEED_TESTS_PER_DAY = 10;
+
+/**
+ * Compute confidence score (0-100) for a signal log
+ * Higher = more trusted data point
+ */
+function computeConfidenceScore(log: SignalLogData, flags: string[]): number {
+  let score = 100;
+  
+  // GPS accuracy penalty
+  if (log.accuracy_meters) {
+    if (log.accuracy_meters > 100) score -= 30;
+    else if (log.accuracy_meters > 50) score -= 15;
+    else if (log.accuracy_meters > 20) score -= 5;
+  } else {
+    score -= 10; // No accuracy data
+  }
+  
+  // Signal data availability bonus
+  if (log.rsrp !== undefined && log.rsrp !== null) score += 5;
+  if (log.rsrq !== undefined && log.rsrq !== null) score += 3;
+  if (log.sinr !== undefined && log.sinr !== null) score += 3;
+  if (log.cell_id) score += 5;
+  if (log.mcc && log.mnc) score += 5;
+  if (log.carrier_name) score += 3;
+  
+  // Speed test data bonus
+  if (log.speed_test_down !== undefined && log.speed_test_down !== null) score += 5;
+  if (log.latency_ms !== undefined && log.latency_ms !== null) score += 3;
+  
+  // Device integrity penalty
+  if (log.is_mock_location) score -= 40;
+  if (log.device_integrity_score !== undefined) {
+    // Use device integrity score (0-100) to adjust
+    const integrityPenalty = Math.max(0, (100 - log.device_integrity_score) * 0.3);
+    score -= integrityPenalty;
+  }
+  
+  // Validation flags penalty
+  for (const flag of flags) {
+    if (flag.includes('out_of_range')) score -= 5;
+    if (flag.includes('suspicious')) score -= 10;
+    if (flag.includes('invalid')) score -= 15;
+    if (flag.includes('low_gps_accuracy')) score -= 10;
+  }
+  
+  return Math.max(0, Math.min(100, Math.round(score)));
 }
 
 function validateSignalLog(log: SignalLogData): SignalLogValidation {
@@ -383,10 +444,20 @@ function validateSignalLog(log: SignalLogData): SignalLogValidation {
 
   // Coordinate validation
   if (Math.abs(log.latitude) > 90 || Math.abs(log.longitude) > 180) {
-    return { valid: false, sanitized, flags: ['Invalid coordinates'] };
+    return { valid: false, sanitized, flags: ['Invalid coordinates'], confidenceScore: 0 };
   }
   if (log.latitude === 0 && log.longitude === 0) {
-    return { valid: false, sanitized, flags: ['Null island'] };
+    return { valid: false, sanitized, flags: ['Null island'], confidenceScore: 0 };
+  }
+
+  // TIME SANITY: Reject logs with spoofed timestamps
+  const logTime = new Date(log.recorded_at).getTime();
+  const now = Date.now();
+  if (logTime > now + MAX_FUTURE_DRIFT_MS) {
+    return { valid: false, sanitized, flags: ['timestamp_future_spoof'], confidenceScore: 0 };
+  }
+  if (logTime < now - MAX_PAST_DRIFT_MS) {
+    return { valid: false, sanitized, flags: ['timestamp_too_old'], confidenceScore: 0 };
   }
 
   // Round coordinates
@@ -434,8 +505,32 @@ function validateSignalLog(log: SignalLogData): SignalLogValidation {
       flags.push(`movement_speed_invalid:${log.speed_mps}`);
     }
   }
+  
+  // Mock location flag
+  if (log.is_mock_location) {
+    flags.push('mock_location_detected');
+  }
 
-  return { valid: true, sanitized, flags };
+  const confidenceScore = computeConfidenceScore(sanitized, flags);
+  
+  return { valid: true, sanitized, flags, confidenceScore };
+}
+
+/**
+ * Check for duplicate logs (same geohash + network + minute)
+ */
+function isDuplicateLog(
+  geohash: string, 
+  networkType: string | undefined, 
+  recordedAt: string,
+  existingLogs: Array<{ geohash: string; network: string; minute: string }>
+): boolean {
+  const minute = recordedAt.substring(0, 16); // YYYY-MM-DDTHH:MM
+  const network = networkType || 'unknown';
+  
+  return existingLogs.some(
+    log => log.geohash === geohash && log.network === network && log.minute === minute
+  );
 }
 
 serve(async (req) => {
@@ -545,9 +640,12 @@ serve(async (req) => {
           location_geohash: geohash,
           country_code: countryCode,
           network_generation: networkGeneration,
+          // NEW: Confidence score + app version
+          confidence_score: validation.confidenceScore,
+          app_version: s.app_version,
         });
         
-        console.log(`Signal log stored: geohash=${geohash}, country=${countryCode || 'unknown'}, gen=${networkGeneration || 'unknown'}`);
+        console.log(`Signal log stored: geohash=${geohash}, country=${countryCode || 'unknown'}, gen=${networkGeneration || 'unknown'}, confidence=${validation.confidenceScore}`);
       }
       
       if (validSignalLogs.length > 0) {
