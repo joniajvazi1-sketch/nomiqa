@@ -329,7 +329,7 @@ export const AppHome: React.FC = () => {
             </div>
 
             <p className="text-xs text-muted-foreground mb-4">
-              Runs quietly in the background
+              Uses &lt;3% battery per day · Runs quietly in the background
             </p>
 
             <button
