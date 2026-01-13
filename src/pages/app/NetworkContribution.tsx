@@ -174,10 +174,10 @@ export const NetworkContribution: React.FC = () => {
       
       {/* Minimal UI overlay */}
       <div 
-        className="relative z-10 px-4 py-4 flex flex-col min-h-screen"
+        className="relative z-10 flex flex-col min-h-screen"
         style={{
-          paddingTop: 'calc(env(safe-area-inset-top, 0px) + 1rem)',
-          paddingBottom: 'calc(72px + env(safe-area-inset-bottom, 0px) + 1rem)'
+          paddingTop: 'calc(env(safe-area-inset-top, 0px) + 0.75rem)',
+          paddingBottom: 'calc(72px + env(safe-area-inset-bottom, 0px) + 0.5rem)'
         }}
         {...handlers}
       >
@@ -187,11 +187,11 @@ export const NetworkContribution: React.FC = () => {
           isRefreshing={isRefreshing}
         />
         
-        {/* Top Status - Clean capsule like NATIX */}
-        <div className="flex items-center justify-between mb-4">
+        {/* Top Status Bar - Floating capsule */}
+        <div className="px-4 flex items-center justify-between mb-2">
           <div className={cn(
-            'flex items-center gap-3 px-4 py-2 rounded-full border',
-            'bg-card/80 backdrop-blur-sm',
+            'flex items-center gap-2 px-3 py-1.5 rounded-full border',
+            'bg-card/90 backdrop-blur-md shadow-sm',
             isActive && isCellular ? 'border-primary/30' : 'border-border'
           )}>
             <div className={cn(
@@ -201,7 +201,7 @@ export const NetworkContribution: React.FC = () => {
             )} />
             
             <span className={cn(
-              'text-sm font-medium',
+              'text-xs font-medium',
               isActive && isCellular ? 'text-primary' : 'text-foreground'
             )}>
               {getConnectionLabel()}
@@ -209,16 +209,16 @@ export const NetworkContribution: React.FC = () => {
             
             {isActive && (
               <>
-                <div className="w-px h-4 bg-border" />
-                <span className="text-sm text-muted-foreground tabular-nums">
+                <div className="w-px h-3 bg-border" />
+                <span className="text-xs text-muted-foreground tabular-nums">
                   {formatDuration(stats.duration)}
                 </span>
               </>
             )}
           </div>
           
-          {/* Action Buttons */}
-          <div className="flex items-center gap-2">
+          {/* Compact Action Buttons */}
+          <div className="flex items-center gap-1.5">
             <button
               onClick={() => {
                 buttonTap();
@@ -226,13 +226,13 @@ export const NetworkContribution: React.FC = () => {
                 if (!showSpeedTest) setShowCarrierComparison(false);
               }}
               className={cn(
-                'flex items-center gap-2 px-3 py-2 rounded-full border',
-                'bg-card/80 backdrop-blur-sm transition-colors',
-                showSpeedTest ? 'border-primary/50 text-primary' : 'border-border text-muted-foreground hover:text-foreground'
+                'flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border',
+                'bg-card/90 backdrop-blur-md shadow-sm transition-colors',
+                showSpeedTest ? 'border-primary/50 text-primary' : 'border-border text-muted-foreground'
               )}
             >
-              <Activity className="w-4 h-4" />
-              <span className="text-xs font-medium">Speed</span>
+              <Activity className="w-3.5 h-3.5" />
+              <span className="text-[10px] font-medium">Speed</span>
             </button>
             <button
               onClick={() => {
@@ -241,25 +241,25 @@ export const NetworkContribution: React.FC = () => {
                 if (!showCarrierComparison) setShowSpeedTest(false);
               }}
               className={cn(
-                'flex items-center gap-2 px-3 py-2 rounded-full border',
-                'bg-card/80 backdrop-blur-sm transition-colors',
-                showCarrierComparison ? 'border-primary/50 text-primary' : 'border-border text-muted-foreground hover:text-foreground'
+                'flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border',
+                'bg-card/90 backdrop-blur-md shadow-sm transition-colors',
+                showCarrierComparison ? 'border-primary/50 text-primary' : 'border-border text-muted-foreground'
               )}
             >
-              <Signal className="w-4 h-4" />
-              <span className="text-xs font-medium">Carriers</span>
+              <Signal className="w-3.5 h-3.5" />
+              <span className="text-[10px] font-medium">Carriers</span>
             </button>
           </div>
         </div>
 
-        {/* WiFi Warning - Simple banner */}
+        {/* WiFi Warning - Compact banner */}
         {isActive && !isCellular && (
-          <div className="rounded-xl bg-amber-500/10 border border-amber-500/30 p-3 mb-4 animate-fade-in">
-            <div className="flex items-center gap-3">
-              <Wifi className="w-5 h-5 text-amber-400" />
+          <div className="mx-4 rounded-xl bg-amber-500/10 border border-amber-500/30 p-2.5 mb-3 animate-fade-in">
+            <div className="flex items-center gap-2">
+              <Wifi className="w-4 h-4 text-amber-500" />
               <div className="flex-1">
-                <p className="text-sm font-medium text-amber-200">Paused - WiFi detected</p>
-                <p className="text-xs text-amber-300/70">Switch to cellular to earn</p>
+                <p className="text-xs font-medium text-amber-600">Paused - WiFi detected</p>
+                <p className="text-[10px] text-amber-500/80">Switch to cellular to earn</p>
               </div>
             </div>
           </div>
@@ -267,9 +267,9 @@ export const NetworkContribution: React.FC = () => {
 
         {/* Offline Warning */}
         {!isOnline && (
-          <Alert className="border-amber-500/30 bg-amber-500/10 mb-4">
+          <Alert className="mx-4 border-amber-500/30 bg-amber-500/10 mb-3">
             <CloudOff className="h-4 w-4 text-amber-400" />
-            <AlertDescription className="text-amber-200 text-sm">
+            <AlertDescription className="text-amber-600 text-xs">
               Offline • {offlineQueueCount} points queued
             </AlertDescription>
           </Alert>
@@ -277,7 +277,7 @@ export const NetworkContribution: React.FC = () => {
 
         {/* Speed Test Panel */}
         {showSpeedTest && (
-          <div className="mb-4 animate-fade-in">
+          <div className="mx-4 mb-3 animate-fade-in">
             <SpeedTest
               latitude={lastPosition?.coords.latitude}
               longitude={lastPosition?.coords.longitude}
@@ -292,7 +292,7 @@ export const NetworkContribution: React.FC = () => {
 
         {/* Carrier Comparison Panel */}
         {showCarrierComparison && (
-          <div className="mb-4 animate-fade-in">
+          <div className="mx-4 mb-3 animate-fade-in">
             <CarrierComparison
               latitude={lastPosition?.coords.latitude}
               longitude={lastPosition?.coords.longitude}
@@ -304,118 +304,121 @@ export const NetworkContribution: React.FC = () => {
         {/* Spacer */}
         <div className="flex-1" />
 
-        {/* Pre-scan encouragement for non-active state */}
-        {!isActive && user && (
-          <div className="text-center mb-6 animate-fade-in">
-            <p className="text-lg font-medium text-foreground mb-1">Ready when you are</p>
-            <p className="text-sm text-muted-foreground">
-              {isCellular ? 'Tap to start earning points' : 'Connect to cellular to earn'}
-            </p>
-          </div>
-        )}
-
-        {/* Center Points Display - Large and prominent */}
-        {isActive && isCellular && (
-          <div className="text-center mb-8 animate-fade-in">
-            <div className="text-5xl font-bold text-primary tabular-nums">
-              +{stats.pointsEarned.toFixed(1)}
+        {/* Bottom Control Area - Fixed at bottom, centered */}
+        <div className="px-4">
+          {/* Pre-scan encouragement */}
+          {!isActive && user && (
+            <div className="text-center mb-4 animate-fade-in">
+              <p className="text-base font-medium text-foreground mb-0.5">Ready when you are</p>
+              <p className="text-xs text-muted-foreground">
+                {isCellular ? 'Tap to start earning points' : 'Connect to cellular to earn'}
+              </p>
             </div>
-            <p className="text-sm text-muted-foreground mt-1">points earned</p>
-          </div>
-        )}
+          )}
 
-        {/* Main Button - Simple like Nodle with pulse effect when not active */}
-        <div className="flex flex-col items-center gap-3 mb-4">
-          <div className="relative">
-            {/* Pulse ring when not active */}
-            {!isActive && user && isCellular && (
-              <div className="absolute inset-0 rounded-full bg-primary/30 animate-ping" style={{ animationDuration: '2s' }} />
-            )}
-            
-            <button
-              ref={startButtonRef}
-              onClick={() => {
-                buttonTap();
-                if (isActive) {
-                  handleStopContribution();
-                  playSuccess();
-                } else {
-                  startContribution();
-                  playCoin();
-                }
-              }}
-              disabled={!user}
-              className={cn(
-                'w-20 h-20 rounded-full relative z-10',
-                'flex items-center justify-center',
-                'shadow-lg active:scale-95',
-                'border-2 transition-all duration-200',
-                isActive 
-                  ? isPaused
-                    ? 'bg-amber-500/20 border-amber-400/50' 
-                    : 'bg-primary/20 border-primary/50' 
-                  : 'bg-primary/10 border-primary/30',
-                !user && 'opacity-50 cursor-not-allowed'
+          {/* Center Points Display - Large and prominent */}
+          {isActive && isCellular && (
+            <div className="text-center mb-4 animate-fade-in">
+              <div className="text-4xl font-bold text-primary tabular-nums">
+                +{stats.pointsEarned.toFixed(1)}
+              </div>
+              <p className="text-xs text-muted-foreground mt-0.5">points earned</p>
+            </div>
+          )}
+
+          {/* Main Button - Centered, prominent */}
+          <div className="flex flex-col items-center gap-2 mb-4">
+            <div className="relative">
+              {/* Pulse ring when not active */}
+              {!isActive && user && isCellular && (
+                <div className="absolute inset-0 rounded-full bg-primary/30 animate-ping" style={{ animationDuration: '2s' }} />
               )}
-            >
-              {isActive ? (
-                isPaused ? (
-                  <Wifi className="w-8 h-8 text-amber-400" />
+              
+              <button
+                ref={startButtonRef}
+                onClick={() => {
+                  buttonTap();
+                  if (isActive) {
+                    handleStopContribution();
+                    playSuccess();
+                  } else {
+                    startContribution();
+                    playCoin();
+                  }
+                }}
+                disabled={!user}
+                className={cn(
+                  'w-16 h-16 rounded-full relative z-10',
+                  'flex items-center justify-center',
+                  'shadow-lg active:scale-95',
+                  'border-2 transition-all duration-200',
+                  isActive 
+                    ? isPaused
+                      ? 'bg-amber-500/20 border-amber-400/50' 
+                      : 'bg-primary/20 border-primary/50' 
+                    : 'bg-primary/10 border-primary/30',
+                  !user && 'opacity-50 cursor-not-allowed'
+                )}
+              >
+                {isActive ? (
+                  isPaused ? (
+                    <Wifi className="w-6 h-6 text-amber-400" />
+                  ) : (
+                    <Pause className="w-6 h-6 text-primary" />
+                  )
                 ) : (
-                  <Pause className="w-8 h-8 text-primary" />
-                )
-              ) : (
-                <Radio className="w-8 h-8 text-primary" />
-              )}
-            </button>
+                  <Radio className="w-6 h-6 text-primary" />
+                )}
+              </button>
+            </div>
+
+            <p className={cn(
+              'text-xs font-medium',
+              isActive && isCellular ? 'text-primary' : 'text-muted-foreground'
+            )}>
+              {isActive ? (isPaused ? 'Paused' : 'Scanning...') : 'Tap to Start'}
+            </p>
+            
+            {!user && (
+              <p className="text-[10px] text-muted-foreground">Sign in required</p>
+            )}
           </div>
 
-          <p className={cn(
-            'text-sm font-medium',
-            isActive && isCellular ? 'text-primary' : 'text-muted-foreground'
-          )}>
-            {isActive ? (isPaused ? 'Paused' : 'Scanning...') : 'Tap to Start'}
-          </p>
-          
-          {!user && (
-            <p className="text-xs text-muted-foreground">Sign in required</p>
+          {/* Session Stats - Compact card */}
+          {isActive && (
+            <div className="rounded-xl bg-card/90 backdrop-blur-md border border-border p-3 animate-fade-in">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-1.5">
+                  <Zap className="w-3.5 h-3.5 text-primary" />
+                  <span className="text-xs font-medium text-foreground">Session</span>
+                </div>
+                <span className="text-xs font-bold text-primary tabular-nums">
+                  +{stats.pointsEarned.toFixed(1)} pts
+                </span>
+              </div>
+              
+              <div className="grid grid-cols-3 gap-1.5 text-[10px]">
+                <div className="text-center py-1.5 px-2 rounded-lg bg-muted/50">
+                  <span className="text-muted-foreground block">Time</span>
+                  <span className="font-medium text-foreground">+{stats.timePoints.toFixed(1)}</span>
+                </div>
+                <div className="text-center py-1.5 px-2 rounded-lg bg-muted/50">
+                  <span className="text-muted-foreground block">Distance</span>
+                  <span className="font-medium text-foreground">+{stats.distancePoints.toFixed(1)}</span>
+                </div>
+                <div className="text-center py-1.5 px-2 rounded-lg bg-muted/50">
+                  <span className="text-muted-foreground block">Data</span>
+                  <span className="font-medium text-foreground">{stats.dataPointsCount}</span>
+                </div>
+              </div>
+            </div>
           )}
         </div>
 
-        {/* Session Stats - Compact card */}
-        {isActive && (
-          <div className="rounded-xl bg-card/80 backdrop-blur-sm border border-border p-3 animate-fade-in">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <Zap className="w-4 h-4 text-primary" />
-                <span className="text-sm font-medium text-foreground">Session</span>
-              </div>
-              <span className="text-sm font-bold text-primary tabular-nums">
-                +{stats.pointsEarned.toFixed(1)} pts
-              </span>
-            </div>
-            
-            <div className="grid grid-cols-3 gap-2 text-xs">
-              <div className="text-center p-2 rounded-lg bg-muted/50">
-                <span className="text-muted-foreground block">Time</span>
-                <span className="font-medium text-foreground">+{stats.timePoints.toFixed(1)}</span>
-              </div>
-              <div className="text-center p-2 rounded-lg bg-muted/50">
-                <span className="text-muted-foreground block">Distance</span>
-                <span className="font-medium text-foreground">+{stats.distancePoints.toFixed(1)}</span>
-              </div>
-              <div className="text-center p-2 rounded-lg bg-muted/50">
-                <span className="text-muted-foreground block">Data</span>
-                <span className="font-medium text-foreground">{stats.dataPointsCount}</span>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Geo Error */}
         {geoError && (
-          <Alert className="border-red-500/30 bg-red-500/10 mt-3">
-            <AlertDescription className="text-red-200 text-xs">{geoError}</AlertDescription>
+          <Alert className="mx-4 border-red-500/30 bg-red-500/10 mt-2">
+            <AlertDescription className="text-red-500 text-xs">{geoError}</AlertDescription>
           </Alert>
         )}
       </div>

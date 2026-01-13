@@ -237,7 +237,7 @@ export const AppRewards: React.FC = () => {
 
   // Convert percentages to friendly progress labels
   const getProgressLabel = (value: number): { label: string; subtext: string } => {
-    if (value === 0) return { label: 'Collecting', subtext: 'Getting started' };
+    if (value === 0) return { label: 'Getting started', subtext: 'Start moving to improve' };
     if (value <= 30) return { label: 'Building', subtext: 'Good start' };
     if (value <= 60) return { label: 'Growing', subtext: 'Nice progress' };
     if (value <= 80) return { label: 'Strong', subtext: 'Great work!' };
@@ -293,8 +293,11 @@ export const AppRewards: React.FC = () => {
           <div className="text-sm text-muted-foreground mb-1">
             Estimated value: ${totalUsd.toFixed(2)}
           </div>
-          <p className="text-[10px] text-muted-foreground/70 mb-2">
+          <p className="text-[10px] text-muted-foreground/70 mb-1">
             1 point = 1 token (redeem in app)
+          </p>
+          <p className="text-[10px] text-primary/80">
+            Earn more by inviting friends (10% lifetime)
           </p>
 
           {pendingPoints > 0 && (
