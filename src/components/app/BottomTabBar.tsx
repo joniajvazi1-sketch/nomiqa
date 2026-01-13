@@ -47,6 +47,7 @@ export const BottomTabBar: React.FC = () => {
         {tabs.map((tab) => {
           const active = isActive(tab.path);
           const Icon = tab.icon;
+          const isRewardsTab = tab.path === '/app/rewards';
           
           return (
             <button
@@ -62,12 +63,16 @@ export const BottomTabBar: React.FC = () => {
               )}
             >
               <Icon 
-                className="w-5 h-5"
-                strokeWidth={active ? 2.5 : 2}
+                className={cn(
+                  // Make Rewards icon slightly larger - core loop emphasis
+                  isRewardsTab ? 'w-[22px] h-[22px]' : 'w-5 h-5'
+                )}
+                strokeWidth={active ? 2.5 : (isRewardsTab ? 2.2 : 2)}
               />
               <span className={cn(
                 'text-[10px] transition-all duration-150',
-                active ? 'font-semibold' : 'font-medium'
+                active ? 'font-semibold' : 'font-medium',
+                isRewardsTab && !active && 'font-semibold'
               )}>
                 {tab.label}
               </span>

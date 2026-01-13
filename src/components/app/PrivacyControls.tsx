@@ -8,7 +8,9 @@ import {
   ExternalLink,
   AlertTriangle,
   Check,
-  Loader2
+  Loader2,
+  Lock,
+  Clock
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -28,6 +30,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+
+import { APP_COPY } from '@/utils/appCopy';
 
 const PRIVACY_PREFS_KEY = 'nomiqa_privacy_prefs';
 
@@ -113,41 +117,38 @@ export const PrivacyControls: React.FC = () => {
   return (
     <div className="space-y-4">
       {/* Privacy Framing - Emotional Context */}
-      <Card className="bg-gradient-to-br from-neon-cyan/10 via-primary/5 to-transparent border-neon-cyan/20">
+      <Card className="bg-card border-border">
         <CardContent className="p-4">
           <div className="flex items-start gap-3">
-            <div className="p-2 rounded-full bg-neon-cyan/20 mt-0.5">
-              <Shield className="w-5 h-5 text-neon-cyan" />
+            <div className="p-2 rounded-full bg-primary/10 mt-0.5">
+              <Lock className="w-5 h-5 text-primary" />
             </div>
             <div>
               <h3 className="font-semibold text-foreground text-sm mb-1">Why this data?</h3>
-              <p className="text-xs text-muted-foreground mb-3">
+              <p className="text-xs text-muted-foreground mb-2">
                 To measure network quality and reward you fairly — not to track or monitor individuals.
               </p>
-              <div className="bg-white/5 rounded-lg p-2.5 border border-white/10">
-                <p className="text-xs text-foreground/80 font-medium mb-1">You are in control</p>
-                <p className="text-[10px] text-muted-foreground">
-                  More data = better measurements = higher rewards. All options are voluntary and anonymized.
-                </p>
-              </div>
+              <p className="text-xs text-primary/80 font-medium">
+                This data is valuable to network operators — that's why we can reward you.
+              </p>
             </div>
           </div>
         </CardContent>
       </Card>
 
       {/* Privacy Toggles */}
-      <Card className="bg-card/50 border-border/50">
-        <CardContent className="p-0 divide-y divide-border/50">
-          {/* Background Collection */}
+      <Card className="bg-card border-border">
+        <CardContent className="p-0 divide-y divide-border">
+          {/* Background Collection - Reward-first framing */}
           <div className="flex items-center justify-between p-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center">
-                <Eye className="w-5 h-5 text-blue-500" />
+              <div className="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center">
+                <Shield className="w-5 h-5 text-green-600" />
               </div>
               <div>
-                <p className="text-sm font-medium text-foreground">Background Collection</p>
+                <p className="text-sm font-medium text-foreground">Earn automatically</p>
                 <p className="text-xs text-muted-foreground">
-                  Collect network data when app is in background
+                  Earn rewards automatically in the background
                 </p>
               </div>
             </div>
@@ -160,13 +161,13 @@ export const PrivacyControls: React.FC = () => {
           {/* Location Precision */}
           <div className="flex items-center justify-between p-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center">
-                <MapPin className="w-5 h-5 text-green-500" />
+              <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center">
+                <MapPin className="w-5 h-5 text-blue-600" />
               </div>
               <div>
                 <p className="text-sm font-medium text-foreground">Exact Location</p>
                 <p className="text-xs text-muted-foreground">
-                  {prefs.shareExactLocation ? 'Precise GPS coordinates' : 'Approximate location only'}
+                  {prefs.shareExactLocation ? 'Precise GPS = better rewards' : 'Approximate location only'}
                 </p>
               </div>
             </div>
@@ -179,8 +180,8 @@ export const PrivacyControls: React.FC = () => {
           {/* Device Info */}
           <div className="flex items-center justify-between p-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center">
-                <Smartphone className="w-5 h-5 text-purple-500" />
+              <div className="w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center">
+                <Smartphone className="w-5 h-5 text-purple-600" />
               </div>
               <div>
                 <p className="text-sm font-medium text-foreground">Device Information</p>
@@ -198,20 +199,20 @@ export const PrivacyControls: React.FC = () => {
       </Card>
 
       {/* Data Retention Info */}
-      <Card className="bg-card/50 border-border/50">
+      <Card className="bg-card border-border">
         <CardContent className="p-4">
           <h4 className="text-sm font-semibold text-foreground mb-3">Data Retention</h4>
           <div className="space-y-2 text-xs text-muted-foreground">
             <p className="flex items-start gap-2">
-              <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+              <Check className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
               Location data is automatically deleted after 90 days
             </p>
             <p className="flex items-start gap-2">
-              <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+              <Check className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
               Personal information is never sold to third parties
             </p>
             <p className="flex items-start gap-2">
-              <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+              <Check className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
               Network data is aggregated and anonymized before sharing
             </p>
           </div>
@@ -228,22 +229,20 @@ export const PrivacyControls: React.FC = () => {
         }}
       >
         <span className="flex items-center gap-2">
-          <Shield className="w-4 h-4" />
+          <Eye className="w-4 h-4" />
           View Privacy Policy
         </span>
         <ExternalLink className="w-4 h-4" />
       </Button>
 
-      {/* Delete Data Section */}
-      <Card className="bg-red-500/5 border-red-500/20">
+      {/* Delete Data Section - De-emphasized, moved to bottom */}
+      <Card className="bg-muted/30 border-border/50">
         <CardContent className="p-4">
-          <div className="flex items-start gap-3 mb-4">
-            <div className="p-2 rounded-full bg-red-500/20 mt-0.5">
-              <AlertTriangle className="w-5 h-5 text-red-500" />
-            </div>
+          <div className="flex items-start gap-3 mb-3">
+            <AlertTriangle className="w-4 h-4 text-muted-foreground mt-0.5" />
             <div>
-              <h4 className="font-semibold text-foreground text-sm mb-1">Delete My Data</h4>
-              <p className="text-xs text-muted-foreground">
+              <h4 className="text-sm font-medium text-muted-foreground mb-1">Delete My Data</h4>
+              <p className="text-xs text-muted-foreground/70">
                 Request deletion of all your collected data. This action cannot be undone.
               </p>
             </div>
@@ -252,8 +251,9 @@ export const PrivacyControls: React.FC = () => {
           <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
             <AlertDialogTrigger asChild>
               <Button 
-                variant="destructive" 
-                className="w-full"
+                variant="ghost" 
+                size="sm"
+                className="w-full text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                 onClick={() => lightTap()}
               >
                 <Trash2 className="w-4 h-4 mr-2" />

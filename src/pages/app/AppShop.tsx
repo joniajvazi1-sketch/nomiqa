@@ -436,7 +436,7 @@ export const AppShop: React.FC = () => {
                     </h3>
                     
                     {/* Data & Validity */}
-                    <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground mb-3">
+                    <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground mb-1">
                       <span className="flex items-center gap-0.5">
                         <Wifi className="w-3 h-3" />
                         {product.data_amount}
@@ -444,12 +444,20 @@ export const AppShop: React.FC = () => {
                       <span className="w-1 h-1 rounded-full bg-muted-foreground/30" />
                       <span>{product.validity_days}d</span>
                     </div>
+
+                    {/* Trust text - before price */}
+                    <p className="text-[9px] text-muted-foreground/70 text-center mb-2">
+                      Works on major networks
+                    </p>
                     
                     {/* Price & Add Button */}
                     <div className="flex items-center justify-between gap-2">
-                      <span className="text-lg font-bold text-foreground tabular-nums">
-                        ${product.price_usd.toFixed(2)}
-                      </span>
+                      <div>
+                        <span className="text-lg font-bold text-foreground tabular-nums block">
+                          ${product.price_usd.toFixed(2)}
+                        </span>
+                        <span className="text-[8px] text-primary/70">Pay with points (soon)</span>
+                      </div>
                       <Button 
                         size="sm"
                         onClick={(e) => handleAddToCart(product, e)}

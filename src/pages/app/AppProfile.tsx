@@ -416,7 +416,7 @@ export const AppProfile: React.FC = () => {
           {affiliate && (
             <Card className="bg-card border-border">
               <CardContent className="p-4">
-                <div className="flex items-center gap-3 mb-3">
+                <div className="flex items-center gap-3 mb-2">
                   <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                     <Users className="w-5 h-5 text-primary" />
                   </div>
@@ -429,6 +429,12 @@ export const AppProfile: React.FC = () => {
                     Share
                   </Button>
                 </div>
+                
+                {/* Key motivator - Lifetime earnings */}
+                <p className="text-xs text-primary font-semibold mb-3 pl-[52px]">
+                  You earn 10% of their lifetime rewards
+                </p>
+                
                 <div className="grid grid-cols-2 gap-2 text-center text-xs">
                   <div className="rounded-lg bg-muted/50 p-2.5">
                     <p className="font-bold text-foreground text-lg">{affiliate.total_registrations}</p>
