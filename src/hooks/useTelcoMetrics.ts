@@ -77,6 +77,8 @@ export interface SignalLogEntry extends TelcoMetrics {
 const MIN_DISTANCE_THRESHOLD = 100;
 // Maximum time between logs when stationary (ms)
 const MAX_TIME_THRESHOLD = 5 * 60 * 1000; // 5 minutes
+// Maximum samples per hour (smart sampling cap for battery)
+const MAX_SAMPLES_PER_HOUR = 12; // ~1 every 5 minutes max
 
 /**
  * Hook for collecting telco-grade signal metrics
@@ -96,6 +98,8 @@ export const useTelcoMetrics = () => {
   } | null>(null);
   
   const lastLogPosition = useRef<{ lat: number; lon: number; time: number } | null>(null);
+  const hourlyLogCount = useRef<{ hour: number; count: number }>({ hour: 0, count: 0 });
+  const lastNetworkType = useRef<string | null>(null);
   const speedTestCache = useRef<{ 
     down?: number; 
     up?: number; 
@@ -142,11 +146,24 @@ export const useTelcoMetrics = () => {
   }, []);
 
   /**
-   * Check if we should log based on distance/time thresholds
-   * Rule: Log every 100m OR every 5 minutes if stationary
+   * Check if we should log based on distance/time thresholds AND hourly cap
+   * Rule: Log every 100m OR every 5 minutes if stationary, MAX 12 per hour
    */
   const shouldLogDataPoint = useCallback((position: Position): boolean => {
     const now = Date.now();
+    const currentHour = Math.floor(now / (60 * 60 * 1000));
+    
+    // Reset hourly counter if new hour
+    if (hourlyLogCount.current.hour !== currentHour) {
+      hourlyLogCount.current = { hour: currentHour, count: 0 };
+    }
+    
+    // Check hourly cap
+    if (hourlyLogCount.current.count >= MAX_SAMPLES_PER_HOUR) {
+      console.log('[TelcoMetrics] Hourly sample cap reached, skipping');
+      return false;
+    }
+    
     const currentPos = {
       lat: position.coords.latitude,
       lon: position.coords.longitude,
@@ -155,6 +172,7 @@ export const useTelcoMetrics = () => {
     
     if (!lastLogPosition.current) {
       lastLogPosition.current = currentPos;
+      hourlyLogCount.current.count++;
       return true;
     }
     
@@ -172,9 +190,40 @@ export const useTelcoMetrics = () => {
     // Log if moved 100m+ OR if 5 minutes have passed
     if (distance >= MIN_DISTANCE_THRESHOLD || timeSinceLastLog >= MAX_TIME_THRESHOLD) {
       lastLogPosition.current = currentPos;
+      hourlyLogCount.current.count++;
       return true;
     }
     
+    return false;
+  }, []);
+
+  /**
+   * Force a log on network change (valuable handoff data)
+   * Call this when connection type changes
+   */
+  const shouldLogOnNetworkChange = useCallback((currentNetworkType: string): boolean => {
+    const now = Date.now();
+    const currentHour = Math.floor(now / (60 * 60 * 1000));
+    
+    // Reset hourly counter if new hour
+    if (hourlyLogCount.current.hour !== currentHour) {
+      hourlyLogCount.current = { hour: currentHour, count: 0 };
+    }
+    
+    // Always allow network change logs (valuable handoff data)
+    if (lastNetworkType.current !== null && lastNetworkType.current !== currentNetworkType) {
+      console.log(`[TelcoMetrics] Network change detected: ${lastNetworkType.current} → ${currentNetworkType}`);
+      lastNetworkType.current = currentNetworkType;
+      
+      // Count against cap but don't block
+      if (hourlyLogCount.current.count < MAX_SAMPLES_PER_HOUR) {
+        hourlyLogCount.current.count++;
+      }
+      
+      return true;
+    }
+    
+    lastNetworkType.current = currentNetworkType;
     return false;
   }, []);
 
@@ -386,21 +435,25 @@ export const useTelcoMetrics = () => {
   }, [getTelcoMetrics, isAndroid]);
 
   /**
-   * Reset logging position (call when starting new session)
+   * Reset logging position and counters (call when starting new session)
    */
   const resetLoggingState = useCallback(() => {
     lastLogPosition.current = null;
     speedTestCache.current = null;
+    hourlyLogCount.current = { hour: 0, count: 0 };
+    lastNetworkType.current = null;
   }, []);
 
   return {
     initDeviceInfo,
     shouldLogDataPoint,
+    shouldLogOnNetworkChange,
     getTelcoMetrics,
     runLightweightSpeedTest,
     createSignalLogEntry,
     resetLoggingState,
-    deviceInfo
+    deviceInfo,
+    getHourlySampleCount: () => hourlyLogCount.current.count
   };
 };
 
