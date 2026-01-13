@@ -115,9 +115,11 @@ export const APP_COPY = {
       indefinitely: "Until I turn it back on",
     },
     batterySaverTitle: "Battery Saver",
-    batterySaverDescription: "Only collect when charging",
+    batterySaverDescription: "Earn while charging only",
     lowPowerTitle: "Low Power Mode",
     lowPowerDescription: "Reduces collection frequency (earnings may decrease)",
+    backgroundCollection: "Earn rewards automatically in the background",
+    dataValueExplanation: "This data is valuable to network operators — that's why we can reward you.",
   },
 
   // Errors & Recovery
