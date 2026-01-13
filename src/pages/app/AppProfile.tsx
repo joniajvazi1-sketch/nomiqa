@@ -4,7 +4,7 @@ import {
   User, Package, LogOut, Crown, Star, Sparkles,
   Share2, Pencil, Check, X, RefreshCw, Users,
   Wallet, MapPin, Activity, Shield, Loader2, Gift,
-  Target, Trophy, ChevronRight
+  Target, Trophy, ChevronRight, Trash2, AlertTriangle, HelpCircle
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -24,6 +24,19 @@ import { PrivacyControls } from '@/components/app/PrivacyControls';
 import { EmptyStateIllustration } from '@/components/app/EmptyStateIllustration';
 import { NotificationSettings } from '@/components/app/NotificationSettings';
 import { DataCollectionControls } from '@/components/app/DataCollectionControls';
+import { ContributorLevelCard } from '@/components/app/ContributorLevelCard';
+import { HelpCenter } from '@/components/app/HelpCenter';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 interface UserProfile {
   username: string;
@@ -89,6 +102,8 @@ export const AppProfile: React.FC = () => {
   const [solanaWallet, setSolanaWallet] = useState('');
   const [isEditingWallet, setIsEditingWallet] = useState(false);
   const [savingWallet, setSavingWallet] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
+  const [showHelpCenter, setShowHelpCenter] = useState(false);
   const [walletError, setWalletError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -224,6 +239,37 @@ export const AppProfile: React.FC = () => {
       toast({ title: 'Failed to save wallet', variant: 'destructive' });
     } finally {
       setSavingWallet(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    setDeletingAccount(true);
+    try {
+      // Call the deletion RPC function
+      const { error: rpcError } = await supabase.rpc('request_data_deletion', {
+        requesting_user_id: user.id
+      });
+      
+      if (rpcError) throw rpcError;
+
+      // Delete the user from auth
+      const { error: deleteError } = await supabase.functions.invoke('delete-user');
+      
+      if (deleteError) throw deleteError;
+
+      // Sign out and redirect
+      await supabase.auth.signOut();
+      toast({ title: 'Account deleted', description: 'Your account and data have been removed.' });
+      navigate('/');
+    } catch (error) {
+      console.error('Error deleting account:', error);
+      toast({ 
+        title: 'Failed to delete account', 
+        description: 'Please try again or contact support.',
+        variant: 'destructive' 
+      });
+    } finally {
+      setDeletingAccount(false);
     }
   };
 
@@ -388,6 +434,12 @@ export const AppProfile: React.FC = () => {
 
         {/* Account Tab */}
         <TabsContent value="account" className="mt-4 space-y-4">
+          {/* Contributor Level Card */}
+          <ContributorLevelCard 
+            compact 
+            onTap={() => { selectionTap(); navigate('/app/achievements'); }} 
+          />
+
           {/* Your Progress Section */}
           <Card className="bg-card border-border">
             <CardContent className="p-4">
@@ -577,6 +629,72 @@ export const AppProfile: React.FC = () => {
           {/* Privacy Controls */}
           <PrivacyControls />
 
+          {/* Help Center */}
+          <Card className="bg-card border-border">
+            <CardContent className="p-4">
+              <button
+                onClick={() => { selectionTap(); setShowHelpCenter(true); }}
+                className="w-full flex items-center justify-between"
+              >
+                <div className="flex items-center gap-3">
+                  <HelpCircle className="w-5 h-5 text-blue-500" />
+                  <div className="text-left">
+                    <p className="text-sm font-medium text-foreground">Help & FAQ</p>
+                    <p className="text-xs text-muted-foreground">Get answers to common questions</p>
+                  </div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              </button>
+            </CardContent>
+          </Card>
+
+          {/* Account Management - Delete Account */}
+          <Card className="bg-card border-border border-destructive/30">
+            <CardContent className="p-4">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Account Management</p>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <button className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-destructive/10 text-left transition-colors -mx-1">
+                    <Trash2 className="w-5 h-5 text-destructive" />
+                    <div>
+                      <p className="text-sm font-medium text-destructive">Delete Account</p>
+                      <p className="text-xs text-muted-foreground">Permanently remove your data</p>
+                    </div>
+                  </button>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="mx-4">
+                  <AlertDialogHeader>
+                    <div className="w-12 h-12 rounded-full bg-destructive/20 flex items-center justify-center mx-auto mb-2">
+                      <AlertTriangle className="w-6 h-6 text-destructive" />
+                    </div>
+                    <AlertDialogTitle className="text-center">Delete Your Account?</AlertDialogTitle>
+                    <AlertDialogDescription className="text-center space-y-2">
+                      <p>This action cannot be undone. This will permanently delete your account and remove all associated data.</p>
+                      <div className="bg-destructive/10 rounded-lg p-3 mt-3 text-destructive text-sm font-medium">
+                        ⚠️ You will lose {(userPoints?.total_points || 0).toLocaleString()} points (worth ~${((userPoints?.total_points || 0) * 0.01).toFixed(2)})
+                      </div>
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+                    <AlertDialogCancel className="w-full sm:w-auto">Keep Account</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={handleDeleteAccount}
+                      disabled={deletingAccount}
+                      className="w-full sm:w-auto bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+                    >
+                      {deletingAccount ? (
+                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                      ) : (
+                        <Trash2 className="w-4 h-4 mr-2" />
+                      )}
+                      Delete Forever
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </CardContent>
+          </Card>
+
           {/* Refresh */}
           <Button variant="ghost" size="sm" onClick={loadData} className="w-full text-xs text-muted-foreground">
             <RefreshCw className="w-3 h-3 mr-1" />
@@ -584,6 +702,11 @@ export const AppProfile: React.FC = () => {
           </Button>
         </TabsContent>
       </Tabs>
+
+      {/* Help Center Modal */}
+      {showHelpCenter && (
+        <HelpCenter onClose={() => setShowHelpCenter(false)} />
+      )}
     </div>
   );
 };
