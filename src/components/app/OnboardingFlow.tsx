@@ -7,7 +7,9 @@ import {
   Lock,
   ChevronRight,
   Smartphone,
-  ArrowRight
+  ArrowRight,
+  Battery,
+  Shield
 } from 'lucide-react';
 import { useHaptics } from '@/hooks/useHaptics';
 import { cn } from '@/lib/utils';
@@ -15,6 +17,7 @@ import OnboardingSlide from './onboarding/OnboardingSlide';
 import LocationPermissionRequest from './onboarding/LocationPermissionRequest';
 import ReferralCodeEntry from './onboarding/ReferralCodeEntry';
 import WelcomeBonus from './onboarding/WelcomeBonus';
+import { APP_COPY } from '@/utils/appCopy';
 
 interface OnboardingFlowProps {
   onComplete: () => void;
@@ -34,28 +37,28 @@ interface SlideContent {
   description: string;
 }
 
-// 3 informational slides - concise and impactful
+// 3 informational slides with trust-building copy from APP_COPY
 const slides: SlideContent[] = [
   {
     id: 1,
     icon: Signal,
     iconColor: 'text-primary',
-    title: 'Turn Your Signal Into Rewards',
-    description: 'Contribute network data while you travel. Earn points. Redeem for eSIMs & tokens.',
+    title: APP_COPY.onboarding.slide1Title,
+    description: APP_COPY.onboarding.slide1Description,
   },
   {
     id: 2,
     icon: Smartphone,
-    iconColor: 'text-success',
-    title: "It's This Simple",
-    description: '1. Open app  2. Connect to cellular  3. Earn automatically in the background',
+    iconColor: 'text-green-500',
+    title: APP_COPY.onboarding.slide2Title,
+    description: APP_COPY.onboarding.slide2Description,
   },
   {
     id: 3,
-    icon: Lock,
-    iconColor: 'text-secondary',
-    title: 'Your Privacy Matters',
-    description: 'Location maps coverage, not you. Data is anonymized and never sold.',
+    icon: Shield,
+    iconColor: 'text-sky-500',
+    title: APP_COPY.onboarding.slide3Title,
+    description: APP_COPY.onboarding.slide3Description,
   }
 ];
 

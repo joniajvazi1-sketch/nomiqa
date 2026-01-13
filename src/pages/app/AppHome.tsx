@@ -523,7 +523,7 @@ export const AppHome: React.FC = () => {
             </motion.div>
           )}
 
-          {/* Recent Activity - Premium list with animations */}
+          {/* Recent Activity - Enhanced with time-based grouping */}
           {recentActivity.length > 0 ? (
             <motion.div 
               initial={{ opacity: 0, y: 10 }}
@@ -532,40 +532,87 @@ export const AppHome: React.FC = () => {
               className="rounded-xl card-premium p-4"
             >
               <h3 className="text-sm font-semibold text-foreground mb-3">Recent Activity</h3>
-              <div className="space-y-2">
-                {recentActivity.map((activity, index) => (
-                  <motion.div 
-                    key={index}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.4 + index * 0.05 }}
-                    className="flex items-center justify-between py-2 border-b border-border/50 last:border-0"
-                  >
-                    <div className="flex items-center gap-2">
-                      <div className={cn(
-                        "w-1.5 h-1.5 rounded-full animate-pulse-soft",
-                        activity.type === 'referral' ? "bg-accent" : "bg-primary"
-                      )} />
-                      <span className="text-sm text-foreground">
-                        {activity.type === 'referral' 
-                          ? `Commission from ${activity.username || 'friend'}`
-                          : `Scanned ${activity.distance ? formatDistance(activity.distance) : ''}`
-                        }
-                      </span>
+              <div className="space-y-1">
+                {(() => {
+                  // Group activities by time period
+                  const today = new Date().toDateString();
+                  const yesterday = new Date(Date.now() - 86400000).toDateString();
+                  
+                  const grouped: { label: string; items: typeof recentActivity }[] = [];
+                  let currentGroup: string | null = null;
+                  
+                  recentActivity.forEach((activity) => {
+                    // Determine group based on time string
+                    let groupLabel = 'Earlier';
+                    if (activity.time.includes('m ago') || (activity.time.includes('h ago') && parseInt(activity.time) < 24)) {
+                      groupLabel = 'Today';
+                    } else if (activity.time.includes('1d ago')) {
+                      groupLabel = 'Yesterday';
+                    } else {
+                      groupLabel = 'This Week';
+                    }
+                    
+                    if (groupLabel !== currentGroup) {
+                      grouped.push({ label: groupLabel, items: [] });
+                      currentGroup = groupLabel;
+                    }
+                    grouped[grouped.length - 1].items.push(activity);
+                  });
+                  
+                  return grouped.map((group, groupIndex) => (
+                    <div key={group.label}>
+                      <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider py-2">
+                        {group.label}
+                      </p>
+                      {group.items.map((activity, index) => (
+                        <motion.div 
+                          key={`${groupIndex}-${index}`}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.4 + (groupIndex * 0.1) + (index * 0.05) }}
+                          className="flex items-center justify-between py-2.5 border-b border-border/30 last:border-0"
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <div className={cn(
+                              "w-7 h-7 rounded-full flex items-center justify-center",
+                              activity.type === 'referral' 
+                                ? "bg-accent/20" 
+                                : activity.type === 'bonus'
+                                ? "bg-amber-500/20"
+                                : "bg-primary/20"
+                            )}>
+                              {activity.type === 'referral' ? (
+                                <Gift className="w-3.5 h-3.5 text-accent" />
+                              ) : activity.type === 'bonus' ? (
+                                <Zap className="w-3.5 h-3.5 text-amber-500" />
+                              ) : (
+                                <Signal className="w-3.5 h-3.5 text-primary" />
+                              )}
+                            </div>
+                            <div>
+                              <span className="text-sm text-foreground">
+                                {activity.type === 'referral' 
+                                  ? `Commission from ${activity.username || 'friend'}`
+                                  : activity.type === 'bonus'
+                                  ? 'Bonus reward'
+                                  : `Scanned ${activity.distance ? formatDistance(activity.distance) : ''}`
+                                }
+                              </span>
+                              <p className="text-[10px] text-muted-foreground">{activity.time}</p>
+                            </div>
+                          </div>
+                          <span className={cn(
+                            "text-sm font-semibold",
+                            activity.type === 'referral' ? "text-accent" : 
+                            activity.type === 'bonus' ? "text-amber-500" : "text-primary"
+                          )}>
+                            +{activity.points.toFixed(0)}
+                          </span>
+                        </motion.div>
+                      ))}
                     </div>
-                    <div className="flex items-center gap-3">
-                      <span className={cn(
-                        "text-sm font-medium",
-                        activity.type === 'referral' ? "text-gradient-reward" : "text-gradient-primary"
-                      )}>
-                        +{activity.points.toFixed(0)} pts
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {activity.time}
-                      </span>
-                    </div>
-                  </motion.div>
-                ))}
+                  ));
+                })()}
               </div>
             </motion.div>
           ) : user && !isNewUser ? (

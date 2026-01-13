@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Home, Map, ShoppingBag, User, Users } from 'lucide-react';
+import { Home, Map, ShoppingBag, User, Users, Gift } from 'lucide-react';
 import { useHaptics } from '@/hooks/useHaptics';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
@@ -13,7 +13,7 @@ interface TabItem {
 
 /**
  * Premium bottom navigation bar with animations
- * 5 tabs: Home, Earn, Invite, Shop, Me
+ * 6 tabs: Home, Earn, Invite, Rewards, Shop, Me
  */
 export const BottomTabBar: React.FC = () => {
   const navigate = useNavigate();
@@ -24,6 +24,7 @@ export const BottomTabBar: React.FC = () => {
     { path: '/app', icon: Home, label: 'Home' },
     { path: '/app/map', icon: Map, label: 'Earn' },
     { path: '/app/invite', icon: Users, label: 'Invite' },
+    { path: '/app/rewards', icon: Gift, label: 'Rewards' },
     { path: '/app/shop', icon: ShoppingBag, label: 'Shop' },
     { path: '/app/profile', icon: User, label: 'Me' }
   ];
@@ -48,7 +49,7 @@ export const BottomTabBar: React.FC = () => {
       {/* Subtle top glow */}
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
       
-      <div className="flex items-stretch h-16">
+      <div className="flex items-stretch h-14">
         {tabs.map((tab) => {
           const active = isActive(tab.path);
           const Icon = tab.icon;
@@ -60,8 +61,8 @@ export const BottomTabBar: React.FC = () => {
               aria-label={tab.label}
               whileTap={{ scale: 0.95 }}
               className={cn(
-                'flex-1 flex flex-col items-center justify-center gap-1',
-                'touch-manipulation min-h-[48px]',
+                'flex-1 flex flex-col items-center justify-center gap-0.5',
+                'touch-manipulation min-h-[44px]',
                 'transition-colors duration-200',
                 active ? 'text-primary' : 'text-muted-foreground'
               )}
@@ -78,13 +79,13 @@ export const BottomTabBar: React.FC = () => {
                 {active && (
                   <motion.div
                     layoutId="activeTab"
-                    className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary"
+                    className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary"
                     transition={{ type: "spring", stiffness: 500, damping: 30 }}
                   />
                 )}
               </div>
               <span className={cn(
-                'text-xs transition-all duration-200',
+                'text-[10px] transition-all duration-200',
                 active ? 'font-semibold text-primary' : 'font-medium text-muted-foreground'
               )}>
                 {tab.label}
