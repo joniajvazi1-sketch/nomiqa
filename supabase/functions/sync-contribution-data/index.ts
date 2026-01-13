@@ -636,16 +636,22 @@ serve(async (req) => {
           os_version: s.os_version,
           cell_id: s.cell_id,
           tac: s.tac,
-          // Derived B2B-critical fields - NOW STORED IN DB
+          // Derived B2B-critical fields
           location_geohash: geohash,
           country_code: countryCode,
           network_generation: networkGeneration,
-          // NEW: Confidence score + app version
+          // B2B: Confidence score + app version
           confidence_score: validation.confidenceScore,
           app_version: s.app_version,
+          // Device integrity fields for anti-fraud
+          is_mock_location: s.is_mock_location || false,
+          is_emulator: s.device_integrity_flags?.includes('ua:emulator_string') || 
+                       s.device_integrity_flags?.includes('ua:android_emulator') || false,
+          is_rooted_jailbroken: s.device_integrity_flags?.includes('ua:root_app') || 
+                                s.device_integrity_flags?.includes('platform:root') || false,
         });
         
-        console.log(`Signal log stored: geohash=${geohash}, country=${countryCode || 'unknown'}, gen=${networkGeneration || 'unknown'}, confidence=${validation.confidenceScore}`);
+        console.log(`Signal log: geohash=${geohash}, country=${countryCode || '?'}, gen=${networkGeneration || '?'}, conf=${validation.confidenceScore}, mock=${s.is_mock_location || false}`);
       }
       
       if (validSignalLogs.length > 0) {

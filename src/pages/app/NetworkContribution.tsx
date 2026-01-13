@@ -22,6 +22,7 @@ import { RewardCelebration } from '@/components/app/RewardCelebration';
 import { PullToRefreshIndicator } from '@/components/app/PullToRefreshIndicator';
 import { SpeedTest } from '@/components/app/SpeedTest';
 import { CarrierComparison } from '@/components/app/CarrierComparison';
+import { DataConsentModal, hasDataConsent } from '@/components/app/DataConsentModal';
 import { cn } from '@/lib/utils';
 
 type CoverageMode = 'personal' | 'global';
@@ -41,6 +42,7 @@ export const NetworkContribution: React.FC = () => {
   const [coverageMode, setCoverageMode] = useState<CoverageMode>('personal');
   const [showSpeedTest, setShowSpeedTest] = useState(false);
   const [showCarrierComparison, setShowCarrierComparison] = useState(false);
+  const [consentGiven, setConsentGiven] = useState(() => hasDataConsent());
   const startButtonRef = useRef<HTMLButtonElement>(null);
   
   const {
@@ -164,6 +166,11 @@ export const NetworkContribution: React.FC = () => {
           onNetworkFilterChange={handleNetworkFilterChange}
         />
       </div>
+      
+      {/* GDPR Consent Modal - Required before first contribution */}
+      {!consentGiven && (
+        <DataConsentModal onConsentComplete={() => setConsentGiven(true)} />
+      )}
       
       {/* Celebration */}
       <RewardCelebration 
@@ -331,11 +338,16 @@ export const NetworkContribution: React.FC = () => {
                     handleStopContribution();
                     playSuccess();
                   } else {
+                    // CONSENT GATE: Check consent before starting contribution
+                    if (!consentGiven) {
+                      // Consent modal will be shown automatically
+                      return;
+                    }
                     startContribution();
                     playCoin();
                   }
                 }}
-                disabled={!user}
+                disabled={!user || (!consentGiven && !isActive)}
                 className={cn(
                   'w-20 h-20 rounded-full relative z-10',
                   'flex items-center justify-center',
