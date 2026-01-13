@@ -1058,6 +1058,7 @@ export type Database = {
           bandwidth_mhz: number | null
           carrier_name: string | null
           cell_id: string | null
+          confidence_score: number | null
           country_code: string | null
           created_at: string | null
           data_quality_score: number | null
@@ -1106,6 +1107,7 @@ export type Database = {
           bandwidth_mhz?: number | null
           carrier_name?: string | null
           cell_id?: string | null
+          confidence_score?: number | null
           country_code?: string | null
           created_at?: string | null
           data_quality_score?: number | null
@@ -1154,6 +1156,7 @@ export type Database = {
           bandwidth_mhz?: number | null
           carrier_name?: string | null
           cell_id?: string | null
+          confidence_score?: number | null
           country_code?: string | null
           created_at?: string | null
           data_quality_score?: number | null
@@ -1419,6 +1422,36 @@ export type Database = {
         }
         Relationships: []
       }
+      user_daily_limits: {
+        Row: {
+          created_at: string | null
+          id: string
+          limit_date: string
+          signal_logs_count: number | null
+          speed_tests_count: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          limit_date?: string
+          signal_logs_count?: number | null
+          speed_tests_count?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          limit_date?: string
+          signal_logs_count?: number | null
+          speed_tests_count?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_goals: {
         Row: {
           completed: boolean | null
@@ -1577,7 +1610,34 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      coverage_tiles: {
+        Row: {
+          avg_confidence: number | null
+          avg_download_mbps: number | null
+          avg_latency_ms: number | null
+          avg_rsrp: number | null
+          carrier_name: string | null
+          country_code: string | null
+          first_seen: string | null
+          high_confidence_samples: number | null
+          last_updated: string | null
+          location_geohash: string | null
+          median_download_mbps: number | null
+          median_latency_ms: number | null
+          median_rsrp: number | null
+          median_rsrq: number | null
+          median_sinr: number | null
+          median_upload_mbps: number | null
+          network_generation: string | null
+          pct_excellent_signal: number | null
+          pct_good_signal: number | null
+          pct_poor_signal: number | null
+          pct_roaming: number | null
+          sample_count: number | null
+          unique_users: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       admin_update_leaderboard_rankings: { Args: never; Returns: undefined }
@@ -1597,6 +1657,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      refresh_coverage_tiles: { Args: never; Returns: undefined }
       request_data_deletion: {
         Args: { requesting_user_id: string }
         Returns: Json
