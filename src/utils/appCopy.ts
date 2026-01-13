@@ -142,6 +142,15 @@ export const APP_COPY = {
     privacyAnswer: "Yes! Your location is anonymized and never tied to your identity. We never sell personal data.",
   },
 
+  // Rewards & Redemption
+  rewards: {
+    uptimeTip: "Keep the app running longer to increase uptime points.",
+    conversionInfo: "Points will convert to NOMIQA tokens when we launch. Visit our web portal to learn more about token conversion and cash-out options.",
+    privacyNote: "Your earning data is private and only visible to you.",
+    comingSoon: "Coming soon!",
+    redemptionAvailable: "Redemption available",
+  },
+
   // Weekly Summary
   weeklySummary: {
     title: "Your Week in Review",
