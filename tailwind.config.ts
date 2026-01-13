@@ -47,7 +47,20 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        /* Status & reward colors - clean banking palette */
+        /* ============================================
+           WEBSITE NEON COLORS (DePIN aesthetic)
+           Used for marketing pages - premium tech look
+           ============================================ */
+        "neon-cyan": "hsl(175 70% 48%)",
+        "neon-violet": "hsl(270 70% 60%)",
+        "neon-pink": "hsl(330 80% 60%)",
+        "neon-blue": "hsl(210 100% 60%)",
+        "neon-coral": "hsl(15 90% 60%)",
+        "neon-orange": "hsl(30 100% 55%)",
+        "neon-yellow": "hsl(50 100% 55%)",
+        "deep-space": "hsl(222 30% 7%)",
+        "midnight-blue": "hsl(222 25% 11%)",
+        /* Status & reward colors */
         "success": "hsl(var(--success))",
         "reward-gold": "hsl(var(--reward-gold))",
         "reward-bronze": "hsl(var(--reward-bronze))",
