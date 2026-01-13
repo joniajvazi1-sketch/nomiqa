@@ -45,6 +45,30 @@ function isRateLimited(ipHash: string): boolean {
   return false;
 }
 
+// Validate IP address format to prevent header spoofing
+function isValidIP(ip: string): boolean {
+  // IPv4 validation
+  const ipv4Regex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+  // IPv6 validation (simplified - covers most common formats)
+  const ipv6Regex = /^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$|^::(?:[0-9a-fA-F]{1,4}:){0,6}[0-9a-fA-F]{1,4}$|^(?:[0-9a-fA-F]{1,4}:){1,7}:$|^(?:[0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}$|^(?:[0-9a-fA-F]{1,4}:){1,5}(?::[0-9a-fA-F]{1,4}){1,2}$|^(?:[0-9a-fA-F]{1,4}:){1,4}(?::[0-9a-fA-F]{1,4}){1,3}$|^(?:[0-9a-fA-F]{1,4}:){1,3}(?::[0-9a-fA-F]{1,4}){1,4}$|^(?:[0-9a-fA-F]{1,4}:){1,2}(?::[0-9a-fA-F]{1,4}){1,5}$|^[0-9a-fA-F]{1,4}:(?::[0-9a-fA-F]{1,4}){1,6}$/;
+  
+  return ipv4Regex.test(ip) || ipv6Regex.test(ip);
+}
+
+// Extract and validate client IP from headers
+function getValidatedClientIP(req: Request): string {
+  const rawIP = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() 
+               || req.headers.get("cf-connecting-ip") 
+               || "unknown";
+  
+  // Return validated IP or "unknown" if format is invalid
+  if (rawIP !== "unknown" && isValidIP(rawIP)) {
+    return rawIP;
+  }
+  
+  return "unknown";
+}
+
 // Hash IP for privacy
 async function hashIP(ip: string): Promise<string> {
   const encoder = new TextEncoder();
@@ -72,10 +96,8 @@ serve(async (req: Request) => {
   }
 
   try {
-    // Get client IP for rate limiting
-    const clientIP = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() 
-                    || req.headers.get("cf-connecting-ip") 
-                    || "unknown";
+    // Get and validate client IP for rate limiting
+    const clientIP = getValidatedClientIP(req);
     const ipHash = await hashIP(clientIP);
     
     // Check rate limit
