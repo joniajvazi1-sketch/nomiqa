@@ -98,6 +98,14 @@ All colors MUST be HSL.
     /* Clean shadows - no glows */
     --shadow-card: 0 1px 3px hsl(0 0% 0% / 0.1);
     --shadow-elevated: 0 4px 12px hsl(0 0% 0% / 0.08);
+    
+    /* Design system tokens - LOCKED */
+    --radius-sm: 0.75rem;   /* 12px - small elements */
+    --radius-md: 1rem;      /* 16px - cards, buttons */
+    --radius-lg: 1.25rem;   /* 20px - modals, large cards */
+    --spacing-xs: 0.5rem;   /* 8px */
+    --spacing-sm: 1rem;     /* 16px */
+    --spacing-md: 1.5rem;   /* 24px */
   }
   
   /* App typography refinements - "Calm Money" style */
@@ -119,6 +127,19 @@ All colors MUST be HSL.
   
   .app-theme .text-xs {
     line-height: 1.5;
+  }
+  
+  /* Consistent card styling */
+  .app-theme .rounded-xl {
+    border-radius: var(--radius-md);
+  }
+  
+  .app-theme .rounded-2xl {
+    border-radius: var(--radius-lg);
+  }
+  
+  .app-theme .rounded-lg {
+    border-radius: var(--radius-sm);
   }
 }
 

@@ -46,10 +46,10 @@ const DEFAULT_CONFIG: Record<EmptyStateType, {
     icon: ShoppingBag
   },
   achievements: {
-    title: 'Your first unlock awaits!',
-    description: 'Complete activities to earn badges and rewards',
-    actionLabel: 'Start Earning',
-    actionHref: '/app/map',
+    title: 'Your first badge awaits!',
+    description: 'Earn badges by completing daily challenges and contributions.',
+    actionLabel: 'View Challenges',
+    actionHref: '/app/challenges',
     icon: Trophy
   },
   transactions: {
@@ -60,17 +60,17 @@ const DEFAULT_CONFIG: Record<EmptyStateType, {
     icon: Zap
   },
   leaderboard: {
-    title: 'Not ranked yet',
-    description: 'Start contributing to climb the leaderboard',
-    actionLabel: 'Begin Now',
-    actionHref: '/app/map',
+    title: 'Rankings coming soon',
+    description: 'First week: rankings appear after 7 days of data.',
+    actionLabel: 'Invite Friends',
+    actionHref: '/app/invite',
     icon: Users
   },
   challenges: {
     title: 'No active challenges',
-    description: 'New challenges coming soon!',
-    actionLabel: 'Explore',
-    actionHref: '/app/challenges',
+    description: 'New challenges coming soon! Keep contributing to unlock.',
+    actionLabel: 'Start Earning',
+    actionHref: '/app/map',
     icon: Target
   }
 };

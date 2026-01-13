@@ -282,11 +282,12 @@ export const AppShop: React.FC = () => {
       <div className="fixed inset-0 bg-background" />
 
       <div className="relative z-10 px-5 py-6 pb-28 space-y-4">
-        {/* Header */}
+        {/* Header with payment mode info */}
         <header className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-foreground tracking-tight">{t('app.shop.title')}</h1>
             <p className="text-sm text-muted-foreground">{t('app.shop.destinations')}</p>
+            <p className="text-xs text-primary mt-0.5">Pay with card now • Points later</p>
           </div>
           <button 
             ref={cartButtonRef}
@@ -408,14 +409,11 @@ export const AppShop: React.FC = () => {
                   
                   {/* Content */}
                   <div className="relative p-3 border border-border rounded-xl">
-                    {/* Swipe hint for first product card */}
-                    {index === 0 && (
-                      <SwipeHint 
-                        id="shop-product-tap" 
-                        direction="left" 
-                        message="Tap for details" 
-                        delay={2500}
-                      />
+                    {/* Popular badge - Clean style */}
+                    {product.is_popular && (
+                      <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded-md bg-primary/10 border border-primary/20">
+                        <span className="text-[9px] font-medium text-primary">Popular</span>
+                      </div>
                     )}
                     
                     {/* Popular badge - Clean style */}

@@ -139,7 +139,7 @@ export const PrivacyControls: React.FC = () => {
       {/* Privacy Toggles */}
       <Card className="bg-card border-border">
         <CardContent className="p-0 divide-y divide-border">
-          {/* Background Collection - Reward-first framing */}
+          {/* Background Collection - Reward-first framing with battery label */}
           <div className="flex items-center justify-between p-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center">
@@ -150,6 +150,7 @@ export const PrivacyControls: React.FC = () => {
                 <p className="text-xs text-muted-foreground">
                   Earn rewards automatically in the background
                 </p>
+                <p className="text-[10px] text-green-600 mt-0.5">Battery impact: Low (&lt;3%/day)</p>
               </div>
             </div>
             <Switch
@@ -158,14 +159,14 @@ export const PrivacyControls: React.FC = () => {
             />
           </div>
 
-          {/* Location Precision */}
+          {/* Location Precision - Renamed to Precise Location */}
           <div className="flex items-center justify-between p-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center">
                 <MapPin className="w-5 h-5 text-blue-600" />
               </div>
               <div>
-                <p className="text-sm font-medium text-foreground">Exact Location</p>
+                <p className="text-sm font-medium text-foreground">Precise Location</p>
                 <p className="text-xs text-muted-foreground">
                   {prefs.shareExactLocation ? 'Precise GPS = better rewards' : 'Approximate location only'}
                 </p>
