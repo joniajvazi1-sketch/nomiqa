@@ -310,9 +310,17 @@ export const NetworkContribution: React.FC = () => {
           {/* Main Button - Centered, prominent, VISIBLE */}
           <div className="flex flex-col items-center gap-3 mb-6">
             <div className="relative">
-              {/* Pulse ring when not active */}
-              {!isActive && user && isCellular && (
-                <div className="absolute inset-0 rounded-full bg-primary/40 animate-ping" style={{ animationDuration: '2s' }} />
+              {/* Pulse rings - always animate when not active */}
+              {!isActive && user && (
+                <>
+                  <div className="absolute inset-0 rounded-full bg-primary/30 animate-ping" style={{ animationDuration: '2s' }} />
+                  <div className="absolute inset-[-8px] rounded-full border-2 border-primary/20 animate-pulse" />
+                </>
+              )}
+              
+              {/* Scanning animation when active */}
+              {isActive && isCellular && (
+                <div className="absolute inset-[-12px] rounded-full border-2 border-primary/40 animate-[ping_1.5s_ease-in-out_infinite]" />
               )}
               
               <button
@@ -336,8 +344,8 @@ export const NetworkContribution: React.FC = () => {
                   isActive 
                     ? isPaused
                       ? 'bg-amber-500 border-4 border-amber-300' 
-                      : 'bg-primary border-4 border-primary/60' 
-                    : 'bg-primary border-4 border-primary/60',
+                      : 'bg-primary border-4 border-primary/60 animate-pulse' 
+                    : 'bg-primary border-4 border-primary/60 hover:scale-105',
                   !user && 'opacity-50 cursor-not-allowed'
                 )}
               >
@@ -353,23 +361,23 @@ export const NetworkContribution: React.FC = () => {
               </button>
             </div>
 
-            {/* Text below button - High contrast */}
+            {/* Text below button - WHITE for visibility */}
             <div className="text-center">
               <p className={cn(
-                'text-sm font-semibold',
-                isActive && isCellular ? 'text-primary' : 'text-foreground'
+                'text-base font-bold',
+                isActive && isCellular ? 'text-primary' : 'text-white drop-shadow-md'
               )}>
                 {isActive ? (isPaused ? 'Paused' : 'Scanning...') : 'Tap to Start'}
               </p>
               
               {!isActive && user && (
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-sm text-white/90 mt-1 drop-shadow-md">
                   {isCellular ? 'Tap to start earning points' : 'Connect to cellular to earn'}
                 </p>
               )}
               
               {!user && (
-                <p className="text-xs text-muted-foreground mt-1">Sign in required</p>
+                <p className="text-sm text-white/80 mt-1 drop-shadow-md">Sign in required</p>
               )}
             </div>
           </div>
