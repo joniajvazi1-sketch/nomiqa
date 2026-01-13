@@ -47,15 +47,7 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        /* ============================================
-           SIMPLIFIED COLOR PALETTE (Phase 1)
-           Removed: neon-blue, neon-violet, neon-pink, neon-coral, neon-orange, neon-yellow
-           Keep only: neon-cyan (alias for primary), deep-space, success, reward colors
-           ============================================ */
-        "neon-cyan": "hsl(var(--neon-cyan))", // Alias for primary
-        "deep-space": "hsl(var(--deep-space))",
-        "midnight-blue": "hsl(var(--midnight-blue))",
-        // Status & reward colors
+        /* Status & reward colors - clean banking palette */
         "success": "hsl(var(--success))",
         "reward-gold": "hsl(var(--reward-gold))",
         "reward-bronze": "hsl(var(--reward-bronze))",
@@ -66,8 +58,8 @@ export default {
         'gradient-reward': 'var(--gradient-reward)',
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
-        display: ['Space Grotesk', 'Poppins', 'system-ui', 'sans-serif'],
+        /* Clean, professional fonts - Inter only (like Apple Health / banking apps) */
+        sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
       },
       boxShadow: {
         'card': 'var(--shadow-card)',
@@ -120,10 +112,6 @@ export default {
           "0%, 100%": { opacity: "1" },
           "50%": { opacity: "0.7" },
         },
-        "glow-pulse": {
-          "0%, 100%": { boxShadow: "0 0 20px hsl(var(--primary) / 0.3)" },
-          "50%": { boxShadow: "0 0 35px hsl(var(--primary) / 0.5)" },
-        },
         "slide-up": {
           "0%": { opacity: "0", transform: "translateY(100%)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
@@ -161,7 +149,7 @@ export default {
         "page-enter": "page-enter 0.2s ease-out",
         "error-shake": "error-shake 0.35s ease-out",
         "pulse-soft": "pulse-soft 2s ease-in-out infinite",
-        "glow-pulse": "glow-pulse 2s ease-in-out infinite",
+        
         "slide-up": "slide-up 0.3s ease-out",
         "slide-down": "slide-down 0.3s ease-out",
         "bounce-in": "bounce-in 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55)",

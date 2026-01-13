@@ -60,10 +60,6 @@ All colors MUST be HSL.
     --shadow-elevated: 0 4px 12px hsl(0 0% 0% / 0.08);
     --transition-smooth: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     
-    /* Legacy aliases for compatibility */
-    --neon-cyan: 213 80% 15%;          /* Now maps to primary blue */
-    --deep-space: 210 20% 98%;         /* Now maps to card */
-    --midnight-blue: 0 0% 100%;        /* Now maps to background */
   }
 
   /* Dark mode - Optional, light is default */

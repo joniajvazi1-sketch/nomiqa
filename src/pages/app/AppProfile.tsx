@@ -386,34 +386,6 @@ export const AppProfile: React.FC = () => {
         </Card>
       )}
 
-      {/* Referral CTA */}
-      {affiliate && (
-        <Card className="bg-gradient-to-br from-primary/10 to-transparent border-primary/30">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3 mb-3">
-              <Gift className="w-5 h-5 text-primary" />
-              <div className="flex-1">
-                <p className="font-semibold text-foreground">Invite Friends</p>
-                <p className="text-xs text-muted-foreground">Earn when they join & buy</p>
-              </div>
-              <Button size="sm" onClick={handleShare} className="active:scale-95">
-                <Share2 className="w-4 h-4 mr-1" />
-                Share
-              </Button>
-            </div>
-            <div className="grid grid-cols-2 gap-2 text-center text-xs">
-              <div className="bg-muted/50 rounded-lg p-2">
-                <p className="font-bold text-foreground">{affiliate.total_registrations}</p>
-                <p className="text-muted-foreground">Joined</p>
-              </div>
-              <div className="bg-muted/50 rounded-lg p-2">
-                <p className="font-bold text-green-500">${(affiliate.total_earnings_usd || 0).toFixed(2)}</p>
-                <p className="text-muted-foreground">Earned</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
       {/* Tabs - Reduced to 3 */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -439,6 +411,47 @@ export const AppProfile: React.FC = () => {
             compact 
             onTap={() => { selectionTap(); navigate('/app/achievements'); }} 
           />
+
+          {/* Invite Friends Section - Clean banking style */}
+          {affiliate && (
+            <Card className="bg-card border-border">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Users className="w-5 h-5 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-semibold text-foreground">Invite Friends</p>
+                    <p className="text-xs text-muted-foreground">Earn when they join & earn</p>
+                  </div>
+                  <Button size="sm" onClick={handleShare} className="active:scale-95">
+                    <Share2 className="w-4 h-4 mr-1" />
+                    Share
+                  </Button>
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-center text-xs">
+                  <div className="rounded-lg bg-muted/50 p-2.5">
+                    <p className="font-bold text-foreground text-lg">{affiliate.total_registrations}</p>
+                    <p className="text-muted-foreground">Friends joined</p>
+                  </div>
+                  <div className="rounded-lg bg-muted/50 p-2.5">
+                    <p className="font-bold text-green-600 text-lg">${(affiliate.total_earnings_usd || 0).toFixed(2)}</p>
+                    <p className="text-muted-foreground">Earned</p>
+                  </div>
+                </div>
+                <div className="mt-3 pt-3 border-t border-border">
+                  <p className="text-xs text-muted-foreground mb-1.5">Your referral link</p>
+                  <button
+                    onClick={() => copyToClipboard(`nomiqa.com/${affiliate.username || affiliate.affiliate_code}`)}
+                    className="w-full p-2.5 rounded-lg bg-muted/50 text-sm font-medium text-foreground flex items-center justify-between active:scale-[0.99] transition-transform"
+                  >
+                    <span className="truncate">nomiqa.com/{affiliate.username || affiliate.affiliate_code}</span>
+                    <span className="text-xs text-primary ml-2">Copy</span>
+                  </button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Your Progress Section */}
           <Card className="bg-card border-border">
