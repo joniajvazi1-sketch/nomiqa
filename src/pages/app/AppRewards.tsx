@@ -235,6 +235,15 @@ export const AppRewards: React.FC = () => {
     return 'text-muted-foreground';
   };
 
+  // Convert percentages to friendly progress labels
+  const getProgressLabel = (value: number): { label: string; subtext: string } => {
+    if (value === 0) return { label: 'Collecting', subtext: 'Getting started' };
+    if (value <= 30) return { label: 'Building', subtext: 'Good start' };
+    if (value <= 60) return { label: 'Growing', subtext: 'Nice progress' };
+    if (value <= 80) return { label: 'Strong', subtext: 'Great work!' };
+    return { label: 'Excellent', subtext: 'Top performer!' };
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -283,9 +292,13 @@ export const AppRewards: React.FC = () => {
           </div>
 
           {pendingPoints > 0 && (
-            <div className="flex items-center gap-1.5 text-sm text-amber-600">
+            <div className="flex items-center gap-1.5 text-sm text-amber-600 group cursor-help">
               <Clock className="w-3.5 h-3.5" />
-              <span>{pendingPoints} pending</span>
+              <span>{pendingPoints} processing (~24h)</span>
+              <Info className="w-3 h-3 opacity-60" />
+              <span className="hidden group-hover:inline-block text-xs text-muted-foreground ml-1">
+                Points are verified for accuracy
+              </span>
             </div>
           )}
         </motion.div>
@@ -357,29 +370,34 @@ export const AppRewards: React.FC = () => {
             </div>
 
             <div className="space-y-4">
-              {/* Uptime */}
+              {/* Uptime - Use progress labels instead of raw percentages */}
               <div>
                 <div className="flex items-center justify-between mb-1.5">
                   <span className="text-sm text-foreground">Uptime</span>
-                  <span className={cn("text-sm font-semibold", getFactorColor(earningFactors.uptime))}>
-                    {earningFactors.uptime}%
-                  </span>
+                  <div className="text-right">
+                    <span className={cn("text-sm font-semibold", getFactorColor(earningFactors.uptime))}>
+                      {getProgressLabel(earningFactors.uptime).label}
+                    </span>
+                    <span className="text-xs text-muted-foreground ml-1">
+                      ({getProgressLabel(earningFactors.uptime).subtext})
+                    </span>
+                  </div>
                 </div>
                 <Progress value={earningFactors.uptime} className="h-2" />
-                <p className="text-xs text-muted-foreground mt-1">
-                  {earningFactors.uptime < 50 
-                    ? APP_COPY.rewards.uptimeTip 
-                    : 'Great uptime! Keep it going.'}
-                </p>
               </div>
 
-              {/* Coverage Quality */}
+              {/* Coverage Quality - Use progress labels */}
               <div>
                 <div className="flex items-center justify-between mb-1.5">
                   <span className="text-sm text-foreground">Coverage Quality</span>
-                  <span className={cn("text-sm font-semibold", getFactorColor(earningFactors.coverageQuality))}>
-                    {earningFactors.coverageQuality}%
-                  </span>
+                  <div className="text-right">
+                    <span className={cn("text-sm font-semibold", getFactorColor(earningFactors.coverageQuality))}>
+                      {getProgressLabel(earningFactors.coverageQuality).label}
+                    </span>
+                    <span className="text-xs text-muted-foreground ml-1">
+                      ({getProgressLabel(earningFactors.coverageQuality).subtext})
+                    </span>
+                  </div>
                 </div>
                 <Progress value={earningFactors.coverageQuality} className="h-2" />
               </div>

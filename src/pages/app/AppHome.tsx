@@ -260,25 +260,16 @@ export const AppHome: React.FC = () => {
             </button>
           </header>
 
-          {/* Greeting */}
+          {/* Greeting - Minimal above fold */}
           {user && (
             <div>
               <h1 className="text-xl font-bold text-foreground">
                 Hi, {displayName}
               </h1>
-              {streakDays >= 2 && (
-                <p className="text-sm text-muted-foreground flex items-center gap-1">
-                  <Flame className="w-3.5 h-3.5 text-orange-500" />
-                  {streakDays}-day streak
-                </p>
-              )}
             </div>
           )}
 
-          {/* Status Banner */}
-          {user && <StatusBanner />}
-
-          {/* Hero Balance Card - Clean white card */}
+          {/* Hero Balance Card - ABOVE THE FOLD: Only status, earnings, CTA */}
           <motion.div 
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -287,23 +278,21 @@ export const AppHome: React.FC = () => {
           >
             <div className="flex items-center gap-1.5 mb-2">
               <div className={cn(
-                "w-2 h-2 rounded-full",
+                "w-2 h-2 rounded-full animate-pulse",
                 isOnline ? "bg-green-500" : "bg-muted-foreground"
               )} />
               <span className="text-xs font-medium text-muted-foreground">
-                {isOnline ? 'Collecting' : 'Paused'}
+                {isOnline ? 'Collecting data ✓' : 'Paused'}
               </span>
             </div>
             
-            <p className="text-sm text-muted-foreground mb-1">You're earning</p>
-            
-            {/* Today's earnings */}
-            <div className="mb-3">
-              <div className="text-4xl font-bold text-foreground tabular-nums">
-                {totalPoints.toLocaleString()} <span className="text-lg font-medium text-muted-foreground">points</span>
+            {/* Main earnings display */}
+            <div className="mb-2">
+              <div className="text-3xl font-bold text-foreground tabular-nums">
+                ${totalUSD.toFixed(2)}
               </div>
-              <div className="text-sm text-muted-foreground mt-1">
-                ≈ ${totalUSD.toFixed(2)}
+              <div className="text-sm text-muted-foreground mt-0.5">
+                ≈ {totalPoints.toLocaleString()} points
               </div>
             </div>
 
@@ -313,13 +302,20 @@ export const AppHome: React.FC = () => {
 
             <button
               onClick={() => { mediumTap(); navigate('/app/map'); }}
-              className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-semibold text-sm active:scale-[0.98] transition-transform flex items-center justify-center gap-2"
+              className={cn(
+                "w-full h-12 rounded-xl font-semibold text-sm active:scale-[0.98] transition-transform flex items-center justify-center gap-2",
+                isOnline 
+                  ? "bg-green-600 text-white" 
+                  : "bg-primary text-primary-foreground"
+              )}
             >
               <Signal className="w-4 h-4" />
-              {isNewUser ? 'Start Your First Scan' : 'Start Earning'}
+              {isOnline ? 'Contribution Active' : 'Resume Contribution'}
             </button>
           </motion.div>
 
+          {/* BELOW THE FOLD: Secondary motivators */}
+          
           {/* Quick Stats - Clean cards */}
           <div className="grid grid-cols-3 gap-2">
             <div className="rounded-xl bg-card border border-border p-3 text-center">
@@ -333,7 +329,7 @@ export const AppHome: React.FC = () => {
             <div className="rounded-xl bg-card border border-border p-3 text-center">
               <Flame className="w-4 h-4 text-orange-500 mx-auto mb-1" />
               <div className="text-sm font-semibold text-foreground">
-                {streakDays}
+                {streakDays}{streakDays >= 2 ? ' 🔥' : ''}
               </div>
               <p className="text-xs text-muted-foreground">Streak</p>
             </div>
