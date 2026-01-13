@@ -5,6 +5,7 @@ import { useBackgroundGeolocation } from './useBackgroundGeolocation';
 import { useNetworkStatus } from './useNetworkStatus';
 import { useHaptics } from './useHaptics';
 import { useTelcoMetrics, SignalLogEntry } from './useTelcoMetrics';
+import { useContributionPersistence } from './useContributionPersistence';
 
 // Type-only import
 type GeolocationModule = typeof import('@capacitor/geolocation');
@@ -95,6 +96,15 @@ const ensureLocationPermission = async (): Promise<boolean> => {
 /**
  * Network Contribution Engine Hook - TELCO GRADE
  * 
+ * iOS BACKGROUND BEHAVIOR:
+ * - Contribution state is PERSISTED across tab switches and app backgrounding
+ * - When "Enable Contribution" is tapped, we store the intent persistently
+ * - Actual data collection happens on iOS-approved triggers:
+ *   1. Location updates (when iOS delivers them)
+ *   2. App resume (appStateChange event)
+ *   3. Network changes
+ * - Points are accumulated and synced when app is active
+ * 
  * BUSINESS RULES:
  * 1. CELLULAR ONLY - Users only earn points on mobile data
  * 2. TIME-BASED EARNINGS - points = (distanceMeters * 0.01) + (minutesActive * 0.5)
@@ -108,6 +118,21 @@ export const useNetworkContribution = () => {
   const { isOnline, connectionType } = useNetworkStatus();
   const { heavyTap, success, warning } = useHaptics();
   const telcoMetrics = useTelcoMetrics();
+  
+  // Persistent contribution state - survives tab switches and app backgrounding
+  const {
+    isContributionEnabled,
+    sessionId: persistedSessionId,
+    sessionStartedAt,
+    cumulativePoints,
+    cumulativeDurationSeconds,
+    enableContribution,
+    disableContribution,
+    recordCumulativeStats,
+    clearCumulativeStats,
+    getTimeSinceLastEvent,
+    resumeTrigger
+  } = useContributionPersistence();
   
   const [user, setUser] = useState<any>(null);
   const [session, setSession] = useState<ContributionSession>({
@@ -142,6 +167,41 @@ export const useNetworkContribution = () => {
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const speedTestTimerRef = useRef<NodeJS.Timeout | null>(null);
   const lastTimePointsRef = useRef<number>(0);
+
+  // Restore session from persistence on mount or app resume
+  useEffect(() => {
+    if (isContributionEnabled && persistedSessionId && user && session.status === 'idle') {
+      console.log('[NetworkContribution] Restoring persisted session:', persistedSessionId);
+      setSession({
+        id: persistedSessionId,
+        startedAt: sessionStartedAt ? new Date(sessionStartedAt) : new Date(),
+        status: 'active'
+      });
+      
+      // Restore cumulative stats
+      if (cumulativePoints > 0 || cumulativeDurationSeconds > 0) {
+        const offlineSeconds = getTimeSinceLastEvent();
+        const totalDuration = cumulativeDurationSeconds + offlineSeconds;
+        
+        setStats(prev => ({
+          ...prev,
+          pointsEarned: cumulativePoints,
+          duration: totalDuration
+        }));
+        
+        console.log(`[NetworkContribution] Restored ${cumulativePoints} pts, ${totalDuration}s duration (${offlineSeconds}s offline)`);
+      }
+      
+      // Restart timers (geo tracking will be handled by background geolocation hook)
+      if (!timerRef.current) {
+        timerRef.current = setInterval(() => {
+          setStats(prev => ({ ...prev, duration: prev.duration + 1 }));
+        }, 1000);
+      }
+    }
+    // Note: startGeoTracking is intentionally not called here to avoid circular deps
+    // The useBackgroundGeolocation hook handles its own restoration
+  }, [isContributionEnabled, persistedSessionId, user, session.status, resumeTrigger, cumulativePoints, cumulativeDurationSeconds, sessionStartedAt, getTimeSinceLastEvent]);
 
   // Position update handler
   const handlePositionUpdate = useCallback(async (position: Position) => {
@@ -545,6 +605,10 @@ export const useNetworkContribution = () => {
 
       if (error) throw error;
 
+      // PERSIST the contribution state - survives app backgrounding and tab switches
+      enableContribution(newSession.id);
+      console.log('[NetworkContribution] Session persisted:', newSession.id);
+
       setSession({
         id: newSession.id,
         startedAt: new Date(),
@@ -562,6 +626,7 @@ export const useNetworkContribution = () => {
           .update({ status: 'cancelled' })
           .eq('id', newSession.id);
         
+        disableContribution(); // Clear persistence
         setSession({ id: null, startedAt: null, status: 'idle' });
         warning();
         return false;
@@ -569,7 +634,13 @@ export const useNetworkContribution = () => {
 
       // Start duration timer
       timerRef.current = setInterval(() => {
-        setStats(prev => ({ ...prev, duration: prev.duration + 1 }));
+        setStats(prev => {
+          // Periodically save cumulative stats for persistence
+          if (prev.duration > 0 && prev.duration % 30 === 0) {
+            recordCumulativeStats(prev.pointsEarned, prev.distanceMeters, prev.duration);
+          }
+          return { ...prev, duration: prev.duration + 1 };
+        });
       }, 1000);
 
       // Start periodic speed tests (every 10 minutes)
@@ -656,6 +727,11 @@ export const useNetworkContribution = () => {
     }
 
     await syncOfflineQueue();
+
+    // CLEAR the persistent contribution state
+    disableContribution();
+    clearCumulativeStats();
+    console.log('[NetworkContribution] Session cleared from persistence');
 
     setSession({ id: null, startedAt: null, status: 'completed' });
     setStats({
@@ -780,6 +856,7 @@ export const useNetworkContribution = () => {
     isCellular,
     isPaused,
     isRunningSpeedTest,
+    isContributionEnabled, // Persisted state - survives app backgrounding
     startContribution,
     stopContribution,
     requestPermissions,
