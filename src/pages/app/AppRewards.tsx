@@ -282,28 +282,36 @@ export const AppRewards: React.FC = () => {
             <span className="text-sm font-medium text-muted-foreground">Total Points</span>
           </div>
           
-          <div className="flex items-baseline gap-3 mb-2">
-            <span className="text-4xl font-bold text-foreground">
+          {/* Points big, value small */}
+          <div className="flex items-baseline gap-3 mb-1">
+            <span className="text-4xl font-bold text-foreground tabular-nums">
               {totalPoints.toLocaleString()}
             </span>
-            <span className="text-lg text-muted-foreground">
-              ≈ ${totalUsd.toFixed(2)}
-            </span>
+            <span className="text-base text-muted-foreground">pts</span>
           </div>
+          
+          <div className="text-sm text-muted-foreground mb-1">
+            Estimated value: ${totalUsd.toFixed(2)}
+          </div>
+          <p className="text-[10px] text-muted-foreground/70 mb-2">
+            1 point = 1 token (redeem in app)
+          </p>
 
           {pendingPoints > 0 && (
-            <div className="flex items-center gap-1.5 text-sm text-amber-600 group cursor-help">
+            <div className="flex items-center gap-1.5 text-sm text-amber-600 group cursor-help relative">
               <Clock className="w-3.5 h-3.5" />
-              <span>{pendingPoints} processing (~24h)</span>
-              <Info className="w-3 h-3 opacity-60" />
-              <span className="hidden group-hover:inline-block text-xs text-muted-foreground ml-1">
-                Points are verified for accuracy
-              </span>
+              <span>{pendingPoints} pending verification (up to 24h)</span>
+              <div className="relative">
+                <Info className="w-3 h-3 opacity-60 peer" />
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 rounded-lg bg-foreground text-background text-xs w-48 text-center opacity-0 peer-hover:opacity-100 transition-opacity pointer-events-none z-50">
+                  Anti-fraud & quality checks. Keep contributing to unlock faster!
+                </div>
+              </div>
             </div>
           )}
         </motion.div>
 
-        {/* Earnings Chart */}
+        {/* Earnings Chart - With axis labels */}
         <Card className="bg-white border-border">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-4">
@@ -322,14 +330,22 @@ export const AppRewards: React.FC = () => {
 
             <div className="h-40">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={earningsData}>
+                <BarChart data={earningsData} margin={{ left: -10, right: 5 }}>
                   <XAxis 
                     dataKey="label" 
                     tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
                     axisLine={false}
                     tickLine={false}
+                    label={{ value: timeRange === 'daily' ? 'Days' : timeRange === 'weekly' ? 'Weeks' : 'Months', position: 'insideBottom', offset: -5, fontSize: 9, fill: 'hsl(var(--muted-foreground))' }}
                   />
-                  <YAxis hide />
+                  <YAxis 
+                    tick={{ fontSize: 9, fill: 'hsl(var(--muted-foreground))' }}
+                    axisLine={false}
+                    tickLine={false}
+                    width={30}
+                    tickFormatter={(value) => value >= 1000 ? `${(value/1000).toFixed(0)}k` : value}
+                    label={{ value: 'Points', angle: -90, position: 'insideLeft', fontSize: 9, fill: 'hsl(var(--muted-foreground))' }}
+                  />
                   <Tooltip
                     contentStyle={{
                       backgroundColor: 'white',
@@ -361,13 +377,18 @@ export const AppRewards: React.FC = () => {
           </CardContent>
         </Card>
 
-        {/* Earning Factors */}
+        {/* Earning Factors - With tip and tappable tiles */}
         <Card className="bg-white border-border">
           <CardContent className="p-4">
-            <div className="flex items-center gap-2 mb-4">
+            <div className="flex items-center gap-2 mb-3">
               <Activity className="w-4 h-4 text-primary" />
               <span className="text-sm font-semibold text-foreground">Your Earning Factors</span>
             </div>
+            
+            {/* Tip line */}
+            <p className="text-xs text-muted-foreground bg-muted/50 rounded-lg px-3 py-2 mb-4">
+              💡 Earn more by: keep app active + confirm coverage when asked
+            </p>
 
             <div className="space-y-4">
               {/* Uptime - Use progress labels instead of raw percentages */}
@@ -402,18 +423,26 @@ export const AppRewards: React.FC = () => {
                 <Progress value={earningFactors.coverageQuality} className="h-2" />
               </div>
 
-              {/* Stats row */}
+              {/* Stats row - Tappable with hint */}
               <div className="grid grid-cols-2 gap-3 pt-2">
-                <div className="bg-card rounded-lg p-3 text-center border border-border">
+                <button 
+                  onClick={() => { mediumTap(); toast({ title: 'Run Speed Tests', description: 'Tap the speed test button on the Map screen to earn +5 points each!' }); }}
+                  className="bg-card rounded-lg p-3 text-center border border-border hover:border-primary/30 active:scale-95 transition-all"
+                >
                   <Target className="w-4 h-4 text-primary mx-auto mb-1" />
                   <p className="text-lg font-bold text-foreground">{earningFactors.speedTests}</p>
                   <p className="text-xs text-muted-foreground">Speed Tests</p>
-                </div>
-                <div className="bg-card rounded-lg p-3 text-center border border-border">
+                  <p className="text-[9px] text-primary mt-1">Tap to learn more</p>
+                </button>
+                <button 
+                  onClick={() => { mediumTap(); toast({ title: 'Explore New Areas', description: 'Move around to map new locations and earn bonus points!' }); }}
+                  className="bg-card rounded-lg p-3 text-center border border-border hover:border-primary/30 active:scale-95 transition-all"
+                >
                   <Zap className="w-4 h-4 text-amber-500 mx-auto mb-1" />
                   <p className="text-lg font-bold text-foreground">{earningFactors.areasExplored}</p>
                   <p className="text-xs text-muted-foreground">Areas Mapped</p>
-                </div>
+                  <p className="text-[9px] text-primary mt-1">Tap to learn more</p>
+                </button>
               </div>
             </div>
           </CardContent>

@@ -286,19 +286,31 @@ export const AppHome: React.FC = () => {
               </span>
             </div>
             
-            {/* Main earnings display */}
+            {/* Main earnings display - Points first, value second */}
             <div className="mb-2">
               <div className="text-3xl font-bold text-foreground tabular-nums">
-                ${totalUSD.toFixed(2)}
+                {totalPoints.toLocaleString()} <span className="text-lg font-semibold text-muted-foreground">pts</span>
               </div>
               <div className="text-sm text-muted-foreground mt-0.5">
-                ≈ {totalPoints.toLocaleString()} points
+                Estimated value: ${totalUSD.toFixed(2)}
               </div>
+              <p className="text-[10px] text-muted-foreground/70 mt-1">
+                1 point = 1 token (redeem in app)
+              </p>
             </div>
 
-            <p className="text-xs text-muted-foreground mb-4">
+            <p className="text-xs text-muted-foreground mb-3">
               Runs quietly in the background
             </p>
+            
+            {/* Status line - Last sync / Samples / Mode */}
+            <div className="flex items-center justify-between text-[10px] text-muted-foreground mb-4 px-1">
+              <span>Last sync: just now</span>
+              <span>•</span>
+              <span>Today: {todayPoints} pts</span>
+              <span>•</span>
+              <span>Mode: {connectionType || 'WiFi'}</span>
+            </div>
 
             <button
               onClick={() => { mediumTap(); navigate('/app/map'); }}
