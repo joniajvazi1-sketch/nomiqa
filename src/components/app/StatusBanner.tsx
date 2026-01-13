@@ -120,11 +120,7 @@ export const StatusBanner: React.FC = () => {
   const Icon = config.icon;
   const isActionable = !!config.action;
 
-  // Don't show banner if actively collecting
-  if (isCollectionEnabled && isOnline) {
-    return null;
-  }
-
+  // Always show status (including collecting state per banking app spec)
   return (
     <button
       onClick={config.action}
