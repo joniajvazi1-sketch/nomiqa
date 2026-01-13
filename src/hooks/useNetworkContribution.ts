@@ -6,6 +6,7 @@ import { useNetworkStatus } from './useNetworkStatus';
 import { useHaptics } from './useHaptics';
 import { useTelcoMetrics, SignalLogEntry } from './useTelcoMetrics';
 import { useContributionPersistence } from './useContributionPersistence';
+import { checkDeviceIntegrity, DeviceIntegrityResult } from '@/utils/deviceIntegrity';
 
 // Type-only import
 type GeolocationModule = typeof import('@capacitor/geolocation');
@@ -52,6 +53,8 @@ interface OfflineQueueItem {
   session_id?: string;
   // Telco-grade fields
   telcoMetrics?: SignalLogEntry;
+  // Device integrity for anti-fraud
+  deviceIntegrity?: DeviceIntegrityResult;
 }
 
 const OFFLINE_QUEUE_KEY = 'nomiqa_offline_contribution_queue';
@@ -300,6 +303,7 @@ export const useNetworkContribution = () => {
 
   /**
    * Log a telco-grade signal data point via edge function
+   * Includes device integrity signals for anti-fraud
    */
   const logTelcoDataPoint = async (position: Position) => {
     if (!user || !session.id) return;
@@ -310,6 +314,9 @@ export const useNetworkContribution = () => {
         connectionType,
         session.id
       );
+      
+      // Check device integrity for anti-fraud signals
+      const integrity = await checkDeviceIntegrity(signalLog.isMockLocation || false);
       
       // Insert via edge function (handles validation, geohash, country_code derivation)
       const { data, error } = await supabase.functions.invoke('sync-contribution-data', {
@@ -348,7 +355,7 @@ export const useNetworkContribution = () => {
             bandwidth_mhz: signalLog.bandwidthMhz,
             recorded_at: signalLog.recordedAt,
             data_quality_score: signalLog.dataQualityScore,
-            is_mock_location: signalLog.isMockLocation,
+            is_mock_location: integrity.isMockLocation,
             is_indoor: signalLog.accuracyMeters ? signalLog.accuracyMeters > 30 : false,
             speed_test_error: signalLog.speedTestError,
             speed_test_provider: signalLog.speedTestProvider,
@@ -357,6 +364,9 @@ export const useNetworkContribution = () => {
             latency_method: signalLog.latencyMethod,
             // B2B fields
             app_version: '1.0.0', // TODO: Get from app config
+            // Device integrity anti-fraud signals
+            device_integrity_score: integrity.integrityScore,
+            device_integrity_flags: integrity.flags,
           }]
         }
       });
@@ -364,7 +374,7 @@ export const useNetworkContribution = () => {
       if (error) {
         console.error('Signal log sync error:', error);
         // Queue for offline sync
-        queueTelcoData(signalLog);
+        queueTelcoData(signalLog, integrity);
       } else {
         const result = data?.signal_logs;
         if (result?.inserted > 0) {
@@ -385,7 +395,7 @@ export const useNetworkContribution = () => {
   /**
    * Queue telco data for offline sync
    */
-  const queueTelcoData = (signalLog: SignalLogEntry) => {
+  const queueTelcoData = (signalLog: SignalLogEntry, integrity?: DeviceIntegrityResult) => {
     const queue = getOfflineQueue();
     queue.push({
       type: 'telco',
@@ -393,7 +403,8 @@ export const useNetworkContribution = () => {
       longitude: signalLog.longitude,
       recorded_at: signalLog.recordedAt,
       session_id: signalLog.sessionId,
-      telcoMetrics: signalLog
+      telcoMetrics: signalLog,
+      deviceIntegrity: integrity,
     });
     saveOfflineQueue(queue);
   };

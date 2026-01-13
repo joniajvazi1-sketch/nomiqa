@@ -933,6 +933,8 @@ export type Database = {
         Row: {
           country_code: string | null
           created_at: string
+          data_consent_accepted_at: string | null
+          data_consent_version: string | null
           email: string | null
           email_verified: boolean | null
           id: string
@@ -949,6 +951,8 @@ export type Database = {
         Insert: {
           country_code?: string | null
           created_at?: string
+          data_consent_accepted_at?: string | null
+          data_consent_version?: string | null
           email?: string | null
           email_verified?: boolean | null
           id?: string
@@ -965,6 +969,8 @@ export type Database = {
         Update: {
           country_code?: string | null
           created_at?: string
+          data_consent_accepted_at?: string | null
+          data_consent_version?: string | null
           email?: string | null
           email_verified?: boolean | null
           id?: string
@@ -1067,8 +1073,11 @@ export type Database = {
           frequency_mhz: number | null
           heading_degrees: number | null
           id: string
+          is_emulator: boolean | null
           is_indoor: boolean | null
+          is_mock_location: boolean | null
           is_rare_location: boolean | null
+          is_rooted_jailbroken: boolean | null
           jitter_ms: number | null
           latency_error: string | null
           latency_method: string | null
@@ -1116,8 +1125,11 @@ export type Database = {
           frequency_mhz?: number | null
           heading_degrees?: number | null
           id?: string
+          is_emulator?: boolean | null
           is_indoor?: boolean | null
+          is_mock_location?: boolean | null
           is_rare_location?: boolean | null
+          is_rooted_jailbroken?: boolean | null
           jitter_ms?: number | null
           latency_error?: string | null
           latency_method?: string | null
@@ -1165,8 +1177,11 @@ export type Database = {
           frequency_mhz?: number | null
           heading_degrees?: number | null
           id?: string
+          is_emulator?: boolean | null
           is_indoor?: boolean | null
+          is_mock_location?: boolean | null
           is_rare_location?: boolean | null
+          is_rooted_jailbroken?: boolean | null
           jitter_ms?: number | null
           latency_error?: string | null
           latency_method?: string | null
