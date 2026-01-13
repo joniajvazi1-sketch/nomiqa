@@ -63,6 +63,7 @@ All colors MUST be HSL.
   /* ============================================
      APP COLOR SYSTEM (Light, banking/health app aesthetic)
      Applied to /app/* routes via .app-theme class
+     "Calm Money" design philosophy
      ============================================ */
   .app-theme {
     /* Light foundation - Pure whites and soft grays */
@@ -85,9 +86,9 @@ All colors MUST be HSL.
     --accent: 145 63% 42%;             /* #2ECC71 */
     --accent-foreground: 0 0% 100%;
     
-    /* Supporting colors */
+    /* Supporting colors - Reduced opacity for calm aesthetic */
     --muted: 210 20% 96%;
-    --muted-foreground: 215 14% 46%;   /* #6B7280 */
+    --muted-foreground: 215 14% 56%;   /* Slightly more faded for less noise */
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
     --border: 214 20% 89%;
@@ -97,6 +98,27 @@ All colors MUST be HSL.
     /* Clean shadows - no glows */
     --shadow-card: 0 1px 3px hsl(0 0% 0% / 0.1);
     --shadow-elevated: 0 4px 12px hsl(0 0% 0% / 0.08);
+  }
+  
+  /* App typography refinements - "Calm Money" style */
+  .app-theme body,
+  .app-theme p,
+  .app-theme span,
+  .app-theme div {
+    line-height: 1.6;
+  }
+  
+  .app-theme h1, .app-theme h2, .app-theme h3 {
+    line-height: 1.3;
+  }
+  
+  /* Reduce visual noise - secondary text is less prominent */
+  .app-theme .text-muted-foreground {
+    opacity: 0.85;
+  }
+  
+  .app-theme .text-xs {
+    line-height: 1.5;
   }
 }
 
