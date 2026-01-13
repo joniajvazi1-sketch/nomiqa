@@ -1053,10 +1053,12 @@ export type Database = {
         Row: {
           accuracy_meters: number | null
           altitude_meters: number | null
+          app_version: string | null
           band_number: number | null
           bandwidth_mhz: number | null
           carrier_name: string | null
           cell_id: string | null
+          country_code: string | null
           created_at: string | null
           data_quality_score: number | null
           device_manufacturer: string | null
@@ -1072,10 +1074,12 @@ export type Database = {
           latency_ms: number | null
           latency_provider: string | null
           latitude: number
+          location_geohash: string | null
           longitude: number
           mcc: string | null
           mcc_mnc: string | null
           mnc: string | null
+          network_generation: string | null
           network_type: string | null
           os_version: string | null
           pci: number | null
@@ -1097,10 +1101,12 @@ export type Database = {
         Insert: {
           accuracy_meters?: number | null
           altitude_meters?: number | null
+          app_version?: string | null
           band_number?: number | null
           bandwidth_mhz?: number | null
           carrier_name?: string | null
           cell_id?: string | null
+          country_code?: string | null
           created_at?: string | null
           data_quality_score?: number | null
           device_manufacturer?: string | null
@@ -1116,10 +1122,12 @@ export type Database = {
           latency_ms?: number | null
           latency_provider?: string | null
           latitude: number
+          location_geohash?: string | null
           longitude: number
           mcc?: string | null
           mcc_mnc?: string | null
           mnc?: string | null
+          network_generation?: string | null
           network_type?: string | null
           os_version?: string | null
           pci?: number | null
@@ -1141,10 +1149,12 @@ export type Database = {
         Update: {
           accuracy_meters?: number | null
           altitude_meters?: number | null
+          app_version?: string | null
           band_number?: number | null
           bandwidth_mhz?: number | null
           carrier_name?: string | null
           cell_id?: string | null
+          country_code?: string | null
           created_at?: string | null
           data_quality_score?: number | null
           device_manufacturer?: string | null
@@ -1160,10 +1170,12 @@ export type Database = {
           latency_ms?: number | null
           latency_provider?: string | null
           latitude?: number
+          location_geohash?: string | null
           longitude?: number
           mcc?: string | null
           mcc_mnc?: string | null
           mnc?: string | null
+          network_generation?: string | null
           network_type?: string | null
           os_version?: string | null
           pci?: number | null

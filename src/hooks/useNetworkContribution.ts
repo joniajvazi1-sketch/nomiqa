@@ -58,6 +58,9 @@ const OFFLINE_QUEUE_KEY = 'nomiqa_offline_contribution_queue';
 const SPEED_TEST_INTERVAL = 10 * 60 * 1000; // Run speed test every 10 minutes
 const SPEED_TEST_BONUS_POINTS = 2; // Bonus points per speed test
 const PREMIUM_SPEED_THRESHOLD = 50; // Mbps - extra bonus for fast connections
+const DAILY_SPEED_TEST_LIMIT = 5; // Max speed tests that award bonus points per day
+const SPEED_TEST_DAILY_KEY = 'nomiqa_speed_tests_today';
+const MAX_SESSION_DURATION_MS = 4 * 60 * 60 * 1000; // 4 hours max session before auto-expiry
 
 /**
  * Check if connection type is cellular (earns points)
@@ -65,6 +68,46 @@ const PREMIUM_SPEED_THRESHOLD = 50; // Mbps - extra bonus for fast connections
 const isCellularConnection = (type: string): boolean => {
   const cellularTypes = ['cellular', '4g', '5g', 'lte', '3g', '2g'];
   return cellularTypes.includes(type.toLowerCase());
+};
+
+/**
+ * Get today's speed test count from localStorage
+ */
+const getSpeedTestsToday = (): number => {
+  try {
+    const stored = localStorage.getItem(SPEED_TEST_DAILY_KEY);
+    if (!stored) return 0;
+    const { count, date } = JSON.parse(stored);
+    const today = new Date().toISOString().split('T')[0];
+    if (date !== today) return 0; // Reset count on new day
+    return count || 0;
+  } catch {
+    return 0;
+  }
+};
+
+/**
+ * Increment today's speed test count
+ */
+const incrementSpeedTestCount = (): void => {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    const currentCount = getSpeedTestsToday();
+    localStorage.setItem(SPEED_TEST_DAILY_KEY, JSON.stringify({
+      count: currentCount + 1,
+      date: today
+    }));
+  } catch (error) {
+    console.error('Failed to save speed test count:', error);
+  }
+};
+
+/**
+ * Check if session is stale (exceeded max duration)
+ */
+const isSessionStale = (startedAt: number | null): boolean => {
+  if (!startedAt) return false;
+  return Date.now() - startedAt > MAX_SESSION_DURATION_MS;
 };
 
 /**
@@ -171,6 +214,14 @@ export const useNetworkContribution = () => {
   // Restore session from persistence on mount or app resume
   useEffect(() => {
     if (isContributionEnabled && persistedSessionId && user && session.status === 'idle') {
+      // Check for stale session (exceeded 4 hours)
+      if (isSessionStale(sessionStartedAt)) {
+        console.log('[NetworkContribution] Session stale (>4h), resetting');
+        disableContribution();
+        clearCumulativeStats();
+        return;
+      }
+      
       console.log('[NetworkContribution] Restoring persisted session:', persistedSessionId);
       setSession({
         id: persistedSessionId,
@@ -201,7 +252,7 @@ export const useNetworkContribution = () => {
     }
     // Note: startGeoTracking is intentionally not called here to avoid circular deps
     // The useBackgroundGeolocation hook handles its own restoration
-  }, [isContributionEnabled, persistedSessionId, user, session.status, resumeTrigger, cumulativePoints, cumulativeDurationSeconds, sessionStartedAt, getTimeSinceLastEvent]);
+  }, [isContributionEnabled, persistedSessionId, user, session.status, resumeTrigger, cumulativePoints, cumulativeDurationSeconds, sessionStartedAt, getTimeSinceLastEvent, disableContribution, clearCumulativeStats]);
 
   // Position update handler
   const handlePositionUpdate = useCallback(async (position: Position) => {
@@ -765,7 +816,7 @@ export const useNetworkContribution = () => {
   };
 
   /**
-   * Run a speed test and award bonus points
+   * Run a speed test and award bonus points (capped at 5/day)
    */
   const runSpeedTestWithBonus = async (): Promise<SpeedTestResult | null> => {
     if (!isCellular || isRunningSpeedTest) return null;
@@ -786,32 +837,49 @@ export const useNetworkContribution = () => {
         
         // Only award bonus points if we got actual speed data
         if (result.down !== null || result.latency !== null) {
-          // Calculate bonus points
-          let bonusPoints = SPEED_TEST_BONUS_POINTS;
+          // Check daily limit before awarding points
+          const testsToday = getSpeedTestsToday();
+          const canEarnBonus = testsToday < DAILY_SPEED_TEST_LIMIT;
           
-          // Extra bonus for premium speeds (50+ Mbps)
-          if (result.down && result.down >= PREMIUM_SPEED_THRESHOLD) {
-            bonusPoints += 1; // Extra point for fast connection
-            console.log(`Premium speed detected: ${result.down} Mbps - extra bonus!`);
+          if (canEarnBonus) {
+            // Calculate bonus points
+            let bonusPoints = SPEED_TEST_BONUS_POINTS;
+            
+            // Extra bonus for premium speeds (50+ Mbps)
+            if (result.down && result.down >= PREMIUM_SPEED_THRESHOLD) {
+              bonusPoints += 1; // Extra point for fast connection
+              console.log(`Premium speed detected: ${result.down} Mbps - extra bonus!`);
+            }
+            
+            // Extra bonus for low latency (<50ms)
+            if (result.latency && result.latency < 50) {
+              bonusPoints += 0.5;
+              console.log(`Low latency detected: ${result.latency}ms - extra bonus!`);
+            }
+            
+            setStats(prev => ({
+              ...prev,
+              speedTestPoints: prev.speedTestPoints + bonusPoints,
+              pointsEarned: prev.pointsEarned + bonusPoints,
+              speedTestCount: prev.speedTestCount + 1,
+              lastSpeedTest: speedTestResult
+            }));
+            
+            // Increment daily count
+            incrementSpeedTestCount();
+            
+            // Haptic feedback for successful test
+            success();
+            console.log(`Speed test complete (${result.provider}): ↓${result.down ?? 'N/A'} ↑${result.up ?? 'N/A'} Mbps, ${result.latency ?? 'N/A'}ms - +${bonusPoints} pts (${testsToday + 1}/${DAILY_SPEED_TEST_LIMIT} today)`);
+          } else {
+            // Still count the test but no bonus points
+            setStats(prev => ({
+              ...prev,
+              speedTestCount: prev.speedTestCount + 1,
+              lastSpeedTest: speedTestResult
+            }));
+            console.log(`Speed test complete (${result.provider}): ↓${result.down ?? 'N/A'} ↑${result.up ?? 'N/A'} Mbps - Daily limit reached (${DAILY_SPEED_TEST_LIMIT}/${DAILY_SPEED_TEST_LIMIT}), no bonus`);
           }
-          
-          // Extra bonus for low latency (<50ms)
-          if (result.latency && result.latency < 50) {
-            bonusPoints += 0.5;
-            console.log(`Low latency detected: ${result.latency}ms - extra bonus!`);
-          }
-          
-          setStats(prev => ({
-            ...prev,
-            speedTestPoints: prev.speedTestPoints + bonusPoints,
-            pointsEarned: prev.pointsEarned + bonusPoints,
-            speedTestCount: prev.speedTestCount + 1,
-            lastSpeedTest: speedTestResult
-          }));
-          
-          // Haptic feedback for successful test
-          success();
-          console.log(`Speed test complete (${result.provider}): ↓${result.down ?? 'N/A'} ↑${result.up ?? 'N/A'} Mbps, ${result.latency ?? 'N/A'}ms - +${bonusPoints} pts`);
         } else {
           console.log(`Speed test completed with errors: download=${result.downloadError}, latency=${result.latencyError}`);
         }

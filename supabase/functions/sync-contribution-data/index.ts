@@ -541,11 +541,13 @@ serve(async (req) => {
           os_version: s.os_version,
           cell_id: s.cell_id,
           tac: s.tac,
-          // Derived fields (stored in existing columns or logged)
-          // geohash and country_code would need new columns - log for now
+          // Derived B2B-critical fields - NOW STORED IN DB
+          location_geohash: geohash,
+          country_code: countryCode,
+          network_generation: networkGeneration,
         });
         
-        console.log(`Signal log prepared: geohash=${geohash}, country=${countryCode || 'unknown'}, gen=${networkGeneration || 'unknown'}`);
+        console.log(`Signal log stored: geohash=${geohash}, country=${countryCode || 'unknown'}, gen=${networkGeneration || 'unknown'}`);
       }
       
       if (validSignalLogs.length > 0) {
