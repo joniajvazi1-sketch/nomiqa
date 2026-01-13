@@ -379,30 +379,43 @@ export const useNetworkContribution = () => {
     }
   }, [isOnline, offlineQueueCount, user]);
 
-  // Track previous cellular state for haptic feedback on change
+  // Track previous connection type for network change logging
+  const prevConnectionTypeRef = useRef(connectionType);
   const prevIsCellularRef = useRef(isCellular);
   
-  // Haptic feedback when connection type changes during active session
+  // Network change detection - log telco data on handoffs (valuable data!)
   useEffect(() => {
     if (session.status !== 'active') {
+      prevConnectionTypeRef.current = connectionType;
       prevIsCellularRef.current = isCellular;
       return;
     }
     
-    // Connection changed during active session
+    // Check for network type change (LTE→5G, WiFi→LTE, etc.)
+    if (prevConnectionTypeRef.current !== connectionType) {
+      const shouldLog = telcoMetrics.shouldLogOnNetworkChange(connectionType);
+      
+      if (shouldLog && lastPosition && isCellular) {
+        // Log a telco data point on network handoff - this is valuable data!
+        console.log(`[NetworkContribution] Logging handoff: ${prevConnectionTypeRef.current} → ${connectionType}`);
+        logTelcoDataPoint(lastPosition);
+      }
+      
+      prevConnectionTypeRef.current = connectionType;
+    }
+    
+    // Haptic feedback on cellular/WiFi change
     if (prevIsCellularRef.current !== isCellular) {
       if (isCellular) {
-        // Switched to cellular - resume earning
         success();
-        console.log('Cellular connection restored - mining resumed');
+        console.log('Cellular connection restored - earning resumed');
       } else {
-        // Switched to WiFi - paused
         warning();
-        console.log('WiFi detected - mining paused');
+        console.log('WiFi detected - earning paused');
       }
       prevIsCellularRef.current = isCellular;
     }
-  }, [isCellular, session.status, success, warning]);
+  }, [connectionType, isCellular, session.status, lastPosition, success, warning, telcoMetrics]);
 
   // Time-based earnings
   useEffect(() => {
