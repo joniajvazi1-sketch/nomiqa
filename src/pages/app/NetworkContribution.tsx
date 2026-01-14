@@ -51,6 +51,7 @@ export const NetworkContribution: React.FC = () => {
   const [showSpeedTest, setShowSpeedTest] = useState(false);
   const [showCarrierComparison, setShowCarrierComparison] = useState(false);
   const [consentGiven, setConsentGiven] = useState(() => hasDataConsent());
+  const [showConsentModal, setShowConsentModal] = useState(false);
   const [showTools, setShowTools] = useState(false);
   const startButtonRef = useRef<HTMLButtonElement>(null);
   
@@ -198,9 +199,17 @@ export const NetworkContribution: React.FC = () => {
         <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-background/70 to-transparent" />
       </div>
       
-      {/* GDPR Consent Modal */}
-      {!consentGiven && (
-        <DataConsentModal onConsentComplete={() => setConsentGiven(true)} />
+      {/* GDPR Consent Modal - shown when user tries to start without consent */}
+      {showConsentModal && !consentGiven && (
+        <DataConsentModal 
+          onConsentComplete={() => {
+            setConsentGiven(true);
+            setShowConsentModal(false);
+            // Auto-start contribution after consent
+            startContribution();
+            playCoin();
+          }} 
+        />
       )}
       
       {/* Celebration */}
@@ -388,12 +397,16 @@ export const NetworkContribution: React.FC = () => {
                     handleStopContribution();
                     playSuccess();
                   } else {
-                    if (!consentGiven) return;
+                    // Show consent modal if not consented yet
+                    if (!consentGiven) {
+                      setShowConsentModal(true);
+                      return;
+                    }
                     startContribution();
                     playCoin();
                   }
                 }}
-                disabled={!user || (!consentGiven && !isActive)}
+                disabled={!user}
                 className={cn(
                   'w-20 h-20 rounded-full relative z-10',
                   'flex items-center justify-center',
