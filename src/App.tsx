@@ -1,4 +1,4 @@
-import { useEffect, useState, lazy, Suspense } from "react";
+import { useEffect, useState, lazy, Suspense, startTransition } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -36,7 +36,7 @@ const AdminUsers = lazy(() => import("./pages/AdminUsers"));
 const Download = lazy(() => import("./pages/Download"));
 const HowItWorks = lazy(() => import("./pages/HowItWorks"));
 
-// Lazy load APP pages (native only)
+// Lazy load APP pages (native only) with prefetch hints
 const AppHome = lazy(() => import("./pages/app/AppHome").then(m => ({ default: m.AppHome })));
 const NetworkContribution = lazy(() => import("./pages/app/NetworkContribution").then(m => ({ default: m.NetworkContribution })));
 const AppShop = lazy(() => import("./pages/app/AppShop").then(m => ({ default: m.AppShop })));
@@ -48,14 +48,29 @@ const AppCheckout = lazy(() => import("./pages/app/AppCheckout").then(m => ({ de
 const AppInvite = lazy(() => import("./pages/app/AppInvite").then(m => ({ default: m.AppInvite })));
 const AppRewards = lazy(() => import("./pages/app/AppRewards").then(m => ({ default: m.AppRewards })));
 
-// Loading fallback component (with a safety timeout for slow/blocked mobile networks)
-const PageLoader = () => {
+// Preload critical native app chunks after initial render
+// This significantly reduces time-to-interactive on subsequent navigations
+const prefetchNativeChunks = () => {
+  // Only prefetch on native to avoid wasting bandwidth on web
+  if (typeof window !== 'undefined') {
+    startTransition(() => {
+      // Prefetch core app pages users will likely visit
+      import("./pages/app/AppShop");
+      import("./pages/app/AppProfile");
+      import("./pages/app/NetworkContribution");
+    });
+  }
+};
+
+// Optimized loading fallback with faster timeout for native
+const PageLoader = ({ isNative = false }: { isNative?: boolean }) => {
   const [showHelp, setShowHelp] = useState(false);
 
   useEffect(() => {
-    const t = window.setTimeout(() => setShowHelp(true), 12000);
+    // Faster timeout for native (8s) vs web (12s)
+    const t = window.setTimeout(() => setShowHelp(true), isNative ? 8000 : 12000);
     return () => window.clearTimeout(t);
-  }, []);
+  }, [isNative]);
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center">
@@ -68,7 +83,9 @@ const PageLoader = () => {
         {showHelp && (
           <div className="max-w-xs">
             <p className="text-sm text-muted-foreground">
-              Still loading? On some mobile browsers, storage/network settings can block the app from finishing.
+              {isNative 
+                ? "Taking longer than expected. Check your internet connection."
+                : "Still loading? On some mobile browsers, storage/network settings can block the app from finishing."}
             </p>
             <button
               type="button"
@@ -118,41 +135,49 @@ function AffiliateTracker() {
 
 /**
  * Native App Routes - Only rendered when running as installed Capacitor app
+ * Includes prefetch trigger for faster navigation
  */
-const NativeAppRoutes = () => (
-  <AppLayout>
-    <Routes>
-      <Route path="/app" element={<AppHome />} />
-      <Route
-        path="/app/map"
-        element={
-          <AppErrorBoundary
-            title="Map unavailable"
-            description="The map failed to load. Please refresh and try again."
-          >
-            <NetworkContribution />
-          </AppErrorBoundary>
-        }
-      />
-      <Route path="/app/invite" element={<AppInvite />} />
-      <Route path="/app/rewards" element={<AppRewards />} />
-      <Route path="/app/shop" element={<AppShop />} />
-      <Route path="/app/profile" element={<AppProfile />} />
-      <Route path="/app/achievements" element={<AppAchievements />} />
-      <Route path="/app/challenges" element={<AppChallenges />} />
-      <Route path="/app/leaderboard" element={<AppLeaderboard />} />
-      {/* Redirect old wallet route to profile */}
-      <Route path="/app/wallet" element={<Navigate to="/app/profile" replace />} />
-      <Route path="/auth" element={<Auth />} />
-      <Route path="/checkout" element={<AppCheckout />} />
-      <Route path="/orders" element={<Orders />} />
-      <Route path="/payment-success" element={<PaymentSuccess />} />
-      {/* Redirect root to /app for native */}
-      <Route path="/" element={<Navigate to="/app" replace />} />
-      <Route path="*" element={<Navigate to="/app" replace />} />
-    </Routes>
-  </AppLayout>
-);
+const NativeAppRoutes = () => {
+  useEffect(() => {
+    // Prefetch other app pages after initial mount
+    prefetchNativeChunks();
+  }, []);
+
+  return (
+    <AppLayout>
+      <Routes>
+        <Route path="/app" element={<AppHome />} />
+        <Route
+          path="/app/map"
+          element={
+            <AppErrorBoundary
+              title="Map unavailable"
+              description="The map failed to load. Please refresh and try again."
+            >
+              <NetworkContribution />
+            </AppErrorBoundary>
+          }
+        />
+        <Route path="/app/invite" element={<AppInvite />} />
+        <Route path="/app/rewards" element={<AppRewards />} />
+        <Route path="/app/shop" element={<AppShop />} />
+        <Route path="/app/profile" element={<AppProfile />} />
+        <Route path="/app/achievements" element={<AppAchievements />} />
+        <Route path="/app/challenges" element={<AppChallenges />} />
+        <Route path="/app/leaderboard" element={<AppLeaderboard />} />
+        {/* Redirect old wallet route to profile */}
+        <Route path="/app/wallet" element={<Navigate to="/app/profile" replace />} />
+        <Route path="/auth" element={<Auth />} />
+        <Route path="/checkout" element={<AppCheckout />} />
+        <Route path="/orders" element={<Orders />} />
+        <Route path="/payment-success" element={<PaymentSuccess />} />
+        {/* Redirect root to /app for native */}
+        <Route path="/" element={<Navigate to="/app" replace />} />
+        <Route path="*" element={<Navigate to="/app" replace />} />
+      </Routes>
+    </AppLayout>
+  );
+};
 
 /**
  * Web Routes - Only rendered when accessed via browser
@@ -411,6 +436,8 @@ const AppRouter = () => {
 };
 
 const App = () => {
+  const { isNative } = usePlatform();
+  
   return (
     <QueryClientProvider client={queryClient}>
       <TranslationProvider>
@@ -421,9 +448,9 @@ const App = () => {
             <AffiliateTracker />
             <AppErrorBoundary
               title="Site failed to load"
-              description="This page couldn’t finish loading. Please reload and try again."
+              description="This page couldn't finish loading. Please reload and try again."
             >
-              <Suspense fallback={<PageLoader />}>
+              <Suspense fallback={<PageLoader isNative={isNative} />}>
                 <AppRouter />
               </Suspense>
             </AppErrorBoundary>
