@@ -32,10 +32,9 @@
 /*.css
   Cache-Control: public, max-age=31536000, immutable
 
-# HTML files - never cache long-term (avoid stale JS/CSS references)
+# HTML and SPA routes - do not cache (prevents stale HTML -> chunk mismatch loops)
 /*.html
-  Cache-Control: public, max-age=0, must-revalidate
+  Cache-Control: no-store, max-age=0
 
-# Default: routes (SPA). Keep revalidation but do not force no-store.
 /*
-  Cache-Control: public, max-age=0, must-revalidate
+  Cache-Control: no-store, max-age=0
