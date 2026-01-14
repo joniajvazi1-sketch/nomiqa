@@ -22,7 +22,7 @@ export const BottomTabBar: React.FC = () => {
   const tabs: TabItem[] = [
     { path: '/app', icon: Home, label: 'Home' },
     { path: '/app/rewards', icon: Gift, label: 'Rewards' },
-    { path: '/app/shop', icon: ShoppingBag, label: 'Shop' },
+    { path: '/app/shop', icon: ShoppingBag, label: 'eSIMs' },
     { path: '/app/profile', icon: User, label: 'Profile' }
   ];
 
