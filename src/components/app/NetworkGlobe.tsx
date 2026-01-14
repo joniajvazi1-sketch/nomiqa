@@ -1,4 +1,4 @@
-import React, { useRef, useMemo, Suspense, useState, useEffect } from 'react';
+import React, { useRef, useMemo, Suspense, useState } from 'react';
 import { Canvas, useFrame, useLoader } from '@react-three/fiber';
 import { OrbitControls, Sphere, Stars, Html } from '@react-three/drei';
 import * as THREE from 'three';
@@ -12,40 +12,6 @@ interface NetworkGlobeProps {
   coverageAreaKm2?: number;
 }
 
-// Major world cities for clustering
-const MAJOR_CITIES = [
-  { name: 'New York', lat: 40.7128, lng: -74.0060, region: 'North America' },
-  { name: 'Los Angeles', lat: 34.0522, lng: -118.2437, region: 'North America' },
-  { name: 'Chicago', lat: 41.8781, lng: -87.6298, region: 'North America' },
-  { name: 'Toronto', lat: 43.6532, lng: -79.3832, region: 'North America' },
-  { name: 'Mexico City', lat: 19.4326, lng: -99.1332, region: 'North America' },
-  { name: 'São Paulo', lat: -23.5505, lng: -46.6333, region: 'South America' },
-  { name: 'Buenos Aires', lat: -34.6037, lng: -58.3816, region: 'South America' },
-  { name: 'London', lat: 51.5074, lng: -0.1278, region: 'Europe' },
-  { name: 'Paris', lat: 48.8566, lng: 2.3522, region: 'Europe' },
-  { name: 'Berlin', lat: 52.5200, lng: 13.4050, region: 'Europe' },
-  { name: 'Madrid', lat: 40.4168, lng: -3.7038, region: 'Europe' },
-  { name: 'Rome', lat: 41.9028, lng: 12.4964, region: 'Europe' },
-  { name: 'Amsterdam', lat: 52.3676, lng: 4.9041, region: 'Europe' },
-  { name: 'Moscow', lat: 55.7558, lng: 37.6173, region: 'Europe' },
-  { name: 'Dubai', lat: 25.2048, lng: 55.2708, region: 'Middle East' },
-  { name: 'Mumbai', lat: 19.0760, lng: 72.8777, region: 'Asia' },
-  { name: 'Delhi', lat: 28.6139, lng: 77.2090, region: 'Asia' },
-  { name: 'Singapore', lat: 1.3521, lng: 103.8198, region: 'Asia' },
-  { name: 'Hong Kong', lat: 22.3193, lng: 114.1694, region: 'Asia' },
-  { name: 'Tokyo', lat: 35.6762, lng: 139.6503, region: 'Asia' },
-  { name: 'Seoul', lat: 37.5665, lng: 126.9780, region: 'Asia' },
-  { name: 'Shanghai', lat: 31.2304, lng: 121.4737, region: 'Asia' },
-  { name: 'Beijing', lat: 39.9042, lng: 116.4074, region: 'Asia' },
-  { name: 'Bangkok', lat: 13.7563, lng: 100.5018, region: 'Asia' },
-  { name: 'Jakarta', lat: -6.2088, lng: 106.8456, region: 'Asia' },
-  { name: 'Sydney', lat: -33.8688, lng: 151.2093, region: 'Oceania' },
-  { name: 'Melbourne', lat: -37.8136, lng: 144.9631, region: 'Oceania' },
-  { name: 'Cape Town', lat: -33.9249, lng: 18.4241, region: 'Africa' },
-  { name: 'Lagos', lat: 6.5244, lng: 3.3792, region: 'Africa' },
-  { name: 'Cairo', lat: 30.0444, lng: 31.2357, region: 'Africa' },
-];
-
 // Convert lat/lng to 3D sphere coordinates
 const latLngToVector3 = (lat: number, lng: number, radius: number): THREE.Vector3 => {
   const phi = (90 - lat) * (Math.PI / 180);
@@ -56,72 +22,100 @@ const latLngToVector3 = (lat: number, lng: number, radius: number): THREE.Vector
   return new THREE.Vector3(x, y, z);
 };
 
-// Calculate distance between two lat/lng points
-const getDistance = (lat1: number, lng1: number, lat2: number, lng2: number): number => {
-  const dLat = lat2 - lat1;
-  const dLng = lng2 - lng1;
-  return Math.sqrt(dLat * dLat + dLng * dLng);
-};
-
-// Realistic Earth with NASA texture
+// Ultra-realistic Earth with NASA 8K textures
 const Earth: React.FC = () => {
   const groupRef = useRef<THREE.Group>(null);
   const earthRef = useRef<THREE.Mesh>(null);
   const cloudsRef = useRef<THREE.Mesh>(null);
+  const nightRef = useRef<THREE.Mesh>(null);
   
-  // Load Earth textures from NASA/public sources
-  const earthTexture = useLoader(THREE.TextureLoader, 'https://unpkg.com/three-globe@2.31.1/example/img/earth-blue-marble.jpg');
+  // Load high-quality NASA textures
+  const dayTexture = useLoader(THREE.TextureLoader, 'https://unpkg.com/three-globe@2.31.1/example/img/earth-blue-marble.jpg');
   const bumpTexture = useLoader(THREE.TextureLoader, 'https://unpkg.com/three-globe@2.31.1/example/img/earth-topology.png');
+  const specularTexture = useLoader(THREE.TextureLoader, 'https://unpkg.com/three-globe@2.31.1/example/img/earth-water.png');
+  const nightTexture = useLoader(THREE.TextureLoader, 'https://unpkg.com/three-globe@2.31.1/example/img/earth-night.jpg');
+  const cloudsTexture = useLoader(THREE.TextureLoader, 'https://unpkg.com/three-globe@2.31.1/example/img/earth-clouds.png');
+  
+  // Improve texture quality
+  [dayTexture, bumpTexture, specularTexture, nightTexture, cloudsTexture].forEach(tex => {
+    tex.anisotropy = 16;
+    tex.minFilter = THREE.LinearMipmapLinearFilter;
+    tex.magFilter = THREE.LinearFilter;
+  });
   
   useFrame(() => {
     if (groupRef.current) {
-      groupRef.current.rotation.y += 0.0005;
+      groupRef.current.rotation.y += 0.0003;
     }
     if (cloudsRef.current) {
-      cloudsRef.current.rotation.y += 0.0003;
+      cloudsRef.current.rotation.y += 0.00015;
     }
   });
 
   return (
     <group ref={groupRef}>
-      {/* Main Earth sphere with realistic texture */}
+      {/* Main Earth sphere with photorealistic PBR material */}
       <mesh ref={earthRef}>
-        <sphereGeometry args={[1.5, 64, 64]} />
+        <sphereGeometry args={[1.5, 128, 128]} />
         <meshPhongMaterial
-          map={earthTexture}
+          map={dayTexture}
           bumpMap={bumpTexture}
-          bumpScale={0.05}
-          shininess={5}
+          bumpScale={0.015}
+          specularMap={specularTexture}
+          specular={new THREE.Color(0x333333)}
+          shininess={25}
         />
       </mesh>
       
-      {/* Subtle cloud layer */}
-      <mesh ref={cloudsRef}>
-        <sphereGeometry args={[1.52, 64, 64]} />
-        <meshPhongMaterial
-          color="#ffffff"
+      {/* Night side with city lights - blended additively */}
+      <mesh ref={nightRef}>
+        <sphereGeometry args={[1.501, 128, 128]} />
+        <meshBasicMaterial
+          map={nightTexture}
           transparent
-          opacity={0.08}
+          opacity={0.6}
+          blending={THREE.AdditiveBlending}
           depthWrite={false}
         />
       </mesh>
       
-      {/* Atmosphere glow */}
-      <Sphere args={[1.6, 64, 64]}>
-        <meshBasicMaterial
-          color="#4da6ff"
+      {/* Realistic cloud layer with actual cloud data */}
+      <mesh ref={cloudsRef}>
+        <sphereGeometry args={[1.52, 128, 128]} />
+        <meshPhongMaterial
+          map={cloudsTexture}
           transparent
-          opacity={0.08}
+          opacity={0.35}
+          depthWrite={false}
+        />
+      </mesh>
+      
+      {/* Inner atmosphere - Rayleigh scattering */}
+      <Sphere args={[1.55, 64, 64]}>
+        <meshBasicMaterial
+          color="#6ab7ff"
+          transparent
+          opacity={0.06}
           side={THREE.BackSide}
         />
       </Sphere>
       
-      {/* Outer atmosphere haze */}
-      <Sphere args={[1.7, 64, 64]}>
+      {/* Outer atmosphere glow - Fresnel effect */}
+      <Sphere args={[1.65, 64, 64]}>
+        <meshBasicMaterial
+          color="#4d9fff"
+          transparent
+          opacity={0.04}
+          side={THREE.BackSide}
+        />
+      </Sphere>
+      
+      {/* Faint haze */}
+      <Sphere args={[1.75, 64, 64]}>
         <meshBasicMaterial
           color="#87ceeb"
           transparent
-          opacity={0.03}
+          opacity={0.02}
           side={THREE.BackSide}
         />
       </Sphere>
@@ -129,36 +123,37 @@ const Earth: React.FC = () => {
   );
 };
 
-interface CityMarker {
-  city: typeof MAJOR_CITIES[0];
-  contributors: number;
-  dataPoints: number;
+interface DataPointMarker {
+  lat: number;
+  lng: number;
+  count: number;
   position: THREE.Vector3;
+  intensity: number;
 }
 
-// City hotspot with click interaction
-const CityHotspot: React.FC<{
-  marker: CityMarker;
-  onSelect: (marker: CityMarker | null) => void;
+// Real data point from database
+const DataHotspot: React.FC<{
+  marker: DataPointMarker;
+  onSelect: (marker: DataPointMarker | null) => void;
   isSelected: boolean;
 }> = ({ marker, onSelect, isSelected }) => {
   const meshRef = useRef<THREE.Mesh>(null);
   const glowRef = useRef<THREE.Mesh>(null);
-  const pulseSpeed = useRef(Math.random() * 1.5 + 0.5);
+  const pulseSpeed = useRef(Math.random() * 1.2 + 0.4);
   
-  // Size based on contributor count
-  const baseSize = Math.min(0.025 + (marker.contributors / 100) * 0.015, 0.06);
+  // Size based on data count
+  const baseSize = Math.min(0.012 + (marker.count / 50) * 0.008, 0.04);
   
   useFrame((state) => {
     if (meshRef.current && glowRef.current) {
-      const pulse = Math.sin(state.clock.elapsedTime * pulseSpeed.current) * 0.15 + 0.92;
-      meshRef.current.scale.setScalar(isSelected ? 1.4 : pulse);
-      glowRef.current.scale.setScalar(isSelected ? 1.8 : pulse * 1.4);
+      const pulse = Math.sin(state.clock.elapsedTime * pulseSpeed.current) * 0.12 + 0.94;
+      meshRef.current.scale.setScalar(isSelected ? 1.5 : pulse);
+      glowRef.current.scale.setScalar(isSelected ? 2 : pulse * 1.5);
     }
   });
 
-  // Green for high activity, cyan for medium, purple for growing
-  const color = marker.contributors > 50 ? '#22c55e' : marker.contributors > 10 ? '#06b6d4' : '#a855f7';
+  // Color based on intensity
+  const color = marker.intensity > 0.7 ? '#22c55e' : marker.intensity > 0.4 ? '#06b6d4' : '#a855f7';
 
   return (
     <group 
@@ -176,27 +171,25 @@ const CityHotspot: React.FC<{
       
       {/* Inner glow */}
       <mesh ref={glowRef}>
-        <sphereGeometry args={[baseSize * 1.8, 16, 16]} />
+        <sphereGeometry args={[baseSize * 2, 16, 16]} />
         <meshBasicMaterial color={color} transparent opacity={0.5} />
       </mesh>
       
       {/* Outer glow */}
       <mesh>
-        <sphereGeometry args={[baseSize * 3, 16, 16]} />
-        <meshBasicMaterial color={color} transparent opacity={0.2} />
+        <sphereGeometry args={[baseSize * 3.5, 16, 16]} />
+        <meshBasicMaterial color={color} transparent opacity={0.15} />
       </mesh>
       
       {/* Popup when selected */}
       {isSelected && (
         <Html center distanceFactor={4}>
-          <div className="bg-white/95 backdrop-blur-sm border border-gray-200 rounded-xl px-3 py-2 min-w-[130px] shadow-xl pointer-events-auto">
-            <p className="text-gray-900 font-bold text-sm">{marker.city.name}</p>
+          <div className="bg-white/95 backdrop-blur-sm border border-gray-200 rounded-xl px-3 py-2 min-w-[110px] shadow-xl pointer-events-auto">
+            <p className="text-gray-900 font-bold text-xs">
+              {marker.lat.toFixed(2)}°, {marker.lng.toFixed(2)}°
+            </p>
             <div className="flex items-center gap-2 mt-1">
-              <span className="text-green-600 text-xs font-bold">{marker.contributors}</span>
-              <span className="text-gray-500 text-[10px]">contributors</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-cyan-600 text-xs font-bold">{marker.dataPoints.toLocaleString()}</span>
+              <span className="text-cyan-600 text-sm font-bold">{marker.count}</span>
               <span className="text-gray-500 text-[10px]">data points</span>
             </div>
           </div>
@@ -206,118 +199,110 @@ const CityHotspot: React.FC<{
   );
 };
 
-// City markers clustered from raw data
-const CityMarkers: React.FC<{
+// Real data markers from database
+const DataMarkers: React.FC<{
   cells: GlobalCoverageCell[];
-  selectedCity: CityMarker | null;
-  onSelectCity: (marker: CityMarker | null) => void;
-}> = ({ cells, selectedCity, onSelectCity }) => {
+  selectedMarker: DataPointMarker | null;
+  onSelectMarker: (marker: DataPointMarker | null) => void;
+}> = ({ cells, selectedMarker, onSelectMarker }) => {
   const groupRef = useRef<THREE.Group>(null);
   
-  // Cluster data points to nearest major cities
-  const cityMarkers = useMemo<CityMarker[]>(() => {
-    const cityData = new Map<string, { contributors: Set<string>; dataPoints: number }>();
+  // Convert real coverage data to markers
+  const markers = useMemo<DataPointMarker[]>(() => {
+    if (!cells || cells.length === 0) return [];
     
-    // Initialize all cities
-    MAJOR_CITIES.forEach(city => {
-      cityData.set(city.name, { contributors: new Set(), dataPoints: 0 });
-    });
+    const maxCount = Math.max(...cells.map(c => c.count), 1);
     
-    // Assign each data point to nearest city
-    cells.forEach(cell => {
-      let nearestCity = MAJOR_CITIES[0];
-      let minDistance = Infinity;
-      
-      MAJOR_CITIES.forEach(city => {
-        const dist = getDistance(cell.lat, cell.lng, city.lat, city.lng);
-        if (dist < minDistance) {
-          minDistance = dist;
-          nearestCity = city;
-        }
-      });
-      
-      const data = cityData.get(nearestCity.name)!;
-      data.dataPoints += cell.count;
-      data.contributors.add(`user_${Math.floor(cell.lat)}_${Math.floor(cell.lng)}`);
-    });
-    
-    // Convert to markers with baseline data
-    return MAJOR_CITIES
-      .map(city => {
-        const data = cityData.get(city.name)!;
-        const baseContributors = Math.floor(Math.random() * 30) + 5;
-        const baseDataPoints = Math.floor(Math.random() * 500) + 100;
-        return {
-          city,
-          contributors: data.contributors.size + baseContributors,
-          dataPoints: data.dataPoints + baseDataPoints,
-          position: latLngToVector3(city.lat, city.lng, 1.53),
-        };
-      })
-      .filter(m => m.contributors > 0);
+    return cells.slice(0, 200).map(cell => ({
+      lat: cell.lat,
+      lng: cell.lng,
+      count: cell.count,
+      position: latLngToVector3(cell.lat, cell.lng, 1.54),
+      intensity: cell.count / maxCount,
+    }));
   }, [cells]);
   
   useFrame(() => {
     if (groupRef.current) {
-      groupRef.current.rotation.y += 0.0005;
+      groupRef.current.rotation.y += 0.0003;
     }
   });
 
   return (
     <group ref={groupRef}>
-      {cityMarkers.map((marker) => (
-        <CityHotspot
-          key={marker.city.name}
+      {markers.map((marker, idx) => (
+        <DataHotspot
+          key={`${marker.lat}-${marker.lng}-${idx}`}
           marker={marker}
-          onSelect={onSelectCity}
-          isSelected={selectedCity?.city.name === marker.city.name}
+          onSelect={onSelectMarker}
+          isSelected={selectedMarker?.lat === marker.lat && selectedMarker?.lng === marker.lng}
         />
       ))}
     </group>
   );
 };
 
-// Scene with camera controls
+// Scene with enhanced lighting
 const GlobeScene: React.FC<{
   cells: GlobalCoverageCell[];
-  selectedCity: CityMarker | null;
-  onSelectCity: (marker: CityMarker | null) => void;
-}> = ({ cells, selectedCity, onSelectCity }) => {
+  selectedMarker: DataPointMarker | null;
+  onSelectMarker: (marker: DataPointMarker | null) => void;
+}> = ({ cells, selectedMarker, onSelectMarker }) => {
   return (
     <>
-      {/* Lighting for realistic appearance */}
-      <ambientLight intensity={0.4} />
-      <directionalLight position={[5, 3, 5]} intensity={1} color="#ffffff" />
-      <directionalLight position={[-5, -3, -5]} intensity={0.3} color="#4da6ff" />
+      {/* Photorealistic lighting setup */}
+      <ambientLight intensity={0.25} color="#b8d4ff" />
       
-      {/* Subtle star field */}
+      {/* Sun - main light source */}
+      <directionalLight 
+        position={[5, 2, 5]} 
+        intensity={1.8} 
+        color="#fff5e6"
+        castShadow
+      />
+      
+      {/* Soft fill from opposite side */}
+      <directionalLight 
+        position={[-5, -2, -5]} 
+        intensity={0.15} 
+        color="#4da6ff" 
+      />
+      
+      {/* Rim light for atmosphere edge */}
+      <directionalLight 
+        position={[0, 5, -3]} 
+        intensity={0.3} 
+        color="#87ceeb" 
+      />
+      
+      {/* Deep space stars */}
       <Stars
-        radius={100}
-        depth={50}
-        count={800}
-        factor={2}
-        saturation={0}
+        radius={300}
+        depth={100}
+        count={3000}
+        factor={3}
+        saturation={0.1}
         fade
-        speed={0.1}
+        speed={0.05}
       />
       
       <Earth />
-      <CityMarkers 
+      <DataMarkers 
         cells={cells} 
-        selectedCity={selectedCity}
-        onSelectCity={onSelectCity}
+        selectedMarker={selectedMarker}
+        onSelectMarker={onSelectMarker}
       />
       
       <OrbitControls
         enablePan={false}
         enableZoom={true}
-        minDistance={2.2}
-        maxDistance={5}
-        autoRotate={!selectedCity}
-        autoRotateSpeed={0.25}
-        dampingFactor={0.08}
+        minDistance={2.0}
+        maxDistance={6}
+        autoRotate={!selectedMarker}
+        autoRotateSpeed={0.2}
+        dampingFactor={0.05}
         enableDamping
-        rotateSpeed={0.4}
+        rotateSpeed={0.3}
       />
     </>
   );
@@ -339,13 +324,22 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
   loading = false,
   totalDataPoints = 0,
   uniqueLocations = 0,
-  coverageAreaKm2 = 0,
 }) => {
-  const [selectedCity, setSelectedCity] = useState<CityMarker | null>(null);
+  const [selectedMarker, setSelectedMarker] = useState<DataPointMarker | null>(null);
+  
+  // Calculate real stats from data
+  const realStats = useMemo(() => {
+    const uniqueCountries = new Set(coverageData.map(c => `${Math.floor(c.lat / 10)}-${Math.floor(c.lng / 10)}`)).size;
+    return {
+      dataPoints: totalDataPoints || coverageData.reduce((sum, c) => sum + c.count, 0),
+      locations: uniqueLocations || coverageData.length,
+      regions: uniqueCountries || Math.min(coverageData.length, 30),
+    };
+  }, [coverageData, totalDataPoints, uniqueLocations]);
 
   return (
-    <div className="relative w-full h-full bg-gradient-to-b from-[#0c1829] via-[#0a1525] to-[#050a12] overflow-hidden">
-      {/* Top stats bar - clean Apple-style */}
+    <div className="relative w-full h-full bg-gradient-to-b from-[#0a0f1a] via-[#050a12] to-[#020408] overflow-hidden">
+      {/* Top stats bar */}
       <div className="absolute top-0 left-0 right-0 z-20 p-4" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 16px)' }}>
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
@@ -355,28 +349,28 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
             </div>
             <span className="text-green-500 text-sm font-bold tracking-wide">LIVE</span>
           </div>
-          <span className="text-white/40 text-xs">Global Network</span>
+          <span className="text-white/40 text-xs">Community Coverage Map</span>
         </div>
         
         {/* Stats row */}
         <div className="flex justify-between gap-2">
           <div className="flex-1 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl px-3 py-2 text-center">
             <div className="text-white text-base font-bold tabular-nums">
-              {(totalDataPoints || 12847).toLocaleString()}
+              {realStats.dataPoints.toLocaleString()}
             </div>
             <div className="text-white/50 text-[10px] font-medium">Data Points</div>
           </div>
           <div className="flex-1 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl px-3 py-2 text-center">
             <div className="text-white text-base font-bold tabular-nums">
-              {MAJOR_CITIES.length}
+              {realStats.locations.toLocaleString()}
             </div>
-            <div className="text-white/50 text-[10px] font-medium">Cities</div>
+            <div className="text-white/50 text-[10px] font-medium">Locations</div>
           </div>
           <div className="flex-1 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl px-3 py-2 text-center">
             <div className="text-white text-base font-bold tabular-nums">
-              {(uniqueLocations || 892).toLocaleString()}
+              {realStats.regions}
             </div>
-            <div className="text-white/50 text-[10px] font-medium">Contributors</div>
+            <div className="text-white/50 text-[10px] font-medium">Regions</div>
           </div>
         </div>
       </div>
@@ -386,15 +380,21 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
         <div className="w-full h-[65vh] max-h-[550px]">
           <Suspense fallback={<GlobeLoading />}>
             <Canvas
-              camera={{ position: [0, 0.3, 3.5], fov: 45 }}
-              gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
+              camera={{ position: [0, 0.2, 3.2], fov: 45 }}
+              gl={{ 
+                antialias: true, 
+                alpha: true, 
+                powerPreference: 'high-performance',
+                toneMapping: THREE.ACESFilmicToneMapping,
+                toneMappingExposure: 1.2,
+              }}
               dpr={[1, 2]}
-              onPointerMissed={() => setSelectedCity(null)}
+              onPointerMissed={() => setSelectedMarker(null)}
             >
               <GlobeScene 
                 cells={coverageData}
-                selectedCity={selectedCity}
-                onSelectCity={setSelectedCity}
+                selectedMarker={selectedMarker}
+                onSelectMarker={setSelectedMarker}
               />
             </Canvas>
           </Suspense>
@@ -406,7 +406,7 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
         <div className="flex items-center gap-4 bg-black/40 backdrop-blur-sm border border-white/10 rounded-full px-4 py-2">
           <div className="flex items-center gap-1.5">
             <div className="w-2 h-2 rounded-full bg-green-500" />
-            <span className="text-white/70 text-[10px] font-medium">High</span>
+            <span className="text-white/70 text-[10px] font-medium">High Activity</span>
           </div>
           <div className="flex items-center gap-1.5">
             <div className="w-2 h-2 rounded-full bg-cyan-500" />
@@ -414,28 +414,28 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
           </div>
           <div className="flex items-center gap-1.5">
             <div className="w-2 h-2 rounded-full bg-purple-500" />
-            <span className="text-white/70 text-[10px] font-medium">Growing</span>
+            <span className="text-white/70 text-[10px] font-medium">New</span>
           </div>
         </div>
       </div>
 
       {/* Hint */}
       <div className="absolute bottom-20 left-0 right-0 z-20 flex justify-center pointer-events-none">
-        <span className="text-white/30 text-[10px]">Drag to rotate • Pinch to zoom • Tap city for details</span>
+        <span className="text-white/30 text-[10px]">Drag to rotate • Pinch to zoom • Tap marker for details</span>
       </div>
 
       {/* Loading overlay */}
       {loading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-[#050a12]/90 z-30">
+        <div className="absolute inset-0 flex items-center justify-center bg-[#020408]/90 z-30">
           <div className="flex flex-col items-center gap-3">
             <div className="w-10 h-10 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
-            <span className="text-primary text-sm font-medium">Loading network...</span>
+            <span className="text-primary text-sm font-medium">Loading network data...</span>
           </div>
         </div>
       )}
 
       {/* Bottom gradient fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[#050a12] to-transparent z-10 pointer-events-none" />
+      <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[#020408] to-transparent z-10 pointer-events-none" />
     </div>
   );
 };
