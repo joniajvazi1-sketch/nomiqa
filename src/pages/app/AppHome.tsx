@@ -26,7 +26,7 @@ import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from '@/components/app/PullToRefreshIndicator';
 import { AppSpinner } from '@/components/app/AppSpinner';
 import { DailyCheckIn } from '@/components/app/DailyCheckIn';
-import { SpinWheel } from '@/components/app/SpinWheel';
+// SpinWheel removed per user request
 import { StatusBanner } from '@/components/app/StatusBanner';
 import { WeeklySummaryModal } from '@/components/app/WeeklySummaryModal';
 import { TOKENOMICS, pointsToUsd } from '@/utils/tokenomics';
@@ -40,8 +40,8 @@ export const AppHome: React.FC = () => {
   const { streakDays } = useAchievements();
   const { unclaimedCount } = useChallenges();
   const { share } = useNativeShare();
-  const [showSpinWheel, setShowSpinWheel] = useState(false);
-  const [spinReady, setSpinReady] = useState(false);
+  // SpinWheel removed
+  const [streakBonus, setStreakBonus] = useState(0);
   const [showReferralNudge, setShowReferralNudge] = useState(false);
   
   const [showOnboarding, setShowOnboarding] = useState(() => {
@@ -122,15 +122,7 @@ export const AppHome: React.FC = () => {
           setPoints(pointsData);
         }
 
-        // Check spin status for today
-        const today = new Date().toISOString().split('T')[0];
-        const { data: spinData } = await supabase
-          .from('spin_wheel_results')
-          .select('id')
-          .eq('user_id', currentUser.id)
-          .eq('spin_date', today)
-          .maybeSingle();
-        setSpinReady(!spinData);
+        // Spin wheel removed - skip check
 
         // Load recent sessions for activity
         const { data: sessionsData } = await supabase
@@ -151,10 +143,11 @@ export const AppHome: React.FC = () => {
         // Build combined activity list
         const allActivity: typeof recentActivity = [];
 
+        const todayStr = new Date().toISOString().split('T')[0];
         if (sessionsData && sessionsData.length > 0) {
           // Calculate today's points
           const todayTotal = sessionsData
-            .filter(s => s.started_at.startsWith(today))
+            .filter(s => s.started_at.startsWith(todayStr))
             .reduce((sum, s) => sum + (s.total_points_earned || 0), 0);
           setTodayPoints(todayTotal);
 
@@ -399,41 +392,29 @@ export const AppHome: React.FC = () => {
             </button>
           </div>
 
-          {/* Quick Actions */}
-          <div className="grid grid-cols-3 gap-2">
-            <button
-              onClick={() => { mediumTap(); setShowSpinWheel(true); }}
-              className="rounded-xl bg-card border border-border p-3 text-center relative active:scale-95 transition-transform"
-            >
-              {spinReady && (
-                <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-green-500" />
-              )}
-              <Gift className="w-4 h-4 text-pink-500 mx-auto mb-1" />
-              <p className="text-xs font-medium text-foreground">Daily Spin</p>
-              <p className="text-[10px] text-muted-foreground">{spinReady ? 'Ready!' : 'Done'}</p>
-            </button>
-            
+          {/* Quick Actions - 2 items, SpinWheel removed */}
+          <div className="grid grid-cols-2 gap-3">
             <button
               onClick={() => { mediumTap(); navigate('/app/challenges'); }}
-              className="rounded-xl bg-card border border-border p-3 text-center relative active:scale-95 transition-transform"
+              className="rounded-xl bg-card border border-border p-4 text-center relative active:scale-95 transition-transform"
             >
               {unclaimedCount > 0 && (
-                <span className="absolute top-2 right-2 w-4 h-4 rounded-full bg-green-500 text-white text-[10px] font-bold flex items-center justify-center">
+                <span className="absolute top-3 right-3 w-5 h-5 rounded-full bg-green-500 text-white text-[10px] font-bold flex items-center justify-center">
                   {unclaimedCount}
                 </span>
               )}
-              <Target className="w-4 h-4 text-blue-500 mx-auto mb-1" />
-              <p className="text-xs font-medium text-foreground">Challenges</p>
-              <p className="text-[10px] text-muted-foreground">{unclaimedCount > 0 ? 'Claim!' : 'View'}</p>
+              <Target className="w-6 h-6 text-blue-500 mx-auto mb-2" />
+              <p className="text-sm font-bold text-foreground">Challenges</p>
+              <p className="text-xs font-medium text-muted-foreground">{unclaimedCount > 0 ? 'Claim rewards!' : 'View all'}</p>
             </button>
             
             <button
               onClick={() => { mediumTap(); navigate('/app/leaderboard'); }}
-              className="rounded-xl bg-card border border-border p-3 text-center active:scale-95 transition-transform"
+              className="rounded-xl bg-card border border-border p-4 text-center active:scale-95 transition-transform"
             >
-              <Trophy className="w-4 h-4 text-amber-500 mx-auto mb-1" />
-              <p className="text-xs font-medium text-foreground">Leaderboard</p>
-              <p className="text-[10px] text-muted-foreground">Compete</p>
+              <Trophy className="w-6 h-6 text-amber-500 mx-auto mb-2" />
+              <p className="text-sm font-bold text-foreground">Leaderboard</p>
+              <p className="text-xs font-medium text-muted-foreground">Compete</p>
             </button>
           </div>
 
@@ -493,15 +474,7 @@ export const AppHome: React.FC = () => {
         </div>
       </div>
 
-      {/* Modals */}
-      <AnimatePresence>
-        {showSpinWheel && user && (
-          <SpinWheel 
-            userId={user.id}
-            onClose={() => setShowSpinWheel(false)} 
-          />
-        )}
-      </AnimatePresence>
+      {/* SpinWheel removed per user request */}
 
       {/* One-time Referral Nudge - After 100 points */}
       <Sheet open={showReferralNudge} onOpenChange={setShowReferralNudge}>

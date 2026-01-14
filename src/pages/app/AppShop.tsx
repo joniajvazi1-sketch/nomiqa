@@ -285,9 +285,8 @@ export const AppShop: React.FC = () => {
         {/* Header with payment mode info */}
         <header className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-foreground tracking-tight">{t('app.shop.title')}</h1>
-            <p className="text-sm text-muted-foreground">{t('app.shop.destinations')}</p>
-            <p className="text-xs text-primary mt-0.5">Pay with card now • Points later</p>
+            <h1 className="text-2xl font-extrabold text-foreground tracking-tight">Buy eSIMs</h1>
+            <p className="text-base font-semibold text-muted-foreground">200+ Destinations</p>
           </div>
           <button 
             ref={cartButtonRef}

@@ -320,19 +320,19 @@ export const NetworkContribution: React.FC = () => {
           {/* Main Control Button */}
           <div className="flex justify-center mb-3">
             <div className="relative">
-              {/* Outer glow ring - idle */}
+              {/* Outer glow ring - idle (RED) */}
               {!isActive && user && consentGiven && (
-                <div className="absolute inset-[-16px] rounded-full">
-                  <div className="absolute inset-0 rounded-full bg-[#00d4ff]/20 animate-ping" style={{ animationDuration: '2s' }} />
-                  <div className="absolute inset-2 rounded-full border-2 border-[#00d4ff]/30 animate-pulse" />
+                <div className="absolute inset-[-20px] rounded-full">
+                  <div className="absolute inset-0 rounded-full bg-red-500/20 animate-ping" style={{ animationDuration: '2s' }} />
+                  <div className="absolute inset-2 rounded-full border-2 border-red-500/40 animate-pulse" />
                 </div>
               )}
               
-              {/* Active scanning ring */}
+              {/* Active scanning ring (GREEN) */}
               {isActive && isCellular && (
-                <div className="absolute inset-[-16px] rounded-full">
-                  <div className="absolute inset-0 rounded-full border-2 border-[#00ffa3]/50 animate-[ping_1.5s_ease-out_infinite]" />
-                  <div className="absolute inset-4 rounded-full border border-[#00ffa3]/30 animate-[ping_1.5s_ease-out_infinite_0.5s]" />
+                <div className="absolute inset-[-20px] rounded-full">
+                  <div className="absolute inset-0 rounded-full border-3 border-green-400/60 animate-[ping_1.5s_ease-out_infinite]" />
+                  <div className="absolute inset-4 rounded-full border-2 border-green-400/40 animate-[ping_1.5s_ease-out_infinite_0.5s]" />
                 </div>
               )}
               
@@ -354,26 +354,35 @@ export const NetworkContribution: React.FC = () => {
                 }}
                 disabled={!user}
                 className={cn(
-                  'w-20 h-20 rounded-full relative z-10',
-                  'flex items-center justify-center',
+                  'w-24 h-24 rounded-full relative z-10',
+                  'flex flex-col items-center justify-center gap-1',
                   'shadow-2xl active:scale-95',
                   'transition-all duration-300',
                   isActive 
                     ? isPaused
-                      ? 'bg-gradient-to-br from-amber-400 to-amber-600 shadow-amber-500/40' 
-                      : 'bg-gradient-to-br from-[#00ffa3] to-[#00d4aa] shadow-[#00ffa3]/40' 
-                    : 'bg-gradient-to-br from-[#00d4ff] to-[#0099cc] hover:scale-105 shadow-[#00d4ff]/40',
+                      ? 'bg-gradient-to-br from-amber-400 to-amber-600 shadow-amber-500/50' 
+                      : 'bg-gradient-to-br from-green-400 to-green-600 shadow-green-500/50 animate-pulse' 
+                    : 'bg-gradient-to-br from-red-500 to-red-600 hover:scale-105 shadow-red-500/50',
                   !user && 'opacity-40 cursor-not-allowed'
                 )}
               >
                 {isActive ? (
                   isPaused ? (
-                    <Wifi className="w-8 h-8 text-white drop-shadow-lg" />
+                    <>
+                      <Wifi className="w-8 h-8 text-white drop-shadow-lg" />
+                      <span className="text-[10px] font-bold text-white/90">PAUSED</span>
+                    </>
                   ) : (
-                    <Pause className="w-8 h-8 text-white drop-shadow-lg" />
+                    <>
+                      <Pause className="w-8 h-8 text-white drop-shadow-lg" />
+                      <span className="text-[10px] font-bold text-white/90">STOP</span>
+                    </>
                   )
                 ) : (
-                  <Play className="w-8 h-8 text-white drop-shadow-lg ml-1" />
+                  <>
+                    <Play className="w-8 h-8 text-white drop-shadow-lg ml-1" />
+                    <span className="text-[10px] font-bold text-white/90">START</span>
+                  </>
                 )}
               </button>
             </div>

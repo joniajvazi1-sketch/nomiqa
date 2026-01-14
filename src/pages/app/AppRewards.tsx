@@ -254,60 +254,87 @@ export const AppRewards: React.FC = () => {
 
   const totalUsd = pointsToUsd(totalPoints);
 
+  const handleClaimPoints = () => {
+    mediumTap();
+    window.open('https://nomiqa.lovable.app/token', '_blank');
+  };
+
   return (
     <div className="min-h-screen bg-background pb-24">
       <div className="px-4 py-6 space-y-5">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-bold text-foreground">Rewards</h1>
+          <h1 className="text-2xl font-extrabold text-foreground">Rewards</h1>
           <Button 
             variant="ghost" 
             size="sm"
             onClick={() => { lightTap(); navigate('/app/profile?tab=settings'); }}
-            className="text-muted-foreground"
+            className="text-muted-foreground font-semibold"
           >
             <Info className="w-4 h-4 mr-1" />
             Help
           </Button>
         </div>
 
-        {/* Points Balance Card - Clean banking style */}
+        {/* Claim Points CTA - Prominent */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
+          className="rounded-2xl bg-gradient-to-r from-primary to-primary/80 p-4 shadow-lg"
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-bold text-white">Ready to Claim?</h2>
+              <p className="text-sm text-white/80 font-medium">Convert your points to tokens</p>
+            </div>
+            <Button
+              onClick={handleClaimPoints}
+              className="bg-white text-primary hover:bg-white/90 font-bold px-5 shadow-md"
+            >
+              Claim Points
+              <ChevronRight className="w-4 h-4 ml-1" />
+            </Button>
+          </div>
+        </motion.div>
+
+        {/* Points Balance Card - Bolder typography */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
           className="rounded-2xl bg-white border border-border shadow-elevated p-5"
         >
           <div className="flex items-center gap-2 mb-1">
-            <Coins className="w-5 h-5 text-primary" />
-            <span className="text-sm font-medium text-muted-foreground">Total Points</span>
+            <Coins className="w-5 h-5 text-green-500" />
+            <span className="text-sm font-bold text-foreground">Total Points</span>
           </div>
           
           {/* Points big, value small */}
           <div className="flex items-baseline gap-3 mb-1">
-            <span className="text-4xl font-bold text-foreground tabular-nums">
+            <span className="text-5xl font-extrabold text-foreground tabular-nums">
               {totalPoints.toLocaleString()}
             </span>
-            <span className="text-base text-muted-foreground">pts</span>
+            <span className="text-lg font-bold text-muted-foreground">pts</span>
           </div>
           
-          <div className="text-sm text-muted-foreground mb-1">
-            Estimated value: ${totalUsd.toFixed(2)}
+          <div className="text-base font-semibold text-green-600 mb-1">
+            ≈ ${totalUsd.toFixed(2)} USD
           </div>
-          <p className="text-[10px] text-muted-foreground/70 mb-1">
-            1 point = 1 token (redeem in app)
+          <p className="text-xs font-medium text-muted-foreground mb-1">
+            1 point = 1 token (redeem on website)
           </p>
-          <p className="text-[10px] text-primary/80">
-            Earn more by inviting friends (10% lifetime)
+          <p className="text-xs font-semibold text-primary">
+            🎁 Invite friends → Earn 10% lifetime rewards
           </p>
 
           {pendingPoints > 0 && (
-            <div className="flex items-center gap-1.5 text-sm text-amber-600 group cursor-help relative">
-              <Clock className="w-3.5 h-3.5" />
-              <span>{pendingPoints} pending verification (up to 24h)</span>
+            <div className="flex items-center gap-1.5 text-sm font-semibold text-amber-600 mt-3 pt-3 border-t border-border group cursor-help relative">
+              <Clock className="w-4 h-4" />
+              <span>{pendingPoints} pending (~24h)</span>
               <div className="relative">
                 <Info className="w-3 h-3 opacity-60 peer" />
                 <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 rounded-lg bg-foreground text-background text-xs w-48 text-center opacity-0 peer-hover:opacity-100 transition-opacity pointer-events-none z-50">
-                  Anti-fraud & quality checks. Keep contributing to unlock faster!
+                  Anti-fraud & quality checks. Keep contributing!
                 </div>
               </div>
             </div>

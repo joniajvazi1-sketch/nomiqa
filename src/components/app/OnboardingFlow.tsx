@@ -1,275 +1,170 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import useEmblaCarousel from 'embla-carousel-react';
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { 
   Signal, 
   Coins, 
-  Lock,
-  ChevronRight,
-  Smartphone,
   ArrowRight,
-  Battery,
-  Shield
+  LogIn,
+  UserPlus
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useHaptics } from '@/hooks/useHaptics';
 import { cn } from '@/lib/utils';
-import OnboardingSlide from './onboarding/OnboardingSlide';
-import LocationPermissionRequest from './onboarding/LocationPermissionRequest';
-import ReferralCodeEntry from './onboarding/ReferralCodeEntry';
-import WelcomeBonus from './onboarding/WelcomeBonus';
-import { APP_COPY } from '@/utils/appCopy';
 
 interface OnboardingFlowProps {
   onComplete: () => void;
 }
 
-type OnboardingStep = 
-  | 'slides' 
-  | 'permissions' 
-  | 'referral' 
-  | 'welcome';
-
-interface SlideContent {
-  id: number;
-  icon: React.ElementType;
-  iconColor: string;
-  title: string;
-  description: string;
-}
-
-// 3 informational slides with trust-building copy from APP_COPY
-const slides: SlideContent[] = [
-  {
-    id: 1,
-    icon: Signal,
-    iconColor: 'text-primary',
-    title: APP_COPY.onboarding.slide1Title,
-    description: APP_COPY.onboarding.slide1Description,
-  },
-  {
-    id: 2,
-    icon: Smartphone,
-    iconColor: 'text-green-500',
-    title: APP_COPY.onboarding.slide2Title,
-    description: APP_COPY.onboarding.slide2Description,
-  },
-  {
-    id: 3,
-    icon: Shield,
-    iconColor: 'text-sky-500',
-    title: APP_COPY.onboarding.slide3Title,
-    description: APP_COPY.onboarding.slide3Description,
-  }
-];
-
+/**
+ * Single-page App Intro - Bold headline, prominent Login/Signup buttons
+ * No scrolling, no carousel - just impact
+ */
 export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) => {
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false });
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const [step, setStep] = useState<OnboardingStep>('slides');
-  const [referralApplied, setReferralApplied] = useState(false);
-  const { mediumTap, lightTap, success } = useHaptics();
+  const navigate = useNavigate();
+  const { mediumTap, success } = useHaptics();
+  const [isNavigating, setIsNavigating] = useState(false);
 
-  const scrollTo = useCallback((index: number) => {
-    if (emblaApi) {
-      emblaApi.scrollTo(index);
-    }
-  }, [emblaApi]);
-
-  const onSelect = useCallback(() => {
-    if (!emblaApi) return;
-    const index = emblaApi.selectedScrollSnap();
-    setCurrentSlide(index);
-    lightTap();
-  }, [emblaApi, lightTap]);
-
-  useEffect(() => {
-    if (!emblaApi) return;
-    emblaApi.on('select', onSelect);
-    return () => {
-      emblaApi.off('select', onSelect);
-    };
-  }, [emblaApi, onSelect]);
-
-  const handleNextSlide = () => {
+  const handleLogin = () => {
     mediumTap();
-    if (currentSlide < slides.length - 1) {
-      scrollTo(currentSlide + 1);
-    } else {
-      // Move to permissions step
-      setStep('permissions');
-    }
+    setIsNavigating(true);
+    localStorage.setItem('hasSeenOnboarding', 'true');
+    navigate('/auth?mode=login');
   };
 
-  const handleSkipToEnd = () => {
-    lightTap();
-    setStep('permissions');
+  const handleSignUp = () => {
+    mediumTap();
+    setIsNavigating(true);
+    localStorage.setItem('hasSeenOnboarding', 'true');
+    navigate('/auth?mode=signup');
   };
 
-  const handlePermissionGranted = () => {
-    setStep('referral');
-  };
-
-  const handlePermissionSkipped = () => {
-    setStep('referral');
-  };
-
-  const handleReferralContinue = (code: string | null) => {
-    setReferralApplied(!!code);
-    setStep('welcome');
-  };
-
-  const handleReferralSkip = () => {
-    setStep('welcome');
-  };
-
-  const handleComplete = () => {
+  const handleSkip = () => {
     success();
     localStorage.setItem('hasSeenOnboarding', 'true');
     onComplete();
   };
-
-  const isLastSlide = currentSlide === slides.length - 1;
 
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[100] bg-background"
+      className="fixed inset-0 z-[100] bg-gradient-to-b from-background via-background to-primary/5"
     >
-      <AnimatePresence mode="wait">
-        {step === 'slides' && (
-          <motion.div
-            key="slides"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0, x: -50 }}
-            className="h-full flex flex-col"
-            style={{ 
-              paddingTop: 'env(safe-area-inset-top, 0px)', 
-              paddingBottom: 'env(safe-area-inset-bottom, 0px)' 
-            }}
+      <div 
+        className="h-full flex flex-col items-center justify-between px-6"
+        style={{ 
+          paddingTop: 'calc(env(safe-area-inset-top, 0px) + 3rem)', 
+          paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 2rem)' 
+        }}
+      >
+        {/* Skip button - top right */}
+        <div className="absolute top-0 left-0 right-0 z-10 px-6 pt-14">
+          <button
+            onClick={handleSkip}
+            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
           >
-            {/* Skip button */}
-            <div className="absolute top-0 left-0 right-0 z-10 px-4 pt-12">
-              <button
-                onClick={handleSkipToEnd}
-                className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Skip
-              </button>
+            Skip for now
+          </button>
+        </div>
+
+        {/* Top: Icon + Branding */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="flex flex-col items-center pt-12"
+        >
+          {/* Animated icon */}
+          <div className="relative mb-6">
+            <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-2xl shadow-primary/30">
+              <Signal className="w-12 h-12 text-white" />
             </div>
-
-            {/* Carousel */}
-            <div className="flex-1 overflow-hidden" ref={emblaRef}>
-              <div className="flex h-full">
-                {slides.map((slide, index) => (
-                  <OnboardingSlide
-                    key={slide.id}
-                    icon={slide.icon}
-                    iconColor={slide.iconColor}
-                    title={slide.title}
-                    description={slide.description}
-                    isActive={currentSlide === index}
-                  />
-                ))}
-              </div>
+            <div className="absolute -bottom-2 -right-2 w-10 h-10 rounded-xl bg-gradient-to-br from-green-400 to-green-500 flex items-center justify-center shadow-lg">
+              <Coins className="w-5 h-5 text-white" />
             </div>
+          </div>
+          
+          <h2 className="text-lg font-bold text-primary tracking-wide">NOMIQA</h2>
+        </motion.div>
 
-            {/* Bottom controls */}
-            <div className="px-6 pb-6 space-y-4">
-              {/* Pagination dots */}
-              <div className="flex items-center justify-center gap-2">
-                {slides.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => { lightTap(); scrollTo(index); }}
-                    className={cn(
-                      "h-2 rounded-full transition-all duration-300",
-                      currentSlide === index 
-                        ? "w-6 bg-primary" 
-                        : "w-2 bg-muted"
-                    )}
-                  />
-                ))}
-              </div>
+        {/* Center: Bold Headline */}
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2 }}
+          className="text-center space-y-4 -mt-8"
+        >
+          <h1 className="text-4xl font-extrabold text-foreground leading-tight tracking-tight">
+            Turn Your Signal<br />
+            <span className="text-primary">Into Rewards</span>
+          </h1>
+          
+          <p className="text-lg text-muted-foreground font-medium max-w-xs mx-auto">
+            Earn points just by carrying your phone. No effort needed.
+          </p>
 
-              {/* Next button */}
-              <button
-                onClick={handleNextSlide}
-                className={cn(
-                  "w-full h-12 rounded-xl font-semibold text-sm",
-                  "flex items-center justify-center gap-2",
-                  "active:scale-[0.98] transition-transform",
-                  isLastSlide 
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-card border border-border text-foreground"
-                )}
-              >
-                {isLastSlide ? 'Get Started' : 'Next'}
-                <ChevronRight className="w-4 h-4" />
-              </button>
+          {/* Trust indicators */}
+          <div className="flex items-center justify-center gap-4 pt-4">
+            <div className="flex items-center gap-1.5 text-sm text-green-600 font-semibold">
+              <span className="w-2 h-2 rounded-full bg-green-500" />
+              Privacy First
             </div>
-          </motion.div>
-        )}
+            <div className="flex items-center gap-1.5 text-sm text-green-600 font-semibold">
+              <span className="w-2 h-2 rounded-full bg-green-500" />
+              Low Battery
+            </div>
+          </div>
+        </motion.div>
 
-        {step === 'permissions' && (
-          <motion.div
-            key="permissions"
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -50 }}
-            className="h-full"
-            style={{ 
-              paddingTop: 'env(safe-area-inset-top, 0px)', 
-              paddingBottom: 'env(safe-area-inset-bottom, 0px)' 
-            }}
+        {/* Bottom: Auth Buttons */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="w-full space-y-3"
+        >
+          {/* Sign Up - Primary CTA */}
+          <button
+            onClick={handleSignUp}
+            disabled={isNavigating}
+            className={cn(
+              "w-full h-14 rounded-2xl font-bold text-lg",
+              "flex items-center justify-center gap-3",
+              "bg-primary text-primary-foreground",
+              "shadow-lg shadow-primary/30",
+              "active:scale-[0.98] transition-all",
+              isNavigating && "opacity-70"
+            )}
           >
-            <LocationPermissionRequest
-              onPermissionGranted={handlePermissionGranted}
-              onSkip={handlePermissionSkipped}
-            />
-          </motion.div>
-        )}
+            <UserPlus className="w-5 h-5" />
+            Create Account
+            <ArrowRight className="w-5 h-5" />
+          </button>
 
-        {step === 'referral' && (
-          <motion.div
-            key="referral"
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -50 }}
-            className="h-full"
-            style={{ 
-              paddingTop: 'env(safe-area-inset-top, 0px)', 
-              paddingBottom: 'env(safe-area-inset-bottom, 0px)' 
-            }}
+          {/* Login - Secondary */}
+          <button
+            onClick={handleLogin}
+            disabled={isNavigating}
+            className={cn(
+              "w-full h-14 rounded-2xl font-bold text-lg",
+              "flex items-center justify-center gap-3",
+              "bg-card border-2 border-border text-foreground",
+              "hover:border-primary/50 hover:bg-primary/5",
+              "active:scale-[0.98] transition-all",
+              isNavigating && "opacity-70"
+            )}
           >
-            <ReferralCodeEntry
-              onContinue={handleReferralContinue}
-              onSkip={handleReferralSkip}
-            />
-          </motion.div>
-        )}
+            <LogIn className="w-5 h-5" />
+            I Have an Account
+          </button>
 
-        {step === 'welcome' && (
-          <motion.div
-            key="welcome"
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0 }}
-            className="h-full"
-            style={{ 
-              paddingTop: 'env(safe-area-inset-top, 0px)', 
-              paddingBottom: 'env(safe-area-inset-bottom, 0px)' 
-            }}
-          >
-            <WelcomeBonus
-              referralApplied={referralApplied}
-              onComplete={handleComplete}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
+          {/* Fine print */}
+          <p className="text-center text-xs text-muted-foreground pt-2">
+            By continuing, you agree to our Terms of Service
+          </p>
+        </motion.div>
+      </div>
     </motion.div>
   );
 };
