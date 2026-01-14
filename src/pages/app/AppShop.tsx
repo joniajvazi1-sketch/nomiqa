@@ -69,7 +69,7 @@ const REGION_IMAGE_MAP: Record<string, string> = {
  */
 export const AppShop: React.FC = () => {
   const navigate = useNavigate();
-  const { data: products, isLoading, refetch } = useProducts();
+  const { data: products, isLoading, isError, refetch } = useProducts();
   const { items, addItem } = useCart();
   const { buttonTap, addToCartPattern, errorPattern, navigationTap, selectionTap } = useEnhancedHaptics();
   const { playPop, playError, playSwoosh } = useEnhancedSounds();
@@ -387,6 +387,21 @@ export const AppShop: React.FC = () => {
           <div className="flex items-center justify-center py-14">
             <AppSpinner size="lg" label="Loading plans..." />
           </div>
+        ) : isError ? (
+          <div className="flex flex-col items-center justify-center py-14 gap-4">
+            <AlertCircle className="w-12 h-12 text-destructive" />
+            <div className="text-center">
+              <h3 className="font-semibold text-foreground mb-1">Failed to load plans</h3>
+              <p className="text-sm text-muted-foreground mb-4">Please check your connection and try again</p>
+              <Button 
+                onClick={() => refetch()} 
+                variant="outline" 
+                className="border-primary text-primary hover:bg-primary/10"
+              >
+                Try Again
+              </Button>
+            </div>
+          </div>
         ) : (
           <div className="grid grid-cols-2 gap-3">
             {displayedProducts.map((product, index) => (
@@ -409,13 +424,6 @@ export const AppShop: React.FC = () => {
                   
                   {/* Content */}
                   <div className="relative p-3 border border-border rounded-xl">
-                    {/* Popular badge - Clean style */}
-                    {product.is_popular && (
-                      <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded-md bg-primary/10 border border-primary/20">
-                        <span className="text-[9px] font-medium text-primary">Popular</span>
-                      </div>
-                    )}
-                    
                     {/* Popular badge - Clean style */}
                     {product.is_popular && (
                       <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded-md bg-primary/10 border border-primary/20">
