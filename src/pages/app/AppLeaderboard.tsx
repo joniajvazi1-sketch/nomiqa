@@ -25,7 +25,7 @@ export const AppLeaderboard: React.FC = () => {
 
   return (
     <div 
-      className="min-h-screen bg-background overflow-y-auto app-container momentum-scroll"
+      className="min-h-screen bg-gradient-to-b from-[hsl(220,40%,10%)] via-[hsl(220,40%,8%)] to-[hsl(220,45%,6%)] overflow-y-auto app-container momentum-scroll"
       {...handlers}
     >
       <PullToRefreshIndicator 
@@ -35,15 +35,15 @@ export const AppLeaderboard: React.FC = () => {
       />
       
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50 px-4 py-3">
+      <header className="sticky top-0 z-50 bg-white/5 backdrop-blur-xl border-b border-white/10 px-4 py-3">
         <div className="flex items-center gap-3">
           <button
             onClick={() => { lightTap(); navigate(-1); }}
-            className="w-10 h-10 rounded-full bg-white/[0.05] border border-white/10 flex items-center justify-center hover:bg-white/[0.08] active:scale-95 transition-all"
+            className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center hover:bg-white/15 active:scale-95 transition-all"
           >
-            <ChevronLeft className="w-5 h-5 text-foreground" />
+            <ChevronLeft className="w-5 h-5 text-white" />
           </button>
-          <h1 className="text-lg font-bold text-foreground">{t('app.leaderboard')}</h1>
+          <h1 className="text-lg font-bold text-white">{t('app.leaderboard')}</h1>
         </div>
       </header>
 
