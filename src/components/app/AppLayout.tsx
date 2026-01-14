@@ -63,7 +63,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   }
 
   return (
-    <div className="app-theme fixed inset-0 flex flex-col overflow-hidden bg-background">
+    <div className="app-theme fixed inset-0 flex flex-col overflow-hidden bg-gradient-to-b from-[hsl(220,40%,10%)] via-[hsl(220,40%,8%)] to-[hsl(220,45%,6%)]">
       {/* Scrollable content area with swipe support */}
       <main 
         className="flex-1 overflow-y-auto overflow-x-hidden overscroll-none"
@@ -71,7 +71,6 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           paddingTop: 'env(safe-area-inset-top, 0px)',
           paddingLeft: 'env(safe-area-inset-left, 0px)',
           paddingRight: 'env(safe-area-inset-right, 0px)',
-          // Bottom nav height (64px) + safe area
           paddingBottom: 'calc(64px + env(safe-area-inset-bottom, 0px))',
           WebkitOverflowScrolling: 'touch',
         }}

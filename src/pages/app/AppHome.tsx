@@ -236,7 +236,7 @@ export const AppHome: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <AppSpinner size="lg" />
       </div>
     );
@@ -257,7 +257,7 @@ export const AppHome: React.FC = () => {
       </AnimatePresence>
 
       <div 
-        className="min-h-screen bg-background overflow-y-auto"
+        className="min-h-screen overflow-y-auto"
         {...handlers}
       >
         <PullToRefreshIndicator 
@@ -267,61 +267,61 @@ export const AppHome: React.FC = () => {
         />
 
         <div className="px-4 py-4 pb-24 space-y-4">
-          {/* Header - Minimal, just greeting + settings */}
+          {/* Header - Minimal, white text */}
           <header className="flex items-center justify-between">
             {user && (
-              <h1 className="text-xl font-bold text-foreground">
+              <h1 className="text-xl font-bold text-white">
                 Hi, {displayName}
               </h1>
             )}
 
             <button 
               onClick={() => { mediumTap(); navigate('/app/profile'); }}
-              className="w-9 h-9 rounded-full bg-card border border-border flex items-center justify-center active:scale-95 transition-transform"
+              className="w-9 h-9 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center active:scale-95 transition-transform"
             >
-              <Settings className="w-4 h-4 text-muted-foreground" />
+              <Settings className="w-4 h-4 text-white/70" />
             </button>
           </header>
 
-          {/* Hero Balance Card - ABOVE THE FOLD: Status integrated, earnings, CTA */}
+          {/* Hero Balance Card - Glassmorphism */}
           <motion.div 
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.2 }}
-            className="rounded-2xl bg-white border border-border shadow-elevated p-5"
+            className="rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 shadow-elevated p-5"
           >
-            {/* Integrated status bar - network + sync + mode */}
-            <div className="flex items-center justify-between mb-3 pb-3 border-b border-border/50">
+            {/* Integrated status bar */}
+            <div className="flex items-center justify-between mb-3 pb-3 border-b border-white/10">
               <div className="flex items-center gap-2">
                 <div className={cn(
                   "w-2 h-2 rounded-full",
-                  isOnline ? "bg-green-500 animate-pulse" : "bg-muted-foreground"
+                  isOnline ? "bg-green-400 animate-pulse" : "bg-white/40"
                 )} />
-                <span className="text-xs font-medium text-muted-foreground">
+                <span className="text-xs font-medium text-white/70">
                   {isOnline ? 'Collecting ✓' : 'Paused'}
                 </span>
               </div>
-              <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
+              <div className="flex items-center gap-3 text-[10px] text-white/50">
                 <span>{connectionType || 'WiFi'}</span>
                 <span>•</span>
                 <span>Synced</span>
               </div>
             </div>
             
-            {/* Main earnings display - Points first, value second */}
+            {/* Main earnings display */}
             <div className="mb-3">
-              <div className="text-3xl font-bold text-foreground tabular-nums">
-                {totalPoints.toLocaleString()} <span className="text-lg font-semibold text-muted-foreground">pts</span>
+              <div className="text-3xl font-bold text-white tabular-nums">
+                {totalPoints.toLocaleString()} <span className="text-lg font-semibold text-white/60">pts</span>
               </div>
-              <div className="text-sm text-muted-foreground mt-0.5">
+              <div className="text-sm text-white/60 mt-0.5">
                 Estimated value: ${totalUSD.toFixed(2)}
               </div>
-              <p className="text-[10px] text-muted-foreground/70 mt-1">
+              <p className="text-[10px] text-white/40 mt-1">
                 1 point = 1 token (redeem in app)
               </p>
             </div>
 
-            <p className="text-xs text-muted-foreground mb-4">
+            <p className="text-xs text-white/50 mb-4">
               Uses &lt;3% battery per day · Runs quietly in the background
             </p>
 
@@ -330,8 +330,8 @@ export const AppHome: React.FC = () => {
               className={cn(
                 "w-full h-12 rounded-xl font-semibold text-sm active:scale-[0.98] transition-transform flex items-center justify-center gap-2",
                 isOnline 
-                  ? "bg-green-600 text-white" 
-                  : "bg-primary text-primary-foreground"
+                  ? "bg-green-500 text-white" 
+                  : "bg-primary text-white"
               )}
             >
               <Signal className="w-4 h-4" />
@@ -339,89 +339,87 @@ export const AppHome: React.FC = () => {
             </button>
           </motion.div>
 
-          {/* Referral Micro-Card - Small, classy, one-tap share */}
+          {/* Referral Micro-Card - Glassmorphism */}
           <motion.button
             initial={{ opacity: 0, y: 5 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.2, delay: 0.1 }}
             onClick={() => { mediumTap(); handleShareReferral(); }}
-            className="w-full rounded-xl bg-card border border-border p-3 flex items-center gap-3 active:scale-[0.98] transition-transform"
+            className="w-full rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 p-3 flex items-center gap-3 active:scale-[0.98] transition-transform"
           >
-            <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+            <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
               <Users className="w-4 h-4 text-primary" />
             </div>
             <div className="flex-1 text-left">
-              <p className="text-sm font-semibold text-foreground">Invite friends</p>
-              <p className="text-xs text-muted-foreground">Earn 10% of their lifetime rewards</p>
+              <p className="text-sm font-semibold text-white">Invite friends</p>
+              <p className="text-xs text-white/60">Earn 10% of their lifetime rewards</p>
             </div>
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-medium">
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary text-white text-xs font-medium">
               <Share2 className="w-3 h-3" />
               Share
             </div>
           </motion.button>
 
-          {/* BELOW THE FOLD: Secondary motivators */}
-          
-          {/* Quick Stats - Clean cards */}
+          {/* Quick Stats - Glass cards */}
           <div className="grid grid-cols-3 gap-2">
-            <div className="rounded-xl bg-card border border-border p-3 text-center">
+            <div className="rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 p-3 text-center">
               <MapPin className="w-4 h-4 text-primary mx-auto mb-1" />
-              <div className="text-sm font-semibold text-foreground">
+              <div className="text-sm font-semibold text-white">
                 {formatDistance(points?.total_distance_meters || 0)}
               </div>
-              <p className="text-xs text-muted-foreground">Distance</p>
+              <p className="text-xs text-white/50">Distance</p>
             </div>
             
-            <div className="rounded-xl bg-card border border-border p-3 text-center">
-              <Flame className="w-4 h-4 text-orange-500 mx-auto mb-1" />
-              <div className="text-sm font-semibold text-foreground">
+            <div className="rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 p-3 text-center">
+              <Flame className="w-4 h-4 text-orange-400 mx-auto mb-1" />
+              <div className="text-sm font-semibold text-white">
                 {streakDays}{streakDays >= 2 ? ' 🔥' : ''}
               </div>
-              <p className="text-xs text-muted-foreground">Streak</p>
+              <p className="text-xs text-white/50">Streak</p>
             </div>
             
             <button 
               onClick={() => { mediumTap(); navigate('/app/leaderboard'); }}
-              className="rounded-xl bg-card border border-border p-3 text-center active:scale-95 transition-transform"
+              className="rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 p-3 text-center active:scale-95 transition-transform"
             >
-              <Crown className="w-4 h-4 text-amber-500 mx-auto mb-1" />
-              <div className="text-sm font-semibold text-foreground">
+              <Crown className="w-4 h-4 text-amber-400 mx-auto mb-1" />
+              <div className="text-sm font-semibold text-white">
                 #{points?.total_points ? Math.max(1, Math.floor(1000 / (points.total_points || 1))) : '-'}
               </div>
-              <p className="text-xs text-muted-foreground">Rank</p>
+              <p className="text-xs text-white/50">Rank</p>
             </button>
           </div>
 
-          {/* Quick Actions - 2 items, SpinWheel removed */}
+          {/* Quick Actions - Glass cards */}
           <div className="grid grid-cols-2 gap-3">
             <button
               onClick={() => { mediumTap(); navigate('/app/challenges'); }}
-              className="rounded-xl bg-card border border-border p-4 text-center relative active:scale-95 transition-transform"
+              className="rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 p-4 text-center relative active:scale-95 transition-transform"
             >
               {unclaimedCount > 0 && (
                 <span className="absolute top-3 right-3 w-5 h-5 rounded-full bg-green-500 text-white text-[10px] font-bold flex items-center justify-center">
                   {unclaimedCount}
                 </span>
               )}
-              <Target className="w-6 h-6 text-blue-500 mx-auto mb-2" />
-              <p className="text-sm font-bold text-foreground">Challenges</p>
-              <p className="text-xs font-medium text-muted-foreground">{unclaimedCount > 0 ? 'Claim rewards!' : 'View all'}</p>
+              <Target className="w-6 h-6 text-blue-400 mx-auto mb-2" />
+              <p className="text-sm font-bold text-white">Challenges</p>
+              <p className="text-xs font-medium text-white/50">{unclaimedCount > 0 ? 'Claim rewards!' : 'View all'}</p>
             </button>
             
             <button
               onClick={() => { mediumTap(); navigate('/app/leaderboard'); }}
-              className="rounded-xl bg-card border border-border p-4 text-center active:scale-95 transition-transform"
+              className="rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 p-4 text-center active:scale-95 transition-transform"
             >
-              <Trophy className="w-6 h-6 text-amber-500 mx-auto mb-2" />
-              <p className="text-sm font-bold text-foreground">Leaderboard</p>
-              <p className="text-xs font-medium text-muted-foreground">Compete</p>
+              <Trophy className="w-6 h-6 text-amber-400 mx-auto mb-2" />
+              <p className="text-sm font-bold text-white">Leaderboard</p>
+              <p className="text-xs font-medium text-white/50">Compete</p>
             </button>
           </div>
 
-          {/* Recent Activity */}
-          <div className="rounded-xl bg-card border border-border overflow-hidden">
-            <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-              <h3 className="text-sm font-semibold text-foreground">Recent Activity</h3>
+          {/* Recent Activity - Glass card */}
+          <div className="rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 overflow-hidden">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+              <h3 className="text-sm font-semibold text-white">Recent Activity</h3>
               <button 
                 onClick={() => { mediumTap(); navigate('/app/rewards'); }}
                 className="text-xs text-primary flex items-center gap-0.5"
@@ -431,33 +429,33 @@ export const AppHome: React.FC = () => {
             </div>
             
             {recentActivity.length > 0 ? (
-              <div className="divide-y divide-border">
+              <div className="divide-y divide-white/10">
                 {recentActivity.map((activity, i) => (
                   <div key={i} className="flex items-center gap-3 px-4 py-3">
                     <div className={cn(
                       "w-8 h-8 rounded-full flex items-center justify-center",
-                      activity.type === 'scan' ? "bg-green-100" :
-                      activity.type === 'referral' ? "bg-blue-100" : "bg-amber-100"
+                      activity.type === 'scan' ? "bg-green-500/20" :
+                      activity.type === 'referral' ? "bg-blue-500/20" : "bg-amber-500/20"
                     )}>
                       {activity.type === 'scan' ? (
-                        <Signal className="w-4 h-4 text-green-600" />
+                        <Signal className="w-4 h-4 text-green-400" />
                       ) : activity.type === 'referral' ? (
-                        <Gift className="w-4 h-4 text-blue-600" />
+                        <Gift className="w-4 h-4 text-blue-400" />
                       ) : (
-                        <Zap className="w-4 h-4 text-amber-600" />
+                        <Zap className="w-4 h-4 text-amber-400" />
                       )}
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-foreground">
+                      <p className="text-sm font-medium text-white">
                         {activity.type === 'scan' ? 'Network scan' :
                          activity.type === 'referral' ? 'Referral bonus' : 'Bonus'}
                       </p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs text-white/50">
                         {activity.time}
                         {activity.distance ? ` • ${formatDistance(activity.distance)}` : ''}
                       </p>
                     </div>
-                    <span className="text-sm font-semibold text-green-600">
+                    <span className="text-sm font-semibold text-green-400">
                       +{activity.points}
                     </span>
                   </div>
@@ -465,9 +463,9 @@ export const AppHome: React.FC = () => {
               </div>
             ) : (
               <div className="px-4 py-8 text-center">
-                <Signal className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-                <p className="text-sm text-muted-foreground">No activity yet</p>
-                <p className="text-xs text-muted-foreground">Start a scan to earn points</p>
+                <Signal className="w-8 h-8 text-white/40 mx-auto mb-2" />
+                <p className="text-sm text-white/60">No activity yet</p>
+                <p className="text-xs text-white/40">Start a scan to earn points</p>
               </div>
             )}
           </div>
@@ -476,28 +474,28 @@ export const AppHome: React.FC = () => {
 
       {/* SpinWheel removed per user request */}
 
-      {/* One-time Referral Nudge - After 100 points */}
+      {/* One-time Referral Nudge - Dark glass theme */}
       <Sheet open={showReferralNudge} onOpenChange={setShowReferralNudge}>
-        <SheetContent side="bottom" className="rounded-t-2xl pb-8">
+        <SheetContent side="bottom" className="rounded-t-2xl pb-8 bg-[hsl(220,35%,12%)] border-white/10">
           <SheetHeader className="text-center pb-4">
-            <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-2">
-              <Gift className="w-6 h-6 text-green-600" />
+            <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-2">
+              <Gift className="w-6 h-6 text-green-400" />
             </div>
-            <SheetTitle className="text-lg">You're earning automatically 🎉</SheetTitle>
+            <SheetTitle className="text-lg text-white">You're earning automatically 🎉</SheetTitle>
           </SheetHeader>
-          <p className="text-center text-muted-foreground text-sm mb-6">
-            Invite friends and earn <span className="font-semibold text-foreground">10% of everything they earn</span> — forever.
+          <p className="text-center text-white/60 text-sm mb-6">
+            Invite friends and earn <span className="font-semibold text-white">10% of everything they earn</span> — forever.
           </p>
           <div className="flex gap-3">
             <button
               onClick={handleDismissNudge}
-              className="flex-1 h-11 rounded-xl border border-border text-sm font-medium text-muted-foreground active:scale-95 transition-transform"
+              className="flex-1 h-11 rounded-xl border border-white/20 text-sm font-medium text-white/60 active:scale-95 transition-transform"
             >
               Maybe later
             </button>
             <button
               onClick={() => { handleDismissNudge(); handleShareReferral(); }}
-              className="flex-1 h-11 rounded-xl bg-primary text-primary-foreground text-sm font-semibold flex items-center justify-center gap-2 active:scale-95 transition-transform"
+              className="flex-1 h-11 rounded-xl bg-primary text-white text-sm font-semibold flex items-center justify-center gap-2 active:scale-95 transition-transform"
             >
               <Share2 className="w-4 h-4" />
               Share now
