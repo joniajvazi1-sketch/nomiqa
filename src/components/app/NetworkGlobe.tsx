@@ -1,9 +1,8 @@
-import React, { useRef, useMemo, Suspense, useState, useCallback } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import React, { useRef, useMemo, Suspense, useState, useEffect } from 'react';
+import { Canvas, useFrame, useLoader } from '@react-three/fiber';
 import { OrbitControls, Sphere, Stars, Html } from '@react-three/drei';
 import * as THREE from 'three';
 import { GlobalCoverageCell } from '@/hooks/useGlobalCoverage';
-import { X } from 'lucide-react';
 
 interface NetworkGlobeProps {
   coverageData: GlobalCoverageCell[];
@@ -64,76 +63,65 @@ const getDistance = (lat1: number, lng1: number, lat2: number, lng2: number): nu
   return Math.sqrt(dLat * dLat + dLng * dLng);
 };
 
-// Earth with visible continents
+// Realistic Earth with NASA texture
 const Earth: React.FC = () => {
   const groupRef = useRef<THREE.Group>(null);
+  const earthRef = useRef<THREE.Mesh>(null);
+  const cloudsRef = useRef<THREE.Mesh>(null);
+  
+  // Load Earth textures from NASA/public sources
+  const earthTexture = useLoader(THREE.TextureLoader, 'https://unpkg.com/three-globe@2.31.1/example/img/earth-blue-marble.jpg');
+  const bumpTexture = useLoader(THREE.TextureLoader, 'https://unpkg.com/three-globe@2.31.1/example/img/earth-topology.png');
   
   useFrame(() => {
     if (groupRef.current) {
-      groupRef.current.rotation.y += 0.0008;
+      groupRef.current.rotation.y += 0.0005;
+    }
+    if (cloudsRef.current) {
+      cloudsRef.current.rotation.y += 0.0003;
     }
   });
 
-  // Create continent outlines using simple geometry
-  const continentPoints = useMemo(() => {
-    // Simplified continent outline points
-    const outlines: { points: [number, number][]; color: string }[] = [
-      // North America
-      { points: [[70, -170], [70, -60], [25, -80], [15, -100], [30, -120], [50, -130], [60, -170]], color: '#1a3a2f' },
-      // South America
-      { points: [[-5, -80], [-5, -35], [-55, -70], [-55, -75], [-20, -70]], color: '#1a3a2f' },
-      // Europe
-      { points: [[35, -10], [70, -10], [70, 60], [35, 40]], color: '#1a3a2f' },
-      // Africa
-      { points: [[35, -20], [35, 50], [-35, 25], [-35, 10]], color: '#1a3a2f' },
-      // Asia
-      { points: [[10, 60], [70, 60], [70, 180], [10, 140], [-10, 120]], color: '#1a3a2f' },
-      // Australia
-      { points: [[-10, 110], [-10, 155], [-45, 150], [-45, 115]], color: '#1a3a2f' },
-    ];
-    return outlines;
-  }, []);
-
   return (
     <group ref={groupRef}>
-      {/* Ocean sphere */}
-      <Sphere args={[1.5, 64, 64]}>
+      {/* Main Earth sphere with realistic texture */}
+      <mesh ref={earthRef}>
+        <sphereGeometry args={[1.5, 64, 64]} />
         <meshPhongMaterial
-          color="#0a1929"
-          emissive="#061220"
-          emissiveIntensity={0.3}
-          shininess={10}
+          map={earthTexture}
+          bumpMap={bumpTexture}
+          bumpScale={0.05}
+          shininess={5}
         />
-      </Sphere>
+      </mesh>
       
-      {/* Continent patches - simplified colored areas */}
-      {continentPoints.map((continent, i) => (
-        <mesh key={i}>
-          <sphereGeometry args={[1.502, 32, 32]} />
-          <meshBasicMaterial
-            color="#0d2818"
-            transparent
-            opacity={0.6}
-          />
-        </mesh>
-      ))}
-      
-      {/* Grid lines for globe effect */}
-      <Sphere args={[1.505, 24, 24]}>
-        <meshBasicMaterial
-          color="#1e3a5f"
-          wireframe
+      {/* Subtle cloud layer */}
+      <mesh ref={cloudsRef}>
+        <sphereGeometry args={[1.52, 64, 64]} />
+        <meshPhongMaterial
+          color="#ffffff"
           transparent
           opacity={0.08}
+          depthWrite={false}
+        />
+      </mesh>
+      
+      {/* Atmosphere glow */}
+      <Sphere args={[1.6, 64, 64]}>
+        <meshBasicMaterial
+          color="#4da6ff"
+          transparent
+          opacity={0.08}
+          side={THREE.BackSide}
         />
       </Sphere>
       
-      {/* Atmosphere glow */}
-      <Sphere args={[1.58, 64, 64]}>
+      {/* Outer atmosphere haze */}
+      <Sphere args={[1.7, 64, 64]}>
         <meshBasicMaterial
-          color="#00d4ff"
+          color="#87ceeb"
           transparent
-          opacity={0.05}
+          opacity={0.03}
           side={THREE.BackSide}
         />
       </Sphere>
@@ -159,17 +147,18 @@ const CityHotspot: React.FC<{
   const pulseSpeed = useRef(Math.random() * 1.5 + 0.5);
   
   // Size based on contributor count
-  const baseSize = Math.min(0.03 + (marker.contributors / 100) * 0.02, 0.08);
+  const baseSize = Math.min(0.025 + (marker.contributors / 100) * 0.015, 0.06);
   
   useFrame((state) => {
     if (meshRef.current && glowRef.current) {
-      const pulse = Math.sin(state.clock.elapsedTime * pulseSpeed.current) * 0.2 + 0.9;
-      meshRef.current.scale.setScalar(isSelected ? 1.5 : pulse);
-      glowRef.current.scale.setScalar(isSelected ? 2 : pulse * 1.5);
+      const pulse = Math.sin(state.clock.elapsedTime * pulseSpeed.current) * 0.15 + 0.92;
+      meshRef.current.scale.setScalar(isSelected ? 1.4 : pulse);
+      glowRef.current.scale.setScalar(isSelected ? 1.8 : pulse * 1.4);
     }
   });
 
-  const color = marker.contributors > 50 ? '#00ffa3' : marker.contributors > 10 ? '#00d4ff' : '#a855f7';
+  // Green for high activity, cyan for medium, purple for growing
+  const color = marker.contributors > 50 ? '#22c55e' : marker.contributors > 10 ? '#06b6d4' : '#a855f7';
 
   return (
     <group 
@@ -181,34 +170,34 @@ const CityHotspot: React.FC<{
     >
       {/* Core point */}
       <mesh ref={meshRef}>
-        <sphereGeometry args={[baseSize, 12, 12]} />
+        <sphereGeometry args={[baseSize, 16, 16]} />
         <meshBasicMaterial color={color} />
       </mesh>
       
       {/* Inner glow */}
       <mesh ref={glowRef}>
-        <sphereGeometry args={[baseSize * 2, 12, 12]} />
-        <meshBasicMaterial color={color} transparent opacity={0.4} />
+        <sphereGeometry args={[baseSize * 1.8, 16, 16]} />
+        <meshBasicMaterial color={color} transparent opacity={0.5} />
       </mesh>
       
       {/* Outer glow */}
       <mesh>
-        <sphereGeometry args={[baseSize * 3.5, 12, 12]} />
-        <meshBasicMaterial color={color} transparent opacity={0.15} />
+        <sphereGeometry args={[baseSize * 3, 16, 16]} />
+        <meshBasicMaterial color={color} transparent opacity={0.2} />
       </mesh>
       
       {/* Popup when selected */}
       {isSelected && (
         <Html center distanceFactor={4}>
-          <div className="bg-[#0a1628]/95 backdrop-blur-sm border border-[#00d4ff]/30 rounded-xl px-3 py-2 min-w-[120px] shadow-xl pointer-events-auto">
-            <p className="text-white font-semibold text-sm">{marker.city.name}</p>
+          <div className="bg-white/95 backdrop-blur-sm border border-gray-200 rounded-xl px-3 py-2 min-w-[130px] shadow-xl pointer-events-auto">
+            <p className="text-gray-900 font-bold text-sm">{marker.city.name}</p>
             <div className="flex items-center gap-2 mt-1">
-              <span className="text-[#00d4ff] text-xs font-bold">{marker.contributors}</span>
-              <span className="text-white/50 text-[10px]">contributors</span>
+              <span className="text-green-600 text-xs font-bold">{marker.contributors}</span>
+              <span className="text-gray-500 text-[10px]">contributors</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-[#00ffa3] text-xs font-bold">{marker.dataPoints}</span>
-              <span className="text-white/50 text-[10px]">data points</span>
+              <span className="text-cyan-600 text-xs font-bold">{marker.dataPoints.toLocaleString()}</span>
+              <span className="text-gray-500 text-[10px]">data points</span>
             </div>
           </div>
         </Html>
@@ -249,22 +238,20 @@ const CityMarkers: React.FC<{
       
       const data = cityData.get(nearestCity.name)!;
       data.dataPoints += cell.count;
-      // Simulate unique contributors (in real app, this would come from backend)
       data.contributors.add(`user_${Math.floor(cell.lat)}_${Math.floor(cell.lng)}`);
     });
     
-    // Convert to markers, only include cities with data
+    // Convert to markers with baseline data
     return MAJOR_CITIES
       .map(city => {
         const data = cityData.get(city.name)!;
-        // Add some baseline data for demo purposes
         const baseContributors = Math.floor(Math.random() * 30) + 5;
         const baseDataPoints = Math.floor(Math.random() * 500) + 100;
         return {
           city,
           contributors: data.contributors.size + baseContributors,
           dataPoints: data.dataPoints + baseDataPoints,
-          position: latLngToVector3(city.lat, city.lng, 1.52),
+          position: latLngToVector3(city.lat, city.lng, 1.53),
         };
       })
       .filter(m => m.contributors > 0);
@@ -272,7 +259,7 @@ const CityMarkers: React.FC<{
   
   useFrame(() => {
     if (groupRef.current) {
-      groupRef.current.rotation.y += 0.0008;
+      groupRef.current.rotation.y += 0.0005;
     }
   });
 
@@ -298,18 +285,20 @@ const GlobeScene: React.FC<{
 }> = ({ cells, selectedCity, onSelectCity }) => {
   return (
     <>
-      <ambientLight intensity={0.3} />
-      <pointLight position={[10, 10, 10]} intensity={0.5} color="#ffffff" />
-      <pointLight position={[-10, -5, -10]} intensity={0.2} color="#00d4ff" />
+      {/* Lighting for realistic appearance */}
+      <ambientLight intensity={0.4} />
+      <directionalLight position={[5, 3, 5]} intensity={1} color="#ffffff" />
+      <directionalLight position={[-5, -3, -5]} intensity={0.3} color="#4da6ff" />
       
+      {/* Subtle star field */}
       <Stars
-        radius={80}
-        depth={40}
-        count={1000}
-        factor={3}
+        radius={100}
+        depth={50}
+        count={800}
+        factor={2}
         saturation={0}
         fade
-        speed={0.2}
+        speed={0.1}
       />
       
       <Earth />
@@ -322,17 +311,27 @@ const GlobeScene: React.FC<{
       <OrbitControls
         enablePan={false}
         enableZoom={true}
-        minDistance={2.5}
-        maxDistance={6}
+        minDistance={2.2}
+        maxDistance={5}
         autoRotate={!selectedCity}
-        autoRotateSpeed={0.3}
-        dampingFactor={0.1}
+        autoRotateSpeed={0.25}
+        dampingFactor={0.08}
         enableDamping
-        rotateSpeed={0.5}
+        rotateSpeed={0.4}
       />
     </>
   );
 };
+
+// Loading fallback
+const GlobeLoading: React.FC = () => (
+  <div className="absolute inset-0 flex items-center justify-center">
+    <div className="flex flex-col items-center gap-3">
+      <div className="w-12 h-12 border-3 border-primary/30 border-t-primary rounded-full animate-spin" />
+      <span className="text-sm font-medium text-muted-foreground">Loading globe...</span>
+    </div>
+  </div>
+);
 
 // Main component
 export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
@@ -343,98 +342,100 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
   coverageAreaKm2 = 0,
 }) => {
   const [selectedCity, setSelectedCity] = useState<CityMarker | null>(null);
-  const hasData = coverageData.length > 0 || totalDataPoints > 0;
 
   return (
-    <div className="relative w-full h-full bg-[#050a12] overflow-hidden">
-      {/* Top stats bar */}
-      <div className="absolute top-0 left-0 right-0 z-20 p-3" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 12px)' }}>
-        <div className="flex items-center justify-between">
+    <div className="relative w-full h-full bg-gradient-to-b from-[#0c1829] via-[#0a1525] to-[#050a12] overflow-hidden">
+      {/* Top stats bar - clean Apple-style */}
+      <div className="absolute top-0 left-0 right-0 z-20 p-4" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 16px)' }}>
+        <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <div className="relative">
-              <div className="w-2 h-2 rounded-full bg-[#00ffa3]" />
-              <div className="absolute inset-0 rounded-full bg-[#00ffa3] animate-ping opacity-50" />
+              <div className="w-2.5 h-2.5 rounded-full bg-green-500" />
+              <div className="absolute inset-0 rounded-full bg-green-500 animate-ping opacity-40" />
             </div>
-            <span className="text-[#00ffa3] text-xs font-semibold tracking-wide">LIVE NETWORK</span>
+            <span className="text-green-500 text-sm font-bold tracking-wide">LIVE</span>
           </div>
-          <div className="flex items-center gap-3 text-[10px] text-white/50">
-            <div className="flex items-center gap-1">
-              <div className="w-1.5 h-1.5 rounded-full bg-[#00ffa3]" />
-              <span>High</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <div className="w-1.5 h-1.5 rounded-full bg-[#00d4ff]" />
-              <span>Medium</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <div className="w-1.5 h-1.5 rounded-full bg-[#a855f7]" />
-              <span>Growing</span>
-            </div>
-          </div>
+          <span className="text-white/40 text-xs">Global Network</span>
         </div>
         
         {/* Stats row */}
-        <div className="flex justify-center gap-2 mt-3">
-          <div className="bg-white/5 backdrop-blur border border-white/10 rounded-xl px-3 py-1.5 text-center">
-            <div className="text-[#00d4ff] text-sm font-bold tabular-nums">
+        <div className="flex justify-between gap-2">
+          <div className="flex-1 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl px-3 py-2 text-center">
+            <div className="text-white text-base font-bold tabular-nums">
               {(totalDataPoints || 12847).toLocaleString()}
             </div>
-            <div className="text-white/40 text-[9px] uppercase tracking-wider">Data Points</div>
+            <div className="text-white/50 text-[10px] font-medium">Data Points</div>
           </div>
-          <div className="bg-white/5 backdrop-blur border border-white/10 rounded-xl px-3 py-1.5 text-center">
-            <div className="text-[#00ffa3] text-sm font-bold tabular-nums">
+          <div className="flex-1 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl px-3 py-2 text-center">
+            <div className="text-white text-base font-bold tabular-nums">
               {MAJOR_CITIES.length}
             </div>
-            <div className="text-white/40 text-[9px] uppercase tracking-wider">Cities</div>
+            <div className="text-white/50 text-[10px] font-medium">Cities</div>
           </div>
-          <div className="bg-white/5 backdrop-blur border border-white/10 rounded-xl px-3 py-1.5 text-center">
-            <div className="text-[#a855f7] text-sm font-bold tabular-nums">
+          <div className="flex-1 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl px-3 py-2 text-center">
+            <div className="text-white text-base font-bold tabular-nums">
               {(uniqueLocations || 892).toLocaleString()}
             </div>
-            <div className="text-white/40 text-[9px] uppercase tracking-wider">Contributors</div>
+            <div className="text-white/50 text-[10px] font-medium">Contributors</div>
           </div>
         </div>
       </div>
 
-      {/* 3D Globe Canvas - centered and contained */}
+      {/* 3D Globe Canvas */}
       <div className="absolute inset-0 flex items-center justify-center">
-        <div className="w-full h-[60vh] max-h-[500px]">
-          <Canvas
-            camera={{ position: [0, 0.5, 4], fov: 40 }}
-            gl={{ antialias: true, alpha: true }}
-            dpr={[1, 1.5]}
-            onPointerMissed={() => setSelectedCity(null)}
-          >
-            <Suspense fallback={null}>
+        <div className="w-full h-[65vh] max-h-[550px]">
+          <Suspense fallback={<GlobeLoading />}>
+            <Canvas
+              camera={{ position: [0, 0.3, 3.5], fov: 45 }}
+              gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
+              dpr={[1, 2]}
+              onPointerMissed={() => setSelectedCity(null)}
+            >
               <GlobeScene 
                 cells={coverageData}
                 selectedCity={selectedCity}
                 onSelectCity={setSelectedCity}
               />
-            </Suspense>
-          </Canvas>
+            </Canvas>
+          </Suspense>
         </div>
       </div>
 
-      {/* Zoom hint */}
-      <div className="absolute bottom-24 left-0 right-0 z-20 flex justify-center pointer-events-none">
-        <div className="bg-white/5 backdrop-blur border border-white/10 rounded-full px-3 py-1.5">
-          <span className="text-white/40 text-[10px]">Pinch to zoom • Drag to rotate • Tap city for details</span>
+      {/* Legend */}
+      <div className="absolute bottom-28 left-0 right-0 z-20 flex justify-center pointer-events-none">
+        <div className="flex items-center gap-4 bg-black/40 backdrop-blur-sm border border-white/10 rounded-full px-4 py-2">
+          <div className="flex items-center gap-1.5">
+            <div className="w-2 h-2 rounded-full bg-green-500" />
+            <span className="text-white/70 text-[10px] font-medium">High</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="w-2 h-2 rounded-full bg-cyan-500" />
+            <span className="text-white/70 text-[10px] font-medium">Medium</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="w-2 h-2 rounded-full bg-purple-500" />
+            <span className="text-white/70 text-[10px] font-medium">Growing</span>
+          </div>
         </div>
+      </div>
+
+      {/* Hint */}
+      <div className="absolute bottom-20 left-0 right-0 z-20 flex justify-center pointer-events-none">
+        <span className="text-white/30 text-[10px]">Drag to rotate • Pinch to zoom • Tap city for details</span>
       </div>
 
       {/* Loading overlay */}
       {loading && (
         <div className="absolute inset-0 flex items-center justify-center bg-[#050a12]/90 z-30">
           <div className="flex flex-col items-center gap-3">
-            <div className="w-10 h-10 border-2 border-[#00d4ff]/30 border-t-[#00d4ff] rounded-full animate-spin" />
-            <span className="text-[#00d4ff] text-sm font-medium">Loading network...</span>
+            <div className="w-10 h-10 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+            <span className="text-primary text-sm font-medium">Loading network...</span>
           </div>
         </div>
       )}
 
-      {/* Bottom gradient */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#050a12] to-transparent z-10 pointer-events-none" />
+      {/* Bottom gradient fade */}
+      <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[#050a12] to-transparent z-10 pointer-events-none" />
     </div>
   );
 };
