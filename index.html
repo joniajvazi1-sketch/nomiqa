@@ -9,16 +9,43 @@
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
     
-    <!-- Auto cache-buster: forces reload if user has old cached version -->
+    <!-- Auto cache-buster: avoids stale cached HTML without user action (safe on Safari/Android) -->
     <script>
-      (function() {
+      (function () {
         var BUILD_VERSION = '20260114';
-        var storedVersion = localStorage.getItem('nomiqa_build');
-        if (storedVersion && storedVersion !== BUILD_VERSION) {
-          localStorage.setItem('nomiqa_build', BUILD_VERSION);
-          location.reload(true);
-        } else if (!storedVersion) {
-          localStorage.setItem('nomiqa_build', BUILD_VERSION);
+        var PARAM = '__build';
+        var TAB_KEY = 'nomiqa_build_tab';
+
+        function safeSessionGet(key) {
+          try { return window.sessionStorage.getItem(key); } catch (e) { return null; }
+        }
+        function safeSessionSet(key, value) {
+          try { window.sessionStorage.setItem(key, value); return true; } catch (e) { return false; }
+        }
+
+        try {
+          var url = new URL(window.location.href);
+          var tabVersion = safeSessionGet(TAB_KEY);
+          var currentParam = url.searchParams.get(PARAM);
+
+          // If we already refreshed once in this tab/session, never redirect again.
+          if (tabVersion === BUILD_VERSION && currentParam !== BUILD_VERSION) {
+            return;
+          }
+
+          // If the version param is missing/wrong, force-load a fresh HTML URL that won't hit an old cache entry.
+          if (currentParam !== BUILD_VERSION) {
+            url.searchParams.set(PARAM, BUILD_VERSION);
+            window.location.replace(url.toString());
+            return;
+          }
+
+          // We reached the fresh URL. Mark the tab as updated and then clean the URL without reloading.
+          safeSessionSet(TAB_KEY, BUILD_VERSION);
+          url.searchParams.delete(PARAM);
+          window.history.replaceState({}, '', url.toString());
+        } catch (e) {
+          // If URL/sessionStorage APIs fail, do nothing (never get stuck in a reload loop).
         }
       })();
     </script>
