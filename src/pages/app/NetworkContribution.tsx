@@ -161,10 +161,10 @@ export const NetworkContribution: React.FC = () => {
       <div className="absolute inset-0 z-0">
         {coverageMode === 'global' ? (
           <Suspense fallback={
-            <div className="w-full h-full flex items-center justify-center bg-background">
+            <div className="w-full h-full flex items-center justify-center bg-[#0a0f1a]">
               <div className="flex flex-col items-center gap-3">
-                <div className="w-16 h-16 rounded-full border-3 border-primary/30 border-t-primary animate-spin" />
-                <p className="text-sm text-muted-foreground">Loading global network...</p>
+                <div className="w-12 h-12 border-2 border-[#00d4ff]/30 border-t-[#00d4ff] rounded-full animate-spin" />
+                <p className="text-sm text-white/60">Loading global network...</p>
               </div>
             </div>
           }>
@@ -193,10 +193,9 @@ export const NetworkContribution: React.FC = () => {
         )}
       </div>
 
-      {/* Gradient overlay for better text visibility */}
+      {/* Bottom gradient overlay for controls visibility */}
       <div className="absolute inset-0 pointer-events-none z-[1]">
-        <div className="absolute bottom-0 left-0 right-0 h-[50%] bg-gradient-to-t from-background/90 via-background/50 to-transparent" />
-        <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-background/70 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-[55%] bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
       </div>
       
       {/* GDPR Consent Modal - shown when user tries to start without consent */}
@@ -205,7 +204,6 @@ export const NetworkContribution: React.FC = () => {
           onConsentComplete={() => {
             setConsentGiven(true);
             setShowConsentModal(false);
-            // Auto-start contribution after consent
             startContribution();
             playCoin();
           }} 
@@ -220,12 +218,12 @@ export const NetworkContribution: React.FC = () => {
         onComplete={() => setShowCelebration(false)}
       />
       
-      {/* UI overlay */}
+      {/* UI Controls Layer */}
       <div 
-        className="relative z-10 flex flex-col h-full"
+        className="relative z-10 flex flex-col h-full pointer-events-none"
         style={{
-          paddingTop: 'calc(env(safe-area-inset-top, 0px) + 0.75rem)',
-          paddingBottom: 'calc(72px + env(safe-area-inset-bottom, 0px) + 1rem)',
+          paddingTop: 'calc(env(safe-area-inset-top, 0px) + 0.5rem)',
+          paddingBottom: 'calc(72px + env(safe-area-inset-bottom, 0px) + 0.5rem)',
           minHeight: '100vh'
         }}
         {...handlers}
@@ -236,77 +234,25 @@ export const NetworkContribution: React.FC = () => {
           isRefreshing={isRefreshing}
         />
         
-        {/* Top Bar - Clean floating style */}
-        <div className="px-4 flex items-center justify-between">
-          {/* Left: Connection Status */}
-          <div className={cn(
-            'flex items-center gap-2 px-3 py-2 rounded-2xl',
-            'bg-card/80 backdrop-blur-xl border shadow-lg',
-            isActive && isCellular ? 'border-primary/40' : 'border-white/10'
-          )}>
-            <div className={cn(
-              'w-2.5 h-2.5 rounded-full',
-              isActive && isCellular ? 'bg-primary animate-pulse shadow-lg shadow-primary/50' : 
-              isActive ? 'bg-amber-500 animate-pulse' : 'bg-muted-foreground/50'
-            )} />
-            <span className={cn(
-              'text-sm font-semibold',
-              isActive && isCellular ? 'text-primary' : 'text-foreground'
-            )}>
-              {getConnectionLabel()}
-            </span>
-            {isActive && (
-              <>
-                <div className="w-px h-4 bg-border/50" />
-                <span className="text-sm font-mono text-muted-foreground">
-                  {formatDuration(stats.duration)}
-                </span>
-              </>
-            )}
-          </div>
-          
-          {/* Right: Mode Toggle */}
-          <div className="flex items-center gap-2">
+        {/* Floating Mode Toggle - Top Right (only in personal map mode) */}
+        {coverageMode === 'personal' && (
+          <div className="absolute top-4 right-4 flex items-center gap-2 pointer-events-auto" style={{ marginTop: 'env(safe-area-inset-top, 0px)' }}>
             <button
               onClick={handleToggleCoverageMode}
               className={cn(
-                'flex items-center gap-2 px-3 py-2 rounded-2xl',
-                'bg-card/80 backdrop-blur-xl border shadow-lg transition-all',
-                coverageMode === 'global' 
-                  ? 'border-primary/40 text-primary' 
-                  : 'border-white/10 text-foreground hover:border-white/20'
+                'flex items-center gap-2 px-3 py-2 rounded-xl',
+                'bg-card/90 backdrop-blur-xl border border-white/20 shadow-lg transition-all'
               )}
             >
-              {coverageMode === 'global' ? (
-                <Globe className="w-4 h-4" />
-              ) : (
-                <Map className="w-4 h-4" />
-              )}
-              <span className="text-sm font-medium">
-                {coverageMode === 'global' ? 'Global' : 'My Map'}
-              </span>
-            </button>
-            
-            <button
-              onClick={() => {
-                buttonTap();
-                handleRefresh();
-              }}
-              disabled={isRefreshing}
-              className={cn(
-                'p-2 rounded-xl bg-card/80 backdrop-blur-xl border border-white/10 shadow-lg',
-                'transition-all hover:border-white/20',
-                isRefreshing && 'animate-spin'
-              )}
-            >
-              <RefreshCw className="w-4 h-4 text-muted-foreground" />
+              <Globe className="w-4 h-4" />
+              <span className="text-sm font-medium">Global</span>
             </button>
           </div>
-        </div>
+        )}
 
-        {/* Warnings */}
+        {/* Warnings - positioned below safe area */}
         {isActive && !isCellular && (
-          <div className="mx-4 mt-3 rounded-2xl bg-amber-500/15 border border-amber-500/30 p-3 backdrop-blur-sm animate-fade-in">
+          <div className="mx-4 mt-2 pointer-events-auto rounded-2xl bg-amber-500/15 border border-amber-500/30 p-3 backdrop-blur-sm animate-fade-in">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center">
                 <Wifi className="w-5 h-5 text-amber-500" />
@@ -320,7 +266,7 @@ export const NetworkContribution: React.FC = () => {
         )}
 
         {!isOnline && (
-          <div className="mx-4 mt-3">
+          <div className="mx-4 mt-2 pointer-events-auto">
             <Alert className="border-amber-500/30 bg-amber-500/10 backdrop-blur-sm rounded-2xl">
               <CloudOff className="h-4 w-4 text-amber-400" />
               <AlertDescription className="text-amber-600 text-sm">
@@ -330,9 +276,9 @@ export const NetworkContribution: React.FC = () => {
           </div>
         )}
 
-        {/* Tool Panels */}
+        {/* Tool Panels - shown below warnings */}
         {showSpeedTest && (
-          <div className="mx-4 mt-3 animate-fade-in">
+          <div className="mx-4 mt-3 pointer-events-auto animate-fade-in">
             <SpeedTest
               latitude={lastPosition?.coords.latitude}
               longitude={lastPosition?.coords.longitude}
@@ -344,7 +290,7 @@ export const NetworkContribution: React.FC = () => {
         )}
 
         {showCarrierComparison && (
-          <div className="mx-4 mt-3 animate-fade-in">
+          <div className="mx-4 mt-3 pointer-events-auto animate-fade-in">
             <CarrierComparison
               latitude={lastPosition?.coords.latitude}
               longitude={lastPosition?.coords.longitude}
@@ -353,39 +299,40 @@ export const NetworkContribution: React.FC = () => {
           </div>
         )}
 
-        {/* Spacer */}
+        {/* Spacer - pushes controls to bottom */}
         <div className="flex-1" />
 
-        {/* Bottom Control Panel */}
-        <div className="px-4">
+        {/* Bottom Control Panel - always at bottom */}
+        <div className="px-4 pointer-events-auto">
           {/* Live Points Counter - when active */}
           {isActive && isCellular && (
-            <div className="text-center mb-4 animate-fade-in">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/30 backdrop-blur-sm">
-                <Zap className="w-4 h-4 text-primary animate-pulse" />
-                <span className="text-2xl font-bold text-primary tabular-nums">
+            <div className="text-center mb-3 animate-fade-in">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#00d4ff]/20 border border-[#00d4ff]/40 backdrop-blur-sm">
+                <Zap className="w-4 h-4 text-[#00d4ff] animate-pulse" />
+                <span className="text-2xl font-bold text-[#00d4ff] tabular-nums">
                   +{stats.pointsEarned.toFixed(1)}
                 </span>
-                <span className="text-sm text-primary/70">pts</span>
+                <span className="text-sm text-[#00d4ff]/70">pts</span>
               </div>
             </div>
           )}
 
           {/* Main Control Button */}
-          <div className="flex justify-center mb-4">
+          <div className="flex justify-center mb-3">
             <div className="relative">
-              {/* Outer glow ring */}
+              {/* Outer glow ring - idle */}
               {!isActive && user && consentGiven && (
                 <div className="absolute inset-[-16px] rounded-full">
-                  <div className="absolute inset-0 rounded-full bg-primary/20 animate-ping" style={{ animationDuration: '2s' }} />
-                  <div className="absolute inset-2 rounded-full border-2 border-primary/30 animate-pulse" />
+                  <div className="absolute inset-0 rounded-full bg-[#00d4ff]/20 animate-ping" style={{ animationDuration: '2s' }} />
+                  <div className="absolute inset-2 rounded-full border-2 border-[#00d4ff]/30 animate-pulse" />
                 </div>
               )}
               
+              {/* Active scanning ring */}
               {isActive && isCellular && (
                 <div className="absolute inset-[-16px] rounded-full">
-                  <div className="absolute inset-0 rounded-full border-2 border-primary/50 animate-[ping_1.5s_ease-out_infinite]" />
-                  <div className="absolute inset-4 rounded-full border border-primary/30 animate-[ping_1.5s_ease-out_infinite_0.5s]" />
+                  <div className="absolute inset-0 rounded-full border-2 border-[#00ffa3]/50 animate-[ping_1.5s_ease-out_infinite]" />
+                  <div className="absolute inset-4 rounded-full border border-[#00ffa3]/30 animate-[ping_1.5s_ease-out_infinite_0.5s]" />
                 </div>
               )}
               
@@ -397,7 +344,6 @@ export const NetworkContribution: React.FC = () => {
                     handleStopContribution();
                     playSuccess();
                   } else {
-                    // Show consent modal if not consented yet
                     if (!consentGiven) {
                       setShowConsentModal(true);
                       return;
@@ -414,9 +360,9 @@ export const NetworkContribution: React.FC = () => {
                   'transition-all duration-300',
                   isActive 
                     ? isPaused
-                      ? 'bg-gradient-to-br from-amber-400 to-amber-600 shadow-amber-500/30' 
-                      : 'bg-gradient-to-br from-primary to-primary/80 shadow-primary/40' 
-                    : 'bg-gradient-to-br from-primary to-primary/80 hover:scale-105 shadow-primary/30',
+                      ? 'bg-gradient-to-br from-amber-400 to-amber-600 shadow-amber-500/40' 
+                      : 'bg-gradient-to-br from-[#00ffa3] to-[#00d4aa] shadow-[#00ffa3]/40' 
+                    : 'bg-gradient-to-br from-[#00d4ff] to-[#0099cc] hover:scale-105 shadow-[#00d4ff]/40',
                   !user && 'opacity-40 cursor-not-allowed'
                 )}
               >
@@ -434,24 +380,24 @@ export const NetworkContribution: React.FC = () => {
           </div>
 
           {/* Status Text */}
-          <div className="text-center mb-4">
-            <p className="text-lg font-bold text-foreground">
+          <div className="text-center mb-3">
+            <p className="text-lg font-bold text-white">
               {isActive 
                 ? (isPaused ? 'Paused' : 'Scanning Network...') 
                 : 'Start Scanning'}
             </p>
             {!isActive && user && consentGiven && (
-              <p className="text-sm text-muted-foreground mt-1">
+              <p className="text-sm text-white/60 mt-1">
                 {isCellular ? 'Tap to earn points' : 'Connect to cellular'}
               </p>
             )}
             {!user && (
-              <p className="text-sm text-muted-foreground mt-1">Sign in to start</p>
+              <p className="text-sm text-white/60 mt-1">Sign in to start</p>
             )}
           </div>
 
           {/* Quick Actions Bar */}
-          <div className="flex items-center justify-center gap-2 mb-4">
+          <div className="flex items-center justify-center gap-2 mb-3">
             <button
               onClick={() => {
                 buttonTap();
@@ -459,8 +405,8 @@ export const NetworkContribution: React.FC = () => {
               }}
               className={cn(
                 'flex items-center gap-2 px-4 py-2.5 rounded-xl',
-                'bg-card/80 backdrop-blur-xl border shadow-lg transition-all',
-                showTools ? 'border-primary/40 text-primary' : 'border-white/10 text-muted-foreground'
+                'bg-white/10 backdrop-blur-xl border shadow-lg transition-all',
+                showTools ? 'border-[#00d4ff]/40 text-[#00d4ff]' : 'border-white/20 text-white/70'
               )}
             >
               <Layers className="w-4 h-4" />
@@ -470,11 +416,33 @@ export const NetworkContribution: React.FC = () => {
                 showTools ? 'rotate-180' : ''
               )} />
             </button>
+            
+            {/* Mode toggle button */}
+            <button
+              onClick={handleToggleCoverageMode}
+              className={cn(
+                'flex items-center gap-2 px-4 py-2.5 rounded-xl',
+                'bg-white/10 backdrop-blur-xl border shadow-lg transition-all',
+                'border-white/20 text-white/70 hover:border-white/30'
+              )}
+            >
+              {coverageMode === 'global' ? (
+                <>
+                  <Map className="w-4 h-4" />
+                  <span className="text-sm font-medium">My Map</span>
+                </>
+              ) : (
+                <>
+                  <Globe className="w-4 h-4" />
+                  <span className="text-sm font-medium">Global</span>
+                </>
+              )}
+            </button>
           </div>
 
           {/* Expandable Tools */}
           {showTools && (
-            <div className="flex items-center justify-center gap-2 mb-4 animate-fade-in">
+            <div className="flex items-center justify-center gap-2 mb-3 animate-fade-in">
               <button
                 onClick={() => {
                   buttonTap();
@@ -483,8 +451,8 @@ export const NetworkContribution: React.FC = () => {
                 }}
                 className={cn(
                   'flex items-center gap-2 px-4 py-2.5 rounded-xl',
-                  'bg-card/80 backdrop-blur-xl border shadow-lg transition-all',
-                  showSpeedTest ? 'border-primary/40 text-primary' : 'border-white/10 text-foreground'
+                  'bg-white/10 backdrop-blur-xl border shadow-lg transition-all',
+                  showSpeedTest ? 'border-[#00d4ff]/40 text-[#00d4ff]' : 'border-white/20 text-white'
                 )}
               >
                 <Activity className="w-4 h-4" />
@@ -499,8 +467,8 @@ export const NetworkContribution: React.FC = () => {
                 }}
                 className={cn(
                   'flex items-center gap-2 px-4 py-2.5 rounded-xl',
-                  'bg-card/80 backdrop-blur-xl border shadow-lg transition-all',
-                  showCarrierComparison ? 'border-primary/40 text-primary' : 'border-white/10 text-foreground'
+                  'bg-white/10 backdrop-blur-xl border shadow-lg transition-all',
+                  showCarrierComparison ? 'border-[#00d4ff]/40 text-[#00d4ff]' : 'border-white/20 text-white'
                 )}
               >
                 <Signal className="w-4 h-4" />
@@ -511,25 +479,25 @@ export const NetworkContribution: React.FC = () => {
 
           {/* Session Stats Card - when active */}
           {isActive && (
-            <div className="rounded-2xl bg-card/80 backdrop-blur-xl border border-white/10 p-4 shadow-xl animate-fade-in">
+            <div className="rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 p-4 shadow-xl animate-fade-in">
               <div className="grid grid-cols-3 gap-3">
                 <div className="text-center">
-                  <p className="text-2xl font-bold text-foreground tabular-nums">
+                  <p className="text-xl font-bold text-white tabular-nums">
                     {formatDuration(stats.duration)}
                   </p>
-                  <p className="text-xs text-muted-foreground mt-0.5">Duration</p>
+                  <p className="text-[10px] text-white/50 mt-0.5 uppercase tracking-wider">Duration</p>
                 </div>
-                <div className="text-center border-x border-border/50">
-                  <p className="text-2xl font-bold text-foreground tabular-nums">
+                <div className="text-center border-x border-white/10">
+                  <p className="text-xl font-bold text-white tabular-nums">
                     {stats.dataPointsCount}
                   </p>
-                  <p className="text-xs text-muted-foreground mt-0.5">Data Points</p>
+                  <p className="text-[10px] text-white/50 mt-0.5 uppercase tracking-wider">Data Points</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-2xl font-bold text-primary tabular-nums">
+                  <p className="text-xl font-bold text-[#00ffa3] tabular-nums">
                     +{stats.pointsEarned.toFixed(1)}
                   </p>
-                  <p className="text-xs text-muted-foreground mt-0.5">Points</p>
+                  <p className="text-[10px] text-white/50 mt-0.5 uppercase tracking-wider">Points</p>
                 </div>
               </div>
             </div>
