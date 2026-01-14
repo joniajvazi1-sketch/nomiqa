@@ -47,7 +47,7 @@ export const NetworkContribution: React.FC = () => {
   const [showCelebration, setShowCelebration] = useState(false);
   const [celebrationPoints, setCelebrationPoints] = useState(0);
   const [showHeatmap, setShowHeatmap] = useState(true);
-  const [coverageMode, setCoverageMode] = useState<CoverageMode>('personal');
+  const [coverageMode, setCoverageMode] = useState<CoverageMode>('global'); // Default to globe view
   const [showSpeedTest, setShowSpeedTest] = useState(false);
   const [showCarrierComparison, setShowCarrierComparison] = useState(false);
   const [consentGiven, setConsentGiven] = useState(() => hasDataConsent());
