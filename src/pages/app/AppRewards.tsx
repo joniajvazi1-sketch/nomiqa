@@ -327,18 +327,6 @@ export const AppRewards: React.FC = () => {
             🎁 Invite friends → Earn 10% lifetime rewards
           </p>
 
-          {pendingPoints > 0 && (
-            <div className="flex items-center gap-1.5 text-sm font-semibold text-amber-600 mt-3 pt-3 border-t border-border group cursor-help relative">
-              <Clock className="w-4 h-4" />
-              <span>{pendingPoints} pending (~24h)</span>
-              <div className="relative">
-                <Info className="w-3 h-3 opacity-60 peer" />
-                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 rounded-lg bg-foreground text-background text-xs w-48 text-center opacity-0 peer-hover:opacity-100 transition-opacity pointer-events-none z-50">
-                  Anti-fraud & quality checks. Keep contributing!
-                </div>
-              </div>
-            </div>
-          )}
         </motion.div>
 
         {/* Earnings Chart - With axis labels */}
