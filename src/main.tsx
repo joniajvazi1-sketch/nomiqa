@@ -3,6 +3,10 @@ import { createRoot } from "react-dom/client";
 import { HelmetProvider } from "react-helmet-async";
 import App from "./App.tsx";
 import "./index.css";
+import { initErrorReporter } from "./utils/errorReporter";
+
+// Initialize error reporting before React renders
+initErrorReporter();
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
