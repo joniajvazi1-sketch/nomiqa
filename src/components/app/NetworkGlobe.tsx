@@ -22,22 +22,21 @@ const latLngToVector3 = (lat: number, lng: number, radius: number): THREE.Vector
   return new THREE.Vector3(x, y, z);
 };
 
-// Ultra-realistic Earth with NASA 8K textures
+// Ultra-realistic Earth with NASA textures
 const Earth: React.FC = () => {
   const groupRef = useRef<THREE.Group>(null);
   const earthRef = useRef<THREE.Mesh>(null);
   const cloudsRef = useRef<THREE.Mesh>(null);
   const nightRef = useRef<THREE.Mesh>(null);
   
-  // Load high-quality NASA textures
+  // Load high-quality NASA textures - using reliable URLs
   const dayTexture = useLoader(THREE.TextureLoader, 'https://unpkg.com/three-globe@2.31.1/example/img/earth-blue-marble.jpg');
   const bumpTexture = useLoader(THREE.TextureLoader, 'https://unpkg.com/three-globe@2.31.1/example/img/earth-topology.png');
   const specularTexture = useLoader(THREE.TextureLoader, 'https://unpkg.com/three-globe@2.31.1/example/img/earth-water.png');
   const nightTexture = useLoader(THREE.TextureLoader, 'https://unpkg.com/three-globe@2.31.1/example/img/earth-night.jpg');
-  const cloudsTexture = useLoader(THREE.TextureLoader, 'https://unpkg.com/three-globe@2.31.1/example/img/earth-clouds.png');
   
   // Improve texture quality
-  [dayTexture, bumpTexture, specularTexture, nightTexture, cloudsTexture].forEach(tex => {
+  [dayTexture, bumpTexture, specularTexture, nightTexture].forEach(tex => {
     tex.anisotropy = 16;
     tex.minFilter = THREE.LinearMipmapLinearFilter;
     tex.magFilter = THREE.LinearFilter;
@@ -79,13 +78,13 @@ const Earth: React.FC = () => {
         />
       </mesh>
       
-      {/* Realistic cloud layer with actual cloud data */}
+      {/* Simulated cloud layer - no external texture needed */}
       <mesh ref={cloudsRef}>
-        <sphereGeometry args={[1.52, 128, 128]} />
+        <sphereGeometry args={[1.52, 64, 64]} />
         <meshPhongMaterial
-          map={cloudsTexture}
+          color="#ffffff"
           transparent
-          opacity={0.35}
+          opacity={0.08}
           depthWrite={false}
         />
       </mesh>
@@ -258,7 +257,6 @@ const GlobeScene: React.FC<{
         position={[5, 2, 5]} 
         intensity={1.8} 
         color="#fff5e6"
-        castShadow
       />
       
       {/* Soft fill from opposite side */}
@@ -318,6 +316,19 @@ const GlobeLoading: React.FC = () => (
   </div>
 );
 
+// Error boundary for 3D canvas
+const GlobeErrorFallback: React.FC = () => (
+  <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-b from-[#0a0f1a] to-[#020408]">
+    <div className="text-center p-6">
+      <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
+        <span className="text-3xl">🌍</span>
+      </div>
+      <p className="text-white/70 text-sm">Globe temporarily unavailable</p>
+      <p className="text-white/40 text-xs mt-1">Pull down to refresh</p>
+    </div>
+  </div>
+);
+
 // Main component
 export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
   coverageData,
@@ -326,6 +337,7 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
   uniqueLocations = 0,
 }) => {
   const [selectedMarker, setSelectedMarker] = useState<DataPointMarker | null>(null);
+  const [hasError, setHasError] = useState(false);
   
   // Calculate real stats from data
   const realStats = useMemo(() => {
@@ -336,6 +348,10 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
       regions: uniqueCountries || Math.min(coverageData.length, 30),
     };
   }, [coverageData, totalDataPoints, uniqueLocations]);
+
+  if (hasError) {
+    return <GlobeErrorFallback />;
+  }
 
   return (
     <div className="relative w-full h-full bg-gradient-to-b from-[#0a0f1a] via-[#050a12] to-[#020408] overflow-hidden">
@@ -390,6 +406,7 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
               }}
               dpr={[1, 2]}
               onPointerMissed={() => setSelectedMarker(null)}
+              onError={() => setHasError(true)}
             >
               <GlobeScene 
                 cells={coverageData}
