@@ -65,7 +65,8 @@ All colors MUST be HSL.
      Applied to /app/* routes via .app-theme class
      Deep navy blue with frosted glass effects
      ============================================ */
-  .app-theme {
+  /* App Dark Theme (default) */
+  .app-theme.dark, .app-theme:not(.light) {
     /* Dark blue foundation */
     --background: 220 40% 8%;            /* Deep navy #0d1321 */
     --foreground: 210 40% 98%;           /* Crisp white */
@@ -111,6 +112,55 @@ All colors MUST be HSL.
     /* Glass effect variables */
     --glass-bg: hsl(220 35% 15% / 0.6);
     --glass-border: hsl(220 30% 30% / 0.5);
+  }
+
+  /* App Light Theme */
+  .app-theme.light {
+    /* Light foundation */
+    --background: 210 40% 98%;           /* Off-white */
+    --foreground: 220 30% 15%;           /* Dark navy text */
+    --card: 0 0% 100%;                   /* Pure white */
+    --card-foreground: 220 30% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 30% 15%;
+    
+    /* Primary - Electric blue */
+    --primary: 210 100% 50%;             /* Slightly deeper blue */
+    --primary-foreground: 0 0% 100%;
+    
+    /* Secondary - Light gray */
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 220 30% 25%;
+    
+    /* Accent - Soft cyan */
+    --accent: 195 100% 45%;
+    --accent-foreground: 0 0% 100%;
+    
+    /* Supporting colors */
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 10% 50%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 14% 90%;
+    --input: 220 14% 96%;
+    --ring: 210 100% 50%;
+    
+    /* Light shadows */
+    --shadow-card: 0 4px 24px hsl(220 20% 80% / 0.3);
+    --shadow-elevated: 0 8px 40px hsl(220 20% 80% / 0.4);
+    --shadow-glow: 0 0 30px hsl(210 100% 60% / 0.1);
+    
+    /* Design system tokens */
+    --radius-sm: 1rem;
+    --radius-md: 1.25rem;
+    --radius-lg: 1.5rem;
+    --spacing-xs: 0.5rem;
+    --spacing-sm: 1rem;
+    --spacing-md: 1.5rem;
+    
+    /* Glass effect variables - lighter for light mode */
+    --glass-bg: hsl(0 0% 100% / 0.8);
+    --glass-border: hsl(220 14% 85% / 0.6);
   }
   
   /* App typography refinements */

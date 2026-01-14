@@ -1,11 +1,13 @@
 import React, { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Capacitor } from '@capacitor/core';
+import { useTheme } from 'next-themes';
 import { BottomTabBar } from './BottomTabBar';
 import { PageTransition } from './PageTransition';
 import { OfflineScreen } from './OfflineScreen';
 import { SwipeablePages } from './SwipeablePages';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
+import { cn } from '@/lib/utils';
 
 // Type imports only - actual module loaded dynamically
 type StatusBarModule = typeof import('@capacitor/status-bar');
@@ -26,6 +28,8 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const location = useLocation();
   const statusBarRef = useRef<StatusBarModule | null>(null);
   const { isOffline } = useNetworkStatus();
+  const { theme, resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark' || theme === 'dark';
 
   useEffect(() => {
     // Configure status bar for native app - translucent overlay style
@@ -63,7 +67,12 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   }
 
   return (
-    <div className="app-theme fixed inset-0 flex flex-col overflow-hidden bg-gradient-to-b from-[hsl(220,40%,10%)] via-[hsl(220,40%,8%)] to-[hsl(220,45%,6%)]">
+    <div className={cn(
+      "app-theme fixed inset-0 flex flex-col overflow-hidden transition-colors duration-300",
+      isDark 
+        ? "dark bg-gradient-to-b from-[hsl(220,40%,10%)] via-[hsl(220,40%,8%)] to-[hsl(220,45%,6%)]" 
+        : "light bg-gradient-to-b from-[hsl(210,40%,98%)] via-[hsl(210,35%,96%)] to-[hsl(210,30%,94%)]"
+    )}>
       {/* Scrollable content area with swipe support */}
       <main 
         className="flex-1 overflow-y-auto overflow-x-hidden overscroll-none"

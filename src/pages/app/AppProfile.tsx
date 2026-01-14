@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useTheme } from 'next-themes';
 import { 
   User, Package, LogOut, Crown, Star, Sparkles,
   Share2, Pencil, Check, X, RefreshCw, Users,
   Wallet, MapPin, Activity, Shield, Loader2, Gift,
-  Target, Trophy, ChevronRight, Trash2, AlertTriangle, HelpCircle
+  Target, Trophy, ChevronRight, Trash2, AlertTriangle, HelpCircle,
+  Sun, Moon
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -84,6 +86,8 @@ export const AppProfile: React.FC = () => {
   const { soundEnabled, toggleSound, playSuccess } = useEnhancedSounds();
   const { share, copyToClipboard } = useNativeShare();
   const { toast } = useToast();
+  const { theme, setTheme } = useTheme();
+  const isDark = theme === 'dark';
   
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -591,6 +595,28 @@ export const AppProfile: React.FC = () => {
 
           {/* Notification Settings */}
           <NotificationSettings />
+
+          {/* Theme Toggle */}
+          <Card className="bg-card border-border">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  {isDark ? <Moon className="w-5 h-5 text-violet-400" /> : <Sun className="w-5 h-5 text-amber-500" />}
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Appearance</p>
+                    <p className="text-xs text-muted-foreground">{isDark ? 'Dark mode' : 'Light mode'}</p>
+                  </div>
+                </div>
+                <Switch 
+                  checked={isDark} 
+                  onCheckedChange={(checked) => { 
+                    selectionTap(); 
+                    setTheme(checked ? 'dark' : 'light'); 
+                  }} 
+                />
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Sound Toggle */}
           <Card className="bg-card border-border">
