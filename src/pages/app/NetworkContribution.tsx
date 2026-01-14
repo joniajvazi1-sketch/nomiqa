@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useCallback, useRef, useEffect, lazy, Suspense } from 'react';
 import { 
   Signal, 
   Pause,
@@ -6,8 +6,9 @@ import {
   CloudOff,
   Radio,
   Zap,
-  Loader2,
-  Activity
+  Activity,
+  Globe,
+  Map
 } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useNetworkContribution } from '@/hooks/useNetworkContribution';
@@ -25,11 +26,15 @@ import { CarrierComparison } from '@/components/app/CarrierComparison';
 import { DataConsentModal, hasDataConsent } from '@/components/app/DataConsentModal';
 import { cn } from '@/lib/utils';
 
+// Lazy load the 3D globe for performance
+const NetworkGlobe = lazy(() => import('@/components/app/NetworkGlobe'));
+
 type CoverageMode = 'personal' | 'global';
 
 /**
- * Network Contribution - Clean Full-Screen Map Experience
- * Matches NATIX Drive& style: full-screen map with minimal overlays
+ * Network Contribution - Clean Full-Screen Map/Globe Experience
+ * Personal mode: 2D map with your coverage heatmap
+ * Global mode: 3D spinning globe with everyone's data
  */
 export const NetworkContribution: React.FC = () => {
   const { buttonTap, successPattern, pointsEarnedPattern } = useEnhancedHaptics();
@@ -58,7 +63,7 @@ export const NetworkContribution: React.FC = () => {
     lastPosition,
     isCellular,
     isPaused,
-    isContributionEnabled, // Persisted state
+    isContributionEnabled,
     startContribution,
     stopContribution,
     formatDuration
@@ -150,24 +155,40 @@ export const NetworkContribution: React.FC = () => {
 
   return (
     <div className="relative w-full h-full min-h-screen bg-background">
-      {/* Full-screen map */}
+      {/* Full-screen map OR globe based on mode */}
       <div className="absolute inset-0 z-0">
-        <ContributionMap 
-          userPosition={userPosition} 
-          isActive={isActive && isCellular}
-          heatmapPoints={heatmapPoints}
-          showHeatmap={showHeatmap}
-          onToggleHeatmap={handleToggleHeatmap}
-          globalCoverage={globalCoverageData?.cells || []}
-          coverageMode={coverageMode}
-          onToggleCoverageMode={handleToggleCoverageMode}
-          globalCoverageLoading={globalCoverageLoading}
-          networkFilter={networkFilter}
-          onNetworkFilterChange={handleNetworkFilterChange}
-        />
+        {coverageMode === 'global' ? (
+          <Suspense fallback={
+            <div className="w-full h-full flex items-center justify-center bg-background">
+              <div className="w-12 h-12 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+            </div>
+          }>
+            <NetworkGlobe 
+              coverageData={globalCoverageData?.cells || []}
+              loading={globalCoverageLoading}
+              totalDataPoints={globalCoverageData?.totalDataPoints || 0}
+              uniqueLocations={globalCoverageData?.uniqueLocations || 0}
+              coverageAreaKm2={globalCoverageData?.coverageAreaKm2 || 0}
+            />
+          </Suspense>
+        ) : (
+          <ContributionMap 
+            userPosition={userPosition} 
+            isActive={isActive && isCellular}
+            heatmapPoints={heatmapPoints}
+            showHeatmap={showHeatmap}
+            onToggleHeatmap={handleToggleHeatmap}
+            globalCoverage={[]}
+            coverageMode={coverageMode}
+            onToggleCoverageMode={handleToggleCoverageMode}
+            globalCoverageLoading={false}
+            networkFilter={networkFilter}
+            onNetworkFilterChange={handleNetworkFilterChange}
+          />
+        )}
       </div>
       
-      {/* GDPR Consent Modal - Required before first contribution */}
+      {/* GDPR Consent Modal */}
       {!consentGiven && (
         <DataConsentModal onConsentComplete={() => setConsentGiven(true)} />
       )}
@@ -180,12 +201,13 @@ export const NetworkContribution: React.FC = () => {
         onComplete={() => setShowCelebration(false)}
       />
       
-      {/* Minimal UI overlay */}
+      {/* UI overlay */}
       <div 
-        className="relative z-10 flex flex-col min-h-screen"
+        className="relative z-10 flex flex-col h-full"
         style={{
           paddingTop: 'calc(env(safe-area-inset-top, 0px) + 0.75rem)',
-          paddingBottom: 'calc(72px + env(safe-area-inset-bottom, 0px) + 0.5rem)'
+          paddingBottom: 'calc(72px + env(safe-area-inset-bottom, 0px) + 0.5rem)',
+          minHeight: '100vh'
         }}
         {...handlers}
       >
@@ -195,8 +217,9 @@ export const NetworkContribution: React.FC = () => {
           isRefreshing={isRefreshing}
         />
         
-        {/* Top Status Bar - Floating capsule */}
+        {/* Top Status Bar */}
         <div className="px-4 flex items-center justify-between mb-2">
+          {/* Connection status */}
           <div className={cn(
             'flex items-center gap-2 px-3 py-1.5 rounded-full border',
             'bg-card/90 backdrop-blur-md shadow-sm',
@@ -225,8 +248,30 @@ export const NetworkContribution: React.FC = () => {
             )}
           </div>
           
-          {/* Compact Action Buttons */}
+          {/* Mode toggle + Actions */}
           <div className="flex items-center gap-1.5">
+            {/* Coverage Mode Toggle */}
+            <button
+              onClick={handleToggleCoverageMode}
+              className={cn(
+                'flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border',
+                'bg-card/90 backdrop-blur-md shadow-sm transition-colors',
+                coverageMode === 'global' ? 'border-primary/50 text-primary' : 'border-border text-muted-foreground'
+              )}
+            >
+              {coverageMode === 'global' ? (
+                <>
+                  <Globe className="w-3.5 h-3.5" />
+                  <span className="text-[10px] font-medium">Global</span>
+                </>
+              ) : (
+                <>
+                  <Map className="w-3.5 h-3.5" />
+                  <span className="text-[10px] font-medium">My Map</span>
+                </>
+              )}
+            </button>
+            
             <button
               onClick={() => {
                 buttonTap();
@@ -260,7 +305,7 @@ export const NetworkContribution: React.FC = () => {
           </div>
         </div>
 
-        {/* WiFi Warning - Compact banner */}
+        {/* WiFi Warning */}
         {isActive && !isCellular && (
           <div className="mx-4 rounded-xl bg-amber-500/10 border border-amber-500/30 p-2.5 mb-3 animate-fade-in">
             <div className="flex items-center gap-2">
@@ -309,16 +354,16 @@ export const NetworkContribution: React.FC = () => {
           </div>
         )}
 
-        {/* Spacer - Less space to bring controls up */}
-        <div className="flex-1 min-h-[60px]" />
+        {/* Flexible spacer - push controls to center-bottom area */}
+        <div className="flex-1" />
 
-        {/* Center Control Area - Raised higher on screen */}
-        <div className="px-4 pb-6">
-          {/* Main Button - Centered, prominent, VISIBLE */}
-          <div className="flex flex-col items-center gap-3 mb-6">
+        {/* Main Control Area - Centered vertically */}
+        <div className="px-4 pb-4">
+          {/* Main Button - Large, centered, highly visible */}
+          <div className="flex flex-col items-center gap-2 mb-4">
             <div className="relative">
-              {/* Pulse rings - always animate when not active */}
-              {!isActive && user && (
+              {/* Pulse rings when idle */}
+              {!isActive && user && consentGiven && (
                 <>
                   <div className="absolute inset-0 rounded-full bg-primary/30 animate-ping" style={{ animationDuration: '2s' }} />
                   <div className="absolute inset-[-8px] rounded-full border-2 border-primary/20 animate-pulse" />
@@ -338,20 +383,16 @@ export const NetworkContribution: React.FC = () => {
                     handleStopContribution();
                     playSuccess();
                   } else {
-                    // CONSENT GATE: Check consent before starting contribution
-                    if (!consentGiven) {
-                      // Consent modal will be shown automatically
-                      return;
-                    }
+                    if (!consentGiven) return;
                     startContribution();
                     playCoin();
                   }
                 }}
                 disabled={!user || (!consentGiven && !isActive)}
                 className={cn(
-                  'w-20 h-20 rounded-full relative z-10',
+                  'w-24 h-24 rounded-full relative z-10',
                   'flex items-center justify-center',
-                  'shadow-xl active:scale-95',
+                  'shadow-2xl active:scale-95',
                   'transition-all duration-200',
                   isActive 
                     ? isPaused
@@ -363,48 +404,48 @@ export const NetworkContribution: React.FC = () => {
               >
                 {isActive ? (
                   isPaused ? (
-                    <Wifi className="w-8 h-8 text-white" />
+                    <Wifi className="w-10 h-10 text-white" />
                   ) : (
-                    <Pause className="w-8 h-8 text-white" />
+                    <Pause className="w-10 h-10 text-white" />
                   )
                 ) : (
-                  <Radio className="w-8 h-8 text-white" />
+                  <Radio className="w-10 h-10 text-white" />
                 )}
               </button>
             </div>
 
-            {/* Text below button - WHITE for visibility */}
+            {/* Text below button */}
             <div className="text-center">
               <p className={cn(
-                'text-base font-bold',
-                isActive && isCellular ? 'text-primary' : 'text-white drop-shadow-md'
+                'text-lg font-bold',
+                isActive && isCellular ? 'text-primary' : 'text-white drop-shadow-lg'
               )}>
                 {isActive ? (isPaused ? 'Paused' : 'Scanning...') : 'Tap to Start'}
               </p>
               
-              {!isActive && user && (
-                <p className="text-sm text-white/90 mt-1 drop-shadow-md">
-                  {isCellular ? 'Tap to start earning points' : 'Connect to cellular to earn'}
+              {!isActive && user && consentGiven && (
+                <p className="text-sm text-white/90 mt-0.5 drop-shadow-md">
+                  {isCellular ? 'Start earning points' : 'Connect to cellular to earn'}
                 </p>
               )}
               
               {!user && (
-                <p className="text-sm text-white/80 mt-1 drop-shadow-md">Sign in required</p>
+                <p className="text-sm text-white/80 mt-0.5 drop-shadow-md">Sign in required</p>
               )}
             </div>
           </div>
 
-          {/* Center Points Display - Large and prominent */}
+          {/* Points Display - Large when active */}
           {isActive && isCellular && (
-            <div className="text-center mb-4 animate-fade-in">
-              <div className="text-4xl font-bold text-primary tabular-nums">
+            <div className="text-center mb-3 animate-fade-in">
+              <div className="text-5xl font-bold text-primary tabular-nums drop-shadow-lg">
                 +{stats.pointsEarned.toFixed(1)}
               </div>
-              <p className="text-xs text-muted-foreground mt-0.5">points earned</p>
+              <p className="text-xs text-white/80 mt-0.5 drop-shadow">points earned</p>
             </div>
           )}
 
-          {/* Session Stats - Compact card */}
+          {/* Session Stats Card */}
           {isActive && (
             <div className="rounded-xl bg-card/90 backdrop-blur-md border border-border p-3 animate-fade-in">
               <div className="flex items-center justify-between mb-2">
@@ -437,7 +478,7 @@ export const NetworkContribution: React.FC = () => {
 
         {/* Geo Error */}
         {geoError && (
-          <Alert className="mx-4 border-red-500/30 bg-red-500/10 mt-2">
+          <Alert className="mx-4 border-red-500/30 bg-red-500/10 mb-2">
             <AlertDescription className="text-red-500 text-xs">{geoError}</AlertDescription>
           </Alert>
         )}
