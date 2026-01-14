@@ -28,60 +28,23 @@ async function hashCode(code: string): Promise<string> {
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-// Validate IP format (IPv4 only for geolocation)
-function isValidIPv4Format(ip: string): boolean {
-  const ipv4Regex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
-  return ipv4Regex.test(ip);
-}
-
-// Check if IP is a public (non-private/reserved) address to prevent SSRF attacks
-function isPublicIP(ip: string): boolean {
-  if (!isValidIPv4Format(ip)) return false;
-  
-  const parts = ip.split('.').map(Number);
-  
-  // Block private/reserved IP ranges (RFC 1918, RFC 3927, RFC 5735)
-  if (parts[0] === 10) return false;                                    // 10.0.0.0/8 - Private
-  if (parts[0] === 172 && parts[1] >= 16 && parts[1] <= 31) return false; // 172.16.0.0/12 - Private
-  if (parts[0] === 192 && parts[1] === 168) return false;               // 192.168.0.0/16 - Private
-  if (parts[0] === 127) return false;                                   // 127.0.0.0/8 - Loopback
-  if (parts[0] === 169 && parts[1] === 254) return false;               // 169.254.0.0/16 - Link-local/Cloud metadata
-  if (parts[0] === 0) return false;                                     // 0.0.0.0/8 - Current network
-  if (parts[0] >= 224) return false;                                    // 224.0.0.0/4 Multicast, 240.0.0.0/4 Reserved
-  if (parts[0] === 100 && parts[1] >= 64 && parts[1] <= 127) return false; // 100.64.0.0/10 - Carrier-grade NAT
-  if (parts[0] === 192 && parts[1] === 0 && parts[2] === 0) return false;  // 192.0.0.0/24 - IETF Protocol
-  if (parts[0] === 192 && parts[1] === 0 && parts[2] === 2) return false;  // 192.0.2.0/24 - TEST-NET-1
-  if (parts[0] === 198 && parts[1] === 51 && parts[2] === 100) return false; // 198.51.100.0/24 - TEST-NET-2
-  if (parts[0] === 203 && parts[1] === 0 && parts[2] === 113) return false;  // 203.0.113.0/24 - TEST-NET-3
-  if (parts[0] === 198 && parts[1] >= 18 && parts[1] <= 19) return false;    // 198.18.0.0/15 - Benchmarking
-  
-  return true;
-}
-
 // Detect country from IP using free ip-api.com service
 async function detectCountryFromIP(req: Request): Promise<string | null> {
   try {
     // Get IP from headers (edge function receives forwarded IP)
     const forwardedFor = req.headers.get('x-forwarded-for');
     const realIp = req.headers.get('x-real-ip');
-    const rawIp = forwardedFor?.split(',')[0]?.trim() || realIp || null;
+    const ip = forwardedFor?.split(',')[0]?.trim() || realIp || null;
     
-    // Validate IP format and ensure it's a public IP (SSRF protection)
-    if (!rawIp || rawIp === '127.0.0.1' || rawIp === '::1') {
+    if (!ip || ip === '127.0.0.1' || ip === '::1') {
       console.log('No valid IP for geolocation');
       return null;
     }
     
-    // Security: Block private/reserved IPs to prevent SSRF attacks
-    if (!isPublicIP(rawIp)) {
-      console.log('Private/reserved IP detected, skipping geolocation');
-      return null;
-    }
-    
-    console.log(`Detecting country for IP: ${rawIp.substring(0, 8)}...`);
+    console.log(`Detecting country for IP: ${ip.substring(0, 8)}...`);
     
     // Use ip-api.com (free, no API key needed, 45 req/min limit)
-    const response = await fetch(`http://ip-api.com/json/${encodeURIComponent(rawIp)}?fields=countryCode,status`, {
+    const response = await fetch(`http://ip-api.com/json/${ip}?fields=countryCode,status`, {
       signal: AbortSignal.timeout(3000), // 3 second timeout
     });
     

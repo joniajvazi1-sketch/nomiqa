@@ -13,33 +13,36 @@ const waitlistSchema = z.object({
   source: z.string().max(50).optional().default("unknown"),
 });
 
-// Rate limit: 3 submissions per IP per hour (database-backed for persistence across cold starts)
+// Rate limit: 3 submissions per IP per hour
+const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1 hour
 const MAX_SUBMISSIONS_PER_IP = 3;
-const RATE_LIMIT_WINDOW_HOURS = 1;
 
-// Database-backed rate limiting (persists across cold starts)
-async function checkDatabaseRateLimit(supabase: any, ipHash: string): Promise<boolean> {
-  try {
-    const windowStart = new Date(Date.now() - RATE_LIMIT_WINDOW_HOURS * 60 * 60 * 1000).toISOString();
-    
-    // Count recent submissions from this IP hash (stored as "|ip:hash" suffix in source)
-    const { count, error } = await supabase
-      .from('token_waitlist')
-      .select('*', { count: 'exact', head: true })
-      .gte('created_at', windowStart)
-      .like('source', `%|ip:${ipHash}`);
-    
-    if (error) {
-      console.error('Rate limit check error:', error);
-      // Fail open but log - don't block legitimate users due to DB issues
-      return false;
-    }
-    
-    return (count || 0) >= MAX_SUBMISSIONS_PER_IP;
-  } catch (error) {
-    console.error('Rate limit check exception:', error);
-    return false; // Fail open
+// Simple in-memory rate limiter (resets on function cold start, but provides basic protection)
+const ipSubmissions = new Map<string, { count: number; windowStart: number }>();
+
+function isRateLimited(ipHash: string): boolean {
+  const now = Date.now();
+  const record = ipSubmissions.get(ipHash);
+  
+  if (!record) {
+    ipSubmissions.set(ipHash, { count: 1, windowStart: now });
+    return false;
   }
+  
+  // Reset window if expired
+  if (now - record.windowStart > RATE_LIMIT_WINDOW_MS) {
+    ipSubmissions.set(ipHash, { count: 1, windowStart: now });
+    return false;
+  }
+  
+  // Check if over limit
+  if (record.count >= MAX_SUBMISSIONS_PER_IP) {
+    return true;
+  }
+  
+  // Increment count
+  record.count++;
+  return false;
 }
 
 // Validate IP address format to prevent header spoofing
@@ -93,21 +96,13 @@ serve(async (req: Request) => {
   }
 
   try {
-    // Initialize Supabase client with service role for database operations
-    const supabaseAdmin = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-      { auth: { persistSession: false, autoRefreshToken: false } }
-    );
-    
     // Get and validate client IP for rate limiting
     const clientIP = getValidatedClientIP(req);
     const ipHash = await hashIP(clientIP);
     
-    // Check database-backed rate limit (persists across cold starts)
-    const isLimited = await checkDatabaseRateLimit(supabaseAdmin, ipHash);
-    if (isLimited) {
-      console.log(`Rate limited (database): ${ipHash}`);
+    // Check rate limit
+    if (isRateLimited(ipHash)) {
+      console.log(`Rate limited: ${ipHash}`);
       return new Response(
         JSON.stringify({ 
           error: "Too many requests. Please try again later.",
@@ -153,7 +148,12 @@ serve(async (req: Request) => {
       );
     }
 
-    // Reuse supabaseAdmin created earlier for rate limiting
+    // Initialize Supabase client with service role for insert
+    const supabaseAdmin = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      { auth: { persistSession: false, autoRefreshToken: false } }
+    );
 
     // Check if email already exists (to provide proper feedback)
     const { data: existing } = await supabaseAdmin
@@ -176,14 +176,12 @@ serve(async (req: Request) => {
       );
     }
 
-    // Insert into waitlist with IP hash in source for rate limiting
-    // Format: "actual_source|ip:hash" to track both source and rate limit
-    const sourceWithIpTracking = `${source || "api"}|ip:${ipHash}`;
+    // Insert into waitlist
     const { error: insertError } = await supabaseAdmin
       .from("token_waitlist")
       .insert({ 
         email, 
-        source: sourceWithIpTracking 
+        source: source || "api" 
       });
 
     if (insertError) {
