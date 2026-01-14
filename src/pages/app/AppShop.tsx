@@ -268,7 +268,7 @@ export const AppShop: React.FC = () => {
 
   return (
     <div 
-      className="min-h-screen bg-background relative overflow-hidden overflow-y-auto app-container momentum-scroll"
+      className="min-h-screen relative overflow-hidden overflow-y-auto app-container momentum-scroll"
       {...handlers}
     >
       {/* Pull to refresh indicator */}
@@ -278,39 +278,36 @@ export const AppShop: React.FC = () => {
         isRefreshing={isRefreshing}
       />
 
-      {/* Background - clean */}
-      <div className="fixed inset-0 bg-background" />
-
       <div className="relative z-10 px-5 py-6 pb-28 space-y-4">
-        {/* Header with payment mode info */}
+        {/* Header - Glassmorphism */}
         <header className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-extrabold text-foreground tracking-tight">Buy eSIMs</h1>
-            <p className="text-base font-semibold text-muted-foreground">200+ Destinations</p>
+            <h1 className="text-2xl font-extrabold text-white tracking-tight">Buy eSIMs</h1>
+            <p className="text-base font-semibold text-white/60">200+ Destinations</p>
           </div>
           <button 
             ref={cartButtonRef}
             onClick={handleCartClick}
             className={cn(
-              'relative w-12 h-12 rounded-xl bg-card border border-border flex items-center justify-center transition-colors active:scale-90',
-              cartItemCount > 0 ? 'hover:bg-primary/10 hover:border-primary/30' : 'hover:bg-muted',
+              'relative w-12 h-12 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center transition-colors active:scale-90',
+              cartItemCount > 0 ? 'hover:bg-white/20 hover:border-primary/30' : 'hover:bg-white/15',
               cartShaking && 'animate-shake'
             )}
           >
             <ShoppingCart className={cn(
               'w-5 h-5 transition-colors',
-              cartItemCount > 0 ? 'text-primary' : 'text-foreground'
+              cartItemCount > 0 ? 'text-primary' : 'text-white'
             )} />
             {cartItemCount > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-primary text-primary-foreground text-xs font-bold rounded-full flex items-center justify-center">
+              <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-primary text-white text-xs font-bold rounded-full flex items-center justify-center">
                 {cartItemCount}
               </span>
             )}
           </button>
         </header>
 
-        {/* Segmented Tabs - simplified */}
-        <div className="flex p-1 rounded-xl bg-card border border-border">
+        {/* Segmented Tabs - Glassmorphism */}
+        <div className="flex p-1 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10">
           {tabs.map((tab) => (
             <button
               key={tab.key}
@@ -318,8 +315,8 @@ export const AppShop: React.FC = () => {
               className={cn(
                 'flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-sm font-medium transition-colors active:scale-95',
                 activeTab === tab.key 
-                  ? 'bg-primary text-primary-foreground' 
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                  ? 'bg-primary text-white' 
+                  : 'text-white/60 hover:text-white hover:bg-white/5'
               )}
             >
               <tab.icon className="w-4 h-4" />
@@ -328,26 +325,26 @@ export const AppShop: React.FC = () => {
           ))}
         </div>
 
-        {/* Search Bar - simplified */}
-        <div className="relative flex items-center border border-border rounded-xl overflow-hidden bg-card focus-within:border-primary/50 transition-colors">
-          <Search className="absolute left-4 w-5 h-5 text-muted-foreground" />
+        {/* Search Bar - Glassmorphism */}
+        <div className="relative flex items-center border border-white/10 rounded-xl overflow-hidden bg-white/5 backdrop-blur-sm focus-within:border-primary/50 transition-colors">
+          <Search className="absolute left-4 w-5 h-5 text-white/50" />
           <Input
             placeholder={activeTab === 'local' ? t('app.shop.searchCountries') : activeTab === 'regional' ? t('app.shop.searchRegions') : t('app.shop.searchGlobal')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-12 pr-10 h-12 bg-transparent border-0 text-foreground placeholder:text-muted-foreground/60 focus-visible:ring-0"
+            className="pl-12 pr-10 h-12 bg-transparent border-0 text-white placeholder:text-white/40 focus-visible:ring-0"
           />
           {searchQuery && (
             <button 
               onClick={() => setSearchQuery('')}
-              className="absolute right-4 w-6 h-6 rounded-full bg-muted flex items-center justify-center hover:bg-muted-foreground/20 transition-colors"
+              className="absolute right-4 w-6 h-6 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
             >
-              <X className="w-3 h-3 text-muted-foreground" />
+              <X className="w-3 h-3 text-white/60" />
             </button>
           )}
         </div>
 
-        {/* Data Filter Chips - simplified */}
+        {/* Data Filter Chips - Glassmorphism */}
         <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
           {dataFilters.map((filter) => (
             <button
@@ -356,8 +353,8 @@ export const AppShop: React.FC = () => {
               className={cn(
                 'flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-colors active:scale-95',
                 dataFilter === filter.key 
-                  ? 'bg-primary text-primary-foreground' 
-                  : 'bg-card border border-border text-muted-foreground hover:bg-muted'
+                  ? 'bg-primary text-white' 
+                  : 'bg-white/5 border border-white/10 text-white/60 hover:bg-white/10'
               )}
             >
               {filter.label}
@@ -367,7 +364,7 @@ export const AppShop: React.FC = () => {
 
         {/* Results Count */}
         <div className="flex items-center justify-between text-sm">
-          <span className="text-muted-foreground">
+          <span className="text-white/50">
             {filteredProducts.length} {activeTab === 'local' ? t('app.shop.countries') : activeTab === 'regional' ? t('app.shop.regions') : t('app.shop.plans')}
           </span>
           {dataFilter !== 'all' && (
@@ -388,10 +385,10 @@ export const AppShop: React.FC = () => {
           </div>
         ) : isError ? (
           <div className="flex flex-col items-center justify-center py-14 gap-4">
-            <AlertCircle className="w-12 h-12 text-destructive" />
+            <AlertCircle className="w-12 h-12 text-red-400" />
             <div className="text-center">
-              <h3 className="font-semibold text-foreground mb-1">Failed to load plans</h3>
-              <p className="text-sm text-muted-foreground mb-4">Please check your connection and try again</p>
+              <h3 className="font-semibold text-white mb-1">Failed to load plans</h3>
+              <p className="text-sm text-white/50 mb-4">Please check your connection and try again</p>
               <Button 
                 onClick={() => refetch()} 
                 variant="outline" 
@@ -414,18 +411,18 @@ export const AppShop: React.FC = () => {
                   onClick={() => handleProductClick(product)}
                   className={cn(
                     'group relative rounded-xl overflow-hidden cursor-pointer transition-colors',
-                    'hover:bg-muted/50',
+                    'hover:bg-white/10',
                     'active:scale-[0.98]'
                   )}
                 >
-                  {/* Card background */}
-                  <div className="absolute inset-0 bg-card" />
+                  {/* Card background - Glassmorphism */}
+                  <div className="absolute inset-0 bg-white/5 backdrop-blur-sm" />
                   
                   {/* Content */}
-                  <div className="relative p-3 border border-border rounded-xl">
-                    {/* Popular badge - Clean style */}
+                  <div className="relative p-3 border border-white/10 rounded-xl">
+                    {/* Popular badge */}
                     {product.is_popular && (
-                      <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded-md bg-primary/10 border border-primary/20">
+                      <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded-md bg-primary/20 border border-primary/30">
                         <span className="text-[9px] font-medium text-primary">Popular</span>
                       </div>
                     )}
@@ -436,29 +433,29 @@ export const AppShop: React.FC = () => {
                     </div>
                     
                     {/* Country/Region name */}
-                    <h3 className="font-semibold text-foreground text-center truncate mb-1">
+                    <h3 className="font-semibold text-white text-center truncate mb-1">
                       {product.country_name}
                     </h3>
                     
                     {/* Data & Validity */}
-                    <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground mb-1">
+                    <div className="flex items-center justify-center gap-2 text-xs text-white/50 mb-1">
                       <span className="flex items-center gap-0.5">
                         <Wifi className="w-3 h-3" />
                         {product.data_amount}
                       </span>
-                      <span className="w-1 h-1 rounded-full bg-muted-foreground/30" />
+                      <span className="w-1 h-1 rounded-full bg-white/30" />
                       <span>{product.validity_days}d</span>
                     </div>
 
-                    {/* Trust text - before price */}
-                    <p className="text-[9px] text-muted-foreground/70 text-center mb-2">
+                    {/* Trust text */}
+                    <p className="text-[9px] text-white/40 text-center mb-2">
                       Works on major networks
                     </p>
                     
                     {/* Price & Add Button */}
                     <div className="flex items-center justify-between gap-2">
                       <div>
-                        <span className="text-lg font-bold text-foreground tabular-nums block">
+                        <span className="text-lg font-bold text-white tabular-nums block">
                           ${product.price_usd.toFixed(2)}
                         </span>
                         <span className="text-[8px] text-primary/70">Pay with points (soon)</span>
@@ -486,33 +483,34 @@ export const AppShop: React.FC = () => {
           </div>
         )}
 
-        {/* Load More Button - simplified */}
+        {/* Load More Button - Glassmorphism */}
         {hasMore && !isLoading && (
           <button 
             onClick={handleLoadMore}
-            className="w-full p-4 rounded-xl bg-card border border-border flex items-center justify-center gap-2 text-sm font-medium text-muted-foreground hover:bg-muted transition-colors active:scale-[0.98]"
+            className="w-full p-4 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 flex items-center justify-center gap-2 text-sm font-medium text-white/60 hover:bg-white/10 transition-colors active:scale-[0.98]"
           >
             <ChevronDown className="w-4 h-4" />
             Load More ({filteredProducts.length - displayCount} remaining)
           </button>
         )}
 
-        {/* Empty State - simplified */}
+        {/* Empty State - Glassmorphism */}
         {!isLoading && displayedProducts.length === 0 && (
           <div className="text-center py-16">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-xl bg-muted flex items-center justify-center">
-              <MapPin className="w-8 h-8 text-muted-foreground" />
+            <div className="w-16 h-16 mx-auto mb-4 rounded-xl bg-white/10 flex items-center justify-center">
+              <MapPin className="w-8 h-8 text-white/40" />
             </div>
-            <p className="text-muted-foreground mb-2">
+            <p className="text-white/60 mb-2">
               {searchQuery ? `No plans found for "${searchQuery}"` : 'No plans available'}
             </p>
-            <p className="text-xs text-muted-foreground mb-4">
+            <p className="text-xs text-white/40 mb-4">
               Try adjusting your filters
             </p>
             <Button 
               variant="outline"
               size="sm"
               onClick={() => { setSearchQuery(''); setDataFilter('all'); }}
+              className="border-white/20 text-white hover:bg-white/10"
             >
               Clear all filters
             </Button>

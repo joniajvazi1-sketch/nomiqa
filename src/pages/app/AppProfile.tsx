@@ -290,9 +290,9 @@ export const AppProfile: React.FC = () => {
   if (!user && !loading) {
     return (
       <div className="px-4 py-6 flex flex-col items-center justify-center min-h-[60vh]">
-        <User className="w-16 h-16 text-muted-foreground mb-4" />
-        <h2 className="text-xl font-semibold text-foreground mb-2">Sign in to view profile</h2>
-        <p className="text-muted-foreground text-center mb-6">Access your account, orders, and rewards</p>
+        <User className="w-16 h-16 text-white/40 mb-4" />
+        <h2 className="text-xl font-semibold text-white mb-2">Sign in to view profile</h2>
+        <p className="text-white/60 text-center mb-6">Access your account, orders, and rewards</p>
         <Button onClick={() => navigate('/auth')}>Sign In</Button>
       </div>
     );
@@ -300,7 +300,7 @@ export const AppProfile: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <AppSpinner size="lg" />
       </div>
     );
@@ -308,97 +308,95 @@ export const AppProfile: React.FC = () => {
 
   return (
     <div className="px-4 py-6 space-y-5 pb-24 min-h-screen overflow-y-auto">
-      {/* Header with subtle background */}
-      <div className="relative rounded-2xl bg-gradient-to-br from-card to-muted/30 border border-border p-4 overflow-hidden">
+      {/* Header with glassmorphism */}
+      <div className="relative rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 p-4 overflow-hidden">
         {/* Subtle background glow */}
-        <div className="absolute top-0 right-0 w-24 h-24 rounded-full opacity-10 pointer-events-none"
+        <div className="absolute top-0 right-0 w-24 h-24 rounded-full opacity-20 pointer-events-none"
           style={{ background: `radial-gradient(circle, ${tierConfig.color.includes('amber') ? '#f59e0b' : tierConfig.color.includes('violet') ? '#8b5cf6' : '#14b8a6'} 0%, transparent 70%)` }}
         />
         
         <div className="relative z-10 flex items-center gap-4">
-          <div className={cn("w-16 h-16 rounded-full flex items-center justify-center ring-2 ring-offset-2 ring-offset-background", tierConfig.bg, `ring-current ${tierConfig.color}`)}>
+          <div className={cn("w-16 h-16 rounded-full flex items-center justify-center ring-2 ring-offset-2 ring-offset-transparent", tierConfig.bg, `ring-current ${tierConfig.color}`)}>
             <span className={cn("text-2xl font-bold", tierConfig.color)}>
               {profile?.username?.charAt(0).toUpperCase() || 'U'}
             </span>
           </div>
           <div className="flex-1">
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-xl font-bold text-foreground">{profile?.username}</h1>
+              <h1 className="text-xl font-bold text-white">{profile?.username}</h1>
               <Badge className={cn("text-xs font-semibold", tierConfig.bg, tierConfig.color)}>
                 <TierIcon className="w-3 h-3 mr-1" />
                 {tierConfig.name}
               </Badge>
             </div>
-            <p className="text-sm text-muted-foreground">{profile?.email}</p>
+            <p className="text-sm text-white/60">{profile?.email}</p>
           </div>
-          <Button variant="ghost" size="icon" onClick={handleLogout} className="active:scale-95">
+          <Button variant="ghost" size="icon" onClick={handleLogout} className="active:scale-95 text-white/60 hover:text-white hover:bg-white/10">
             <LogOut className="w-5 h-5" />
           </Button>
         </div>
       </div>
 
-      {/* Stats Summary - Enhanced with subtle depth */}
+      {/* Stats Summary - Glassmorphism */}
       <div className="grid grid-cols-3 gap-2">
-        <div className="rounded-xl bg-card border border-border p-3 text-center relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none" />
+        <div className="rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 p-3 text-center relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent pointer-events-none" />
           <Activity className="w-4 h-4 text-primary mx-auto mb-1 relative z-10" />
-          <p className="text-lg font-bold text-foreground relative z-10">
+          <p className="text-lg font-bold text-white relative z-10">
             {(userPoints?.total_points || 0) > 0 ? (userPoints?.total_points || 0).toLocaleString() : '0'}
           </p>
-          <p className="text-xs text-muted-foreground relative z-10">
+          <p className="text-xs text-white/50 relative z-10">
             {(userPoints?.total_points || 0) === 0 ? 'Start earning!' : 'Points'}
           </p>
         </div>
-        <div className="rounded-xl bg-card border border-border p-3 text-center relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent pointer-events-none" />
-          <MapPin className="w-4 h-4 text-green-500 mx-auto mb-1 relative z-10" />
-          <p className="text-lg font-bold text-foreground relative z-10">{((userPoints?.total_distance_meters || 0) / 1000).toFixed(1)}</p>
-          <p className="text-xs text-muted-foreground relative z-10">km</p>
+        <div className="rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 p-3 text-center relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 to-transparent pointer-events-none" />
+          <MapPin className="w-4 h-4 text-green-400 mx-auto mb-1 relative z-10" />
+          <p className="text-lg font-bold text-white relative z-10">{((userPoints?.total_distance_meters || 0) / 1000).toFixed(1)}</p>
+          <p className="text-xs text-white/50 relative z-10">km</p>
         </div>
-        <div className="rounded-xl bg-card border border-border p-3 text-center relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent pointer-events-none" />
-          <Wallet className="w-4 h-4 text-amber-500 mx-auto mb-1 relative z-10" />
-          <p className="text-lg font-bold text-foreground relative z-10">${totalCashbackEarned.toFixed(2)}</p>
-          <p className="text-xs text-muted-foreground relative z-10">Earned</p>
+        <div className="rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 p-3 text-center relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-transparent pointer-events-none" />
+          <Wallet className="w-4 h-4 text-amber-400 mx-auto mb-1 relative z-10" />
+          <p className="text-lg font-bold text-white relative z-10">${totalCashbackEarned.toFixed(2)}</p>
+          <p className="text-xs text-white/50 relative z-10">Earned</p>
         </div>
       </div>
 
-      {/* Tier Progress - Show potential upgrade */}
+      {/* Tier Progress - Glassmorphism */}
       {membership && membership.membership_tier !== 'explorer' && (
-        <Card className="bg-card border-border">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-sm font-medium text-foreground">Upgrade your tier</p>
-              <span className="text-xs text-muted-foreground">
-                ${membership.total_spent_usd.toFixed(0)} / ${getNextTierThreshold(membership.membership_tier)}
-              </span>
-            </div>
-            <div className="h-2 rounded-full bg-muted overflow-hidden">
-              <div 
-                className="h-full bg-primary rounded-full transition-all duration-500"
-                style={{ width: `${Math.min(100, (membership.total_spent_usd / getNextTierThreshold(membership.membership_tier)) * 100)}%` }}
-              />
-            </div>
-            <p className="text-xs text-muted-foreground mt-2">
-              Spend ${(getNextTierThreshold(membership.membership_tier) - membership.total_spent_usd).toFixed(0)} more to unlock higher cashback
-            </p>
-          </CardContent>
-        </Card>
+        <div className="rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 p-4">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm font-medium text-white">Upgrade your tier</p>
+            <span className="text-xs text-white/50">
+              ${membership.total_spent_usd.toFixed(0)} / ${getNextTierThreshold(membership.membership_tier)}
+            </span>
+          </div>
+          <div className="h-2 rounded-full bg-white/10 overflow-hidden">
+            <div 
+              className="h-full bg-primary rounded-full transition-all duration-500"
+              style={{ width: `${Math.min(100, (membership.total_spent_usd / getNextTierThreshold(membership.membership_tier)) * 100)}%` }}
+            />
+          </div>
+          <p className="text-xs text-white/50 mt-2">
+            Spend ${(getNextTierThreshold(membership.membership_tier) - membership.total_spent_usd).toFixed(0)} more to unlock higher cashback
+          </p>
+        </div>
       )}
 
 
-      {/* Tabs - Reduced to 3 */}
+      {/* Tabs - Glassmorphism */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3 h-auto p-1 bg-card border border-border rounded-xl">
-          <TabsTrigger value="account" className="py-2.5 text-xs rounded-lg" onClick={() => selectionTap()}>
+        <TabsList className="grid w-full grid-cols-3 h-auto p-1 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl">
+          <TabsTrigger value="account" className="py-2.5 text-xs rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white text-white/60" onClick={() => selectionTap()}>
             <User className="w-4 h-4 mr-1" />
             Account
           </TabsTrigger>
-          <TabsTrigger value="orders" className="py-2.5 text-xs rounded-lg" onClick={() => selectionTap()}>
+          <TabsTrigger value="orders" className="py-2.5 text-xs rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white text-white/60" onClick={() => selectionTap()}>
             <Package className="w-4 h-4 mr-1" />
             eSIMs
           </TabsTrigger>
-          <TabsTrigger value="settings" className="py-2.5 text-xs rounded-lg" onClick={() => selectionTap()}>
+          <TabsTrigger value="settings" className="py-2.5 text-xs rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white text-white/60" onClick={() => selectionTap()}>
             <Shield className="w-4 h-4 mr-1" />
             Settings
           </TabsTrigger>

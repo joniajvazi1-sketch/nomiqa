@@ -246,7 +246,7 @@ export const AppRewards: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <AppSpinner size="lg" />
       </div>
     );
@@ -260,23 +260,23 @@ export const AppRewards: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-screen pb-24">
       <div className="px-4 py-6 space-y-5">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-extrabold text-foreground">Rewards</h1>
+          <h1 className="text-2xl font-extrabold text-white">Rewards</h1>
           <Button 
             variant="ghost" 
             size="sm"
             onClick={() => { lightTap(); navigate('/app/profile?tab=settings'); }}
-            className="text-muted-foreground font-semibold"
+            className="text-white/60 font-semibold hover:bg-white/10"
           >
             <Info className="w-4 h-4 mr-1" />
             Help
           </Button>
         </div>
 
-        {/* Claim Points CTA - Prominent */}
+        {/* Claim Points CTA - Glassmorphism */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -297,178 +297,169 @@ export const AppRewards: React.FC = () => {
           </div>
         </motion.div>
 
-        {/* Points Balance Card - Bolder typography */}
+        {/* Points Balance Card - Glassmorphism */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="rounded-2xl bg-white border border-border shadow-elevated p-5"
+          className="rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 shadow-elevated p-5"
         >
           <div className="flex items-center gap-2 mb-1">
-            <Coins className="w-5 h-5 text-green-500" />
-            <span className="text-sm font-bold text-foreground">Total Points</span>
+            <Coins className="w-5 h-5 text-green-400" />
+            <span className="text-sm font-bold text-white">Total Points</span>
           </div>
           
-          {/* Points big, value small */}
           <div className="flex items-baseline gap-3 mb-1">
-            <span className="text-5xl font-extrabold text-foreground tabular-nums">
+            <span className="text-5xl font-extrabold text-white tabular-nums">
               {totalPoints.toLocaleString()}
             </span>
-            <span className="text-lg font-bold text-muted-foreground">pts</span>
+            <span className="text-lg font-bold text-white/60">pts</span>
           </div>
           
-          <div className="text-base font-semibold text-green-600 mb-1">
+          <div className="text-base font-semibold text-green-400 mb-1">
             ≈ ${totalUsd.toFixed(2)} USD
           </div>
-          <p className="text-xs font-medium text-muted-foreground mb-1">
+          <p className="text-xs font-medium text-white/50 mb-1">
             1 point = 1 token (redeem on website)
           </p>
           <p className="text-xs font-semibold text-primary">
             🎁 Invite friends → Earn 10% lifetime rewards
           </p>
-
         </motion.div>
 
-        {/* Earnings Chart - With axis labels */}
-        <Card className="bg-white border-border">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <TrendingUp className="w-4 h-4 text-primary" />
-                <span className="text-sm font-semibold text-foreground">Points Over Time</span>
-              </div>
-              <Tabs value={timeRange} onValueChange={(v) => { lightTap(); setTimeRange(v as any); }}>
-                <TabsList className="h-8 p-0.5 bg-muted">
-                  <TabsTrigger value="daily" className="h-7 text-xs px-3">Daily</TabsTrigger>
-                  <TabsTrigger value="weekly" className="h-7 text-xs px-3">Weekly</TabsTrigger>
-                  <TabsTrigger value="monthly" className="h-7 text-xs px-3">Monthly</TabsTrigger>
-                </TabsList>
-              </Tabs>
+        {/* Earnings Chart - Glassmorphism */}
+        <div className="rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 p-4">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="w-4 h-4 text-primary" />
+              <span className="text-sm font-semibold text-white">Points Over Time</span>
             </div>
+            <Tabs value={timeRange} onValueChange={(v) => { lightTap(); setTimeRange(v as any); }}>
+              <TabsList className="h-8 p-0.5 bg-white/10 border border-white/10">
+                <TabsTrigger value="daily" className="h-7 text-xs px-3 data-[state=active]:bg-primary data-[state=active]:text-white text-white/60">Daily</TabsTrigger>
+                <TabsTrigger value="weekly" className="h-7 text-xs px-3 data-[state=active]:bg-primary data-[state=active]:text-white text-white/60">Weekly</TabsTrigger>
+                <TabsTrigger value="monthly" className="h-7 text-xs px-3 data-[state=active]:bg-primary data-[state=active]:text-white text-white/60">Monthly</TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
 
-            <div className="h-40">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={earningsData} margin={{ left: -10, right: 5 }}>
-                  <XAxis 
-                    dataKey="label" 
-                    tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
-                    axisLine={false}
-                    tickLine={false}
-                    label={{ value: timeRange === 'daily' ? 'Days' : timeRange === 'weekly' ? 'Weeks' : 'Months', position: 'insideBottom', offset: -5, fontSize: 9, fill: 'hsl(var(--muted-foreground))' }}
-                  />
-                  <YAxis 
-                    tick={{ fontSize: 9, fill: 'hsl(var(--muted-foreground))' }}
-                    axisLine={false}
-                    tickLine={false}
-                    width={30}
-                    tickFormatter={(value) => value >= 1000 ? `${(value/1000).toFixed(0)}k` : value}
-                    label={{ value: 'Points', angle: -90, position: 'insideLeft', fontSize: 9, fill: 'hsl(var(--muted-foreground))' }}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: 'white',
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: '8px',
-                      fontSize: '12px'
-                    }}
-                    formatter={(value: number) => [`${value} pts`, 'Earned']}
-                  />
-                  <Bar 
-                    dataKey="points" 
-                    fill="hsl(var(--primary))" 
-                    radius={[4, 4, 0, 0]}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
+          <div className="h-40">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={earningsData} margin={{ left: -10, right: 5 }}>
+                <XAxis 
+                  dataKey="label" 
+                  tick={{ fontSize: 10, fill: 'rgba(255,255,255,0.5)' }}
+                  axisLine={false}
+                  tickLine={false}
+                  label={{ value: timeRange === 'daily' ? 'Days' : timeRange === 'weekly' ? 'Weeks' : 'Months', position: 'insideBottom', offset: -5, fontSize: 9, fill: 'rgba(255,255,255,0.5)' }}
+                />
+                <YAxis 
+                  tick={{ fontSize: 9, fill: 'rgba(255,255,255,0.5)' }}
+                  axisLine={false}
+                  tickLine={false}
+                  width={30}
+                  tickFormatter={(value) => value >= 1000 ? `${(value/1000).toFixed(0)}k` : value}
+                  label={{ value: 'Points', angle: -90, position: 'insideLeft', fontSize: 9, fill: 'rgba(255,255,255,0.5)' }}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: 'hsl(220, 35%, 15%)',
+                    border: '1px solid rgba(255,255,255,0.2)',
+                    borderRadius: '8px',
+                    fontSize: '12px',
+                    color: 'white'
+                  }}
+                  formatter={(value: number) => [`${value} pts`, 'Earned']}
+                />
+                <Bar 
+                  dataKey="points" 
+                  fill="hsl(var(--primary))" 
+                  radius={[4, 4, 0, 0]}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          {earningsData.length > 0 && (
+            <div className="mt-3 pt-3 border-t border-white/10 flex items-center justify-between text-xs">
+              <span className="text-white/50">
+                Total this period
+              </span>
+              <span className="font-semibold text-white">
+                {earningsData.reduce((sum, d) => sum + d.points, 0).toLocaleString()} pts
+              </span>
             </div>
+          )}
+        </div>
 
-            {earningsData.length > 0 && (
-              <div className="mt-3 pt-3 border-t border-border flex items-center justify-between text-xs">
-                <span className="text-muted-foreground">
-                  Total this period
-                </span>
-                <span className="font-semibold text-foreground">
-                  {earningsData.reduce((sum, d) => sum + d.points, 0).toLocaleString()} pts
-                </span>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        {/* Earning Factors - Glassmorphism */}
+        <div className="rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <Activity className="w-4 h-4 text-primary" />
+            <span className="text-sm font-semibold text-white">Your Earning Factors</span>
+          </div>
+          
+          <p className="text-xs text-white/60 bg-white/5 rounded-lg px-3 py-2 mb-4">
+            💡 Earn more by: keep app active + confirm coverage when asked
+          </p>
 
-        {/* Earning Factors - With tip and tappable tiles */}
-        <Card className="bg-white border-border">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2 mb-3">
-              <Activity className="w-4 h-4 text-primary" />
-              <span className="text-sm font-semibold text-foreground">Your Earning Factors</span>
-            </div>
-            
-            {/* Tip line */}
-            <p className="text-xs text-muted-foreground bg-muted/50 rounded-lg px-3 py-2 mb-4">
-              💡 Earn more by: keep app active + confirm coverage when asked
-            </p>
-
-            <div className="space-y-4">
-              {/* Uptime - Use progress labels instead of raw percentages */}
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-sm text-foreground">Uptime</span>
-                  <div className="text-right">
-                    <span className={cn("text-sm font-semibold", getFactorColor(earningFactors.uptime))}>
-                      {getProgressLabel(earningFactors.uptime).label}
-                    </span>
-                    <span className="text-xs text-muted-foreground ml-1">
-                      ({getProgressLabel(earningFactors.uptime).subtext})
-                    </span>
-                  </div>
+          <div className="space-y-4">
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-sm text-white">Uptime</span>
+                <div className="text-right">
+                  <span className={cn("text-sm font-semibold", earningFactors.uptime >= 80 ? 'text-green-400' : earningFactors.uptime >= 50 ? 'text-amber-400' : 'text-white/60')}>
+                    {getProgressLabel(earningFactors.uptime).label}
+                  </span>
+                  <span className="text-xs text-white/50 ml-1">
+                    ({getProgressLabel(earningFactors.uptime).subtext})
+                  </span>
                 </div>
-                <Progress value={earningFactors.uptime} className="h-2" />
               </div>
-
-              {/* Coverage Quality - Use progress labels */}
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-sm text-foreground">Coverage Quality</span>
-                  <div className="text-right">
-                    <span className={cn("text-sm font-semibold", getFactorColor(earningFactors.coverageQuality))}>
-                      {getProgressLabel(earningFactors.coverageQuality).label}
-                    </span>
-                    <span className="text-xs text-muted-foreground ml-1">
-                      ({getProgressLabel(earningFactors.coverageQuality).subtext})
-                    </span>
-                  </div>
-                </div>
-                <Progress value={earningFactors.coverageQuality} className="h-2" />
-              </div>
-
-              {/* Stats row - Tappable with hint */}
-              <div className="grid grid-cols-2 gap-3 pt-2">
-                <button 
-                  onClick={() => { mediumTap(); toast({ title: 'Run Speed Tests', description: 'Tap the speed test button on the Map screen to earn +5 points each!' }); }}
-                  className="bg-card rounded-lg p-3 text-center border border-border hover:border-primary/30 active:scale-95 transition-all"
-                >
-                  <Target className="w-4 h-4 text-primary mx-auto mb-1" />
-                  <p className="text-lg font-bold text-foreground">{earningFactors.speedTests}</p>
-                  <p className="text-xs text-muted-foreground">Speed Tests</p>
-                  <p className="text-[9px] text-primary mt-1">Tap to learn more</p>
-                </button>
-                <button 
-                  onClick={() => { mediumTap(); toast({ title: 'Explore New Areas', description: 'Move around to map new locations and earn bonus points!' }); }}
-                  className="bg-card rounded-lg p-3 text-center border border-border hover:border-primary/30 active:scale-95 transition-all"
-                >
-                  <Zap className="w-4 h-4 text-amber-500 mx-auto mb-1" />
-                  <p className="text-lg font-bold text-foreground">{earningFactors.areasExplored}</p>
-                  <p className="text-xs text-muted-foreground">Areas Mapped</p>
-                  <p className="text-[9px] text-primary mt-1">Tap to learn more</p>
-                </button>
-              </div>
+              <Progress value={earningFactors.uptime} className="h-2" />
             </div>
-          </CardContent>
-        </Card>
 
-        {/* Redemption Options */}
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-sm text-white">Coverage Quality</span>
+                <div className="text-right">
+                  <span className={cn("text-sm font-semibold", earningFactors.coverageQuality >= 80 ? 'text-green-400' : earningFactors.coverageQuality >= 50 ? 'text-amber-400' : 'text-white/60')}>
+                    {getProgressLabel(earningFactors.coverageQuality).label}
+                  </span>
+                  <span className="text-xs text-white/50 ml-1">
+                    ({getProgressLabel(earningFactors.coverageQuality).subtext})
+                  </span>
+                </div>
+              </div>
+              <Progress value={earningFactors.coverageQuality} className="h-2" />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 pt-2">
+              <button 
+                onClick={() => { mediumTap(); toast({ title: 'Run Speed Tests', description: 'Tap the speed test button on the Map screen to earn +5 points each!' }); }}
+                className="bg-white/5 rounded-lg p-3 text-center border border-white/10 hover:border-primary/30 active:scale-95 transition-all"
+              >
+                <Target className="w-4 h-4 text-primary mx-auto mb-1" />
+                <p className="text-lg font-bold text-white">{earningFactors.speedTests}</p>
+                <p className="text-xs text-white/50">Speed Tests</p>
+                <p className="text-[9px] text-primary mt-1">Tap to learn more</p>
+              </button>
+              <button 
+                onClick={() => { mediumTap(); toast({ title: 'Explore New Areas', description: 'Move around to map new locations and earn bonus points!' }); }}
+                className="bg-white/5 rounded-lg p-3 text-center border border-white/10 hover:border-primary/30 active:scale-95 transition-all"
+              >
+                <Zap className="w-4 h-4 text-amber-400 mx-auto mb-1" />
+                <p className="text-lg font-bold text-white">{earningFactors.areasExplored}</p>
+                <p className="text-xs text-white/50">Areas Mapped</p>
+                <p className="text-[9px] text-primary mt-1">Tap to learn more</p>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Redemption Options - Glassmorphism */}
         <div>
-          <h2 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+          <h2 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
             <Gift className="w-4 h-4 text-primary" />
             Redeem Your Points
           </h2>
@@ -492,17 +483,17 @@ export const AppRewards: React.FC = () => {
                   className={cn(
                     "w-full flex items-center gap-3 p-4 rounded-xl border transition-colors text-left",
                     option.available 
-                      ? "bg-white border-border active:bg-muted" 
-                      : "bg-muted/30 border-border/50"
+                      ? "bg-white/5 backdrop-blur-sm border-white/10 active:bg-white/10" 
+                      : "bg-white/[0.02] border-white/5"
                   )}
                 >
                   <div className={cn(
                     "w-10 h-10 rounded-full flex items-center justify-center",
-                    option.available ? "bg-primary/10" : "bg-muted"
+                    option.available ? "bg-primary/20" : "bg-white/10"
                   )}>
                     <Icon className={cn(
                       "w-5 h-5",
-                      option.available ? "text-primary" : "text-muted-foreground"
+                      option.available ? "text-primary" : "text-white/40"
                     )} />
                   </div>
 
@@ -510,29 +501,29 @@ export const AppRewards: React.FC = () => {
                     <div className="flex items-center gap-2">
                       <span className={cn(
                         "font-medium",
-                        option.available ? "text-foreground" : "text-muted-foreground"
+                        option.available ? "text-white" : "text-white/40"
                       )}>
                         {option.title}
                       </span>
                       {option.badge && (
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/10 text-white/50">
                           {option.badge}
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-muted-foreground">{option.description}</p>
+                    <p className="text-xs text-white/50">{option.description}</p>
                   </div>
 
                   <div className="text-right">
                     {option.pointsCost && (
                       <p className={cn(
                         "text-sm font-semibold",
-                        canRedeem ? "text-primary" : "text-muted-foreground"
+                        canRedeem ? "text-primary" : "text-white/40"
                       )}>
                         {option.pointsCost} pts
                       </p>
                     )}
-                    <ChevronRight className="w-4 h-4 text-muted-foreground mt-1" />
+                    <ChevronRight className="w-4 h-4 text-white/40 mt-1" />
                   </div>
                 </button>
               );
@@ -543,7 +534,7 @@ export const AppRewards: React.FC = () => {
         {/* Convert Points CTA */}
         <button
           onClick={handleRedeemPoints}
-          className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-semibold text-sm active:scale-[0.98] transition-transform flex items-center justify-center gap-2"
+          className="w-full h-12 rounded-xl bg-primary text-white font-semibold text-sm active:scale-[0.98] transition-transform flex items-center justify-center gap-2"
         >
           <ShoppingBag className="w-4 h-4" />
           Shop with Points
