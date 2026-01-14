@@ -1,9 +1,8 @@
 import React, { useRef, useMemo, Suspense } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, Sphere } from '@react-three/drei';
+import { OrbitControls, Sphere, Stars } from '@react-three/drei';
 import * as THREE from 'three';
 import { GlobalCoverageCell } from '@/hooks/useGlobalCoverage';
-import { Globe, MapPin, Radio } from 'lucide-react';
 
 interface NetworkGlobeProps {
   coverageData: GlobalCoverageCell[];
@@ -25,54 +24,53 @@ const latLngToVector3 = (lat: number, lng: number, radius: number): THREE.Vector
   return new THREE.Vector3(x, y, z);
 };
 
-// Network type to color mapping
+// Helium-style color palette
 const getNetworkColor = (network: string): THREE.Color => {
   switch (network) {
-    case '5g': return new THREE.Color(0x06b6d4); // Cyan
-    case 'lte': return new THREE.Color(0x3b82f6); // Blue
-    case '3g': return new THREE.Color(0xf59e0b); // Amber
-    default: return new THREE.Color(0x8b5cf6); // Purple
+    case '5g': return new THREE.Color(0x00ffa3); // Bright green
+    case 'lte': return new THREE.Color(0x00d4ff); // Cyan
+    case '3g': return new THREE.Color(0xa855f7); // Purple
+    default: return new THREE.Color(0x00d4ff); // Default cyan
   }
 };
 
-// Beautiful Earth sphere with gradient
+// Dark Earth with Helium aesthetic
 const Earth: React.FC = () => {
-  const meshRef = useRef<THREE.Mesh>(null);
+  const groupRef = useRef<THREE.Group>(null);
   
   useFrame(() => {
-    if (meshRef.current) {
-      meshRef.current.rotation.y += 0.002;
+    if (groupRef.current) {
+      groupRef.current.rotation.y += 0.001;
     }
   });
 
   return (
-    <group>
-      {/* Main globe - ocean blue */}
-      <Sphere ref={meshRef} args={[2, 64, 64]}>
-        <meshPhongMaterial
-          color="#1e40af"
-          emissive="#1e3a8a"
-          emissiveIntensity={0.1}
-          shininess={30}
+    <group ref={groupRef}>
+      {/* Core dark sphere */}
+      <Sphere args={[2, 64, 64]}>
+        <meshStandardMaterial
+          color="#0a1628"
+          roughness={0.9}
+          metalness={0.1}
         />
       </Sphere>
       
-      {/* Continents overlay effect */}
-      <Sphere args={[2.01, 32, 32]}>
+      {/* Subtle grid overlay */}
+      <Sphere args={[2.01, 36, 36]}>
         <meshBasicMaterial
-          color="#60a5fa"
-          transparent
-          opacity={0.15}
+          color="#1e3a5f"
           wireframe
+          transparent
+          opacity={0.12}
         />
       </Sphere>
       
       {/* Atmosphere glow */}
-      <Sphere args={[2.15, 32, 32]}>
+      <Sphere args={[2.08, 64, 64]}>
         <meshBasicMaterial
-          color="#93c5fd"
+          color="#00d4ff"
           transparent
-          opacity={0.12}
+          opacity={0.04}
           side={THREE.BackSide}
         />
       </Sphere>
@@ -80,71 +78,128 @@ const Earth: React.FC = () => {
   );
 };
 
-// Data points on globe
-const DataPoints: React.FC<{ cells: GlobalCoverageCell[] }> = ({ cells }) => {
+// Individual glowing hotspot
+const Hotspot: React.FC<{ position: THREE.Vector3; color: THREE.Color; intensity: number }> = ({ 
+  position, 
+  color, 
+  intensity 
+}) => {
+  const meshRef = useRef<THREE.Mesh>(null);
+  const glowRef = useRef<THREE.Mesh>(null);
+  const pulseSpeed = useRef(Math.random() * 2 + 1);
+  
+  useFrame((state) => {
+    if (meshRef.current && glowRef.current) {
+      const pulse = Math.sin(state.clock.elapsedTime * pulseSpeed.current) * 0.3 + 0.7;
+      meshRef.current.scale.setScalar(pulse * intensity);
+      glowRef.current.scale.setScalar(pulse * 1.8 * intensity);
+    }
+  });
+
+  return (
+    <group position={position}>
+      {/* Core bright point */}
+      <mesh ref={meshRef}>
+        <sphereGeometry args={[0.035, 8, 8]} />
+        <meshBasicMaterial color={color} />
+      </mesh>
+      
+      {/* Inner glow */}
+      <mesh ref={glowRef}>
+        <sphereGeometry args={[0.06, 8, 8]} />
+        <meshBasicMaterial color={color} transparent opacity={0.5} />
+      </mesh>
+      
+      {/* Outer glow */}
+      <mesh>
+        <sphereGeometry args={[0.12, 8, 8]} />
+        <meshBasicMaterial color={color} transparent opacity={0.15} />
+      </mesh>
+    </group>
+  );
+};
+
+// Data points as glowing hotspots
+const DataHotspots: React.FC<{ cells: GlobalCoverageCell[] }> = ({ cells }) => {
   const groupRef = useRef<THREE.Group>(null);
   
-  const points = useMemo(() => {
-    return cells.map((cell) => ({
-      position: latLngToVector3(cell.lat, cell.lng, 2.08),
-      color: getNetworkColor(cell.network),
-      size: 0.04 + Math.min(cell.count / 30, 0.06),
-    }));
+  const hotspots = useMemo(() => {
+    // Deduplicate by rounding coordinates
+    const seen = new Set<string>();
+    return cells
+      .filter(cell => {
+        const key = `${cell.lat.toFixed(1)},${cell.lng.toFixed(1)}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      })
+      .slice(0, 400)
+      .map((cell, i) => ({
+        id: i,
+        position: latLngToVector3(cell.lat, cell.lng, 2.05),
+        color: getNetworkColor(cell.network),
+        intensity: 0.6 + Math.min(cell.count / 20, 0.4),
+      }));
   }, [cells]);
   
   useFrame(() => {
     if (groupRef.current) {
-      groupRef.current.rotation.y += 0.002;
+      groupRef.current.rotation.y += 0.001;
     }
   });
 
-  if (cells.length === 0) return null;
+  if (hotspots.length === 0) return null;
 
   return (
     <group ref={groupRef}>
-      {points.map((point, i) => (
-        <group key={i} position={point.position}>
-          {/* Core point */}
-          <mesh>
-            <sphereGeometry args={[point.size, 12, 12]} />
-            <meshBasicMaterial color={point.color} />
-          </mesh>
-          {/* Glow */}
-          <mesh>
-            <sphereGeometry args={[point.size * 2.5, 12, 12]} />
-            <meshBasicMaterial color={point.color} transparent opacity={0.3} />
-          </mesh>
-        </group>
+      {hotspots.map((hotspot) => (
+        <Hotspot
+          key={hotspot.id}
+          position={hotspot.position}
+          color={hotspot.color}
+          intensity={hotspot.intensity}
+        />
       ))}
     </group>
   );
 };
 
-// Scene
+// Scene with dark space atmosphere
 const GlobeScene: React.FC<{ cells: GlobalCoverageCell[] }> = ({ cells }) => {
   return (
     <>
-      <ambientLight intensity={0.6} />
-      <directionalLight position={[5, 3, 5]} intensity={1} color="#ffffff" />
-      <pointLight position={[-5, -3, -5]} intensity={0.3} color="#3b82f6" />
+      <ambientLight intensity={0.15} />
+      <pointLight position={[10, 10, 10]} intensity={0.4} color="#00d4ff" />
+      <pointLight position={[-10, -10, -10]} intensity={0.2} color="#a855f7" />
+      
+      <Stars
+        radius={100}
+        depth={50}
+        count={1500}
+        factor={4}
+        saturation={0}
+        fade
+        speed={0.3}
+      />
       
       <Earth />
-      <DataPoints cells={cells} />
+      <DataHotspots cells={cells} />
       
       <OrbitControls
         enablePan={false}
         enableZoom={true}
-        minDistance={4}
+        minDistance={3.5}
         maxDistance={8}
         autoRotate
-        autoRotateSpeed={0.5}
-        dampingFactor={0.1}
+        autoRotateSpeed={0.4}
+        dampingFactor={0.08}
+        enableDamping
       />
     </>
   );
 };
 
-// Main component
+// Main component with Helium-style UI
 export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
   coverageData,
   loading = false,
@@ -155,67 +210,62 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
   const hasData = coverageData.length > 0 || totalDataPoints > 0;
 
   return (
-    <div className="relative w-full h-full flex flex-col bg-gradient-to-b from-sky-100 via-blue-50 to-white">
-      {/* Stats at TOP - always visible */}
-      <div className="relative z-20 px-4 pt-2 pb-3">
-        <div className="bg-white/80 backdrop-blur-xl rounded-2xl border border-slate-200 p-3 shadow-lg">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <div className="relative">
-                <div className="w-2.5 h-2.5 rounded-full bg-green-500" />
-                <div className="absolute inset-0 rounded-full bg-green-500 animate-ping opacity-40" />
-              </div>
-              <span className="text-sm font-semibold text-slate-800">Live Network</span>
+    <div className="relative w-full h-full bg-[#0a0f1a] rounded-2xl overflow-hidden">
+      {/* Top header - Helium style */}
+      <div className="absolute top-0 left-0 right-0 z-20 p-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <div className="w-2 h-2 rounded-full bg-[#00ffa3]" />
+              <div className="absolute inset-0 rounded-full bg-[#00ffa3] animate-ping opacity-50" />
             </div>
-            <span className="text-xs text-slate-500 px-2 py-0.5 rounded-full bg-slate-100">
-              Community Data
-            </span>
+            <span className="text-[#00ffa3] text-xs font-semibold tracking-wide">LIVE NETWORK</span>
           </div>
-          
-          <div className="grid grid-cols-3 gap-2">
-            <div className="text-center py-2 px-2 rounded-xl bg-slate-50">
-              <p className="text-xl font-bold text-primary tabular-nums">
-                {totalDataPoints.toLocaleString()}
-              </p>
-              <p className="text-[10px] text-slate-500 mt-0.5">Data Points</p>
+          <div className="flex items-center gap-3 text-[10px] text-white/50">
+            <div className="flex items-center gap-1">
+              <div className="w-1.5 h-1.5 rounded-full bg-[#00ffa3]" />
+              <span>5G</span>
             </div>
-            <div className="text-center py-2 px-2 rounded-xl bg-slate-50">
-              <p className="text-xl font-bold text-slate-800 tabular-nums">
-                {uniqueLocations.toLocaleString()}
-              </p>
-              <p className="text-[10px] text-slate-500 mt-0.5">Locations</p>
+            <div className="flex items-center gap-1">
+              <div className="w-1.5 h-1.5 rounded-full bg-[#00d4ff]" />
+              <span>LTE</span>
             </div>
-            <div className="text-center py-2 px-2 rounded-xl bg-slate-50">
-              <p className="text-xl font-bold text-slate-800 tabular-nums">
-                {coverageAreaKm2.toFixed(1)}
-              </p>
-              <p className="text-[10px] text-slate-500 mt-0.5">km² Covered</p>
-            </div>
-          </div>
-
-          {/* Legend */}
-          <div className="flex items-center justify-center gap-5 mt-2 pt-2 border-t border-slate-100">
-            <div className="flex items-center gap-1.5">
-              <div className="w-2.5 h-2.5 rounded-full bg-cyan-500" />
-              <span className="text-[10px] text-slate-500">5G</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <div className="w-2.5 h-2.5 rounded-full bg-blue-500" />
-              <span className="text-[10px] text-slate-500">LTE</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <div className="w-2.5 h-2.5 rounded-full bg-amber-500" />
-              <span className="text-[10px] text-slate-500">3G</span>
+            <div className="flex items-center gap-1">
+              <div className="w-1.5 h-1.5 rounded-full bg-[#a855f7]" />
+              <span>3G</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* 3D Globe - takes remaining space */}
-      <div className="flex-1 relative min-h-[300px]">
+      {/* Stats row - positioned at top */}
+      <div className="absolute top-12 left-0 right-0 z-20 px-3">
+        <div className="flex justify-center gap-2">
+          <div className="flex-1 max-w-[100px] bg-white/5 backdrop-blur border border-white/10 rounded-xl px-3 py-2 text-center">
+            <div className="text-[#00d4ff] text-base font-bold tabular-nums">
+              {totalDataPoints.toLocaleString()}
+            </div>
+            <div className="text-white/40 text-[9px] uppercase tracking-wider">Points</div>
+          </div>
+          <div className="flex-1 max-w-[100px] bg-white/5 backdrop-blur border border-white/10 rounded-xl px-3 py-2 text-center">
+            <div className="text-[#00ffa3] text-base font-bold tabular-nums">
+              {uniqueLocations.toLocaleString()}
+            </div>
+            <div className="text-white/40 text-[9px] uppercase tracking-wider">Hotspots</div>
+          </div>
+          <div className="flex-1 max-w-[100px] bg-white/5 backdrop-blur border border-white/10 rounded-xl px-3 py-2 text-center">
+            <div className="text-[#a855f7] text-base font-bold tabular-nums">
+              {coverageAreaKm2.toFixed(0)}
+            </div>
+            <div className="text-white/40 text-[9px] uppercase tracking-wider">km²</div>
+          </div>
+        </div>
+      </div>
+
+      {/* 3D Globe Canvas */}
+      <div className="absolute inset-0">
         <Canvas
-          camera={{ position: [0, 0, 6], fov: 45 }}
-          style={{ background: 'transparent' }}
+          camera={{ position: [0, 0, 5.5], fov: 45 }}
           gl={{ antialias: true, alpha: true }}
           dpr={[1, 1.5]}
         >
@@ -223,44 +273,35 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
             <GlobeScene cells={coverageData} />
           </Suspense>
         </Canvas>
-
-        {/* Loading overlay */}
-        {loading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-white/60 backdrop-blur-sm z-10">
-            <div className="flex flex-col items-center gap-3">
-              <div className="w-12 h-12 rounded-full border-3 border-primary/30 border-t-primary animate-spin" />
-              <p className="text-sm text-slate-600 font-medium">Loading network data...</p>
-            </div>
-          </div>
-        )}
-
-        {/* Empty state overlay */}
-        {!loading && !hasData && (
-          <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
-            <div className="text-center px-6 py-5 rounded-2xl bg-white/80 backdrop-blur-lg border border-slate-200 mx-4 shadow-lg">
-              <div className="w-14 h-14 mx-auto mb-3 rounded-xl bg-primary/10 flex items-center justify-center">
-                <Globe className="w-7 h-7 text-primary" />
-              </div>
-              <h3 className="text-base font-semibold text-slate-800 mb-1">No Data Yet</h3>
-              <p className="text-sm text-slate-500">
-                Start scanning to add your data!
-              </p>
-            </div>
-          </div>
-        )}
-        
-        {/* Motivational message */}
-        {hasData && !loading && (
-          <div className="absolute bottom-4 left-0 right-0 flex justify-center z-10 pointer-events-none">
-            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/80 backdrop-blur-sm border border-slate-200 shadow-md">
-              <MapPin className="w-4 h-4 text-primary" />
-              <span className="text-sm text-slate-700 font-medium">
-                Join {uniqueLocations > 1 ? `${uniqueLocations} locations` : 'the network'}!
-              </span>
-            </div>
-          </div>
-        )}
       </div>
+
+      {/* Loading overlay */}
+      {loading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-[#0a0f1a]/90 z-30">
+          <div className="flex flex-col items-center gap-3">
+            <div className="w-10 h-10 border-2 border-[#00d4ff]/30 border-t-[#00d4ff] rounded-full animate-spin" />
+            <span className="text-[#00d4ff] text-sm font-medium">Loading network...</span>
+          </div>
+        </div>
+      )}
+
+      {/* Empty state */}
+      {!loading && !hasData && (
+        <div className="absolute inset-0 flex items-center justify-center z-20">
+          <div className="text-center px-6 py-5 rounded-2xl bg-white/5 backdrop-blur border border-white/10 mx-4">
+            <div className="w-12 h-12 mx-auto mb-3 rounded-xl bg-[#00d4ff]/20 flex items-center justify-center">
+              <div className="w-6 h-6 rounded-full border-2 border-[#00d4ff] border-dashed animate-spin" style={{ animationDuration: '3s' }} />
+            </div>
+            <h3 className="text-sm font-semibold text-white mb-1">No Data Yet</h3>
+            <p className="text-xs text-white/50">
+              Start scanning to contribute!
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Bottom gradient fade */}
+      <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-[#0a0f1a] to-transparent z-10 pointer-events-none" />
     </div>
   );
 };
