@@ -25,7 +25,6 @@ export default defineConfig(({ mode }) => {
     build: {
       sourcemap: true, // Generate source maps and reference them for debugging
       cssCodeSplit: true, // Split CSS for better loading
-      chunkSizeWarningLimit: 600, // Warn on larger chunks
       rollupOptions: {
         output: {
           // Ensure CSS is chunked for async loading
@@ -36,39 +35,29 @@ export default defineConfig(({ mode }) => {
             return "assets/[name]-[hash][extname]";
           },
           // Manual chunk splitting to reduce main bundle size
-          manualChunks: (id) => {
-            // Core React framework - loads immediately
-            if (id.includes('node_modules/react') || id.includes('node_modules/react-dom')) {
-              return 'react-vendor';
-            }
-            // Router - also critical
-            if (id.includes('node_modules/react-router-dom') || id.includes('node_modules/react-router')) {
-              return 'router';
-            }
-            // State management
-            if (id.includes('@tanstack/react-query')) {
-              return 'query';
-            }
-            // Supabase - defer loading slightly
-            if (id.includes('@supabase/supabase-js')) {
-              return 'supabase';
-            }
-            // Animation - can load async
-            if (id.includes('framer-motion')) {
-              return 'framer';
-            }
-            // UI components - split into separate chunk
-            if (id.includes('@radix-ui')) {
-              return 'radix';
-            }
-            // Capacitor plugins - only for native
-            if (id.includes('@capacitor')) {
-              return 'capacitor';
-            }
-            // Native app pages - separate chunk
-            if (id.includes('/pages/app/')) {
-              return 'native-app';
-            }
+          manualChunks: {
+            // Core React framework
+            "react-vendor": ["react", "react-dom"],
+            // Router
+            router: ["react-router-dom"],
+            // State management and data fetching
+            query: ["@tanstack/react-query"],
+            // UI components library
+            radix: [
+              "@radix-ui/react-accordion",
+              "@radix-ui/react-alert-dialog",
+              "@radix-ui/react-dialog",
+              "@radix-ui/react-dropdown-menu",
+              "@radix-ui/react-popover",
+              "@radix-ui/react-select",
+              "@radix-ui/react-tabs",
+              "@radix-ui/react-toast",
+              "@radix-ui/react-tooltip",
+            ],
+            // Animation library
+            framer: ["framer-motion"],
+            // Supabase client
+            supabase: ["@supabase/supabase-js"],
           },
         },
       },

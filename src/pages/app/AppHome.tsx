@@ -100,116 +100,109 @@ export const AppHome: React.FC = () => {
       setUser(currentUser);
 
       if (currentUser) {
-        // Parallel fetch for faster loading - critical data first
-        const [profileResult, pointsResult] = await Promise.all([
-          supabase
-            .from('profiles')
-            .select('username')
-            .eq('user_id', currentUser.id)
-            .maybeSingle(),
-          supabase
-            .from('user_points')
-            .select('*')
-            .eq('user_id', currentUser.id)
-            .maybeSingle()
-        ]);
+        // Load profile
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('username')
+          .eq('user_id', currentUser.id)
+          .maybeSingle();
         
-        if (profileResult.data?.username) {
-          setUsername(profileResult.data.username);
-        }
-        
-        if (pointsResult.data) {
-          setPoints(pointsResult.data);
+        if (profileData?.username) {
+          setUsername(profileData.username);
         }
 
-        // Mark loading complete early - show UI while secondary data loads
-        setLoading(false);
+        // Load points
+        const { data: pointsData } = await supabase
+          .from('user_points')
+          .select('*')
+          .eq('user_id', currentUser.id)
+          .maybeSingle();
+        
+        if (pointsData) {
+          setPoints(pointsData);
+        }
 
-        // Defer non-critical data loading
+        // Check spin status for today
         const today = new Date().toISOString().split('T')[0];
-        
-        // Load secondary data in background (spin status, activity)
-        Promise.all([
-          supabase
-            .from('spin_wheel_results')
-            .select('id')
-            .eq('user_id', currentUser.id)
-            .eq('spin_date', today)
-            .maybeSingle(),
-          supabase
-            .from('contribution_sessions')
-            .select('total_points_earned, started_at, total_distance_meters')
-            .eq('user_id', currentUser.id)
-            .order('started_at', { ascending: false })
-            .limit(5),
-          supabase
-            .from('referral_commissions')
-            .select('commission_points, created_at, referred_user_id')
-            .eq('referrer_user_id', currentUser.id)
-            .order('created_at', { ascending: false })
-            .limit(3)
-        ]).then(([spinResult, sessionsResult, commissionsResult]) => {
-          setSpinReady(!spinResult.data);
+        const { data: spinData } = await supabase
+          .from('spin_wheel_results')
+          .select('id')
+          .eq('user_id', currentUser.id)
+          .eq('spin_date', today)
+          .maybeSingle();
+        setSpinReady(!spinData);
 
-          // Build combined activity list
-          const allActivity: typeof recentActivity = [];
+        // Load recent sessions for activity
+        const { data: sessionsData } = await supabase
+          .from('contribution_sessions')
+          .select('total_points_earned, started_at, total_distance_meters')
+          .eq('user_id', currentUser.id)
+          .order('started_at', { ascending: false })
+          .limit(5);
 
-          if (sessionsResult.data && sessionsResult.data.length > 0) {
-            // Calculate today's points
-            const todayTotal = sessionsResult.data
-              .filter(s => s.started_at.startsWith(today))
-              .reduce((sum, s) => sum + (s.total_points_earned || 0), 0);
-            setTodayPoints(todayTotal);
+        // Load recent referral commissions earned
+        const { data: commissionsData } = await supabase
+          .from('referral_commissions')
+          .select('commission_points, created_at, referred_user_id')
+          .eq('referrer_user_id', currentUser.id)
+          .order('created_at', { ascending: false })
+          .limit(3);
 
-            // Add scan activities
-            sessionsResult.data.slice(0, 3).forEach(s => {
-              allActivity.push({
-                type: 'scan',
-                points: s.total_points_earned || 0,
-                distance: s.total_distance_meters || 0,
-                time: formatRelativeTime(new Date(s.started_at))
-              });
+        // Build combined activity list
+        const allActivity: typeof recentActivity = [];
+
+        if (sessionsData && sessionsData.length > 0) {
+          // Calculate today's points
+          const todayTotal = sessionsData
+            .filter(s => s.started_at.startsWith(today))
+            .reduce((sum, s) => sum + (s.total_points_earned || 0), 0);
+          setTodayPoints(todayTotal);
+
+          // Add scan activities
+          sessionsData.slice(0, 3).forEach(s => {
+            allActivity.push({
+              type: 'scan',
+              points: s.total_points_earned || 0,
+              distance: s.total_distance_meters || 0,
+              time: formatRelativeTime(new Date(s.started_at))
             });
-          }
-
-          // Add referral commission activities
-          if (commissionsResult.data && commissionsResult.data.length > 0) {
-            commissionsResult.data.forEach(c => {
-              allActivity.push({
-                type: 'referral',
-                points: c.commission_points || 0,
-                time: formatRelativeTime(new Date(c.created_at)),
-                username: 'friend'
-              });
-            });
-          }
-
-          // Sort and take top 5
-          allActivity.sort((a, b) => {
-            const getMinutes = (t: string) => {
-              const match = t.match(/(\d+)([mhd])/);
-              if (!match) return 0;
-              const [, num, unit] = match;
-              const n = parseInt(num);
-              if (unit === 'm') return n;
-              if (unit === 'h') return n * 60;
-              if (unit === 'd') return n * 1440;
-              return 0;
-            };
-            return getMinutes(a.time) - getMinutes(b.time);
           });
+        }
 
-          setRecentActivity(allActivity.slice(0, 5));
-        }).catch(err => {
-          console.warn('Secondary data load failed:', err);
+        // Add referral commission activities
+        if (commissionsData && commissionsData.length > 0) {
+          commissionsData.forEach(c => {
+            allActivity.push({
+              type: 'referral',
+              points: c.commission_points || 0,
+              time: formatRelativeTime(new Date(c.created_at)),
+              username: 'friend'
+            });
+          });
+        }
+
+        // Sort and take top 5
+        allActivity.sort((a, b) => {
+          const getMinutes = (t: string) => {
+            const match = t.match(/(\d+)([mhd])/);
+            if (!match) return 0;
+            const [, num, unit] = match;
+            const n = parseInt(num);
+            if (unit === 'm') return n;
+            if (unit === 'h') return n * 60;
+            if (unit === 'd') return n * 1440;
+            return 0;
+          };
+          return getMinutes(a.time) - getMinutes(b.time);
         });
 
-        return; // Skip the finally setLoading since we did it early
+        setRecentActivity(allActivity.slice(0, 5));
       }
     } catch (error) {
       console.error('Error loading data:', error);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }, []);
 
   useEffect(() => {

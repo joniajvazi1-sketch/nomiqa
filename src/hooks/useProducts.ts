@@ -29,9 +29,9 @@ export const useProducts = () => {
   return useQuery({
     queryKey: ['products'],
     queryFn: async () => {
-      // Shorter timeout for mobile - 10s is more reasonable for 3G/4G
+      // Use AbortController for timeout on slow mobile networks
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000);
+      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
 
       try {
         const { data, error } = await supabase
@@ -69,19 +69,13 @@ export const useProducts = () => {
         });
       } catch (err) {
         clearTimeout(timeoutId);
-        // More helpful error for abort
-        if (err instanceof Error && err.name === 'AbortError') {
-          console.error('Products fetch timed out - slow network');
-          throw new Error('Network timeout - please try again');
-        }
         console.error('Products fetch error:', err);
         throw err;
       }
     },
-    retry: 3, // Increased retries for flaky mobile networks
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 4000),
-    staleTime: 1000 * 60 * 10, // Cache for 10 minutes (longer for mobile)
-    gcTime: 1000 * 60 * 30, // Keep in cache for 30 minutes
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 5000),
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
   });
 };
 
