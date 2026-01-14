@@ -69,7 +69,7 @@ const REGION_IMAGE_MAP: Record<string, string> = {
  */
 export const AppShop: React.FC = () => {
   const navigate = useNavigate();
-  const { data: products, isLoading, refetch } = useProducts();
+  const { data: products, isLoading, isError, error, refetch } = useProducts();
   const { items, addItem } = useCart();
   const { buttonTap, addToCartPattern, errorPattern, navigationTap, selectionTap } = useEnhancedHaptics();
   const { playPop, playError, playSwoosh } = useEnhancedSounds();
@@ -387,6 +387,29 @@ export const AppShop: React.FC = () => {
           <div className="flex items-center justify-center py-14">
             <AppSpinner size="lg" label="Loading plans..." />
           </div>
+        ) : isError ? (
+          <div className="flex flex-col items-center justify-center py-14 gap-4">
+            <div className="text-center">
+              <p className="text-foreground font-medium mb-1">Unable to load plans</p>
+              <p className="text-sm text-muted-foreground">
+                {error instanceof Error ? error.message : 'Please check your connection'}
+              </p>
+            </div>
+            <Button 
+              onClick={() => refetch()} 
+              variant="outline" 
+              className="border-primary text-primary"
+            >
+              Try Again
+            </Button>
+          </div>
+        ) : displayedProducts.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-14 gap-2">
+            <Globe className="w-10 h-10 text-muted-foreground" />
+            <p className="text-muted-foreground text-center">
+              {searchQuery ? 'No plans match your search' : 'No plans available'}
+            </p>
+          </div>
         ) : (
           <div className="grid grid-cols-2 gap-3">
             {displayedProducts.map((product, index) => (
@@ -416,12 +439,6 @@ export const AppShop: React.FC = () => {
                       </div>
                     )}
                     
-                    {/* Popular badge - Clean style */}
-                    {product.is_popular && (
-                      <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded-md bg-primary/10 border border-primary/20">
-                        <span className="text-[9px] font-medium text-primary">Popular</span>
-                      </div>
-                    )}
                     
                     {/* Flag */}
                     <div className="flex justify-center mb-3">
@@ -490,27 +507,6 @@ export const AppShop: React.FC = () => {
           </button>
         )}
 
-        {/* Empty State - simplified */}
-        {!isLoading && displayedProducts.length === 0 && (
-          <div className="text-center py-16">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-xl bg-muted flex items-center justify-center">
-              <MapPin className="w-8 h-8 text-muted-foreground" />
-            </div>
-            <p className="text-muted-foreground mb-2">
-              {searchQuery ? `No plans found for "${searchQuery}"` : 'No plans available'}
-            </p>
-            <p className="text-xs text-muted-foreground mb-4">
-              Try adjusting your filters
-            </p>
-            <Button 
-              variant="outline"
-              size="sm"
-              onClick={() => { setSearchQuery(''); setDataFilter('all'); }}
-            >
-              Clear all filters
-            </Button>
-          </div>
-        )}
 
         {/* Enhanced Plan Selection Modal - Popup Animation with Swipe-to-Dismiss */}
         <Dialog open={detailModalOpen} onOpenChange={setDetailModalOpen}>
