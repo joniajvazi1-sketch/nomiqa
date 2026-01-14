@@ -4,6 +4,7 @@ import { Capacitor } from '@capacitor/core';
 import { BottomTabBar } from './BottomTabBar';
 import { PageTransition } from './PageTransition';
 import { OfflineScreen } from './OfflineScreen';
+import { SwipeablePages } from './SwipeablePages';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 
 // Type imports only - actual module loaded dynamically
@@ -63,7 +64,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 
   return (
     <div className="app-theme fixed inset-0 flex flex-col overflow-hidden bg-background">
-      {/* Scrollable content area */}
+      {/* Scrollable content area with swipe support */}
       <main 
         className="flex-1 overflow-y-auto overflow-x-hidden overscroll-none"
         style={{ 
@@ -75,9 +76,11 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           WebkitOverflowScrolling: 'touch',
         }}
       >
-        <PageTransition key={location.pathname}>
-          {children}
-        </PageTransition>
+        <SwipeablePages>
+          <PageTransition key={location.pathname}>
+            {children}
+          </PageTransition>
+        </SwipeablePages>
       </main>
       
       {/* Bottom navigation - fixed to screen bottom */}
