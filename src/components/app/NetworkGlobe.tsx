@@ -34,7 +34,7 @@ const getNetworkColor = (network: string): THREE.Color => {
   }
 };
 
-// Earth with grid overlay
+// Earth with grid overlay - Light theme friendly
 const Earth: React.FC = () => {
   const meshRef = useRef<THREE.Mesh>(null);
   const gridRef = useRef<THREE.LineSegments>(null);
@@ -50,11 +50,11 @@ const Earth: React.FC = () => {
 
   return (
     <group>
-      {/* Main sphere */}
+      {/* Main sphere - Light blue for visibility */}
       <Sphere ref={meshRef} args={[2, 64, 64]}>
         <meshStandardMaterial
-          color="#0a1628"
-          roughness={0.9}
+          color="#e0f2fe"
+          roughness={0.6}
           metalness={0.1}
         />
       </Sphere>
@@ -62,37 +62,37 @@ const Earth: React.FC = () => {
       {/* Grid overlay */}
       <lineSegments ref={gridRef}>
         <edgesGeometry args={[new THREE.IcosahedronGeometry(2.01, 2)]} />
-        <lineBasicMaterial color="#1e3a5f" opacity={0.4} transparent />
+        <lineBasicMaterial color="#0ea5e9" opacity={0.3} transparent />
       </lineSegments>
       
       {/* Latitude lines */}
       {[-60, -30, 0, 30, 60].map((lat, i) => (
         <mesh key={`lat-${i}`} rotation={[Math.PI / 2, 0, 0]} position={[0, Math.sin(lat * Math.PI / 180) * 2, 0]}>
           <ringGeometry args={[Math.cos(lat * Math.PI / 180) * 2 - 0.002, Math.cos(lat * Math.PI / 180) * 2, 64]} />
-          <meshBasicMaterial color="#2563eb" opacity={0.15} transparent side={THREE.DoubleSide} />
+          <meshBasicMaterial color="#0ea5e9" opacity={0.2} transparent side={THREE.DoubleSide} />
         </mesh>
       ))}
     </group>
   );
 };
 
-// Outer glow atmosphere
+// Outer glow atmosphere - Subtle blue
 const Atmosphere: React.FC = () => {
   return (
     <>
       <Sphere args={[2.08, 64, 64]}>
         <meshBasicMaterial
-          color="#3b82f6"
+          color="#38bdf8"
           transparent
-          opacity={0.06}
+          opacity={0.1}
           side={THREE.BackSide}
         />
       </Sphere>
       <Sphere args={[2.2, 32, 32]}>
         <meshBasicMaterial
-          color="#60a5fa"
+          color="#7dd3fc"
           transparent
-          opacity={0.03}
+          opacity={0.05}
           side={THREE.BackSide}
         />
       </Sphere>
@@ -203,22 +203,24 @@ const ConnectionBeams: React.FC<{ cells: GlobalCoverageCell[] }> = ({ cells }) =
   );
 };
 
-// Scene composition
+// Scene composition - Light theme
 const GlobeScene: React.FC<{ cells: GlobalCoverageCell[] }> = ({ cells }) => {
   return (
     <>
-      <ambientLight intensity={0.4} />
-      <pointLight position={[10, 10, 10]} intensity={0.8} color="#ffffff" />
-      <pointLight position={[-5, -5, -5]} intensity={0.3} color="#3b82f6" />
+      <ambientLight intensity={0.8} />
+      <pointLight position={[10, 10, 10]} intensity={1} color="#ffffff" />
+      <pointLight position={[-5, -5, -5]} intensity={0.4} color="#0ea5e9" />
+      <directionalLight position={[5, 5, 5]} intensity={0.5} />
       
+      {/* Subtle star field - lighter */}
       <Stars 
         radius={80} 
         depth={50} 
-        count={2000} 
-        factor={3} 
-        saturation={0.3} 
+        count={500} 
+        factor={2} 
+        saturation={0.1} 
         fade 
-        speed={0.3} 
+        speed={0.2} 
       />
       
       <Earth />
@@ -251,7 +253,7 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
   const hasData = coverageData.length > 0;
 
   return (
-    <div className="relative w-full h-full bg-gradient-to-b from-[#050a15] via-background to-background">
+    <div className="relative w-full h-full bg-gradient-to-b from-sky-50 via-white to-slate-50">
       {/* 3D Canvas */}
       <Canvas
         camera={{ position: [0, 0, 5.5], fov: 40 }}
