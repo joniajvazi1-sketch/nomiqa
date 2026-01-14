@@ -87,11 +87,45 @@
 </head>
 
   <body>
-    <!-- Critical inline styles for immediate visual feedback -->
-    <style>
-      /* Match app background exactly for seamless overscroll - already defined in head critical CSS */
-    </style>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- Boot failsafe: If the app fails to render within 12s, show recovery UI -->
+    <script>
+      (function() {
+        var timeout = 12000;
+        var timer = setTimeout(function() {
+          var root = document.getElementById('root');
+          if (root && root.children.length === 0) {
+            root.innerHTML = '<div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;background:hsl(220 35% 8%);color:hsl(40 40% 98%);font-family:system-ui,sans-serif">' +
+              '<div style="font-size:48px;margin-bottom:16px">⚠️</div>' +
+              '<h2 style="font-size:20px;font-weight:600;margin:0 0 8px">App didn\'t load</h2>' +
+              '<p style="font-size:14px;opacity:0.7;margin:0 0 20px;max-width:280px">Something went wrong. This could be a network issue or a temporary problem.</p>' +
+              '<button onclick="location.reload()" style="background:hsl(190 100% 65%);color:hsl(220 35% 8%);border:none;padding:12px 24px;border-radius:8px;font-weight:600;cursor:pointer;font-size:14px">Reload Page</button>' +
+              '</div>';
+            // Report boot timeout to telemetry
+            try {
+              var url = 'https://gzhmbiopiciugriatsdb.supabase.co/functions/v1/log-client-error';
+              navigator.sendBeacon && navigator.sendBeacon(url, JSON.stringify({
+                type: 'boot_timeout',
+                message: 'App failed to render within ' + timeout + 'ms',
+                timestamp: new Date().toISOString(),
+                url: location.href,
+                userAgent: navigator.userAgent
+              }));
+            } catch(e) {}
+          }
+        }, timeout);
+        // Clear timeout once React renders
+        var observer = new MutationObserver(function() {
+          var root = document.getElementById('root');
+          if (root && root.children.length > 0) {
+            clearTimeout(timer);
+            observer.disconnect();
+          }
+        });
+        observer.observe(document.getElementById('root') || document.body, { childList: true, subtree: true });
+      })();
+    </script>
   </body>
 </html>
