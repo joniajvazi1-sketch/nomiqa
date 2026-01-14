@@ -114,41 +114,41 @@ All colors MUST be HSL.
     --glass-border: hsl(220 30% 30% / 0.5);
   }
 
-  /* App Light Theme */
+  /* App Light Theme - Glassmorphism */
   .app-theme.light {
-    /* Light foundation */
-    --background: 210 40% 98%;           /* Off-white */
-    --foreground: 220 30% 15%;           /* Dark navy text */
+    /* Light blue-tinted foundation */
+    --background: 215 30% 95%;           /* Soft blue-gray */
+    --foreground: 220 40% 15%;           /* Dark navy text */
     --card: 0 0% 100%;                   /* Pure white */
-    --card-foreground: 220 30% 15%;
+    --card-foreground: 220 40% 15%;
     --popover: 0 0% 100%;
-    --popover-foreground: 220 30% 15%;
+    --popover-foreground: 220 40% 15%;
     
     /* Primary - Electric blue */
-    --primary: 210 100% 50%;             /* Slightly deeper blue */
+    --primary: 210 100% 50%;             /* Vibrant blue */
     --primary-foreground: 0 0% 100%;
     
-    /* Secondary - Light gray */
-    --secondary: 220 14% 96%;
-    --secondary-foreground: 220 30% 25%;
+    /* Secondary - Soft glass */
+    --secondary: 215 25% 92%;
+    --secondary-foreground: 220 40% 25%;
     
     /* Accent - Soft cyan */
     --accent: 195 100% 45%;
     --accent-foreground: 0 0% 100%;
     
     /* Supporting colors */
-    --muted: 220 14% 96%;
-    --muted-foreground: 220 10% 50%;
+    --muted: 215 20% 92%;
+    --muted-foreground: 220 15% 45%;
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
-    --border: 220 14% 90%;
-    --input: 220 14% 96%;
+    --border: 215 20% 88%;
+    --input: 215 20% 94%;
     --ring: 210 100% 50%;
     
-    /* Light shadows */
-    --shadow-card: 0 4px 24px hsl(220 20% 80% / 0.3);
-    --shadow-elevated: 0 8px 40px hsl(220 20% 80% / 0.4);
-    --shadow-glow: 0 0 30px hsl(210 100% 60% / 0.1);
+    /* Light glassmorphism shadows */
+    --shadow-card: 0 4px 24px hsl(215 30% 70% / 0.15);
+    --shadow-elevated: 0 8px 40px hsl(215 30% 70% / 0.2);
+    --shadow-glow: 0 0 30px hsl(210 100% 60% / 0.08);
     
     /* Design system tokens */
     --radius-sm: 1rem;
@@ -158,9 +158,10 @@ All colors MUST be HSL.
     --spacing-sm: 1rem;
     --spacing-md: 1.5rem;
     
-    /* Glass effect variables - lighter for light mode */
-    --glass-bg: hsl(0 0% 100% / 0.8);
-    --glass-border: hsl(220 14% 85% / 0.6);
+    /* Glass effect variables - frosted light */
+    --glass-bg: hsl(0 0% 100% / 0.7);
+    --glass-border: hsl(215 30% 85% / 0.8);
+    --glass-bg-elevated: hsl(0 0% 100% / 0.85);
   }
   
   /* App typography refinements */

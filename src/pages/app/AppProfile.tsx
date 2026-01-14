@@ -313,7 +313,7 @@ export const AppProfile: React.FC = () => {
   return (
     <div className="px-4 py-6 space-y-5 pb-24 min-h-screen overflow-y-auto">
       {/* Header with glassmorphism */}
-      <div className="relative rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 p-4 overflow-hidden">
+      <div className="relative rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 dark:bg-white/10 dark:border-white/20 light:bg-white/70 light:border-black/10 p-4 overflow-hidden shadow-[var(--shadow-card)]">
         {/* Subtle background glow */}
         <div className="absolute top-0 right-0 w-24 h-24 rounded-full opacity-20 pointer-events-none"
           style={{ background: `radial-gradient(circle, ${tierConfig.color.includes('amber') ? '#f59e0b' : tierConfig.color.includes('violet') ? '#8b5cf6' : '#14b8a6'} 0%, transparent 70%)` }}
@@ -327,62 +327,72 @@ export const AppProfile: React.FC = () => {
           </div>
           <div className="flex-1">
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-xl font-bold text-white">{profile?.username}</h1>
+              <h1 className="text-xl font-bold text-foreground">{profile?.username}</h1>
               <Badge className={cn("text-xs font-semibold", tierConfig.bg, tierConfig.color)}>
                 <TierIcon className="w-3 h-3 mr-1" />
                 {tierConfig.name}
               </Badge>
             </div>
-            <p className="text-sm text-white/60">{profile?.email}</p>
+            <p className="text-sm text-muted-foreground">{profile?.email}</p>
           </div>
-          <Button variant="ghost" size="icon" onClick={handleLogout} className="active:scale-95 text-white/60 hover:text-white hover:bg-white/10">
-            <LogOut className="w-5 h-5" />
-          </Button>
+          <div className="flex items-center gap-1">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => { selectionTap(); setTheme(isDark ? 'light' : 'dark'); }} 
+              className="active:scale-95 text-muted-foreground hover:text-foreground hover:bg-white/10"
+            >
+              {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </Button>
+            <Button variant="ghost" size="icon" onClick={handleLogout} className="active:scale-95 text-muted-foreground hover:text-foreground hover:bg-white/10">
+              <LogOut className="w-5 h-5" />
+            </Button>
+          </div>
         </div>
       </div>
 
       {/* Stats Summary - Glassmorphism */}
       <div className="grid grid-cols-3 gap-2">
-        <div className="rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 p-3 text-center relative overflow-hidden">
+        <div className="rounded-xl bg-card/80 backdrop-blur-sm border border-border p-3 text-center relative overflow-hidden shadow-[var(--shadow-card)]">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent pointer-events-none" />
           <Activity className="w-4 h-4 text-primary mx-auto mb-1 relative z-10" />
-          <p className="text-lg font-bold text-white relative z-10">
+          <p className="text-lg font-bold text-foreground relative z-10">
             {(userPoints?.total_points || 0) > 0 ? (userPoints?.total_points || 0).toLocaleString() : '0'}
           </p>
-          <p className="text-xs text-white/50 relative z-10">
+          <p className="text-xs text-muted-foreground relative z-10">
             {(userPoints?.total_points || 0) === 0 ? 'Start earning!' : 'Points'}
           </p>
         </div>
-        <div className="rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 p-3 text-center relative overflow-hidden">
+        <div className="rounded-xl bg-card/80 backdrop-blur-sm border border-border p-3 text-center relative overflow-hidden shadow-[var(--shadow-card)]">
           <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 to-transparent pointer-events-none" />
-          <MapPin className="w-4 h-4 text-green-400 mx-auto mb-1 relative z-10" />
-          <p className="text-lg font-bold text-white relative z-10">{((userPoints?.total_distance_meters || 0) / 1000).toFixed(1)}</p>
-          <p className="text-xs text-white/50 relative z-10">km</p>
+          <MapPin className="w-4 h-4 text-green-500 mx-auto mb-1 relative z-10" />
+          <p className="text-lg font-bold text-foreground relative z-10">{((userPoints?.total_distance_meters || 0) / 1000).toFixed(1)}</p>
+          <p className="text-xs text-muted-foreground relative z-10">km</p>
         </div>
-        <div className="rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 p-3 text-center relative overflow-hidden">
+        <div className="rounded-xl bg-card/80 backdrop-blur-sm border border-border p-3 text-center relative overflow-hidden shadow-[var(--shadow-card)]">
           <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-transparent pointer-events-none" />
-          <Wallet className="w-4 h-4 text-amber-400 mx-auto mb-1 relative z-10" />
-          <p className="text-lg font-bold text-white relative z-10">${totalCashbackEarned.toFixed(2)}</p>
-          <p className="text-xs text-white/50 relative z-10">Earned</p>
+          <Wallet className="w-4 h-4 text-amber-500 mx-auto mb-1 relative z-10" />
+          <p className="text-lg font-bold text-foreground relative z-10">${totalCashbackEarned.toFixed(2)}</p>
+          <p className="text-xs text-muted-foreground relative z-10">Earned</p>
         </div>
       </div>
 
       {/* Tier Progress - Glassmorphism */}
       {membership && membership.membership_tier !== 'explorer' && (
-        <div className="rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 p-4">
+        <div className="rounded-2xl bg-card/80 backdrop-blur-sm border border-border p-4 shadow-[var(--shadow-card)]">
           <div className="flex items-center justify-between mb-2">
-            <p className="text-sm font-medium text-white">Upgrade your tier</p>
-            <span className="text-xs text-white/50">
+            <p className="text-sm font-medium text-foreground">Upgrade your tier</p>
+            <span className="text-xs text-muted-foreground">
               ${membership.total_spent_usd.toFixed(0)} / ${getNextTierThreshold(membership.membership_tier)}
             </span>
           </div>
-          <div className="h-2 rounded-full bg-white/10 overflow-hidden">
+          <div className="h-2 rounded-full bg-muted overflow-hidden">
             <div 
               className="h-full bg-primary rounded-full transition-all duration-500"
               style={{ width: `${Math.min(100, (membership.total_spent_usd / getNextTierThreshold(membership.membership_tier)) * 100)}%` }}
             />
           </div>
-          <p className="text-xs text-white/50 mt-2">
+          <p className="text-xs text-muted-foreground mt-2">
             Spend ${(getNextTierThreshold(membership.membership_tier) - membership.total_spent_usd).toFixed(0)} more to unlock higher cashback
           </p>
         </div>
@@ -391,16 +401,16 @@ export const AppProfile: React.FC = () => {
 
       {/* Tabs - Glassmorphism */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3 h-auto p-1 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl">
-          <TabsTrigger value="account" className="py-2.5 text-xs rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white text-white/60" onClick={() => selectionTap()}>
+        <TabsList className="grid w-full grid-cols-3 h-auto p-1 bg-card/80 backdrop-blur-sm border border-border rounded-xl shadow-[var(--shadow-card)]">
+          <TabsTrigger value="account" className="py-2.5 text-xs rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground" onClick={() => selectionTap()}>
             <User className="w-4 h-4 mr-1" />
             Account
           </TabsTrigger>
-          <TabsTrigger value="orders" className="py-2.5 text-xs rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white text-white/60" onClick={() => selectionTap()}>
+          <TabsTrigger value="orders" className="py-2.5 text-xs rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground" onClick={() => selectionTap()}>
             <Package className="w-4 h-4 mr-1" />
             eSIMs
           </TabsTrigger>
-          <TabsTrigger value="settings" className="py-2.5 text-xs rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white text-white/60" onClick={() => selectionTap()}>
+          <TabsTrigger value="settings" className="py-2.5 text-xs rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground" onClick={() => selectionTap()}>
             <Shield className="w-4 h-4 mr-1" />
             Settings
           </TabsTrigger>
@@ -596,30 +606,8 @@ export const AppProfile: React.FC = () => {
           {/* Notification Settings */}
           <NotificationSettings />
 
-          {/* Theme Toggle */}
-          <Card className="bg-card border-border">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  {isDark ? <Moon className="w-5 h-5 text-violet-400" /> : <Sun className="w-5 h-5 text-amber-500" />}
-                  <div>
-                    <p className="text-sm font-medium text-foreground">Appearance</p>
-                    <p className="text-xs text-muted-foreground">{isDark ? 'Dark mode' : 'Light mode'}</p>
-                  </div>
-                </div>
-                <Switch 
-                  checked={isDark} 
-                  onCheckedChange={(checked) => { 
-                    selectionTap(); 
-                    setTheme(checked ? 'dark' : 'light'); 
-                  }} 
-                />
-              </div>
-            </CardContent>
-          </Card>
-
           {/* Sound Toggle */}
-          <Card className="bg-card border-border">
+          <Card className="bg-card/80 backdrop-blur-sm border-border shadow-[var(--shadow-card)]">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -635,11 +623,11 @@ export const AppProfile: React.FC = () => {
           </Card>
 
           {/* Wallet - Optional */}
-          <Card className="bg-card border-border">
+          <Card className="bg-card/80 backdrop-blur-sm border-border shadow-[var(--shadow-card)]">
             <CardContent className="p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <Wallet className="w-5 h-5 text-violet-400" />
+                  <Wallet className="w-5 h-5 text-violet-500" />
                   <div>
                     <p className="text-sm font-medium text-foreground">Rewards Wallet</p>
                     <p className="text-xs text-muted-foreground">Optional - for future payouts</p>
@@ -673,7 +661,7 @@ export const AppProfile: React.FC = () => {
           <PrivacyControls />
 
           {/* Help Center */}
-          <Card className="bg-card border-border">
+          <Card className="bg-card/80 backdrop-blur-sm border-border shadow-[var(--shadow-card)]">
             <CardContent className="p-4">
               <button
                 onClick={() => { selectionTap(); setShowHelpCenter(true); }}
@@ -692,7 +680,7 @@ export const AppProfile: React.FC = () => {
           </Card>
 
           {/* Account Management - Delete Account */}
-          <Card className="bg-card border-border border-destructive/30">
+          <Card className="bg-card/80 backdrop-blur-sm border-border border-destructive/30 shadow-[var(--shadow-card)]">
             <CardContent className="p-4">
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Account Management</p>
               <AlertDialog>
