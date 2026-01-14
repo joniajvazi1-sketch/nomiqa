@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     
-    <!-- Build stamp (used for debugging deployments): 2026-01-14 -->
+    <!-- Build stamp (used for debugging deployments): 2026-01-14T12:00:00Z-v2 -->
     
     
     <!-- iOS status bar styling for native app -->
@@ -96,5 +96,34 @@
     </style>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- Boot failsafe: shows recovery UI if app fails to load (no auto-reload to prevent loops) -->
+    <script>
+      (function() {
+        var BOOT_TIMEOUT = 12000;
+        var bootTimer = setTimeout(function() {
+          var root = document.getElementById('root');
+          if (root && (!root.hasChildNodes() || root.innerHTML.trim() === '')) {
+            root.innerHTML = '<div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:hsl(220,35%,8%);color:hsl(40,40%,98%);font-family:Inter,system-ui,sans-serif;padding:20px;text-align:center;">' +
+              '<div style="font-size:24px;margin-bottom:16px;">⚠️</div>' +
+              '<h1 style="font-size:20px;margin:0 0 8px 0;">App didn\'t load</h1>' +
+              '<p style="font-size:14px;opacity:0.7;margin:0 0 24px 0;max-width:300px;">Something went wrong. This could be a network issue or a temporary problem.</p>' +
+              '<button onclick="location.reload()" style="background:hsl(190,100%,65%);color:hsl(220,35%,8%);border:none;padding:12px 24px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:12px;">Reload Page</button>' +
+              '<a href="/version.txt" style="font-size:12px;opacity:0.5;color:inherit;">Build info</a>' +
+            '</div>';
+          }
+        }, BOOT_TIMEOUT);
+        window.addEventListener('DOMContentLoaded', function() {
+          var checkLoaded = setInterval(function() {
+            var root = document.getElementById('root');
+            if (root && root.hasChildNodes() && root.innerHTML.trim() !== '') {
+              clearTimeout(bootTimer);
+              clearInterval(checkLoaded);
+            }
+          }, 500);
+          setTimeout(function() { clearInterval(checkLoaded); }, BOOT_TIMEOUT + 1000);
+        });
+      })();
+    </script>
   </body>
 </html>
