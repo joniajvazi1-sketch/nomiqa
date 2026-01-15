@@ -10,6 +10,8 @@ interface NetworkGlobeProps {
   totalDataPoints?: number;
   uniqueLocations?: number;
   coverageAreaKm2?: number;
+  isPersonalView?: boolean; // Start zoomed in for personal view
+  userPosition?: [number, number] | null; // User's current position
 }
 
 // Convert lat/lng to 3D sphere coordinates
@@ -246,7 +248,8 @@ const GlobeScene: React.FC<{
   cells: GlobalCoverageCell[];
   selectedMarker: DataPointMarker | null;
   onSelectMarker: (marker: DataPointMarker | null) => void;
-}> = ({ cells, selectedMarker, onSelectMarker }) => {
+  isPersonalView?: boolean;
+}> = ({ cells, selectedMarker, onSelectMarker, isPersonalView }) => {
   return (
     <>
       {/* Photorealistic lighting setup */}
@@ -294,9 +297,9 @@ const GlobeScene: React.FC<{
       <OrbitControls
         enablePan={false}
         enableZoom={true}
-        minDistance={2.0}
+        minDistance={isPersonalView ? 1.8 : 2.0}
         maxDistance={6}
-        autoRotate={!selectedMarker}
+        autoRotate={!selectedMarker && !isPersonalView}
         autoRotateSpeed={0.2}
         dampingFactor={0.05}
         enableDamping
@@ -335,9 +338,14 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
   loading = false,
   totalDataPoints = 0,
   uniqueLocations = 0,
+  isPersonalView = false,
+  userPosition = null,
 }) => {
   const [selectedMarker, setSelectedMarker] = useState<DataPointMarker | null>(null);
   const [hasError, setHasError] = useState(false);
+  
+  // Calculate initial camera position based on user location for personal view
+  const initialCameraZ = isPersonalView ? 2.2 : 3.2;
   
   // Calculate real stats from data
   const realStats = useMemo(() => {
@@ -396,7 +404,7 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
         <div className="w-full h-[65vh] max-h-[550px]">
           <Suspense fallback={<GlobeLoading />}>
             <Canvas
-              camera={{ position: [0, 0.2, 3.2], fov: 45 }}
+              camera={{ position: [0, 0.2, initialCameraZ], fov: 45 }}
               gl={{ 
                 antialias: true, 
                 alpha: true, 
@@ -412,6 +420,7 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
                 cells={coverageData}
                 selectedMarker={selectedMarker}
                 onSelectMarker={setSelectedMarker}
+                isPersonalView={isPersonalView}
               />
             </Canvas>
           </Suspense>
