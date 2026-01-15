@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTheme } from 'next-themes';
 import { 
   Zap,
   MapPin,
@@ -12,7 +13,9 @@ import {
   Trophy,
   ChevronRight,
   Users,
-  Share2
+  Share2,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { useHaptics } from '@/hooks/useHaptics';
 import { supabase } from '@/integrations/supabase/client';
@@ -40,6 +43,8 @@ export const AppHome: React.FC = () => {
   const { streakDays } = useAchievements();
   const { unclaimedCount } = useChallenges();
   const { share } = useNativeShare();
+  const { theme, setTheme } = useTheme();
+  const isDark = theme === 'dark';
   // SpinWheel removed
   const [streakBonus, setStreakBonus] = useState(0);
   const [showReferralNudge, setShowReferralNudge] = useState(false);
@@ -267,20 +272,28 @@ export const AppHome: React.FC = () => {
         />
 
         <div className="px-4 py-4 pb-24 space-y-4">
-          {/* Header - Minimal, white text */}
+          {/* Header - Minimal */}
           <header className="flex items-center justify-between">
             {user && (
-              <h1 className="text-xl font-bold text-white">
+              <h1 className="text-xl font-bold text-foreground">
                 Hi, {displayName}
               </h1>
             )}
 
-            <button 
-              onClick={() => { mediumTap(); navigate('/app/profile'); }}
-              className="w-9 h-9 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center active:scale-95 transition-transform"
-            >
-              <Settings className="w-4 h-4 text-white/70" />
-            </button>
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={() => { mediumTap(); setTheme(isDark ? 'light' : 'dark'); }}
+                className="w-9 h-9 rounded-full bg-card/80 backdrop-blur-sm border border-border flex items-center justify-center active:scale-95 transition-transform"
+              >
+                {isDark ? <Sun className="w-4 h-4 text-muted-foreground" /> : <Moon className="w-4 h-4 text-muted-foreground" />}
+              </button>
+              <button 
+                onClick={() => { mediumTap(); navigate('/app/profile'); }}
+                className="w-9 h-9 rounded-full bg-card/80 backdrop-blur-sm border border-border flex items-center justify-center active:scale-95 transition-transform"
+              >
+                <Settings className="w-4 h-4 text-muted-foreground" />
+              </button>
+            </div>
           </header>
 
           {/* Hero Balance Card - Glassmorphism */}
@@ -288,20 +301,20 @@ export const AppHome: React.FC = () => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.2 }}
-            className="rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 shadow-elevated p-5"
+            className="rounded-2xl bg-card/80 backdrop-blur-xl border border-border shadow-[var(--shadow-elevated)] p-5"
           >
             {/* Integrated status bar */}
-            <div className="flex items-center justify-between mb-3 pb-3 border-b border-white/10">
+            <div className="flex items-center justify-between mb-3 pb-3 border-b border-border">
               <div className="flex items-center gap-2">
                 <div className={cn(
                   "w-2 h-2 rounded-full",
-                  isOnline ? "bg-green-400 animate-pulse" : "bg-white/40"
+                  isOnline ? "bg-green-500 animate-pulse" : "bg-muted-foreground"
                 )} />
-                <span className="text-xs font-medium text-white/70">
+                <span className="text-xs font-medium text-muted-foreground">
                   {isOnline ? 'Collecting ✓' : 'Paused'}
                 </span>
               </div>
-              <div className="flex items-center gap-3 text-[10px] text-white/50">
+              <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
                 <span>{connectionType || 'WiFi'}</span>
                 <span>•</span>
                 <span>Synced</span>
@@ -310,18 +323,18 @@ export const AppHome: React.FC = () => {
             
             {/* Main earnings display */}
             <div className="mb-3">
-              <div className="text-3xl font-bold text-white tabular-nums">
-                {totalPoints.toLocaleString()} <span className="text-lg font-semibold text-white/60">pts</span>
+              <div className="text-3xl font-bold text-foreground tabular-nums">
+                {totalPoints.toLocaleString()} <span className="text-lg font-semibold text-muted-foreground">pts</span>
               </div>
-              <div className="text-sm text-white/60 mt-0.5">
+              <div className="text-sm text-muted-foreground mt-0.5">
                 Estimated value: ${totalUSD.toFixed(2)}
               </div>
-              <p className="text-[10px] text-white/40 mt-1">
+              <p className="text-[10px] text-muted-foreground/70 mt-1">
                 1 point = 1 token (redeem in app)
               </p>
             </div>
 
-            <p className="text-xs text-white/50 mb-4">
+            <p className="text-xs text-muted-foreground mb-4">
               Uses &lt;3% battery per day · Runs quietly in the background
             </p>
 
@@ -331,7 +344,7 @@ export const AppHome: React.FC = () => {
                 "w-full h-12 rounded-xl font-semibold text-sm active:scale-[0.98] transition-transform flex items-center justify-center gap-2",
                 isOnline 
                   ? "bg-green-500 text-white" 
-                  : "bg-primary text-white"
+                  : "bg-primary text-primary-foreground"
               )}
             >
               <Signal className="w-4 h-4" />
@@ -345,16 +358,16 @@ export const AppHome: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.2, delay: 0.1 }}
             onClick={() => { mediumTap(); handleShareReferral(); }}
-            className="w-full rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 p-3 flex items-center gap-3 active:scale-[0.98] transition-transform"
+            className="w-full rounded-xl bg-card/60 backdrop-blur-sm border border-border p-3 flex items-center gap-3 active:scale-[0.98] transition-transform shadow-[var(--shadow-card)]"
           >
             <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
               <Users className="w-4 h-4 text-primary" />
             </div>
             <div className="flex-1 text-left">
-              <p className="text-sm font-semibold text-white">Invite friends</p>
-              <p className="text-xs text-white/60">Earn 10% of their lifetime rewards</p>
+              <p className="text-sm font-semibold text-foreground">Invite friends</p>
+              <p className="text-xs text-muted-foreground">Earn 10% of their lifetime rewards</p>
             </div>
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary text-white text-xs font-medium">
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-medium">
               <Share2 className="w-3 h-3" />
               Share
             </div>
@@ -362,31 +375,31 @@ export const AppHome: React.FC = () => {
 
           {/* Quick Stats - Glass cards */}
           <div className="grid grid-cols-3 gap-2">
-            <div className="rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 p-3 text-center">
+            <div className="rounded-xl bg-card/60 backdrop-blur-sm border border-border p-3 text-center shadow-[var(--shadow-card)]">
               <MapPin className="w-4 h-4 text-primary mx-auto mb-1" />
-              <div className="text-sm font-semibold text-white">
+              <div className="text-sm font-semibold text-foreground">
                 {formatDistance(points?.total_distance_meters || 0)}
               </div>
-              <p className="text-xs text-white/50">Distance</p>
+              <p className="text-xs text-muted-foreground">Distance</p>
             </div>
             
-            <div className="rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 p-3 text-center">
-              <Flame className="w-4 h-4 text-orange-400 mx-auto mb-1" />
-              <div className="text-sm font-semibold text-white">
+            <div className="rounded-xl bg-card/60 backdrop-blur-sm border border-border p-3 text-center shadow-[var(--shadow-card)]">
+              <Flame className="w-4 h-4 text-orange-500 mx-auto mb-1" />
+              <div className="text-sm font-semibold text-foreground">
                 {streakDays}{streakDays >= 2 ? ' 🔥' : ''}
               </div>
-              <p className="text-xs text-white/50">Streak</p>
+              <p className="text-xs text-muted-foreground">Streak</p>
             </div>
             
             <button 
               onClick={() => { mediumTap(); navigate('/app/leaderboard'); }}
-              className="rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 p-3 text-center active:scale-95 transition-transform"
+              className="rounded-xl bg-card/60 backdrop-blur-sm border border-border p-3 text-center active:scale-95 transition-transform shadow-[var(--shadow-card)]"
             >
-              <Crown className="w-4 h-4 text-amber-400 mx-auto mb-1" />
-              <div className="text-sm font-semibold text-white">
+              <Crown className="w-4 h-4 text-amber-500 mx-auto mb-1" />
+              <div className="text-sm font-semibold text-foreground">
                 #{points?.total_points ? Math.max(1, Math.floor(1000 / (points.total_points || 1))) : '-'}
               </div>
-              <p className="text-xs text-white/50">Rank</p>
+              <p className="text-xs text-muted-foreground">Rank</p>
             </button>
           </div>
 
@@ -394,32 +407,32 @@ export const AppHome: React.FC = () => {
           <div className="grid grid-cols-2 gap-3">
             <button
               onClick={() => { mediumTap(); navigate('/app/challenges'); }}
-              className="rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 p-4 text-center relative active:scale-95 transition-transform"
+              className="rounded-xl bg-card/60 backdrop-blur-sm border border-border p-4 text-center relative active:scale-95 transition-transform shadow-[var(--shadow-card)]"
             >
               {unclaimedCount > 0 && (
                 <span className="absolute top-3 right-3 w-5 h-5 rounded-full bg-green-500 text-white text-[10px] font-bold flex items-center justify-center">
                   {unclaimedCount}
                 </span>
               )}
-              <Target className="w-6 h-6 text-blue-400 mx-auto mb-2" />
-              <p className="text-sm font-bold text-white">Challenges</p>
-              <p className="text-xs font-medium text-white/50">{unclaimedCount > 0 ? 'Claim rewards!' : 'View all'}</p>
+              <Target className="w-6 h-6 text-blue-500 mx-auto mb-2" />
+              <p className="text-sm font-bold text-foreground">Challenges</p>
+              <p className="text-xs font-medium text-muted-foreground">{unclaimedCount > 0 ? 'Claim rewards!' : 'View all'}</p>
             </button>
             
             <button
               onClick={() => { mediumTap(); navigate('/app/leaderboard'); }}
-              className="rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 p-4 text-center active:scale-95 transition-transform"
+              className="rounded-xl bg-card/60 backdrop-blur-sm border border-border p-4 text-center active:scale-95 transition-transform shadow-[var(--shadow-card)]"
             >
-              <Trophy className="w-6 h-6 text-amber-400 mx-auto mb-2" />
-              <p className="text-sm font-bold text-white">Leaderboard</p>
-              <p className="text-xs font-medium text-white/50">Compete</p>
+              <Trophy className="w-6 h-6 text-amber-500 mx-auto mb-2" />
+              <p className="text-sm font-bold text-foreground">Leaderboard</p>
+              <p className="text-xs font-medium text-muted-foreground">Compete</p>
             </button>
           </div>
 
           {/* Recent Activity - Glass card */}
-          <div className="rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 overflow-hidden">
-            <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
-              <h3 className="text-sm font-semibold text-white">Recent Activity</h3>
+          <div className="rounded-xl bg-card/60 backdrop-blur-sm border border-border overflow-hidden shadow-[var(--shadow-card)]">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+              <h3 className="text-sm font-semibold text-foreground">Recent Activity</h3>
               <button 
                 onClick={() => { mediumTap(); navigate('/app/rewards'); }}
                 className="text-xs text-primary flex items-center gap-0.5"
@@ -429,7 +442,7 @@ export const AppHome: React.FC = () => {
             </div>
             
             {recentActivity.length > 0 ? (
-              <div className="divide-y divide-white/10">
+              <div className="divide-y divide-border">
                 {recentActivity.map((activity, i) => (
                   <div key={i} className="flex items-center gap-3 px-4 py-3">
                     <div className={cn(
@@ -438,24 +451,24 @@ export const AppHome: React.FC = () => {
                       activity.type === 'referral' ? "bg-blue-500/20" : "bg-amber-500/20"
                     )}>
                       {activity.type === 'scan' ? (
-                        <Signal className="w-4 h-4 text-green-400" />
+                        <Signal className="w-4 h-4 text-green-500" />
                       ) : activity.type === 'referral' ? (
-                        <Gift className="w-4 h-4 text-blue-400" />
+                        <Gift className="w-4 h-4 text-blue-500" />
                       ) : (
-                        <Zap className="w-4 h-4 text-amber-400" />
+                        <Zap className="w-4 h-4 text-amber-500" />
                       )}
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-white">
+                      <p className="text-sm font-medium text-foreground">
                         {activity.type === 'scan' ? 'Network scan' :
                          activity.type === 'referral' ? 'Referral bonus' : 'Bonus'}
                       </p>
-                      <p className="text-xs text-white/50">
+                      <p className="text-xs text-muted-foreground">
                         {activity.time}
                         {activity.distance ? ` • ${formatDistance(activity.distance)}` : ''}
                       </p>
                     </div>
-                    <span className="text-sm font-semibold text-green-400">
+                    <span className="text-sm font-semibold text-green-500">
                       +{activity.points}
                     </span>
                   </div>
@@ -463,9 +476,9 @@ export const AppHome: React.FC = () => {
               </div>
             ) : (
               <div className="px-4 py-8 text-center">
-                <Signal className="w-8 h-8 text-white/40 mx-auto mb-2" />
-                <p className="text-sm text-white/60">No activity yet</p>
-                <p className="text-xs text-white/40">Start a scan to earn points</p>
+                <Signal className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+                <p className="text-sm text-muted-foreground">No activity yet</p>
+                <p className="text-xs text-muted-foreground/70">Start a scan to earn points</p>
               </div>
             )}
           </div>
@@ -474,28 +487,28 @@ export const AppHome: React.FC = () => {
 
       {/* SpinWheel removed per user request */}
 
-      {/* One-time Referral Nudge - Dark glass theme */}
+      {/* One-time Referral Nudge - Semantic theme */}
       <Sheet open={showReferralNudge} onOpenChange={setShowReferralNudge}>
-        <SheetContent side="bottom" className="rounded-t-2xl pb-8 bg-[hsl(220,35%,12%)] border-white/10">
+        <SheetContent side="bottom" className="rounded-t-2xl pb-8 bg-card border-border">
           <SheetHeader className="text-center pb-4">
             <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-2">
-              <Gift className="w-6 h-6 text-green-400" />
+              <Gift className="w-6 h-6 text-green-500" />
             </div>
-            <SheetTitle className="text-lg text-white">You're earning automatically 🎉</SheetTitle>
+            <SheetTitle className="text-lg text-foreground">You're earning automatically 🎉</SheetTitle>
           </SheetHeader>
-          <p className="text-center text-white/60 text-sm mb-6">
-            Invite friends and earn <span className="font-semibold text-white">10% of everything they earn</span> — forever.
+          <p className="text-center text-muted-foreground text-sm mb-6">
+            Invite friends and earn <span className="font-semibold text-foreground">10% of everything they earn</span> — forever.
           </p>
           <div className="flex gap-3">
             <button
               onClick={handleDismissNudge}
-              className="flex-1 h-11 rounded-xl border border-white/20 text-sm font-medium text-white/60 active:scale-95 transition-transform"
+              className="flex-1 h-11 rounded-xl border border-border text-sm font-medium text-muted-foreground active:scale-95 transition-transform"
             >
               Maybe later
             </button>
             <button
               onClick={() => { handleDismissNudge(); handleShareReferral(); }}
-              className="flex-1 h-11 rounded-xl bg-primary text-white text-sm font-semibold flex items-center justify-center gap-2 active:scale-95 transition-transform"
+              className="flex-1 h-11 rounded-xl bg-primary text-primary-foreground text-sm font-semibold flex items-center justify-center gap-2 active:scale-95 transition-transform"
             >
               <Share2 className="w-4 h-4" />
               Share now
