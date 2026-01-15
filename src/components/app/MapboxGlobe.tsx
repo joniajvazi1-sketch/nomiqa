@@ -1,7 +1,6 @@
 import React, { useRef, useEffect, useState, useMemo } from 'react';
 import mapboxgl from 'mapbox-gl';
 // Ensures Mapbox GL's web worker bundles correctly in Vite (prevents blank/black canvas)
-// @ts-expect-error - Vite worker import
 import MapboxWorker from 'mapbox-gl/dist/mapbox-gl-csp-worker?worker';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { GlobalCoverageCell } from '@/hooks/useGlobalCoverage';
