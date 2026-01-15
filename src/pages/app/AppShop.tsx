@@ -284,7 +284,7 @@ export const AppShop: React.FC = () => {
           <div>
             <h1 className="text-2xl font-extrabold text-foreground tracking-tight">{t('app.shop.title')}</h1>
             <p className="text-base font-semibold text-muted-foreground">
-              {products?.length ? `${products.length.toLocaleString()}+ ${t('app.shop.packages')}` : t('app.shop.allCountries')}
+              1800+ {t('app.shop.packages')}
             </p>
           </div>
           <button 
