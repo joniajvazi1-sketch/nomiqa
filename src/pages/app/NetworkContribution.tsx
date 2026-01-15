@@ -354,38 +354,6 @@ export const NetworkContribution: React.FC = () => {
                 }}
               />
               
-              {/* LED-style dot indicators - light up sequentially when scanning */}
-              <div className="absolute inset-[-18px] pointer-events-none">
-                {Array.from({ length: 12 }).map((_, i) => {
-                  const angle = (i * 30 - 90) * (Math.PI / 180);
-                  const radius = 82;
-                  const x = Math.cos(angle) * radius;
-                  const y = Math.sin(angle) * radius;
-                  
-                  return (
-                    <div
-                      key={i}
-                      className={cn(
-                        'absolute w-2 h-2 rounded-full transition-all duration-200',
-                        isActive && !isPaused 
-                          ? 'bg-green-400 shadow-[0_0_8px_rgba(74,222,128,0.8)]' 
-                          : isActive && isPaused
-                            ? 'bg-amber-400/30'
-                            : 'bg-red-400/20'
-                      )}
-                      style={{
-                        left: `calc(50% + ${x}px - 4px)`,
-                        top: `calc(50% + ${y}px - 4px)`,
-                        animationDelay: isActive && !isPaused ? `${i * 0.1}s` : '0s',
-                        animation: isActive && !isPaused 
-                          ? `ledPulse 1.2s ease-in-out ${i * 0.1}s infinite`
-                          : 'none',
-                      }}
-                    />
-                  );
-                })}
-              </div>
-              
               {/* Animated corner accents - arcade style */}
               <div className="absolute inset-[-14px] pointer-events-none">
                 <div className={cn(
