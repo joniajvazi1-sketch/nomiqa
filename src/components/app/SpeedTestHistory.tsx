@@ -25,6 +25,7 @@ interface SpeedTestHistoryProps {
   limit?: number;
   showHeader?: boolean;
   compact?: boolean;
+  className?: string;
 }
 
 /**
@@ -34,7 +35,8 @@ interface SpeedTestHistoryProps {
 export const SpeedTestHistory: React.FC<SpeedTestHistoryProps> = ({ 
   limit = 10,
   showHeader = true,
-  compact = false 
+  compact = false,
+  className
 }) => {
   const [tests, setTests] = useState<SpeedTestResult[]>([]);
   const [loading, setLoading] = useState(true);
@@ -131,7 +133,7 @@ export const SpeedTestHistory: React.FC<SpeedTestHistoryProps> = ({
   }
 
   return (
-    <div className="space-y-3">
+    <div className={cn("space-y-3", className)}>
       {showHeader && (
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-semibold text-foreground">Speed Test History</h3>
