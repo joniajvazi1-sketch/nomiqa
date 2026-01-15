@@ -166,27 +166,45 @@ serve(async (req) => {
     }
 
     // ADMIN DELETION: Admin deletes another user's account
-    // Check admin status
-    const { data: isAdmin, error: roleError } = await supabaseAdmin.rpc('has_role', {
-      _user_id: currentUser.id,
-      _role: 'admin'
-    });
+    // Check admin status with fail-secure approach
+    let isAdmin = false;
+    
+    try {
+      const { data: roleResult, error: roleError } = await supabaseAdmin.rpc('has_role', {
+        _user_id: currentUser.id,
+        _role: 'admin'
+      });
 
-    if (roleError) {
-      console.error('Role check error:', roleError);
-      return new Response(JSON.stringify({ error: 'Failed to verify permissions' }), {
-        status: 500,
+      if (roleError) {
+        // FAIL-SECURE: On any error, deny access
+        console.error('[SECURITY] Role check error - DENYING ACCESS:', roleError);
+        console.warn(`[AUDIT] Admin role check failed for user=${currentUser.id} email=${currentUser.email}`);
+        return new Response(JSON.stringify({ error: 'Failed to verify permissions' }), {
+          status: 403, // Changed from 500 to 403 - fail secure
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+      
+      isAdmin = roleResult === true;
+    } catch (err) {
+      // FAIL-SECURE: On any exception, deny access
+      console.error('[SECURITY] Exception during role check - DENYING ACCESS:', err);
+      return new Response(JSON.stringify({ error: 'Authorization check failed' }), {
+        status: 403,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
 
     if (!isAdmin) {
-      console.warn(`Unauthorized admin delete attempt by user ${currentUser.id}`);
+      console.warn(`[SECURITY] Unauthorized admin delete attempt by user=${currentUser.id} email=${currentUser.email}`);
       return new Response(JSON.stringify({ error: 'Admin privileges required' }), {
         status: 403,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
+    
+    // Log admin action attempt BEFORE execution
+    console.log(`[AUDIT] Admin ${currentUser.id} (${currentUser.email}) attempting to delete user: ${email}`);
 
     if (!email) {
       return new Response(JSON.stringify({ error: 'Email required for admin deletion' }), {

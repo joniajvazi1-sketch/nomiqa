@@ -28,20 +28,51 @@ async function hashCode(code: string): Promise<string> {
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
+// SECURITY: Validate IP address format to prevent SSRF/injection
+function isValidPublicIP(ip: string): boolean {
+  if (!ip) return false;
+  
+  // Basic IPv4 format check
+  const ipv4Regex = /^(\d{1,3}\.){3}\d{1,3}$/;
+  if (!ipv4Regex.test(ip)) return false;
+  
+  const parts = ip.split('.').map(Number);
+  
+  // Check each octet is valid
+  if (parts.some(p => p < 0 || p > 255)) return false;
+  
+  // Block private/reserved ranges (RFC 1918, loopback, link-local, multicast)
+  const [a, b] = parts;
+  if (a === 10) return false;                          // 10.0.0.0/8
+  if (a === 172 && b >= 16 && b <= 31) return false;   // 172.16.0.0/12
+  if (a === 192 && b === 168) return false;            // 192.168.0.0/16
+  if (a === 127) return false;                         // 127.0.0.0/8
+  if (a === 169 && b === 254) return false;            // 169.254.0.0/16
+  if (a === 0) return false;                           // 0.0.0.0/8
+  if (a >= 224) return false;                          // 224.0.0.0+ (multicast/reserved)
+  if (a === 100 && b >= 64 && b <= 127) return false;  // 100.64.0.0/10 (CGN)
+  
+  return true;
+}
+
 // Detect country from IP using free ip-api.com service
+// SECURITY: Non-blocking, doesn't affect signup success, fails safely
 async function detectCountryFromIP(req: Request): Promise<string | null> {
   try {
     // Get IP from headers (edge function receives forwarded IP)
     const forwardedFor = req.headers.get('x-forwarded-for');
     const realIp = req.headers.get('x-real-ip');
-    const ip = forwardedFor?.split(',')[0]?.trim() || realIp || null;
+    let ip = forwardedFor?.split(',')[0]?.trim() || realIp || null;
     
-    if (!ip || ip === '127.0.0.1' || ip === '::1') {
-      console.log('No valid IP for geolocation');
+    // SECURITY: Validate IP format and block private ranges
+    if (!ip || !isValidPublicIP(ip)) {
+      // Don't log specific blocked IP to avoid info leakage
+      console.log('Geolocation skipped: no valid public IP');
       return null;
     }
     
-    console.log(`Detecting country for IP: ${ip.substring(0, 8)}...`);
+    // SECURITY: Only log truncated IP
+    console.log(`Geolocation request for IP: ${ip.substring(0, 6)}***`);
     
     // Use ip-api.com (free, no API key needed, 45 req/min limit)
     const response = await fetch(`http://ip-api.com/json/${ip}?fields=countryCode,status`, {
@@ -49,7 +80,8 @@ async function detectCountryFromIP(req: Request): Promise<string | null> {
     });
     
     if (!response.ok) {
-      console.error('IP geolocation request failed:', response.status);
+      // SECURITY: Generic error message, don't expose status
+      console.log('Geolocation service unavailable');
       return null;
     }
     
@@ -62,7 +94,8 @@ async function detectCountryFromIP(req: Request): Promise<string | null> {
     
     return null;
   } catch (error) {
-    console.error('Error detecting country:', error);
+    // SECURITY: Don't log error details that might reveal internal info
+    console.log('Geolocation failed silently');
     return null;
   }
 }

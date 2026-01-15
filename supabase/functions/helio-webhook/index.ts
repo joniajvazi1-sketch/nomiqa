@@ -95,22 +95,10 @@ serve(async (req) => {
       }
     }
 
-    // Method 4: Check if webhook secret is in the payload itself (legacy fallback)
-    if (!isVerified && payload.secret) {
-      if (payload.secret === webhookSecret) {
-        isVerified = true;
-        verificationMethod = 'payload secret';
-      }
-    }
-
-    // Method 5: Check payload transactionObject meta for validation (legacy fallback)
-    if (!isVerified && payload.transactionObject?.meta?.apiSecret) {
-      if (payload.transactionObject.meta.apiSecret === webhookSecret) {
-        isVerified = true;
-        verificationMethod = 'transaction meta';
-      }
-    }
-
+    // SECURITY: Methods 4 & 5 (payload secret, transaction meta) REMOVED
+    // These methods logged secrets in webhook_logs table creating security risk
+    // Only HMAC-SHA256 signature, Bearer token, and API key header are allowed
+    
     // SECURITY: All methods are cryptographically verified against HELIO_WEBHOOK_SECRET
     // No weak fallbacks - signature/auth verification is mandatory
 
