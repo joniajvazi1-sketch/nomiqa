@@ -12,6 +12,7 @@ import { usePlatform } from "@/hooks/usePlatform";
 import { AppLayout } from "@/components/app/AppLayout";
 import { WebLayout } from "@/components/app/WebLayout";
 import { AppErrorBoundary } from "@/components/app/AppErrorBoundary";
+import { useDeepLinkAuth } from "@/hooks/useDeepLinkAuth";
 
 // Lazy load WEB pages
 const Index = lazy(() => import("./pages/Index"));
@@ -409,6 +410,9 @@ const WebRoutes = () => (
  */
 const AppRouter = () => {
   const { isNative } = usePlatform();
+  
+  // Handle OAuth deep link callbacks on native platforms
+  useDeepLinkAuth();
   
   // Only native platform (or localhost preview via ?appPreview=true) sees app UI
   return isNative ? <NativeAppRoutes /> : <WebRoutes />;
