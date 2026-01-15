@@ -272,7 +272,7 @@ export const NetworkContribution: React.FC = () => {
                 }}
                 disabled={!user}
                 className={cn(
-                  'relative flex flex-col items-center gap-1.5 px-6 py-4 rounded-xl min-w-[120px]',
+                  'relative flex flex-col items-center justify-center gap-1.5 px-6 py-4 rounded-xl min-w-[120px] h-[88px]',
                   'backdrop-blur-xl border transition-all duration-200',
                   'active:scale-95',
                   !user && 'opacity-40 cursor-not-allowed',
@@ -436,7 +436,7 @@ export const NetworkContribution: React.FC = () => {
                 }}
                 disabled={!isCellular || isRunningSpeedTest}
                 className={cn(
-                  'relative flex flex-col items-center gap-1.5 px-6 py-4 rounded-xl min-w-[120px]',
+                  'relative flex flex-col items-center justify-center gap-1.5 px-6 py-4 rounded-xl min-w-[120px] h-[88px]',
                   'backdrop-blur-xl border transition-all duration-200',
                   'active:scale-95',
                   isRunningSpeedTest 
