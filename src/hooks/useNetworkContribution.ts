@@ -61,7 +61,7 @@ const OFFLINE_QUEUE_KEY = 'nomiqa_offline_contribution_queue';
 const SPEED_TEST_INTERVAL = 10 * 60 * 1000; // Run speed test every 10 minutes
 const SPEED_TEST_BONUS_POINTS = 2; // Bonus points per speed test
 const PREMIUM_SPEED_THRESHOLD = 50; // Mbps - extra bonus for fast connections
-const DAILY_SPEED_TEST_LIMIT = 5; // Max speed tests that award bonus points per day
+const DAILY_SPEED_TEST_LIMIT = 9999; // Unlimited for testing - TODO: Set back to 5 for production
 const SPEED_TEST_DAILY_KEY = 'nomiqa_speed_tests_today';
 const MAX_SESSION_DURATION_MS = 4 * 60 * 60 * 1000; // 4 hours max session before auto-expiry
 

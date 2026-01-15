@@ -344,8 +344,8 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
   const [selectedMarker, setSelectedMarker] = useState<DataPointMarker | null>(null);
   const [hasError, setHasError] = useState(false);
   
-  // Calculate initial camera position based on user location for personal view
-  const initialCameraZ = isPersonalView ? 2.2 : 3.2;
+  // Personal view starts very zoomed in (like 2D), global view starts zoomed out
+  const initialCameraZ = isPersonalView ? 1.9 : 3.2;
   
   // Calculate real stats from data
   const realStats = useMemo(() => {
@@ -365,7 +365,7 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
     <div className="relative w-full h-full bg-gradient-to-b from-[#0a0f1a] via-[#050a12] to-[#020408] overflow-hidden">
       {/* Top stats bar */}
       <div className="absolute top-0 left-0 right-0 z-20 p-4" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 16px)' }}>
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
             <div className="relative">
               <div className="w-2.5 h-2.5 rounded-full bg-green-500" />
@@ -374,6 +374,22 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
             <span className="text-green-500 text-sm font-bold tracking-wide">LIVE</span>
           </div>
           <span className="text-white/40 text-xs">Community Coverage Map</span>
+        </div>
+        
+        {/* Legend - moved here */}
+        <div className="flex items-center justify-center gap-3 mb-2">
+          <div className="flex items-center gap-1.5">
+            <div className="w-2 h-2 rounded-full bg-green-500" />
+            <span className="text-white/60 text-[10px] font-medium">High</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="w-2 h-2 rounded-full bg-cyan-500" />
+            <span className="text-white/60 text-[10px] font-medium">Medium</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="w-2 h-2 rounded-full bg-purple-500" />
+            <span className="text-white/60 text-[10px] font-medium">New</span>
+          </div>
         </div>
         
         {/* Stats row */}
@@ -425,29 +441,6 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
             </Canvas>
           </Suspense>
         </div>
-      </div>
-
-      {/* Legend */}
-      <div className="absolute bottom-28 left-0 right-0 z-20 flex justify-center pointer-events-none">
-        <div className="flex items-center gap-4 bg-black/40 backdrop-blur-sm border border-white/10 rounded-full px-4 py-2">
-          <div className="flex items-center gap-1.5">
-            <div className="w-2 h-2 rounded-full bg-green-500" />
-            <span className="text-white/70 text-[10px] font-medium">High Activity</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-2 h-2 rounded-full bg-cyan-500" />
-            <span className="text-white/70 text-[10px] font-medium">Medium</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-2 h-2 rounded-full bg-purple-500" />
-            <span className="text-white/70 text-[10px] font-medium">New</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Hint */}
-      <div className="absolute bottom-20 left-0 right-0 z-20 flex justify-center pointer-events-none">
-        <span className="text-white/30 text-[10px]">Drag to rotate • Pinch to zoom • Tap marker for details</span>
       </div>
 
       {/* Loading overlay */}
