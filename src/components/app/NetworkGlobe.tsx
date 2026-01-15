@@ -291,6 +291,16 @@ const getApproximateLocation = (lat: number, lng: number): string => {
     { name: 'Cancun', lat: 21.2, lng: -86.8, radius: 1 },
     { name: 'Monterrey', lat: 25.7, lng: -100.3, radius: 1.2 },
     
+    // Caribbean
+    { name: 'Havana', lat: 23.1, lng: -82.4, radius: 1.5 },
+    { name: 'Kingston', lat: 18, lng: -76.8, radius: 1.2 },
+    { name: 'Santo Domingo', lat: 18.5, lng: -69.9, radius: 1.2 },
+    { name: 'San Juan', lat: 18.5, lng: -66.1, radius: 1.2 },
+    { name: 'Nassau', lat: 25.1, lng: -77.4, radius: 1 },
+    { name: 'Barbados', lat: 13.1, lng: -59.6, radius: 1 },
+    { name: 'Trinidad', lat: 10.5, lng: -61.3, radius: 1 },
+    { name: 'Aruba', lat: 12.5, lng: -70, radius: 0.8 },
+    
     // Asia - Major cities
     { name: 'Tokyo', lat: 35.7, lng: 139.7, radius: 2 },
     { name: 'Singapore', lat: 1.3, lng: 103.8, radius: 1 },
