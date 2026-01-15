@@ -838,7 +838,7 @@ export const useNetworkContribution = () => {
     console.log('Running speed test for bonus points...');
     
     try {
-      const result = await telcoMetrics.runLightweightSpeedTest();
+      const result = await telcoMetrics.runLightweightSpeedTest(connectionType);
       
       if (result) {
         const speedTestResult: SpeedTestResult = {
@@ -893,8 +893,19 @@ export const useNetworkContribution = () => {
             }));
             console.log(`Speed test complete (${result.provider}): ↓${result.down ?? 'N/A'} ↑${result.up ?? 'N/A'} Mbps - Daily limit reached (${DAILY_SPEED_TEST_LIMIT}/${DAILY_SPEED_TEST_LIMIT}), no bonus`);
           }
+          
+          // CRITICAL: Immediately sync the speed test data to database
+          // Speed test results are cached in telcoMetrics, so we need to trigger a log
+          if (lastPosition) {
+            console.log('[SpeedTest] Syncing speed test data to database...');
+            await logTelcoDataPoint(lastPosition);
+          }
         } else {
           console.log(`Speed test completed with errors: download=${result.downloadError}, latency=${result.latencyError}`);
+          // Still sync the error data for debugging
+          if (lastPosition) {
+            await logTelcoDataPoint(lastPosition);
+          }
         }
         
         return speedTestResult;
