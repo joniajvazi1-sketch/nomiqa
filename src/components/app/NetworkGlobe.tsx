@@ -130,9 +130,59 @@ interface DataPointMarker {
   count: number;
   position: THREE.Vector3;
   intensity: number;
+  cityName: string; // Approximate city/region name
 }
 
-// City-level data marker (larger for visibility)
+// Get approximate city/region name from coordinates (privacy-respecting)
+const getApproximateLocation = (lat: number, lng: number): string => {
+  // Major world regions mapped to approximate lat/lng ranges
+  const regions: { name: string; latMin: number; latMax: number; lngMin: number; lngMax: number }[] = [
+    // Europe
+    { name: 'London Area', latMin: 51, latMax: 52, lngMin: -1, lngMax: 1 },
+    { name: 'Paris Area', latMin: 48, latMax: 49, lngMin: 2, lngMax: 3 },
+    { name: 'Berlin Area', latMin: 52, latMax: 53, lngMin: 13, lngMax: 14 },
+    { name: 'Madrid Area', latMin: 40, latMax: 41, lngMin: -4, lngMax: -3 },
+    { name: 'Rome Area', latMin: 41, latMax: 42, lngMin: 12, lngMax: 13 },
+    { name: 'Amsterdam Area', latMin: 52, latMax: 53, lngMin: 4, lngMax: 5 },
+    // North America
+    { name: 'New York Area', latMin: 40, latMax: 41, lngMin: -75, lngMax: -73 },
+    { name: 'Los Angeles Area', latMin: 33, latMax: 35, lngMin: -119, lngMax: -117 },
+    { name: 'Chicago Area', latMin: 41, latMax: 42, lngMin: -88, lngMax: -87 },
+    { name: 'Toronto Area', latMin: 43, latMax: 44, lngMin: -80, lngMax: -79 },
+    { name: 'San Francisco Area', latMin: 37, latMax: 38, lngMin: -123, lngMax: -122 },
+    // Asia
+    { name: 'Tokyo Area', latMin: 35, latMax: 36, lngMin: 139, lngMax: 140 },
+    { name: 'Singapore Area', latMin: 1, latMax: 2, lngMin: 103, lngMax: 104 },
+    { name: 'Hong Kong Area', latMin: 22, latMax: 23, lngMin: 113, lngMax: 115 },
+    { name: 'Seoul Area', latMin: 37, latMax: 38, lngMin: 126, lngMax: 127 },
+    { name: 'Mumbai Area', latMin: 18, latMax: 20, lngMin: 72, lngMax: 73 },
+    { name: 'Dubai Area', latMin: 24, latMax: 26, lngMin: 54, lngMax: 56 },
+    // Australia/Oceania
+    { name: 'Sydney Area', latMin: -34, latMax: -33, lngMin: 150, lngMax: 152 },
+    { name: 'Melbourne Area', latMin: -38, latMax: -37, lngMin: 144, lngMax: 146 },
+    // South America
+    { name: 'São Paulo Area', latMin: -24, latMax: -23, lngMin: -47, lngMax: -46 },
+    { name: 'Buenos Aires Area', latMin: -35, latMax: -34, lngMin: -59, lngMax: -58 },
+    // Africa
+    { name: 'Cape Town Area', latMin: -35, latMax: -33, lngMin: 18, lngMax: 19 },
+    { name: 'Cairo Area', latMin: 29, latMax: 31, lngMin: 30, lngMax: 32 },
+  ];
+  
+  // Check if coordinates match a known region
+  for (const region of regions) {
+    if (lat >= region.latMin && lat <= region.latMax && lng >= region.lngMin && lng <= region.lngMax) {
+      return region.name;
+    }
+  }
+  
+  // Fallback: Generate general region description based on hemisphere and zone
+  const latZone = lat > 60 ? 'Northern' : lat > 30 ? 'Central' : lat > 0 ? 'Southern' : lat > -30 ? 'Tropical' : 'Southern';
+  const lngZone = lng < -100 ? 'Pacific' : lng < -30 ? 'Americas' : lng < 30 ? 'Atlantic' : lng < 80 ? 'Central' : lng < 140 ? 'Asia' : 'Pacific';
+  
+  return `${latZone} ${lngZone} Region`;
+};
+
+// City-level data marker (smaller for cleaner look)
 const DataHotspot: React.FC<{
   marker: DataPointMarker;
   onSelect: (marker: DataPointMarker | null) => void;
@@ -142,8 +192,8 @@ const DataHotspot: React.FC<{
   const glowRef = useRef<THREE.Mesh>(null);
   const pulseSpeed = useRef(Math.random() * 0.8 + 0.3);
   
-  // Size based on data count - larger for city-level markers
-  const baseSize = Math.min(0.025 + (marker.count / 20) * 0.015, 0.08);
+  // SMALLER dots - reduced size for cleaner look
+  const baseSize = Math.min(0.012 + (marker.count / 50) * 0.008, 0.035);
   
   useFrame((state) => {
     if (meshRef.current && glowRef.current) {
@@ -164,30 +214,30 @@ const DataHotspot: React.FC<{
         onSelect(isSelected ? null : marker);
       }}
     >
-      {/* Core point */}
+      {/* Core point - smaller */}
       <mesh ref={meshRef}>
-        <sphereGeometry args={[baseSize, 16, 16]} />
+        <sphereGeometry args={[baseSize, 12, 12]} />
         <meshBasicMaterial color={color} />
       </mesh>
       
-      {/* Inner glow */}
+      {/* Inner glow - reduced */}
       <mesh ref={glowRef}>
-        <sphereGeometry args={[baseSize * 2, 16, 16]} />
-        <meshBasicMaterial color={color} transparent opacity={0.5} />
+        <sphereGeometry args={[baseSize * 1.5, 12, 12]} />
+        <meshBasicMaterial color={color} transparent opacity={0.4} />
       </mesh>
       
-      {/* Outer glow */}
+      {/* Outer glow - more subtle */}
       <mesh>
-        <sphereGeometry args={[baseSize * 3.5, 16, 16]} />
-        <meshBasicMaterial color={color} transparent opacity={0.15} />
+        <sphereGeometry args={[baseSize * 2.5, 12, 12]} />
+        <meshBasicMaterial color={color} transparent opacity={0.1} />
       </mesh>
       
-      {/* Popup when selected */}
+      {/* Popup when selected - shows city/region name, NOT coordinates */}
       {isSelected && (
         <Html center distanceFactor={4}>
-          <div className="bg-white/95 backdrop-blur-sm border border-gray-200 rounded-xl px-3 py-2 min-w-[110px] shadow-xl pointer-events-auto">
+          <div className="bg-white/95 backdrop-blur-sm border border-gray-200 rounded-xl px-3 py-2 min-w-[120px] shadow-xl pointer-events-auto">
             <p className="text-gray-900 font-bold text-xs">
-              {marker.lat.toFixed(2)}°, {marker.lng.toFixed(2)}°
+              {marker.cityName}
             </p>
             <div className="flex items-center gap-2 mt-1">
               <span className="text-cyan-600 text-sm font-bold">{marker.count}</span>
@@ -208,7 +258,7 @@ const DataMarkers: React.FC<{
 }> = ({ cells, selectedMarker, onSelectMarker }) => {
   const groupRef = useRef<THREE.Group>(null);
   
-  // Convert real coverage data to markers
+  // Convert real coverage data to markers with city names
   const markers = useMemo<DataPointMarker[]>(() => {
     if (!cells || cells.length === 0) return [];
     
@@ -220,6 +270,7 @@ const DataMarkers: React.FC<{
       count: cell.count,
       position: latLngToVector3(cell.lat, cell.lng, 1.54),
       intensity: cell.count / maxCount,
+      cityName: getApproximateLocation(cell.lat, cell.lng),
     }));
   }, [cells]);
   
