@@ -33,11 +33,13 @@ export interface SpeedTestResult {
   latencyError?: string;
 }
 
-// Download file sizes in bytes
+export type SpeedTestProgressCallback = (phase: 'latency' | 'download' | 'upload', progress: number) => void;
+
+// Download file sizes in bytes - larger files for more accurate results
 const DOWNLOAD_SIZES = {
-  small: 1_000_000,   // 1MB - for 2G/3G
-  medium: 3_000_000,  // 3MB - for 4G/LTE (default)
-  large: 5_000_000,   // 5MB - for 5G
+  small: 3_000_000,   // 3MB - for 2G/3G
+  medium: 10_000_000, // 10MB - for 4G/LTE (default)
+  large: 25_000_000,  // 25MB - for 5G
 };
 
 // Primary endpoints (Nomiqa's own)
@@ -226,11 +228,12 @@ async function measureLatency(url: string, attempts = 3): Promise<{ latency: num
 }
 
 /**
- * Measure download speed with appropriate file size
+ * Measure download speed with appropriate file size and progress tracking
  */
 async function measureDownload(
   downloadUrls: { size: number; url: string }[],
-  networkType?: string
+  networkType?: string,
+  onProgress?: (progress: number) => void
 ): Promise<{ down: number | null; size: number; error?: string }> {
   const targetSize = selectDownloadSize(networkType);
   
@@ -251,16 +254,45 @@ async function measureDownload(
       throw new Error(`HTTP ${response.status}`);
     }
     
-    const buffer = await response.arrayBuffer();
-    const elapsed = (performance.now() - start) / 1000; // seconds
+    // Use streaming to track progress
+    const contentLength = response.headers.get('Content-Length');
+    const totalBytes = contentLength ? parseInt(contentLength, 10) : selectedUrl.size;
     
-    // Calculate Mbps
-    const bits = buffer.byteLength * 8;
-    const mbps = (bits / 1_000_000) / elapsed;
-    
-    console.log(`[SpeedTest] Download: ${buffer.byteLength} bytes in ${elapsed.toFixed(2)}s = ${mbps.toFixed(1)} Mbps`);
-    
-    return { down: Math.round(mbps * 10) / 10, size: buffer.byteLength };
+    if (response.body && onProgress) {
+      const reader = response.body.getReader();
+      let receivedBytes = 0;
+      const chunks: Uint8Array[] = [];
+      
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        
+        chunks.push(value);
+        receivedBytes += value.length;
+        
+        // Report progress (0-100)
+        const progress = Math.min(100, Math.round((receivedBytes / totalBytes) * 100));
+        onProgress(progress);
+      }
+      
+      const elapsed = (performance.now() - start) / 1000; // seconds
+      const bits = receivedBytes * 8;
+      const mbps = (bits / 1_000_000) / elapsed;
+      
+      console.log(`[SpeedTest] Download: ${receivedBytes} bytes in ${elapsed.toFixed(2)}s = ${mbps.toFixed(1)} Mbps`);
+      
+      return { down: Math.round(mbps * 10) / 10, size: receivedBytes };
+    } else {
+      // Fallback without progress
+      const buffer = await response.arrayBuffer();
+      const elapsed = (performance.now() - start) / 1000;
+      const bits = buffer.byteLength * 8;
+      const mbps = (bits / 1_000_000) / elapsed;
+      
+      console.log(`[SpeedTest] Download: ${buffer.byteLength} bytes in ${elapsed.toFixed(2)}s = ${mbps.toFixed(1)} Mbps`);
+      
+      return { down: Math.round(mbps * 10) / 10, size: buffer.byteLength };
+    }
   } catch (error) {
     return { 
       down: null,
@@ -305,22 +337,35 @@ async function measureUpload(url: string, bytes = 100000): Promise<{ up: number 
 }
 
 /**
- * Run complete speed test with fallback providers
+ * Run complete speed test with fallback providers and progress tracking
  */
-export async function runSpeedTest(includeUpload = true, networkType?: string): Promise<SpeedTestResult> {
+export async function runSpeedTest(
+  includeUpload = true, 
+  networkType?: string,
+  onProgress?: SpeedTestProgressCallback
+): Promise<SpeedTestResult> {
   // Get available endpoints (with fallback)
   const endpoints = await getAvailableEndpoints();
   
-  // Run tests in parallel where possible
-  const [latencyResult, downloadResult] = await Promise.all([
-    measureLatency(endpoints.latencyUrl),
-    measureDownload(endpoints.downloadUrls, networkType)
-  ]);
+  // Run latency first (quick)
+  onProgress?.('latency', 0);
+  const latencyResult = await measureLatency(endpoints.latencyUrl);
+  onProgress?.('latency', 100);
+  
+  // Download with progress
+  onProgress?.('download', 0);
+  const downloadResult = await measureDownload(
+    endpoints.downloadUrls, 
+    networkType,
+    (progress) => onProgress?.('download', progress)
+  );
   
   // Upload test (optional, can be skipped to save battery)
   let uploadResult: { up: number | null; error?: string } = { up: null };
   if (includeUpload) {
+    onProgress?.('upload', 0);
     uploadResult = await measureUpload(endpoints.uploadUrl);
+    onProgress?.('upload', 100);
   }
   
   const result: SpeedTestResult = {
@@ -342,10 +387,17 @@ export async function runSpeedTest(includeUpload = true, networkType?: string): 
     console.log('[SpeedTest] Primary tests failed, trying Cloudflare fallback');
     
     const fallbackEndpoints = CLOUDFLARE_ENDPOINTS;
-    const [fallbackLatency, fallbackDownload] = await Promise.all([
-      measureLatency(fallbackEndpoints.latencyUrl),
-      measureDownload(fallbackEndpoints.downloadUrls, networkType)
-    ]);
+    
+    onProgress?.('latency', 0);
+    const fallbackLatency = await measureLatency(fallbackEndpoints.latencyUrl);
+    onProgress?.('latency', 100);
+    
+    onProgress?.('download', 0);
+    const fallbackDownload = await measureDownload(
+      fallbackEndpoints.downloadUrls, 
+      networkType,
+      (progress) => onProgress?.('download', progress)
+    );
     
     result.latency = fallbackLatency.latency;
     result.down = fallbackDownload.down;
@@ -356,9 +408,11 @@ export async function runSpeedTest(includeUpload = true, networkType?: string): 
     result.downloadSize = fallbackDownload.size;
     
     if (includeUpload) {
+      onProgress?.('upload', 0);
       const fallbackUpload = await measureUpload(fallbackEndpoints.uploadUrl);
       result.up = fallbackUpload.up;
       result.uploadError = fallbackUpload.error;
+      onProgress?.('upload', 100);
     }
   }
   
