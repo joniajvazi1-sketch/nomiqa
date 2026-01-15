@@ -182,8 +182,7 @@ export const LeaderboardSection: React.FC<LeaderboardSectionProps> = ({
               )}
             >
               <Icon className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">{p.label}</span>
-              <span className="sm:hidden">{p.label.slice(0, 1)}</span>
+              <span>{p.label}</span>
             </button>
           );
         })}

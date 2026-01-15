@@ -40,24 +40,21 @@ const metricIcons: Record<string, React.ElementType> = {
   sessions: Activity
 };
 
-const typeColors: Record<string, { bg: string; border: string; text: string; glow: string }> = {
+const typeColors: Record<string, { border: string; text: string; badge: string }> = {
   daily: {
-    bg: 'from-neon-cyan/20 to-neon-cyan/5',
-    border: 'border-neon-cyan/30',
-    text: 'text-neon-cyan',
-    glow: 'shadow-neon-cyan/20'
+    border: 'border-border',
+    text: 'text-primary',
+    badge: 'bg-primary/10 text-primary'
   },
   weekly: {
-    bg: 'from-primary/20 to-primary/5',
-    border: 'border-primary/30',
+    border: 'border-border',
     text: 'text-primary',
-    glow: 'shadow-primary/20'
+    badge: 'bg-primary/10 text-primary'
   },
   special: {
-    bg: 'from-amber-500/20 to-amber-500/5',
     border: 'border-amber-500/30',
-    text: 'text-amber-400',
-    glow: 'shadow-amber-500/20'
+    text: 'text-amber-500',
+    badge: 'bg-amber-500/10 text-amber-500'
   }
 };
 
@@ -133,30 +130,13 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -20 }}
         className={cn(
-          'relative rounded-2xl overflow-hidden backdrop-blur-xl',
+          'relative rounded-2xl overflow-hidden bg-card/80 backdrop-blur-xl',
           'border transition-all duration-300',
           colors.border,
-          isCompleted && !isClaimed && 'ring-2 ring-offset-2 ring-offset-background',
-          isCompleted && !isClaimed && type === 'daily' && 'ring-neon-cyan',
-          isCompleted && !isClaimed && type === 'weekly' && 'ring-primary',
-          isCompleted && !isClaimed && type === 'special' && 'ring-amber-500',
+          isCompleted && !isClaimed && 'ring-2 ring-primary ring-offset-2 ring-offset-background',
           isClaimed && 'opacity-60'
         )}
       >
-        {/* Background gradient */}
-        <div className={cn('absolute inset-0 bg-gradient-to-br', colors.bg)} />
-        
-        {/* Shimmer on complete but not claimed */}
-        {isCompleted && !isClaimed && (
-          <div 
-            className="absolute inset-0 opacity-40"
-            style={{
-              background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.1) 50%, transparent 100%)',
-              backgroundSize: '200% 100%',
-              animation: 'shimmer 2s ease-in-out infinite'
-            }}
-          />
-        )}
 
         <div className="relative p-4">
           {/* Header */}
@@ -164,10 +144,7 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({
             <div className="flex items-center gap-3">
               <div className={cn(
                 'w-10 h-10 rounded-xl flex items-center justify-center',
-                'bg-gradient-to-br',
-                colors.bg,
-                'shadow-lg',
-                colors.glow
+                'bg-muted'
               )}>
                 <Icon className={cn('w-5 h-5', colors.text)} />
               </div>
@@ -177,9 +154,7 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({
                   <h3 className="font-semibold text-foreground">{title}</h3>
                   <span className={cn(
                     'px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider',
-                    type === 'daily' && 'bg-neon-cyan/20 text-neon-cyan',
-                    type === 'weekly' && 'bg-primary/20 text-primary',
-                    type === 'special' && 'bg-amber-500/20 text-amber-400'
+                    colors.badge
                   )}>
                     {type}
                   </span>
@@ -203,11 +178,7 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({
               value={Math.round(progress * targetValue / 100)}
               max={targetValue}
               showPercentage={false}
-              barClassName={cn(
-                type === 'daily' && 'from-neon-cyan to-neon-cyan/70',
-                type === 'weekly' && 'from-primary to-primary/70',
-                type === 'special' && 'from-amber-500 to-amber-400'
-              )}
+              barClassName="from-primary to-primary/70"
             />
             <div className="flex justify-between items-center mt-1.5 text-xs">
               <span className="text-muted-foreground">
@@ -219,10 +190,9 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({
             </div>
           </div>
 
-          {/* Reward / Claim button */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Gift className={cn('w-4 h-4', colors.text)} />
+              <Gift className="w-4 h-4 text-primary" />
               <span className="text-sm font-semibold text-foreground">
                 +{rewardPoints} pts
               </span>
@@ -251,11 +221,7 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({
                     'flex items-center gap-1.5 px-4 py-2 rounded-full',
                     'font-semibold text-sm',
                     'transition-all duration-200',
-                    type === 'daily' && 'bg-neon-cyan text-background hover:bg-neon-cyan/90',
-                    type === 'weekly' && 'bg-primary text-primary-foreground hover:bg-primary/90',
-                    type === 'special' && 'bg-amber-500 text-background hover:bg-amber-500/90',
-                    'shadow-lg',
-                    colors.glow
+                    'bg-primary text-primary-foreground hover:bg-primary/90'
                   )}
                 >
                   {claiming ? (
