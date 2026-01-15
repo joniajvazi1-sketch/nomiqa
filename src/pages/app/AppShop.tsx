@@ -364,12 +364,9 @@ export const AppShop: React.FC = () => {
           ))}
         </div>
 
-        {/* Results Count */}
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-muted-foreground">
-            {filteredProducts.length} {activeTab === 'local' ? t('app.shop.countries') : activeTab === 'regional' ? t('app.shop.regions') : t('app.shop.plans')}
-          </span>
-          {dataFilter !== 'all' && (
+        {/* Clear Filter Button - only show when filter is active */}
+        {dataFilter !== 'all' && (
+          <div className="flex items-center justify-end text-sm">
             <button 
               onClick={() => setDataFilter('all')}
               className="text-primary text-xs flex items-center gap-1 hover:underline"
@@ -377,8 +374,8 @@ export const AppShop: React.FC = () => {
               {t('app.shop.clearFilter')}
               <X className="w-3 h-3" />
             </button>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Products Grid */}
         {isLoading ? (
