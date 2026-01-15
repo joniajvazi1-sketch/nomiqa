@@ -38,7 +38,7 @@ const getRankStyle = (rank: number, isCurrentUser: boolean) => {
     case 1: return 'border-amber-500/30 bg-amber-500/10 backdrop-blur-sm';
     case 2: return 'border-slate-400/30 bg-slate-400/10 backdrop-blur-sm';
     case 3: return 'border-amber-600/30 bg-amber-600/10 backdrop-blur-sm';
-    default: return 'border-white/10 bg-white/5 backdrop-blur-sm';
+    default: return 'border-border bg-card/60 backdrop-blur-sm';
   }
 };
 
@@ -93,9 +93,9 @@ export const LeaderboardSection: React.FC<LeaderboardSectionProps> = ({
       <div className="space-y-3">
         <div className="flex items-center gap-2">
           <Trophy className="w-4 h-4 text-primary" />
-          <span className="font-medium text-white">Leaderboard</span>
+          <span className="font-medium text-foreground">Leaderboard</span>
         </div>
-        <div className="h-24 rounded-xl bg-white/5 border border-white/10 animate-pulse" />
+        <div className="h-24 rounded-xl bg-muted animate-pulse" />
       </div>
     );
   }
@@ -104,7 +104,7 @@ export const LeaderboardSection: React.FC<LeaderboardSectionProps> = ({
   if (compact) {
     return (
       <motion.button 
-        className="w-full rounded-xl bg-white/10 backdrop-blur-xl border border-white/20 p-4 text-left active:scale-[0.98] transition-transform"
+        className="w-full rounded-xl bg-card/80 backdrop-blur-xl border border-border p-4 text-left active:scale-[0.98] transition-transform"
         onClick={() => { lightTap(); onViewAll?.(); }}
         whileTap={{ scale: 0.98 }}
       >
@@ -112,7 +112,7 @@ export const LeaderboardSection: React.FC<LeaderboardSectionProps> = ({
           <div className="flex items-center gap-3">
             <div className="relative">
               <div className="w-12 h-12 rounded-xl bg-primary/20 border border-primary/30 flex flex-col items-center justify-center">
-                <span className="text-xs text-white/60">Rank</span>
+                <span className="text-xs text-muted-foreground">Rank</span>
                 <span className="text-lg font-bold text-primary">
                   #{userRank?.rank || '-'}
                 </span>
@@ -125,19 +125,19 @@ export const LeaderboardSection: React.FC<LeaderboardSectionProps> = ({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-lg font-bold text-white tabular-nums">
+                <span className="text-lg font-bold text-foreground tabular-nums">
                   {formatPoints(userRank?.totalPoints || 0)} pts
                 </span>
                 {userRank && userRank.rankChange !== 0 && (
                   <RankChangeIndicator change={userRank.rankChange} size="sm" />
                 )}
               </div>
-              <p className="text-sm text-white/60">
+              <p className="text-sm text-muted-foreground">
                 {totalParticipants} contributors
               </p>
             </div>
           </div>
-          <ChevronRight className="w-5 h-5 text-white/40" />
+          <ChevronRight className="w-5 h-5 text-muted-foreground" />
         </div>
       </motion.button>
     );
@@ -150,8 +150,8 @@ export const LeaderboardSection: React.FC<LeaderboardSectionProps> = ({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Trophy className="w-5 h-5 text-primary" />
-          <span className="text-lg font-bold text-white">Leaderboard</span>
-          <span className="text-sm text-white/60">
+          <span className="text-lg font-bold text-foreground">Leaderboard</span>
+          <span className="text-sm text-muted-foreground">
             ({totalParticipants})
           </span>
         </div>
@@ -167,7 +167,7 @@ export const LeaderboardSection: React.FC<LeaderboardSectionProps> = ({
       </div>
 
       {/* Period tabs - Enhanced styling */}
-      <div className="flex gap-1 p-1 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl">
+      <div className="flex gap-1 p-1 bg-muted/50 backdrop-blur-sm border border-border rounded-xl">
         {periods.map((p) => {
           const Icon = p.icon;
           const isActive = period === p.id;
@@ -179,7 +179,7 @@ export const LeaderboardSection: React.FC<LeaderboardSectionProps> = ({
                 'flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all',
                 isActive
                   ? 'bg-primary text-primary-foreground shadow-sm'
-                  : 'text-white/60 hover:text-white'
+                  : 'text-muted-foreground hover:text-foreground'
               )}
             >
               <Icon className="w-3.5 h-3.5" />
@@ -195,11 +195,8 @@ export const LeaderboardSection: React.FC<LeaderboardSectionProps> = ({
         <motion.div 
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/30 via-white/10 to-transparent backdrop-blur-xl border border-primary/40 p-4"
+          className="relative overflow-hidden rounded-2xl bg-card/80 backdrop-blur-xl border border-primary/40 p-4"
         >
-          {/* Background decoration */}
-          <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-          
           <div className="relative flex items-center justify-between">
             <div className="flex items-center gap-4">
               {/* Rank badge */}
@@ -207,8 +204,8 @@ export const LeaderboardSection: React.FC<LeaderboardSectionProps> = ({
                 <div className={cn(
                   "w-16 h-16 rounded-2xl flex flex-col items-center justify-center border-2 backdrop-blur-sm",
                   userRank.rank <= 3 
-                    ? "bg-gradient-to-br from-amber-500/30 to-amber-600/10 border-amber-500/50" 
-                    : "bg-gradient-to-br from-primary/30 to-primary/10 border-primary/50"
+                    ? "bg-amber-500/10 border-amber-500/50" 
+                    : "bg-primary/10 border-primary/50"
                 )}>
                   {userRank.rank <= 3 ? (
                     <Crown className={cn(
@@ -218,7 +215,7 @@ export const LeaderboardSection: React.FC<LeaderboardSectionProps> = ({
                       userRank.rank === 3 && "text-amber-600"
                     )} />
                   ) : (
-                    <span className="text-xs text-white/60">Rank</span>
+                    <span className="text-xs text-muted-foreground">Rank</span>
                   )}
                   <span className={cn(
                     "text-xl font-bold",
@@ -236,10 +233,10 @@ export const LeaderboardSection: React.FC<LeaderboardSectionProps> = ({
               </div>
               
               <div>
-                <div className="text-sm text-white/60 mb-1">Your Position</div>
-                <div className="text-2xl font-bold text-white tabular-nums">
+                <div className="text-sm text-muted-foreground mb-1">Your Position</div>
+                <div className="text-2xl font-bold text-foreground tabular-nums">
                   {formatPoints(userRank.totalPoints)}
-                  <span className="text-base font-normal text-white/60 ml-1">pts</span>
+                  <span className="text-base font-normal text-muted-foreground ml-1">pts</span>
                 </div>
                 <div className="flex items-center gap-2 mt-1">
                   <span className="text-xs px-2 py-0.5 rounded-full bg-primary/30 text-primary font-medium">
@@ -252,11 +249,11 @@ export const LeaderboardSection: React.FC<LeaderboardSectionProps> = ({
             {/* Points to next rank */}
             {userRank.pointsToNextRank !== null && userRank.pointsToNextRank > 0 && (
               <div className="text-right">
-                <div className="text-xs text-white/60 mb-1">Next rank</div>
+                <div className="text-xs text-muted-foreground mb-1">Next rank</div>
                 <div className="text-lg font-bold text-primary tabular-nums">
                   +{formatPoints(userRank.pointsToNextRank)}
                 </div>
-                <div className="text-xs text-white/60">pts needed</div>
+                <div className="text-xs text-muted-foreground">pts needed</div>
               </div>
             )}
           </div>
@@ -305,11 +302,11 @@ export const LeaderboardSection: React.FC<LeaderboardSectionProps> = ({
                 {/* Rank */}
                 <div className={cn(
                   'w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm shrink-0',
-                  displayRank <= 3 ? 'bg-white/10' : 'bg-white/5',
+                  displayRank <= 3 ? 'bg-muted' : 'bg-muted/50',
                   displayRank === 1 && 'text-amber-400',
-                  displayRank === 2 && 'text-slate-300',
+                  displayRank === 2 && 'text-slate-400',
                   displayRank === 3 && 'text-amber-600',
-                  displayRank > 3 && 'text-white/60'
+                  displayRank > 3 && 'text-muted-foreground'
                 )}>
                   {getRankIcon(displayRank) || displayRank}
                 </div>
@@ -319,7 +316,7 @@ export const LeaderboardSection: React.FC<LeaderboardSectionProps> = ({
                   <div className="flex items-center gap-2">
                     <span className={cn(
                       "font-medium truncate text-sm",
-                      entry.isCurrentUser ? "text-primary" : "text-white"
+                      entry.isCurrentUser ? "text-primary" : "text-foreground"
                     )}>
                       {anonymizeUsername(entry.username, entry.user_id, entry.isCurrentUser)}
                     </span>
@@ -327,7 +324,7 @@ export const LeaderboardSection: React.FC<LeaderboardSectionProps> = ({
                       <RankChangeIndicator change={entry.rank_change} size="sm" />
                     )}
                   </div>
-                  <div className="flex items-center gap-1 text-xs text-white/50">
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
                     <MapPin className="w-3 h-3" />
                     <span>{formatDistance(entry.total_distance_meters)}</span>
                   </div>
@@ -339,13 +336,13 @@ export const LeaderboardSection: React.FC<LeaderboardSectionProps> = ({
                     'font-bold text-sm tabular-nums',
                     entry.isCurrentUser && 'text-primary',
                     !entry.isCurrentUser && displayRank === 1 && 'text-amber-400',
-                    !entry.isCurrentUser && displayRank === 2 && 'text-slate-300',
+                    !entry.isCurrentUser && displayRank === 2 && 'text-slate-400',
                     !entry.isCurrentUser && displayRank === 3 && 'text-amber-600',
-                    !entry.isCurrentUser && displayRank > 3 && 'text-white'
+                    !entry.isCurrentUser && displayRank > 3 && 'text-foreground'
                   )}>
                     {formatPoints(points)}
                   </div>
-                  <div className="text-xs text-white/50">pts</div>
+                  <div className="text-xs text-muted-foreground">pts</div>
                 </div>
               </motion.div>
             );
@@ -357,7 +354,7 @@ export const LeaderboardSection: React.FC<LeaderboardSectionProps> = ({
       {entries.length > limit && onViewAll && (
         <button
           onClick={() => { lightTap(); onViewAll(); }}
-          className="w-full py-3 text-center text-sm font-medium text-primary rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 active:scale-[0.98] transition-transform"
+          className="w-full py-3 text-center text-sm font-medium text-primary rounded-xl bg-card/80 backdrop-blur-sm border border-border active:scale-[0.98] transition-transform"
         >
           View full leaderboard
         </button>
@@ -390,9 +387,9 @@ function PodiumCard({ entry, rank, period, isFirst }: PodiumCardProps) {
                 entry.total_points;
 
   const colors = {
-    1: { bg: 'from-amber-500/30 to-amber-600/10', border: 'border-amber-500/50', text: 'text-amber-400' },
-    2: { bg: 'from-slate-400/30 to-slate-500/10', border: 'border-slate-400/50', text: 'text-slate-300' },
-    3: { bg: 'from-amber-600/30 to-amber-700/10', border: 'border-amber-600/50', text: 'text-amber-600' }
+    1: { bg: 'from-amber-500/20 to-amber-600/5', border: 'border-amber-500/50', text: 'text-amber-400' },
+    2: { bg: 'from-slate-400/20 to-slate-500/5', border: 'border-slate-400/50', text: 'text-slate-400' },
+    3: { bg: 'from-amber-600/20 to-amber-700/5', border: 'border-amber-600/50', text: 'text-amber-600' }
   };
 
   return (
@@ -425,7 +422,7 @@ function PodiumCard({ entry, rank, period, isFirst }: PodiumCardProps) {
       {/* Username */}
       <div className={cn(
         "text-xs font-medium truncate w-full text-center mb-1",
-        entry.isCurrentUser ? "text-primary" : "text-white"
+        entry.isCurrentUser ? "text-primary" : "text-foreground"
       )}>
         {entry.isCurrentUser ? 'You' : (entry.username?.slice(0, 6) || 'User')}
       </div>
