@@ -297,13 +297,14 @@ const GlobeScene: React.FC<{
       <OrbitControls
         enablePan={false}
         enableZoom={true}
-        minDistance={isPersonalView ? 1.8 : 2.0}
+        minDistance={isPersonalView ? 1.6 : 2.0}
         maxDistance={6}
         autoRotate={!selectedMarker && !isPersonalView}
         autoRotateSpeed={0.2}
         dampingFactor={0.05}
         enableDamping
         rotateSpeed={0.3}
+        zoomSpeed={0.8}
       />
     </>
   );
@@ -344,8 +345,9 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
   const [selectedMarker, setSelectedMarker] = useState<DataPointMarker | null>(null);
   const [hasError, setHasError] = useState(false);
   
-  // Personal view starts very zoomed in (like 2D), global view starts zoomed out
-  const initialCameraZ = isPersonalView ? 1.9 : 3.2;
+  // Personal view starts very zoomed in (close to surface), global starts zoomed out
+  // Camera z: lower = closer/more zoomed in, higher = farther/zoomed out
+  const initialCameraZ = isPersonalView ? 1.7 : 3.2;
   
   // Calculate real stats from data
   const realStats = useMemo(() => {
