@@ -1,5 +1,5 @@
 import React, { useRef, useMemo, Suspense, useState } from 'react';
-import { Canvas, useFrame, useLoader } from '@react-three/fiber';
+import { Canvas, useFrame, useLoader, ThreeEvent } from '@react-three/fiber';
 import { OrbitControls, Sphere, Stars, Html } from '@react-three/drei';
 import * as THREE from 'three';
 import { GlobalCoverageCell } from '@/hooks/useGlobalCoverage';
@@ -543,8 +543,11 @@ const DataHotspot: React.FC<{
   const pinRef = useRef<THREE.Group>(null);
   const headRef = useRef<THREE.Mesh>(null);
   const glowRef = useRef<THREE.Mesh>(null);
+  const rippleRef = useRef<THREE.Mesh>(null);
   const pulseSpeed = useRef(Math.random() * 2 + 1.5);
   const flashOffset = useRef(Math.random() * Math.PI * 2);
+  const [rippleActive, setRippleActive] = useState(false);
+  const rippleStartTime = useRef(0);
   
   // Pin size based on data count
   const pinHeadSize = Math.min(0.012 + (marker.count / 100) * 0.008, 0.028);
@@ -572,6 +575,24 @@ const DataHotspot: React.FC<{
       mat.opacity = 0.1 + flash * 0.2;
     }
     
+    // Ripple animation
+    if (rippleActive && rippleRef.current) {
+      const elapsed = time - rippleStartTime.current;
+      const duration = 0.6;
+      const progress = Math.min(elapsed / duration, 1);
+      
+      // Expand and fade out
+      const scale = 1 + progress * 4;
+      const opacity = 0.5 * (1 - progress);
+      
+      rippleRef.current.scale.setScalar(scale);
+      (rippleRef.current.material as THREE.MeshBasicMaterial).opacity = opacity;
+      
+      if (progress >= 1) {
+        setRippleActive(false);
+      }
+    }
+    
     // Scale up when selected (no bounce/movement)
     if (pinRef.current) {
       pinRef.current.scale.setScalar(isSelected ? 1.2 : 1);
@@ -583,13 +604,18 @@ const DataHotspot: React.FC<{
     }
   });
 
+  const handleClick = (e: ThreeEvent<MouseEvent>) => {
+    e.stopPropagation();
+    setRippleActive(true);
+    rippleStartTime.current = e.eventObject.parent?.parent?.parent ? 
+      (performance.now() / 1000) : 0;
+    onSelect(isSelected ? null : marker);
+  };
+
   return (
     <group 
       position={marker.position}
-      onClick={(e) => {
-        e.stopPropagation();
-        onSelect(isSelected ? null : marker);
-      }}
+      onClick={handleClick}
     >
       {/* Billboard group - faces camera */}
       <group ref={groupRef}>
@@ -629,6 +655,14 @@ const DataHotspot: React.FC<{
             <circleGeometry args={[pinHeadSize * 1.2, 16]} />
             <meshBasicMaterial color={baseColor} transparent opacity={0.15} side={THREE.DoubleSide} />
           </mesh>
+          
+          {/* Click ripple effect */}
+          {rippleActive && (
+            <mesh ref={rippleRef} position={[0, pinHeight * 0.1, 0]}>
+              <ringGeometry args={[pinHeadSize * 0.8, pinHeadSize * 1.2, 32]} />
+              <meshBasicMaterial color={brightColor} transparent opacity={0.5} side={THREE.DoubleSide} />
+            </mesh>
+          )}
         </group>
       </group>
       
