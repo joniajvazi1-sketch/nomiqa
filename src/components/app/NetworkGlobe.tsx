@@ -327,6 +327,15 @@ const getApproximateLocation = (lat: number, lng: number): string => {
     { name: 'Beirut', lat: 33.9, lng: 35.5, radius: 1 },
     { name: 'Bahrain', lat: 26.2, lng: 50.6, radius: 1 },
     
+    // Central Asia & Caucasus
+    { name: 'Almaty', lat: 43.2, lng: 76.9, radius: 1.5 },
+    { name: 'Tashkent', lat: 41.3, lng: 69.3, radius: 1.5 },
+    { name: 'Tbilisi', lat: 41.7, lng: 44.8, radius: 1.2 },
+    { name: 'Baku', lat: 40.4, lng: 49.9, radius: 1.2 },
+    { name: 'Astana', lat: 51.2, lng: 71.4, radius: 1.2 },
+    { name: 'Bishkek', lat: 42.9, lng: 74.6, radius: 1 },
+    { name: 'Yerevan', lat: 40.2, lng: 44.5, radius: 1 },
+    
     // Southeast Asia & Pacific Islands
     { name: 'Phuket', lat: 7.9, lng: 98.4, radius: 1 },
     { name: 'Bali', lat: -8.4, lng: 115.2, radius: 1.2 },
@@ -359,6 +368,12 @@ const getApproximateLocation = (lat: number, lng: number): string => {
     { name: 'Algiers', lat: 36.8, lng: 3, radius: 1 },
     { name: 'Tunis', lat: 36.8, lng: 10.2, radius: 1 },
     { name: 'Marrakech', lat: 31.6, lng: -8, radius: 1 },
+    { name: 'Kigali', lat: -1.9, lng: 30.1, radius: 1 },
+    { name: 'Luanda', lat: -8.8, lng: 13.2, radius: 1.5 },
+    { name: 'Dakar', lat: 14.7, lng: -17.5, radius: 1.2 },
+    { name: 'Abidjan', lat: 5.3, lng: -4, radius: 1.5 },
+    { name: 'Kampala', lat: 0.3, lng: 32.6, radius: 1 },
+    { name: 'Kinshasa', lat: -4.3, lng: 15.3, radius: 1.5 },
     
     // Australia & Oceania
     { name: 'Sydney', lat: -33.9, lng: 151.2, radius: 2 },
