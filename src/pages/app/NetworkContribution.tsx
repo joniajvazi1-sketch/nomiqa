@@ -7,10 +7,7 @@ import {
   Globe,
   Map,
   Play,
-  ChevronUp,
-  Layers,
-  Gauge,
-  BarChart3
+  Gauge
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -45,10 +42,9 @@ export const NetworkContribution: React.FC = () => {
   const [showCelebration, setShowCelebration] = useState(false);
   const [celebrationPoints, setCelebrationPoints] = useState(0);
   const [showHeatmap, setShowHeatmap] = useState(true);
-  const [coverageMode, setCoverageMode] = useState<CoverageMode>('global'); // Default to globe view
+  const [coverageMode, setCoverageMode] = useState<CoverageMode>('global');
   const [consentGiven, setConsentGiven] = useState(() => hasDataConsent());
   const [showConsentModal, setShowConsentModal] = useState(false);
-  const [showTools, setShowTools] = useState(false);
   const startButtonRef = useRef<HTMLButtonElement>(null);
   
   const {
@@ -192,6 +188,8 @@ export const NetworkContribution: React.FC = () => {
                 : (globalCoverageData?.uniqueLocations || 0)
             }
             coverageAreaKm2={globalCoverageData?.coverageAreaKm2 || 0}
+            isPersonalView={coverageMode === 'personal'}
+            userPosition={userPosition}
           />
         </Suspense>
       </div>
@@ -268,109 +266,86 @@ export const NetworkContribution: React.FC = () => {
         {/* Spacer - pushes controls to bottom */}
         <div className="flex-1" />
 
-        {/* Bottom Control Panel - always at bottom */}
-        <div className="px-4 pointer-events-auto">
-          {/* Mode toggle + Tools - TOP of controls */}
-          <div className="flex items-center justify-center gap-2 mb-3">
+        {/* Bottom Control Panel */}
+        <div className="px-4 pointer-events-auto space-y-3">
+          
+          {/* Speed Test - Prominent at top */}
+          <div className="flex justify-center">
             <button
-              onClick={handleToggleCoverageMode}
-              className={cn(
-                'flex items-center gap-2 px-4 py-2.5 rounded-xl',
-                'bg-card/80 backdrop-blur-xl border shadow-lg transition-all',
-                coverageMode === 'personal' 
-                  ? 'border-primary/50 text-primary' 
-                  : 'border-border text-muted-foreground hover:border-primary/40'
-              )}
-            >
-              {coverageMode === 'global' ? (
-                <>
-                  <Map className="w-4 h-4" />
-                  <span className="text-sm font-medium">My Map</span>
-                </>
-              ) : (
-                <>
-                  <Globe className="w-4 h-4" />
-                  <span className="text-sm font-medium">Global</span>
-                </>
-              )}
-            </button>
-            
-            <button
-              onClick={() => {
+              onClick={async () => {
+                if (isRunningSpeedTest) return;
                 buttonTap();
-                setShowTools(!showTools);
+                setIsRunningSpeedTest(true);
+                try {
+                  const result = await triggerManualSpeedTest();
+                  if (result) {
+                    playCoin();
+                    successPattern();
+                  }
+                } finally {
+                  setIsRunningSpeedTest(false);
+                }
               }}
+              disabled={!isCellular || isRunningSpeedTest}
               className={cn(
-                'flex items-center gap-2 px-4 py-2.5 rounded-xl',
-                'bg-card/80 backdrop-blur-xl border shadow-lg transition-all',
-                showTools ? 'border-primary/50 text-primary' : 'border-border text-muted-foreground'
+                'flex items-center gap-2.5 px-6 py-3 rounded-2xl',
+                'backdrop-blur-xl border shadow-lg transition-all',
+                isRunningSpeedTest 
+                  ? 'bg-amber-500/20 border-amber-500/50 text-amber-400' 
+                  : isCellular 
+                    ? 'bg-cyan-500/20 border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/30'
+                    : 'bg-card/60 border-border text-muted-foreground/50 cursor-not-allowed'
               )}
             >
-              <Layers className="w-4 h-4" />
-              <span className="text-sm font-medium">Tools</span>
-              <ChevronUp className={cn(
-                'w-4 h-4 transition-transform',
-                showTools ? 'rotate-180' : ''
-              )} />
+              <Gauge className={cn("w-5 h-5", isRunningSpeedTest && "animate-pulse")} />
+              <span className="text-sm font-semibold">
+                {isRunningSpeedTest ? 'Running Speed Test...' : 'Run Speed Test'}
+              </span>
             </button>
           </div>
 
-          {/* Expandable Tools */}
-          {showTools && (
-            <div className="flex items-center justify-center gap-2 mb-3 animate-fade-in flex-wrap">
-              <button
-                onClick={async () => {
-                  if (isRunningSpeedTest) return;
-                  buttonTap();
-                  setIsRunningSpeedTest(true);
-                  try {
-                    const result = await triggerManualSpeedTest();
-                    if (result) {
-                      playCoin();
-                      successPattern();
-                    }
-                  } finally {
-                    setIsRunningSpeedTest(false);
-                  }
-                }}
-                disabled={!isCellular || isRunningSpeedTest}
-                className={cn(
-                  'flex items-center gap-2 px-4 py-2.5 rounded-xl',
-                  'bg-card/80 backdrop-blur-xl border shadow-lg transition-all',
-                  isRunningSpeedTest 
-                    ? 'border-amber-500/50 text-amber-500' 
-                    : isCellular 
-                      ? 'border-green-500/50 text-green-500 hover:border-green-500/70'
-                      : 'border-border text-muted-foreground/50 cursor-not-allowed'
-                )}
-              >
-                <Gauge className={cn("w-4 h-4", isRunningSpeedTest && "animate-pulse")} />
-                <span className="text-sm font-medium">
-                  {isRunningSpeedTest ? 'Testing...' : 'Speed Test'}
-                </span>
-              </button>
-              
+          {/* Mode Toggle */}
+          <div className="flex justify-center">
+            <div className="inline-flex items-center gap-1 p-1 rounded-2xl bg-card/60 backdrop-blur-xl border border-border">
               <button
                 onClick={() => {
                   buttonTap();
-                  navigate('/app/network-stats');
+                  setCoverageMode('personal');
+                  refreshHeatmap();
                 }}
                 className={cn(
-                  'flex items-center gap-2 px-4 py-2.5 rounded-xl',
-                  'bg-card/80 backdrop-blur-xl border shadow-lg transition-all',
-                  'border-border text-foreground hover:border-primary/40'
+                  'flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all',
+                  coverageMode === 'personal' 
+                    ? 'bg-primary text-primary-foreground' 
+                    : 'text-muted-foreground hover:text-foreground'
                 )}
               >
-                <BarChart3 className="w-4 h-4" />
-                <span className="text-sm font-medium">Stats</span>
+                <Map className="w-4 h-4" />
+                My Map
+              </button>
+              <button
+                onClick={() => {
+                  buttonTap();
+                  setCoverageMode('global');
+                  refreshGlobalCoverage(true);
+                }}
+                className={cn(
+                  'flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all',
+                  coverageMode === 'global' 
+                    ? 'bg-primary text-primary-foreground' 
+                    : 'text-muted-foreground hover:text-foreground'
+                )}
+              >
+                <Globe className="w-4 h-4" />
+                Global
               </button>
             </div>
-          )}
+          </div>
 
           {/* Live Points Counter - when active */}
           {isActive && isCellular && (
-            <div className="text-center mb-3 animate-fade-in">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/15 border border-primary/40 backdrop-blur-sm">
+            <div className="flex justify-center animate-fade-in">
+              <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-primary/15 border border-primary/40 backdrop-blur-sm">
                 <Zap className="w-4 h-4 text-primary" />
                 <span className="text-2xl font-bold text-primary tabular-nums">
                   +{stats.pointsEarned.toFixed(1)}
@@ -380,108 +355,98 @@ export const NetworkContribution: React.FC = () => {
             </div>
           )}
 
-          {/* Main Control Button */}
-          <div className="flex justify-center mb-3">
-            <div className="relative">
-              {!isActive && user && consentGiven && (
-                <div className="absolute inset-[-16px] rounded-full bg-red-500/10 border border-red-500/30" />
-              )}
-              
-              {isActive && isCellular && (
-                <div className="absolute inset-[-16px] rounded-full bg-green-500/10 border-2 border-green-400/50" />
-              )}
-              
-              <button
-                ref={startButtonRef}
-                onClick={() => {
-                  buttonTap();
-                  if (isActive) {
-                    handleStopContribution();
-                    playSuccess();
-                  } else {
-                    if (!consentGiven) {
-                      setShowConsentModal(true);
-                      return;
-                    }
-                    startContribution();
-                    playCoin();
+          {/* Main Control Button - Clean design */}
+          <div className="flex justify-center py-2">
+            <button
+              ref={startButtonRef}
+              onClick={() => {
+                buttonTap();
+                if (isActive) {
+                  handleStopContribution();
+                  playSuccess();
+                } else {
+                  if (!consentGiven) {
+                    setShowConsentModal(true);
+                    return;
                   }
-                }}
-                disabled={!user}
+                  startContribution();
+                  playCoin();
+                }
+              }}
+              disabled={!user}
+              className={cn(
+                'relative w-28 h-28 rounded-full',
+                'flex flex-col items-center justify-center gap-1.5',
+                'shadow-2xl active:scale-95',
+                'transition-all duration-300',
+                !user && 'opacity-40 cursor-not-allowed'
+              )}
+              style={{
+                background: isActive 
+                  ? isPaused
+                    ? 'linear-gradient(145deg, #f59e0b, #d97706)'
+                    : 'linear-gradient(145deg, #22c55e, #16a34a)'
+                  : 'linear-gradient(145deg, #ef4444, #dc2626)',
+                boxShadow: isActive 
+                  ? isPaused
+                    ? '0 0 40px rgba(245, 158, 11, 0.4), inset 0 2px 4px rgba(255,255,255,0.2)'
+                    : '0 0 40px rgba(34, 197, 94, 0.4), inset 0 2px 4px rgba(255,255,255,0.2)'
+                  : '0 0 40px rgba(239, 68, 68, 0.4), inset 0 2px 4px rgba(255,255,255,0.2)',
+              }}
+            >
+              {/* Outer ring */}
+              <div 
                 className={cn(
-                  'w-24 h-24 rounded-full relative z-10',
-                  'flex flex-col items-center justify-center gap-1',
-                  'shadow-2xl active:scale-95',
-                  'transition-all duration-300',
+                  'absolute inset-[-8px] rounded-full border-2',
                   isActive 
-                    ? isPaused
-                      ? 'bg-gradient-to-br from-amber-400 to-amber-600 shadow-amber-500/50' 
-                      : 'bg-gradient-to-br from-green-400 to-green-600 shadow-green-500/50 animate-pulse' 
-                    : 'bg-gradient-to-br from-red-500 to-red-600 hover:scale-105 shadow-red-500/50',
-                  !user && 'opacity-40 cursor-not-allowed'
+                    ? isPaused ? 'border-amber-500/40' : 'border-green-500/40'
+                    : 'border-red-500/40'
                 )}
-              >
-                {isActive ? (
-                  isPaused ? (
-                    <>
-                      <Wifi className="w-8 h-8 text-white drop-shadow-lg" />
-                      <span className="text-[10px] font-bold text-white/90">PAUSED</span>
-                    </>
-                  ) : (
-                    <>
-                      <Pause className="w-8 h-8 text-white drop-shadow-lg" />
-                      <span className="text-[10px] font-bold text-white/90">STOP</span>
-                    </>
-                  )
+              />
+              
+              {isActive ? (
+                isPaused ? (
+                  <>
+                    <Wifi className="w-9 h-9 text-white drop-shadow-lg" />
+                    <span className="text-xs font-bold text-white/90 tracking-wide">PAUSED</span>
+                  </>
                 ) : (
                   <>
-                    <Play className="w-8 h-8 text-white drop-shadow-lg ml-1" />
-                    <span className="text-[10px] font-bold text-white/90">START</span>
+                    <Pause className="w-9 h-9 text-white drop-shadow-lg" />
+                    <span className="text-xs font-bold text-white/90 tracking-wide">STOP</span>
                   </>
-                )}
-              </button>
-            </div>
+                )
+              ) : (
+                <>
+                  <Play className="w-9 h-9 text-white drop-shadow-lg ml-1" />
+                  <span className="text-xs font-bold text-white/90 tracking-wide">START</span>
+                </>
+              )}
+            </button>
           </div>
 
-          {/* Status Card - below START button */}
-          <div className="flex justify-center mb-3">
-            <div
-              className={cn(
-                'relative z-20 w-full max-w-[22rem] rounded-2xl',
-                'bg-card/80 backdrop-blur-xl border border-border shadow-xl',
-                'px-4 py-3 text-center'
-              )}
-              aria-live="polite"
-            >
-              <p className="text-base font-semibold text-foreground">
-                {isActive ? (isPaused ? 'Paused' : 'Scanning Network…') : 'Start Scanning'}
+          {/* Status Text - Clean and minimal */}
+          <div className="text-center pb-1">
+            {!user ? (
+              <div className="flex items-center justify-center gap-3">
+                <span className="text-sm text-muted-foreground">Sign in to start earning</span>
+                <button
+                  onClick={() => {
+                    buttonTap();
+                    navigate('/app/auth?mode=login');
+                  }}
+                  className="px-4 py-1.5 rounded-lg text-sm font-semibold bg-primary text-primary-foreground"
+                >
+                  Sign in
+                </button>
+              </div>
+            ) : !isActive && consentGiven ? (
+              <p className="text-sm text-muted-foreground">
+                {isCellular ? 'Tap START to earn points' : 'Connect to cellular to earn'}
               </p>
-
-              {!isActive && user && consentGiven && (
-                <p className="text-sm text-muted-foreground mt-1">
-                  {isCellular ? 'Tap START to earn points' : 'Connect to cellular to earn'}
-                </p>
-              )}
-
-              {!user && (
-                <div className="mt-2 flex items-center justify-center gap-2">
-                  <p className="text-sm text-muted-foreground">Sign in to start</p>
-                  <button
-                    onClick={() => {
-                      buttonTap();
-                      navigate('/app/auth?mode=login');
-                    }}
-                    className={cn(
-                      'px-3 py-1.5 rounded-lg text-sm font-semibold',
-                      'bg-primary text-primary-foreground',
-                      'shadow-sm hover:opacity-95 active:opacity-90'
-                    )}
-                  >
-                    Sign in
-                  </button>
-                </div>
-              )}
-            </div>
+            ) : isActive && !isCellular ? (
+              <p className="text-sm text-amber-500">Switch to cellular to continue earning</p>
+            ) : null}
           </div>
 
           {/* Session Stats Card - when active */}
