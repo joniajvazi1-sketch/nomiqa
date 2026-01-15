@@ -14,8 +14,7 @@ export const AppChallenges: React.FC = () => {
   const { t } = useTranslation();
   const { 
     dailyChallenges, 
-    weeklyChallenges, 
-    specialChallenges,
+    weeklyChallenges,
     completedTodayCount,
     unclaimedCount,
     claimReward,
@@ -63,21 +62,16 @@ export const AppChallenges: React.FC = () => {
 
       <div className="px-5 py-6 space-y-6">
         {/* Stats Cards */}
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 gap-3">
           <div className="rounded-2xl bg-card/80 border border-border p-4 text-center">
             <Star className="w-5 h-5 text-yellow-500 mx-auto mb-2" fill="currentColor" />
-            <div className="text-xl font-bold text-foreground">{completedTodayCount}</div>
+            <div className="text-xl font-bold text-foreground">{completedTodayCount}/{dailyChallenges.length}</div>
             <div className="text-xs text-muted-foreground">{t('app.challenges.dailyDone')}</div>
           </div>
           <div className="rounded-2xl bg-card/80 border border-border p-4 text-center">
             <Calendar className="w-5 h-5 text-blue-500 mx-auto mb-2" />
-            <div className="text-xl font-bold text-foreground">{weeklyChallenges.length}</div>
+            <div className="text-xl font-bold text-foreground">{weeklyChallenges.filter(c => c.isCompleted).length}/{weeklyChallenges.length}</div>
             <div className="text-xs text-muted-foreground">{t('app.challenges.weekly')}</div>
-          </div>
-          <div className="rounded-2xl bg-card/80 border border-border p-4 text-center">
-            <Star className="w-5 h-5 text-purple-500 mx-auto mb-2" />
-            <div className="text-xl font-bold text-foreground">{specialChallenges.length}</div>
-            <div className="text-xs text-muted-foreground">{t('app.challenges.special')}</div>
           </div>
         </div>
 
@@ -147,36 +141,8 @@ export const AppChallenges: React.FC = () => {
               </section>
             )}
 
-            {/* Special Challenges */}
-            {specialChallenges.length > 0 && (
-              <section>
-                <div className="flex items-center gap-2 mb-3">
-                  <Star className="w-4 h-4 text-purple-500" />
-                  <h2 className="text-sm font-semibold text-foreground uppercase tracking-wider">{t('app.challenges.special')}</h2>
-                </div>
-                <div className="space-y-3">
-                  {specialChallenges.map((c) => (
-                    <ChallengeCard
-                      key={c.id}
-                      id={c.id}
-                      type={c.type}
-                      title={c.title}
-                      description={c.description}
-                      targetValue={c.target_value}
-                      rewardPoints={c.reward_points}
-                      metricType={c.metric_type}
-                      progress={c.progress}
-                      isCompleted={c.isCompleted}
-                      isClaimed={c.isClaimed}
-                      onClaim={claimReward}
-                    />
-                  ))}
-                </div>
-              </section>
-            )}
-
             {/* Empty State */}
-            {dailyChallenges.length === 0 && weeklyChallenges.length === 0 && specialChallenges.length === 0 && (
+            {dailyChallenges.length === 0 && weeklyChallenges.length === 0 && (
               <div className="text-center py-12">
                 <Target className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                 <h3 className="text-lg font-semibold text-foreground mb-2">{t('app.challenges.noChallenges')}</h3>
