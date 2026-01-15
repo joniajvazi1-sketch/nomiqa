@@ -158,109 +158,132 @@ export const MapboxGlobe: React.FC<MapboxGlobeProps> = ({
   useEffect(() => {
     if (!map.current || !mapLoaded || coverageData.length === 0) return;
 
-    // Remove existing source and layer if they exist
-    if (map.current.getSource('coverage-data')) {
-      map.current.removeLayer('coverage-heat');
-      map.current.removeLayer('coverage-points');
-      map.current.removeSource('coverage-data');
-    }
+    // Function to add layers
+    const addCoverageLayers = () => {
+      if (!map.current) return;
+      
+      // Double-check style is loaded
+      if (!map.current.isStyleLoaded()) {
+        // Wait for style to be ready
+        map.current.once('style.load', addCoverageLayers);
+        return;
+      }
 
-    // Convert coverage data to GeoJSON
-    const maxCount = Math.max(...coverageData.map(c => c.count), 1);
-    const geojsonData: GeoJSON.FeatureCollection = {
-      type: 'FeatureCollection',
-      features: coverageData.slice(0, 300).map(cell => ({
-        type: 'Feature',
-        properties: {
-          count: cell.count,
-          intensity: cell.count / maxCount,
+      // Remove existing source and layer if they exist
+      try {
+        if (map.current.getLayer('coverage-heat')) {
+          map.current.removeLayer('coverage-heat');
+        }
+        if (map.current.getLayer('coverage-points')) {
+          map.current.removeLayer('coverage-points');
+        }
+        if (map.current.getSource('coverage-data')) {
+          map.current.removeSource('coverage-data');
+        }
+      } catch (e) {
+        console.log('Cleanup error (safe to ignore):', e);
+      }
+
+      // Convert coverage data to GeoJSON
+      const maxCount = Math.max(...coverageData.map(c => c.count), 1);
+      const geojsonData: GeoJSON.FeatureCollection = {
+        type: 'FeatureCollection',
+        features: coverageData.slice(0, 300).map(cell => ({
+          type: 'Feature',
+          properties: {
+            count: cell.count,
+            intensity: cell.count / maxCount,
+          },
+          geometry: {
+            type: 'Point',
+            coordinates: [cell.lng, cell.lat],
+          },
+        })),
+      };
+
+      // Add source
+      map.current.addSource('coverage-data', {
+        type: 'geojson',
+        data: geojsonData,
+      });
+
+      // Add heatmap layer for zoomed-out view
+      map.current.addLayer({
+        id: 'coverage-heat',
+        type: 'heatmap',
+        source: 'coverage-data',
+        maxzoom: 9,
+        paint: {
+          'heatmap-weight': ['get', 'intensity'],
+          'heatmap-intensity': ['interpolate', ['linear'], ['zoom'], 0, 1, 9, 3],
+          'heatmap-color': [
+            'interpolate',
+            ['linear'],
+            ['heatmap-density'],
+            0, 'rgba(0, 0, 0, 0)',
+            0.2, 'rgba(168, 85, 247, 0.4)',
+            0.4, 'rgba(6, 182, 212, 0.6)',
+            0.6, 'rgba(34, 197, 94, 0.8)',
+            1, 'rgba(34, 197, 94, 1)',
+          ],
+          'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 0, 8, 9, 30],
+          'heatmap-opacity': ['interpolate', ['linear'], ['zoom'], 7, 1, 9, 0],
         },
-        geometry: {
-          type: 'Point',
-          coordinates: [cell.lng, cell.lat],
+      });
+
+      // Add circle markers for zoomed-in view
+      map.current.addLayer({
+        id: 'coverage-points',
+        type: 'circle',
+        source: 'coverage-data',
+        minzoom: 5,
+        paint: {
+          'circle-radius': ['interpolate', ['linear'], ['zoom'], 5, 4, 15, 12],
+          'circle-color': [
+            'interpolate',
+            ['linear'],
+            ['get', 'intensity'],
+            0, '#a855f7',
+            0.4, '#06b6d4',
+            0.7, '#22c55e',
+          ],
+          'circle-stroke-color': '#fff',
+          'circle-stroke-width': 1,
+          'circle-opacity': ['interpolate', ['linear'], ['zoom'], 5, 0, 7, 0.9],
         },
-      })),
+      });
+
+      // Add popup on click
+      map.current.on('click', 'coverage-points', (e) => {
+        if (!e.features?.[0]) return;
+        const coordinates = (e.features[0].geometry as GeoJSON.Point).coordinates.slice() as [number, number];
+        const count = e.features[0].properties?.count || 0;
+
+        new mapboxgl.Popup({ closeButton: false, className: 'coverage-popup' })
+          .setLngLat(coordinates)
+          .setHTML(`
+            <div class="bg-white/95 backdrop-blur-sm rounded-lg px-3 py-2">
+              <p class="text-gray-900 font-bold text-xs">${coordinates[1].toFixed(2)}°, ${coordinates[0].toFixed(2)}°</p>
+              <div class="flex items-center gap-2 mt-1">
+                <span class="text-cyan-600 text-sm font-bold">${count}</span>
+                <span class="text-gray-500 text-[10px]">data points</span>
+              </div>
+            </div>
+          `)
+          .addTo(map.current!);
+      });
+
+      // Change cursor on hover
+      map.current.on('mouseenter', 'coverage-points', () => {
+        if (map.current) map.current.getCanvas().style.cursor = 'pointer';
+      });
+      map.current.on('mouseleave', 'coverage-points', () => {
+        if (map.current) map.current.getCanvas().style.cursor = '';
+      });
     };
 
-    // Add source
-    map.current.addSource('coverage-data', {
-      type: 'geojson',
-      data: geojsonData,
-    });
-
-    // Add heatmap layer for zoomed-out view
-    map.current.addLayer({
-      id: 'coverage-heat',
-      type: 'heatmap',
-      source: 'coverage-data',
-      maxzoom: 9,
-      paint: {
-        'heatmap-weight': ['get', 'intensity'],
-        'heatmap-intensity': ['interpolate', ['linear'], ['zoom'], 0, 1, 9, 3],
-        'heatmap-color': [
-          'interpolate',
-          ['linear'],
-          ['heatmap-density'],
-          0, 'rgba(0, 0, 0, 0)',
-          0.2, 'rgba(168, 85, 247, 0.4)',
-          0.4, 'rgba(6, 182, 212, 0.6)',
-          0.6, 'rgba(34, 197, 94, 0.8)',
-          1, 'rgba(34, 197, 94, 1)',
-        ],
-        'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 0, 8, 9, 30],
-        'heatmap-opacity': ['interpolate', ['linear'], ['zoom'], 7, 1, 9, 0],
-      },
-    });
-
-    // Add circle markers for zoomed-in view
-    map.current.addLayer({
-      id: 'coverage-points',
-      type: 'circle',
-      source: 'coverage-data',
-      minzoom: 5,
-      paint: {
-        'circle-radius': ['interpolate', ['linear'], ['zoom'], 5, 4, 15, 12],
-        'circle-color': [
-          'interpolate',
-          ['linear'],
-          ['get', 'intensity'],
-          0, '#a855f7',
-          0.4, '#06b6d4',
-          0.7, '#22c55e',
-        ],
-        'circle-stroke-color': '#fff',
-        'circle-stroke-width': 1,
-        'circle-opacity': ['interpolate', ['linear'], ['zoom'], 5, 0, 7, 0.9],
-      },
-    });
-
-    // Add popup on click
-    map.current.on('click', 'coverage-points', (e) => {
-      if (!e.features?.[0]) return;
-      const coordinates = (e.features[0].geometry as GeoJSON.Point).coordinates.slice() as [number, number];
-      const count = e.features[0].properties?.count || 0;
-
-      new mapboxgl.Popup({ closeButton: false, className: 'coverage-popup' })
-        .setLngLat(coordinates)
-        .setHTML(`
-          <div class="bg-white/95 backdrop-blur-sm rounded-lg px-3 py-2">
-            <p class="text-gray-900 font-bold text-xs">${coordinates[1].toFixed(2)}°, ${coordinates[0].toFixed(2)}°</p>
-            <div class="flex items-center gap-2 mt-1">
-              <span class="text-cyan-600 text-sm font-bold">${count}</span>
-              <span class="text-gray-500 text-[10px]">data points</span>
-            </div>
-          </div>
-        `)
-        .addTo(map.current!);
-    });
-
-    // Change cursor on hover
-    map.current.on('mouseenter', 'coverage-points', () => {
-      if (map.current) map.current.getCanvas().style.cursor = 'pointer';
-    });
-    map.current.on('mouseleave', 'coverage-points', () => {
-      if (map.current) map.current.getCanvas().style.cursor = '';
-    });
+    // Call the function
+    addCoverageLayers();
 
   }, [mapLoaded, coverageData]);
 
