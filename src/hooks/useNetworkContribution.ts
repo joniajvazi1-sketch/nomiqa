@@ -5,6 +5,7 @@ import { useBackgroundGeolocation } from './useBackgroundGeolocation';
 import { useNetworkStatus } from './useNetworkStatus';
 import { useHaptics } from './useHaptics';
 import { useTelcoMetrics, SignalLogEntry } from './useTelcoMetrics';
+import { type SpeedTestProgressCallback } from '@/utils/speedTestProviders';
 import { useContributionPersistence } from './useContributionPersistence';
 import { checkDeviceIntegrity, DeviceIntegrityResult } from '@/utils/deviceIntegrity';
 

@@ -5,7 +5,7 @@ import {
   isTelephonyPluginAvailable
 } from '@/plugins/TelephonyInfoPlugin';
 import { calculateDataQualityScore } from '@/utils/dataQualityScoring';
-import { runSpeedTest, type SpeedTestResult as ProviderSpeedTestResult } from '@/utils/speedTestProviders';
+import { runSpeedTest, type SpeedTestResult as ProviderSpeedTestResult, type SpeedTestProgressCallback } from '@/utils/speedTestProviders';
 
 // Type-only imports
 type Position = import('@capacitor/geolocation').Position;
@@ -308,7 +308,10 @@ export const useTelcoMetrics = () => {
    * Stores errors in DB for debugging
    * Now selects appropriate file size based on network type
    */
-  const runLightweightSpeedTest = useCallback(async (networkType?: string): Promise<{
+  const runLightweightSpeedTest = useCallback(async (
+    networkType?: string,
+    onProgress?: SpeedTestProgressCallback
+  ): Promise<{
     down: number | null;
     up: number | null;
     latency: number | null;
@@ -321,7 +324,7 @@ export const useTelcoMetrics = () => {
     try {
       // Use the new provider-based speed test with fallback
       // Pass networkType for adaptive file size selection
-      const result = await runSpeedTest(true, networkType);
+      const result = await runSpeedTest(true, networkType, onProgress);
       
       // Cache the result
       speedTestCache.current = { 

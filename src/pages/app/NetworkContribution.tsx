@@ -62,7 +62,8 @@ export const NetworkContribution: React.FC = () => {
   } = useNetworkContribution();
 
   const [isRunningSpeedTest, setIsRunningSpeedTest] = useState(false);
-
+  const [speedTestProgress, setSpeedTestProgress] = useState(0);
+  const [speedTestPhase, setSpeedTestPhase] = useState<'idle' | 'latency' | 'download' | 'upload'>('idle');
 
   const {
     data: globalCoverageData,
@@ -219,7 +220,7 @@ export const NetworkContribution: React.FC = () => {
         {/* Bottom Control Panel */}
         <div className="px-4 pointer-events-auto space-y-3">
           
-          {/* Speed Test - Matching arcade glassmorphism style */}
+          {/* Speed Test - Matching arcade glassmorphism style with progress bar */}
           <div className="flex justify-center">
             <div className="relative">
               {/* Outer glow frame */}
@@ -227,8 +228,7 @@ export const NetworkContribution: React.FC = () => {
                 className={cn(
                   'absolute inset-[-8px] rounded-2xl transition-all duration-500',
                   'bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-sm',
-                  'border border-white/10',
-                  isRunningSpeedTest && 'animate-pulse'
+                  'border border-white/10'
                 )}
                 style={{
                   boxShadow: isRunningSpeedTest 
@@ -256,8 +256,31 @@ export const NetworkContribution: React.FC = () => {
                   if (isRunningSpeedTest) return;
                   buttonTap();
                   setIsRunningSpeedTest(true);
+                  setSpeedTestProgress(0);
+                  setSpeedTestPhase('latency');
+                  
+                  // Simulate progress phases
+                  const progressInterval = setInterval(() => {
+                    setSpeedTestProgress(prev => {
+                      if (prev < 10) {
+                        setSpeedTestPhase('latency');
+                        return prev + 2;
+                      } else if (prev < 85) {
+                        setSpeedTestPhase('download');
+                        return prev + 1;
+                      } else if (prev < 95) {
+                        setSpeedTestPhase('upload');
+                        return prev + 0.5;
+                      }
+                      return prev;
+                    });
+                  }, 100);
+                  
                   try {
                     const result = await triggerManualSpeedTest();
+                    clearInterval(progressInterval);
+                    setSpeedTestProgress(100);
+                    
                     if (result) {
                       successPattern();
                       playCoin();
@@ -272,13 +295,19 @@ export const NetworkContribution: React.FC = () => {
                         variant: "destructive",
                       });
                     }
+                  } catch {
+                    clearInterval(progressInterval);
                   } finally {
-                    setIsRunningSpeedTest(false);
+                    setTimeout(() => {
+                      setIsRunningSpeedTest(false);
+                      setSpeedTestProgress(0);
+                      setSpeedTestPhase('idle');
+                    }, 500);
                   }
                 }}
                 disabled={!isCellular || isRunningSpeedTest}
                 className={cn(
-                  'relative flex items-center gap-2.5 px-6 py-3 rounded-xl',
+                  'relative flex flex-col items-center gap-1.5 px-6 py-3 rounded-xl min-w-[140px]',
                   'backdrop-blur-xl border transition-all duration-200',
                   'active:scale-95',
                   isRunningSpeedTest 
@@ -307,16 +336,35 @@ export const NetworkContribution: React.FC = () => {
                   )}
                 />
                 
-                <Gauge className={cn(
-                  "w-5 h-5 relative z-10",
-                  isRunningSpeedTest ? "text-amber-400 animate-spin" : isCellular ? "text-cyan-400" : "text-gray-500"
-                )} />
-                <span className={cn(
-                  "text-sm font-semibold relative z-10 tracking-wide",
-                  isRunningSpeedTest ? "text-amber-400" : isCellular ? "text-cyan-400" : "text-gray-500"
-                )}>
-                  {isRunningSpeedTest ? 'Testing...' : 'Speed Test'}
-                </span>
+                {/* Top row - icon and text */}
+                <div className="flex items-center gap-2 relative z-10">
+                  <Gauge className={cn(
+                    "w-5 h-5",
+                    isRunningSpeedTest ? "text-amber-400 animate-spin" : isCellular ? "text-cyan-400" : "text-gray-500"
+                  )} />
+                  <span className={cn(
+                    "text-sm font-semibold tracking-wide",
+                    isRunningSpeedTest ? "text-amber-400" : isCellular ? "text-cyan-400" : "text-gray-500"
+                  )}>
+                    {isRunningSpeedTest 
+                      ? speedTestPhase === 'latency' 
+                        ? 'Ping...' 
+                        : speedTestPhase === 'download' 
+                          ? 'Downloading...' 
+                          : 'Uploading...'
+                      : 'Speed Test'}
+                  </span>
+                </div>
+                
+                {/* Progress bar - only visible during test */}
+                {isRunningSpeedTest && (
+                  <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden relative z-10">
+                    <div 
+                      className="h-full bg-gradient-to-r from-amber-400 to-amber-500 rounded-full transition-all duration-150"
+                      style={{ width: `${speedTestProgress}%` }}
+                    />
+                  </div>
+                )}
               </button>
             </div>
           </div>
