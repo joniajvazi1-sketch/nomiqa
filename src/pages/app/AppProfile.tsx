@@ -86,8 +86,8 @@ export const AppProfile: React.FC = () => {
   const { soundEnabled, toggleSound, playSuccess } = useEnhancedSounds();
   const { share, copyToClipboard } = useNativeShare();
   const { toast } = useToast();
-  const { theme, setTheme } = useTheme();
-  const isDark = theme === 'dark';
+  const { theme, setTheme, resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark' || theme === 'dark';
   
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
