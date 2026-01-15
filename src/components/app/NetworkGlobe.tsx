@@ -135,51 +135,152 @@ interface DataPointMarker {
 
 // Get approximate city/region name from coordinates (privacy-respecting)
 const getApproximateLocation = (lat: number, lng: number): string => {
-  // Major world regions mapped to approximate lat/lng ranges
-  const regions: { name: string; latMin: number; latMax: number; lngMin: number; lngMax: number }[] = [
-    // Europe
-    { name: 'London Area', latMin: 51, latMax: 52, lngMin: -1, lngMax: 1 },
-    { name: 'Paris Area', latMin: 48, latMax: 49, lngMin: 2, lngMax: 3 },
-    { name: 'Berlin Area', latMin: 52, latMax: 53, lngMin: 13, lngMax: 14 },
-    { name: 'Madrid Area', latMin: 40, latMax: 41, lngMin: -4, lngMax: -3 },
-    { name: 'Rome Area', latMin: 41, latMax: 42, lngMin: 12, lngMax: 13 },
-    { name: 'Amsterdam Area', latMin: 52, latMax: 53, lngMin: 4, lngMax: 5 },
+  // Extensive list of major world cities mapped to approximate lat/lng ranges
+  const cities: { name: string; lat: number; lng: number; radius: number }[] = [
+    // Europe - Major cities
+    { name: 'London', lat: 51.5, lng: -0.1, radius: 1.5 },
+    { name: 'Paris', lat: 48.9, lng: 2.3, radius: 1.2 },
+    { name: 'Berlin', lat: 52.5, lng: 13.4, radius: 1.2 },
+    { name: 'Madrid', lat: 40.4, lng: -3.7, radius: 1.2 },
+    { name: 'Rome', lat: 41.9, lng: 12.5, radius: 1.2 },
+    { name: 'Amsterdam', lat: 52.4, lng: 4.9, radius: 1 },
+    { name: 'Barcelona', lat: 41.4, lng: 2.2, radius: 1 },
+    { name: 'Munich', lat: 48.1, lng: 11.6, radius: 1 },
+    { name: 'Milan', lat: 45.5, lng: 9.2, radius: 1 },
+    { name: 'Vienna', lat: 48.2, lng: 16.4, radius: 1 },
+    { name: 'Prague', lat: 50.1, lng: 14.4, radius: 1 },
+    { name: 'Brussels', lat: 50.8, lng: 4.4, radius: 0.8 },
+    { name: 'Zurich', lat: 47.4, lng: 8.5, radius: 0.8 },
+    { name: 'Stockholm', lat: 59.3, lng: 18.1, radius: 1 },
+    { name: 'Copenhagen', lat: 55.7, lng: 12.6, radius: 0.8 },
+    { name: 'Oslo', lat: 59.9, lng: 10.8, radius: 1 },
+    { name: 'Helsinki', lat: 60.2, lng: 24.9, radius: 1 },
+    { name: 'Warsaw', lat: 52.2, lng: 21, radius: 1 },
+    { name: 'Budapest', lat: 47.5, lng: 19.1, radius: 1 },
+    { name: 'Lisbon', lat: 38.7, lng: -9.1, radius: 1 },
+    { name: 'Dublin', lat: 53.3, lng: -6.3, radius: 1 },
+    { name: 'Athens', lat: 37.98, lng: 23.7, radius: 1 },
+    { name: 'Manchester', lat: 53.5, lng: -2.2, radius: 1 },
+    { name: 'Birmingham', lat: 52.5, lng: -1.9, radius: 1 },
+    { name: 'Frankfurt', lat: 50.1, lng: 8.7, radius: 1 },
+    { name: 'Hamburg', lat: 53.5, lng: 10, radius: 1 },
+    
     // North America
-    { name: 'New York Area', latMin: 40, latMax: 41, lngMin: -75, lngMax: -73 },
-    { name: 'Los Angeles Area', latMin: 33, latMax: 35, lngMin: -119, lngMax: -117 },
-    { name: 'Chicago Area', latMin: 41, latMax: 42, lngMin: -88, lngMax: -87 },
-    { name: 'Toronto Area', latMin: 43, latMax: 44, lngMin: -80, lngMax: -79 },
-    { name: 'San Francisco Area', latMin: 37, latMax: 38, lngMin: -123, lngMax: -122 },
-    // Asia
-    { name: 'Tokyo Area', latMin: 35, latMax: 36, lngMin: 139, lngMax: 140 },
-    { name: 'Singapore Area', latMin: 1, latMax: 2, lngMin: 103, lngMax: 104 },
-    { name: 'Hong Kong Area', latMin: 22, latMax: 23, lngMin: 113, lngMax: 115 },
-    { name: 'Seoul Area', latMin: 37, latMax: 38, lngMin: 126, lngMax: 127 },
-    { name: 'Mumbai Area', latMin: 18, latMax: 20, lngMin: 72, lngMax: 73 },
-    { name: 'Dubai Area', latMin: 24, latMax: 26, lngMin: 54, lngMax: 56 },
-    // Australia/Oceania
-    { name: 'Sydney Area', latMin: -34, latMax: -33, lngMin: 150, lngMax: 152 },
-    { name: 'Melbourne Area', latMin: -38, latMax: -37, lngMin: 144, lngMax: 146 },
-    // South America
-    { name: 'São Paulo Area', latMin: -24, latMax: -23, lngMin: -47, lngMax: -46 },
-    { name: 'Buenos Aires Area', latMin: -35, latMax: -34, lngMin: -59, lngMax: -58 },
+    { name: 'New York', lat: 40.7, lng: -74, radius: 1.5 },
+    { name: 'Los Angeles', lat: 34.1, lng: -118.2, radius: 2 },
+    { name: 'Chicago', lat: 41.9, lng: -87.6, radius: 1.5 },
+    { name: 'Toronto', lat: 43.7, lng: -79.4, radius: 1.5 },
+    { name: 'San Francisco', lat: 37.8, lng: -122.4, radius: 1 },
+    { name: 'Miami', lat: 25.8, lng: -80.2, radius: 1.2 },
+    { name: 'Houston', lat: 29.8, lng: -95.4, radius: 1.5 },
+    { name: 'Dallas', lat: 32.8, lng: -96.8, radius: 1.5 },
+    { name: 'Atlanta', lat: 33.7, lng: -84.4, radius: 1.2 },
+    { name: 'Boston', lat: 42.4, lng: -71.1, radius: 1 },
+    { name: 'Seattle', lat: 47.6, lng: -122.3, radius: 1 },
+    { name: 'Denver', lat: 39.7, lng: -105, radius: 1 },
+    { name: 'Phoenix', lat: 33.4, lng: -112.1, radius: 1.2 },
+    { name: 'Montreal', lat: 45.5, lng: -73.6, radius: 1 },
+    { name: 'Vancouver', lat: 49.3, lng: -123.1, radius: 1 },
+    { name: 'Washington DC', lat: 38.9, lng: -77, radius: 1 },
+    { name: 'Philadelphia', lat: 40, lng: -75.2, radius: 1 },
+    { name: 'San Diego', lat: 32.7, lng: -117.2, radius: 1 },
+    { name: 'Mexico City', lat: 19.4, lng: -99.1, radius: 2 },
+    { name: 'Guadalajara', lat: 20.7, lng: -103.3, radius: 1 },
+    
+    // Asia - Major cities
+    { name: 'Tokyo', lat: 35.7, lng: 139.7, radius: 2 },
+    { name: 'Singapore', lat: 1.3, lng: 103.8, radius: 1 },
+    { name: 'Hong Kong', lat: 22.3, lng: 114.2, radius: 1 },
+    { name: 'Seoul', lat: 37.6, lng: 127, radius: 1.5 },
+    { name: 'Mumbai', lat: 19.1, lng: 72.9, radius: 1.5 },
+    { name: 'Dubai', lat: 25.2, lng: 55.3, radius: 1.5 },
+    { name: 'Shanghai', lat: 31.2, lng: 121.5, radius: 2 },
+    { name: 'Beijing', lat: 39.9, lng: 116.4, radius: 2 },
+    { name: 'Bangkok', lat: 13.8, lng: 100.5, radius: 1.5 },
+    { name: 'Kuala Lumpur', lat: 3.1, lng: 101.7, radius: 1 },
+    { name: 'Jakarta', lat: -6.2, lng: 106.8, radius: 2 },
+    { name: 'Manila', lat: 14.6, lng: 121, radius: 1.5 },
+    { name: 'Delhi', lat: 28.6, lng: 77.2, radius: 2 },
+    { name: 'Bangalore', lat: 13, lng: 77.6, radius: 1.5 },
+    { name: 'Chennai', lat: 13.1, lng: 80.3, radius: 1.2 },
+    { name: 'Hyderabad', lat: 17.4, lng: 78.5, radius: 1.2 },
+    { name: 'Osaka', lat: 34.7, lng: 135.5, radius: 1.5 },
+    { name: 'Taipei', lat: 25, lng: 121.5, radius: 1 },
+    { name: 'Ho Chi Minh City', lat: 10.8, lng: 106.6, radius: 1.5 },
+    { name: 'Hanoi', lat: 21, lng: 105.8, radius: 1 },
+    { name: 'Shenzhen', lat: 22.5, lng: 114.1, radius: 1.5 },
+    { name: 'Guangzhou', lat: 23.1, lng: 113.3, radius: 1.5 },
+    { name: 'Kolkata', lat: 22.6, lng: 88.4, radius: 1.5 },
+    { name: 'Abu Dhabi', lat: 24.5, lng: 54.4, radius: 1 },
+    { name: 'Doha', lat: 25.3, lng: 51.5, radius: 1 },
+    { name: 'Riyadh', lat: 24.7, lng: 46.7, radius: 1.5 },
+    { name: 'Tel Aviv', lat: 32.1, lng: 34.8, radius: 1 },
+    { name: 'Istanbul', lat: 41, lng: 29, radius: 2 },
+    
     // Africa
-    { name: 'Cape Town Area', latMin: -35, latMax: -33, lngMin: 18, lngMax: 19 },
-    { name: 'Cairo Area', latMin: 29, latMax: 31, lngMin: 30, lngMax: 32 },
+    { name: 'Cape Town', lat: -33.9, lng: 18.4, radius: 1.5 },
+    { name: 'Cairo', lat: 30, lng: 31.2, radius: 2 },
+    { name: 'Johannesburg', lat: -26.2, lng: 28, radius: 1.5 },
+    { name: 'Lagos', lat: 6.5, lng: 3.4, radius: 2 },
+    { name: 'Nairobi', lat: -1.3, lng: 36.8, radius: 1.5 },
+    { name: 'Casablanca', lat: 33.6, lng: -7.6, radius: 1.5 },
+    { name: 'Accra', lat: 5.6, lng: -0.2, radius: 1 },
+    { name: 'Addis Ababa', lat: 9, lng: 38.7, radius: 1.5 },
+    { name: 'Dar es Salaam', lat: -6.8, lng: 39.3, radius: 1 },
+    { name: 'Durban', lat: -29.9, lng: 31, radius: 1 },
+    { name: 'Algiers', lat: 36.8, lng: 3, radius: 1 },
+    { name: 'Tunis', lat: 36.8, lng: 10.2, radius: 1 },
+    { name: 'Marrakech', lat: 31.6, lng: -8, radius: 1 },
+    
+    // Australia & Oceania
+    { name: 'Sydney', lat: -33.9, lng: 151.2, radius: 2 },
+    { name: 'Melbourne', lat: -37.8, lng: 145, radius: 2 },
+    { name: 'Brisbane', lat: -27.5, lng: 153, radius: 1.5 },
+    { name: 'Perth', lat: -31.9, lng: 115.9, radius: 1.5 },
+    { name: 'Auckland', lat: -36.8, lng: 174.8, radius: 1.5 },
+    { name: 'Wellington', lat: -41.3, lng: 174.8, radius: 1 },
+    
+    // South America
+    { name: 'São Paulo', lat: -23.5, lng: -46.6, radius: 2 },
+    { name: 'Buenos Aires', lat: -34.6, lng: -58.4, radius: 2 },
+    { name: 'Rio de Janeiro', lat: -22.9, lng: -43.2, radius: 1.5 },
+    { name: 'Lima', lat: -12, lng: -77, radius: 1.5 },
+    { name: 'Bogotá', lat: 4.7, lng: -74.1, radius: 1.5 },
+    { name: 'Santiago', lat: -33.4, lng: -70.6, radius: 1.5 },
+    { name: 'Caracas', lat: 10.5, lng: -66.9, radius: 1 },
+    { name: 'Medellín', lat: 6.2, lng: -75.6, radius: 1 },
+    { name: 'Montevideo', lat: -34.9, lng: -56.2, radius: 1 },
+    { name: 'Quito', lat: -0.2, lng: -78.5, radius: 1 },
   ];
   
-  // Check if coordinates match a known region
-  for (const region of regions) {
-    if (lat >= region.latMin && lat <= region.latMax && lng >= region.lngMin && lng <= region.lngMax) {
-      return region.name;
+  // Find the closest city within its radius
+  let closestCity: string | null = null;
+  let closestDistance = Infinity;
+  
+  for (const city of cities) {
+    const distance = Math.sqrt(Math.pow(lat - city.lat, 2) + Math.pow(lng - city.lng, 2));
+    if (distance <= city.radius && distance < closestDistance) {
+      closestCity = city.name;
+      closestDistance = distance;
     }
   }
   
-  // Fallback: Generate general region description based on hemisphere and zone
-  const latZone = lat > 60 ? 'Northern' : lat > 30 ? 'Central' : lat > 0 ? 'Southern' : lat > -30 ? 'Tropical' : 'Southern';
-  const lngZone = lng < -100 ? 'Pacific' : lng < -30 ? 'Americas' : lng < 30 ? 'Atlantic' : lng < 80 ? 'Central' : lng < 140 ? 'Asia' : 'Pacific';
+  if (closestCity) return closestCity;
   
-  return `${latZone} ${lngZone} Region`;
+  // Fallback: Show actual geographic region
+  if (lat > 66) return 'Arctic Region';
+  if (lat < -66) return 'Antarctic Region';
+  
+  // Continental fallbacks
+  if (lng >= -30 && lng <= 60 && lat >= 35 && lat <= 70) return 'Europe';
+  if (lng >= -170 && lng <= -30 && lat >= 15 && lat <= 75) return 'North America';
+  if (lng >= -85 && lng <= -30 && lat >= -60 && lat < 15) return 'South America';
+  if (lng >= 60 && lng <= 150 && lat >= -10 && lat <= 55) return 'Asia';
+  if (lng >= 100 && lng <= 180 && lat >= -50 && lat <= -10) return 'Oceania';
+  if (lng >= -20 && lng <= 55 && lat >= -35 && lat < 35) return 'Africa';
+  if (lng >= 40 && lng <= 80 && lat >= 5 && lat <= 40) return 'Middle East';
+  
+  return 'International Waters';
 };
 
 // City-level data marker (smaller for cleaner look)
