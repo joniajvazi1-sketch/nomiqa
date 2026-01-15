@@ -65,7 +65,7 @@ export const AppChallenges: React.FC = () => {
         {/* Stats Cards */}
         <div className="grid grid-cols-3 gap-3">
           <div className="rounded-2xl bg-card/80 border border-border p-4 text-center">
-            <Flame className="w-5 h-5 text-orange-500 mx-auto mb-2" />
+            <Star className="w-5 h-5 text-yellow-500 mx-auto mb-2" fill="currentColor" />
             <div className="text-xl font-bold text-foreground">{completedTodayCount}</div>
             <div className="text-xs text-muted-foreground">{t('app.challenges.dailyDone')}</div>
           </div>
@@ -93,7 +93,7 @@ export const AppChallenges: React.FC = () => {
             {dailyChallenges.length > 0 && (
               <section>
                 <div className="flex items-center gap-2 mb-3">
-                  <Flame className="w-4 h-4 text-orange-500" />
+                  <Star className="w-4 h-4 text-yellow-500" fill="currentColor" />
                   <h2 className="text-sm font-semibold text-foreground uppercase tracking-wider">{t('app.challenges.daily')}</h2>
                   <span className="text-xs text-muted-foreground ml-auto">{t('app.challenges.resetsIn24h')}</span>
                 </div>
