@@ -499,7 +499,7 @@ export const AppAuth: React.FC = () => {
               <div className="space-y-2">
                 <Button
                   type="button"
-                  className="w-full h-12"
+                  className="w-full h-12 bg-primary text-primary-foreground hover:bg-primary/90"
                   onClick={handleForgotPassword}
                   disabled={loading}
                 >
@@ -517,7 +517,7 @@ export const AppAuth: React.FC = () => {
             ) : (
               <Button
                 type="submit"
-                className="w-full h-12"
+                className="w-full h-12 bg-primary text-primary-foreground hover:bg-primary/90"
                 disabled={loading}
               >
                 {loading ? (
