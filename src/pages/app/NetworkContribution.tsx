@@ -18,6 +18,7 @@ import { useEnhancedHaptics } from '@/hooks/useEnhancedHaptics';
 import { useEnhancedSounds } from '@/hooks/useEnhancedSounds';
 import { useSessionMilestones } from '@/hooks/useSessionMilestones';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
+import { toast } from '@/hooks/use-toast';
 
 import { RewardCelebration } from '@/components/app/RewardCelebration';
 import { PullToRefreshIndicator } from '@/components/app/PullToRefreshIndicator';
@@ -279,8 +280,21 @@ export const NetworkContribution: React.FC = () => {
                 try {
                   const result = await triggerManualSpeedTest();
                   if (result) {
-                    playCoin();
+                    // Haptic feedback for completion
                     successPattern();
+                    playCoin();
+                    
+                    // Show toast with results
+                    toast({
+                      title: "Speed Test Complete ⚡",
+                      description: `↓ ${result.down?.toFixed(1) ?? 'N/A'} Mbps  ↑ ${result.up?.toFixed(1) ?? 'N/A'} Mbps  ${result.latency ? `${result.latency.toFixed(0)}ms` : ''}`,
+                    });
+                  } else {
+                    toast({
+                      title: "Speed Test Failed",
+                      description: "Unable to complete speed test. Please try again.",
+                      variant: "destructive",
+                    });
                   }
                 } finally {
                   setIsRunningSpeedTest(false);
