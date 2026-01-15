@@ -32,6 +32,9 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const isDark = resolvedTheme === 'dark' || theme === 'dark';
   const [safeAreaReady, setSafeAreaReady] = useState(false);
 
+  // WebGL/canvas safety: avoid parent transforms on the map route (prevents blank WebGL on some devices)
+  const isMapRoute = location.pathname === '/app/map';
+
   useEffect(() => {
     // Configure status bar for native app - translucent overlay style
     if (isNative) {
@@ -108,7 +111,11 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         }}
       >
         <SwipeablePages>
-          <PageTransition key={location.pathname}>
+          <PageTransition
+            key={location.pathname}
+            variant={isMapRoute ? 'instant' : 'spring'}
+            disableTransform={isMapRoute}
+          >
             {children}
           </PageTransition>
         </SwipeablePages>

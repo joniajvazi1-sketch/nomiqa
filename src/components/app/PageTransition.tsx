@@ -9,6 +9,8 @@ interface PageTransitionProps {
   transitionKey?: string;
   /** Transition variant: 'fade' | 'slide' | 'scale' | 'spring' */
   variant?: 'fade' | 'slide' | 'scale' | 'spring' | 'instant';
+  /** Disable all transforms (helps WebGL/canvas render reliably on some devices) */
+  disableTransform?: boolean;
 }
 
 // GPU-optimized spring config (compositor-only properties)
@@ -68,11 +70,15 @@ export const PageTransition: React.FC<PageTransitionProps> = ({
   className,
   transitionKey,
   variant = 'spring',
+  disableTransform = false,
 }) => {
   const prefersReducedMotion = useReducedMotion();
   
-  // Use instant variant if user prefers reduced motion
-  const activeVariant = prefersReducedMotion ? 'instant' : variant;
+  // Avoid transforms entirely when requested (WebGL/canvas safety)
+  const activeVariant = disableTransform
+    ? 'instant'
+    : (prefersReducedMotion ? 'instant' : variant);
+
   const config = variants[activeVariant];
 
   return (
@@ -82,12 +88,16 @@ export const PageTransition: React.FC<PageTransitionProps> = ({
       animate={config.animate}
       exit={config.exit}
       transition={config.transition}
-      className={cn('transform-gpu', className)}
-      style={{ 
-        willChange: 'transform, opacity',
-        backfaceVisibility: 'hidden',
-        WebkitBackfaceVisibility: 'hidden',
-      }}
+      className={cn(disableTransform ? undefined : 'transform-gpu', className)}
+      style={
+        disableTransform
+          ? undefined
+          : {
+              willChange: 'transform, opacity',
+              backfaceVisibility: 'hidden',
+              WebkitBackfaceVisibility: 'hidden',
+            }
+      }
     >
       {children}
     </motion.div>

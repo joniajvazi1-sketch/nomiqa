@@ -122,7 +122,9 @@ export const MapboxGlobe: React.FC<MapboxGlobeProps> = ({
         'space-color': 'rgb(5, 10, 18)',
         'star-intensity': 0.7,
       });
-      
+
+      // If the map was initialized while transitioning / offscreen, force a resize
+      map.current.resize();
       setMapLoaded(true);
     });
 
