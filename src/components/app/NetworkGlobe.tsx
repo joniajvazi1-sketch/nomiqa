@@ -227,6 +227,16 @@ const getApproximateLocation = (lat: number, lng: number): string => {
     { name: 'Tbilisi', lat: 41.7, lng: 44.8, radius: 1 },
     { name: 'Yerevan', lat: 40.2, lng: 44.5, radius: 1 },
     
+    // Russia
+    { name: 'Moscow', lat: 55.8, lng: 37.6, radius: 2 },
+    { name: 'St. Petersburg', lat: 59.9, lng: 30.3, radius: 1.5 },
+    { name: 'Novosibirsk', lat: 55, lng: 82.9, radius: 1.2 },
+    { name: 'Kazan', lat: 55.8, lng: 49.1, radius: 1.2 },
+    { name: 'Vladivostok', lat: 43.1, lng: 131.9, radius: 1.2 },
+    { name: 'Yekaterinburg', lat: 56.8, lng: 60.6, radius: 1.2 },
+    { name: 'Sochi', lat: 43.6, lng: 39.7, radius: 1 },
+    { name: 'Kaliningrad', lat: 54.7, lng: 20.5, radius: 1 },
+    
     // Ukraine
     { name: 'Kyiv', lat: 50.4, lng: 30.5, radius: 2 },
     { name: 'Lviv', lat: 49.8, lng: 24, radius: 1.2 },
@@ -306,6 +316,11 @@ const getApproximateLocation = (lat: number, lng: number): string => {
     { name: 'Singapore', lat: 1.3, lng: 103.8, radius: 1 },
     { name: 'Hong Kong', lat: 22.3, lng: 114.2, radius: 1 },
     { name: 'Seoul', lat: 37.6, lng: 127, radius: 1.5 },
+    { name: 'Busan', lat: 35.2, lng: 129, radius: 1.2 },
+    { name: 'Incheon', lat: 37.5, lng: 126.7, radius: 1 },
+    { name: 'Daegu', lat: 35.9, lng: 128.6, radius: 1 },
+    { name: 'Jeju', lat: 33.5, lng: 126.5, radius: 1 },
+    { name: 'Gwangju', lat: 35.2, lng: 126.9, radius: 1 },
     { name: 'Mumbai', lat: 19.1, lng: 72.9, radius: 1.5 },
     { name: 'Dubai', lat: 25.2, lng: 55.3, radius: 1.5 },
     { name: 'Shanghai', lat: 31.2, lng: 121.5, radius: 2 },
