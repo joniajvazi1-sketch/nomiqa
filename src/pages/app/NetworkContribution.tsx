@@ -219,52 +219,106 @@ export const NetworkContribution: React.FC = () => {
         {/* Bottom Control Panel */}
         <div className="px-4 pointer-events-auto space-y-3">
           
-          {/* Speed Test - Prominent at top */}
+          {/* Speed Test - Matching arcade glassmorphism style */}
           <div className="flex justify-center">
-            <button
-              onClick={async () => {
-                if (isRunningSpeedTest) return;
-                buttonTap();
-                setIsRunningSpeedTest(true);
-                try {
-                  const result = await triggerManualSpeedTest();
-                  if (result) {
-                    // Haptic feedback for completion
-                    successPattern();
-                    playCoin();
-                    
-                    // Show toast with results
-                    toast({
-                      title: "Speed Test Complete ⚡",
-                      description: `↓ ${result.down?.toFixed(1) ?? 'N/A'} Mbps  ↑ ${result.up?.toFixed(1) ?? 'N/A'} Mbps  ${result.latency ? `${result.latency.toFixed(0)}ms` : ''}`,
-                    });
-                  } else {
-                    toast({
-                      title: "Speed Test Failed",
-                      description: "Unable to complete speed test. Please try again.",
-                      variant: "destructive",
-                    });
+            <div className="relative">
+              {/* Outer glow frame */}
+              <div 
+                className={cn(
+                  'absolute inset-[-8px] rounded-2xl transition-all duration-500',
+                  'bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-sm',
+                  'border border-white/10',
+                  isRunningSpeedTest && 'animate-pulse'
+                )}
+                style={{
+                  boxShadow: isRunningSpeedTest 
+                    ? '0 0 30px rgba(245, 158, 11, 0.2), inset 0 0 20px rgba(245, 158, 11, 0.1)'
+                    : isCellular
+                      ? '0 0 30px rgba(0, 212, 255, 0.15), inset 0 0 20px rgba(0, 212, 255, 0.08)'
+                      : '0 0 20px rgba(100, 100, 100, 0.1)',
+                }}
+              />
+              
+              {/* Corner accents */}
+              <div className="absolute inset-[-4px] pointer-events-none">
+                <div className={cn(
+                  'absolute top-0 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full transition-colors duration-300',
+                  isRunningSpeedTest ? 'bg-amber-400/60' : isCellular ? 'bg-cyan-400/60' : 'bg-gray-400/30'
+                )} />
+                <div className={cn(
+                  'absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full transition-colors duration-300',
+                  isRunningSpeedTest ? 'bg-amber-400/60' : isCellular ? 'bg-cyan-400/60' : 'bg-gray-400/30'
+                )} />
+              </div>
+              
+              <button
+                onClick={async () => {
+                  if (isRunningSpeedTest) return;
+                  buttonTap();
+                  setIsRunningSpeedTest(true);
+                  try {
+                    const result = await triggerManualSpeedTest();
+                    if (result) {
+                      successPattern();
+                      playCoin();
+                      toast({
+                        title: "Speed Test Complete ⚡",
+                        description: `↓ ${result.down?.toFixed(1) ?? 'N/A'} Mbps  ↑ ${result.up?.toFixed(1) ?? 'N/A'} Mbps  ${result.latency ? `${result.latency.toFixed(0)}ms` : ''}`,
+                      });
+                    } else {
+                      toast({
+                        title: "Speed Test Failed",
+                        description: "Unable to complete speed test. Please try again.",
+                        variant: "destructive",
+                      });
+                    }
+                  } finally {
+                    setIsRunningSpeedTest(false);
                   }
-                } finally {
-                  setIsRunningSpeedTest(false);
-                }
-              }}
-              disabled={!isCellular || isRunningSpeedTest}
-              className={cn(
-                'flex items-center gap-2.5 px-6 py-3 rounded-2xl',
-                'backdrop-blur-xl border shadow-lg transition-all',
-                isRunningSpeedTest 
-                  ? 'bg-amber-500/20 border-amber-500/50 text-amber-400' 
-                  : isCellular 
-                    ? 'bg-cyan-500/20 border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/30'
-                    : 'bg-card/60 border-border text-muted-foreground/50 cursor-not-allowed'
-              )}
-            >
-              <Gauge className={cn("w-5 h-5", isRunningSpeedTest && "animate-pulse")} />
-              <span className="text-sm font-semibold">
-                {isRunningSpeedTest ? 'Running Speed Test...' : 'Run Speed Test'}
-              </span>
-            </button>
+                }}
+                disabled={!isCellular || isRunningSpeedTest}
+                className={cn(
+                  'relative flex items-center gap-2.5 px-6 py-3 rounded-xl',
+                  'backdrop-blur-xl border transition-all duration-200',
+                  'active:scale-95',
+                  isRunningSpeedTest 
+                    ? 'bg-amber-500/20 border-amber-400/30' 
+                    : isCellular 
+                      ? 'bg-cyan-500/20 border-cyan-400/30 hover:bg-cyan-500/30'
+                      : 'bg-white/5 border-white/10 cursor-not-allowed'
+                )}
+                style={{
+                  boxShadow: isRunningSpeedTest 
+                    ? '0 4px 20px rgba(245, 158, 11, 0.25), inset 0 1px 0 rgba(255,255,255,0.15)'
+                    : isCellular
+                      ? '0 4px 20px rgba(0, 212, 255, 0.2), inset 0 1px 0 rgba(255,255,255,0.15)'
+                      : '0 4px 12px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255,255,255,0.1)',
+                }}
+              >
+                {/* Inner glow */}
+                <div 
+                  className={cn(
+                    'absolute inset-0 rounded-xl opacity-40 pointer-events-none',
+                    isRunningSpeedTest 
+                      ? 'bg-gradient-to-b from-amber-400/20 via-transparent to-amber-600/10' 
+                      : isCellular
+                        ? 'bg-gradient-to-b from-cyan-400/20 via-transparent to-cyan-600/10'
+                        : 'bg-gradient-to-b from-white/10 via-transparent to-transparent'
+                  )}
+                />
+                
+                <Gauge className={cn(
+                  "w-5 h-5 relative z-10",
+                  isRunningSpeedTest ? "text-amber-400 animate-spin" : isCellular ? "text-cyan-400" : "text-gray-500"
+                )} />
+                <span className={cn(
+                  "text-sm font-semibold relative z-10 tracking-wide",
+                  isRunningSpeedTest ? "text-amber-400" : isCellular ? "text-cyan-400" : "text-gray-500"
+                )}>
+                  {isRunningSpeedTest ? 'Testing...' : 'Speed Test'}
+                </span>
+              </button>
+            </div>
           </div>
 
           {/* Live Points Counter - when active */}
