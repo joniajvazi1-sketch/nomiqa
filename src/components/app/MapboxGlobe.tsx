@@ -87,7 +87,9 @@ export const MapboxGlobe: React.FC<MapboxGlobeProps> = ({
 
     // Initial zoom: personal view starts zoomed in, global starts zoomed out
     const initialZoom = isPersonalView ? 4 : 1.5;
-    const initialCenter: [number, number] = userPosition || [30, 15];
+    const initialCenter: [number, number] = isPersonalView
+      ? (userPosition ?? [30, 15])
+      : [30, 15];
 
     map.current = new mapboxgl.Map({
       container: mapContainer.current,

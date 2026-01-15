@@ -86,7 +86,7 @@ export const NetworkContribution: React.FC = () => {
   const isActive = session.status === 'active';
   
   const userPosition: [number, number] | null = lastPosition 
-    ? [lastPosition.coords.latitude, lastPosition.coords.longitude]
+    ? [lastPosition.coords.longitude, lastPosition.coords.latitude]
     : null;
 
   // Check milestones during active session
