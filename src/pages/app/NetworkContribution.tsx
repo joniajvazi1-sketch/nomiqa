@@ -25,8 +25,9 @@ import { PullToRefreshIndicator } from '@/components/app/PullToRefreshIndicator'
 import { DataConsentModal, hasDataConsent } from '@/components/app/DataConsentModal';
 import { cn } from '@/lib/utils';
 
-// Lazy load the 3D globe
+// Lazy load the 3D globe and 2D map
 const NetworkGlobe = lazy(() => import('@/components/app/NetworkGlobe'));
+const ContributionMap = lazy(() => import('@/components/app/ContributionMap').then(m => ({ default: m.ContributionMap })));
 
 type CoverageMode = 'personal' | 'global';
 
@@ -153,7 +154,7 @@ export const NetworkContribution: React.FC = () => {
 
   return (
     <div className="relative w-full h-full min-h-screen bg-background overflow-hidden">
-      {/* Full-screen globe - always use 3D globe for both modes */}
+      {/* Map/Globe view - 2D Leaflet for personal, 3D Globe for global */}
       <div className="absolute inset-0 z-0">
         <Suspense fallback={
           <div className="w-full h-full flex items-center justify-center bg-[#0a0f1a]">
@@ -165,33 +166,28 @@ export const NetworkContribution: React.FC = () => {
             </div>
           </div>
         }>
-          <NetworkGlobe 
-            coverageData={
-              coverageMode === 'personal' 
-                ? heatmapPoints.map(p => ({
-                    lat: p.lat,
-                    lng: p.lng,
-                    intensity: p.intensity,
-                    network: 'lte' as const,
-                    count: 1
-                  }))
-                : (globalCoverageData?.cells || [])
-            }
-            loading={coverageMode === 'personal' ? false : globalCoverageLoading}
-            totalDataPoints={
-              coverageMode === 'personal' 
-                ? heatmapPoints.length 
-                : (globalCoverageData?.totalDataPoints || 0)
-            }
-            uniqueLocations={
-              coverageMode === 'personal' 
-                ? heatmapPoints.length 
-                : (globalCoverageData?.uniqueLocations || 0)
-            }
-            coverageAreaKm2={globalCoverageData?.coverageAreaKm2 || 0}
-            isPersonalView={coverageMode === 'personal'}
-            userPosition={userPosition}
-          />
+          {coverageMode === 'personal' ? (
+            /* 2D Leaflet Map for "My Map" - street-level view */
+            <ContributionMap 
+              userPosition={userPosition}
+              isActive={isActive}
+              heatmapPoints={heatmapPoints}
+              showHeatmap={showHeatmap}
+              onToggleHeatmap={() => setShowHeatmap(prev => !prev)}
+              coverageMode="personal"
+            />
+          ) : (
+            /* 3D Globe for "Global" view */
+            <NetworkGlobe 
+              coverageData={globalCoverageData?.cells || []}
+              loading={globalCoverageLoading}
+              totalDataPoints={globalCoverageData?.totalDataPoints || 0}
+              uniqueLocations={globalCoverageData?.uniqueLocations || 0}
+              coverageAreaKm2={globalCoverageData?.coverageAreaKm2 || 0}
+              isPersonalView={false}
+              userPosition={userPosition}
+            />
+          )}
         </Suspense>
       </div>
 
