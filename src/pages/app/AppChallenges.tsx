@@ -64,17 +64,17 @@ export const AppChallenges: React.FC = () => {
       <div className="px-5 py-6 space-y-6">
         {/* Stats Cards */}
         <div className="grid grid-cols-3 gap-3">
-          <div className="rounded-2xl bg-gradient-to-br from-orange-500/10 to-orange-500/5 border border-orange-500/20 p-4 text-center">
+          <div className="rounded-2xl bg-card/80 border border-border p-4 text-center">
             <Flame className="w-5 h-5 text-orange-500 mx-auto mb-2" />
             <div className="text-xl font-bold text-foreground">{completedTodayCount}</div>
             <div className="text-xs text-muted-foreground">{t('app.challenges.dailyDone')}</div>
           </div>
-          <div className="rounded-2xl bg-gradient-to-br from-blue-500/10 to-blue-500/5 border border-blue-500/20 p-4 text-center">
+          <div className="rounded-2xl bg-card/80 border border-border p-4 text-center">
             <Calendar className="w-5 h-5 text-blue-500 mx-auto mb-2" />
             <div className="text-xl font-bold text-foreground">{weeklyChallenges.length}</div>
             <div className="text-xs text-muted-foreground">{t('app.challenges.weekly')}</div>
           </div>
-          <div className="rounded-2xl bg-gradient-to-br from-purple-500/10 to-purple-500/5 border border-purple-500/20 p-4 text-center">
+          <div className="rounded-2xl bg-card/80 border border-border p-4 text-center">
             <Star className="w-5 h-5 text-purple-500 mx-auto mb-2" />
             <div className="text-xl font-bold text-foreground">{specialChallenges.length}</div>
             <div className="text-xs text-muted-foreground">{t('app.challenges.special')}</div>
