@@ -25,8 +25,8 @@ import { PullToRefreshIndicator } from '@/components/app/PullToRefreshIndicator'
 import { DataConsentModal, hasDataConsent } from '@/components/app/DataConsentModal';
 import { cn } from '@/lib/utils';
 
-// Lazy load the 3D globe
-const NetworkGlobe = lazy(() => import('@/components/app/NetworkGlobe'));
+// Lazy load the Mapbox globe
+const MapboxGlobe = lazy(() => import('@/components/app/MapboxGlobe'));
 
 type CoverageMode = 'personal' | 'global';
 
@@ -165,7 +165,7 @@ export const NetworkContribution: React.FC = () => {
             </div>
           </div>
         }>
-          <NetworkGlobe 
+          <MapboxGlobe 
             coverageData={
               coverageMode === 'personal' 
                 ? heatmapPoints.map(p => ({
@@ -188,7 +188,6 @@ export const NetworkContribution: React.FC = () => {
                 ? heatmapPoints.length 
                 : (globalCoverageData?.uniqueLocations || 0)
             }
-            coverageAreaKm2={globalCoverageData?.coverageAreaKm2 || 0}
             isPersonalView={coverageMode === 'personal'}
             userPosition={userPosition}
           />
