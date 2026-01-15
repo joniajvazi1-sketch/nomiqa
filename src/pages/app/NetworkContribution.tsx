@@ -280,43 +280,63 @@ export const NetworkContribution: React.FC = () => {
             </div>
           )}
 
-          {/* Main Control Button - Premium 3D design */}
+          {/* Main Control Button - Modern Glassmorphism Arcade Style */}
           <div className="flex justify-center py-4">
             <div className="relative">
-              {/* Animated pulse ring when active */}
-              {isActive && !isPaused && (
-                <div className="absolute inset-[-16px] rounded-full animate-ping opacity-20 bg-green-500" />
-              )}
-              
-              {/* Outer glow ring with rotation when active */}
+              {/* Outer arcade frame - hexagonal glow effect */}
               <div 
                 className={cn(
-                  'absolute inset-[-12px] rounded-full transition-all duration-500',
-                  isActive && !isPaused && 'animate-[spin_8s_linear_infinite]',
-                  isActive 
-                    ? isPaused 
-                      ? 'bg-gradient-to-r from-amber-500/20 to-orange-500/20 shadow-[0_0_30px_rgba(245,158,11,0.3)]' 
-                      : 'bg-gradient-to-r from-green-500/30 via-emerald-400/10 to-green-500/30 shadow-[0_0_30px_rgba(34,197,94,0.3)]'
-                    : 'bg-gradient-to-r from-red-500/20 to-rose-500/20 shadow-[0_0_30px_rgba(239,68,68,0.3)]'
+                  'absolute inset-[-20px] rounded-[32px] transition-all duration-500',
+                  'bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-sm',
+                  'border border-white/10',
+                  isActive && !isPaused && 'animate-[spin_12s_linear_infinite]'
                 )}
                 style={{
-                  borderWidth: isActive && !isPaused ? '2px' : '0px',
-                  borderStyle: 'dashed',
-                  borderColor: isActive && !isPaused ? 'rgba(74, 222, 128, 0.4)' : 'transparent',
+                  boxShadow: isActive 
+                    ? isPaused
+                      ? '0 0 40px rgba(245, 158, 11, 0.2), inset 0 0 30px rgba(245, 158, 11, 0.1)'
+                      : '0 0 40px rgba(34, 197, 94, 0.2), inset 0 0 30px rgba(34, 197, 94, 0.1)'
+                    : '0 0 40px rgba(239, 68, 68, 0.15), inset 0 0 30px rgba(239, 68, 68, 0.08)',
                 }}
               />
               
-              {/* Secondary ring */}
+              {/* Animated corner accents - arcade style */}
+              <div className="absolute inset-[-14px] pointer-events-none">
+                <div className={cn(
+                  'absolute top-0 left-1/2 -translate-x-1/2 w-8 h-1 rounded-full transition-colors duration-300',
+                  isActive ? isPaused ? 'bg-amber-400/60' : 'bg-green-400/60' : 'bg-red-400/60'
+                )} />
+                <div className={cn(
+                  'absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-1 rounded-full transition-colors duration-300',
+                  isActive ? isPaused ? 'bg-amber-400/60' : 'bg-green-400/60' : 'bg-red-400/60'
+                )} />
+                <div className={cn(
+                  'absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 rounded-full transition-colors duration-300',
+                  isActive ? isPaused ? 'bg-amber-400/60' : 'bg-green-400/60' : 'bg-red-400/60'
+                )} />
+                <div className={cn(
+                  'absolute right-0 top-1/2 -translate-y-1/2 w-1 h-8 rounded-full transition-colors duration-300',
+                  isActive ? isPaused ? 'bg-amber-400/60' : 'bg-green-400/60' : 'bg-red-400/60'
+                )} />
+              </div>
+              
+              {/* Inner glowing ring */}
               <div 
                 className={cn(
-                  'absolute inset-[-6px] rounded-full border-2 transition-all duration-300',
+                  'absolute inset-[-4px] rounded-full transition-all duration-300',
+                  'border-2',
                   isActive 
-                    ? isPaused ? 'border-amber-400/50' : 'border-green-400/50'
-                    : 'border-red-400/50'
+                    ? isPaused ? 'border-amber-400/40' : 'border-green-400/40'
+                    : 'border-red-400/40'
                 )}
               />
               
-              {/* Main button */}
+              {/* Pulse effect when active */}
+              {isActive && !isPaused && (
+                <div className="absolute inset-[-8px] rounded-full animate-ping opacity-10 bg-green-400" />
+              )}
+              
+              {/* Main button - Glassmorphism */}
               <button
                 ref={startButtonRef}
                 onClick={() => {
@@ -335,47 +355,55 @@ export const NetworkContribution: React.FC = () => {
                 }}
                 disabled={!user}
                 className={cn(
-                  'relative w-32 h-32 rounded-full overflow-hidden',
-                  'flex flex-col items-center justify-center gap-2',
-                  'active:scale-95 transition-transform duration-150',
-                  !user && 'opacity-40 cursor-not-allowed'
+                  'relative w-28 h-28 rounded-full overflow-hidden',
+                  'flex flex-col items-center justify-center gap-1',
+                  'active:scale-95 transition-all duration-150',
+                  'backdrop-blur-xl border',
+                  !user && 'opacity-40 cursor-not-allowed',
+                  isActive 
+                    ? isPaused 
+                      ? 'bg-amber-500/20 border-amber-400/30' 
+                      : 'bg-green-500/20 border-green-400/30'
+                    : 'bg-red-500/20 border-red-400/30'
                 )}
                 style={{
-                  background: isActive 
-                    ? isPaused
-                      ? 'linear-gradient(145deg, #fbbf24, #d97706)'
-                      : 'linear-gradient(145deg, #4ade80, #16a34a)'
-                    : 'linear-gradient(145deg, #f87171, #dc2626)',
                   boxShadow: isActive 
                     ? isPaused
-                      ? '0 8px 32px rgba(245, 158, 11, 0.5), inset 0 -4px 12px rgba(0,0,0,0.2), inset 0 4px 8px rgba(255,255,255,0.3)'
-                      : '0 8px 32px rgba(34, 197, 94, 0.5), inset 0 -4px 12px rgba(0,0,0,0.2), inset 0 4px 8px rgba(255,255,255,0.3)'
-                    : '0 8px 32px rgba(239, 68, 68, 0.5), inset 0 -4px 12px rgba(0,0,0,0.2), inset 0 4px 8px rgba(255,255,255,0.3)',
+                      ? '0 8px 32px rgba(245, 158, 11, 0.3), inset 0 1px 0 rgba(255,255,255,0.2)'
+                      : '0 8px 32px rgba(34, 197, 94, 0.3), inset 0 1px 0 rgba(255,255,255,0.2)'
+                    : '0 8px 32px rgba(239, 68, 68, 0.25), inset 0 1px 0 rgba(255,255,255,0.2)',
                 }}
               >
-                {/* Shine overlay */}
+                {/* Inner glow gradient */}
                 <div 
-                  className="absolute inset-0 bg-gradient-to-b from-white/30 via-transparent to-black/10 pointer-events-none"
+                  className={cn(
+                    'absolute inset-0 opacity-40 pointer-events-none',
+                    isActive 
+                      ? isPaused 
+                        ? 'bg-gradient-to-b from-amber-400/30 via-transparent to-amber-600/20' 
+                        : 'bg-gradient-to-b from-green-400/30 via-transparent to-green-600/20'
+                      : 'bg-gradient-to-b from-red-400/30 via-transparent to-red-600/20'
+                  )}
                 />
                 
                 {/* Icon and text */}
-                <div className="relative z-10 flex flex-col items-center gap-1.5">
+                <div className="relative z-10 flex flex-col items-center gap-1">
                   {isActive ? (
                     isPaused ? (
                       <>
-                        <Wifi className="w-10 h-10 text-white drop-shadow-lg" />
-                        <span className="text-sm font-black text-white tracking-wider drop-shadow">PAUSED</span>
+                        <Wifi className={cn('w-9 h-9 drop-shadow-lg', 'text-amber-400')} />
+                        <span className="text-xs font-bold text-amber-400 tracking-widest uppercase">Paused</span>
                       </>
                     ) : (
                       <>
-                        <Pause className="w-10 h-10 text-white drop-shadow-lg" />
-                        <span className="text-sm font-black text-white tracking-wider drop-shadow">STOP</span>
+                        <Pause className={cn('w-9 h-9 drop-shadow-lg', 'text-green-400')} />
+                        <span className="text-xs font-bold text-green-400 tracking-widest uppercase">Stop</span>
                       </>
                     )
                   ) : (
                     <>
-                      <Play className="w-10 h-10 text-white drop-shadow-lg ml-1" />
-                      <span className="text-sm font-black text-white tracking-wider drop-shadow">START</span>
+                      <Play className={cn('w-9 h-9 drop-shadow-lg ml-1', 'text-red-400')} />
+                      <span className="text-xs font-bold text-red-400 tracking-widest uppercase">Start</span>
                     </>
                   )}
                 </div>
