@@ -232,8 +232,8 @@ export const AppCheckout = () => {
         </div>
         
         <div className="relative z-10 text-center w-full max-w-sm">
-          <div className="w-20 h-20 mx-auto mb-6 rounded-3xl bg-white/[0.05] border border-white/[0.08] flex items-center justify-center">
-            <ShoppingCart className="w-10 h-10 text-muted-foreground/50" />
+          <div className="w-20 h-20 mx-auto mb-6 rounded-3xl bg-muted border border-border flex items-center justify-center">
+            <ShoppingCart className="w-10 h-10 text-muted-foreground" />
           </div>
           <h2 className="text-2xl font-bold mb-2 text-foreground">Cart is Empty</h2>
           <p className="text-muted-foreground mb-6">Add some eSIM plans to get started</p>
@@ -273,7 +273,7 @@ export const AppCheckout = () => {
         <header className="flex items-center gap-4">
           <button 
             onClick={() => { navigationTap(); navigate(-1); }}
-            className="w-10 h-10 rounded-xl bg-white/[0.05] border border-white/[0.08] flex items-center justify-center active:scale-90 transition-transform"
+            className="w-10 h-10 rounded-xl bg-muted border border-border flex items-center justify-center active:scale-90 transition-transform"
           >
             <ArrowLeft className="w-5 h-5 text-foreground" />
           </button>
@@ -288,7 +288,7 @@ export const AppCheckout = () => {
           {items.map((item) => (
             <div 
               key={item.product.id} 
-              className="p-4 rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/[0.08]"
+              className="p-4 rounded-2xl bg-card/60 backdrop-blur-xl border border-border"
             >
               <div className="flex items-start gap-4">
                 {/* Product Info */}

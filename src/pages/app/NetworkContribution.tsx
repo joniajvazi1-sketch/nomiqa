@@ -241,11 +241,11 @@ export const NetworkContribution: React.FC = () => {
               onClick={handleToggleCoverageMode}
               className={cn(
                 'flex items-center gap-2 px-3 py-2 rounded-xl',
-                'bg-card/90 backdrop-blur-xl border border-white/20 shadow-lg transition-all'
+                'bg-card/90 backdrop-blur-xl border border-border shadow-lg transition-all'
               )}
             >
-              <Globe className="w-4 h-4" />
-              <span className="text-sm font-medium">Global</span>
+              <Globe className="w-4 h-4 text-foreground" />
+              <span className="text-sm font-medium text-foreground">Global</span>
             </button>
           </div>
         )}
@@ -258,7 +258,7 @@ export const NetworkContribution: React.FC = () => {
                 <Wifi className="w-5 h-5 text-amber-500" />
               </div>
               <div className="flex-1">
-                <p className="text-sm font-semibold text-amber-600">Paused • WiFi Detected</p>
+                <p className="text-sm font-semibold text-amber-600 dark:text-amber-500">Paused • WiFi Detected</p>
                 <p className="text-xs text-amber-500/80">Switch to cellular data to earn points</p>
               </div>
             </div>
@@ -268,8 +268,8 @@ export const NetworkContribution: React.FC = () => {
         {!isOnline && (
           <div className="mx-4 mt-2 pointer-events-auto">
             <Alert className="border-amber-500/30 bg-amber-500/10 backdrop-blur-sm rounded-2xl">
-              <CloudOff className="h-4 w-4 text-amber-400" />
-              <AlertDescription className="text-amber-600 text-sm">
+              <CloudOff className="h-4 w-4 text-amber-500" />
+              <AlertDescription className="text-amber-600 dark:text-amber-500 text-sm">
                 Offline mode • {offlineQueueCount} points queued
               </AlertDescription>
             </Alert>
