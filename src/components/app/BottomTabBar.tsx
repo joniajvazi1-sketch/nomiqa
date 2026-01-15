@@ -43,8 +43,8 @@ export const BottomTabBar: React.FC = () => {
       className="fixed bottom-0 left-0 right-0 z-50"
       style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
     >
-      {/* Glassmorphism background */}
-      <div className="absolute inset-0 bg-[hsl(220,35%,12%,0.85)] backdrop-blur-xl border-t border-white/10" />
+      {/* Glassmorphism background - uses semantic tokens */}
+      <div className="absolute inset-0 bg-card/90 backdrop-blur-xl border-t border-border" />
       
       <div className="relative flex items-stretch h-14">
         {tabs.map((tab) => {
@@ -61,8 +61,8 @@ export const BottomTabBar: React.FC = () => {
                 'flex-1 flex flex-col items-center justify-center gap-0.5',
                 'touch-manipulation min-h-[44px]',
                 'transition-colors duration-150',
-                'active:bg-white/5',
-                active ? 'text-primary' : 'text-white/60'
+                'active:bg-muted/50',
+                active ? 'text-primary' : 'text-muted-foreground'
               )}
             >
               <Icon 
