@@ -28,6 +28,7 @@ import { NotificationSettings } from '@/components/app/NotificationSettings';
 import { DataCollectionControls } from '@/components/app/DataCollectionControls';
 import { ContributorLevelCard } from '@/components/app/ContributorLevelCard';
 import { HelpCenter } from '@/components/app/HelpCenter';
+import { SpeedTestHistory } from '@/components/app/SpeedTestHistory';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -600,6 +601,13 @@ export const AppProfile: React.FC = () => {
 
         {/* Settings Tab */}
         <TabsContent value="settings" className="mt-4 space-y-4">
+          {/* Speed Test History */}
+          <Card className="bg-card/80 backdrop-blur-sm border-border shadow-[var(--shadow-card)]">
+            <CardContent className="p-4">
+              <SpeedTestHistory limit={5} compact />
+            </CardContent>
+          </Card>
+
           {/* Data Collection Controls */}
           <DataCollectionControls />
 
