@@ -1,8 +1,13 @@
 import React, { useRef, useEffect, useState, useMemo } from 'react';
 import mapboxgl from 'mapbox-gl';
+// Ensures Mapbox GL's web worker bundles correctly in Vite (prevents blank/black canvas)
+// @ts-expect-error - Vite worker import
+import MapboxWorker from 'mapbox-gl/dist/mapbox-gl-csp-worker?worker';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { GlobalCoverageCell } from '@/hooks/useGlobalCoverage';
 import { supabase } from '@/integrations/supabase/client';
+
+(mapboxgl as any).workerClass = MapboxWorker;
 
 interface MapboxGlobeProps {
   coverageData: GlobalCoverageCell[];
@@ -102,6 +107,18 @@ export const MapboxGlobe: React.FC<MapboxGlobeProps> = ({
       antialias: true,
     });
 
+    // Keep the map sized correctly (Mapbox can render blank if initialized at 0x0)
+    const ro = new ResizeObserver(() => {
+      map.current?.resize();
+    });
+    ro.observe(mapContainer.current);
+
+    // Surface WebGL/Mapbox errors instead of silently rendering blank
+    map.current.on('error', (e) => {
+      const msg = (e as any)?.error?.message || (e as any)?.message;
+      if (msg) console.error('Mapbox error:', msg);
+    });
+
     // Add navigation controls
     map.current.addControl(
       new mapboxgl.NavigationControl({
@@ -113,7 +130,7 @@ export const MapboxGlobe: React.FC<MapboxGlobeProps> = ({
     // Add atmosphere and fog effects
     map.current.on('style.load', () => {
       if (!map.current) return;
-      
+
       // Beautiful atmosphere effect
       map.current.setFog({
         color: 'rgb(10, 15, 26)',
@@ -124,6 +141,12 @@ export const MapboxGlobe: React.FC<MapboxGlobeProps> = ({
       });
 
       // If the map was initialized while transitioning / offscreen, force a resize
+      map.current.resize();
+    });
+
+    // Consider the map "ready" only when it fully loads
+    map.current.on('load', () => {
+      if (!map.current) return;
       map.current.resize();
       setMapLoaded(true);
     });
