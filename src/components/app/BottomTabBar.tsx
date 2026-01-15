@@ -41,7 +41,12 @@ export const BottomTabBar: React.FC = () => {
   return (
     <nav 
       className="fixed bottom-0 left-0 right-0 z-50"
-      style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+      style={{ 
+        // Safe area for home indicator (iOS) and gesture nav (Android)
+        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+        paddingLeft: 'env(safe-area-inset-left, 0px)',
+        paddingRight: 'env(safe-area-inset-right, 0px)',
+      }}
     >
       {/* Glassmorphism background - uses semantic tokens */}
       <div className="absolute inset-0 bg-card/90 backdrop-blur-xl border-t border-border" />
