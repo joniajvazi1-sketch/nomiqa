@@ -52,7 +52,7 @@ export const AppAchievements: React.FC = () => {
 
   return (
     <div 
-      className="min-h-screen bg-gradient-to-b from-[hsl(220,40%,10%)] via-[hsl(220,40%,8%)] to-[hsl(220,45%,6%)] pb-28 overflow-y-auto app-container momentum-scroll"
+      className="min-h-screen bg-background pb-28 overflow-y-auto app-container momentum-scroll"
       {...handlers}
     >
       <PullToRefreshIndicator 
@@ -62,17 +62,17 @@ export const AppAchievements: React.FC = () => {
       />
       
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-white/5 backdrop-blur-xl border-b border-white/10 px-5 py-4">
+      <header className="sticky top-0 z-50 bg-card/80 backdrop-blur-xl border-b border-border px-5 py-4">
         <div className="flex items-center gap-4">
           <button
             onClick={() => { navigationTap(); playSwoosh(); navigate(-1); }}
-            className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center hover:bg-white/15 active:scale-95 transition-all"
+            className="w-10 h-10 rounded-full bg-muted backdrop-blur-sm border border-border flex items-center justify-center hover:bg-muted/80 active:scale-95 transition-all"
           >
-            <ArrowLeft className="w-5 h-5 text-white" />
+            <ArrowLeft className="w-5 h-5 text-foreground" />
           </button>
           <div>
-            <h1 className="text-xl font-bold text-white">{t('app.achievements')}</h1>
-            <p className="text-sm text-white/60">{unlockedCount} {t('app.achievements.of')} {totalCount} {t('app.achievements.unlocked')}</p>
+            <h1 className="text-xl font-bold text-foreground">{t('app.achievements')}</h1>
+            <p className="text-sm text-muted-foreground">{unlockedCount} {t('app.achievements.of')} {totalCount} {t('app.achievements.unlocked')}</p>
           </div>
         </div>
       </header>
@@ -84,20 +84,20 @@ export const AppAchievements: React.FC = () => {
         )}
 
         {/* Progress Overview */}
-        <div className="rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 p-5">
+        <div className="rounded-2xl bg-card/80 backdrop-blur-xl border border-border p-5">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/30 to-primary/10 border border-primary/30 flex items-center justify-center">
                 <Trophy className="w-6 h-6 text-primary" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-white">{unlockedCount}</div>
-                <div className="text-sm text-white/60">{t('app.achievements.unlocked')}</div>
+                <div className="text-2xl font-bold text-foreground">{unlockedCount}</div>
+                <div className="text-sm text-muted-foreground">{t('app.achievements.unlocked')}</div>
               </div>
             </div>
             <div className="text-right">
-              <div className="text-2xl font-bold text-white/60">{totalCount - unlockedCount}</div>
-              <div className="text-sm text-white/40 flex items-center gap-1 justify-end">
+              <div className="text-2xl font-bold text-muted-foreground">{totalCount - unlockedCount}</div>
+              <div className="text-sm text-muted-foreground/70 flex items-center gap-1 justify-end">
                 <Lock className="w-3 h-3" />
                 {t('app.achievements.locked')}
               </div>
@@ -105,7 +105,7 @@ export const AppAchievements: React.FC = () => {
           </div>
           
           {/* Progress bar */}
-          <div className="h-2 rounded-full bg-white/10 overflow-hidden">
+          <div className="h-2 rounded-full bg-muted overflow-hidden">
             <div 
               className="h-full rounded-full bg-gradient-to-r from-primary to-primary/60 transition-all duration-500"
               style={{ width: `${totalCount > 0 ? (unlockedCount / totalCount) * 100 : 0}%` }}
@@ -117,13 +117,13 @@ export const AppAchievements: React.FC = () => {
         {loading ? (
           <div className="space-y-4">
             {[1, 2, 3].map(i => (
-              <div key={i} className="h-32 rounded-2xl bg-white/5 animate-pulse" />
+              <div key={i} className="h-32 rounded-2xl bg-muted animate-pulse" />
             ))}
           </div>
         ) : (
           Object.entries(grouped).map(([category, items]) => (
             <div key={category}>
-              <h2 className="text-sm font-semibold text-white/50 uppercase tracking-wider mb-3">
+              <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">
                 {categoryLabels[category] || category}
               </h2>
               <div className="grid grid-cols-3 gap-3">
@@ -133,8 +133,8 @@ export const AppAchievements: React.FC = () => {
                       className={cn(
                         "flex flex-col items-center p-3 rounded-2xl border backdrop-blur-sm transition-all",
                         achievement.unlocked 
-                          ? "bg-white/10 border-primary/30" 
-                          : "bg-white/5 border-white/10 opacity-60"
+                          ? "bg-card/80 border-primary/30" 
+                          : "bg-muted/50 border-border opacity-60"
                       )}
                       onClick={() => {
                         if (achievement.unlocked) {
@@ -150,7 +150,7 @@ export const AppAchievements: React.FC = () => {
                         showDetailsOnTap={true}
                       />
                       {!achievement.unlocked && achievement.progress !== undefined && (
-                        <span className="text-[10px] text-white/40 mt-1">
+                        <span className="text-[10px] text-muted-foreground mt-1">
                           {Math.round(achievement.progress)}%
                         </span>
                       )}
