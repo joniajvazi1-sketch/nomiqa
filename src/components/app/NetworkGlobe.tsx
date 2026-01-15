@@ -618,10 +618,16 @@ const DataHotspot: React.FC<{
             <meshBasicMaterial color={baseColor} transparent opacity={0.2} />
           </mesh>
           
-          {/* Shadow/glow at base */}
+          {/* Drop shadow - offset below pin for depth */}
+          <mesh position={[0.006, -pinHeight * 1.1, -0.003]} rotation={[-Math.PI / 2, 0, 0]} scale={[1, 0.6, 1]}>
+            <circleGeometry args={[pinHeadSize * 0.8, 16]} />
+            <meshBasicMaterial color="#000000" transparent opacity={0.25} side={THREE.DoubleSide} />
+          </mesh>
+          
+          {/* Glow at base */}
           <mesh position={[0, -pinHeight * 0.8, 0]} rotation={[-Math.PI / 2, 0, 0]}>
             <circleGeometry args={[pinHeadSize * 1.2, 16]} />
-            <meshBasicMaterial color={baseColor} transparent opacity={0.2} side={THREE.DoubleSide} />
+            <meshBasicMaterial color={baseColor} transparent opacity={0.15} side={THREE.DoubleSide} />
           </mesh>
         </group>
       </group>
@@ -665,11 +671,11 @@ const DataMarkers: React.FC<{
     const filteredCells: typeof cells = [];
     
     // Filter out cells that are too close to each other
-    for (const cell of cells.slice(0, 300)) {
+    for (const cell of cells.slice(0, 400)) {
       const isTooClose = filteredCells.some(existing => {
         const latDiff = Math.abs(existing.lat - cell.lat);
         const lngDiff = Math.abs(existing.lng - cell.lng);
-        return latDiff < 3 && lngDiff < 3; // ~3 degrees apart minimum
+        return latDiff < 1.5 && lngDiff < 1.5; // ~1.5 degrees apart minimum (allows more pins)
       });
       
       if (!isTooClose) {
