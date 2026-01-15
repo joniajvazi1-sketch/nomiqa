@@ -382,48 +382,12 @@ export const ContributionMap: React.FC<ContributionMapProps> = ({
         style={{ height: '100vh', width: '100%' }}
       />
       
-      {/* Coverage Mode Toggle (My Coverage / Global) */}
-      {onToggleCoverageMode && isLoaded && !error && (
-        <div 
-          className="absolute top-4 left-4 right-4 z-20 flex items-center justify-center gap-2"
-          style={{ marginTop: 'env(safe-area-inset-top, 0px)' }}
-        >
-          <div className="flex items-center gap-1 p-1.5 rounded-2xl bg-white/[0.03] backdrop-blur-2xl border border-white/[0.08] shadow-xl">
-            <button
-              onClick={coverageMode === 'personal' ? undefined : onToggleCoverageMode}
-              className={cn(
-                'flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all active:scale-95',
-                coverageMode === 'personal'
-                  ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/30'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-white/[0.05]'
-              )}
-            >
-              <User className="w-4 h-4" />
-              My Coverage
-            </button>
-            <button
-              onClick={coverageMode === 'global' ? undefined : onToggleCoverageMode}
-              className={cn(
-                'flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all active:scale-95',
-                coverageMode === 'global'
-                  ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/30'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-white/[0.05]'
-              )}
-            >
-              <Globe2 className="w-4 h-4" />
-              Global
-              {globalCoverageLoading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Heatmap toggle (personal mode only) */}
+      {/* Heatmap toggle (personal mode only) - single icon button top-right */}
       {onToggleHeatmap && coverageMode === 'personal' && isLoaded && !error && (
         <button
           onClick={onToggleHeatmap}
           className={cn(
-            'absolute top-20 right-4 z-20',
+            'absolute top-4 right-4 z-20',
             'w-12 h-12 rounded-2xl',
             'backdrop-blur-2xl border shadow-xl',
             'flex items-center justify-center',
@@ -471,63 +435,7 @@ export const ContributionMap: React.FC<ContributionMapProps> = ({
         </div>
       )}
       
-      {/* Personal Heatmap legend */}
-      {coverageMode === 'personal' && showHeatmap && heatmapPoints.length > 0 && isLoaded && (
-        <div 
-          className="absolute bottom-24 left-4 right-4 z-20 pointer-events-none animate-fade-in"
-          style={{ marginBottom: 'env(safe-area-inset-bottom, 0px)' }}
-        >
-          <div className="bg-white/[0.03] backdrop-blur-2xl rounded-2xl p-4 border border-white/[0.08]">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-medium text-foreground">Signal Strength</span>
-              <span className="text-xs text-muted-foreground">{heatmapPoints.length} data points</span>
-            </div>
-            <div className="h-2.5 rounded-full overflow-hidden" style={{
-              background: 'linear-gradient(to right, #6366f1, #22d3ee, #10b981, #f59e0b)'
-            }} />
-            <div className="flex justify-between mt-2">
-              <span className="text-[10px] text-muted-foreground">Weak</span>
-              <span className="text-[10px] text-muted-foreground">Excellent</span>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Global Coverage legend */}
-      {coverageMode === 'global' && globalCoverage.length > 0 && isLoaded && !error && (
-        <div 
-          className="absolute bottom-24 left-4 right-4 z-20 pointer-events-none animate-fade-in"
-          style={{ marginBottom: 'env(safe-area-inset-bottom, 0px)' }}
-        >
-          <div className="bg-white/[0.03] backdrop-blur-2xl rounded-2xl p-4 border border-white/[0.08]">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-medium text-foreground">Network Types</span>
-              <span className="text-xs text-muted-foreground">
-                {globalCoverage.length} locations
-              </span>
-            </div>
-            <div className="flex items-center justify-around">
-              {Object.entries(NETWORK_COLORS).filter(([k]) => k !== 'other').map(([network, color]) => (
-                <div 
-                  key={network} 
-                  className={cn(
-                    "flex items-center gap-2 px-3 py-1.5 rounded-xl transition-all",
-                    networkFilter === network ? "bg-white/[0.08]" : ""
-                  )}
-                >
-                  <div 
-                    className="w-3 h-3 rounded-full shadow-lg" 
-                    style={{ backgroundColor: color, boxShadow: `0 0 10px ${color}40` }}
-                  />
-                  <span className="text-xs font-mono font-semibold text-foreground">
-                    {network.toUpperCase()}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Legends removed - they overlap with NetworkContribution bottom controls */}
       
       {/* Error fallback */}
       {error && (
