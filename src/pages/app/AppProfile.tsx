@@ -314,11 +314,7 @@ export const AppProfile: React.FC = () => {
   return (
     <div className="px-4 py-6 space-y-5 pb-24 min-h-screen overflow-y-auto">
       {/* Header with glassmorphism */}
-      <div className="relative rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 dark:bg-white/10 dark:border-white/20 light:bg-white/70 light:border-black/10 p-4 overflow-hidden shadow-[var(--shadow-card)]">
-        {/* Subtle background glow */}
-        <div className="absolute top-0 right-0 w-24 h-24 rounded-full opacity-20 pointer-events-none"
-          style={{ background: `radial-gradient(circle, ${tierConfig.color.includes('amber') ? '#f59e0b' : tierConfig.color.includes('violet') ? '#8b5cf6' : '#14b8a6'} 0%, transparent 70%)` }}
-        />
+      <div className="relative rounded-2xl bg-card/80 backdrop-blur-xl border border-border p-4 overflow-hidden shadow-[var(--shadow-card)]">
         
         <div className="relative z-10 flex items-center gap-4">
           <div className={cn("w-16 h-16 rounded-full flex items-center justify-center ring-2 ring-offset-2 ring-offset-transparent", tierConfig.bg, `ring-current ${tierConfig.color}`)}>

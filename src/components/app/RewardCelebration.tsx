@@ -46,9 +46,9 @@ export const RewardCelebration: React.FC<RewardCelebrationProps> = ({
       case 'achievement':
         return <Trophy className="w-8 h-8 text-amber-400" />;
       case 'session-end':
-        return <Star className="w-8 h-8 text-neon-cyan" />;
+        return <Star className="w-8 h-8 text-primary" />;
       default:
-        return <Zap className="w-8 h-8 text-neon-cyan" />;
+        return <Zap className="w-8 h-8 text-primary" />;
     }
   };
 
@@ -71,21 +71,18 @@ export const RewardCelebration: React.FC<RewardCelebrationProps> = ({
         <div className="fixed inset-0 z-50 pointer-events-none flex items-center justify-center">
           <div 
             className={cn(
-              'bg-background/90 backdrop-blur-xl border-2 border-neon-cyan/50 rounded-2xl p-6',
-              'shadow-[0_0_50px_rgba(0,255,255,0.3)] animate-bounce-in'
+              'bg-card/95 backdrop-blur-xl border border-border rounded-2xl p-6',
+              'shadow-lg animate-scale-in'
             )}
           >
           <div className="flex flex-col items-center gap-3">
               <div className="relative">
-                <div className="absolute inset-0 animate-ping">
-                  {getIcon()}
-                </div>
                 {getIcon()}
                 {/* Particle burst around icon */}
                 <ParticleEffect 
                   trigger={showParticles} 
                   count={16} 
-                  color={type === 'achievement' ? 'hsl(45, 93%, 47%)' : 'hsl(var(--neon-cyan))'} 
+                  color={type === 'achievement' ? 'hsl(45, 93%, 47%)' : 'hsl(var(--primary))'} 
                 />
               </div>
               
@@ -94,7 +91,7 @@ export const RewardCelebration: React.FC<RewardCelebrationProps> = ({
                   {getMessage()}
                 </div>
                 <div 
-                  className="text-3xl font-bold text-neon-cyan mt-1"
+                  className="text-3xl font-bold text-primary mt-1"
                   style={{ fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace' }}
                 >
                   +{points.toFixed(0)}
