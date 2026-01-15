@@ -62,9 +62,10 @@ const OFFLINE_QUEUE_KEY = 'nomiqa_offline_contribution_queue';
 const SPEED_TEST_INTERVAL = 10 * 60 * 1000; // Run speed test every 10 minutes
 const SPEED_TEST_BONUS_POINTS = 2; // Bonus points per speed test
 const PREMIUM_SPEED_THRESHOLD = 50; // Mbps - extra bonus for fast connections
-const DAILY_SPEED_TEST_LIMIT = 9999; // Unlimited for testing - TODO: Set back to 5 for production
+const DAILY_SPEED_TEST_LIMIT = 10; // Server enforces this - matches MAX_SPEED_TESTS_PER_DAY in edge function
 const SPEED_TEST_DAILY_KEY = 'nomiqa_speed_tests_today';
 const MAX_SESSION_DURATION_MS = 4 * 60 * 60 * 1000; // 4 hours max session before auto-expiry
+const MAX_OFFLINE_QUEUE_SIZE = 1000; // FIFO cap to prevent localStorage overflow
 
 /**
  * Check if connection type is cellular (earns points)
@@ -530,10 +531,34 @@ export const useNetworkContribution = () => {
 
   const saveOfflineQueue = (queue: OfflineQueueItem[]) => {
     try {
-      localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(queue));
-      setOfflineQueueCount(queue.length);
+      // P1.2: FIFO cap - drop oldest items if queue exceeds max size
+      let trimmedQueue = queue;
+      if (queue.length > MAX_OFFLINE_QUEUE_SIZE) {
+        const excess = queue.length - MAX_OFFLINE_QUEUE_SIZE;
+        trimmedQueue = queue.slice(excess); // Keep newest items
+        console.warn(`[OfflineQueue] Exceeded max size (${MAX_OFFLINE_QUEUE_SIZE}). Dropped ${excess} oldest items.`);
+      }
+      
+      localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(trimmedQueue));
+      setOfflineQueueCount(trimmedQueue.length);
+      
+      // Warn user when queue is getting full (>80% capacity)
+      if (trimmedQueue.length > MAX_OFFLINE_QUEUE_SIZE * 0.8) {
+        console.warn(`[OfflineQueue] Queue at ${trimmedQueue.length}/${MAX_OFFLINE_QUEUE_SIZE} (${Math.round(trimmedQueue.length / MAX_OFFLINE_QUEUE_SIZE * 100)}% full)`);
+      }
     } catch (error) {
       console.error('Failed to save offline queue:', error);
+      // P1.2: If localStorage is full (QuotaExceededError), aggressively trim
+      if (error instanceof DOMException && error.name === 'QuotaExceededError') {
+        console.warn('[OfflineQueue] localStorage quota exceeded - trimming to 500 items');
+        try {
+          const reducedQueue = queue.slice(-500); // Keep only last 500
+          localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(reducedQueue));
+          setOfflineQueueCount(reducedQueue.length);
+        } catch (retryError) {
+          console.error('[OfflineQueue] Failed even after trimming:', retryError);
+        }
+      }
     }
   };
 
@@ -574,10 +599,15 @@ export const useNetworkContribution = () => {
     const queue = getOfflineQueue();
     if (queue.length === 0) return;
 
+    console.log(`[OfflineQueue] Syncing ${queue.length} items...`);
+
     try {
       // Separate telco and basic data
       const telcoData = queue.filter(item => item.type === 'telco');
       const basicData = queue.filter(item => item.type === 'basic');
+      
+      let successfulTelco = 0;
+      let successfulBasic = 0;
       
       // Sync telco data via edge function (handles validation, geohash, country_code)
       if (telcoData.length > 0) {
@@ -629,28 +659,45 @@ export const useNetworkContribution = () => {
         });
         
         if (telcoError) {
-          console.error('Failed to sync telco data:', telcoError);
-          return; // Don't clear queue if sync failed
+          console.error('[OfflineQueue] Failed to sync telco data:', telcoError);
+          // P1.2: Partial retry - check if it's a rate limit error
+          if (telcoError.message?.includes('429') || telcoError.message?.includes('daily_limit')) {
+            console.log('[OfflineQueue] Daily limit reached - keeping queue for tomorrow');
+            return; // Don't clear queue
+          }
+        } else {
+          const result = data?.signal_logs;
+          successfulTelco = result?.inserted || 0;
+          console.log(`[OfflineQueue] Synced ${successfulTelco} signal logs, rejected ${result?.rejected || 0}`);
         }
-        
-        const result = data?.signal_logs;
-        console.log(`Synced ${result?.inserted || 0} signal logs, rejected ${result?.rejected || 0}`);
       }
       
       // Sync basic data via edge function
       if (basicData.length > 0) {
-        const { error } = await supabase.functions.invoke('sync-contribution-data', {
+        const { data, error } = await supabase.functions.invoke('sync-contribution-data', {
           body: { contributions: basicData }
         });
         
-        if (error) throw error;
+        if (error) {
+          console.error('[OfflineQueue] Failed to sync basic data:', error);
+          // P1.2: Partial success - only clear telco items if basic failed
+          if (successfulTelco > 0) {
+            const remainingQueue = queue.filter(item => item.type === 'basic');
+            saveOfflineQueue(remainingQueue);
+            console.log(`[OfflineQueue] Partial sync: cleared ${telcoData.length} telco items, kept ${basicData.length} basic items`);
+            return;
+          }
+          throw error;
+        } else {
+          successfulBasic = data?.synced_count || basicData.length;
+        }
       }
 
-      // Clear synced items
+      // Clear all synced items on full success
       saveOfflineQueue([]);
-      console.log(`Synced ${queue.length} data points (${telcoData.length} telco, ${basicData.length} basic)`);
+      console.log(`[OfflineQueue] Fully synced ${queue.length} data points (${successfulTelco} telco, ${successfulBasic} basic)`);
     } catch (error) {
-      console.error('Failed to sync offline queue:', error);
+      console.error('[OfflineQueue] Failed to sync offline queue:', error);
     }
   };
 

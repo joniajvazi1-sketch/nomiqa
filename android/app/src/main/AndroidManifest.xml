@@ -38,15 +38,16 @@
     <!-- Permissions -->
     <uses-permission android:name="android.permission.INTERNET" />
     
-    <!-- Location permissions for network contribution -->
+    <!-- Location permissions for network coverage mapping -->
+    <!-- See strings.xml for user-facing rationale strings -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
     
-    <!-- Telephony permissions for signal metrics (RSRP, RSRQ, cell ID) -->
+    <!-- Telephony permissions for signal quality metrics (RSRP, RSRQ, cell ID) -->
+    <!-- Required for B2B telecom data collection - provides carrier and network info -->
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     
-    <!-- Optional: For precise carrier info on some devices -->
-    <uses-permission android:name="android.permission.READ_PHONE_NUMBERS" />
+    <!-- REMOVED: READ_PHONE_NUMBERS - not needed, raises privacy flags in Play Store review -->
 </manifest>

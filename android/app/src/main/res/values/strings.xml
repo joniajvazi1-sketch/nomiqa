@@ -4,4 +4,9 @@
     <string name="title_activity_main">Nomiqa</string>
     <string name="package_name">com.nomiqa.app</string>
     <string name="custom_url_scheme">com.nomiqa.app</string>
+    
+    <!-- Permission rationale strings for Play Store compliance and in-app explanations -->
+    <string name="location_permission_rationale">Nomiqa uses your location to map mobile network coverage. This helps improve connectivity data for everyone and earns you rewards.</string>
+    <string name="background_location_rationale">Background location allows continuous coverage mapping while you travel, maximizing your rewards. You can disable this anytime in Settings.</string>
+    <string name="phone_state_rationale">Phone state access enables collection of signal quality metrics (RSRP, cell tower info) to create accurate coverage maps for telecom analytics.</string>
 </resources>

@@ -138,6 +138,73 @@ function deriveCountryFromMCC(mcc?: string): string | null {
   return MCC_TO_COUNTRY[mcc] || null;
 }
 
+/**
+ * P1.3: GPS-based country derivation when MCC is unavailable (iOS fallback)
+ * Uses simple bounding box checks for major countries
+ * Returns ISO 3166-1 alpha-2 country code or null
+ */
+function deriveCountryFromCoordinates(lat: number, lng: number): string | null {
+  // Major country bounding boxes (simplified)
+  // Format: [minLat, maxLat, minLng, maxLng, countryCode]
+  const countryBoxes: [number, number, number, number, string][] = [
+    // North America
+    [24, 50, -125, -66, 'US'],  // Continental US
+    [41, 84, -141, -52, 'CA'],  // Canada
+    [14, 33, -118, -86, 'MX'],  // Mexico
+    
+    // Europe
+    [49.5, 59, -8, 2, 'GB'],    // UK
+    [41, 51, -5, 10, 'FR'],     // France
+    [47, 55, 5, 15, 'DE'],      // Germany
+    [35, 47, 6, 19, 'IT'],      // Italy
+    [36, 44, -10, 4, 'ES'],     // Spain
+    [46, 49, 5.5, 10.5, 'CH'],  // Switzerland
+    [46, 55, 9, 17, 'AT'],      // Austria (overlaps but smaller box)
+    [50, 54, 3, 7, 'BE'],       // Belgium
+    [50.5, 53.5, 3, 8, 'NL'],   // Netherlands
+    [54, 58, 8, 15, 'DK'],      // Denmark
+    [56, 70, 4, 31, 'NO'],      // Norway
+    [55, 69, 11, 24, 'SE'],     // Sweden
+    [60, 70, 20, 32, 'FI'],     // Finland
+    [49, 55, 14, 24, 'PL'],     // Poland
+    
+    // Asia Pacific
+    [24, 46, 123, 146, 'JP'],   // Japan
+    [33, 39, 125, 130, 'KR'],   // South Korea
+    [18, 54, 73, 135, 'CN'],    // China
+    [1, 7, 103, 104, 'SG'],     // Singapore
+    [-44, -10, 113, 154, 'AU'], // Australia
+    [-47, -34, 166, 179, 'NZ'], // New Zealand
+    [8, 37, 68, 97, 'IN'],      // India
+    [-11, 6, 95, 141, 'ID'],    // Indonesia
+    [5, 20, 100, 120, 'TH'],    // Thailand + Vietnam area
+    
+    // Middle East
+    [21, 32, 34, 56, 'SA'],     // Saudi Arabia
+    [22, 27, 51, 57, 'AE'],     // UAE
+    [29, 33, 34, 36, 'IL'],     // Israel
+    
+    // South America
+    [-34, 5, -74, -34, 'BR'],   // Brazil
+    [-56, -22, -74, -53, 'AR'], // Argentina
+    [-56, -17, -76, -67, 'CL'], // Chile
+    
+    // Africa
+    [-35, -22, 16, 33, 'ZA'],   // South Africa
+    [22, 32, 25, 37, 'EG'],     // Egypt
+    [4, 14, -17, 17, 'NG'],     // Nigeria area
+  ];
+  
+  // Check against bounding boxes (first match wins)
+  for (const [minLat, maxLat, minLng, maxLng, code] of countryBoxes) {
+    if (lat >= minLat && lat <= maxLat && lng >= minLng && lng <= maxLng) {
+      return code;
+    }
+  }
+  
+  return null;
+}
+
 // Generate geohash (precision 7 = ~153m x 153m)
 const BASE32 = '0123456789bcdefghjkmnpqrstuvwxyz';
 function encodeGeohash(lat: number, lng: number, precision: number = 7): string {
@@ -611,6 +678,60 @@ serve(async (req) => {
 
     const { contributions, signalLogs }: SyncRequest = await req.json();
 
+    // ========================================================================
+    // P0.3: ENFORCE DAILY LIMITS (500 signal logs/day, 10 speed tests/day)
+    // ========================================================================
+    const today = new Date().toISOString().split('T')[0];
+    
+    // Get or create today's limit record
+    const { data: existingLimits } = await supabase
+      .from('user_daily_limits')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('limit_date', today)
+      .maybeSingle();
+    
+    let currentSignalCount = existingLimits?.signal_logs_count || 0;
+    let currentSpeedTestCount = existingLimits?.speed_tests_count || 0;
+    
+    // Count incoming signal logs and speed tests
+    const incomingSignalLogs = signalLogs?.length || 0;
+    const incomingSpeedTests = signalLogs?.filter(
+      log => log.speed_test_down !== undefined || log.speed_test_up !== undefined
+    ).length || 0;
+    
+    // Check signal log limit
+    if (incomingSignalLogs > 0 && currentSignalCount + incomingSignalLogs > MAX_SIGNAL_LOGS_PER_DAY) {
+      const remaining = Math.max(0, MAX_SIGNAL_LOGS_PER_DAY - currentSignalCount);
+      console.log(`Daily signal log limit reached for user ${user.id}: ${currentSignalCount}/${MAX_SIGNAL_LOGS_PER_DAY}, attempted +${incomingSignalLogs}`);
+      return new Response(
+        JSON.stringify({ 
+          error: 'daily_limit_reached',
+          message: `Daily contribution limit reached (${MAX_SIGNAL_LOGS_PER_DAY} measurements/day). Try again tomorrow!`,
+          remaining,
+          limit: MAX_SIGNAL_LOGS_PER_DAY,
+          current: currentSignalCount
+        }),
+        { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    // Check speed test limit
+    if (incomingSpeedTests > 0 && currentSpeedTestCount + incomingSpeedTests > MAX_SPEED_TESTS_PER_DAY) {
+      const remaining = Math.max(0, MAX_SPEED_TESTS_PER_DAY - currentSpeedTestCount);
+      console.log(`Daily speed test limit reached for user ${user.id}: ${currentSpeedTestCount}/${MAX_SPEED_TESTS_PER_DAY}, attempted +${incomingSpeedTests}`);
+      return new Response(
+        JSON.stringify({ 
+          error: 'speed_test_limit_reached',
+          message: `Daily speed test limit reached (${MAX_SPEED_TESTS_PER_DAY} tests/day). Try again tomorrow!`,
+          remaining,
+          limit: MAX_SPEED_TESTS_PER_DAY,
+          current: currentSpeedTestCount
+        }),
+        { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     // Process signal logs if provided
     let signalLogsResult = { inserted: 0, rejected: 0, flags: [] as string[] };
     
@@ -638,7 +759,14 @@ serve(async (req) => {
         
         // Derive additional fields
         const geohash = encodeGeohash(s.latitude, s.longitude, 7);
-        const countryCode = deriveCountryFromMCC(s.mcc);
+        // P1.3: Try MCC first, fallback to GPS-based country derivation (iOS fallback)
+        let countryCode = deriveCountryFromMCC(s.mcc);
+        if (!countryCode) {
+          countryCode = deriveCountryFromCoordinates(s.latitude, s.longitude);
+          if (countryCode) {
+            allFlags.push('country_from_gps');
+          }
+        }
         const networkGeneration = deriveNetworkGeneration(s.network_type);
         
         validSignalLogs.push({
@@ -711,6 +839,26 @@ serve(async (req) => {
         } else {
           signalLogsResult.inserted = validSignalLogs.length;
           console.log(`Inserted ${validSignalLogs.length} signal logs`);
+          
+          // P0.3: Update daily limits after successful insert
+          const speedTestsInserted = validSignalLogs.filter(
+            (log: Record<string, unknown>) => log.speed_test_down !== undefined || log.speed_test_up !== undefined
+          ).length;
+          
+          await supabase
+            .from('user_daily_limits')
+            .upsert({
+              user_id: user.id,
+              limit_date: today,
+              signal_logs_count: currentSignalCount + validSignalLogs.length,
+              speed_tests_count: currentSpeedTestCount + speedTestsInserted,
+              updated_at: new Date().toISOString()
+            }, { 
+              onConflict: 'user_id,limit_date',
+              ignoreDuplicates: false 
+            });
+          
+          console.log(`Updated daily limits: signals=${currentSignalCount + validSignalLogs.length}/${MAX_SIGNAL_LOGS_PER_DAY}, speed_tests=${currentSpeedTestCount + speedTestsInserted}/${MAX_SPEED_TESTS_PER_DAY}`);
         }
       }
       
