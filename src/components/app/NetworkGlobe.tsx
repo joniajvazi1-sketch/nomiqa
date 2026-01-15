@@ -540,21 +540,22 @@ const DataHotspot: React.FC<{
   isSelected: boolean;
 }> = ({ marker, onSelect, isSelected }) => {
   const groupRef = useRef<THREE.Group>(null);
-  const meshRef = useRef<THREE.Mesh>(null);
-  const glowRef = useRef<THREE.Mesh>(null);
-  const pulseSpeed = useRef(Math.random() * 0.8 + 0.3);
+  const pinRef = useRef<THREE.Group>(null);
+  const pulseSpeed = useRef(Math.random() * 0.5 + 0.2);
   
-  // Fixed small size - doesn't scale with zoom
-  const baseSize = Math.min(0.008 + (marker.count / 80) * 0.006, 0.025);
+  // Pin size based on data count
+  const pinHeadSize = Math.min(0.012 + (marker.count / 100) * 0.008, 0.028);
+  const pinHeight = pinHeadSize * 2.5;
   
   useFrame((state) => {
-    if (meshRef.current && glowRef.current) {
-      const pulse = Math.sin(state.clock.elapsedTime * pulseSpeed.current) * 0.08 + 0.96;
-      meshRef.current.scale.setScalar(isSelected ? 1.3 : pulse);
-      glowRef.current.scale.setScalar(isSelected ? 1.5 : pulse * 1.2);
+    // Subtle bounce animation
+    if (pinRef.current) {
+      const bounce = Math.sin(state.clock.elapsedTime * pulseSpeed.current) * 0.002;
+      pinRef.current.position.y = bounce;
+      pinRef.current.scale.setScalar(isSelected ? 1.2 : 1);
     }
     
-    // Billboard effect - always face camera to prevent distortion when zoomed
+    // Billboard effect - pin always faces camera
     if (groupRef.current) {
       groupRef.current.quaternion.copy(state.camera.quaternion);
     }
@@ -562,6 +563,7 @@ const DataHotspot: React.FC<{
 
   // Color based on intensity - green=high, cyan=medium, purple=new
   const color = marker.intensity > 0.7 ? '#22c55e' : marker.intensity > 0.4 ? '#06b6d4' : '#a855f7';
+  const darkColor = marker.intensity > 0.7 ? '#16a34a' : marker.intensity > 0.4 ? '#0891b2' : '#9333ea';
 
   return (
     <group 
@@ -573,26 +575,34 @@ const DataHotspot: React.FC<{
     >
       {/* Billboard group - faces camera */}
       <group ref={groupRef}>
-        {/* Core point - use circle instead of sphere for cleaner look when zoomed */}
-        <mesh ref={meshRef}>
-          <circleGeometry args={[baseSize, 16]} />
-          <meshBasicMaterial color={color} side={THREE.DoubleSide} />
-        </mesh>
-        
-        {/* Inner glow */}
-        <mesh ref={glowRef}>
-          <circleGeometry args={[baseSize * 1.8, 16]} />
-          <meshBasicMaterial color={color} transparent opacity={0.35} side={THREE.DoubleSide} />
-        </mesh>
-        
-        {/* Outer glow - very subtle */}
-        <mesh>
-          <circleGeometry args={[baseSize * 3, 16]} />
-          <meshBasicMaterial color={color} transparent opacity={0.08} side={THREE.DoubleSide} />
-        </mesh>
+        <group ref={pinRef}>
+          {/* Pin needle/stem - thin cylinder pointing down */}
+          <mesh position={[0, -pinHeight * 0.4, 0]}>
+            <cylinderGeometry args={[pinHeadSize * 0.15, pinHeadSize * 0.08, pinHeight * 0.8, 8]} />
+            <meshBasicMaterial color={darkColor} />
+          </mesh>
+          
+          {/* Pin head - larger sphere at top */}
+          <mesh position={[0, pinHeight * 0.1, 0]}>
+            <sphereGeometry args={[pinHeadSize, 16, 12]} />
+            <meshBasicMaterial color={color} />
+          </mesh>
+          
+          {/* Pin head highlight - inner shine */}
+          <mesh position={[0, pinHeight * 0.1 + pinHeadSize * 0.3, pinHeadSize * 0.2]}>
+            <sphereGeometry args={[pinHeadSize * 0.3, 8, 6]} />
+            <meshBasicMaterial color="#ffffff" transparent opacity={0.6} />
+          </mesh>
+          
+          {/* Shadow/glow at base */}
+          <mesh position={[0, -pinHeight * 0.8, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+            <circleGeometry args={[pinHeadSize * 1.2, 16]} />
+            <meshBasicMaterial color={color} transparent opacity={0.2} side={THREE.DoubleSide} />
+          </mesh>
+        </group>
       </group>
       
-      {/* Popup when selected - shows city/region name, NOT coordinates */}
+      {/* Popup when selected - shows city/region name */}
       {isSelected && (
         <Html center distanceFactor={4}>
           <div 
@@ -612,7 +622,6 @@ const DataHotspot: React.FC<{
     </group>
   );
 };
-
 // Real data markers from database
 const DataMarkers: React.FC<{
   cells: GlobalCoverageCell[];
