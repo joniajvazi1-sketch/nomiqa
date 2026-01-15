@@ -64,5 +64,18 @@
 		<string>location</string>
 		<string>fetch</string>
 	</array>
+	
+	<!-- URL Scheme for OAuth deep linking -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.nomiqa.app</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.nomiqa.app</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

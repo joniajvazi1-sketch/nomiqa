@@ -21,6 +21,7 @@ import {
 import { useAffiliateTracking } from '@/hooks/useAffiliateTracking';
 import { UsernameSelection } from '@/components/UsernameSelection';
 import { EmailVerification } from '@/components/EmailVerification';
+import { Capacitor } from '@capacitor/core';
 
 /**
  * In-App Auth Page - Matches app glassmorphism design
@@ -297,10 +298,20 @@ export const AppAuth: React.FC = () => {
     buttonTap();
     setLoading(true);
     try {
+      // For native apps, use the custom URL scheme for OAuth redirect
+      // This ensures the OAuth flow returns to the app instead of the website
+      const isNativeApp = Capacitor.isNativePlatform();
+      const redirectTo = isNativeApp 
+        ? 'com.nomiqa.app://app/auth' 
+        : `${window.location.origin}/app/auth`;
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/app/auth`,
+          redirectTo,
+          // Skip the browser tab for native - it will open in system browser
+          // and redirect back via deep link
+          skipBrowserRedirect: false,
         }
       });
       if (error) throw error;
