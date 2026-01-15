@@ -28,14 +28,14 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
     mediumTap();
     setIsNavigating(true);
     localStorage.setItem('hasSeenOnboarding', 'true');
-    navigate('/auth?mode=login');
+    navigate('/app/auth?mode=login');
   };
 
   const handleSignUp = () => {
     mediumTap();
     setIsNavigating(true);
     localStorage.setItem('hasSeenOnboarding', 'true');
-    navigate('/auth?mode=signup');
+    navigate('/app/auth?mode=signup');
   };
 
   const handleSkip = () => {
@@ -49,17 +49,23 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[100] bg-gradient-to-b from-background via-background to-primary/5"
+      className="fixed inset-0 z-[100] bg-background overflow-hidden"
     >
+      {/* Opaque background to prevent bleed-through */}
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-background to-primary/5" />
+      
       <div 
-        className="h-full flex flex-col items-center justify-between px-6"
+        className="relative h-full flex flex-col items-center justify-center px-6 overflow-hidden"
         style={{ 
-          paddingTop: 'calc(env(safe-area-inset-top, 0px) + 3rem)', 
-          paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 2rem)' 
+          paddingTop: 'calc(env(safe-area-inset-top, 0px) + 1rem)', 
+          paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 1rem)' 
         }}
       >
-        {/* Skip button - top right */}
-        <div className="absolute top-0 left-0 right-0 z-10 px-6 pt-14">
+        {/* Skip button - top left, positioned absolutely */}
+        <div 
+          className="absolute top-0 left-0 right-0 z-10 px-6"
+          style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 0.75rem)' }}
+        >
           <button
             onClick={handleSkip}
             className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
@@ -68,24 +74,24 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
           </button>
         </div>
 
-        {/* Top: Icon + Branding */}
+        {/* Icon + Branding - Compact, no extra padding */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="flex flex-col items-center pt-12"
+          className="flex flex-col items-center mb-6"
         >
           {/* Animated icon */}
-          <div className="relative mb-6">
-            <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-2xl shadow-primary/30">
-              <Signal className="w-12 h-12 text-white" />
+          <div className="relative mb-4">
+            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-xl shadow-primary/20">
+              <Signal className="w-10 h-10 text-white" />
             </div>
-            <div className="absolute -bottom-2 -right-2 w-10 h-10 rounded-xl bg-gradient-to-br from-green-400 to-green-500 flex items-center justify-center shadow-lg">
-              <Coins className="w-5 h-5 text-white" />
+            <div className="absolute -bottom-1.5 -right-1.5 w-8 h-8 rounded-lg bg-gradient-to-br from-green-400 to-green-500 flex items-center justify-center shadow-md">
+              <Coins className="w-4 h-4 text-white" />
             </div>
           </div>
           
-          <h2 className="text-lg font-bold text-primary tracking-wide">NOMIQA</h2>
+          <h2 className="text-base font-bold text-primary tracking-wide">NOMIQA</h2>
         </motion.div>
 
         {/* Center: Bold Headline */}
@@ -93,25 +99,25 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2 }}
-          className="text-center space-y-4 -mt-8"
+          className="text-center space-y-3 mb-8"
         >
-          <h1 className="text-4xl font-extrabold text-foreground leading-tight tracking-tight">
+          <h1 className="text-3xl font-extrabold text-foreground leading-tight tracking-tight">
             Turn Your Signal<br />
             <span className="text-primary">Into Rewards</span>
           </h1>
           
-          <p className="text-lg text-muted-foreground font-medium max-w-xs mx-auto">
+          <p className="text-base text-muted-foreground font-medium max-w-[280px] mx-auto">
             Earn points just by carrying your phone. No effort needed.
           </p>
 
           {/* Trust indicators */}
-          <div className="flex items-center justify-center gap-4 pt-4">
-            <div className="flex items-center gap-1.5 text-sm text-green-600 font-semibold">
-              <span className="w-2 h-2 rounded-full bg-green-500" />
+          <div className="flex items-center justify-center gap-4 pt-2">
+            <div className="flex items-center gap-1.5 text-xs text-green-600 font-semibold">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
               Privacy First
             </div>
-            <div className="flex items-center gap-1.5 text-sm text-green-600 font-semibold">
-              <span className="w-2 h-2 rounded-full bg-green-500" />
+            <div className="flex items-center gap-1.5 text-xs text-green-600 font-semibold">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
               Low Battery
             </div>
           </div>
@@ -122,7 +128,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="w-full space-y-3"
+          className="w-full space-y-3 max-w-sm"
         >
           {/* Sign Up - Primary CTA */}
           <button
@@ -160,7 +166,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
           </button>
 
           {/* Fine print */}
-          <p className="text-center text-xs text-muted-foreground pt-2">
+          <p className="text-center text-xs text-muted-foreground pt-1">
             By continuing, you agree to our Terms of Service
           </p>
         </motion.div>

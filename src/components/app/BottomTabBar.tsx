@@ -39,19 +39,26 @@ export const BottomTabBar: React.FC = () => {
   };
 
   return (
-    <nav 
-      className="fixed bottom-0 left-0 right-0 z-50"
-      style={{ 
-        // Safe area for home indicator (iOS) and gesture nav (Android)
-        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
-        paddingLeft: 'env(safe-area-inset-left, 0px)',
-        paddingRight: 'env(safe-area-inset-right, 0px)',
-      }}
-    >
-      {/* Glassmorphism background - uses semantic tokens */}
-      <div className="absolute inset-0 bg-card/90 backdrop-blur-xl border-t border-border" />
+    <nav className="fixed bottom-0 left-0 right-0 z-50">
+      {/* Glassmorphism background - extends INTO safe area (behind home indicator) */}
+      <div 
+        className="absolute inset-0 bg-card/95 backdrop-blur-xl border-t border-border"
+        style={{ 
+          bottom: 0,
+          paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 0.5rem)',
+          // Ensure background extends past the actual content
+          minHeight: 'calc(100% + env(safe-area-inset-bottom, 0px))'
+        }}
+      />
       
-      <div className="relative flex items-stretch h-14">
+      {/* Tab content with safe area spacing */}
+      <div 
+        className="relative flex items-stretch h-16"
+        style={{ 
+          paddingLeft: 'env(safe-area-inset-left, 0px)',
+          paddingRight: 'env(safe-area-inset-right, 0px)',
+        }}
+      >
         {tabs.map((tab) => {
           const active = isActive(tab.path);
           const Icon = tab.icon;
@@ -86,6 +93,12 @@ export const BottomTabBar: React.FC = () => {
           );
         })}
       </div>
+      
+      {/* Safe area spacer for home indicator */}
+      <div 
+        className="relative bg-card/95"
+        style={{ height: 'env(safe-area-inset-bottom, 0px)' }} 
+      />
     </nav>
   );
 };
