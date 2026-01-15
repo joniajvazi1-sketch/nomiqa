@@ -9,6 +9,8 @@ import {
   Signal,
   Crown,
   Gift,
+  Target,
+  Trophy,
   ChevronRight,
   Users,
   Share2,
@@ -33,10 +35,6 @@ import { WeeklySummaryModal } from '@/components/app/WeeklySummaryModal';
 import { TOKENOMICS, pointsToUsd } from '@/utils/tokenomics';
 import { useNativeShare } from '@/hooks/useNativeShare';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-
-// Custom feature icons
-import challengesIcon from '@/assets/icons/challenges-icon.png';
-import leaderboardIcon from '@/assets/icons/leaderboard-icon.png';
 
 export const AppHome: React.FC = () => {
   const navigate = useNavigate();
@@ -416,7 +414,7 @@ export const AppHome: React.FC = () => {
                   {unclaimedCount}
                 </span>
               )}
-              <img src={challengesIcon} alt="Challenges" className="w-10 h-10 mx-auto mb-2" />
+              <Target className="w-6 h-6 text-blue-500 mx-auto mb-2" />
               <p className="text-sm font-bold text-foreground">Challenges</p>
               <p className="text-xs font-medium text-muted-foreground">{unclaimedCount > 0 ? 'Claim rewards!' : 'View all'}</p>
             </button>
@@ -425,7 +423,7 @@ export const AppHome: React.FC = () => {
               onClick={() => { mediumTap(); navigate('/app/leaderboard'); }}
               className="rounded-xl bg-card/60 backdrop-blur-sm border border-border p-4 text-center active:scale-95 transition-transform shadow-[var(--shadow-card)]"
             >
-              <img src={leaderboardIcon} alt="Leaderboard" className="w-10 h-10 mx-auto mb-2" />
+              <Trophy className="w-6 h-6 text-amber-500 mx-auto mb-2" />
               <p className="text-sm font-bold text-foreground">Leaderboard</p>
               <p className="text-xs font-medium text-muted-foreground">Compete</p>
             </button>
