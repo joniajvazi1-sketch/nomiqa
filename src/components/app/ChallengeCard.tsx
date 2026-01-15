@@ -25,6 +25,7 @@ interface ChallengeCardProps {
   description: string;
   targetValue: number;
   rewardPoints: number;
+  bonusPoints?: number;
   metricType: string;
   progress: number;
   isCompleted: boolean;
@@ -65,6 +66,7 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({
   description,
   targetValue,
   rewardPoints,
+  bonusPoints = 0,
   metricType,
   progress,
   isCompleted,
@@ -196,6 +198,11 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({
               <span className="text-sm font-semibold text-foreground">
                 +{rewardPoints} pts
               </span>
+              {bonusPoints > 0 && (
+                <span className="text-xs font-semibold text-green-500 bg-green-500/10 px-1.5 py-0.5 rounded">
+                  +{bonusPoints} bonus
+                </span>
+              )}
             </div>
 
             <AnimatePresence mode="wait">
