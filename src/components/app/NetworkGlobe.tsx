@@ -541,18 +541,42 @@ const DataHotspot: React.FC<{
 }> = ({ marker, onSelect, isSelected }) => {
   const groupRef = useRef<THREE.Group>(null);
   const pinRef = useRef<THREE.Group>(null);
-  const pulseSpeed = useRef(Math.random() * 0.5 + 0.2);
+  const headRef = useRef<THREE.Mesh>(null);
+  const glowRef = useRef<THREE.Mesh>(null);
+  const pulseSpeed = useRef(Math.random() * 2 + 1.5);
+  const flashOffset = useRef(Math.random() * Math.PI * 2);
   
   // Pin size based on data count
   const pinHeadSize = Math.min(0.012 + (marker.count / 100) * 0.008, 0.028);
   const pinHeight = pinHeadSize * 2.5;
   
+  // Color based on intensity - green=high, cyan=medium, purple=new
+  const baseColor = marker.intensity > 0.7 ? new THREE.Color('#22c55e') : marker.intensity > 0.4 ? new THREE.Color('#06b6d4') : new THREE.Color('#a855f7');
+  const brightColor = marker.intensity > 0.7 ? new THREE.Color('#4ade80') : marker.intensity > 0.4 ? new THREE.Color('#22d3ee') : new THREE.Color('#c084fc');
+  const darkColor = marker.intensity > 0.7 ? '#16a34a' : marker.intensity > 0.4 ? '#0891b2' : '#9333ea';
+  
   useFrame((state) => {
+    const time = state.clock.elapsedTime;
+    
+    // Flash/pulse effect - oscillates between base and bright color
+    const flash = (Math.sin(time * pulseSpeed.current + flashOffset.current) + 1) / 2;
+    
+    if (headRef.current && headRef.current.material) {
+      const mat = headRef.current.material as THREE.MeshBasicMaterial;
+      mat.color.lerpColors(baseColor, brightColor, flash * 0.6);
+    }
+    
+    // Glow pulse
+    if (glowRef.current && glowRef.current.material) {
+      const mat = glowRef.current.material as THREE.MeshBasicMaterial;
+      mat.opacity = 0.15 + flash * 0.25;
+    }
+    
     // Subtle bounce animation
     if (pinRef.current) {
-      const bounce = Math.sin(state.clock.elapsedTime * pulseSpeed.current) * 0.002;
+      const bounce = Math.sin(time * pulseSpeed.current * 0.5 + flashOffset.current) * 0.003;
       pinRef.current.position.y = bounce;
-      pinRef.current.scale.setScalar(isSelected ? 1.2 : 1);
+      pinRef.current.scale.setScalar(isSelected ? 1.2 : 1 + flash * 0.08);
     }
     
     // Billboard effect - pin always faces camera
@@ -560,10 +584,6 @@ const DataHotspot: React.FC<{
       groupRef.current.quaternion.copy(state.camera.quaternion);
     }
   });
-
-  // Color based on intensity - green=high, cyan=medium, purple=new
-  const color = marker.intensity > 0.7 ? '#22c55e' : marker.intensity > 0.4 ? '#06b6d4' : '#a855f7';
-  const darkColor = marker.intensity > 0.7 ? '#16a34a' : marker.intensity > 0.4 ? '#0891b2' : '#9333ea';
 
   return (
     <group 
@@ -582,10 +602,10 @@ const DataHotspot: React.FC<{
             <meshBasicMaterial color={darkColor} />
           </mesh>
           
-          {/* Pin head - larger sphere at top */}
-          <mesh position={[0, pinHeight * 0.1, 0]}>
+          {/* Pin head - larger sphere at top with flash effect */}
+          <mesh ref={headRef} position={[0, pinHeight * 0.1, 0]}>
             <sphereGeometry args={[pinHeadSize, 16, 12]} />
-            <meshBasicMaterial color={color} />
+            <meshBasicMaterial color={baseColor} />
           </mesh>
           
           {/* Pin head highlight - inner shine */}
@@ -594,10 +614,16 @@ const DataHotspot: React.FC<{
             <meshBasicMaterial color="#ffffff" transparent opacity={0.6} />
           </mesh>
           
+          {/* Pulsing glow ring around pin */}
+          <mesh ref={glowRef} position={[0, pinHeight * 0.1, 0]}>
+            <sphereGeometry args={[pinHeadSize * 1.6, 16, 12]} />
+            <meshBasicMaterial color={baseColor} transparent opacity={0.2} />
+          </mesh>
+          
           {/* Shadow/glow at base */}
           <mesh position={[0, -pinHeight * 0.8, 0]} rotation={[-Math.PI / 2, 0, 0]}>
             <circleGeometry args={[pinHeadSize * 1.2, 16]} />
-            <meshBasicMaterial color={color} transparent opacity={0.2} side={THREE.DoubleSide} />
+            <meshBasicMaterial color={baseColor} transparent opacity={0.2} side={THREE.DoubleSide} />
           </mesh>
         </group>
       </group>
@@ -622,6 +648,7 @@ const DataHotspot: React.FC<{
     </group>
   );
 };
+
 // Real data markers from database
 const DataMarkers: React.FC<{
   cells: GlobalCoverageCell[];
