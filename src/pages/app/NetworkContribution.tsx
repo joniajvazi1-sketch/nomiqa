@@ -64,6 +64,7 @@ export const NetworkContribution: React.FC = () => {
   const [isRunningSpeedTest, setIsRunningSpeedTest] = useState(false);
   const [speedTestProgress, setSpeedTestProgress] = useState(0);
   const [speedTestPhase, setSpeedTestPhase] = useState<'idle' | 'latency' | 'download' | 'upload'>('idle');
+  const [liveSpeed, setLiveSpeed] = useState<{ down?: number; up?: number; latency?: number }>({});
 
   const {
     data: globalCoverageData,
@@ -220,8 +221,121 @@ export const NetworkContribution: React.FC = () => {
         {/* Bottom Control Panel */}
         <div className="px-4 pointer-events-auto space-y-3">
           
-          {/* Speed Test - Matching arcade glassmorphism style with progress bar */}
-          <div className="flex justify-center">
+          {/* Control Panel - Side by side buttons */}
+          <div className="flex items-center justify-center gap-4 py-4">
+            
+            {/* Start/Stop Button - Matching glassmorphism style */}
+            <div className="relative">
+              {/* Outer glow frame */}
+              <div 
+                className={cn(
+                  'absolute inset-[-8px] rounded-2xl transition-all duration-500',
+                  'bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-sm',
+                  'border border-white/10'
+                )}
+                style={{
+                  boxShadow: isActive 
+                    ? isPaused
+                      ? '0 0 30px rgba(245, 158, 11, 0.2), inset 0 0 20px rgba(245, 158, 11, 0.1)'
+                      : '0 0 30px rgba(34, 197, 94, 0.2), inset 0 0 20px rgba(34, 197, 94, 0.1)'
+                    : '0 0 30px rgba(239, 68, 68, 0.15), inset 0 0 20px rgba(239, 68, 68, 0.08)',
+                }}
+              />
+              
+              {/* Corner accents */}
+              <div className="absolute inset-[-4px] pointer-events-none">
+                <div className={cn(
+                  'absolute top-0 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full transition-colors duration-300',
+                  isActive ? isPaused ? 'bg-amber-400/60' : 'bg-green-400/60' : 'bg-red-400/60'
+                )} />
+                <div className={cn(
+                  'absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full transition-colors duration-300',
+                  isActive ? isPaused ? 'bg-amber-400/60' : 'bg-green-400/60' : 'bg-red-400/60'
+                )} />
+              </div>
+              
+              <button
+                ref={startButtonRef}
+                onClick={() => {
+                  buttonTap();
+                  if (isActive) {
+                    handleStopContribution();
+                    playSuccess();
+                  } else {
+                    if (!consentGiven) {
+                      setShowConsentModal(true);
+                      return;
+                    }
+                    startContribution();
+                    playCoin();
+                  }
+                }}
+                disabled={!user}
+                className={cn(
+                  'relative flex flex-col items-center gap-1.5 px-6 py-4 rounded-xl min-w-[120px]',
+                  'backdrop-blur-xl border transition-all duration-200',
+                  'active:scale-95',
+                  !user && 'opacity-40 cursor-not-allowed',
+                  isActive 
+                    ? isPaused 
+                      ? 'bg-amber-500/20 border-amber-400/30' 
+                      : 'bg-green-500/20 border-green-400/30'
+                    : 'bg-red-500/20 border-red-400/30'
+                )}
+                style={{
+                  boxShadow: isActive 
+                    ? isPaused
+                      ? '0 4px 20px rgba(245, 158, 11, 0.25), inset 0 1px 0 rgba(255,255,255,0.15)'
+                      : '0 4px 20px rgba(34, 197, 94, 0.25), inset 0 1px 0 rgba(255,255,255,0.15)'
+                    : '0 4px 20px rgba(239, 68, 68, 0.2), inset 0 1px 0 rgba(255,255,255,0.15)',
+                }}
+              >
+                {/* Inner glow */}
+                <div 
+                  className={cn(
+                    'absolute inset-0 rounded-xl opacity-40 pointer-events-none',
+                    isActive 
+                      ? isPaused 
+                        ? 'bg-gradient-to-b from-amber-400/20 via-transparent to-amber-600/10' 
+                        : 'bg-gradient-to-b from-green-400/20 via-transparent to-green-600/10'
+                      : 'bg-gradient-to-b from-red-400/20 via-transparent to-red-600/10'
+                  )}
+                />
+                
+                {/* Icon and text */}
+                <div className="flex items-center gap-2 relative z-10">
+                  {isActive ? (
+                    isPaused ? (
+                      <Wifi className="w-6 h-6 text-amber-400" />
+                    ) : (
+                      <Pause className="w-6 h-6 text-green-400" />
+                    )
+                  ) : (
+                    <Play className="w-6 h-6 text-red-400 ml-0.5" />
+                  )}
+                  <span className={cn(
+                    "text-sm font-bold tracking-wide uppercase",
+                    isActive 
+                      ? isPaused ? "text-amber-400" : "text-green-400"
+                      : "text-red-400"
+                  )}>
+                    {isActive ? (isPaused ? 'Paused' : 'Stop') : 'Start'}
+                  </span>
+                </div>
+                
+                {/* Live points when active */}
+                {isActive && isCellular && (
+                  <div className="flex items-center gap-1 relative z-10">
+                    <Zap className="w-3 h-3 text-primary" />
+                    <span className="text-xs font-bold text-primary tabular-nums">
+                      +{stats.pointsEarned.toFixed(1)} pts
+                    </span>
+                  </div>
+                )}
+              </button>
+            </div>
+
+            {/* Speed Test Button - Matching glassmorphism style */}
             <div className="relative">
               {/* Outer glow frame */}
               <div 
@@ -258,19 +372,32 @@ export const NetworkContribution: React.FC = () => {
                   setIsRunningSpeedTest(true);
                   setSpeedTestProgress(0);
                   setSpeedTestPhase('latency');
+                  setLiveSpeed({});
                   
-                  // Simulate progress phases
+                  // Simulate progress phases with live speed updates
+                  let currentPhase: 'latency' | 'download' | 'upload' = 'latency';
                   const progressInterval = setInterval(() => {
                     setSpeedTestProgress(prev => {
                       if (prev < 10) {
+                        currentPhase = 'latency';
                         setSpeedTestPhase('latency');
+                        // Simulate latency measurement
+                        if (prev > 5) setLiveSpeed(s => ({ ...s, latency: Math.round(20 + Math.random() * 30) }));
                         return prev + 2;
-                      } else if (prev < 85) {
+                      } else if (prev < 80) {
+                        currentPhase = 'download';
                         setSpeedTestPhase('download');
-                        return prev + 1;
+                        // Simulate download speed ramping up
+                        const progress = (prev - 10) / 70;
+                        setLiveSpeed(s => ({ ...s, down: Math.round((50 + Math.random() * 100) * progress * 10) / 10 }));
+                        return prev + 1.5;
                       } else if (prev < 95) {
+                        currentPhase = 'upload';
                         setSpeedTestPhase('upload');
-                        return prev + 0.5;
+                        // Simulate upload speed
+                        const progress = (prev - 80) / 15;
+                        setLiveSpeed(s => ({ ...s, up: Math.round((20 + Math.random() * 40) * progress * 10) / 10 }));
+                        return prev + 0.8;
                       }
                       return prev;
                     });
@@ -282,6 +409,7 @@ export const NetworkContribution: React.FC = () => {
                     setSpeedTestProgress(100);
                     
                     if (result) {
+                      setLiveSpeed({ down: result.down, up: result.up, latency: result.latency });
                       successPattern();
                       playCoin();
                       toast({
@@ -302,12 +430,13 @@ export const NetworkContribution: React.FC = () => {
                       setIsRunningSpeedTest(false);
                       setSpeedTestProgress(0);
                       setSpeedTestPhase('idle');
-                    }, 500);
+                      setLiveSpeed({});
+                    }, 1000);
                   }
                 }}
                 disabled={!isCellular || isRunningSpeedTest}
                 className={cn(
-                  'relative flex flex-col items-center gap-1.5 px-6 py-3 rounded-xl min-w-[140px]',
+                  'relative flex flex-col items-center gap-1.5 px-6 py-4 rounded-xl min-w-[120px]',
                   'backdrop-blur-xl border transition-all duration-200',
                   'active:scale-95',
                   isRunningSpeedTest 
@@ -343,172 +472,51 @@ export const NetworkContribution: React.FC = () => {
                     isRunningSpeedTest ? "text-amber-400 animate-spin" : isCellular ? "text-cyan-400" : "text-gray-500"
                   )} />
                   <span className={cn(
-                    "text-sm font-semibold tracking-wide",
+                    "text-sm font-bold tracking-wide uppercase",
                     isRunningSpeedTest ? "text-amber-400" : isCellular ? "text-cyan-400" : "text-gray-500"
                   )}>
                     {isRunningSpeedTest 
                       ? speedTestPhase === 'latency' 
-                        ? 'Ping...' 
+                        ? 'Ping' 
                         : speedTestPhase === 'download' 
-                          ? 'Downloading...' 
-                          : 'Uploading...'
-                      : 'Speed Test'}
+                          ? 'Down' 
+                          : 'Up'
+                      : 'Speed'}
                   </span>
                 </div>
                 
-                {/* Progress bar - only visible during test */}
-                {isRunningSpeedTest && (
-                  <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden relative z-10">
-                    <div 
-                      className="h-full bg-gradient-to-r from-amber-400 to-amber-500 rounded-full transition-all duration-150"
-                      style={{ width: `${speedTestProgress}%` }}
-                    />
+                {/* Live speed display or progress bar */}
+                {isRunningSpeedTest ? (
+                  <div className="w-full space-y-1 relative z-10">
+                    {/* Live speed value */}
+                    <div className="text-center">
+                      <span className="text-lg font-bold text-amber-400 tabular-nums">
+                        {speedTestPhase === 'latency' && liveSpeed.latency 
+                          ? `${liveSpeed.latency}ms`
+                          : speedTestPhase === 'download' && liveSpeed.down
+                            ? `${liveSpeed.down} Mbps`
+                            : speedTestPhase === 'upload' && liveSpeed.up
+                              ? `${liveSpeed.up} Mbps`
+                              : '...'
+                        }
+                      </span>
+                    </div>
+                    {/* Progress bar */}
+                    <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-gradient-to-r from-amber-400 to-amber-500 rounded-full transition-all duration-100"
+                        style={{ width: `${speedTestProgress}%` }}
+                      />
+                    </div>
                   </div>
+                ) : (
+                  <span className={cn(
+                    "text-xs relative z-10",
+                    isCellular ? "text-cyan-400/70" : "text-gray-500/70"
+                  )}>
+                    Test Network
+                  </span>
                 )}
-              </button>
-            </div>
-          </div>
-
-          {/* Live Points Counter - when active */}
-          {isActive && isCellular && (
-            <div className="flex justify-center animate-fade-in">
-              <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-primary/15 border border-primary/40 backdrop-blur-sm">
-                <Zap className="w-4 h-4 text-primary" />
-                <span className="text-2xl font-bold text-primary tabular-nums">
-                  +{stats.pointsEarned.toFixed(1)}
-                </span>
-                <span className="text-sm text-primary/70">pts</span>
-              </div>
-            </div>
-          )}
-
-          {/* Main Control Button - Modern Glassmorphism Arcade Style */}
-          <div className="flex justify-center py-4">
-            <div className="relative">
-              {/* Outer arcade frame - hexagonal glow effect */}
-              <div 
-                className={cn(
-                  'absolute inset-[-20px] rounded-[32px] transition-all duration-500',
-                  'bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-sm',
-                  'border border-white/10',
-                  isActive && !isPaused && 'animate-[spin_12s_linear_infinite]'
-                )}
-                style={{
-                  boxShadow: isActive 
-                    ? isPaused
-                      ? '0 0 40px rgba(245, 158, 11, 0.2), inset 0 0 30px rgba(245, 158, 11, 0.1)'
-                      : '0 0 40px rgba(34, 197, 94, 0.2), inset 0 0 30px rgba(34, 197, 94, 0.1)'
-                    : '0 0 40px rgba(239, 68, 68, 0.15), inset 0 0 30px rgba(239, 68, 68, 0.08)',
-                }}
-              />
-              
-              {/* Animated corner accents - arcade style */}
-              <div className="absolute inset-[-14px] pointer-events-none">
-                <div className={cn(
-                  'absolute top-0 left-1/2 -translate-x-1/2 w-8 h-1 rounded-full transition-colors duration-300',
-                  isActive ? isPaused ? 'bg-amber-400/60' : 'bg-green-400/60' : 'bg-red-400/60'
-                )} />
-                <div className={cn(
-                  'absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-1 rounded-full transition-colors duration-300',
-                  isActive ? isPaused ? 'bg-amber-400/60' : 'bg-green-400/60' : 'bg-red-400/60'
-                )} />
-                <div className={cn(
-                  'absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 rounded-full transition-colors duration-300',
-                  isActive ? isPaused ? 'bg-amber-400/60' : 'bg-green-400/60' : 'bg-red-400/60'
-                )} />
-                <div className={cn(
-                  'absolute right-0 top-1/2 -translate-y-1/2 w-1 h-8 rounded-full transition-colors duration-300',
-                  isActive ? isPaused ? 'bg-amber-400/60' : 'bg-green-400/60' : 'bg-red-400/60'
-                )} />
-              </div>
-              
-              {/* Inner glowing ring */}
-              <div 
-                className={cn(
-                  'absolute inset-[-4px] rounded-full transition-all duration-300',
-                  'border-2',
-                  isActive 
-                    ? isPaused ? 'border-amber-400/40' : 'border-green-400/40'
-                    : 'border-red-400/40'
-                )}
-              />
-              
-              {/* Pulse effect when active */}
-              {isActive && !isPaused && (
-                <div className="absolute inset-[-8px] rounded-full animate-ping opacity-10 bg-green-400" />
-              )}
-              
-              {/* Main button - Glassmorphism */}
-              <button
-                ref={startButtonRef}
-                onClick={() => {
-                  buttonTap();
-                  if (isActive) {
-                    handleStopContribution();
-                    playSuccess();
-                  } else {
-                    if (!consentGiven) {
-                      setShowConsentModal(true);
-                      return;
-                    }
-                    startContribution();
-                    playCoin();
-                  }
-                }}
-                disabled={!user}
-                className={cn(
-                  'relative w-28 h-28 rounded-full overflow-hidden',
-                  'flex flex-col items-center justify-center gap-1',
-                  'active:scale-95 transition-all duration-150',
-                  'backdrop-blur-xl border',
-                  !user && 'opacity-40 cursor-not-allowed',
-                  isActive 
-                    ? isPaused 
-                      ? 'bg-amber-500/20 border-amber-400/30' 
-                      : 'bg-green-500/20 border-green-400/30'
-                    : 'bg-red-500/20 border-red-400/30'
-                )}
-                style={{
-                  boxShadow: isActive 
-                    ? isPaused
-                      ? '0 8px 32px rgba(245, 158, 11, 0.3), inset 0 1px 0 rgba(255,255,255,0.2)'
-                      : '0 8px 32px rgba(34, 197, 94, 0.3), inset 0 1px 0 rgba(255,255,255,0.2)'
-                    : '0 8px 32px rgba(239, 68, 68, 0.25), inset 0 1px 0 rgba(255,255,255,0.2)',
-                }}
-              >
-                {/* Inner glow gradient */}
-                <div 
-                  className={cn(
-                    'absolute inset-0 opacity-40 pointer-events-none',
-                    isActive 
-                      ? isPaused 
-                        ? 'bg-gradient-to-b from-amber-400/30 via-transparent to-amber-600/20' 
-                        : 'bg-gradient-to-b from-green-400/30 via-transparent to-green-600/20'
-                      : 'bg-gradient-to-b from-red-400/30 via-transparent to-red-600/20'
-                  )}
-                />
-                
-                {/* Icon and text */}
-                <div className="relative z-10 flex flex-col items-center gap-1">
-                  {isActive ? (
-                    isPaused ? (
-                      <>
-                        <Wifi className={cn('w-9 h-9 drop-shadow-lg', 'text-amber-400')} />
-                        <span className="text-xs font-bold text-amber-400 tracking-widest uppercase">Paused</span>
-                      </>
-                    ) : (
-                      <>
-                        <Pause className={cn('w-9 h-9 drop-shadow-lg', 'text-green-400')} />
-                        <span className="text-xs font-bold text-green-400 tracking-widest uppercase">Stop</span>
-                      </>
-                    )
-                  ) : (
-                    <>
-                      <Play className={cn('w-9 h-9 drop-shadow-lg ml-1', 'text-red-400')} />
-                      <span className="text-xs font-bold text-red-400 tracking-widest uppercase">Start</span>
-                    </>
-                  )}
-                </div>
               </button>
             </div>
           </div>
