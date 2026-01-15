@@ -358,21 +358,45 @@ export const NetworkContribution: React.FC = () => {
             </div>
           </div>
 
-          {/* Status Text - uses semantic tokens for glassmorphism */}
-          <div className="text-center mb-3">
-            <p className="text-lg font-bold text-foreground drop-shadow-sm">
-              {isActive 
-                ? (isPaused ? 'Paused' : 'Scanning Network...') 
-                : 'Start Scanning'}
-            </p>
-            {!isActive && user && consentGiven && (
-              <p className="text-sm text-muted-foreground mt-1">
-                {isCellular ? 'Tap to earn points' : 'Connect to cellular'}
+          {/* Status Card - always readable, never hidden under actions */}
+          <div className="flex justify-center mb-3">
+            <div
+              className={cn(
+                'relative z-20 w-full max-w-[22rem] rounded-2xl',
+                'bg-card/80 backdrop-blur-xl border border-border shadow-xl',
+                'px-4 py-3 text-center'
+              )}
+              aria-live="polite"
+            >
+              <p className="text-base font-semibold text-foreground">
+                {isActive ? (isPaused ? 'Paused' : 'Scanning Network…') : 'Start Scanning'}
               </p>
-            )}
-            {!user && (
-              <p className="text-sm text-muted-foreground mt-1">Sign in to start</p>
-            )}
+
+              {!isActive && user && consentGiven && (
+                <p className="text-sm text-muted-foreground mt-1">
+                  {isCellular ? 'Tap START to earn points' : 'Connect to cellular to earn'}
+                </p>
+              )}
+
+              {!user && (
+                <div className="mt-2 flex items-center justify-center gap-2">
+                  <p className="text-sm text-muted-foreground">Sign in to start</p>
+                  <button
+                    onClick={() => {
+                      buttonTap();
+                      navigate('/app/auth?mode=login');
+                    }}
+                    className={cn(
+                      'px-3 py-1.5 rounded-lg text-sm font-semibold',
+                      'bg-primary text-primary-foreground',
+                      'shadow-sm hover:opacity-95 active:opacity-90'
+                    )}
+                  >
+                    Sign in
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Quick Actions Bar - semantic glassmorphism tokens */}
