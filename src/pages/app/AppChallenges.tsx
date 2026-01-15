@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Target, Calendar, Star, Trophy, Sparkles } from 'lucide-react';
+import { ArrowLeft, Target, Calendar, Star, Trophy, Sparkles, Flame, Zap } from 'lucide-react';
 import { useHaptics } from '@/hooks/useHaptics';
 import { useChallenges } from '@/hooks/useChallenges';
 import { ChallengeCard } from '@/components/app/ChallengeCard';
@@ -21,7 +21,9 @@ export const AppChallenges: React.FC = () => {
     unclaimedCount,
     claimReward,
     loading,
-    refreshProgress
+    refreshProgress,
+    dailyChallengeStreak,
+    streakBonusPercent
   } = useChallenges();
 
   const [showCelebration, setShowCelebration] = useState(false);
@@ -228,6 +230,33 @@ export const AppChallenges: React.FC = () => {
           </motion.div>
         )}
 
+        {/* Streak Bonus Card */}
+        {streakBonusPercent > 0 && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="rounded-xl bg-gradient-to-r from-orange-500/20 to-yellow-500/20 border border-orange-500/30 p-4"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-500 to-yellow-500 flex items-center justify-center">
+                <Flame className="w-6 h-6 text-white" />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-lg font-bold text-foreground">{dailyChallengeStreak} Day Streak</span>
+                  <span className="px-2 py-0.5 rounded-full bg-green-500/20 text-green-500 text-xs font-bold">
+                    +{streakBonusPercent}% BONUS
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Complete all daily challenges to keep your streak!
+                </p>
+              </div>
+              <Zap className="w-5 h-5 text-yellow-500" />
+            </div>
+          </motion.div>
+        )}
+
         {/* Stats Cards */}
         <div className="grid grid-cols-2 gap-3">
           <div className={cn(
@@ -243,10 +272,18 @@ export const AppChallenges: React.FC = () => {
             <div className="text-xl font-bold text-foreground">{completedTodayCount}/{dailyChallenges.length}</div>
             <div className="text-xs text-muted-foreground">{t('app.challenges.dailyDone')}</div>
           </div>
-          <div className="rounded-2xl bg-card/80 border border-border p-4 text-center">
-            <Calendar className="w-5 h-5 text-blue-500 mx-auto mb-2" />
-            <div className="text-xl font-bold text-foreground">{weeklyChallenges.filter(c => c.isCompleted).length}/{weeklyChallenges.length}</div>
-            <div className="text-xs text-muted-foreground">{t('app.challenges.weekly')}</div>
+          <div className={cn(
+            "rounded-2xl border p-4 text-center transition-all",
+            dailyChallengeStreak > 0
+              ? "bg-orange-500/10 border-orange-500/30"
+              : "bg-card/80 border-border"
+          )}>
+            <Flame className={cn(
+              "w-5 h-5 mx-auto mb-2",
+              dailyChallengeStreak > 0 ? "text-orange-500" : "text-muted-foreground"
+            )} />
+            <div className="text-xl font-bold text-foreground">{dailyChallengeStreak}</div>
+            <div className="text-xs text-muted-foreground">Day Streak</div>
           </div>
         </div>
 
@@ -276,6 +313,7 @@ export const AppChallenges: React.FC = () => {
                       description={c.description}
                       targetValue={c.target_value}
                       rewardPoints={c.reward_points}
+                      bonusPoints={c.bonusPoints}
                       metricType={c.metric_type}
                       progress={c.progress}
                       isCompleted={c.isCompleted}

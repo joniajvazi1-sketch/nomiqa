@@ -30,7 +30,20 @@ interface ChallengeWithProgress extends Challenge {
   isCompleted: boolean;
   isClaimed: boolean;
   progressId: string | null;
+  bonusPoints: number; // Bonus points from streak multiplier
 }
+
+// Streak bonus configuration: +10% per day, max 100% (10 days)
+const STREAK_BONUS_PER_DAY = 0.10; // 10% per day
+const MAX_STREAK_BONUS = 1.0; // 100% max bonus
+
+export const getStreakBonus = (streakDays: number): number => {
+  return Math.min(streakDays * STREAK_BONUS_PER_DAY, MAX_STREAK_BONUS);
+};
+
+export const getStreakBonusPercent = (streakDays: number): number => {
+  return Math.round(getStreakBonus(streakDays) * 100);
+};
 
 interface UseChallengesReturn {
   challenges: ChallengeWithProgress[];
@@ -43,6 +56,8 @@ interface UseChallengesReturn {
   refreshProgress: () => Promise<void>;
   unclaimedCount: number;
   completedTodayCount: number;
+  dailyChallengeStreak: number;
+  streakBonusPercent: number;
 }
 
 const getPeriodStart = (type: 'daily' | 'weekly' | 'special'): string => {
@@ -64,6 +79,7 @@ export const useChallenges = (): UseChallengesReturn => {
   const [challenges, setChallenges] = useState<ChallengeWithProgress[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [dailyChallengeStreak, setDailyChallengeStreak] = useState(0);
 
   const fetchChallenges = useCallback(async () => {
     try {
@@ -100,6 +116,10 @@ export const useChallenges = (): UseChallengesReturn => {
         .eq('user_id', user.id)
         .single();
 
+      // Get the daily challenge streak
+      const currentStreak = (pointsData as any)?.daily_challenge_streak_days || 0;
+      setDailyChallengeStreak(currentStreak);
+
       // Get today's sessions count
       const today = new Date().toISOString().split('T')[0];
       const { data: todaySessions } = await supabase
@@ -133,6 +153,9 @@ export const useChallenges = (): UseChallengesReturn => {
         .eq('user_id', user.id)
         .not('speed_test_down', 'is', null)
         .gte('recorded_at', `${today}T00:00:00`);
+
+      // Calculate streak bonus for daily challenges
+      const streakBonus = getStreakBonus(currentStreak);
 
       // Combine challenges with progress
       const challengesWithProgress: ChallengeWithProgress[] = (challengesData || []).map((dbChallenge) => {
@@ -174,12 +197,18 @@ export const useChallenges = (): UseChallengesReturn => {
         const isCompleted = currentValue >= challenge.target_value;
         const isClaimed = !!progress?.claimed_at;
 
+        // Calculate bonus points for daily challenges
+        const bonusPoints = challenge.type === 'daily' 
+          ? Math.round(challenge.reward_points * streakBonus)
+          : 0;
+
         return {
           ...challenge,
           progress: progressPercent,
           isCompleted,
           isClaimed,
-          progressId: progress?.id || null
+          progressId: progress?.id || null,
+          bonusPoints
         };
       });
 
@@ -218,22 +247,58 @@ export const useChallenges = (): UseChallengesReturn => {
 
       if (progressError) throw progressError;
 
-      // Award points to user
+      // Get current points data
       const { data: currentPoints } = await supabase
         .from('user_points')
-        .select('total_points')
+        .select('total_points, daily_challenge_streak_days, last_all_daily_completed_date')
         .eq('user_id', user.id)
         .single();
 
-      const newTotal = (currentPoints?.total_points || 0) + challenge.reward_points;
+      // Calculate total reward including bonus
+      const totalReward = challenge.reward_points + (challenge.bonusPoints || 0);
+      const newTotal = (currentPoints?.total_points || 0) + totalReward;
+
+      // Check if this completes all daily challenges for today
+      const dailyChalls = challenges.filter(c => c.type === 'daily');
+      const today = new Date().toISOString().split('T')[0];
+      
+      // After claiming this one, check if all daily are now claimed
+      const allDailyWillBeClaimed = dailyChalls.every(c => 
+        c.id === challengeId ? true : c.isClaimed
+      );
+
+      let updateData: any = {
+        user_id: user.id,
+        total_points: newTotal,
+        updated_at: new Date().toISOString()
+      };
+
+      // If all daily challenges completed, update streak
+      if (allDailyWillBeClaimed && dailyChalls.length > 0) {
+        const lastCompletedDate = (currentPoints as any)?.last_all_daily_completed_date;
+        const currentStreak = (currentPoints as any)?.daily_challenge_streak_days || 0;
+        
+        // Check if already completed today
+        if (lastCompletedDate !== today) {
+          // Check if this continues a streak (completed yesterday)
+          const yesterday = new Date();
+          yesterday.setDate(yesterday.getDate() - 1);
+          const yesterdayStr = yesterday.toISOString().split('T')[0];
+          
+          if (lastCompletedDate === yesterdayStr) {
+            // Continue streak
+            updateData.daily_challenge_streak_days = currentStreak + 1;
+          } else {
+            // Start new streak
+            updateData.daily_challenge_streak_days = 1;
+          }
+          updateData.last_all_daily_completed_date = today;
+        }
+      }
 
       await supabase
         .from('user_points')
-        .upsert({
-          user_id: user.id,
-          total_points: newTotal,
-          updated_at: new Date().toISOString()
-        }, {
+        .upsert(updateData, {
           onConflict: 'user_id'
         });
 
@@ -265,6 +330,9 @@ export const useChallenges = (): UseChallengesReturn => {
   const completedTodayCount = useMemo(() => 
     dailyChallenges.filter(c => c.isCompleted).length, [dailyChallenges]);
 
+  const streakBonusPercent = useMemo(() => 
+    getStreakBonusPercent(dailyChallengeStreak), [dailyChallengeStreak]);
+
   return {
     challenges,
     dailyChallenges,
@@ -275,6 +343,8 @@ export const useChallenges = (): UseChallengesReturn => {
     claimReward,
     refreshProgress: fetchChallenges,
     unclaimedCount,
-    completedTodayCount
+    completedTodayCount,
+    dailyChallengeStreak,
+    streakBonusPercent
   };
 };

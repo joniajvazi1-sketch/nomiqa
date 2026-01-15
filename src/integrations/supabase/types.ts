@@ -1507,7 +1507,9 @@ export type Database = {
         Row: {
           contribution_streak_days: number | null
           created_at: string | null
+          daily_challenge_streak_days: number | null
           id: string
+          last_all_daily_completed_date: string | null
           last_commission_points: number | null
           last_contribution_date: string | null
           pending_points: number | null
@@ -1520,7 +1522,9 @@ export type Database = {
         Insert: {
           contribution_streak_days?: number | null
           created_at?: string | null
+          daily_challenge_streak_days?: number | null
           id?: string
+          last_all_daily_completed_date?: string | null
           last_commission_points?: number | null
           last_contribution_date?: string | null
           pending_points?: number | null
@@ -1533,7 +1537,9 @@ export type Database = {
         Update: {
           contribution_streak_days?: number | null
           created_at?: string | null
+          daily_challenge_streak_days?: number | null
           id?: string
+          last_all_daily_completed_date?: string | null
           last_commission_points?: number | null
           last_contribution_date?: string | null
           pending_points?: number | null
