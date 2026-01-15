@@ -188,6 +188,33 @@ const getApproximateLocation = (lat: number, lng: number): string => {
     { name: 'Tbilisi', lat: 41.7, lng: 44.8, radius: 1 },
     { name: 'Yerevan', lat: 40.2, lng: 44.5, radius: 1 },
     
+    // Ukraine
+    { name: 'Kyiv', lat: 50.4, lng: 30.5, radius: 2 },
+    { name: 'Lviv', lat: 49.8, lng: 24, radius: 1.2 },
+    { name: 'Odesa', lat: 46.5, lng: 30.7, radius: 1.2 },
+    { name: 'Kharkiv', lat: 50, lng: 36.2, radius: 1.2 },
+    { name: 'Dnipro', lat: 48.5, lng: 35, radius: 1 },
+    { name: 'Zaporizhzhia', lat: 47.8, lng: 35.2, radius: 1 },
+    
+    // Eastern Europe
+    { name: 'Minsk', lat: 53.9, lng: 27.6, radius: 1.5 },
+    { name: 'Vilnius', lat: 54.7, lng: 25.3, radius: 1 },
+    { name: 'Riga', lat: 56.9, lng: 24.1, radius: 1 },
+    { name: 'Tallinn', lat: 59.4, lng: 24.7, radius: 1 },
+    { name: 'Bucharest', lat: 44.4, lng: 26.1, radius: 1.5 },
+    { name: 'Sofia', lat: 42.7, lng: 23.3, radius: 1.2 },
+    { name: 'Belgrade', lat: 44.8, lng: 20.5, radius: 1.2 },
+    { name: 'Zagreb', lat: 45.8, lng: 16, radius: 1 },
+    { name: 'Ljubljana', lat: 46.1, lng: 14.5, radius: 0.8 },
+    { name: 'Sarajevo', lat: 43.9, lng: 18.4, radius: 1 },
+    { name: 'Skopje', lat: 42, lng: 21.4, radius: 1 },
+    { name: 'Tirana', lat: 41.3, lng: 19.8, radius: 1 },
+    { name: 'Chisinau', lat: 47, lng: 28.8, radius: 1 },
+    { name: 'Bratislava', lat: 48.1, lng: 17.1, radius: 1 },
+    { name: 'Krakow', lat: 50.1, lng: 19.9, radius: 1 },
+    { name: 'Gdansk', lat: 54.4, lng: 18.6, radius: 1 },
+    { name: 'Wroclaw', lat: 51.1, lng: 17, radius: 1 },
+    
     // North America
     { name: 'New York', lat: 40.7, lng: -74, radius: 1.5 },
     { name: 'Los Angeles', lat: 34.1, lng: -118.2, radius: 2 },
