@@ -384,6 +384,11 @@ const getApproximateLocation = (lat: number, lng: number): string => {
     { name: 'Amman', lat: 31.9, lng: 35.9, radius: 1.2 },
     { name: 'Beirut', lat: 33.9, lng: 35.5, radius: 1 },
     { name: 'Bahrain', lat: 26.2, lng: 50.6, radius: 1 },
+    { name: 'Tehran', lat: 35.7, lng: 51.4, radius: 1.5 },
+    { name: 'Isfahan', lat: 32.7, lng: 51.7, radius: 1.2 },
+    { name: 'Shiraz', lat: 29.6, lng: 52.5, radius: 1 },
+    { name: 'Mashhad', lat: 36.3, lng: 59.6, radius: 1.2 },
+    { name: 'Tabriz', lat: 38.1, lng: 46.3, radius: 1 },
     
     // Central Asia & Caucasus
     { name: 'Almaty', lat: 43.2, lng: 76.9, radius: 1.5 },
@@ -415,6 +420,11 @@ const getApproximateLocation = (lat: number, lng: number): string => {
     // Africa
     { name: 'Cape Town', lat: -33.9, lng: 18.4, radius: 1.5 },
     { name: 'Cairo', lat: 30, lng: 31.2, radius: 2 },
+    { name: 'Alexandria', lat: 31.2, lng: 29.9, radius: 1.2 },
+    { name: 'Luxor', lat: 25.7, lng: 32.6, radius: 1 },
+    { name: 'Aswan', lat: 24.1, lng: 32.9, radius: 0.8 },
+    { name: 'Sharm El Sheikh', lat: 27.9, lng: 34.3, radius: 1 },
+    { name: 'Hurghada', lat: 27.3, lng: 33.8, radius: 1 },
     { name: 'Johannesburg', lat: -26.2, lng: 28, radius: 1.5 },
     { name: 'Lagos', lat: 6.5, lng: 3.4, radius: 2 },
     { name: 'Nairobi', lat: -1.3, lng: 36.8, radius: 1.5 },
