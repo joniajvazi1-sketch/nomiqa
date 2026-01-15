@@ -280,74 +280,101 @@ export const NetworkContribution: React.FC = () => {
             </div>
           )}
 
-          {/* Main Control Button - Clean design */}
-          <div className="flex justify-center py-2">
-            <button
-              ref={startButtonRef}
-              onClick={() => {
-                buttonTap();
-                if (isActive) {
-                  handleStopContribution();
-                  playSuccess();
-                } else {
-                  if (!consentGiven) {
-                    setShowConsentModal(true);
-                    return;
-                  }
-                  startContribution();
-                  playCoin();
-                }
-              }}
-              disabled={!user}
-              className={cn(
-                'relative w-28 h-28 rounded-full',
-                'flex flex-col items-center justify-center gap-1.5',
-                'shadow-2xl active:scale-95',
-                'transition-all duration-300',
-                !user && 'opacity-40 cursor-not-allowed'
+          {/* Main Control Button - Premium 3D design */}
+          <div className="flex justify-center py-4">
+            <div className="relative">
+              {/* Animated pulse ring when active */}
+              {isActive && !isPaused && (
+                <div className="absolute inset-[-16px] rounded-full animate-ping opacity-20 bg-green-500" />
               )}
-              style={{
-                background: isActive 
-                  ? isPaused
-                    ? 'linear-gradient(145deg, #f59e0b, #d97706)'
-                    : 'linear-gradient(145deg, #22c55e, #16a34a)'
-                  : 'linear-gradient(145deg, #ef4444, #dc2626)',
-                boxShadow: isActive 
-                  ? isPaused
-                    ? '0 0 40px rgba(245, 158, 11, 0.4), inset 0 2px 4px rgba(255,255,255,0.2)'
-                    : '0 0 40px rgba(34, 197, 94, 0.4), inset 0 2px 4px rgba(255,255,255,0.2)'
-                  : '0 0 40px rgba(239, 68, 68, 0.4), inset 0 2px 4px rgba(255,255,255,0.2)',
-              }}
-            >
-              {/* Outer ring */}
+              
+              {/* Outer glow ring */}
               <div 
                 className={cn(
-                  'absolute inset-[-8px] rounded-full border-2',
+                  'absolute inset-[-12px] rounded-full transition-all duration-500',
                   isActive 
-                    ? isPaused ? 'border-amber-500/40' : 'border-green-500/40'
-                    : 'border-red-500/40'
+                    ? isPaused 
+                      ? 'bg-gradient-to-r from-amber-500/20 to-orange-500/20 shadow-[0_0_30px_rgba(245,158,11,0.3)]' 
+                      : 'bg-gradient-to-r from-green-500/20 to-emerald-500/20 shadow-[0_0_30px_rgba(34,197,94,0.3)]'
+                    : 'bg-gradient-to-r from-red-500/20 to-rose-500/20 shadow-[0_0_30px_rgba(239,68,68,0.3)]'
                 )}
               />
               
-              {isActive ? (
-                isPaused ? (
-                  <>
-                    <Wifi className="w-9 h-9 text-white drop-shadow-lg" />
-                    <span className="text-xs font-bold text-white/90 tracking-wide">PAUSED</span>
-                  </>
-                ) : (
-                  <>
-                    <Pause className="w-9 h-9 text-white drop-shadow-lg" />
-                    <span className="text-xs font-bold text-white/90 tracking-wide">STOP</span>
-                  </>
-                )
-              ) : (
-                <>
-                  <Play className="w-9 h-9 text-white drop-shadow-lg ml-1" />
-                  <span className="text-xs font-bold text-white/90 tracking-wide">START</span>
-                </>
-              )}
-            </button>
+              {/* Secondary ring */}
+              <div 
+                className={cn(
+                  'absolute inset-[-6px] rounded-full border-2 transition-all duration-300',
+                  isActive 
+                    ? isPaused ? 'border-amber-400/50' : 'border-green-400/50'
+                    : 'border-red-400/50'
+                )}
+              />
+              
+              {/* Main button */}
+              <button
+                ref={startButtonRef}
+                onClick={() => {
+                  buttonTap();
+                  if (isActive) {
+                    handleStopContribution();
+                    playSuccess();
+                  } else {
+                    if (!consentGiven) {
+                      setShowConsentModal(true);
+                      return;
+                    }
+                    startContribution();
+                    playCoin();
+                  }
+                }}
+                disabled={!user}
+                className={cn(
+                  'relative w-32 h-32 rounded-full overflow-hidden',
+                  'flex flex-col items-center justify-center gap-2',
+                  'active:scale-95 transition-transform duration-150',
+                  !user && 'opacity-40 cursor-not-allowed'
+                )}
+                style={{
+                  background: isActive 
+                    ? isPaused
+                      ? 'linear-gradient(145deg, #fbbf24, #d97706)'
+                      : 'linear-gradient(145deg, #4ade80, #16a34a)'
+                    : 'linear-gradient(145deg, #f87171, #dc2626)',
+                  boxShadow: isActive 
+                    ? isPaused
+                      ? '0 8px 32px rgba(245, 158, 11, 0.5), inset 0 -4px 12px rgba(0,0,0,0.2), inset 0 4px 8px rgba(255,255,255,0.3)'
+                      : '0 8px 32px rgba(34, 197, 94, 0.5), inset 0 -4px 12px rgba(0,0,0,0.2), inset 0 4px 8px rgba(255,255,255,0.3)'
+                    : '0 8px 32px rgba(239, 68, 68, 0.5), inset 0 -4px 12px rgba(0,0,0,0.2), inset 0 4px 8px rgba(255,255,255,0.3)',
+                }}
+              >
+                {/* Shine overlay */}
+                <div 
+                  className="absolute inset-0 bg-gradient-to-b from-white/30 via-transparent to-black/10 pointer-events-none"
+                />
+                
+                {/* Icon and text */}
+                <div className="relative z-10 flex flex-col items-center gap-1.5">
+                  {isActive ? (
+                    isPaused ? (
+                      <>
+                        <Wifi className="w-10 h-10 text-white drop-shadow-lg" />
+                        <span className="text-sm font-black text-white tracking-wider drop-shadow">PAUSED</span>
+                      </>
+                    ) : (
+                      <>
+                        <Pause className="w-10 h-10 text-white drop-shadow-lg" />
+                        <span className="text-sm font-black text-white tracking-wider drop-shadow">STOP</span>
+                      </>
+                    )
+                  ) : (
+                    <>
+                      <Play className="w-10 h-10 text-white drop-shadow-lg ml-1" />
+                      <span className="text-sm font-black text-white tracking-wider drop-shadow">START</span>
+                    </>
+                  )}
+                </div>
+              </button>
+            </div>
           </div>
 
           {/* Status Text - Clean and minimal */}
