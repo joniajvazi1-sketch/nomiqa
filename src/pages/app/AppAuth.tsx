@@ -374,14 +374,11 @@ export const AppAuth: React.FC = () => {
       <div className="flex-1 px-6 flex flex-col">
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
-          <div className="relative mb-3">
-            <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg">
-              <Signal className="w-8 h-8 text-white" />
-            </div>
-            <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-md bg-gradient-to-br from-green-400 to-green-500 flex items-center justify-center">
-              <Coins className="w-3 h-3 text-white" />
-            </div>
-          </div>
+          <img 
+            src="/nomiqa-logo.jpg" 
+            alt="Nomiqa" 
+            className="w-20 h-20 rounded-2xl shadow-lg mb-3"
+          />
           <h1 className="text-xl font-bold text-foreground">
             {isSignup ? 'Create Account' : 'Welcome Back'}
           </h1>
