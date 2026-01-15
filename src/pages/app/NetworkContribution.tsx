@@ -233,21 +233,7 @@ export const NetworkContribution: React.FC = () => {
           isRefreshing={isRefreshing}
         />
         
-        {/* Floating Mode Toggle - Top Right (only in personal map mode) */}
-        {coverageMode === 'personal' && (
-          <div className="absolute top-4 right-4 flex items-center gap-2 pointer-events-auto" style={{ marginTop: 'env(safe-area-inset-top, 0px)' }}>
-            <button
-              onClick={handleToggleCoverageMode}
-              className={cn(
-                'flex items-center gap-2 px-3 py-2 rounded-xl',
-                'bg-card/90 backdrop-blur-xl border border-border shadow-lg transition-all'
-              )}
-            >
-              <Globe className="w-4 h-4 text-foreground" />
-              <span className="text-sm font-medium text-foreground">Global</span>
-            </button>
-          </div>
-        )}
+        {/* Mode toggle moved to bottom bar - no duplicate at top */}
 
         {/* Warnings - positioned below safe area */}
         {isActive && !isCellular && (
