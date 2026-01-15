@@ -58,31 +58,27 @@ interface MilestonePopupProps {
   onClose: () => void;
 }
 
-// Tier colors and gradients
+// Tier colors - clean, no glows
 const tierStyles = {
   bronze: {
-    bg: 'from-amber-700/30 to-amber-800/20',
-    border: 'border-amber-600/40',
-    text: 'text-amber-500',
-    glow: 'shadow-amber-600/30'
+    bg: 'bg-amber-500/10',
+    border: 'border-amber-500/30',
+    text: 'text-amber-500'
   },
   silver: {
-    bg: 'from-slate-300/30 to-slate-400/20',
-    border: 'border-slate-400/40',
-    text: 'text-slate-300',
-    glow: 'shadow-slate-400/30'
+    bg: 'bg-slate-400/10',
+    border: 'border-slate-400/30',
+    text: 'text-slate-400'
   },
   gold: {
-    bg: 'from-yellow-500/30 to-amber-500/20',
-    border: 'border-yellow-500/50',
-    text: 'text-yellow-400',
-    glow: 'shadow-yellow-500/40'
+    bg: 'bg-yellow-500/10',
+    border: 'border-yellow-500/30',
+    text: 'text-yellow-500'
   },
   platinum: {
-    bg: 'from-cyan-400/30 to-blue-500/20',
-    border: 'border-cyan-400/50',
-    text: 'text-cyan-300',
-    glow: 'shadow-cyan-400/40'
+    bg: 'bg-cyan-500/10',
+    border: 'border-cyan-500/30',
+    text: 'text-cyan-400'
   }
 };
 
@@ -128,10 +124,9 @@ const AchievementDetailsDrawer: React.FC<{
             <div className="flex justify-center mb-4">
               <div className={cn(
                 'relative w-24 h-24 rounded-full flex items-center justify-center',
-                'bg-gradient-to-br border-2 backdrop-blur-xl',
+                'border-2 backdrop-blur-sm',
                 tier.bg,
                 tier.border,
-                achievement.unlocked && `shadow-xl ${tier.glow}`,
                 !achievement.unlocked && 'opacity-60 grayscale'
               )}>
                 <div className={cn(tier.text, 'w-12 h-12')}>
@@ -267,11 +262,10 @@ export const AchievementBadge: React.FC<AchievementBadgeProps> = ({
         {/* Badge circle */}
         <div className={cn(
           'relative rounded-full flex items-center justify-center',
-          'bg-gradient-to-br border-2 backdrop-blur-xl',
+          'border-2 backdrop-blur-sm',
           sizeClasses[size],
           tier.bg,
           tier.border,
-          achievement.unlocked && `shadow-lg ${tier.glow}`,
           !achievement.unlocked && 'opacity-40 grayscale'
         )}>
           {/* Icon */}
@@ -339,34 +333,23 @@ export const AchievementBadge: React.FC<AchievementBadgeProps> = ({
 export const StreakBonus: React.FC<StreakBonusProps> = ({ streakDays, isActive }) => {
   // Calculate bonus multiplier based on streak
   const getStreakBonus = (days: number) => {
-    if (days >= 30) return { multiplier: 2.0, label: 'LEGENDARY', color: 'text-purple-400', bg: 'from-purple-500/30 to-violet-600/20' };
-    if (days >= 14) return { multiplier: 1.75, label: 'EPIC', color: 'text-amber-400', bg: 'from-amber-500/30 to-orange-600/20' };
-    if (days >= 7) return { multiplier: 1.5, label: 'HOT', color: 'text-orange-400', bg: 'from-orange-500/30 to-red-600/20' };
-    if (days >= 3) return { multiplier: 1.25, label: 'RISING', color: 'text-yellow-400', bg: 'from-yellow-500/30 to-amber-600/20' };
-    return { multiplier: 1.0, label: '', color: 'text-muted-foreground', bg: '' };
+    if (days >= 30) return { multiplier: 2.0, label: 'LEGENDARY', color: 'text-purple-500' };
+    if (days >= 14) return { multiplier: 1.75, label: 'EPIC', color: 'text-amber-500' };
+    if (days >= 7) return { multiplier: 1.5, label: 'HOT', color: 'text-orange-500' };
+    if (days >= 3) return { multiplier: 1.25, label: 'RISING', color: 'text-yellow-500' };
+    return { multiplier: 1.0, label: '', color: 'text-muted-foreground' };
   };
   
   const bonus = getStreakBonus(streakDays);
   
   return (
-    <div className={cn(
-      'flex items-center gap-3 px-4 py-3 rounded-2xl border transition-all',
-      streakDays >= 3 
-        ? `bg-gradient-to-r ${bonus.bg} border-border` 
-        : 'bg-card border-border'
-    )}>
-      {/* Flame icon with animation */}
+    <div className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-card/80 backdrop-blur-sm border border-border">
+      {/* Flame icon */}
       <div className="relative">
         <Flame className={cn(
-          'w-6 h-6 transition-all',
-          isActive ? 'text-orange-500' : 'text-muted-foreground',
-          streakDays >= 7 && 'animate-pulse'
+          'w-6 h-6',
+          isActive ? 'text-orange-500' : 'text-muted-foreground'
         )} />
-        {streakDays >= 14 && (
-          <div className="absolute -top-1 -right-1 w-3 h-3">
-            <Flame className="w-3 h-3 text-amber-400 animate-bounce" />
-          </div>
-        )}
       </div>
       
       {/* Streak count */}
@@ -380,7 +363,7 @@ export const StreakBonus: React.FC<StreakBonusProps> = ({ streakDays, isActive }
           </span>
           <span className="text-sm text-muted-foreground">day streak</span>
           {bonus.label && (
-            <span className={cn('text-[10px] font-bold px-1.5 py-0.5 rounded', bonus.color, 'bg-muted')}>
+            <span className={cn('text-[10px] font-bold px-1.5 py-0.5 rounded bg-muted', bonus.color)}>
               {bonus.label}
             </span>
           )}
@@ -417,38 +400,25 @@ export const MilestonePopup: React.FC<MilestonePopupProps> = ({ show, achievemen
   return (
     <div className="fixed inset-0 z-50 pointer-events-none flex items-center justify-center px-6">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-background/60 backdrop-blur-sm animate-fade-in" />
+      <div className="absolute inset-0 bg-background/80 backdrop-blur-sm animate-fade-in" />
       
       {/* Popup card */}
       <div 
         className={cn(
-          'relative bg-gradient-to-br border-2 rounded-3xl p-6 backdrop-blur-xl',
-          'shadow-2xl animate-achievement-unlock',
-          tier.bg,
-          tier.border,
-          tier.glow
+          'relative border-2 rounded-3xl p-6 backdrop-blur-xl bg-card',
+          'shadow-xl animate-scale-in',
+          tier.border
         )}
         style={{ maxWidth: '320px' }}
       >
-        {/* Sparkles background */}
-        <div className="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none">
-          {[...Array(6)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute w-1 h-1 bg-white rounded-full animate-twinkle"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animationDelay: `${i * 0.2}s`
-              }}
-            />
-          ))}
-        </div>
         
         {/* Content */}
         <div className="relative text-center">
           {/* Trophy icon */}
-          <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-white/20 to-white/5 flex items-center justify-center animate-bounce-in">
+          <div className={cn(
+            'w-20 h-20 mx-auto mb-4 rounded-full flex items-center justify-center',
+            tier.bg, tier.border, 'border'
+          )}>
             <div className={cn('w-10 h-10', tier.text)}>
               {achievement.icon}
             </div>
@@ -476,43 +446,6 @@ export const MilestonePopup: React.FC<MilestonePopupProps> = ({ show, achievemen
           </div>
         </div>
       </div>
-
-      {/* CSS Animations */}
-      <style>{`
-        @keyframes achievement-unlock {
-          0% { 
-            opacity: 0; 
-            transform: scale(0.5) translateY(20px); 
-          }
-          50% { 
-            transform: scale(1.1) translateY(-10px); 
-          }
-          100% { 
-            opacity: 1; 
-            transform: scale(1) translateY(0); 
-          }
-        }
-        .animate-achievement-unlock {
-          animation: achievement-unlock 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-        }
-        
-        @keyframes twinkle {
-          0%, 100% { opacity: 0; transform: scale(0); }
-          50% { opacity: 1; transform: scale(1); }
-        }
-        .animate-twinkle {
-          animation: twinkle 1.5s ease-in-out infinite;
-        }
-        
-        @keyframes bounce-in {
-          0% { transform: scale(0); }
-          50% { transform: scale(1.2); }
-          100% { transform: scale(1); }
-        }
-        .animate-bounce-in {
-          animation: bounce-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-        }
-      `}</style>
     </div>
   );
 };
