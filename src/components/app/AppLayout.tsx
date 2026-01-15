@@ -102,12 +102,15 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
     >
       {/* Scrollable content area with swipe support */}
       <main 
-        className="flex-1 overflow-y-auto overflow-x-hidden overscroll-none"
+        className={cn(
+          "flex-1 overflow-x-hidden overscroll-none",
+          isMapRoute ? "overflow-hidden" : "overflow-y-auto"
+        )}
         style={{ 
           // Bottom padding accounts for tab bar + safe area
           paddingBottom: 'calc(64px + env(safe-area-inset-bottom, 0px))',
-          // Smooth momentum scrolling on iOS
-          WebkitOverflowScrolling: 'touch',
+          // Smooth momentum scrolling on iOS (avoid on WebGL routes)
+          WebkitOverflowScrolling: isMapRoute ? undefined : 'touch',
         }}
       >
         <SwipeablePages>
