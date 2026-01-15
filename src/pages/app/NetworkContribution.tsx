@@ -21,7 +21,7 @@ import { useEnhancedHaptics } from '@/hooks/useEnhancedHaptics';
 import { useEnhancedSounds } from '@/hooks/useEnhancedSounds';
 import { useSessionMilestones } from '@/hooks/useSessionMilestones';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
-import { ContributionMap } from '@/components/app/ContributionMap';
+
 import { RewardCelebration } from '@/components/app/RewardCelebration';
 import { PullToRefreshIndicator } from '@/components/app/PullToRefreshIndicator';
 import { DataConsentModal, hasDataConsent } from '@/components/app/DataConsentModal';
@@ -156,40 +156,44 @@ export const NetworkContribution: React.FC = () => {
 
   return (
     <div className="relative w-full h-full min-h-screen bg-background overflow-hidden">
-      {/* Full-screen map/globe */}
+      {/* Full-screen globe - always use 3D globe for both modes */}
       <div className="absolute inset-0 z-0">
-        {coverageMode === 'global' ? (
-          <Suspense fallback={
-            <div className="w-full h-full flex items-center justify-center bg-[#0a0f1a]">
-              <div className="flex flex-col items-center gap-3">
-                <div className="w-12 h-12 border-2 border-[#00d4ff]/30 border-t-[#00d4ff] rounded-full animate-spin" />
-                <p className="text-sm text-white/60">Loading global network...</p>
-              </div>
+        <Suspense fallback={
+          <div className="w-full h-full flex items-center justify-center bg-[#0a0f1a]">
+            <div className="flex flex-col items-center gap-3">
+              <div className="w-12 h-12 border-2 border-[#00d4ff]/30 border-t-[#00d4ff] rounded-full animate-spin" />
+              <p className="text-sm text-white/60">
+                {coverageMode === 'personal' ? 'Loading your coverage...' : 'Loading global network...'}
+              </p>
             </div>
-          }>
-            <NetworkGlobe 
-              coverageData={globalCoverageData?.cells || []}
-              loading={globalCoverageLoading}
-              totalDataPoints={globalCoverageData?.totalDataPoints || 0}
-              uniqueLocations={globalCoverageData?.uniqueLocations || 0}
-              coverageAreaKm2={globalCoverageData?.coverageAreaKm2 || 0}
-            />
-          </Suspense>
-        ) : (
-          <ContributionMap 
-            userPosition={userPosition} 
-            isActive={isActive && isCellular}
-            heatmapPoints={heatmapPoints}
-            showHeatmap={showHeatmap}
-            onToggleHeatmap={handleToggleHeatmap}
-            globalCoverage={[]}
-            coverageMode={coverageMode}
-            onToggleCoverageMode={handleToggleCoverageMode}
-            globalCoverageLoading={false}
-            networkFilter={networkFilter}
-            onNetworkFilterChange={handleNetworkFilterChange}
+          </div>
+        }>
+          <NetworkGlobe 
+            coverageData={
+              coverageMode === 'personal' 
+                ? heatmapPoints.map(p => ({
+                    lat: p.lat,
+                    lng: p.lng,
+                    intensity: p.intensity,
+                    network: 'lte' as const,
+                    count: 1
+                  }))
+                : (globalCoverageData?.cells || [])
+            }
+            loading={coverageMode === 'personal' ? false : globalCoverageLoading}
+            totalDataPoints={
+              coverageMode === 'personal' 
+                ? heatmapPoints.length 
+                : (globalCoverageData?.totalDataPoints || 0)
+            }
+            uniqueLocations={
+              coverageMode === 'personal' 
+                ? heatmapPoints.length 
+                : (globalCoverageData?.uniqueLocations || 0)
+            }
+            coverageAreaKm2={globalCoverageData?.coverageAreaKm2 || 0}
           />
-        )}
+        </Suspense>
       </div>
 
       {/* Bottom gradient overlay for controls visibility */}
@@ -266,6 +270,103 @@ export const NetworkContribution: React.FC = () => {
 
         {/* Bottom Control Panel - always at bottom */}
         <div className="px-4 pointer-events-auto">
+          {/* Mode toggle + Tools - TOP of controls */}
+          <div className="flex items-center justify-center gap-2 mb-3">
+            <button
+              onClick={handleToggleCoverageMode}
+              className={cn(
+                'flex items-center gap-2 px-4 py-2.5 rounded-xl',
+                'bg-card/80 backdrop-blur-xl border shadow-lg transition-all',
+                coverageMode === 'personal' 
+                  ? 'border-primary/50 text-primary' 
+                  : 'border-border text-muted-foreground hover:border-primary/40'
+              )}
+            >
+              {coverageMode === 'global' ? (
+                <>
+                  <Map className="w-4 h-4" />
+                  <span className="text-sm font-medium">My Map</span>
+                </>
+              ) : (
+                <>
+                  <Globe className="w-4 h-4" />
+                  <span className="text-sm font-medium">Global</span>
+                </>
+              )}
+            </button>
+            
+            <button
+              onClick={() => {
+                buttonTap();
+                setShowTools(!showTools);
+              }}
+              className={cn(
+                'flex items-center gap-2 px-4 py-2.5 rounded-xl',
+                'bg-card/80 backdrop-blur-xl border shadow-lg transition-all',
+                showTools ? 'border-primary/50 text-primary' : 'border-border text-muted-foreground'
+              )}
+            >
+              <Layers className="w-4 h-4" />
+              <span className="text-sm font-medium">Tools</span>
+              <ChevronUp className={cn(
+                'w-4 h-4 transition-transform',
+                showTools ? 'rotate-180' : ''
+              )} />
+            </button>
+          </div>
+
+          {/* Expandable Tools */}
+          {showTools && (
+            <div className="flex items-center justify-center gap-2 mb-3 animate-fade-in flex-wrap">
+              <button
+                onClick={async () => {
+                  if (isRunningSpeedTest) return;
+                  buttonTap();
+                  setIsRunningSpeedTest(true);
+                  try {
+                    const result = await triggerManualSpeedTest();
+                    if (result) {
+                      playCoin();
+                      successPattern();
+                    }
+                  } finally {
+                    setIsRunningSpeedTest(false);
+                  }
+                }}
+                disabled={!isCellular || isRunningSpeedTest}
+                className={cn(
+                  'flex items-center gap-2 px-4 py-2.5 rounded-xl',
+                  'bg-card/80 backdrop-blur-xl border shadow-lg transition-all',
+                  isRunningSpeedTest 
+                    ? 'border-amber-500/50 text-amber-500' 
+                    : isCellular 
+                      ? 'border-green-500/50 text-green-500 hover:border-green-500/70'
+                      : 'border-border text-muted-foreground/50 cursor-not-allowed'
+                )}
+              >
+                <Gauge className={cn("w-4 h-4", isRunningSpeedTest && "animate-pulse")} />
+                <span className="text-sm font-medium">
+                  {isRunningSpeedTest ? 'Testing...' : 'Speed Test'}
+                </span>
+              </button>
+              
+              <button
+                onClick={() => {
+                  buttonTap();
+                  navigate('/app/network-stats');
+                }}
+                className={cn(
+                  'flex items-center gap-2 px-4 py-2.5 rounded-xl',
+                  'bg-card/80 backdrop-blur-xl border shadow-lg transition-all',
+                  'border-border text-foreground hover:border-primary/40'
+                )}
+              >
+                <BarChart3 className="w-4 h-4" />
+                <span className="text-sm font-medium">Stats</span>
+              </button>
+            </div>
+          )}
+
           {/* Live Points Counter - when active */}
           {isActive && isCellular && (
             <div className="text-center mb-3 animate-fade-in">
@@ -282,12 +383,10 @@ export const NetworkContribution: React.FC = () => {
           {/* Main Control Button */}
           <div className="flex justify-center mb-3">
             <div className="relative">
-              {/* Subtle idle ring (RED) - modern, no ping */}
               {!isActive && user && consentGiven && (
                 <div className="absolute inset-[-16px] rounded-full bg-red-500/10 border border-red-500/30" />
               )}
               
-              {/* Active scanning ring (GREEN) - subtle glow, no ping */}
               {isActive && isCellular && (
                 <div className="absolute inset-[-16px] rounded-full bg-green-500/10 border-2 border-green-400/50" />
               )}
@@ -344,7 +443,7 @@ export const NetworkContribution: React.FC = () => {
             </div>
           </div>
 
-          {/* Status Card - always readable, never hidden under actions */}
+          {/* Status Card - below START button */}
           <div className="flex justify-center mb-3">
             <div
               className={cn(
@@ -385,105 +484,7 @@ export const NetworkContribution: React.FC = () => {
             </div>
           </div>
 
-          {/* Quick Actions Bar - semantic glassmorphism tokens */}
-          <div className="flex items-center justify-center gap-2 mb-3">
-            <button
-              onClick={() => {
-                buttonTap();
-                setShowTools(!showTools);
-              }}
-              className={cn(
-                'flex items-center gap-2 px-4 py-2.5 rounded-xl',
-                'bg-card/80 backdrop-blur-xl border shadow-lg transition-all',
-                showTools ? 'border-primary/50 text-primary' : 'border-border text-muted-foreground'
-              )}
-            >
-              <Layers className="w-4 h-4" />
-              <span className="text-sm font-medium">Tools</span>
-              <ChevronUp className={cn(
-                'w-4 h-4 transition-transform',
-                showTools ? 'rotate-180' : ''
-              )} />
-            </button>
-            
-            {/* Mode toggle button */}
-            <button
-              onClick={handleToggleCoverageMode}
-              className={cn(
-                'flex items-center gap-2 px-4 py-2.5 rounded-xl',
-                'bg-card/80 backdrop-blur-xl border shadow-lg transition-all',
-                'border-border text-muted-foreground hover:border-primary/40'
-              )}
-            >
-              {coverageMode === 'global' ? (
-                <>
-                  <Map className="w-4 h-4" />
-                  <span className="text-sm font-medium">My Map</span>
-                </>
-              ) : (
-                <>
-                  <Globe className="w-4 h-4" />
-                  <span className="text-sm font-medium">Global</span>
-                </>
-              )}
-            </button>
-          </div>
-
-          {/* Expandable Tools - semantic glassmorphism */}
-          {showTools && (
-            <div className="flex items-center justify-center gap-2 mb-3 animate-fade-in flex-wrap">
-              {/* Manual Speed Test Button */}
-              <button
-                onClick={async () => {
-                  if (isRunningSpeedTest) return;
-                  buttonTap();
-                  setIsRunningSpeedTest(true);
-                  try {
-                    const result = await triggerManualSpeedTest();
-                    if (result) {
-                      playCoin();
-                      successPattern();
-                    }
-                  } finally {
-                    setIsRunningSpeedTest(false);
-                  }
-                }}
-                disabled={!isCellular || isRunningSpeedTest}
-                className={cn(
-                  'flex items-center gap-2 px-4 py-2.5 rounded-xl',
-                  'bg-card/80 backdrop-blur-xl border shadow-lg transition-all',
-                  isRunningSpeedTest 
-                    ? 'border-amber-500/50 text-amber-500' 
-                    : isCellular 
-                      ? 'border-green-500/50 text-green-500 hover:border-green-500/70'
-                      : 'border-border text-muted-foreground/50 cursor-not-allowed'
-                )}
-              >
-                <Gauge className={cn("w-4 h-4", isRunningSpeedTest && "animate-pulse")} />
-                <span className="text-sm font-medium">
-                  {isRunningSpeedTest ? 'Testing...' : 'Run Test'}
-                </span>
-              </button>
-              
-              {/* Link to Network Stats Page */}
-              <button
-                onClick={() => {
-                  buttonTap();
-                  navigate('/app/network-stats');
-                }}
-                className={cn(
-                  'flex items-center gap-2 px-4 py-2.5 rounded-xl',
-                  'bg-card/80 backdrop-blur-xl border shadow-lg transition-all',
-                  'border-border text-foreground hover:border-primary/40'
-                )}
-              >
-                <BarChart3 className="w-4 h-4" />
-                <span className="text-sm font-medium">Stats</span>
-              </button>
-            </div>
-          )}
-
-          {/* Session Stats Card - when active - semantic glassmorphism */}
+          {/* Session Stats Card - when active */}
           {isActive && (
             <div className="rounded-2xl bg-card/80 backdrop-blur-xl border border-border p-4 shadow-xl animate-fade-in">
               <div className="grid grid-cols-3 gap-3">
