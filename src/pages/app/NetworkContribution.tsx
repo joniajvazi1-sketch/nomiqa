@@ -1,18 +1,14 @@
 import React, { useState, useCallback, useRef, useEffect, lazy, Suspense } from 'react';
 import { 
-  Signal, 
   Pause,
   Wifi,
   CloudOff,
-  Radio,
   Zap,
-  Activity,
   Globe,
   Map,
   Play,
   ChevronUp,
   Layers,
-  RefreshCw,
   Gauge,
   BarChart3
 } from 'lucide-react';
@@ -28,8 +24,6 @@ import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { ContributionMap } from '@/components/app/ContributionMap';
 import { RewardCelebration } from '@/components/app/RewardCelebration';
 import { PullToRefreshIndicator } from '@/components/app/PullToRefreshIndicator';
-import { SpeedTest } from '@/components/app/SpeedTest';
-import { CarrierComparison } from '@/components/app/CarrierComparison';
 import { DataConsentModal, hasDataConsent } from '@/components/app/DataConsentModal';
 import { cn } from '@/lib/utils';
 
@@ -52,8 +46,6 @@ export const NetworkContribution: React.FC = () => {
   const [celebrationPoints, setCelebrationPoints] = useState(0);
   const [showHeatmap, setShowHeatmap] = useState(true);
   const [coverageMode, setCoverageMode] = useState<CoverageMode>('global'); // Default to globe view
-  const [showSpeedTest, setShowSpeedTest] = useState(false);
-  const [showCarrierComparison, setShowCarrierComparison] = useState(false);
   const [consentGiven, setConsentGiven] = useState(() => hasDataConsent());
   const [showConsentModal, setShowConsentModal] = useState(false);
   const [showTools, setShowTools] = useState(false);
@@ -283,29 +275,6 @@ export const NetworkContribution: React.FC = () => {
           </div>
         )}
 
-        {/* Tool Panels - shown below warnings */}
-        {showSpeedTest && (
-          <div className="mx-4 mt-3 pointer-events-auto animate-fade-in">
-            <SpeedTest
-              latitude={lastPosition?.coords.latitude}
-              longitude={lastPosition?.coords.longitude}
-              networkType={String(connectionType)}
-              carrier={undefined}
-              onPointsEarned={() => playCoin()}
-            />
-          </div>
-        )}
-
-        {showCarrierComparison && (
-          <div className="mx-4 mt-3 pointer-events-auto animate-fade-in">
-            <CarrierComparison
-              latitude={lastPosition?.coords.latitude}
-              longitude={lastPosition?.coords.longitude}
-              radiusKm={15}
-            />
-          </div>
-        )}
-
         {/* Spacer - pushes controls to bottom */}
         <div className="flex-1" />
 
@@ -490,38 +459,6 @@ export const NetworkContribution: React.FC = () => {
                 <span className="text-sm font-medium">
                   {isRunningSpeedTest ? 'Testing...' : 'Run Test'}
                 </span>
-              </button>
-              
-              <button
-                onClick={() => {
-                  buttonTap();
-                  setShowSpeedTest(prev => !prev);
-                  if (!showSpeedTest) setShowCarrierComparison(false);
-                }}
-                className={cn(
-                  'flex items-center gap-2 px-4 py-2.5 rounded-xl',
-                  'bg-white/10 backdrop-blur-xl border shadow-lg transition-all',
-                  showSpeedTest ? 'border-[#00d4ff]/40 text-[#00d4ff]' : 'border-white/20 text-white'
-                )}
-              >
-                <Activity className="w-4 h-4" />
-                <span className="text-sm font-medium">Speed Test</span>
-              </button>
-              
-              <button
-                onClick={() => {
-                  buttonTap();
-                  setShowCarrierComparison(prev => !prev);
-                  if (!showCarrierComparison) setShowSpeedTest(false);
-                }}
-                className={cn(
-                  'flex items-center gap-2 px-4 py-2.5 rounded-xl',
-                  'bg-white/10 backdrop-blur-xl border shadow-lg transition-all',
-                  showCarrierComparison ? 'border-[#00d4ff]/40 text-[#00d4ff]' : 'border-white/20 text-white'
-                )}
-              >
-                <Signal className="w-4 h-4" />
-                <span className="text-sm font-medium">Compare</span>
               </button>
               
               {/* Link to Network Stats Page */}
