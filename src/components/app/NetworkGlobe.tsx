@@ -132,7 +132,7 @@ interface DataPointMarker {
   intensity: number;
 }
 
-// Real data point from database
+// City-level data marker (larger for visibility)
 const DataHotspot: React.FC<{
   marker: DataPointMarker;
   onSelect: (marker: DataPointMarker | null) => void;
@@ -140,20 +140,20 @@ const DataHotspot: React.FC<{
 }> = ({ marker, onSelect, isSelected }) => {
   const meshRef = useRef<THREE.Mesh>(null);
   const glowRef = useRef<THREE.Mesh>(null);
-  const pulseSpeed = useRef(Math.random() * 1.2 + 0.4);
+  const pulseSpeed = useRef(Math.random() * 0.8 + 0.3);
   
-  // Size based on data count
-  const baseSize = Math.min(0.012 + (marker.count / 50) * 0.008, 0.04);
+  // Size based on data count - larger for city-level markers
+  const baseSize = Math.min(0.025 + (marker.count / 20) * 0.015, 0.08);
   
   useFrame((state) => {
     if (meshRef.current && glowRef.current) {
-      const pulse = Math.sin(state.clock.elapsedTime * pulseSpeed.current) * 0.12 + 0.94;
-      meshRef.current.scale.setScalar(isSelected ? 1.5 : pulse);
-      glowRef.current.scale.setScalar(isSelected ? 2 : pulse * 1.5);
+      const pulse = Math.sin(state.clock.elapsedTime * pulseSpeed.current) * 0.1 + 0.95;
+      meshRef.current.scale.setScalar(isSelected ? 1.4 : pulse);
+      glowRef.current.scale.setScalar(isSelected ? 1.8 : pulse * 1.4);
     }
   });
 
-  // Color based on intensity
+  // Color based on intensity - green=high, cyan=medium, purple=new
   const color = marker.intensity > 0.7 ? '#22c55e' : marker.intensity > 0.4 ? '#06b6d4' : '#a855f7';
 
   return (
@@ -394,19 +394,19 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
           </div>
         </div>
         
-        {/* Stats row */}
+        {/* Stats row - shows REAL data from database */}
         <div className="flex justify-between gap-2">
           <div className="flex-1 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl px-3 py-2 text-center">
             <div className="text-white text-base font-bold tabular-nums">
               {realStats.dataPoints.toLocaleString()}
             </div>
-            <div className="text-white/50 text-[10px] font-medium">Data Points</div>
+            <div className="text-white/50 text-[10px] font-medium">Samples</div>
           </div>
           <div className="flex-1 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl px-3 py-2 text-center">
             <div className="text-white text-base font-bold tabular-nums">
               {realStats.locations.toLocaleString()}
             </div>
-            <div className="text-white/50 text-[10px] font-medium">Locations</div>
+            <div className="text-white/50 text-[10px] font-medium">Cities</div>
           </div>
           <div className="flex-1 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl px-3 py-2 text-center">
             <div className="text-white text-base font-bold tabular-nums">
