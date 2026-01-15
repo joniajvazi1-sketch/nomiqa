@@ -28,9 +28,9 @@ const config: CapacitorConfig = {
       // iOS background modes will be configured in Xcode
     },
     Keyboard: {
-      // Don't resize - app handles keyboard with CSS env(keyboard-inset-height)
-      resize: 'none',
-      resizeOnFullScreen: false
+      // Use 'native' for proper input scrolling on both platforms
+      resize: 'native',
+      resizeOnFullScreen: true
     }
   },
   ios: {
@@ -42,8 +42,8 @@ const config: CapacitorConfig = {
   android: {
     backgroundColor: '#0a0a0a',
     allowMixedContent: true,
-    // Enable edge-to-edge display on Android
-    windowSoftInputMode: 'adjustResize'
+    // Pan input into view when keyboard opens
+    windowSoftInputMode: 'adjustPan'
   }
 };
 
