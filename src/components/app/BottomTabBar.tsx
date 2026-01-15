@@ -11,8 +11,9 @@ interface TabItem {
 }
 
 /**
- * Clean bottom navigation bar (4 tabs max)
- * Banking/Health app style - Home, Rewards, Shop, Profile
+ * Clean bottom navigation bar (4 tabs)
+ * Single nav element with proper safe area padding
+ * Height: 64px content + safe area inset for home indicator
  */
 export const BottomTabBar: React.FC = () => {
   const navigate = useNavigate();
@@ -39,26 +40,17 @@ export const BottomTabBar: React.FC = () => {
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50">
-      {/* Glassmorphism background - extends INTO safe area (behind home indicator) */}
-      <div 
-        className="absolute inset-0 bg-card/95 backdrop-blur-xl border-t border-border"
-        style={{ 
-          bottom: 0,
-          paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 0.5rem)',
-          // Ensure background extends past the actual content
-          minHeight: 'calc(100% + env(safe-area-inset-bottom, 0px))'
-        }}
-      />
-      
-      {/* Tab content with safe area spacing */}
-      <div 
-        className="relative flex items-stretch h-16"
-        style={{ 
-          paddingLeft: 'env(safe-area-inset-left, 0px)',
-          paddingRight: 'env(safe-area-inset-right, 0px)',
-        }}
-      >
+    <nav 
+      className="fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-xl border-t border-border"
+      style={{
+        // Extend into safe area to fill behind home indicator
+        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+        paddingLeft: 'env(safe-area-inset-left, 0px)',
+        paddingRight: 'env(safe-area-inset-right, 0px)',
+      }}
+    >
+      {/* Tab buttons - fixed 64px height */}
+      <div className="flex items-stretch h-16">
         {tabs.map((tab) => {
           const active = isActive(tab.path);
           const Icon = tab.icon;
@@ -93,12 +85,6 @@ export const BottomTabBar: React.FC = () => {
           );
         })}
       </div>
-      
-      {/* Safe area spacer for home indicator */}
-      <div 
-        className="relative bg-card/95"
-        style={{ height: 'env(safe-area-inset-bottom, 0px)' }} 
-      />
     </nav>
   );
 };

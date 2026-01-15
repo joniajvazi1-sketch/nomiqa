@@ -28,9 +28,9 @@ const config: CapacitorConfig = {
       // iOS background modes will be configured in Xcode
     },
     Keyboard: {
-      // Prevent keyboard from pushing content up too aggressively
-      resize: 'body',
-      resizeOnFullScreen: true
+      // Don't resize - app handles keyboard with CSS env(keyboard-inset-height)
+      resize: 'none',
+      resizeOnFullScreen: false
     }
   },
   ios: {

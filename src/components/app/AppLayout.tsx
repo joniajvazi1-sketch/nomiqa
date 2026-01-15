@@ -17,13 +17,12 @@ interface AppLayoutProps {
 }
 
 /**
- * Native App Layout - Used only when running as installed app
- * Edge-to-edge display with content flowing behind status bar
- * Handles notch/cutout on iOS (Dynamic Island) and Samsung (punch-hole cameras)
+ * Native App Layout - Modern edge-to-edge fullscreen design
+ * Uses .app-shell class for safe area handling via CSS
+ * Handles notch/cutout on iOS (Dynamic Island) and Android (punch-hole cameras)
  */
 export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const isNative = Capacitor.isNativePlatform();
-  const isIOS = Capacitor.getPlatform() === 'ios';
   const isAndroid = Capacitor.getPlatform() === 'android';
   const location = useLocation();
   const statusBarRef = useRef<StatusBarModule | null>(null);
@@ -32,11 +31,11 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const isDark = resolvedTheme === 'dark' || theme === 'dark';
   const [safeAreaReady, setSafeAreaReady] = useState(false);
 
-  // WebGL/canvas safety: avoid parent transforms on the map route (prevents blank WebGL on some devices)
-  const isMapRoute = location.pathname === '/app/map';
+  // WebGL/canvas safety: avoid parent transforms on map/network routes
+  const isMapRoute = location.pathname === '/app/map' || location.pathname === '/app/network';
 
   useEffect(() => {
-    // Configure status bar for native app - translucent overlay style
+    // Configure status bar for native app - translucent overlay style (Option A)
     if (isNative) {
       const configureStatusBar = async () => {
         try {
@@ -46,17 +45,17 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           }
           const { StatusBar, Style } = statusBarRef.current;
           
-          // Set style based on theme
+          // Set style based on theme - light icons on dark bg, dark icons on light bg
           await StatusBar.setStyle({ 
             style: isDark ? Style.Dark : Style.Light 
           });
           
           if (isAndroid) {
-            // Android: Make status bar & navigation bar transparent, overlay content
+            // Android: Transparent status bar + navigation bar, overlay content
             await StatusBar.setBackgroundColor({ color: '#00000000' });
             await StatusBar.setOverlaysWebView({ overlay: true });
           }
-          // iOS: viewport-fit=cover handles this automatically
+          // iOS: viewport-fit=cover in index.html handles this automatically
           
           setSafeAreaReady(true);
         } catch (error) {
@@ -68,7 +67,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
     } else {
       setSafeAreaReady(true);
     }
-  }, [isNative, isIOS, isAndroid, isDark]);
+  }, [isNative, isAndroid, isDark]);
 
   // Update status bar style when theme changes
   useEffect(() => {
@@ -88,26 +87,21 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   return (
     <div 
       className={cn(
-        "app-theme fixed inset-0 flex flex-col overflow-hidden transition-colors duration-300",
+        // Use app-shell class for safe area handling via CSS
+        "app-shell app-theme fixed inset-0 overflow-hidden transition-colors duration-300",
         isDark 
           ? "dark bg-gradient-to-b from-[hsl(220,40%,10%)] via-[hsl(220,40%,8%)] to-[hsl(220,45%,6%)]" 
           : "light bg-gradient-to-b from-[hsl(210,40%,98%)] via-[hsl(210,35%,96%)] to-[hsl(210,30%,94%)]"
       )}
-      style={{
-        // Ensure content respects device safe areas
-        paddingTop: 'env(safe-area-inset-top, 0px)',
-        paddingLeft: 'env(safe-area-inset-left, 0px)',
-        paddingRight: 'env(safe-area-inset-right, 0px)',
-      }}
     >
-      {/* Scrollable content area with swipe support */}
+      {/* Scrollable content area - flex-1 fills remaining space */}
       <main 
         className={cn(
           "flex-1 overflow-x-hidden overscroll-none",
           isMapRoute ? "overflow-hidden" : "overflow-y-auto"
         )}
         style={{ 
-          // Bottom padding accounts for tab bar + safe area
+          // Bottom padding: 64px tab bar height + safe area for home indicator
           paddingBottom: 'calc(64px + env(safe-area-inset-bottom, 0px))',
           // Smooth momentum scrolling on iOS (avoid on WebGL routes)
           WebkitOverflowScrolling: isMapRoute ? undefined : 'touch',
@@ -124,7 +118,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         </SwipeablePages>
       </main>
       
-      {/* Bottom navigation - fixed to screen bottom */}
+      {/* Bottom navigation - fixed to screen bottom, handles its own safe area */}
       <BottomTabBar />
     </div>
   );

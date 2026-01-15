@@ -331,37 +331,60 @@ All colors MUST be HSL.
     }
   }
 
-  /* Ensure html and body match for rubber band overscroll */
+  /* ============================================
+     VIEWPORT + SAFE AREA FOUNDATION (Modern Edge-to-Edge)
+     Uses dvh for proper mobile viewport handling
+     ============================================ */
   html {
     @apply bg-background;
-    /* Light mode background for overscroll */
     background-color: hsl(0 0% 100%);
-    /* CRITICAL: Stop rubber band bounce completely */
     overscroll-behavior: none;
     overflow: hidden;
     height: 100%;
+    height: 100dvh; /* Dynamic viewport height - handles mobile browser chrome */
   }
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    /* Light mode background */
     background-color: hsl(0 0% 100%);
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
     font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    /* CRITICAL: Stop rubber band bounce and void at bottom */
     overscroll-behavior: none;
     overflow: hidden;
     height: 100%;
-    position: fixed;
+    height: 100dvh;
+    /* Use relative positioning to allow natural scrolling in children */
+    position: relative;
     width: 100%;
   }
 
   #root {
     height: 100%;
+    height: 100dvh;
     overflow: hidden;
+  }
+
+  /* App shell container for native apps - edge-to-edge with safe areas */
+  .app-shell {
+    min-height: 100dvh;
+    min-height: -webkit-fill-available; /* iOS Safari fallback */
+    display: flex;
+    flex-direction: column;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
+    /* Bottom padding handled by content area to account for bottom nav */
+  }
+
+  /* Keyboard-aware input container */
+  @supports (padding-bottom: env(keyboard-inset-height, 0px)) {
+    .keyboard-aware {
+      padding-bottom: calc(env(keyboard-inset-height, 0px) + 16px);
+      transition: padding-bottom 0.25s ease-out;
+    }
   }
 
   /* Native-feeling tap states for all interactive elements */
