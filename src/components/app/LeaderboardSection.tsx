@@ -82,10 +82,9 @@ export const LeaderboardSection: React.FC<LeaderboardSectionProps> = ({
   const displayEntries = entries.slice(0, limit);
 
   const periods = [
-    { id: 'daily' as const, label: 'Today', icon: Flame },
+    { id: 'daily' as const, label: 'Day', icon: Flame },
     { id: 'weekly' as const, label: 'Week', icon: Target },
-    { id: 'monthly' as const, label: 'Month', icon: Trophy },
-    { id: 'all_time' as const, label: 'All Time', icon: Sparkles }
+    { id: 'monthly' as const, label: 'Month', icon: Trophy }
   ];
 
   if (loading) {
