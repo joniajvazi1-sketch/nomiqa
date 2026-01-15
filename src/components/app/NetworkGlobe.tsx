@@ -558,25 +558,23 @@ const DataHotspot: React.FC<{
   useFrame((state) => {
     const time = state.clock.elapsedTime;
     
-    // Flash/pulse effect - oscillates between base and bright color
+    // Flash effect on head only - oscillates between base and bright color
     const flash = (Math.sin(time * pulseSpeed.current + flashOffset.current) + 1) / 2;
     
     if (headRef.current && headRef.current.material) {
       const mat = headRef.current.material as THREE.MeshBasicMaterial;
-      mat.color.lerpColors(baseColor, brightColor, flash * 0.6);
+      mat.color.lerpColors(baseColor, brightColor, flash * 0.7);
     }
     
     // Glow pulse
     if (glowRef.current && glowRef.current.material) {
       const mat = glowRef.current.material as THREE.MeshBasicMaterial;
-      mat.opacity = 0.15 + flash * 0.25;
+      mat.opacity = 0.1 + flash * 0.2;
     }
     
-    // Subtle bounce animation
+    // Scale up when selected (no bounce/movement)
     if (pinRef.current) {
-      const bounce = Math.sin(time * pulseSpeed.current * 0.5 + flashOffset.current) * 0.003;
-      pinRef.current.position.y = bounce;
-      pinRef.current.scale.setScalar(isSelected ? 1.2 : 1 + flash * 0.08);
+      pinRef.current.scale.setScalar(isSelected ? 1.2 : 1);
     }
     
     // Billboard effect - pin always faces camera
@@ -657,13 +655,29 @@ const DataMarkers: React.FC<{
 }> = ({ cells, selectedMarker, onSelectMarker }) => {
   const groupRef = useRef<THREE.Group>(null);
   
-  // Convert real coverage data to markers with city names
+  // Convert real coverage data to markers with city names, filtering out overlapping pins
   const markers = useMemo<DataPointMarker[]>(() => {
     if (!cells || cells.length === 0) return [];
     
     const maxCount = Math.max(...cells.map(c => c.count), 1);
+    const minDistance = 0.08; // Minimum distance between pins to prevent overlap
     
-    return cells.slice(0, 200).map(cell => ({
+    const filteredCells: typeof cells = [];
+    
+    // Filter out cells that are too close to each other
+    for (const cell of cells.slice(0, 300)) {
+      const isTooClose = filteredCells.some(existing => {
+        const latDiff = Math.abs(existing.lat - cell.lat);
+        const lngDiff = Math.abs(existing.lng - cell.lng);
+        return latDiff < 3 && lngDiff < 3; // ~3 degrees apart minimum
+      });
+      
+      if (!isTooClose) {
+        filteredCells.push(cell);
+      }
+    }
+    
+    return filteredCells.slice(0, 200).map(cell => ({
       lat: cell.lat,
       lng: cell.lng,
       count: cell.count,
