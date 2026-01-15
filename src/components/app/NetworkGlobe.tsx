@@ -263,6 +263,11 @@ const getApproximateLocation = (lat: number, lng: number): string => {
     { name: 'Krakow', lat: 50.1, lng: 19.9, radius: 1 },
     { name: 'Gdansk', lat: 54.4, lng: 18.6, radius: 1 },
     { name: 'Wroclaw', lat: 51.1, lng: 17, radius: 1 },
+    { name: 'Poznan', lat: 52.4, lng: 16.9, radius: 1 },
+    { name: 'Lodz', lat: 51.8, lng: 19.5, radius: 1 },
+    { name: 'Szczecin', lat: 53.4, lng: 14.5, radius: 1 },
+    { name: 'Lublin', lat: 51.2, lng: 22.6, radius: 1 },
+    { name: 'Katowice', lat: 50.3, lng: 19, radius: 1 },
     
     // North America
     { name: 'New York', lat: 40.7, lng: -74, radius: 1.5 },
@@ -340,6 +345,10 @@ const getApproximateLocation = (lat: number, lng: number): string => {
     { name: 'Sapporo', lat: 43.1, lng: 141.4, radius: 1.2 },
     { name: 'Yokohama', lat: 35.4, lng: 139.6, radius: 1.2 },
     { name: 'Taipei', lat: 25, lng: 121.5, radius: 1 },
+    { name: 'Kaohsiung', lat: 22.6, lng: 120.3, radius: 1.2 },
+    { name: 'Taichung', lat: 24.1, lng: 120.7, radius: 1 },
+    { name: 'Tainan', lat: 23, lng: 120.2, radius: 1 },
+    { name: 'Hsinchu', lat: 24.8, lng: 121, radius: 0.8 },
     { name: 'Ho Chi Minh City', lat: 10.8, lng: 106.6, radius: 1.5 },
     { name: 'Hanoi', lat: 21, lng: 105.8, radius: 1 },
     { name: 'Shenzhen', lat: 22.5, lng: 114.1, radius: 1.5 },
