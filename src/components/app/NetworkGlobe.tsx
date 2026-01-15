@@ -373,6 +373,11 @@ const getApproximateLocation = (lat: number, lng: number): string => {
     { name: 'Riyadh', lat: 24.7, lng: 46.7, radius: 1.5 },
     { name: 'Tel Aviv', lat: 32.1, lng: 34.8, radius: 1 },
     { name: 'Istanbul', lat: 41, lng: 29, radius: 2 },
+    { name: 'Ankara', lat: 39.9, lng: 32.9, radius: 1.5 },
+    { name: 'Izmir', lat: 38.4, lng: 27.1, radius: 1.2 },
+    { name: 'Bursa', lat: 40.2, lng: 29, radius: 1 },
+    { name: 'Adana', lat: 37, lng: 35.3, radius: 1 },
+    { name: 'Antalya', lat: 36.9, lng: 30.7, radius: 1.2 },
     { name: 'Jeddah', lat: 21.5, lng: 39.2, radius: 1.5 },
     { name: 'Kuwait City', lat: 29.4, lng: 47.9, radius: 1.2 },
     { name: 'Muscat', lat: 23.6, lng: 58.5, radius: 1 },
@@ -460,6 +465,12 @@ const getApproximateLocation = (lat: number, lng: number): string => {
     { name: 'Belo Horizonte', lat: -19.9, lng: -43.9, radius: 1.2 },
     { name: 'Porto Alegre', lat: -30.1, lng: -51.2, radius: 1 },
     { name: 'Córdoba', lat: -31.4, lng: -64.2, radius: 1 },
+    { name: 'Fortaleza', lat: -3.7, lng: -38.5, radius: 1.2 },
+    { name: 'Recife', lat: -8, lng: -34.9, radius: 1.2 },
+    { name: 'Salvador', lat: -13, lng: -38.5, radius: 1.2 },
+    { name: 'Manaus', lat: -3.1, lng: -60, radius: 1.5 },
+    { name: 'Florianópolis', lat: -27.6, lng: -48.5, radius: 1 },
+    { name: 'Natal', lat: -5.8, lng: -35.2, radius: 1 },
   ];
   
   // Find the closest city within its radius
