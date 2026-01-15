@@ -442,6 +442,52 @@ function validateSignalLog(log: SignalLogData): SignalLogValidation {
   const flags: string[] = [];
   const sanitized = { ...log };
 
+  // SECURITY: Sanitize string fields to prevent injection attacks
+  // Max lengths and allowed character patterns
+  const sanitizeString = (val: string | undefined, maxLen: number): string | undefined => {
+    if (!val) return undefined;
+    // Truncate to max length
+    let clean = val.substring(0, maxLen);
+    // Remove null bytes and control characters (except common whitespace)
+    clean = clean.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
+    return clean.trim() || undefined;
+  };
+  
+  // Sanitize all user-supplied string fields
+  sanitized.carrier_name = sanitizeString(log.carrier_name, 100);
+  sanitized.network_type = sanitizeString(log.network_type, 50);
+  sanitized.device_model = sanitizeString(log.device_model, 100);
+  sanitized.device_manufacturer = sanitizeString(log.device_manufacturer, 100);
+  sanitized.os_version = sanitizeString(log.os_version, 50);
+  sanitized.cell_id = sanitizeString(log.cell_id, 50);
+  sanitized.tac = sanitizeString(log.tac, 20);
+  sanitized.speed_test_error = sanitizeString(log.speed_test_error, 200);
+  sanitized.speed_test_provider = sanitizeString(log.speed_test_provider, 50);
+  sanitized.latency_error = sanitizeString(log.latency_error, 200);
+  sanitized.latency_provider = sanitizeString(log.latency_provider, 50);
+  sanitized.latency_method = sanitizeString(log.latency_method, 50);
+  sanitized.app_version = sanitizeString(log.app_version, 20);
+  
+  // Validate MCC format (should be exactly 3 digits)
+  if (log.mcc) {
+    if (/^\d{3}$/.test(log.mcc)) {
+      sanitized.mcc = log.mcc;
+    } else {
+      sanitized.mcc = undefined;
+      flags.push('invalid_mcc_format');
+    }
+  }
+  
+  // Validate MNC format (2-3 digits)
+  if (log.mnc) {
+    if (/^\d{2,3}$/.test(log.mnc)) {
+      sanitized.mnc = log.mnc;
+    } else {
+      sanitized.mnc = undefined;
+      flags.push('invalid_mnc_format');
+    }
+  }
+
   // Coordinate validation
   if (Math.abs(log.latitude) > 90 || Math.abs(log.longitude) > 180) {
     return { valid: false, sanitized, flags: ['Invalid coordinates'], confidenceScore: 0 };

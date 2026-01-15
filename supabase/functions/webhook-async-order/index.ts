@@ -89,11 +89,22 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Log webhook
+    // Log webhook - SECURITY: Redact any secrets from payload before logging
+    const safePayload = { ...data };
+    if (safePayload.secret) safePayload.secret = '[REDACTED]';
+    if (safePayload.api_secret) safePayload.api_secret = '[REDACTED]';
+    if (safePayload.apiSecret) safePayload.apiSecret = '[REDACTED]';
+    if (safePayload.transactionObject?.meta?.apiSecret) {
+      safePayload.transactionObject = { 
+        ...safePayload.transactionObject, 
+        meta: { ...safePayload.transactionObject.meta, apiSecret: '[REDACTED]' } 
+      };
+    }
+    
     await supabase.from('webhook_logs').insert({
       event_type: 'async_order',
-      payload: data,
-      signature: airaloSignature,
+      payload: safePayload,
+      signature: airaloSignature ? '[SIGNATURE_PRESENT]' : null, // Don't log actual signature
       processed: false
     });
 
