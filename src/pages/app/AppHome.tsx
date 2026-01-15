@@ -63,6 +63,7 @@ export const AppHome: React.FC = () => {
   } | null>(null);
   const [loading, setLoading] = useState(true);
   const [todayPoints, setTodayPoints] = useState(0);
+  const [isActivelyContributing, setIsActivelyContributing] = useState(false);
   const [recentActivity, setRecentActivity] = useState<Array<{
     type: 'scan' | 'referral' | 'bonus';
     points: number;
@@ -127,7 +128,15 @@ export const AppHome: React.FC = () => {
           setPoints(pointsData);
         }
 
-        // Spin wheel removed - skip check
+        // Check for active contribution session
+        const { data: activeSession } = await supabase
+          .from('contribution_sessions')
+          .select('id')
+          .eq('user_id', currentUser.id)
+          .eq('status', 'active')
+          .maybeSingle();
+        
+        setIsActivelyContributing(!!activeSession);
 
         // Load recent sessions for activity
         const { data: sessionsData } = await supabase
@@ -342,13 +351,13 @@ export const AppHome: React.FC = () => {
               onClick={() => { mediumTap(); navigate('/app/map'); }}
               className={cn(
                 "w-full h-12 rounded-xl font-semibold text-sm active:scale-[0.98] transition-transform flex items-center justify-center gap-2",
-                isOnline 
+                isActivelyContributing 
                   ? "bg-green-500 text-white" 
-                  : "bg-primary text-primary-foreground"
+                  : "bg-destructive text-destructive-foreground"
               )}
             >
               <Signal className="w-4 h-4" />
-              {isOnline ? 'Contribution Active' : 'Resume Contribution'}
+              {isActivelyContributing ? 'Contributing Now ✓' : 'Contribute Now'}
             </button>
           </motion.div>
 
