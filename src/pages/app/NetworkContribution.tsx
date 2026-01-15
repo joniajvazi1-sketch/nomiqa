@@ -4,15 +4,13 @@ import {
   Wifi,
   CloudOff,
   Zap,
-  Globe,
-  Map,
   Play,
   Gauge
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useNetworkContribution } from '@/hooks/useNetworkContribution';
-import { useContributionHeatmap } from '@/hooks/useContributionHeatmap';
+
 import { useGlobalCoverage } from '@/hooks/useGlobalCoverage';
 import { useEnhancedHaptics } from '@/hooks/useEnhancedHaptics';
 import { useEnhancedSounds } from '@/hooks/useEnhancedSounds';
@@ -28,7 +26,7 @@ import { cn } from '@/lib/utils';
 // Lazy load the Three.js globe (Mapbox kept for future update)
 const NetworkGlobe = lazy(() => import('@/components/app/NetworkGlobe').then(m => ({ default: m.NetworkGlobe })));
 
-type CoverageMode = 'personal' | 'global';
+// Global-only view - showing real community data from database
 
 /**
  * Network Contribution - Premium Map Experience
@@ -42,8 +40,6 @@ export const NetworkContribution: React.FC = () => {
   
   const [showCelebration, setShowCelebration] = useState(false);
   const [celebrationPoints, setCelebrationPoints] = useState(0);
-  const [showHeatmap, setShowHeatmap] = useState(true);
-  const [coverageMode, setCoverageMode] = useState<CoverageMode>('global');
   const [consentGiven, setConsentGiven] = useState(() => hasDataConsent());
   const [showConsentModal, setShowConsentModal] = useState(false);
   const startButtonRef = useRef<HTMLButtonElement>(null);
@@ -67,19 +63,13 @@ export const NetworkContribution: React.FC = () => {
 
   const [isRunningSpeedTest, setIsRunningSpeedTest] = useState(false);
 
-  const { 
-    points: heatmapPoints, 
-    refresh: refreshHeatmap
-  } = useContributionHeatmap();
 
   const {
     data: globalCoverageData,
     loading: globalCoverageLoading,
     refresh: refreshGlobalCoverage,
-    networkFilter,
-    setNetworkFilter,
   } = useGlobalCoverage({
-    autoRefresh: coverageMode === 'global',
+    autoRefresh: true,
     refreshInterval: 60000,
   });
 
@@ -123,29 +113,9 @@ export const NetworkContribution: React.FC = () => {
     return 'Cellular';
   };
 
-  const handleToggleHeatmap = useCallback(() => {
-    buttonTap();
-    setShowHeatmap(prev => !prev);
-    if (!showHeatmap) refreshHeatmap();
-  }, [showHeatmap, buttonTap, refreshHeatmap]);
-
-  const handleToggleCoverageMode = useCallback(() => {
-    buttonTap();
-    setCoverageMode(prev => {
-      const next = prev === 'personal' ? 'global' : 'personal';
-      if (next === 'global') refreshGlobalCoverage(true);
-      return next;
-    });
-  }, [buttonTap, refreshGlobalCoverage]);
-
-  const handleNetworkFilterChange = useCallback((filter: '5g' | 'lte' | '3g' | null) => {
-    buttonTap();
-    setNetworkFilter(filter);
-  }, [buttonTap, setNetworkFilter]);
-
   const handleRefresh = useCallback(async () => {
-    await Promise.all([refreshHeatmap(), refreshGlobalCoverage(true)]);
-  }, [refreshHeatmap, refreshGlobalCoverage]);
+    await refreshGlobalCoverage(true);
+  }, [refreshGlobalCoverage]);
 
   const { isRefreshing, pullDistance, pullProgress, handlers } = usePullToRefresh({
     onRefresh: handleRefresh,
@@ -153,42 +123,22 @@ export const NetworkContribution: React.FC = () => {
 
   return (
     <div className="relative w-full h-full min-h-screen bg-background overflow-hidden">
-      {/* 3D Globe - starts zoomed in for "My Map", zoomed out for "Global" */}
+      {/* 3D Globe - Global community data from database */}
       <div className="absolute inset-0 z-0">
         <Suspense fallback={
           <div className="w-full h-full flex items-center justify-center bg-[#0a0f1a]">
             <div className="flex flex-col items-center gap-3">
               <div className="w-12 h-12 border-2 border-[#00d4ff]/30 border-t-[#00d4ff] rounded-full animate-spin" />
-              <p className="text-sm text-white/60">
-                {coverageMode === 'personal' ? 'Loading your coverage...' : 'Loading global network...'}
-              </p>
+              <p className="text-sm text-white/60">Loading global network...</p>
             </div>
           </div>
         }>
           <NetworkGlobe 
-            coverageData={
-              coverageMode === 'personal' 
-                ? heatmapPoints.map(p => ({
-                    lat: p.lat,
-                    lng: p.lng,
-                    intensity: p.intensity,
-                    network: 'lte' as const,
-                    count: 1
-                  }))
-                : (globalCoverageData?.cells || [])
-            }
-            loading={coverageMode === 'personal' ? false : globalCoverageLoading}
-            totalDataPoints={
-              coverageMode === 'personal' 
-                ? heatmapPoints.length 
-                : (globalCoverageData?.totalDataPoints || 0)
-            }
-            uniqueLocations={
-              coverageMode === 'personal' 
-                ? heatmapPoints.length 
-                : (globalCoverageData?.uniqueLocations || 0)
-            }
-            isPersonalView={coverageMode === 'personal'}
+            coverageData={globalCoverageData?.cells || []}
+            loading={globalCoverageLoading}
+            totalDataPoints={globalCoverageData?.totalDataPoints || 0}
+            uniqueLocations={globalCoverageData?.uniqueLocations || 0}
+            isPersonalView={false}
             userPosition={userPosition}
           />
         </Suspense>
@@ -315,44 +265,6 @@ export const NetworkContribution: React.FC = () => {
                 {isRunningSpeedTest ? 'Running Speed Test...' : 'Run Speed Test'}
               </span>
             </button>
-          </div>
-
-          {/* Mode Toggle */}
-          <div className="flex justify-center">
-            <div className="inline-flex items-center gap-1 p-1 rounded-2xl bg-card/60 backdrop-blur-xl border border-border">
-              <button
-                onClick={() => {
-                  buttonTap();
-                  setCoverageMode('personal');
-                  refreshHeatmap();
-                }}
-                className={cn(
-                  'flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all',
-                  coverageMode === 'personal' 
-                    ? 'bg-primary text-primary-foreground' 
-                    : 'text-muted-foreground hover:text-foreground'
-                )}
-              >
-                <Map className="w-4 h-4" />
-                My Map
-              </button>
-              <button
-                onClick={() => {
-                  buttonTap();
-                  setCoverageMode('global');
-                  refreshGlobalCoverage(true);
-                }}
-                className={cn(
-                  'flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all',
-                  coverageMode === 'global' 
-                    ? 'bg-primary text-primary-foreground' 
-                    : 'text-muted-foreground hover:text-foreground'
-                )}
-              >
-                <Globe className="w-4 h-4" />
-                Global
-              </button>
-            </div>
           </div>
 
           {/* Live Points Counter - when active */}
