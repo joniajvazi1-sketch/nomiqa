@@ -295,10 +295,17 @@ export const AppProfile: React.FC = () => {
   if (!user && !loading) {
     return (
       <div className="px-4 py-6 flex flex-col items-center justify-center min-h-[60vh]">
-        <User className="w-16 h-16 text-white/40 mb-4" />
-        <h2 className="text-xl font-semibold text-white mb-2">Sign in to view profile</h2>
-        <p className="text-white/60 text-center mb-6">Access your account, orders, and rewards</p>
-        <Button onClick={() => navigate('/auth')}>Sign In</Button>
+        <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mb-4">
+          <User className="w-10 h-10 text-muted-foreground" />
+        </div>
+        <h2 className="text-xl font-semibold text-foreground mb-2">Sign in to view profile</h2>
+        <p className="text-muted-foreground text-center mb-6">Access your account, orders, and rewards</p>
+        <Button 
+          onClick={() => navigate('/app/auth?mode=login')}
+          className="bg-primary text-primary-foreground hover:bg-primary/90"
+        >
+          Sign In
+        </Button>
       </div>
     );
   }
