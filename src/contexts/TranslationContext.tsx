@@ -69,6 +69,10 @@ const translations: Record<string, Partial<Record<Language | 'HI', string>>> = {
   appAddedToCart: { EN: "Added to cart", ES: "Añadido al carrito", FR: "Ajouté au panier", DE: "Zum Warenkorb hinzugefügt", RU: "Добавлено в корзину", ZH: "已添加到购物车", JA: "カートに追加しました", PT: "Adicionado ao carrinho", AR: "تمت الإضافة إلى السلة", IT: "Aggiunto al carrello" },
   appCartEmpty: { EN: "Your cart is empty", ES: "Tu carrito está vacío", FR: "Votre panier est vide", DE: "Dein Warenkorb ist leer", RU: "Ваша корзина пуста", ZH: "您的购物车是空的", JA: "カートは空です", PT: "Seu carrinho está vazio", AR: "سلة التسوق فارغة", IT: "Il carrello è vuoto" },
   appAddPlansFirst: { EN: "Add some eSIM plans first!", ES: "¡Primero añade algunos planes eSIM!", FR: "Ajoutez d'abord quelques forfaits eSIM!", DE: "Füge zuerst einige eSIM-Pläne hinzu!", RU: "Сначала добавьте eSIM-планы!", ZH: "请先添加一些eSIM套餐！", JA: "まずeSIMプランを追加してください！", PT: "Adicione alguns planos eSIM primeiro!", AR: "أضف بعض خطط eSIM أولاً!", IT: "Prima aggiungi qualche piano eSIM!" },
+  appShopTitle: { EN: "Buy eSIMs", ES: "Comprar eSIMs", FR: "Acheter eSIMs", DE: "eSIMs kaufen", RU: "Купить eSIM", ZH: "购买eSIM", JA: "eSIMを購入", PT: "Comprar eSIMs", AR: "شراء eSIMs", IT: "Acquista eSIMs" },
+  appPackages: { EN: "packages", ES: "paquetes", FR: "forfaits", DE: "Pakete", RU: "пакетов", ZH: "套餐", JA: "パッケージ", PT: "pacotes", AR: "باقات", IT: "pacchetti" },
+  appAllCountries: { EN: "All Countries", ES: "Todos los países", FR: "Tous les pays", DE: "Alle Länder", RU: "Все страны", ZH: "所有国家", JA: "すべての国", PT: "Todos os países", AR: "جميع البلدان", IT: "Tutti i paesi" },
+  appWorksOnNetworks: { EN: "Works on major networks", ES: "Funciona en redes principales", FR: "Fonctionne sur les réseaux majeurs", DE: "Funktioniert auf großen Netzen", RU: "Работает в крупных сетях", ZH: "支持主流网络", JA: "主要ネットワーク対応", PT: "Funciona em redes principais", AR: "يعمل على الشبكات الرئيسية", IT: "Funziona sulle reti principali" },
   // ========== APP - Wallet ==========
   appWallet: { EN: "Wallet", ES: "Cartera", FR: "Portefeuille", DE: "Wallet", RU: "Кошелёк", ZH: "钱包", JA: "ウォレット", PT: "Carteira", AR: "المحفظة", IT: "Portafoglio" },
   appYourEarningsRewards: { EN: "Your earnings & rewards", ES: "Tus ganancias y recompensas", FR: "Vos gains et récompenses", DE: "Deine Einnahmen und Belohnungen", RU: "Ваши заработки и награды", ZH: "您的收益和奖励", JA: "あなたの収益と報酬", PT: "Seus ganhos e recompensas", AR: "أرباحك ومكافآتك", IT: "I tuoi guadagni e premi" },
@@ -1647,7 +1651,7 @@ export function TranslationProvider({ children }: { children: ReactNode }) {
       'app.home.earnMore': 'appEarnMore',
       'app.home.inviteFriends': 'appInviteFriendsBoosts',
       // Shop Page
-      'app.shop.title': 'appEsimShop',
+      'app.shop.title': 'appShopTitle',
       'app.shop.destinations': 'appDestinations',
       'app.shop.local': 'appLocal',
       'app.shop.regional': 'appRegional',
@@ -1663,6 +1667,9 @@ export function TranslationProvider({ children }: { children: ReactNode }) {
       'app.shop.addedToCart': 'appAddedToCart',
       'app.shop.cartEmpty': 'appCartEmpty',
       'app.shop.addPlansFirst': 'appAddPlansFirst',
+      'app.shop.packages': 'appPackages',
+      'app.shop.allCountries': 'appAllCountries',
+      'app.shop.worksOnNetworks': 'appWorksOnNetworks',
       // Wallet Page
       'app.wallet.title': 'appWallet',
       'app.wallet.subtitle': 'appYourEarningsRewards',

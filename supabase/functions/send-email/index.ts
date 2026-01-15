@@ -489,7 +489,7 @@ const generateEmailHTML = (type: string, data: any): { html: string; subject: st
                   </div>
                   <div style="display: flex; align-items: flex-start; margin-bottom: 16px;">
                     <span style="color: #10b981; margin-right: 12px; font-size: 18px;">✓</span>
-                    <p style="color: #cbd5e1; margin: 0; font-size: 15px;"><strong>Global eSIMs</strong> — Coverage in 190+ countries</p>
+                    <p style="color: #cbd5e1; margin: 0; font-size: 15px;"><strong>Global eSIMs</strong> — 1800+ packages worldwide</p>
                   </div>
                   <div style="display: flex; align-items: flex-start; margin-bottom: 16px;">
                     <span style="color: #10b981; margin-right: 12px; font-size: 18px;">✓</span>

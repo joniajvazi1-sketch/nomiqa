@@ -283,12 +283,12 @@ export const NetworkContribution: React.FC = () => {
           {/* Live Points Counter - when active */}
           {isActive && isCellular && (
             <div className="text-center mb-3 animate-fade-in">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#00d4ff]/20 border border-[#00d4ff]/40 backdrop-blur-sm">
-                <Zap className="w-4 h-4 text-[#00d4ff] animate-pulse" />
-                <span className="text-2xl font-bold text-[#00d4ff] tabular-nums">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/15 border border-primary/40 backdrop-blur-sm">
+                <Zap className="w-4 h-4 text-primary" />
+                <span className="text-2xl font-bold text-primary tabular-nums">
                   +{stats.pointsEarned.toFixed(1)}
                 </span>
-                <span className="text-sm text-[#00d4ff]/70">pts</span>
+                <span className="text-sm text-primary/70">pts</span>
               </div>
             </div>
           )}
@@ -296,20 +296,14 @@ export const NetworkContribution: React.FC = () => {
           {/* Main Control Button */}
           <div className="flex justify-center mb-3">
             <div className="relative">
-              {/* Outer glow ring - idle (RED) */}
+              {/* Subtle idle ring (RED) - modern, no ping */}
               {!isActive && user && consentGiven && (
-                <div className="absolute inset-[-20px] rounded-full">
-                  <div className="absolute inset-0 rounded-full bg-red-500/20 animate-ping" style={{ animationDuration: '2s' }} />
-                  <div className="absolute inset-2 rounded-full border-2 border-red-500/40 animate-pulse" />
-                </div>
+                <div className="absolute inset-[-16px] rounded-full bg-red-500/10 border border-red-500/30" />
               )}
               
-              {/* Active scanning ring (GREEN) */}
+              {/* Active scanning ring (GREEN) - subtle glow, no ping */}
               {isActive && isCellular && (
-                <div className="absolute inset-[-20px] rounded-full">
-                  <div className="absolute inset-0 rounded-full border-3 border-green-400/60 animate-[ping_1.5s_ease-out_infinite]" />
-                  <div className="absolute inset-4 rounded-full border-2 border-green-400/40 animate-[ping_1.5s_ease-out_infinite_0.5s]" />
-                </div>
+                <div className="absolute inset-[-16px] rounded-full bg-green-500/10 border-2 border-green-400/50" />
               )}
               
               <button

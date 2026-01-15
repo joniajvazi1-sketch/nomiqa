@@ -406,7 +406,7 @@ export const ContributionMap: React.FC<ContributionMapProps> = ({
               className={cn(
                 'flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all active:scale-95',
                 coverageMode === 'global'
-                  ? 'bg-neon-cyan text-black shadow-lg shadow-neon-cyan/30'
+                  ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/30'
                   : 'text-muted-foreground hover:text-foreground hover:bg-white/[0.05]'
               )}
             >
@@ -429,13 +429,13 @@ export const ContributionMap: React.FC<ContributionMapProps> = ({
             'flex items-center justify-center',
             'transition-all active:scale-95',
             showHeatmap 
-              ? 'bg-neon-cyan/20 border-neon-cyan/40 shadow-neon-cyan/20'
+              ? 'bg-primary/20 border-primary/40'
               : 'bg-white/[0.03] border-white/[0.08] hover:bg-white/[0.08]'
           )}
           style={{ marginTop: 'env(safe-area-inset-top, 0px)' }}
         >
           {showHeatmap ? (
-            <MapIcon className="w-5 h-5 text-neon-cyan" />
+            <MapIcon className="w-5 h-5 text-primary" />
           ) : (
             <Layers className="w-5 h-5 text-foreground" />
           )}

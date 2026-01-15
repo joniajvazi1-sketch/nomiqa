@@ -18,12 +18,12 @@ export const RadarScanner: React.FC<RadarScannerProps> = ({
     <div className={cn('relative', className)}>
       {/* Base radar circle */}
       <div className="relative w-full h-full rounded-full overflow-hidden">
-        {/* Concentric rings */}
+        {/* Concentric rings - using semantic colors */}
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="absolute w-[80%] h-[80%] rounded-full border border-neon-cyan/20" />
-          <div className="absolute w-[60%] h-[60%] rounded-full border border-neon-cyan/30" />
-          <div className="absolute w-[40%] h-[40%] rounded-full border border-neon-cyan/40" />
-          <div className="absolute w-[20%] h-[20%] rounded-full border border-neon-cyan/50" />
+          <div className="absolute w-[80%] h-[80%] rounded-full border border-primary/20" />
+          <div className="absolute w-[60%] h-[60%] rounded-full border border-primary/30" />
+          <div className="absolute w-[40%] h-[40%] rounded-full border border-primary/40" />
+          <div className="absolute w-[20%] h-[20%] rounded-full border border-primary/50" />
         </div>
 
         {/* Radar sweep beam - Enhanced with multiple sweeps and trailing glow */}
@@ -39,7 +39,7 @@ export const RadarScanner: React.FC<RadarScannerProps> = ({
               <div 
                 className="absolute top-0 left-1/2 w-1/2 h-1/2 origin-bottom-left"
                 style={{
-                  background: 'conic-gradient(from 0deg, transparent 0deg, hsl(var(--neon-cyan) / 0.7) 10deg, hsl(var(--neon-cyan) / 0.5) 25deg, hsl(var(--neon-cyan) / 0.3) 45deg, hsl(var(--neon-cyan) / 0.1) 65deg, transparent 80deg)',
+                  background: 'conic-gradient(from 0deg, transparent 0deg, hsl(var(--primary) / 0.6) 10deg, hsl(var(--primary) / 0.4) 25deg, hsl(var(--primary) / 0.2) 45deg, hsl(var(--primary) / 0.1) 65deg, transparent 80deg)',
                   filter: 'blur(1px)'
                 }}
               />
@@ -55,7 +55,7 @@ export const RadarScanner: React.FC<RadarScannerProps> = ({
               <div 
                 className="absolute top-0 left-1/2 w-1/2 h-1/2 origin-bottom-left opacity-50"
                 style={{
-                  background: 'conic-gradient(from 0deg, transparent 0deg, hsl(var(--neon-cyan) / 0.4) 15deg, hsl(var(--neon-cyan) / 0.2) 35deg, transparent 50deg)'
+                  background: 'conic-gradient(from 0deg, transparent 0deg, hsl(var(--primary) / 0.4) 15deg, hsl(var(--primary) / 0.2) 35deg, transparent 50deg)'
                 }}
               />
             </div>
@@ -70,11 +70,11 @@ export const RadarScanner: React.FC<RadarScannerProps> = ({
               <div 
                 className="absolute top-0 left-1/2 w-1/2 h-1/2 origin-bottom-left opacity-25"
                 style={{
-                  background: 'conic-gradient(from 0deg, transparent 0deg, hsl(var(--neon-cyan) / 0.3) 10deg, transparent 25deg)'
+                  background: 'conic-gradient(from 0deg, transparent 0deg, hsl(var(--primary) / 0.3) 10deg, transparent 25deg)'
                 }}
               />
             </div>
-            {/* Sweep leading edge glow line */}
+            {/* Sweep leading edge line - subtle */}
             <div 
               className="absolute inset-0 origin-center"
               style={{
@@ -84,19 +84,18 @@ export const RadarScanner: React.FC<RadarScannerProps> = ({
               <div 
                 className="absolute top-0 left-1/2 w-1/2 h-0.5 origin-left"
                 style={{
-                  background: 'linear-gradient(90deg, hsl(var(--neon-cyan)) 0%, transparent 100%)',
-                  boxShadow: '0 0 8px hsl(var(--neon-cyan)), 0 0 16px hsl(var(--neon-cyan) / 0.5)'
+                  background: 'linear-gradient(90deg, hsl(var(--primary)) 0%, transparent 100%)'
                 }}
               />
             </div>
           </>
         )}
 
-        {/* Signal dots - animated when active */}
+        {/* Signal dots - subtle, no glow */}
         {isActive && !isPaused && (
           <>
             <div 
-              className="absolute w-2 h-2 rounded-full bg-neon-cyan shadow-glow-sm"
+              className="absolute w-2 h-2 rounded-full bg-primary"
               style={{ 
                 top: '25%', 
                 left: '60%',
@@ -105,7 +104,7 @@ export const RadarScanner: React.FC<RadarScannerProps> = ({
               }} 
             />
             <div 
-              className="absolute w-1.5 h-1.5 rounded-full bg-neon-cyan/80 shadow-glow-sm"
+              className="absolute w-1.5 h-1.5 rounded-full bg-primary/80"
               style={{ 
                 top: '45%', 
                 left: '75%',
@@ -114,7 +113,7 @@ export const RadarScanner: React.FC<RadarScannerProps> = ({
               }} 
             />
             <div 
-              className="absolute w-2.5 h-2.5 rounded-full bg-neon-cyan shadow-glow-sm"
+              className="absolute w-2.5 h-2.5 rounded-full bg-primary"
               style={{ 
                 top: '65%', 
                 left: '35%',
@@ -166,18 +165,15 @@ export const RadarScanner: React.FC<RadarScannerProps> = ({
           </>
         )}
 
-        {/* Center glow */}
-        <div className={cn(
-          'absolute inset-0 flex items-center justify-center',
-          isActive && !isPaused && 'animate-pulse'
-        )}>
+        {/* Center dot - no glow */}
+        <div className="absolute inset-0 flex items-center justify-center">
           <div className={cn(
             'w-4 h-4 rounded-full',
             isActive && !isPaused 
-              ? 'bg-neon-cyan shadow-glow' 
+              ? 'bg-primary' 
               : isPaused 
-                ? 'bg-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.5)]'
-                : 'bg-primary/50'
+                ? 'bg-amber-500'
+                : 'bg-muted-foreground/50'
           )} />
         </div>
       </div>
@@ -193,7 +189,7 @@ export const RadarScanner: React.FC<RadarScannerProps> = ({
             cy="50"
             r="48"
             fill="none"
-            stroke="hsl(var(--neon-cyan) / 0.2)"
+            stroke="hsl(var(--primary) / 0.2)"
             strokeWidth="2"
           />
           <circle
@@ -201,14 +197,11 @@ export const RadarScanner: React.FC<RadarScannerProps> = ({
             cy="50"
             r="48"
             fill="none"
-            stroke="hsl(var(--neon-cyan))"
+            stroke="hsl(var(--primary))"
             strokeWidth="2"
             strokeLinecap="round"
             strokeDasharray={`${signalStrength * 3.01} 301`}
             className="transition-all duration-1000 ease-out"
-            style={{
-              filter: 'drop-shadow(0 0 4px hsl(var(--neon-cyan)))'
-            }}
           />
         </svg>
       )}

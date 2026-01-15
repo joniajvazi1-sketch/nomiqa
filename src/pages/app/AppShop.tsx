@@ -282,8 +282,10 @@ export const AppShop: React.FC = () => {
         {/* Header - Glassmorphism */}
         <header className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-extrabold text-foreground tracking-tight">Buy eSIMs</h1>
-            <p className="text-base font-semibold text-muted-foreground">200+ Destinations</p>
+            <h1 className="text-2xl font-extrabold text-foreground tracking-tight">{t('app.shop.title')}</h1>
+            <p className="text-base font-semibold text-muted-foreground">
+              {products?.length ? `${products.length.toLocaleString()}+ ${t('app.shop.packages')}` : t('app.shop.allCountries')}
+            </p>
           </div>
           <button 
             ref={cartButtonRef}
@@ -449,7 +451,7 @@ export const AppShop: React.FC = () => {
 
                     {/* Trust text */}
                     <p className="text-[9px] text-muted-foreground/70 text-center mb-2">
-                      Works on major networks
+                      {t('app.shop.worksOnNetworks')}
                     </p>
                     
                     {/* Price & Add Button */}
