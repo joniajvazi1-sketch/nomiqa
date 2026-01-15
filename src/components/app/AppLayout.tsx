@@ -85,7 +85,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   return (
     <div 
       className={cn(
-        "app-layout fixed inset-0 flex flex-col overflow-hidden transition-colors duration-300",
+        "app-theme fixed inset-0 flex flex-col overflow-hidden transition-colors duration-300",
         isDark 
           ? "dark bg-gradient-to-b from-[hsl(220,40%,10%)] via-[hsl(220,40%,8%)] to-[hsl(220,45%,6%)]" 
           : "light bg-gradient-to-b from-[hsl(210,40%,98%)] via-[hsl(210,35%,96%)] to-[hsl(210,30%,94%)]"

@@ -43,8 +43,8 @@ export const AppHome: React.FC = () => {
   const { streakDays } = useAchievements();
   const { unclaimedCount } = useChallenges();
   const { share } = useNativeShare();
-  const { theme, setTheme } = useTheme();
-  const isDark = theme === 'dark';
+  const { theme, setTheme, resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark' || theme === 'dark';
   // SpinWheel removed
   const [streakBonus, setStreakBonus] = useState(0);
   const [showReferralNudge, setShowReferralNudge] = useState(false);
