@@ -49,9 +49,20 @@
 	<true/>
 	<key>LSApplicationCategoryType</key>
 	<string></string>
+	
+	<!-- Location Permission Strings (Option B: Background Location for continuous coverage mapping) -->
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>We need your location to map the network.</string>
+	<string>Nomiqa uses your location to collect mobile network coverage measurements (signal quality and connectivity) in your area. Location is collected only when you enable Contribute mode.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>We need your location to map.</string>
+	<string>Allow background location to continue collecting coverage measurements while you travel, even when the app is not open. This improves coverage maps and helps you earn more rewards. You can disable this anytime.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Background location lets Nomiqa collect coverage measurements while you move, even when the app is closed. You control this and can turn it off anytime.</string>
+	
+	<!-- Background Modes for continuous location collection -->
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>location</string>
+		<string>fetch</string>
+	</array>
 </dict>
 </plist>
