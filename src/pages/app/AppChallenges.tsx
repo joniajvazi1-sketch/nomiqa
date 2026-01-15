@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Target, Calendar, Star, Trophy, Sparkles, Flame, Zap } from 'lucide-react';
+import { ArrowLeft, Target, Calendar, Star, Trophy, Sparkles, Flame, Zap, AlertTriangle, Clock } from 'lucide-react';
 import { useHaptics } from '@/hooks/useHaptics';
 import { useChallenges } from '@/hooks/useChallenges';
 import { ChallengeCard } from '@/components/app/ChallengeCard';
@@ -31,6 +31,8 @@ export const AppChallenges: React.FC = () => {
     const today = new Date().toISOString().split('T')[0];
     return localStorage.getItem('dailyChallengesCelebration') === today;
   });
+  const [timeUntilReset, setTimeUntilReset] = useState<string | null>(null);
+  const [showStreakWarning, setShowStreakWarning] = useState(false);
 
   // Calculate progress percentage
   const dailyProgressPercent = dailyChallenges.length > 0 
@@ -38,6 +40,41 @@ export const AppChallenges: React.FC = () => {
     : 0;
 
   const allDailyCompleted = dailyChallenges.length > 0 && completedTodayCount === dailyChallenges.length;
+
+  // Check for streak warning (within 2 hours of midnight)
+  useEffect(() => {
+    const checkStreakWarning = () => {
+      const now = new Date();
+      const midnight = new Date(now);
+      midnight.setHours(24, 0, 0, 0);
+      const hoursUntilMidnight = (midnight.getTime() - now.getTime()) / (1000 * 60 * 60);
+      
+      // Show warning if:
+      // - User has an active streak
+      // - Not all daily challenges are completed
+      // - Within 2 hours of midnight
+      const shouldWarn = dailyChallengeStreak > 0 && 
+                         !allDailyCompleted && 
+                         hoursUntilMidnight <= 2 &&
+                         dailyChallenges.length > 0;
+      
+      setShowStreakWarning(shouldWarn);
+      
+      if (shouldWarn) {
+        const hours = Math.floor(hoursUntilMidnight);
+        const minutes = Math.floor((hoursUntilMidnight - hours) * 60);
+        if (hours > 0) {
+          setTimeUntilReset(`${hours}h ${minutes}m`);
+        } else {
+          setTimeUntilReset(`${minutes}m`);
+        }
+      }
+    };
+
+    checkStreakWarning();
+    const interval = setInterval(checkStreakWarning, 60000); // Check every minute
+    return () => clearInterval(interval);
+  }, [dailyChallengeStreak, allDailyCompleted, dailyChallenges.length]);
 
   // Get motivational message based on progress
   const motivationalMessage = useMemo(() => {
@@ -202,8 +239,39 @@ export const AppChallenges: React.FC = () => {
       </header>
 
       <div className="px-5 py-6 space-y-6">
+        {/* Streak Warning Banner */}
+        <AnimatePresence>
+          {showStreakWarning && (
+            <motion.div
+              initial={{ opacity: 0, y: -20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.95 }}
+              className="rounded-xl bg-gradient-to-r from-red-500/20 to-orange-500/20 border border-red-500/40 p-4"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center flex-shrink-0 animate-pulse">
+                  <AlertTriangle className="w-5 h-5 text-red-500" />
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-bold text-red-500">Streak at risk!</span>
+                    <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-500/20 text-red-400 text-xs font-medium">
+                      <Clock className="w-3 h-3" />
+                      {timeUntilReset} left
+                    </div>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Complete all daily challenges to keep your {dailyChallengeStreak}-day streak!
+                  </p>
+                </div>
+                <Flame className="w-6 h-6 text-orange-500 animate-pulse" />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Motivational Banner */}
-        {motivationalMessage && !loading && (
+        {motivationalMessage && !loading && !showStreakWarning && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
