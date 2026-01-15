@@ -320,6 +320,12 @@ const getApproximateLocation = (lat: number, lng: number): string => {
     { name: 'Riyadh', lat: 24.7, lng: 46.7, radius: 1.5 },
     { name: 'Tel Aviv', lat: 32.1, lng: 34.8, radius: 1 },
     { name: 'Istanbul', lat: 41, lng: 29, radius: 2 },
+    { name: 'Jeddah', lat: 21.5, lng: 39.2, radius: 1.5 },
+    { name: 'Kuwait City', lat: 29.4, lng: 47.9, radius: 1.2 },
+    { name: 'Muscat', lat: 23.6, lng: 58.5, radius: 1 },
+    { name: 'Amman', lat: 31.9, lng: 35.9, radius: 1.2 },
+    { name: 'Beirut', lat: 33.9, lng: 35.5, radius: 1 },
+    { name: 'Bahrain', lat: 26.2, lng: 50.6, radius: 1 },
     
     // Southeast Asia & Pacific Islands
     { name: 'Phuket', lat: 7.9, lng: 98.4, radius: 1 },
@@ -373,6 +379,13 @@ const getApproximateLocation = (lat: number, lng: number): string => {
     { name: 'Medellín', lat: 6.2, lng: -75.6, radius: 1 },
     { name: 'Montevideo', lat: -34.9, lng: -56.2, radius: 1 },
     { name: 'Quito', lat: -0.2, lng: -78.5, radius: 1 },
+    { name: 'Brasília', lat: -15.8, lng: -47.9, radius: 1.5 },
+    { name: 'Curitiba', lat: -25.4, lng: -49.3, radius: 1.2 },
+    { name: 'Cartagena', lat: 10.4, lng: -75.5, radius: 1 },
+    { name: 'Cusco', lat: -13.5, lng: -72, radius: 1 },
+    { name: 'Belo Horizonte', lat: -19.9, lng: -43.9, radius: 1.2 },
+    { name: 'Porto Alegre', lat: -30.1, lng: -51.2, radius: 1 },
+    { name: 'Córdoba', lat: -31.4, lng: -64.2, radius: 1 },
   ];
   
   // Find the closest city within its radius
