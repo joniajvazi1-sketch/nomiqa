@@ -317,19 +317,13 @@ export const AppProfile: React.FC = () => {
       <div className="relative rounded-2xl bg-card/80 backdrop-blur-xl border border-border p-4 overflow-hidden shadow-[var(--shadow-card)]">
         
         <div className="relative z-10 flex items-center gap-4">
-          <div className={cn("w-16 h-16 rounded-full flex items-center justify-center ring-2 ring-offset-2 ring-offset-transparent", tierConfig.bg, `ring-current ${tierConfig.color}`)}>
-            <span className={cn("text-2xl font-bold", tierConfig.color)}>
+          <div className={cn("w-16 h-16 rounded-full flex items-center justify-center ring-2 ring-offset-2 ring-offset-transparent bg-primary/10 ring-primary")}>
+            <span className="text-2xl font-bold text-primary">
               {profile?.username?.charAt(0).toUpperCase() || 'U'}
             </span>
           </div>
           <div className="flex-1">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-xl font-bold text-foreground">{profile?.username}</h1>
-              <Badge className={cn("text-xs font-semibold", tierConfig.bg, tierConfig.color)}>
-                <TierIcon className="w-3 h-3 mr-1" />
-                {tierConfig.name}
-              </Badge>
-            </div>
+            <h1 className="text-xl font-bold text-foreground">{profile?.username}</h1>
             <p className="text-sm text-muted-foreground">{profile?.email}</p>
           </div>
           <div className="flex items-center gap-1">
@@ -347,6 +341,11 @@ export const AppProfile: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Contributor Level Card - PRIMARY identity indicator */}
+      <ContributorLevelCard 
+        onTap={() => { selectionTap(); navigate('/app/achievements'); }} 
+      />
 
       {/* Stats Summary - Glassmorphism */}
       <div className="grid grid-cols-3 gap-2">
@@ -374,27 +373,6 @@ export const AppProfile: React.FC = () => {
         </div>
       </div>
 
-      {/* Tier Progress - Glassmorphism */}
-      {membership && membership.membership_tier !== 'explorer' && (
-        <div className="rounded-2xl bg-card/80 backdrop-blur-sm border border-border p-4 shadow-[var(--shadow-card)]">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-sm font-medium text-foreground">Upgrade your tier</p>
-            <span className="text-xs text-muted-foreground">
-              ${membership.total_spent_usd.toFixed(0)} / ${getNextTierThreshold(membership.membership_tier)}
-            </span>
-          </div>
-          <div className="h-2 rounded-full bg-muted overflow-hidden">
-            <div 
-              className="h-full bg-primary rounded-full transition-all duration-500"
-              style={{ width: `${Math.min(100, (membership.total_spent_usd / getNextTierThreshold(membership.membership_tier)) * 100)}%` }}
-            />
-          </div>
-          <p className="text-xs text-muted-foreground mt-2">
-            Spend ${(getNextTierThreshold(membership.membership_tier) - membership.total_spent_usd).toFixed(0)} more to unlock higher cashback
-          </p>
-        </div>
-      )}
-
 
       {/* Tabs - Glassmorphism */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -415,11 +393,6 @@ export const AppProfile: React.FC = () => {
 
         {/* Account Tab */}
         <TabsContent value="account" className="mt-4 space-y-4">
-          {/* Contributor Level Card */}
-          <ContributorLevelCard 
-            compact 
-            onTap={() => { selectionTap(); navigate('/app/achievements'); }} 
-          />
 
           {/* Invite Friends Section - Clean banking style */}
           {affiliate && (
