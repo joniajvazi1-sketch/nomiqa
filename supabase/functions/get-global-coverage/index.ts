@@ -6,8 +6,8 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Grid cell size in degrees (approximately 1km at equator)
-const GRID_SIZE = 0.01;
+// PRIVACY: City-level grid size (~50km) - does NOT leak exact coordinates
+const CITY_GRID_SIZE = 0.5;
 
 // Cache duration in seconds (5 minutes)
 const CACHE_DURATION = 300;
@@ -18,6 +18,21 @@ let cache: {
   timestamp: number;
 } | null = null;
 
+// Major city coordinates for display labels (approximate city centers)
+const CITY_LABELS: Record<string, string> = {
+  '48.0,11.5': 'Munich, DE',
+  '48.5,11.5': 'Munich Area, DE',
+  '52.5,13.5': 'Berlin, DE',
+  '51.5,-0.5': 'London, UK',
+  '48.5,2.5': 'Paris, FR',
+  '40.5,-74.0': 'New York, US',
+  '34.0,-118.5': 'Los Angeles, US',
+  '37.5,-122.5': 'San Francisco, US',
+  '35.5,139.5': 'Tokyo, JP',
+  '1.5,103.5': 'Singapore',
+  '-33.5,151.0': 'Sydney, AU',
+};
+
 interface GridCell {
   lat: number;
   lng: number;
@@ -25,6 +40,7 @@ interface GridCell {
   dataPoints: number;
   networkTypes: Record<string, number>;
   dominantNetwork: string;
+  cityLabel?: string;
 }
 
 serve(async (req) => {
@@ -41,14 +57,11 @@ serve(async (req) => {
 
     // Parse query params for optional filters
     const url = new URL(req.url);
-    const networkFilter = url.searchParams.get('network'); // '5g', 'lte', '3g'
-    const minQuality = parseInt(url.searchParams.get('minQuality') || '0');
-    const bounds = url.searchParams.get('bounds'); // 'minLat,minLng,maxLat,maxLng'
+    const networkFilter = url.searchParams.get('network');
     const forceRefresh = url.searchParams.get('refresh') === 'true';
 
-    // Check cache (unless force refresh or filters applied)
-    const hasFilters = networkFilter || minQuality > 0 || bounds;
-    if (!forceRefresh && !hasFilters && cache && (Date.now() - cache.timestamp) < CACHE_DURATION * 1000) {
+    // Check cache (unless force refresh)
+    if (!forceRefresh && !networkFilter && cache && (Date.now() - cache.timestamp) < CACHE_DURATION * 1000) {
       console.log('[get-global-coverage] Returning cached data');
       return new Response(JSON.stringify(cache.data), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -57,36 +70,21 @@ serve(async (req) => {
 
     console.log('[get-global-coverage] Fetching fresh data from database');
 
-    // Build query for signal logs - anonymized (no user_id in response)
-    let query = supabase
+    // Query signal logs - PRIVACY: we only aggregate, never return individual coords
+    const { data: signalLogs, error } = await supabase
       .from('signal_logs')
-      .select('latitude, longitude, rsrp, rssi, network_type, data_quality_score')
+      .select('latitude, longitude, rsrp, rssi, network_generation, network_type')
       .not('latitude', 'eq', 0)
       .not('longitude', 'eq', 0)
       .order('recorded_at', { ascending: false })
-      .limit(50000); // Limit for performance
-
-    // Apply quality filter
-    if (minQuality > 0) {
-      query = query.gte('data_quality_score', minQuality);
-    }
-
-    // Apply bounds filter if provided
-    if (bounds) {
-      const [minLat, minLng, maxLat, maxLng] = bounds.split(',').map(Number);
-      query = query
-        .gte('latitude', minLat)
-        .lte('latitude', maxLat)
-        .gte('longitude', minLng)
-        .lte('longitude', maxLng);
-    }
-
-    const { data: signalLogs, error } = await query;
+      .limit(50000);
 
     if (error) {
       console.error('[get-global-coverage] Database error:', error);
       throw error;
     }
+
+    const totalDataPoints = signalLogs?.length || 0;
 
     if (!signalLogs || signalLogs.length === 0) {
       const emptyResponse = {
@@ -94,6 +92,7 @@ serve(async (req) => {
         totalDataPoints: 0,
         uniqueLocations: 0,
         coverageAreaKm2: 0,
+        countriesCount: 0,
         lastUpdated: new Date().toISOString(),
       };
       return new Response(JSON.stringify(emptyResponse), {
@@ -101,14 +100,14 @@ serve(async (req) => {
       });
     }
 
-    // Aggregate into grid cells
+    // PRIVACY: Aggregate into CITY-LEVEL grid cells (0.5 degree = ~50km)
     const gridCells: Map<string, GridCell> = new Map();
 
     for (const log of signalLogs) {
-      // Round to grid cell
-      const cellLat = Math.floor(log.latitude / GRID_SIZE) * GRID_SIZE + GRID_SIZE / 2;
-      const cellLng = Math.floor(log.longitude / GRID_SIZE) * GRID_SIZE + GRID_SIZE / 2;
-      const cellKey = `${cellLat.toFixed(4)},${cellLng.toFixed(4)}`;
+      // Round to city-level grid (0.5 degrees = ~50km)
+      const cellLat = Math.floor(log.latitude / CITY_GRID_SIZE) * CITY_GRID_SIZE + CITY_GRID_SIZE / 2;
+      const cellLng = Math.floor(log.longitude / CITY_GRID_SIZE) * CITY_GRID_SIZE + CITY_GRID_SIZE / 2;
+      const cellKey = `${cellLat.toFixed(1)},${cellLng.toFixed(1)}`;
 
       // Calculate signal strength (0-1)
       let signalStrength = 0.5;
@@ -119,13 +118,13 @@ serve(async (req) => {
       }
 
       // Determine network type category
-      const networkType = (log.network_type || 'unknown').toLowerCase();
-      let networkCategory = 'other';
-      if (networkType.includes('5g') || networkType.includes('nr')) {
+      const networkGen = (log.network_generation || log.network_type || 'unknown').toLowerCase();
+      let networkCategory = 'lte'; // Default to LTE
+      if (networkGen.includes('5g') || networkGen.includes('nr')) {
         networkCategory = '5g';
-      } else if (networkType.includes('lte') || networkType.includes('4g')) {
+      } else if (networkGen.includes('4g') || networkGen.includes('lte')) {
         networkCategory = 'lte';
-      } else if (networkType.includes('3g') || networkType.includes('umts') || networkType.includes('hspa')) {
+      } else if (networkGen.includes('3g') || networkGen.includes('umts') || networkGen.includes('hspa')) {
         networkCategory = '3g';
       }
 
@@ -134,10 +133,12 @@ serve(async (req) => {
         continue;
       }
 
+      // Get city label if available
+      const cityLabel = CITY_LABELS[cellKey];
+
       // Update or create grid cell
       const existing = gridCells.get(cellKey);
       if (existing) {
-        // Running average
         existing.avgSignal = (existing.avgSignal * existing.dataPoints + signalStrength) / (existing.dataPoints + 1);
         existing.dataPoints++;
         existing.networkTypes[networkCategory] = (existing.networkTypes[networkCategory] || 0) + 1;
@@ -149,6 +150,7 @@ serve(async (req) => {
           dataPoints: 1,
           networkTypes: { [networkCategory]: 1 },
           dominantNetwork: networkCategory,
+          cityLabel,
         });
       }
     }
@@ -160,12 +162,13 @@ serve(async (req) => {
       intensity: number;
       network: string;
       count: number;
+      label?: string;
     }> = [];
 
     for (const cell of gridCells.values()) {
       // Find dominant network
       let maxCount = 0;
-      let dominant = 'other';
+      let dominant = 'lte';
       for (const [network, count] of Object.entries(cell.networkTypes)) {
         if (count > maxCount) {
           maxCount = count;
@@ -179,38 +182,36 @@ serve(async (req) => {
         intensity: cell.avgSignal,
         network: dominant,
         count: cell.dataPoints,
+        label: cell.cityLabel,
       });
     }
 
-    // Calculate coverage statistics
-    const uniqueLocations = cells.length;
-    // Approximate area: each cell is ~1km², but we use actual grid size
-    const cellAreaKm2 = (GRID_SIZE * 111) * (GRID_SIZE * 111); // ~1.23 km² at equator
-    const coverageAreaKm2 = Math.round(uniqueLocations * cellAreaKm2 * 100) / 100;
+    // Calculate unique regions (rough country estimate based on lat/lng ranges)
+    const uniqueRegions = new Set(cells.map(c => `${Math.floor(c.lat / 10)}`)).size;
+    
+    // Coverage area at city level
+    const cellAreaKm2 = (CITY_GRID_SIZE * 111) * (CITY_GRID_SIZE * 111); // ~3000 km² per cell
+    const coverageAreaKm2 = Math.round(cells.length * cellAreaKm2);
 
     const response = {
       cells,
-      totalDataPoints: signalLogs.length,
-      uniqueLocations,
+      totalDataPoints,
+      uniqueLocations: cells.length,
       coverageAreaKm2,
-      gridSizeDegrees: GRID_SIZE,
+      countriesCount: uniqueRegions,
+      gridSizeKm: Math.round(CITY_GRID_SIZE * 111),
       lastUpdated: new Date().toISOString(),
-      filters: {
-        network: networkFilter,
-        minQuality,
-        bounds: bounds ? bounds.split(',').map(Number) : null,
-      },
     };
 
     // Cache response (only if no filters)
-    if (!hasFilters) {
+    if (!networkFilter) {
       cache = {
         data: response,
         timestamp: Date.now(),
       };
     }
 
-    console.log(`[get-global-coverage] Returning ${cells.length} cells from ${signalLogs.length} data points`);
+    console.log(`[get-global-coverage] Returning ${cells.length} city-level cells from ${totalDataPoints} data points`);
 
     return new Response(JSON.stringify(response), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
