@@ -1,16 +1,18 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Target, Flame, Calendar, Star } from 'lucide-react';
+import { ArrowLeft, Target, Calendar, Star, Trophy, Sparkles } from 'lucide-react';
 import { useHaptics } from '@/hooks/useHaptics';
 import { useChallenges } from '@/hooks/useChallenges';
 import { ChallengeCard } from '@/components/app/ChallengeCard';
 import { useTranslation } from '@/contexts/TranslationContext';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from '@/components/app/PullToRefreshIndicator';
+import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
 export const AppChallenges: React.FC = () => {
   const navigate = useNavigate();
-  const { lightTap } = useHaptics();
+  const { lightTap, heavyTap } = useHaptics();
   const { t } = useTranslation();
   const { 
     dailyChallenges, 
@@ -21,6 +23,57 @@ export const AppChallenges: React.FC = () => {
     loading,
     refreshProgress
   } = useChallenges();
+
+  const [showCelebration, setShowCelebration] = useState(false);
+  const [hasSeenCelebration, setHasSeenCelebration] = useState(() => {
+    const today = new Date().toISOString().split('T')[0];
+    return localStorage.getItem('dailyChallengesCelebration') === today;
+  });
+
+  // Calculate progress percentage
+  const dailyProgressPercent = dailyChallenges.length > 0 
+    ? (completedTodayCount / dailyChallenges.length) * 100 
+    : 0;
+
+  const allDailyCompleted = dailyChallenges.length > 0 && completedTodayCount === dailyChallenges.length;
+
+  // Get motivational message based on progress
+  const motivationalMessage = useMemo(() => {
+    if (dailyChallenges.length === 0) return null;
+    
+    if (allDailyCompleted) {
+      return { text: "🎉 You crushed it today!", color: "text-green-500" };
+    }
+    
+    if (dailyProgressPercent >= 66) {
+      return { text: "🔥 Almost there! One more push!", color: "text-orange-500" };
+    }
+    
+    if (dailyProgressPercent >= 33) {
+      return { text: "💪 Great progress! Keep going!", color: "text-blue-500" };
+    }
+    
+    if (completedTodayCount > 0) {
+      return { text: "⚡ Nice start! You've got this!", color: "text-primary" };
+    }
+    
+    return { text: "🚀 Ready to earn? Let's go!", color: "text-muted-foreground" };
+  }, [dailyChallenges.length, completedTodayCount, dailyProgressPercent, allDailyCompleted]);
+
+  // Trigger celebration when all daily challenges completed
+  useEffect(() => {
+    if (allDailyCompleted && !hasSeenCelebration && !loading) {
+      const today = new Date().toISOString().split('T')[0];
+      localStorage.setItem('dailyChallengesCelebration', today);
+      setHasSeenCelebration(true);
+      setShowCelebration(true);
+      heavyTap();
+      
+      // Auto-hide after 3 seconds
+      const timer = setTimeout(() => setShowCelebration(false), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [allDailyCompleted, hasSeenCelebration, loading, heavyTap]);
 
   // Pull-to-refresh
   const handleRefresh = useCallback(async () => {
@@ -41,6 +94,92 @@ export const AppChallenges: React.FC = () => {
         pullDistance={pullDistance} 
         pullProgress={pullProgress} 
       />
+
+      {/* Celebration Overlay */}
+      <AnimatePresence>
+        {showCelebration && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-background/80 backdrop-blur-md"
+            onClick={() => setShowCelebration(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.5, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.5, opacity: 0 }}
+              transition={{ type: "spring", damping: 15, stiffness: 300 }}
+              className="text-center p-8"
+            >
+              {/* Animated trophy */}
+              <motion.div
+                animate={{ 
+                  rotate: [0, -10, 10, -10, 0],
+                  scale: [1, 1.1, 1]
+                }}
+                transition={{ 
+                  duration: 0.5, 
+                  repeat: 2,
+                  repeatType: "reverse"
+                }}
+                className="relative inline-block mb-6"
+              >
+                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center shadow-lg shadow-orange-500/30">
+                  <Trophy className="w-12 h-12 text-white" />
+                </div>
+                {/* Sparkle effects */}
+                {[...Array(8)].map((_, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ scale: 0, opacity: 1 }}
+                    animate={{ 
+                      scale: [0, 1.5, 0],
+                      opacity: [1, 1, 0],
+                      x: Math.cos(i * 45 * Math.PI / 180) * 60,
+                      y: Math.sin(i * 45 * Math.PI / 180) * 60
+                    }}
+                    transition={{ 
+                      duration: 1,
+                      delay: i * 0.1,
+                      repeat: Infinity,
+                      repeatDelay: 1
+                    }}
+                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+                  >
+                    <Sparkles className="w-4 h-4 text-yellow-400" />
+                  </motion.div>
+                ))}
+              </motion.div>
+
+              <motion.h2
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.2 }}
+                className="text-2xl font-bold text-foreground mb-2"
+              >
+                All Daily Challenges Complete!
+              </motion.h2>
+              <motion.p
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.3 }}
+                className="text-muted-foreground mb-4"
+              >
+                You're on fire! Come back tomorrow for more.
+              </motion.p>
+              <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.4 }}
+                className="text-sm text-muted-foreground"
+              >
+                Tap anywhere to continue
+              </motion.div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       
       {/* Header */}
       <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
@@ -61,10 +200,46 @@ export const AppChallenges: React.FC = () => {
       </header>
 
       <div className="px-5 py-6 space-y-6">
+        {/* Motivational Banner */}
+        {motivationalMessage && !loading && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={cn(
+              "rounded-xl p-4 text-center border",
+              allDailyCompleted 
+                ? "bg-green-500/10 border-green-500/30" 
+                : "bg-card/60 border-border"
+            )}
+          >
+            <p className={cn("text-sm font-medium", motivationalMessage.color)}>
+              {motivationalMessage.text}
+            </p>
+            {!allDailyCompleted && dailyChallenges.length > 0 && (
+              <div className="mt-2 h-1.5 bg-muted rounded-full overflow-hidden">
+                <motion.div 
+                  className="h-full bg-primary rounded-full"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${dailyProgressPercent}%` }}
+                  transition={{ duration: 0.5, ease: "easeOut" }}
+                />
+              </div>
+            )}
+          </motion.div>
+        )}
+
         {/* Stats Cards */}
         <div className="grid grid-cols-2 gap-3">
-          <div className="rounded-2xl bg-card/80 border border-border p-4 text-center">
-            <Star className="w-5 h-5 text-yellow-500 mx-auto mb-2" fill="currentColor" />
+          <div className={cn(
+            "rounded-2xl border p-4 text-center transition-all",
+            allDailyCompleted 
+              ? "bg-green-500/10 border-green-500/30" 
+              : "bg-card/80 border-border"
+          )}>
+            <Star className={cn(
+              "w-5 h-5 mx-auto mb-2",
+              allDailyCompleted ? "text-green-500" : "text-yellow-500"
+            )} fill="currentColor" />
             <div className="text-xl font-bold text-foreground">{completedTodayCount}/{dailyChallenges.length}</div>
             <div className="text-xs text-muted-foreground">{t('app.challenges.dailyDone')}</div>
           </div>
