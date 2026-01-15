@@ -9,9 +9,13 @@ interface SwipeablePagesProps {
 
 const TAB_ROUTES = ['/app', '/app/rewards', '/app/shop', '/app/profile'];
 
+// Routes where swipe navigation should be DISABLED (map/globe interactions conflict)
+const SWIPE_DISABLED_ROUTES = ['/app/map', '/app/network'];
+
 /**
  * Swipeable wrapper for main app pages
  * Enables left/right swipe navigation between tabs
+ * DISABLED on map/globe routes to prevent conflicts with pinch-zoom/drag
  */
 export const SwipeablePages: React.FC<SwipeablePagesProps> = ({ children }) => {
   const navigate = useNavigate();
@@ -25,6 +29,11 @@ export const SwipeablePages: React.FC<SwipeablePagesProps> = ({ children }) => {
   const [swipeOffset, setSwipeOffset] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
 
+  // Check if we're on a route where swipe should be disabled
+  const isSwipeDisabled = SWIPE_DISABLED_ROUTES.some(route => 
+    location.pathname.includes(route)
+  );
+
   const getCurrentIndex = useCallback(() => {
     const currentPath = location.pathname;
     // Handle exact match for /app
@@ -37,15 +46,15 @@ export const SwipeablePages: React.FC<SwipeablePagesProps> = ({ children }) => {
   }, [location.pathname]);
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    if (isAnimating) return;
+    if (isAnimating || isSwipeDisabled) return;
     touchStartX.current = e.touches[0].clientX;
     touchStartY.current = e.touches[0].clientY;
     touchEndX.current = e.touches[0].clientX;
     isSwiping.current = false;
-  }, [isAnimating]);
+  }, [isAnimating, isSwipeDisabled]);
 
   const handleTouchMove = useCallback((e: React.TouchEvent) => {
-    if (isAnimating) return;
+    if (isAnimating || isSwipeDisabled) return;
     
     const currentX = e.touches[0].clientX;
     const currentY = e.touches[0].clientY;
@@ -75,7 +84,7 @@ export const SwipeablePages: React.FC<SwipeablePagesProps> = ({ children }) => {
   }, [isAnimating, getCurrentIndex]);
 
   const handleTouchEnd = useCallback(() => {
-    if (!isSwiping.current || isAnimating) {
+    if (!isSwiping.current || isAnimating || isSwipeDisabled) {
       setSwipeOffset(0);
       return;
     }

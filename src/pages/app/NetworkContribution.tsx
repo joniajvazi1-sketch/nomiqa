@@ -358,24 +358,24 @@ export const NetworkContribution: React.FC = () => {
             </div>
           </div>
 
-          {/* Status Text */}
+          {/* Status Text - uses semantic tokens for glassmorphism */}
           <div className="text-center mb-3">
-            <p className="text-lg font-bold text-white">
+            <p className="text-lg font-bold text-foreground drop-shadow-sm">
               {isActive 
                 ? (isPaused ? 'Paused' : 'Scanning Network...') 
                 : 'Start Scanning'}
             </p>
             {!isActive && user && consentGiven && (
-              <p className="text-sm text-white/60 mt-1">
+              <p className="text-sm text-muted-foreground mt-1">
                 {isCellular ? 'Tap to earn points' : 'Connect to cellular'}
               </p>
             )}
             {!user && (
-              <p className="text-sm text-white/60 mt-1">Sign in to start</p>
+              <p className="text-sm text-muted-foreground mt-1">Sign in to start</p>
             )}
           </div>
 
-          {/* Quick Actions Bar */}
+          {/* Quick Actions Bar - semantic glassmorphism tokens */}
           <div className="flex items-center justify-center gap-2 mb-3">
             <button
               onClick={() => {
@@ -384,8 +384,8 @@ export const NetworkContribution: React.FC = () => {
               }}
               className={cn(
                 'flex items-center gap-2 px-4 py-2.5 rounded-xl',
-                'bg-white/10 backdrop-blur-xl border shadow-lg transition-all',
-                showTools ? 'border-[#00d4ff]/40 text-[#00d4ff]' : 'border-white/20 text-white/70'
+                'bg-card/80 backdrop-blur-xl border shadow-lg transition-all',
+                showTools ? 'border-primary/50 text-primary' : 'border-border text-muted-foreground'
               )}
             >
               <Layers className="w-4 h-4" />
@@ -401,8 +401,8 @@ export const NetworkContribution: React.FC = () => {
               onClick={handleToggleCoverageMode}
               className={cn(
                 'flex items-center gap-2 px-4 py-2.5 rounded-xl',
-                'bg-white/10 backdrop-blur-xl border shadow-lg transition-all',
-                'border-white/20 text-white/70 hover:border-white/30'
+                'bg-card/80 backdrop-blur-xl border shadow-lg transition-all',
+                'border-border text-muted-foreground hover:border-primary/40'
               )}
             >
               {coverageMode === 'global' ? (
@@ -419,7 +419,7 @@ export const NetworkContribution: React.FC = () => {
             </button>
           </div>
 
-          {/* Expandable Tools */}
+          {/* Expandable Tools - semantic glassmorphism */}
           {showTools && (
             <div className="flex items-center justify-center gap-2 mb-3 animate-fade-in flex-wrap">
               {/* Manual Speed Test Button */}
@@ -441,12 +441,12 @@ export const NetworkContribution: React.FC = () => {
                 disabled={!isCellular || isRunningSpeedTest}
                 className={cn(
                   'flex items-center gap-2 px-4 py-2.5 rounded-xl',
-                  'bg-white/10 backdrop-blur-xl border shadow-lg transition-all',
+                  'bg-card/80 backdrop-blur-xl border shadow-lg transition-all',
                   isRunningSpeedTest 
-                    ? 'border-amber-500/40 text-amber-400' 
+                    ? 'border-amber-500/50 text-amber-500' 
                     : isCellular 
-                      ? 'border-[#00ffa3]/40 text-[#00ffa3] hover:border-[#00ffa3]/60'
-                      : 'border-white/10 text-white/40 cursor-not-allowed'
+                      ? 'border-green-500/50 text-green-500 hover:border-green-500/70'
+                      : 'border-border text-muted-foreground/50 cursor-not-allowed'
                 )}
               >
                 <Gauge className={cn("w-4 h-4", isRunningSpeedTest && "animate-pulse")} />
@@ -463,8 +463,8 @@ export const NetworkContribution: React.FC = () => {
                 }}
                 className={cn(
                   'flex items-center gap-2 px-4 py-2.5 rounded-xl',
-                  'bg-white/10 backdrop-blur-xl border shadow-lg transition-all',
-                  'border-white/20 text-white hover:border-white/30'
+                  'bg-card/80 backdrop-blur-xl border shadow-lg transition-all',
+                  'border-border text-foreground hover:border-primary/40'
                 )}
               >
                 <BarChart3 className="w-4 h-4" />
@@ -473,27 +473,27 @@ export const NetworkContribution: React.FC = () => {
             </div>
           )}
 
-          {/* Session Stats Card - when active */}
+          {/* Session Stats Card - when active - semantic glassmorphism */}
           {isActive && (
-            <div className="rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 p-4 shadow-xl animate-fade-in">
+            <div className="rounded-2xl bg-card/80 backdrop-blur-xl border border-border p-4 shadow-xl animate-fade-in">
               <div className="grid grid-cols-3 gap-3">
                 <div className="text-center">
-                  <p className="text-xl font-bold text-white tabular-nums">
+                  <p className="text-xl font-bold text-foreground tabular-nums">
                     {formatDuration(stats.duration)}
                   </p>
-                  <p className="text-[10px] text-white/50 mt-0.5 uppercase tracking-wider">Duration</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5 uppercase tracking-wider">Duration</p>
                 </div>
-                <div className="text-center border-x border-white/10">
-                  <p className="text-xl font-bold text-white tabular-nums">
+                <div className="text-center border-x border-border">
+                  <p className="text-xl font-bold text-foreground tabular-nums">
                     {stats.dataPointsCount}
                   </p>
-                  <p className="text-[10px] text-white/50 mt-0.5 uppercase tracking-wider">Data Points</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5 uppercase tracking-wider">Data Points</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-xl font-bold text-[#00ffa3] tabular-nums">
+                  <p className="text-xl font-bold text-green-500 tabular-nums">
                     +{stats.pointsEarned.toFixed(1)}
                   </p>
-                  <p className="text-[10px] text-white/50 mt-0.5 uppercase tracking-wider">Points</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5 uppercase tracking-wider">Points</p>
                 </div>
               </div>
             </div>
