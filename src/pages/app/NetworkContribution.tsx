@@ -12,8 +12,11 @@ import {
   Play,
   ChevronUp,
   Layers,
-  RefreshCw
+  RefreshCw,
+  Gauge,
+  BarChart3
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useNetworkContribution } from '@/hooks/useNetworkContribution';
 import { useContributionHeatmap } from '@/hooks/useContributionHeatmap';
@@ -40,6 +43,7 @@ type CoverageMode = 'personal' | 'global';
  * Clean, immersive full-screen design
  */
 export const NetworkContribution: React.FC = () => {
+  const navigate = useNavigate();
   const { buttonTap, successPattern } = useEnhancedHaptics();
   const { playCoin, playSuccess } = useEnhancedSounds();
   const { checkAllMilestones, resetMilestones } = useSessionMilestones();
@@ -68,8 +72,11 @@ export const NetworkContribution: React.FC = () => {
     isPaused,
     startContribution,
     stopContribution,
-    formatDuration
+    formatDuration,
+    triggerManualSpeedTest
   } = useNetworkContribution();
+
+  const [isRunningSpeedTest, setIsRunningSpeedTest] = useState(false);
 
   const { 
     points: heatmapPoints, 
@@ -451,7 +458,40 @@ export const NetworkContribution: React.FC = () => {
 
           {/* Expandable Tools */}
           {showTools && (
-            <div className="flex items-center justify-center gap-2 mb-3 animate-fade-in">
+            <div className="flex items-center justify-center gap-2 mb-3 animate-fade-in flex-wrap">
+              {/* Manual Speed Test Button */}
+              <button
+                onClick={async () => {
+                  if (isRunningSpeedTest) return;
+                  buttonTap();
+                  setIsRunningSpeedTest(true);
+                  try {
+                    const result = await triggerManualSpeedTest();
+                    if (result) {
+                      playCoin();
+                      successPattern();
+                    }
+                  } finally {
+                    setIsRunningSpeedTest(false);
+                  }
+                }}
+                disabled={!isCellular || isRunningSpeedTest}
+                className={cn(
+                  'flex items-center gap-2 px-4 py-2.5 rounded-xl',
+                  'bg-white/10 backdrop-blur-xl border shadow-lg transition-all',
+                  isRunningSpeedTest 
+                    ? 'border-amber-500/40 text-amber-400' 
+                    : isCellular 
+                      ? 'border-[#00ffa3]/40 text-[#00ffa3] hover:border-[#00ffa3]/60'
+                      : 'border-white/10 text-white/40 cursor-not-allowed'
+                )}
+              >
+                <Gauge className={cn("w-4 h-4", isRunningSpeedTest && "animate-pulse")} />
+                <span className="text-sm font-medium">
+                  {isRunningSpeedTest ? 'Testing...' : 'Run Test'}
+                </span>
+              </button>
+              
               <button
                 onClick={() => {
                   buttonTap();
@@ -482,6 +522,22 @@ export const NetworkContribution: React.FC = () => {
               >
                 <Signal className="w-4 h-4" />
                 <span className="text-sm font-medium">Compare</span>
+              </button>
+              
+              {/* Link to Network Stats Page */}
+              <button
+                onClick={() => {
+                  buttonTap();
+                  navigate('/app/network-stats');
+                }}
+                className={cn(
+                  'flex items-center gap-2 px-4 py-2.5 rounded-xl',
+                  'bg-white/10 backdrop-blur-xl border shadow-lg transition-all',
+                  'border-white/20 text-white hover:border-white/30'
+                )}
+              >
+                <BarChart3 className="w-4 h-4" />
+                <span className="text-sm font-medium">Stats</span>
               </button>
             </div>
           )}
