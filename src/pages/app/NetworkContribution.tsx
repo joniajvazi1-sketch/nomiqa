@@ -25,8 +25,8 @@ import { PullToRefreshIndicator } from '@/components/app/PullToRefreshIndicator'
 import { DataConsentModal, hasDataConsent } from '@/components/app/DataConsentModal';
 import { cn } from '@/lib/utils';
 
-// Lazy load the Mapbox globe
-const MapboxGlobe = lazy(() => import('@/components/app/MapboxGlobe'));
+// Lazy load the Three.js globe (Mapbox kept for future update)
+const NetworkGlobe = lazy(() => import('@/components/app/NetworkGlobe').then(m => ({ default: m.NetworkGlobe })));
 
 type CoverageMode = 'personal' | 'global';
 
@@ -165,7 +165,7 @@ export const NetworkContribution: React.FC = () => {
             </div>
           </div>
         }>
-          <MapboxGlobe 
+          <NetworkGlobe 
             coverageData={
               coverageMode === 'personal' 
                 ? heatmapPoints.map(p => ({
