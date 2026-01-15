@@ -705,11 +705,11 @@ const DataMarkers: React.FC<{
     const filteredCells: typeof cells = [];
     
     // Filter out cells that are too close to each other
-    for (const cell of cells.slice(0, 400)) {
+    for (const cell of cells.slice(0, 500)) {
       const isTooClose = filteredCells.some(existing => {
         const latDiff = Math.abs(existing.lat - cell.lat);
         const lngDiff = Math.abs(existing.lng - cell.lng);
-        return latDiff < 1.5 && lngDiff < 1.5; // ~1.5 degrees apart minimum (allows more pins)
+        return latDiff < 1.0 && lngDiff < 1.0; // ~1.0 degrees apart minimum (shows more pins)
       });
       
       if (!isTooClose) {

@@ -288,16 +288,22 @@ export const NetworkContribution: React.FC = () => {
                 <div className="absolute inset-[-16px] rounded-full animate-ping opacity-20 bg-green-500" />
               )}
               
-              {/* Outer glow ring */}
+              {/* Outer glow ring with rotation when active */}
               <div 
                 className={cn(
                   'absolute inset-[-12px] rounded-full transition-all duration-500',
+                  isActive && !isPaused && 'animate-[spin_8s_linear_infinite]',
                   isActive 
                     ? isPaused 
                       ? 'bg-gradient-to-r from-amber-500/20 to-orange-500/20 shadow-[0_0_30px_rgba(245,158,11,0.3)]' 
-                      : 'bg-gradient-to-r from-green-500/20 to-emerald-500/20 shadow-[0_0_30px_rgba(34,197,94,0.3)]'
+                      : 'bg-gradient-to-r from-green-500/30 via-emerald-400/10 to-green-500/30 shadow-[0_0_30px_rgba(34,197,94,0.3)]'
                     : 'bg-gradient-to-r from-red-500/20 to-rose-500/20 shadow-[0_0_30px_rgba(239,68,68,0.3)]'
                 )}
+                style={{
+                  borderWidth: isActive && !isPaused ? '2px' : '0px',
+                  borderStyle: 'dashed',
+                  borderColor: isActive && !isPaused ? 'rgba(74, 222, 128, 0.4)' : 'transparent',
+                }}
               />
               
               {/* Secondary ring */}
