@@ -165,6 +165,29 @@ const getApproximateLocation = (lat: number, lng: number): string => {
     { name: 'Frankfurt', lat: 50.1, lng: 8.7, radius: 1 },
     { name: 'Hamburg', lat: 53.5, lng: 10, radius: 1 },
     
+    // Russia
+    { name: 'Moscow', lat: 55.8, lng: 37.6, radius: 2 },
+    { name: 'St. Petersburg', lat: 59.9, lng: 30.3, radius: 1.5 },
+    { name: 'Novosibirsk', lat: 55, lng: 82.9, radius: 1.2 },
+    { name: 'Yekaterinburg', lat: 56.8, lng: 60.6, radius: 1.2 },
+    { name: 'Kazan', lat: 55.8, lng: 49.1, radius: 1 },
+    { name: 'Nizhny Novgorod', lat: 56.3, lng: 44, radius: 1 },
+    { name: 'Samara', lat: 53.2, lng: 50.1, radius: 1 },
+    { name: 'Rostov-on-Don', lat: 47.2, lng: 39.7, radius: 1 },
+    { name: 'Vladivostok', lat: 43.1, lng: 131.9, radius: 1 },
+    { name: 'Sochi', lat: 43.6, lng: 39.7, radius: 0.8 },
+    
+    // Central Asia
+    { name: 'Almaty', lat: 43.2, lng: 76.9, radius: 1.5 },
+    { name: 'Nur-Sultan', lat: 51.2, lng: 71.4, radius: 1.2 },
+    { name: 'Tashkent', lat: 41.3, lng: 69.3, radius: 1.5 },
+    { name: 'Bishkek', lat: 42.9, lng: 74.6, radius: 1 },
+    { name: 'Dushanbe', lat: 38.6, lng: 68.8, radius: 1 },
+    { name: 'Ashgabat', lat: 37.9, lng: 58.4, radius: 1 },
+    { name: 'Baku', lat: 40.4, lng: 49.9, radius: 1.2 },
+    { name: 'Tbilisi', lat: 41.7, lng: 44.8, radius: 1 },
+    { name: 'Yerevan', lat: 40.2, lng: 44.5, radius: 1 },
+    
     // North America
     { name: 'New York', lat: 40.7, lng: -74, radius: 1.5 },
     { name: 'Los Angeles', lat: 34.1, lng: -118.2, radius: 2 },
@@ -283,24 +306,30 @@ const getApproximateLocation = (lat: number, lng: number): string => {
   return 'International Waters';
 };
 
-// City-level data marker (smaller for cleaner look)
+// City-level data marker (smaller for cleaner look, scales properly when zoomed)
 const DataHotspot: React.FC<{
   marker: DataPointMarker;
   onSelect: (marker: DataPointMarker | null) => void;
   isSelected: boolean;
 }> = ({ marker, onSelect, isSelected }) => {
+  const groupRef = useRef<THREE.Group>(null);
   const meshRef = useRef<THREE.Mesh>(null);
   const glowRef = useRef<THREE.Mesh>(null);
   const pulseSpeed = useRef(Math.random() * 0.8 + 0.3);
   
-  // SMALLER dots - reduced size for cleaner look
-  const baseSize = Math.min(0.012 + (marker.count / 50) * 0.008, 0.035);
+  // Fixed small size - doesn't scale with zoom
+  const baseSize = Math.min(0.008 + (marker.count / 80) * 0.006, 0.025);
   
   useFrame((state) => {
     if (meshRef.current && glowRef.current) {
-      const pulse = Math.sin(state.clock.elapsedTime * pulseSpeed.current) * 0.1 + 0.95;
-      meshRef.current.scale.setScalar(isSelected ? 1.4 : pulse);
-      glowRef.current.scale.setScalar(isSelected ? 1.8 : pulse * 1.4);
+      const pulse = Math.sin(state.clock.elapsedTime * pulseSpeed.current) * 0.08 + 0.96;
+      meshRef.current.scale.setScalar(isSelected ? 1.3 : pulse);
+      glowRef.current.scale.setScalar(isSelected ? 1.5 : pulse * 1.2);
+    }
+    
+    // Billboard effect - always face camera to prevent distortion when zoomed
+    if (groupRef.current) {
+      groupRef.current.quaternion.copy(state.camera.quaternion);
     }
   });
 
@@ -315,28 +344,34 @@ const DataHotspot: React.FC<{
         onSelect(isSelected ? null : marker);
       }}
     >
-      {/* Core point - smaller */}
-      <mesh ref={meshRef}>
-        <sphereGeometry args={[baseSize, 12, 12]} />
-        <meshBasicMaterial color={color} />
-      </mesh>
-      
-      {/* Inner glow - reduced */}
-      <mesh ref={glowRef}>
-        <sphereGeometry args={[baseSize * 1.5, 12, 12]} />
-        <meshBasicMaterial color={color} transparent opacity={0.4} />
-      </mesh>
-      
-      {/* Outer glow - more subtle */}
-      <mesh>
-        <sphereGeometry args={[baseSize * 2.5, 12, 12]} />
-        <meshBasicMaterial color={color} transparent opacity={0.1} />
-      </mesh>
+      {/* Billboard group - faces camera */}
+      <group ref={groupRef}>
+        {/* Core point - use circle instead of sphere for cleaner look when zoomed */}
+        <mesh ref={meshRef}>
+          <circleGeometry args={[baseSize, 16]} />
+          <meshBasicMaterial color={color} side={THREE.DoubleSide} />
+        </mesh>
+        
+        {/* Inner glow */}
+        <mesh ref={glowRef}>
+          <circleGeometry args={[baseSize * 1.8, 16]} />
+          <meshBasicMaterial color={color} transparent opacity={0.35} side={THREE.DoubleSide} />
+        </mesh>
+        
+        {/* Outer glow - very subtle */}
+        <mesh>
+          <circleGeometry args={[baseSize * 3, 16]} />
+          <meshBasicMaterial color={color} transparent opacity={0.08} side={THREE.DoubleSide} />
+        </mesh>
+      </group>
       
       {/* Popup when selected - shows city/region name, NOT coordinates */}
       {isSelected && (
         <Html center distanceFactor={4}>
-          <div className="bg-white/95 backdrop-blur-sm border border-gray-200 rounded-xl px-3 py-2 min-w-[120px] shadow-xl pointer-events-auto">
+          <div 
+            className="bg-white/95 backdrop-blur-sm border border-gray-200 rounded-xl px-3 py-2 min-w-[120px] shadow-xl pointer-events-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
             <p className="text-gray-900 font-bold text-xs">
               {marker.cityName}
             </p>
