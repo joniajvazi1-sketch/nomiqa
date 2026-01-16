@@ -15,37 +15,120 @@ import {
   EyeOff, 
   Loader2, 
   ArrowLeft,
-  Signal,
-  Coins
+  AlertCircle,
+  CheckCircle2,
+  XCircle
 } from 'lucide-react';
 import { useAffiliateTracking } from '@/hooks/useAffiliateTracking';
 import { UsernameSelection } from '@/components/UsernameSelection';
 import { EmailVerification } from '@/components/EmailVerification';
 import { Capacitor } from '@capacitor/core';
+import { z } from 'zod';
+
+// Validation schemas
+const emailSchema = z.string().email('Please enter a valid email address').max(255, 'Email is too long');
+const passwordSchema = z.string()
+  .min(6, 'Password must be at least 6 characters')
+  .max(128, 'Password is too long');
+
+// Password strength checker
+const getPasswordStrength = (password: string): { score: number; label: string; color: string } => {
+  let score = 0;
+  if (password.length >= 6) score++;
+  if (password.length >= 8) score++;
+  if (/[A-Z]/.test(password)) score++;
+  if (/[0-9]/.test(password)) score++;
+  if (/[^A-Za-z0-9]/.test(password)) score++;
+
+  if (score <= 1) return { score, label: 'Weak', color: 'bg-destructive' };
+  if (score <= 2) return { score, label: 'Fair', color: 'bg-orange-500' };
+  if (score <= 3) return { score, label: 'Good', color: 'bg-yellow-500' };
+  return { score, label: 'Strong', color: 'bg-green-500' };
+};
+
+// Error message mapping for better UX
+const getReadableError = (error: string): string => {
+  const errorMap: Record<string, string> = {
+    'Invalid login credentials': 'Email or password is incorrect. Please try again.',
+    'Email not confirmed': 'Please verify your email before signing in.',
+    'User already registered': 'An account with this email already exists.',
+    'Password should be at least 6 characters': 'Password must be at least 6 characters.',
+    'Unable to validate email address': 'Please enter a valid email address.',
+    'Signup requires a valid password': 'Please enter a password.',
+    'rate limit': 'Too many attempts. Please wait a moment and try again.',
+  };
+
+  const lowerError = error.toLowerCase();
+  for (const [key, value] of Object.entries(errorMap)) {
+    if (lowerError.includes(key.toLowerCase())) {
+      return value;
+    }
+  }
+  return error;
+};
 
 /**
  * In-App Auth Page - Matches app glassmorphism design
- * Separate from web auth, but uses same Supabase backend
+ * Enhanced with better error handling and loading states
  */
 export const AppAuth: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { buttonTap, successPattern } = useEnhancedHaptics();
+  const { buttonTap, successPattern, errorPattern } = useEnhancedHaptics();
   const { toast } = useToast();
 
+  // Loading states
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [checkingSession, setCheckingSession] = useState(true);
+  
+  // UI states
   const [showUsernameSelection, setShowUsernameSelection] = useState(false);
   const [showEmailVerification, setShowEmailVerification] = useState(false);
   const [currentUser, setCurrentUser] = useState<{ id: string; email: string } | null>(null);
 
+  // Form states
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
+  
+  // Validation states
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [formError, setFormError] = useState('');
+  const [emailTouched, setEmailTouched] = useState(false);
+  const [passwordTouched, setPasswordTouched] = useState(false);
 
   const isSignup = searchParams.get('mode') === 'signup' || searchParams.get('mode') === 'register';
+
+  // Clear form error when user types
+  useEffect(() => {
+    if (formError) setFormError('');
+  }, [email, password]);
+
+  // Validate email on blur
+  const validateEmail = (value: string) => {
+    const result = emailSchema.safeParse(value);
+    if (!result.success) {
+      setEmailError(result.error.errors[0].message);
+      return false;
+    }
+    setEmailError('');
+    return true;
+  };
+
+  // Validate password on blur
+  const validatePassword = (value: string) => {
+    const result = passwordSchema.safeParse(value);
+    if (!result.success) {
+      setPasswordError(result.error.errors[0].message);
+      return false;
+    }
+    setPasswordError('');
+    return true;
+  };
 
   useEffect(() => {
     let isMounted = true;
@@ -73,12 +156,10 @@ export const AppAuth: React.FC = () => {
         if (!isMounted) return;
 
         if (!existingProfile || existingProfile.username?.startsWith('temp_')) {
-          // New user or incomplete profile
           setCurrentUser({ id: userId, email: session.user.email || '' });
           setShowUsernameSelection(true);
           setCheckingSession(false);
         } else {
-          // Existing user - redirect to app
           if (isNewSignIn) {
             successPattern();
             toast({ title: 'Welcome back!' });
@@ -100,6 +181,7 @@ export const AppAuth: React.FC = () => {
       }
       if (event === 'SIGNED_OUT') {
         setLoading(false);
+        setGoogleLoading(false);
         setShowUsernameSelection(false);
         setCurrentUser(null);
         setCheckingSession(false);
@@ -125,19 +207,22 @@ export const AppAuth: React.FC = () => {
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     buttonTap();
+    setFormError('');
 
-    if (!email || !password) {
-      toast({ title: 'Please enter your email and password', variant: 'destructive' });
-      return;
-    }
+    // Validate inputs
+    const isEmailValid = validateEmail(email);
+    const isPasswordValid = validatePassword(password);
+    setEmailTouched(true);
+    setPasswordTouched(true);
 
-    if (password.length < 6) {
-      toast({ title: 'Password must be at least 6 characters', variant: 'destructive' });
+    if (!isEmailValid || !isPasswordValid) {
+      errorPattern();
       return;
     }
 
     if (isSignup && !agreedToTerms) {
-      toast({ title: 'Please agree to our Terms and Privacy Policy', variant: 'destructive' });
+      setFormError('Please agree to our Terms and Privacy Policy');
+      errorPattern();
       return;
     }
 
@@ -145,7 +230,6 @@ export const AppAuth: React.FC = () => {
 
     try {
       if (isSignup) {
-        // Get referral code
         let { referralCode, clearReferralCode } = useAffiliateTracking.getState();
         
         if (!referralCode) {
@@ -162,7 +246,7 @@ export const AppAuth: React.FC = () => {
 
         const { data, error } = await supabase.functions.invoke('signup-user', {
           body: {
-            email: email.toLowerCase(),
+            email: email.toLowerCase().trim(),
             password,
             referralCode: referralCode || undefined,
           }
@@ -179,18 +263,26 @@ export const AppAuth: React.FC = () => {
             }
           } catch (e) {}
           
+          errorMessage = getReadableError(errorMessage);
+          
           if (errorMessage.includes('already exists')) {
-            toast({ title: 'An account with this email already exists', variant: 'destructive' });
-            navigate('/app/auth?mode=login');
+            setFormError('An account with this email already exists.');
+            toast({ 
+              title: 'Account exists', 
+              description: 'Try signing in instead.',
+              variant: 'destructive' 
+            });
           } else {
-            toast({ title: errorMessage, variant: 'destructive' });
+            setFormError(errorMessage);
           }
+          errorPattern();
           setLoading(false);
           return;
         }
 
         if (data?.error) {
-          toast({ title: data.error, variant: 'destructive' });
+          setFormError(getReadableError(data.error));
+          errorPattern();
           setLoading(false);
           return;
         }
@@ -199,31 +291,27 @@ export const AppAuth: React.FC = () => {
           if (referralCode) {
             clearReferralCode();
           }
-          setCurrentUser({ id: data.userId, email: email.toLowerCase() });
+          setCurrentUser({ id: data.userId, email: email.toLowerCase().trim() });
           setShowEmailVerification(true);
-          toast({ title: 'Verification code sent to your email!' });
+          successPattern();
+          toast({ title: 'Verification code sent!', description: 'Check your email inbox.' });
         }
       } else {
-        // Sign in
         const { data, error } = await supabase.auth.signInWithPassword({
-          email,
+          email: email.toLowerCase().trim(),
           password,
         });
 
         if (error) {
-          if (error.message.includes('Invalid login credentials')) {
-            toast({ title: 'Invalid email or password', variant: 'destructive' });
-          } else if (error.message.includes('Email not confirmed')) {
-            toast({ title: 'Your email is not verified. Please check your inbox.', variant: 'destructive' });
-          } else {
-            toast({ title: error.message, variant: 'destructive' });
-          }
+          const readableError = getReadableError(error.message);
+          setFormError(readableError);
+          errorPattern();
         }
-        // On success, onAuthStateChange will handle redirect
       }
     } catch (error: any) {
       console.error('Auth error:', error);
-      toast({ title: error.message || 'Authentication failed', variant: 'destructive' });
+      setFormError(getReadableError(error.message || 'Authentication failed'));
+      errorPattern();
     } finally {
       setLoading(false);
     }
@@ -231,20 +319,24 @@ export const AppAuth: React.FC = () => {
 
   const handleForgotPassword = async () => {
     buttonTap();
-    if (!email) {
-      toast({ title: 'Please enter your email address', variant: 'destructive' });
+    
+    if (!validateEmail(email)) {
+      setEmailTouched(true);
+      errorPattern();
       return;
     }
 
     setLoading(true);
     try {
       await supabase.functions.invoke('resend-verification-code', {
-        body: { email: email.toLowerCase(), type: 'password_reset' }
+        body: { email: email.toLowerCase().trim(), type: 'password_reset' }
       });
-      toast({ title: 'Reset code sent to your email' });
+      successPattern();
+      toast({ title: 'Reset code sent!', description: 'Check your email inbox.' });
       setShowForgotPassword(false);
     } catch (error: any) {
-      toast({ title: 'Failed to send reset code', variant: 'destructive' });
+      setFormError('Failed to send reset code. Please try again.');
+      errorPattern();
     } finally {
       setLoading(false);
     }
@@ -256,10 +348,13 @@ export const AppAuth: React.FC = () => {
     if (currentUser && email && password) {
       setLoading(true);
       try {
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        const { data, error } = await supabase.auth.signInWithPassword({ 
+          email: email.toLowerCase().trim(), 
+          password 
+        });
 
         if (error) {
-          toast({ title: 'Verification successful! Please sign in.', variant: 'destructive' });
+          toast({ title: 'Please sign in', description: 'Email verified successfully!', variant: 'default' });
           return;
         }
 
@@ -271,7 +366,7 @@ export const AppAuth: React.FC = () => {
             .single();
 
           if (profile?.username?.startsWith('temp_')) {
-            toast({ title: 'Email verified! Now choose your username.' });
+            toast({ title: 'Almost there!', description: 'Choose your username to complete setup.' });
             setCurrentUser({ id: data.user.id, email: data.user.email || '' });
             setShowUsernameSelection(true);
           } else {
@@ -282,7 +377,7 @@ export const AppAuth: React.FC = () => {
         }
       } catch (err) {
         console.error('Error during auto sign-in:', err);
-        toast({ title: 'Verification successful! Please sign in.' });
+        toast({ title: 'Email verified!', description: 'Please sign in to continue.' });
       } finally {
         setLoading(false);
       }
@@ -291,15 +386,16 @@ export const AppAuth: React.FC = () => {
 
   const handleGoogleSignIn = async () => {
     if (isSignup && !agreedToTerms) {
-      toast({ title: 'Please agree to our Terms and Privacy Policy', variant: 'destructive' });
+      setFormError('Please agree to our Terms and Privacy Policy');
+      errorPattern();
       return;
     }
     
     buttonTap();
-    setLoading(true);
+    setGoogleLoading(true);
+    setFormError('');
+    
     try {
-      // For native apps, use the custom URL scheme for OAuth redirect
-      // This ensures the OAuth flow returns to the app instead of the website
       const isNativeApp = Capacitor.isNativePlatform();
       const redirectTo = isNativeApp 
         ? 'com.nomiqa.app://app/auth' 
@@ -309,31 +405,36 @@ export const AppAuth: React.FC = () => {
         provider: 'google',
         options: {
           redirectTo,
-          // Skip the browser tab for native - it will open in system browser
-          // and redirect back via deep link
           skipBrowserRedirect: false,
         }
       });
       if (error) throw error;
     } catch (error: any) {
-      toast({ title: error.message || 'Failed to sign in with Google', variant: 'destructive' });
-      setLoading(false);
+      setFormError(getReadableError(error.message || 'Failed to sign in with Google'));
+      errorPattern();
+      setGoogleLoading(false);
     }
   };
 
-  // Loading state
+  // Password strength indicator
+  const passwordStrength = password ? getPasswordStrength(password) : null;
+
+  // Loading state - session check
   if (checkingSession) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="flex flex-col items-center gap-3">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" />
-          <p className="text-sm text-muted-foreground">Loading...</p>
+        <div className="flex flex-col items-center gap-4">
+          <div className="relative">
+            <div className="w-16 h-16 rounded-full border-4 border-muted animate-pulse" />
+            <Loader2 className="w-8 h-8 animate-spin text-primary absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+          </div>
+          <p className="text-sm text-muted-foreground animate-pulse">Checking session...</p>
         </div>
       </div>
     );
   }
 
-  // Username selection
+  // Username selection screen
   if (showUsernameSelection && currentUser) {
     return (
       <div className="min-h-screen bg-background px-4 py-6">
@@ -346,7 +447,7 @@ export const AppAuth: React.FC = () => {
     );
   }
 
-  // Email verification
+  // Email verification screen
   if (showEmailVerification && currentUser) {
     return (
       <div className="min-h-screen bg-background px-4 py-6">
@@ -358,6 +459,8 @@ export const AppAuth: React.FC = () => {
       </div>
     );
   }
+
+  const isFormDisabled = loading || googleLoading;
 
   return (
     <div 
@@ -375,6 +478,7 @@ export const AppAuth: React.FC = () => {
             navigate('/app');
           }}
           className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+          disabled={isFormDisabled}
         >
           <ArrowLeft className="w-5 h-5" />
           <span className="text-sm font-medium">Back</span>
@@ -398,18 +502,32 @@ export const AppAuth: React.FC = () => {
           </p>
         </div>
 
+        {/* Global Error Message */}
+        {formError && (
+          <div className="w-full max-w-sm mx-auto mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded-lg flex items-start gap-2 animate-in fade-in slide-in-from-top-2 duration-200">
+            <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
+            <p className="text-sm text-destructive">{formError}</p>
+          </div>
+        )}
+
         {/* Auth Form */}
         <div className="w-full max-w-sm mx-auto space-y-4">
           {/* Google OAuth */}
           <Button
             type="button"
             variant="outline"
-            className="w-full h-12 bg-card border-border text-foreground"
+            className={cn(
+              "w-full h-12 bg-card border-border text-foreground transition-all duration-200",
+              googleLoading && "opacity-70"
+            )}
             onClick={handleGoogleSignIn}
-            disabled={loading}
+            disabled={isFormDisabled}
           >
-            {loading ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
+            {googleLoading ? (
+              <div className="flex items-center gap-2">
+                <Loader2 className="w-5 h-5 animate-spin" />
+                <span>Connecting...</span>
+              </div>
             ) : (
               <>
                 <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
@@ -435,22 +553,50 @@ export const AppAuth: React.FC = () => {
 
           {/* Email/Password Form */}
           <form onSubmit={handleEmailAuth} className="space-y-4">
+            {/* Email Input */}
             <div className="space-y-2">
               <Label htmlFor="email" className="text-foreground">Email</Label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Mail className={cn(
+                  "absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors",
+                  emailError && emailTouched ? "text-destructive" : "text-muted-foreground"
+                )} />
                 <Input
                   id="email"
                   type="email"
                   placeholder="you@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="pl-10 h-12 bg-card border-border"
-                  disabled={loading}
+                  onBlur={() => {
+                    setEmailTouched(true);
+                    if (email) validateEmail(email);
+                  }}
+                  className={cn(
+                    "pl-10 h-12 bg-card border-border transition-all duration-200",
+                    emailError && emailTouched && "border-destructive focus-visible:ring-destructive"
+                  )}
+                  disabled={isFormDisabled}
+                  autoComplete="email"
+                  autoCapitalize="none"
                 />
+                {emailTouched && email && (
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    {emailError ? (
+                      <XCircle className="w-4 h-4 text-destructive" />
+                    ) : (
+                      <CheckCircle2 className="w-4 h-4 text-green-500" />
+                    )}
+                  </div>
+                )}
               </div>
+              {emailError && emailTouched && (
+                <p className="text-xs text-destructive animate-in fade-in slide-in-from-top-1 duration-150">
+                  {emailError}
+                </p>
+              )}
             </div>
 
+            {/* Password Input */}
             {!showForgotPassword && (
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
@@ -460,30 +606,72 @@ export const AppAuth: React.FC = () => {
                       type="button"
                       onClick={() => setShowForgotPassword(true)}
                       className="text-xs text-primary hover:underline"
+                      disabled={isFormDisabled}
                     >
                       Forgot password?
                     </button>
                   )}
                 </div>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Lock className={cn(
+                    "absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors",
+                    passwordError && passwordTouched ? "text-destructive" : "text-muted-foreground"
+                  )} />
                   <Input
                     id="password"
                     type={showPassword ? 'text' : 'password'}
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10 pr-10 h-12 bg-card border-border"
-                    disabled={loading}
+                    onBlur={() => {
+                      setPasswordTouched(true);
+                      if (password) validatePassword(password);
+                    }}
+                    className={cn(
+                      "pl-10 pr-10 h-12 bg-card border-border transition-all duration-200",
+                      passwordError && passwordTouched && "border-destructive focus-visible:ring-destructive"
+                    )}
+                    disabled={isFormDisabled}
+                    autoComplete={isSignup ? "new-password" : "current-password"}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    disabled={isFormDisabled}
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
+                {passwordError && passwordTouched && (
+                  <p className="text-xs text-destructive animate-in fade-in slide-in-from-top-1 duration-150">
+                    {passwordError}
+                  </p>
+                )}
+                
+                {/* Password Strength Indicator (signup only) */}
+                {isSignup && password && passwordStrength && (
+                  <div className="space-y-1 animate-in fade-in duration-200">
+                    <div className="flex gap-1">
+                      {[1, 2, 3, 4, 5].map((level) => (
+                        <div
+                          key={level}
+                          className={cn(
+                            "h-1 flex-1 rounded-full transition-colors duration-200",
+                            level <= passwordStrength.score ? passwordStrength.color : "bg-muted"
+                          )}
+                        />
+                      ))}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Password strength: <span className={cn(
+                        passwordStrength.score >= 4 ? "text-green-500" :
+                        passwordStrength.score >= 3 ? "text-yellow-500" :
+                        passwordStrength.score >= 2 ? "text-orange-500" : "text-destructive"
+                      )}>{passwordStrength.label}</span>
+                    </p>
+                  </div>
+                )}
               </div>
             )}
 
@@ -495,6 +683,7 @@ export const AppAuth: React.FC = () => {
                   checked={agreedToTerms}
                   onCheckedChange={(checked) => setAgreedToTerms(checked as boolean)}
                   className="mt-0.5"
+                  disabled={isFormDisabled}
                 />
                 <Label htmlFor="terms" className="text-xs text-muted-foreground leading-tight">
                   I agree to the{' '}
@@ -510,17 +699,28 @@ export const AppAuth: React.FC = () => {
               <div className="space-y-2">
                 <Button
                   type="button"
-                  className="w-full h-12 bg-primary text-primary-foreground hover:bg-primary/90"
+                  className="w-full h-12 bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-200"
                   onClick={handleForgotPassword}
-                  disabled={loading}
+                  disabled={isFormDisabled}
                 >
-                  {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Send Reset Code'}
+                  {loading ? (
+                    <div className="flex items-center gap-2">
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <span>Sending...</span>
+                    </div>
+                  ) : (
+                    'Send Reset Code'
+                  )}
                 </Button>
                 <Button
                   type="button"
                   variant="ghost"
                   className="w-full"
-                  onClick={() => setShowForgotPassword(false)}
+                  onClick={() => {
+                    setShowForgotPassword(false);
+                    setFormError('');
+                  }}
+                  disabled={isFormDisabled}
                 >
                   Back to Sign In
                 </Button>
@@ -528,11 +728,17 @@ export const AppAuth: React.FC = () => {
             ) : (
               <Button
                 type="submit"
-                className="w-full h-12 bg-primary text-primary-foreground hover:bg-primary/90"
-                disabled={loading}
+                className={cn(
+                  "w-full h-12 bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-200",
+                  loading && "opacity-70"
+                )}
+                disabled={isFormDisabled}
               >
                 {loading ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <span>{isSignup ? 'Creating account...' : 'Signing in...'}</span>
+                  </div>
                 ) : isSignup ? (
                   'Create Account'
                 ) : (
@@ -550,9 +756,13 @@ export const AppAuth: React.FC = () => {
                 <button
                   onClick={() => {
                     buttonTap();
+                    setFormError('');
+                    setEmailError('');
+                    setPasswordError('');
                     navigate('/app/auth?mode=login');
                   }}
                   className="text-primary font-medium hover:underline"
+                  disabled={isFormDisabled}
                 >
                   Sign In
                 </button>
@@ -563,9 +773,13 @@ export const AppAuth: React.FC = () => {
                 <button
                   onClick={() => {
                     buttonTap();
+                    setFormError('');
+                    setEmailError('');
+                    setPasswordError('');
                     navigate('/app/auth?mode=signup');
                   }}
                   className="text-primary font-medium hover:underline"
+                  disabled={isFormDisabled}
                 >
                   Create Account
                 </button>
