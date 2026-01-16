@@ -52,8 +52,8 @@ export function initSentry() {
         },
       },
       
-      // Don't send errors in development
-      enabled: import.meta.env.PROD,
+      // Enable for testing (set to import.meta.env.PROD for production)
+      enabled: true,
       
       // Ignore common non-actionable errors
       ignoreErrors: [
