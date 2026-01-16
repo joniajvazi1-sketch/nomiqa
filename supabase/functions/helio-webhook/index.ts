@@ -365,8 +365,14 @@ serve(async (req) => {
       console.log('Order response body:', orderResponseText);
 
       if (!orderResponse.ok) {
-        console.error('Airalo order failed:', orderResponseText);
-        throw new Error(`Airalo order failed: ${orderResponse.status} - ${orderResponseText}`);
+        // Log details server-side only, don't expose to clients
+        console.error('Airalo order failed:', { status: orderResponse.status, body: orderResponseText });
+        // Update order to failed status
+        await supabase
+          .from('orders')
+          .update({ status: 'failed', updated_at: new Date().toISOString() })
+          .eq('id', order.id);
+        throw new Error('Failed to provision eSIM. Please contact support.');
       }
 
       const orderJson = JSON.parse(orderResponseText);
