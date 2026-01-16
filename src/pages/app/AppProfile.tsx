@@ -28,6 +28,7 @@ import { NotificationSettings } from '@/components/app/NotificationSettings';
 import { DataCollectionControls } from '@/components/app/DataCollectionControls';
 import { ContributorLevelCard } from '@/components/app/ContributorLevelCard';
 import { HelpCenter } from '@/components/app/HelpCenter';
+import { captureError } from '@/lib/sentry';
 import { SpeedTestHistory } from '@/components/app/SpeedTestHistory';
 import {
   AlertDialog,
@@ -709,6 +710,41 @@ export const AppProfile: React.FC = () => {
               </AlertDialog>
             </CardContent>
           </Card>
+
+          {/* DEV ONLY - Sentry Testing */}
+          {import.meta.env.DEV && (
+            <Card className="border-destructive/30 bg-destructive/5">
+              <CardContent className="p-4">
+                <p className="text-xs text-destructive mb-3 font-medium">🧪 DEV ONLY - Sentry Testing</p>
+                <div className="flex gap-2">
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    className="flex-1 text-xs"
+                    onClick={() => {
+                      throw new Error('Test Sentry Crash - React Error');
+                    }}
+                  >
+                    Test Crash
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1 text-xs border-destructive/30 text-destructive"
+                    onClick={() => {
+                      captureError(new Error('Test Sentry - Handled Error'), { 
+                        test: true, 
+                        timestamp: new Date().toISOString() 
+                      });
+                      toast({ title: '✅ Handled error sent to Sentry' });
+                    }}
+                  >
+                    Handled Error
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Refresh */}
           <Button variant="ghost" size="sm" onClick={loadData} className="w-full text-xs text-muted-foreground">
