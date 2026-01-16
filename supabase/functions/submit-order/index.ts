@@ -339,10 +339,11 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('Error submitting order:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    // Log full error details server-side only
+    console.error('Order submission error:', error instanceof Error ? { message: error.message, stack: error.stack } : error);
+    // Return generic error to client - never expose internal details
     return new Response(
-      JSON.stringify({ error: errorMessage }),
+      JSON.stringify({ error: 'Failed to process order. Please try again or contact support.' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
