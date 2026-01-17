@@ -188,8 +188,11 @@ export const NetworkContribution: React.FC = () => {
           />
         </Suspense>
         
-        {/* Live Badge + Connection Type - Top Right, inline */}
-        <div className="absolute top-4 right-4 flex items-center gap-2">
+        {/* Live Badge + Connection Type - Top Right, pushed down for iOS notch */}
+        <div 
+          className="absolute right-4 flex items-center gap-2 z-30"
+          style={{ top: 'calc(env(safe-area-inset-top, 0px) + 12px)' }}
+        >
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 backdrop-blur-md">
             <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
             <span className="text-[10px] font-semibold text-emerald-400 uppercase tracking-wider">Live</span>
@@ -202,7 +205,10 @@ export const NetworkContribution: React.FC = () => {
 
         {/* Offline Banner */}
         {!isOnline && (
-          <div className="absolute top-14 left-4 right-4 flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-500/20 border border-amber-500/30 backdrop-blur-md">
+          <div 
+            className="absolute left-4 right-4 flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-500/20 border border-amber-500/30 backdrop-blur-md z-30"
+            style={{ top: 'calc(env(safe-area-inset-top, 0px) + 48px)' }}
+          >
             <CloudOff className="w-4 h-4 text-amber-400" />
             <span className="text-xs text-amber-300">{offlineQueueCount} points queued</span>
           </div>
@@ -210,7 +216,10 @@ export const NetworkContribution: React.FC = () => {
 
         {/* WiFi Warning - Below badges */}
         {isActive && !isCellular && (
-          <div className="absolute top-14 left-4 right-4 flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-500/20 border border-amber-500/30 backdrop-blur-md">
+          <div 
+            className="absolute left-4 right-4 flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-500/20 border border-amber-500/30 backdrop-blur-md z-30"
+            style={{ top: 'calc(env(safe-area-inset-top, 0px) + 48px)' }}
+          >
             <Wifi className="w-4 h-4 text-amber-400" />
             <span className="text-xs text-amber-300">Switch to cellular to earn</span>
           </div>
