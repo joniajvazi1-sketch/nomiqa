@@ -65,7 +65,7 @@ export const RewardCelebration: React.FC<RewardCelebrationProps> = ({
 
   return (
     <>
-      <Confetti trigger={trigger} />
+      {/* Confetti removed per user request */}
       
       {showBadge && (
         <div className="fixed inset-0 z-50 pointer-events-none flex items-center justify-center">

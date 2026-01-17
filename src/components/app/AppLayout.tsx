@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useLayoutEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Capacitor } from '@capacitor/core';
 import { useTheme } from 'next-themes';
@@ -30,9 +30,18 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const { theme, resolvedTheme } = useTheme();
   const isDark = resolvedTheme === 'dark' || theme === 'dark';
   const [safeAreaReady, setSafeAreaReady] = useState(false);
+  const mainRef = useRef<HTMLDivElement>(null);
 
   // WebGL/canvas safety: avoid parent transforms on map/network routes
   const isMapRoute = location.pathname === '/app/map' || location.pathname === '/app/network';
+
+  // Scroll to top on route change - critical for native app feel
+  useLayoutEffect(() => {
+    if (mainRef.current) {
+      mainRef.current.scrollTop = 0;
+    }
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
 
   useEffect(() => {
     // Configure status bar for native app - translucent overlay style
@@ -107,6 +116,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
     >
       {/* Scrollable content area - THE ONLY scroll container */}
       <main 
+        ref={mainRef}
         className={cn(
           "flex-1 overflow-x-hidden",
           isMapRoute ? "overflow-hidden" : "overflow-y-auto"

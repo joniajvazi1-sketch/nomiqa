@@ -49,7 +49,7 @@ export const BottomTabBar: React.FC = () => {
         paddingRight: 'env(safe-area-inset-right, 0px)',
       }}
     >
-      {/* Tab buttons - fixed 64px height */}
+      {/* Tab buttons - fixed 64px height, icons pushed lower */}
       <div className="flex items-stretch h-16">
         {tabs.map((tab) => {
           const active = isActive(tab.path);
@@ -62,7 +62,7 @@ export const BottomTabBar: React.FC = () => {
               onClick={() => handleTabPress(tab.path)}
               aria-label={tab.label}
               className={cn(
-                'flex-1 flex flex-col items-center justify-center gap-0.5',
+                'flex-1 flex flex-col items-center justify-end pb-2 gap-0.5',
                 'touch-manipulation min-h-[44px]',
                 'transition-colors duration-150',
                 'active:bg-muted/50',
