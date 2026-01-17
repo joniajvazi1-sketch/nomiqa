@@ -398,8 +398,11 @@ export const AppAuth: React.FC = () => {
 
     try {
       const isNativeApp = Capacitor.isNativePlatform();
+      
+      // For native apps, use a web intermediary that redirects to the deep link
+      // This is required because Supabase only allows https:// redirect URLs
       const redirectTo = isNativeApp
-        ? 'com.nomiqa.app://app/auth'
+        ? `${window.location.origin}/app/oauth-redirect`
         : `${window.location.origin}/app/auth`;
 
       // Native iOS/Android: do NOT redirect the WebView (it can strand users in Safari)
