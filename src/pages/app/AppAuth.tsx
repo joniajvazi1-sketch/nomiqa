@@ -23,6 +23,7 @@ import { useAffiliateTracking } from '@/hooks/useAffiliateTracking';
 import { UsernameSelection } from '@/components/UsernameSelection';
 import { EmailVerification } from '@/components/EmailVerification';
 import { Capacitor } from '@capacitor/core';
+import { Browser } from '@capacitor/browser';
 import { z } from 'zod';
 
 // Validation schemas
@@ -390,25 +391,34 @@ export const AppAuth: React.FC = () => {
       errorPattern();
       return;
     }
-    
+
     buttonTap();
     setGoogleLoading(true);
     setFormError('');
-    
+
     try {
       const isNativeApp = Capacitor.isNativePlatform();
-      const redirectTo = isNativeApp 
-        ? 'com.nomiqa.app://app/auth' 
+      const redirectTo = isNativeApp
+        ? 'com.nomiqa.app://app/auth'
         : `${window.location.origin}/app/auth`;
-      
-      const { error } = await supabase.auth.signInWithOAuth({
+
+      // Native iOS/Android: do NOT redirect the WebView (it can strand users in Safari)
+      // Instead, get the provider URL and open it in the system browser.
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo,
-          skipBrowserRedirect: false,
-        }
+          skipBrowserRedirect: isNativeApp,
+        },
       });
+
       if (error) throw error;
+
+      if (isNativeApp) {
+        const url = data?.url;
+        if (!url) throw new Error('Missing OAuth URL');
+        await Browser.open({ url });
+      }
     } catch (error: any) {
       setFormError(getReadableError(error.message || 'Failed to sign in with Google'));
       errorPattern();

@@ -71,7 +71,7 @@ export const AppCheckout = () => {
       errorPattern();
       playError();
       toast.error("Please log in to complete your purchase");
-      navigate('/auth?redirect=/checkout');
+      navigate('/app/auth?mode=login');
       return;
     }
     

@@ -183,7 +183,7 @@ export const AppProfile: React.FC = () => {
   const handleLogout = async () => {
     buttonTap();
     await supabase.auth.signOut();
-    navigate('/auth');
+    navigate('/app/auth?mode=login');
   };
 
   const handleSaveUsername = async () => {

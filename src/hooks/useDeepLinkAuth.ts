@@ -1,62 +1,70 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { App, URLOpenListenerEvent } from '@capacitor/app';
+import { Browser } from '@capacitor/browser';
 import { Capacitor } from '@capacitor/core';
 import { supabase } from '@/integrations/supabase/client';
 
 /**
- * Hook to handle OAuth deep link callbacks in native apps
- * When Google OAuth completes, it redirects to com.nomiqa.app://app/auth#access_token=...
- * This hook catches that URL and extracts the session tokens
+ * Handles OAuth deep link callbacks in the native apps.
+ * We intentionally avoid logging the full URL because it can contain auth tokens.
  */
 export const useDeepLinkAuth = () => {
+  const navigate = useNavigate();
+  const lastHandledUrlRef = useRef<string | null>(null);
+
   useEffect(() => {
-    // Only set up listener on native platforms
     if (!Capacitor.isNativePlatform()) return;
 
     const handleDeepLink = async (event: URLOpenListenerEvent) => {
-      const url = event.url;
-      console.log('[DeepLink] Received URL:', url);
+      const url = event.url || '';
 
-      // Check if this is an OAuth callback with auth tokens
-      // Format: com.nomiqa.app://app/auth#access_token=...&refresh_token=...
-      if (url.includes('access_token') || url.includes('refresh_token')) {
+      // Expected format: com.nomiqa.app://app/auth#access_token=...&refresh_token=...
+      if (!url.includes('access_token') && !url.includes('refresh_token')) return;
+
+      // Ignore duplicate callbacks (some providers fire multiple events)
+      if (lastHandledUrlRef.current === url) return;
+      lastHandledUrlRef.current = url;
+
+      try {
+        const urlObj = new URL(url);
+        const fragment = urlObj.hash.startsWith('#') ? urlObj.hash.slice(1) : urlObj.hash;
+        const params = new URLSearchParams(fragment);
+        const accessToken = params.get('access_token');
+        const refreshToken = params.get('refresh_token');
+
+        if (!accessToken || !refreshToken) return;
+
+        const { error } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+        });
+
+        // Close the system browser (if it is still open)
         try {
-          // Extract the fragment (everything after #)
-          const urlObj = new URL(url);
-          const fragment = urlObj.hash.substring(1); // Remove the # prefix
-          
-          // Parse the fragment as URL params
-          const params = new URLSearchParams(fragment);
-          const accessToken = params.get('access_token');
-          const refreshToken = params.get('refresh_token');
-
-          if (accessToken && refreshToken) {
-            console.log('[DeepLink] Setting session from OAuth callback');
-            
-            // Set the session using the tokens from the deep link
-            const { data, error } = await supabase.auth.setSession({
-              access_token: accessToken,
-              refresh_token: refreshToken,
-            });
-
-            if (error) {
-              console.error('[DeepLink] Failed to set session:', error);
-            } else {
-              console.log('[DeepLink] Session set successfully:', data.user?.email);
-            }
-          }
-        } catch (error) {
-          console.error('[DeepLink] Error processing OAuth callback:', error);
+          await Browser.close();
+        } catch {
+          // ignore
         }
+
+        // Even if setSession errors, route user to in-app auth screen
+        navigate('/app/auth', { replace: true });
+
+        if (error) {
+          // Keep logs minimal (no token leakage)
+          console.warn('[DeepLink] OAuth session failed');
+        }
+      } catch {
+        // Keep logs minimal (no token leakage)
+        console.warn('[DeepLink] OAuth callback parse failed');
       }
     };
 
-    // Add the deep link listener
     const listener = App.addListener('appUrlOpen', handleDeepLink);
 
-    // Cleanup on unmount
     return () => {
-      listener.then(l => l.remove());
+      listener.then((l) => l.remove());
+      lastHandledUrlRef.current = null;
     };
-  }, []);
+  }, [navigate]);
 };
