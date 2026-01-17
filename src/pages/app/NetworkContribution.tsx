@@ -239,7 +239,7 @@ export const NetworkContribution: React.FC = () => {
           {/* Start/Stop Button */}
           <button
             ref={startButtonRef}
-            onClick={() => {
+            onClick={async () => {
               buttonTap();
               if (isActive) {
                 handleStopContribution();
@@ -249,8 +249,20 @@ export const NetworkContribution: React.FC = () => {
                   setShowConsentModal(true);
                   return;
                 }
-                startContribution();
-                playCoin();
+                const started = await startContribution();
+                if (started) {
+                  playCoin();
+                  toast({
+                    title: "Contribution Started ✓",
+                    description: "Location permission granted. Earning points!",
+                  });
+                } else {
+                  toast({
+                    title: "Location Permission Required",
+                    description: "Please enable location in Settings to earn points.",
+                    variant: "destructive",
+                  });
+                }
               }
             }}
             disabled={!user}

@@ -119,25 +119,56 @@ const isSessionStale = (startedAt: number | null): boolean => {
  * Request location permission explicitly (user-initiated only)
  * Apple requires this to be triggered by user action, not on app load
  * Uses dynamic import to avoid bundling Capacitor geolocation on web
+ * 
+ * ANDROID FLOW:
+ * 1. Check current permission status
+ * 2. If not granted, call requestPermissions() which triggers the system dialog
+ * 3. Log all states for debugging
  */
-const ensureLocationPermission = async (): Promise<boolean> => {
-  if (!Capacitor.isNativePlatform()) return false;
+const ensureLocationPermission = async (): Promise<{ granted: boolean; status: string }> => {
+  if (!Capacitor.isNativePlatform()) {
+    console.log('[Permission] Not native platform, skipping');
+    return { granted: false, status: 'not_native' };
+  }
+  
+  const platform = Capacitor.getPlatform();
   
   try {
     const { Geolocation } = await import('@capacitor/geolocation');
-    const perm = await Geolocation.checkPermissions();
     
-    if (perm.location === 'granted') return true;
+    // Step 1: Check current permission status
+    const currentStatus = await Geolocation.checkPermissions();
+    console.log(`[Permission] ${platform} - Current status:`, JSON.stringify(currentStatus));
     
-    // User-initiated permission request
+    if (currentStatus.location === 'granted') {
+      console.log(`[Permission] ${platform} - Already granted`);
+      return { granted: true, status: 'already_granted' };
+    }
+    
+    if (currentStatus.location === 'denied') {
+      console.log(`[Permission] ${platform} - Previously denied, user must go to Settings`);
+      return { granted: false, status: 'denied_open_settings' };
+    }
+    
+    // Step 2: Request permission (triggers system dialog on Android/iOS)
+    console.log(`[Permission] ${platform} - Requesting permission...`);
     const request = await Geolocation.requestPermissions({
       permissions: ['location']
     });
+    console.log(`[Permission] ${platform} - Request result:`, JSON.stringify(request));
     
-    return request.location === 'granted';
+    const granted = request.location === 'granted' || request.coarseLocation === 'granted';
+    
+    if (granted) {
+      console.log(`[Permission] ${platform} - Permission GRANTED`);
+      return { granted: true, status: 'granted' };
+    } else {
+      console.log(`[Permission] ${platform} - Permission DENIED by user`);
+      return { granted: false, status: 'denied' };
+    }
   } catch (error) {
-    console.error('Permission check failed:', error);
-    return false;
+    console.error(`[Permission] ${platform} - Error:`, error);
+    return { granted: false, status: 'error' };
   }
 };
 
@@ -709,10 +740,25 @@ export const useNetworkContribution = () => {
     }
 
     // Request location permission explicitly (user-initiated per Apple guidelines)
-    const hasPermission = await ensureLocationPermission();
-    if (!hasPermission) {
-      console.warn('Location permission denied - cannot start scan');
+    const permissionResult = await ensureLocationPermission();
+    console.log('[NetworkContribution] Permission result:', permissionResult);
+    
+    if (!permissionResult.granted) {
+      console.warn('[NetworkContribution] Location permission denied:', permissionResult.status);
       warning();
+      
+      // If user denied previously, they need to go to Settings
+      if (permissionResult.status === 'denied_open_settings') {
+        // Dynamic import to avoid web build issues
+        try {
+          const { App } = await import('@capacitor/app');
+          // On Android, we can't directly open app settings, but we can show a toast
+          // The user sees "denied_open_settings" status in console
+        } catch (e) {
+          console.log('[Permission] Could not import App module:', e);
+        }
+      }
+      
       return false;
     }
 
