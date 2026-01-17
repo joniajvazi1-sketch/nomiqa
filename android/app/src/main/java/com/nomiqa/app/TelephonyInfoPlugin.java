@@ -93,17 +93,20 @@ public class TelephonyInfoPlugin extends Plugin {
                         CellIdentityLte identityLte = cellInfoLte.getCellIdentity();
                         
                         result.put("networkType", "LTE");
-                        result.put("rsrp", signalLte.getRsrp());
-                        result.put("rsrq", signalLte.getRsrq());
+                        
+                        // getRsrp(), getRsrq(), getRssnr() require API 26+ (O)
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            result.put("rsrp", signalLte.getRsrp());
+                            result.put("rsrq", signalLte.getRsrq());
+                            result.put("sinr", signalLte.getRssnr());
+                        } else {
+                            // API 24-25 fallback: use getDbm() for signal strength estimate
+                            result.put("rssi", signalLte.getDbm());
+                        }
                         
                         // getRssi() requires API 29+ (Q)
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                             result.put("rssi", signalLte.getRssi());
-                        }
-                        
-                        // getRssnr() requires API 26+ (O)
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                            result.put("sinr", signalLte.getRssnr());
                         }
                         
                         result.put("cellId", String.valueOf(identityLte.getCi()));
@@ -117,10 +120,10 @@ public class TelephonyInfoPlugin extends Plugin {
                             result.put("bandNumber", identityLte.getBandwidth() / 1000); // Convert to MHz
                         } else {
                             // Fallback: get from network operator
-                            String networkOperator = telephonyManager.getNetworkOperator();
-                            if (networkOperator != null && networkOperator.length() >= 5) {
-                                result.put("mcc", networkOperator.substring(0, 3));
-                                result.put("mnc", networkOperator.substring(3));
+                            String opCode = telephonyManager.getNetworkOperator();
+                            if (opCode != null && opCode.length() >= 5) {
+                                result.put("mcc", opCode.substring(0, 3));
+                                result.put("mnc", opCode.substring(3));
                             }
                         }
                         break;
@@ -263,8 +266,8 @@ public class TelephonyInfoPlugin extends Plugin {
     @PluginMethod
     public void checkPermissions(PluginCall call) {
         JSObject result = new JSObject();
-        result.put("location", hasPermission(Manifest.permission.ACCESS_FINE_LOCATION));
-        result.put("phoneState", hasPermission(Manifest.permission.READ_PHONE_STATE));
+        result.put("location", checkAppPermission(Manifest.permission.ACCESS_FINE_LOCATION));
+        result.put("phoneState", checkAppPermission(Manifest.permission.READ_PHONE_STATE));
         call.resolve(result);
     }
 
@@ -276,12 +279,12 @@ public class TelephonyInfoPlugin extends Plugin {
     @PermissionCallback
     private void permissionCallback(PluginCall call) {
         JSObject result = new JSObject();
-        result.put("location", hasPermission(Manifest.permission.ACCESS_FINE_LOCATION));
-        result.put("phoneState", hasPermission(Manifest.permission.READ_PHONE_STATE));
+        result.put("location", checkAppPermission(Manifest.permission.ACCESS_FINE_LOCATION));
+        result.put("phoneState", checkAppPermission(Manifest.permission.READ_PHONE_STATE));
         call.resolve(result);
     }
 
-    private boolean hasPermission(String permission) {
+    private boolean checkAppPermission(String permission) {
         return getPermissionState(permission) == PermissionState.GRANTED;
     }
 }
