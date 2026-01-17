@@ -50,6 +50,7 @@ const AppInvite = lazy(() => import("./pages/app/AppInvite").then(m => ({ defaul
 const AppRewards = lazy(() => import("./pages/app/AppRewards").then(m => ({ default: m.AppRewards })));
 const AppNetworkStats = lazy(() => import("./pages/app/AppNetworkStats").then(m => ({ default: m.AppNetworkStats })));
 const AppAuth = lazy(() => import("./pages/app/AppAuth").then(m => ({ default: m.AppAuth })));
+const OAuthRedirect = lazy(() => import("./pages/app/OAuthRedirect"));
 
 // Loading fallback component (with a safety timeout for slow/blocked mobile networks)
 const PageLoader = () => {
@@ -146,6 +147,7 @@ const NativeAppRoutes = () => (
       <Route path="/app/leaderboard" element={<AppLeaderboard />} />
       <Route path="/app/network-stats" element={<AppNetworkStats />} />
       <Route path="/app/auth" element={<AppAuth />} />
+      <Route path="/app/oauth-redirect" element={<OAuthRedirect />} />
       {/* Redirect old wallet route to profile */}
       <Route path="/app/wallet" element={<Navigate to="/app/profile" replace />} />
       <Route path="/auth" element={<AppAuth />} />
@@ -165,7 +167,10 @@ const NativeAppRoutes = () => (
 const WebRoutes = () => (
   <WebLayout>
     <Routes>
-      {/* Redirect /app routes to home - native app only */}
+      {/* OAuth redirect handler for native app - must be accessible from web */}
+      <Route path="/app/oauth-redirect" element={<OAuthRedirect />} />
+      
+      {/* Redirect other /app routes to home - native app only */}
       <Route path="/app/*" element={<Navigate to="/" replace />} />
       <Route path="/app" element={<Navigate to="/" replace />} />
       
