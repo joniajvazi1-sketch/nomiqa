@@ -30,8 +30,8 @@ export const Footer = () => {
   
   return (
     <footer className="relative bg-gradient-to-b from-black/60 via-deep-space/80 to-black/90 text-white overflow-hidden border-t border-white/10">
-      {/* Premium decorative glows */}
-      <div className="absolute inset-0 opacity-5 pointer-events-none">
+      {/* Premium decorative glows - reduced opacity for accessibility */}
+      <div className="absolute inset-0 opacity-[0.02] pointer-events-none">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-neon-cyan rounded-full blur-3xl"></div>
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-neon-violet rounded-full blur-3xl"></div>
       </div>
@@ -50,7 +50,7 @@ export const Footer = () => {
             <Link
               key={link.to}
               to={link.to}
-              className="text-center py-3 px-4 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 hover:border-neon-cyan/30 transition-all duration-300 text-white/70 hover:text-white text-sm font-light"
+              className="text-center py-3 px-4 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 hover:border-neon-cyan/30 transition-all duration-300 text-white hover:text-white text-sm font-light"
             >
               {link.label}
             </Link>
@@ -59,7 +59,7 @@ export const Footer = () => {
 
         {/* Follow Us - Centered */}
         <div className="mb-10 md:mb-12 text-center">
-          <h3 className="font-normal mb-4 text-white/80 text-lg">{t("footerFollowUs")}</h3>
+          <h3 className="font-normal mb-4 text-white text-lg">{t("footerFollowUs")}</h3>
           <div className="flex flex-wrap gap-3 justify-center mb-6">
             {socialLinks.map((social) => (
               <a 
@@ -84,13 +84,13 @@ export const Footer = () => {
 
         {/* Legal Links */}
         <div className="flex flex-wrap justify-center gap-4 md:gap-6 mb-8">
-          <Link to="/terms" className="text-white/50 hover:text-neon-cyan transition-colors duration-300 font-light text-xs md:text-sm">
+          <Link to="/terms" className="text-white/80 hover:text-neon-cyan transition-colors duration-300 font-light text-xs md:text-sm">
             {t("footerTermsConditions")}
           </Link>
-          <Link to="/privacy" className="text-white/50 hover:text-neon-cyan transition-colors duration-300 font-light text-xs md:text-sm">
+          <Link to="/privacy" className="text-white/80 hover:text-neon-cyan transition-colors duration-300 font-light text-xs md:text-sm">
             {t("footerPrivacySecurity")}
           </Link>
-          <Link to="/about" className="text-white/50 hover:text-neon-cyan transition-colors duration-300 font-light text-xs md:text-sm">
+          <Link to="/about" className="text-white/80 hover:text-neon-cyan transition-colors duration-300 font-light text-xs md:text-sm">
             {t("footerAboutNomiqa")}
           </Link>
         </div>
