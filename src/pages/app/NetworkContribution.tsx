@@ -188,15 +188,22 @@ export const NetworkContribution: React.FC = () => {
           />
         </Suspense>
         
-        {/* Live Badge + Connection Type - Top Right, pushed down for iOS notch */}
+        {/* Live Badge - Top Left */}
         <div 
-          className="absolute right-4 flex items-center gap-2 z-30"
+          className="absolute left-4 z-30"
           style={{ top: 'calc(env(safe-area-inset-top, 0px) + 12px)' }}
         >
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 backdrop-blur-md">
             <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
             <span className="text-[10px] font-semibold text-emerald-400 uppercase tracking-wider">Live</span>
           </div>
+        </div>
+
+        {/* Connection Type - Top Right */}
+        <div 
+          className="absolute right-4 z-30"
+          style={{ top: 'calc(env(safe-area-inset-top, 0px) + 12px)' }}
+        >
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/40 backdrop-blur-md border border-white/10">
             <Signal className={cn("w-3.5 h-3.5", isCellular ? "text-[#00d4ff]" : "text-amber-400")} />
             <span className="text-[10px] font-medium text-white/90">{getConnectionLabel()}</span>
