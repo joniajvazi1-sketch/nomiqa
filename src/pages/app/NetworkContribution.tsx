@@ -147,7 +147,7 @@ export const NetworkContribution: React.FC = () => {
       className="fixed inset-0 flex flex-col overflow-hidden"
       style={{ 
         background: 'linear-gradient(180deg, hsl(222 30% 7%) 0%, hsl(222 35% 12%) 100%)',
-        paddingTop: 'env(safe-area-inset-top)',
+        // No paddingTop - badges handle their own safe area offsets
         paddingBottom: 'calc(72px + env(safe-area-inset-bottom))'
       }}
     >
@@ -188,10 +188,10 @@ export const NetworkContribution: React.FC = () => {
           />
         </Suspense>
         
-        {/* Live Badge - Top Left */}
+        {/* Live Badge - Top Left - tight to safe area */}
         <div 
           className="absolute left-4 z-30"
-          style={{ top: 'calc(env(safe-area-inset-top, 0px) + 12px)' }}
+          style={{ top: 'calc(env(safe-area-inset-top, 0px) + 4px)' }}
         >
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 backdrop-blur-md">
             <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
@@ -199,10 +199,10 @@ export const NetworkContribution: React.FC = () => {
           </div>
         </div>
 
-        {/* Connection Type - Top Right */}
+        {/* Connection Type - Top Right - tight to safe area */}
         <div 
           className="absolute right-4 z-30"
-          style={{ top: 'calc(env(safe-area-inset-top, 0px) + 12px)' }}
+          style={{ top: 'calc(env(safe-area-inset-top, 0px) + 4px)' }}
         >
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/40 backdrop-blur-md border border-white/10">
             <Signal className={cn("w-3.5 h-3.5", isCellular ? "text-[#00d4ff]" : "text-amber-400")} />
@@ -210,11 +210,11 @@ export const NetworkContribution: React.FC = () => {
           </div>
         </div>
 
-        {/* Offline Banner */}
+        {/* Offline Banner - closer to badges */}
         {!isOnline && (
           <div 
             className="absolute left-4 right-4 flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-500/20 border border-amber-500/30 backdrop-blur-md z-30"
-            style={{ top: 'calc(env(safe-area-inset-top, 0px) + 48px)' }}
+            style={{ top: 'calc(env(safe-area-inset-top, 0px) + 36px)' }}
           >
             <CloudOff className="w-4 h-4 text-amber-400" />
             <span className="text-xs text-amber-300">{offlineQueueCount} points queued</span>
@@ -225,7 +225,7 @@ export const NetworkContribution: React.FC = () => {
         {isActive && !isCellular && (
           <div 
             className="absolute left-4 right-4 flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-500/20 border border-amber-500/30 backdrop-blur-md z-30"
-            style={{ top: 'calc(env(safe-area-inset-top, 0px) + 48px)' }}
+            style={{ top: 'calc(env(safe-area-inset-top, 0px) + 36px)' }}
           >
             <Wifi className="w-4 h-4 text-amber-400" />
             <span className="text-xs text-amber-300">Switch to cellular to earn</span>
