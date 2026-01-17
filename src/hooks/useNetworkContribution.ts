@@ -120,10 +120,14 @@ const isSessionStale = (startedAt: number | null): boolean => {
  * Apple requires this to be triggered by user action, not on app load
  * Uses dynamic import to avoid bundling Capacitor geolocation on web
  * 
- * ANDROID FLOW:
- * 1. Check current permission status
- * 2. If not granted, call requestPermissions() which triggers the system dialog
- * 3. Log all states for debugging
+ * ANDROID FLOW (using BackgroundLocationPlugin):
+ * 1. Check current permission status (detailed)
+ * 2. Request foreground permission (triggers system dialog)
+ * 3. Optionally request background permission for true background scanning
+ * 4. Log all states for debugging
+ * 
+ * iOS FLOW:
+ * Uses standard Capacitor Geolocation plugin
  */
 const ensureLocationPermission = async (): Promise<{ granted: boolean; status: string }> => {
   if (!Capacitor.isNativePlatform()) {
@@ -134,36 +138,86 @@ const ensureLocationPermission = async (): Promise<{ granted: boolean; status: s
   const platform = Capacitor.getPlatform();
   
   try {
+    // ANDROID: Use our custom BackgroundLocationPlugin for detailed control
+    if (platform === 'android') {
+      const BackgroundLocation = (await import('@/plugins/BackgroundLocationPlugin')).default;
+      
+      // Step 1: Check current permission status
+      const currentStatus = await BackgroundLocation.getPermissionStatus();
+      console.log(`[Permission] android - Current status:`, JSON.stringify(currentStatus));
+      
+      // Already have foreground permission
+      if (currentStatus.fineLocation || currentStatus.coarseLocation) {
+        console.log(`[Permission] android - Foreground already granted`);
+        
+        // On Android 10+, also request background for true background scanning
+        if (currentStatus.requiresBackgroundPermission && !currentStatus.backgroundLocation) {
+          console.log(`[Permission] android - Requesting background permission...`);
+          const bgResult = await BackgroundLocation.requestBackgroundPermission();
+          console.log(`[Permission] android - Background result:`, JSON.stringify(bgResult));
+        }
+        
+        return { granted: true, status: 'already_granted' };
+      }
+      
+      // Check if permanently denied
+      if (currentStatus.foregroundStatus === 'denied' && !currentStatus.shouldShowForegroundRationale) {
+        console.log(`[Permission] android - Permanently denied, must open Settings`);
+        return { granted: false, status: 'denied_open_settings' };
+      }
+      
+      // Step 2: Request foreground permission (triggers system dialog)
+      console.log(`[Permission] android - Requesting foreground permission...`);
+      const fgResult = await BackgroundLocation.requestForegroundPermission();
+      console.log(`[Permission] android - Foreground result:`, JSON.stringify(fgResult));
+      
+      if (!fgResult.granted) {
+        console.log(`[Permission] android - Foreground DENIED by user`);
+        return { granted: false, status: 'denied' };
+      }
+      
+      // Step 3: Request background permission on Android 10+
+      const updatedStatus = await BackgroundLocation.getPermissionStatus();
+      if (updatedStatus.requiresBackgroundPermission && !updatedStatus.backgroundLocation) {
+        console.log(`[Permission] android - Now requesting background permission...`);
+        const bgResult = await BackgroundLocation.requestBackgroundPermission();
+        console.log(`[Permission] android - Background result:`, JSON.stringify(bgResult));
+        // Don't fail if background is denied - foreground is enough to start
+      }
+      
+      console.log(`[Permission] android - Permission flow complete, foreground GRANTED`);
+      return { granted: true, status: 'granted' };
+    }
+    
+    // iOS: Use standard Capacitor Geolocation
     const { Geolocation } = await import('@capacitor/geolocation');
     
-    // Step 1: Check current permission status
     const currentStatus = await Geolocation.checkPermissions();
-    console.log(`[Permission] ${platform} - Current status:`, JSON.stringify(currentStatus));
+    console.log(`[Permission] ios - Current status:`, JSON.stringify(currentStatus));
     
     if (currentStatus.location === 'granted') {
-      console.log(`[Permission] ${platform} - Already granted`);
+      console.log(`[Permission] ios - Already granted`);
       return { granted: true, status: 'already_granted' };
     }
     
     if (currentStatus.location === 'denied') {
-      console.log(`[Permission] ${platform} - Previously denied, user must go to Settings`);
+      console.log(`[Permission] ios - Previously denied, user must go to Settings`);
       return { granted: false, status: 'denied_open_settings' };
     }
     
-    // Step 2: Request permission (triggers system dialog on Android/iOS)
-    console.log(`[Permission] ${platform} - Requesting permission...`);
+    console.log(`[Permission] ios - Requesting permission...`);
     const request = await Geolocation.requestPermissions({
       permissions: ['location']
     });
-    console.log(`[Permission] ${platform} - Request result:`, JSON.stringify(request));
+    console.log(`[Permission] ios - Request result:`, JSON.stringify(request));
     
     const granted = request.location === 'granted' || request.coarseLocation === 'granted';
     
     if (granted) {
-      console.log(`[Permission] ${platform} - Permission GRANTED`);
+      console.log(`[Permission] ios - Permission GRANTED`);
       return { granted: true, status: 'granted' };
     } else {
-      console.log(`[Permission] ${platform} - Permission DENIED by user`);
+      console.log(`[Permission] ios - Permission DENIED by user`);
       return { granted: false, status: 'denied' };
     }
   } catch (error) {
@@ -803,6 +857,18 @@ export const useNetworkContribution = () => {
         return false;
       }
 
+      // Start Android foreground service for true background scanning
+      if (isAndroid) {
+        try {
+          const BackgroundLocation = (await import('@/plugins/BackgroundLocationPlugin')).default;
+          await BackgroundLocation.startForegroundService();
+          console.log('[NetworkContribution] Android foreground service started');
+        } catch (e) {
+          console.warn('[NetworkContribution] Could not start foreground service:', e);
+          // Continue anyway - foreground tracking will still work
+        }
+      }
+
       // Start duration timer
       timerRef.current = setInterval(() => {
         setStats(prev => {
@@ -839,6 +905,17 @@ export const useNetworkContribution = () => {
     heavyTap();
 
     await stopGeoTracking();
+
+    // Stop Android foreground service
+    if (isAndroid) {
+      try {
+        const BackgroundLocation = (await import('@/plugins/BackgroundLocationPlugin')).default;
+        await BackgroundLocation.stopForegroundService();
+        console.log('[NetworkContribution] Android foreground service stopped');
+      } catch (e) {
+        console.warn('[NetworkContribution] Could not stop foreground service:', e);
+      }
+    }
 
     if (timerRef.current) {
       clearInterval(timerRef.current);
