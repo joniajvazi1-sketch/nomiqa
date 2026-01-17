@@ -11,6 +11,38 @@ import { Capacitor } from "@capacitor/core";
  * - Source maps for readable stack traces
  * - Non-blocking initialization (won't crash app if Sentry fails)
  */
+
+// App version - update this when releasing new versions
+const APP_VERSION = '1.0.1';
+
+/**
+ * Get the environment based on build mode and URL
+ */
+function getEnvironment(): string {
+  // Check for explicit environment variable first
+  if (import.meta.env.VITE_SENTRY_ENVIRONMENT) {
+    return import.meta.env.VITE_SENTRY_ENVIRONMENT;
+  }
+  
+  // Development mode
+  if (import.meta.env.DEV) {
+    return 'development';
+  }
+  
+  // Check URL patterns for staging/preview
+  if (typeof window !== 'undefined') {
+    const hostname = window.location.hostname;
+    if (hostname.includes('preview') || hostname.includes('staging')) {
+      return 'staging';
+    }
+    if (hostname.includes('localhost') || hostname === '127.0.0.1') {
+      return 'development';
+    }
+  }
+  
+  return 'production';
+}
+
 export function initSentry() {
   const dsn = import.meta.env.VITE_SENTRY_DSN;
   
@@ -23,57 +55,60 @@ export function initSentry() {
   try {
     const isNative = Capacitor.isNativePlatform();
     const platform = Capacitor.getPlatform();
+    const environment = getEnvironment();
+    
+    // Release format: nomiqa@version+platform
+    // e.g., nomiqa@1.0.1+android, nomiqa@1.0.1+web
+    const release = `nomiqa@${APP_VERSION}+${isNative ? platform : 'web'}`;
     
     Sentry.init({
       dsn,
-      environment: import.meta.env.MODE || 'production',
-      release: `nomiqa@1.0.0`, // TODO: Get from app config
+      environment,
+      release,
+      
+      // Dist helps differentiate builds with same version
+      dist: isNative ? platform : 'web',
       
       // Integrations
       integrations: [
-        // Capture React component errors
         Sentry.browserTracingIntegration(),
         Sentry.replayIntegration(),
       ],
       
-      // Performance monitoring
-      tracesSampleRate: 0.1, // Capture 10% of transactions
+      // Performance monitoring - more sampling in dev
+      tracesSampleRate: environment === 'production' ? 0.1 : 0.5,
       
-      // Session replay - capture 10% of all sessions, and 100% of sessions with errors
-      replaysSessionSampleRate: 0.1,
+      // Session replay - capture 10% normally, 100% on errors
+      replaysSessionSampleRate: environment === 'production' ? 0.1 : 0.5,
       replaysOnErrorSampleRate: 1.0,
       
       // Configure scope with platform info
       initialScope: {
         tags: {
           platform: isNative ? platform : 'web',
-          app_version: '1.0.0',
+          app_version: APP_VERSION,
           is_native: String(isNative),
+          build_mode: import.meta.env.MODE,
         },
       },
       
-      // Enable for testing (set to import.meta.env.PROD for production)
+      // Always enabled (DSN check above handles disabled state)
       enabled: true,
       
       // Ignore common non-actionable errors
       ignoreErrors: [
-        // Browser extensions
         'ResizeObserver loop limit exceeded',
         'ResizeObserver loop completed with undelivered notifications',
-        // Network errors (handled by retry logic)
         'NetworkError',
         'Failed to fetch',
         'Load failed',
-        // User-initiated
         'AbortError',
-        // Safari quirks
         'cancelled',
-        // Capacitor-specific (handled internally)
         'capacitor://localhost',
       ],
       
       // Before sending, add extra context
-      beforeSend(event, hint) {
+      beforeSend(event) {
         // Add connection info if available
         if (typeof navigator !== 'undefined' && 'connection' in navigator) {
           const conn = (navigator as any).connection;
@@ -100,11 +135,18 @@ export function initSentry() {
       },
     });
     
-    console.log(`[Sentry] Initialized for ${isNative ? platform : 'web'}`);
+    console.log(`[Sentry] Initialized: env=${environment}, release=${release}, platform=${isNative ? platform : 'web'}`);
   } catch (error) {
     // Non-blocking - don't crash app if Sentry fails to initialize
     console.error('[Sentry] Failed to initialize:', error);
   }
+}
+
+/**
+ * Get the current app version
+ */
+export function getAppVersion(): string {
+  return APP_VERSION;
 }
 
 /**
