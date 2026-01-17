@@ -869,8 +869,8 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
 
   return (
     <div className="relative w-full h-full bg-gradient-to-b from-[#0a0f1a] via-[#050a12] to-[#020408] overflow-hidden">
-      {/* Top stats bar - offset for parent overlay badges */}
-      <div className="absolute top-0 left-0 right-0 z-20 p-4" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 48px)' }}>
+      {/* Top stats bar - aligned with parent badges */}
+      <div className="absolute top-0 left-0 right-0 z-20 p-4" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 12px)' }}>
         <div className="flex items-center justify-center mb-2">
           <span className="text-white/50 text-xs font-medium">Community Coverage Map</span>
         </div>
