@@ -8,6 +8,7 @@ import android.os.Build;
 import android.provider.Settings;
 import android.util.Log;
 
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.getcapacitor.JSObject;
@@ -83,12 +84,12 @@ public class BackgroundLocationPlugin extends Plugin {
         }
 
         // Check if should show rationale (means user denied once but didn't check "Don't ask again")
-        boolean shouldShowForegroundRationale = shouldShowRequestPermissionRationale(
-            Manifest.permission.ACCESS_FINE_LOCATION);
+        boolean shouldShowForegroundRationale = ActivityCompat.shouldShowRequestPermissionRationale(
+            getActivity(), Manifest.permission.ACCESS_FINE_LOCATION);
         boolean shouldShowBackgroundRationale = false;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            shouldShowBackgroundRationale = shouldShowRequestPermissionRationale(
-                Manifest.permission.ACCESS_BACKGROUND_LOCATION);
+            shouldShowBackgroundRationale = ActivityCompat.shouldShowRequestPermissionRationale(
+                getActivity(), Manifest.permission.ACCESS_BACKGROUND_LOCATION);
         }
 
         result.put("fineLocation", hasFineLocation);
