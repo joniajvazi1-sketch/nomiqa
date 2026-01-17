@@ -869,17 +869,10 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
 
   return (
     <div className="relative w-full h-full bg-gradient-to-b from-[#0a0f1a] via-[#050a12] to-[#020408] overflow-hidden">
-      {/* Top stats bar */}
-      <div className="absolute top-0 left-0 right-0 z-20 p-4" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 16px)' }}>
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-2">
-            <div className="relative">
-              <div className="w-2.5 h-2.5 rounded-full bg-green-500" />
-              <div className="absolute inset-0 rounded-full bg-green-500 animate-ping opacity-40" />
-            </div>
-            <span className="text-green-500 text-sm font-bold tracking-wide">LIVE</span>
-          </div>
-          <span className="text-white/40 text-xs">Community Coverage Map</span>
+      {/* Top stats bar - offset for parent overlay badges */}
+      <div className="absolute top-0 left-0 right-0 z-20 p-4" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 48px)' }}>
+        <div className="flex items-center justify-center mb-2">
+          <span className="text-white/50 text-xs font-medium">Community Coverage Map</span>
         </div>
         
         {/* Legend - moved here */}
