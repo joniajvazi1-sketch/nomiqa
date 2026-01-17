@@ -280,14 +280,12 @@ export const AppHome: React.FC = () => {
           isRefreshing={isRefreshing}
         />
 
-        <div className="px-4 py-4 pb-24 space-y-4">
-          {/* Header - Minimal */}
+        <div className="px-4 pb-24 space-y-4" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 16px)' }}>
+          {/* Header - Greeting left, actions right */}
           <header className="flex items-center justify-between">
-            {user && (
-              <h1 className="text-xl font-bold text-foreground">
-                Hi, {displayName}
-              </h1>
-            )}
+            <h1 className="text-xl font-bold text-foreground">
+              {user ? `Hi, ${displayName}` : 'Welcome'}
+            </h1>
 
             <div className="flex items-center gap-2">
               <button 
