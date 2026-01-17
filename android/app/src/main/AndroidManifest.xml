@@ -32,6 +32,13 @@
 
         </activity>
 
+        <!-- Foreground Service for background location tracking -->
+        <service
+            android:name=".LocationForegroundService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="location" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
@@ -51,6 +58,16 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    
+    <!-- Foreground service permissions for background location (Android 9+) -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+    
+    <!-- Notification permission for Android 13+ (required to show foreground service notification) -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    
+    <!-- Wake lock to keep CPU running during background tracking -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
     
     <!-- Telephony permissions for signal quality metrics (RSRP, RSRQ, cell ID) -->
     <!-- Required for B2B telecom data collection - provides carrier and network info -->
