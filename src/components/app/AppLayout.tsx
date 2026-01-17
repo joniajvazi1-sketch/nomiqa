@@ -90,32 +90,34 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   return (
     <div 
       className={cn(
-        // Fixed full-screen container with edge-to-edge display
-        // NO padding here - safe areas handled by content and bottom bar
-        "app-theme fixed inset-0 overflow-hidden transition-colors duration-300",
+        // Flex column fills viewport, no overflow:hidden so scroll works
+        "app-theme flex flex-col transition-colors duration-300",
         isDark 
           ? "dark bg-gradient-to-b from-[hsl(220,40%,10%)] via-[hsl(220,40%,8%)] to-[hsl(220,45%,6%)]" 
           : "light bg-gradient-to-b from-[hsl(210,40%,98%)] via-[hsl(210,35%,96%)] to-[hsl(210,30%,94%)]"
       )}
       style={{
-        // Use CSS env() for proper safe area handling on all iOS devices
-        // This ensures content extends behind notch/Dynamic Island but is visible
+        // Fill viewport height
+        minHeight: '100dvh',
+        // Safe area padding for notch/edges
         paddingTop: 'env(safe-area-inset-top, 0px)',
         paddingLeft: 'env(safe-area-inset-left, 0px)',
         paddingRight: 'env(safe-area-inset-right, 0px)',
       }}
     >
-      {/* Scrollable content area - flex-1 fills remaining space */}
+      {/* Scrollable content area - THE ONLY scroll container */}
       <main 
         className={cn(
-          "flex-1 overflow-x-hidden overscroll-none",
+          "flex-1 overflow-x-hidden",
           isMapRoute ? "overflow-hidden" : "overflow-y-auto"
         )}
         style={{ 
           // Bottom padding: 64px tab bar height + safe area for home indicator
           paddingBottom: 'calc(64px + env(safe-area-inset-bottom, 0px))',
-          // Smooth momentum scrolling on iOS (avoid on WebGL routes)
+          // iOS momentum scrolling - critical for smooth scroll
           WebkitOverflowScrolling: isMapRoute ? undefined : 'touch',
+          // Prevent overscroll bounce but allow normal scroll
+          overscrollBehavior: 'contain',
         }}
       >
         <SwipeablePages>
