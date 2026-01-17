@@ -188,23 +188,29 @@ export const NetworkContribution: React.FC = () => {
           />
         </Suspense>
         
-        {/* Status Badge - Top Right */}
-        <div className="absolute top-4 right-4 flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/10">
-          <Signal className={cn("w-4 h-4", isCellular ? "text-[#00d4ff]" : "text-amber-400")} />
-          <span className="text-xs font-medium text-white/90">{getConnectionLabel()}</span>
+        {/* Live Badge + Connection Type - Top Right, inline */}
+        <div className="absolute top-4 right-4 flex items-center gap-2">
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 backdrop-blur-md">
+            <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
+            <span className="text-[10px] font-semibold text-emerald-400 uppercase tracking-wider">Live</span>
+          </div>
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/40 backdrop-blur-md border border-white/10">
+            <Signal className={cn("w-3.5 h-3.5", isCellular ? "text-[#00d4ff]" : "text-amber-400")} />
+            <span className="text-[10px] font-medium text-white/90">{getConnectionLabel()}</span>
+          </div>
         </div>
 
         {/* Offline Banner */}
         {!isOnline && (
-          <div className="absolute top-4 left-4 right-20 flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-500/20 border border-amber-500/30 backdrop-blur-md">
+          <div className="absolute top-14 left-4 right-4 flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-500/20 border border-amber-500/30 backdrop-blur-md">
             <CloudOff className="w-4 h-4 text-amber-400" />
             <span className="text-xs text-amber-300">{offlineQueueCount} points queued</span>
           </div>
         )}
 
-        {/* WiFi Warning - Overlay on globe */}
+        {/* WiFi Warning - Below badges */}
         {isActive && !isCellular && (
-          <div className="absolute top-4 left-4 right-20 flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-500/20 border border-amber-500/30 backdrop-blur-md">
+          <div className="absolute top-14 left-4 right-4 flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-500/20 border border-amber-500/30 backdrop-blur-md">
             <Wifi className="w-4 h-4 text-amber-400" />
             <span className="text-xs text-amber-300">Switch to cellular to earn</span>
           </div>
@@ -267,7 +273,7 @@ export const NetworkContribution: React.FC = () => {
             }}
             disabled={!user}
             className={cn(
-              'relative flex flex-col items-center justify-center gap-2 px-8 py-4 rounded-2xl min-w-[140px]',
+              'relative flex flex-col items-center justify-center gap-1 px-8 rounded-2xl min-w-[140px] h-[72px]',
               'backdrop-blur-md border-2 transition-all duration-200 active:scale-95',
               !user && 'opacity-40 cursor-not-allowed',
               isActive 
@@ -285,28 +291,30 @@ export const NetworkContribution: React.FC = () => {
             <div className="flex items-center gap-2">
               {isActive ? (
                 isPaused ? (
-                  <Wifi className="w-6 h-6 text-amber-400" />
+                  <Wifi className="w-5 h-5 text-amber-400" />
                 ) : (
-                  <Pause className="w-6 h-6 text-[#00d4ff]" />
+                  <Pause className="w-5 h-5 text-[#00d4ff]" />
                 )
               ) : (
-                <Play className="w-6 h-6 text-[#00d4ff] ml-0.5" />
+                <Play className="w-5 h-5 text-[#00d4ff] ml-0.5" />
               )}
               <span className={cn(
-                "text-base font-bold uppercase tracking-wider",
+                "text-sm font-bold uppercase tracking-wider",
                 isActive ? isPaused ? "text-amber-400" : "text-[#00d4ff]" : "text-[#00d4ff]"
               )}>
                 {isActive ? (isPaused ? 'Paused' : 'Stop') : 'Start'}
               </span>
             </div>
             
-            {isActive && isCellular && (
+            {isActive && isCellular ? (
               <div className="flex items-center gap-1">
                 <Zap className="w-3 h-3 text-[#f0b429]" />
-                <span className="text-xs font-bold text-[#f0b429] tabular-nums">
+                <span className="text-[11px] font-bold text-[#f0b429] tabular-nums">
                   +{stats.pointsEarned.toFixed(1)} pts
                 </span>
               </div>
+            ) : (
+              <span className="text-[10px] text-white/50">Contribute</span>
             )}
           </button>
 
@@ -315,7 +323,7 @@ export const NetworkContribution: React.FC = () => {
             onClick={handleSpeedTest}
             disabled={!isCellular || isRunningSpeedTest}
             className={cn(
-              'relative flex flex-col items-center justify-center gap-2 px-6 py-4 rounded-2xl min-w-[120px]',
+              'relative flex flex-col items-center justify-center gap-1 px-6 rounded-2xl min-w-[120px] h-[72px]',
               'backdrop-blur-md border-2 transition-all duration-200 active:scale-95',
               isRunningSpeedTest 
                 ? 'bg-amber-500/20 border-amber-400/50' 
@@ -341,9 +349,9 @@ export const NetworkContribution: React.FC = () => {
             </div>
             
             {isRunningSpeedTest ? (
-              <div className="w-full space-y-1">
+              <div className="w-full space-y-0.5 px-2">
                 <div className="text-center">
-                  <span className="text-sm font-bold text-amber-400 tabular-nums">
+                  <span className="text-[11px] font-bold text-amber-400 tabular-nums">
                     {speedTestPhase === 'latency' && liveSpeed.latency 
                       ? `${liveSpeed.latency}ms`
                       : speedTestPhase === 'download' && liveSpeed.down
