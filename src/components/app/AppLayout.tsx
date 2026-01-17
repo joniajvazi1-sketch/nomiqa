@@ -35,7 +35,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const isMapRoute = location.pathname === '/app/map' || location.pathname === '/app/network';
 
   useEffect(() => {
-    // Configure status bar for native app - translucent overlay style (Option A)
+    // Configure status bar for native app - translucent overlay style
     if (isNative) {
       const configureStatusBar = async () => {
         try {
@@ -50,12 +50,15 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
             style: isDark ? Style.Dark : Style.Light 
           });
           
+          // CRITICAL: Both platforms need overlay mode for true edge-to-edge
+          // iOS: Works with viewport-fit=cover + this setting
+          // Android: Requires transparent background + overlay
+          await StatusBar.setOverlaysWebView({ overlay: true });
+          
           if (isAndroid) {
-            // Android: Transparent status bar + navigation bar, overlay content
+            // Android: Also needs transparent background color
             await StatusBar.setBackgroundColor({ color: '#00000000' });
-            await StatusBar.setOverlaysWebView({ overlay: true });
           }
-          // iOS: viewport-fit=cover in index.html handles this automatically
           
           setSafeAreaReady(true);
         } catch (error) {
@@ -87,12 +90,20 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   return (
     <div 
       className={cn(
-        // Use app-shell class for safe area handling via CSS
-        "app-shell app-theme fixed inset-0 overflow-hidden transition-colors duration-300",
+        // Fixed full-screen container with edge-to-edge display
+        // NO padding here - safe areas handled by content and bottom bar
+        "app-theme fixed inset-0 overflow-hidden transition-colors duration-300",
         isDark 
           ? "dark bg-gradient-to-b from-[hsl(220,40%,10%)] via-[hsl(220,40%,8%)] to-[hsl(220,45%,6%)]" 
           : "light bg-gradient-to-b from-[hsl(210,40%,98%)] via-[hsl(210,35%,96%)] to-[hsl(210,30%,94%)]"
       )}
+      style={{
+        // Use CSS env() for proper safe area handling on all iOS devices
+        // This ensures content extends behind notch/Dynamic Island but is visible
+        paddingTop: 'env(safe-area-inset-top, 0px)',
+        paddingLeft: 'env(safe-area-inset-left, 0px)',
+        paddingRight: 'env(safe-area-inset-right, 0px)',
+      }}
     >
       {/* Scrollable content area - flex-1 fills remaining space */}
       <main 
