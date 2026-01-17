@@ -34,10 +34,14 @@ const config: CapacitorConfig = {
     }
   },
   ios: {
-    contentInset: 'automatic',
+    // CRITICAL: 'never' prevents iOS from adding its own scroll view insets
+    // Combined with viewport-fit=cover, this enables true edge-to-edge fullscreen
+    contentInset: 'never',
     backgroundColor: '#0a0a0a',
     // Allow content to extend into safe areas
-    preferredContentMode: 'mobile'
+    preferredContentMode: 'mobile',
+    // Ensure webview extends behind status bar
+    webContentsDebuggingEnabled: false
   },
   android: {
     backgroundColor: '#0a0a0a',

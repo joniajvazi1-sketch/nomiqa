@@ -2,11 +2,12 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     
-    <!-- iOS status bar styling for native app -->
+    <!-- iOS fullscreen and status bar configuration -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="format-detection" content="telephone=no" />
     
     <!-- Preconnect to critical origins FIRST - crossorigin needed for fetch/XHR requests -->
     <link rel="preconnect" href="https://gzhmbiopiciugriatsdb.supabase.co" crossorigin />
@@ -26,9 +27,9 @@
     <style>
       :root{--background:220 35% 8%;--foreground:40 40% 98%;--neon-cyan:190 100% 65%;--neon-violet:270 85% 72%;--primary:190 100% 65%}
       *,::before,::after{box-sizing:border-box;border-width:0;border-style:solid}
-      html{line-height:1.5;-webkit-text-size-adjust:100%;font-family:Inter,system-ui,-apple-system,sans-serif}
-      body{margin:0;background:hsl(var(--background));color:hsl(var(--foreground));-webkit-font-smoothing:antialiased}
-      #root{min-height:100vh;display:flex;flex-direction:column}
+      html{line-height:1.5;-webkit-text-size-adjust:100%;font-family:Inter,system-ui,-apple-system,sans-serif;height:100%;height:100dvh;overflow:hidden}
+      body{margin:0;padding:0;background:hsl(var(--background));color:hsl(var(--foreground));-webkit-font-smoothing:antialiased;height:100%;height:100dvh;overflow:hidden}
+      #root{position:fixed;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;overflow:hidden}
       #root:empty{display:flex;align-items:center;justify-content:center}
       #root:empty::before{content:'';width:40px;height:40px;border:3px solid hsl(var(--neon-cyan)/0.3);border-top-color:hsl(var(--neon-cyan));border-radius:50%;animation:spin 1s linear infinite}
       @keyframes spin{to{transform:rotate(360deg)}}
