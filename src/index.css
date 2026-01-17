@@ -335,18 +335,17 @@ All colors MUST be HSL.
      VIEWPORT + SAFE AREA FOUNDATION (Modern Edge-to-Edge)
      Uses dvh for proper mobile viewport handling
      Optimized for iOS + Android true fullscreen
+     SCROLL: Only <main> inside AppLayout should scroll
      ============================================ */
   html {
     @apply bg-background;
     background-color: hsl(0 0% 100%);
-    overscroll-behavior: none;
-    overflow: hidden;
-    /* Height hierarchy: 100dvh > 100vh > 100% */
+    /* Allow scroll to pass through to main container */
     height: 100%;
     height: 100vh;
-    height: 100dvh; /* Dynamic viewport height - handles mobile browser chrome */
-    /* iOS: prevent rubber-band overscroll */
-    -webkit-overflow-scrolling: touch;
+    height: 100dvh;
+    /* Prevent pull-to-refresh but allow normal scroll */
+    overscroll-behavior-y: contain;
   }
 
   body {
@@ -357,30 +356,26 @@ All colors MUST be HSL.
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    overscroll-behavior: none;
-    overflow: hidden;
+    /* Match html height, no overflow:hidden */
     height: 100%;
     height: 100vh;
     height: 100dvh;
-    /* Use relative positioning to allow natural scrolling in children */
-    position: relative;
     width: 100%;
-    /* Ensure body extends behind safe areas on iOS */
     margin: 0;
     padding: 0;
+    /* Prevent pull-to-refresh but allow child scroll */
+    overscroll-behavior-y: contain;
   }
 
   #root {
+    /* Fill viewport without position:fixed to allow normal scroll flow */
     height: 100%;
     height: 100vh;
     height: 100dvh;
-    overflow: hidden;
-    /* Ensure root fills entire viewport including safe areas */
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    width: 100%;
+    /* Use flex to let AppLayout fill space */
+    display: flex;
+    flex-direction: column;
   }
 
   /* App shell container for native apps - edge-to-edge with safe areas
