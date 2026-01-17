@@ -67,12 +67,9 @@ async function detectCountryFromIP(req: Request): Promise<string | null> {
     // SECURITY: Validate IP format and block private ranges
     if (!ip || !isValidPublicIP(ip)) {
       // Don't log specific blocked IP to avoid info leakage
-      console.log('Geolocation skipped: no valid public IP');
+      // SECURITY: Don't log IP-related info
       return null;
     }
-    
-    // SECURITY: Only log truncated IP
-    console.log(`Geolocation request for IP: ${ip.substring(0, 6)}***`);
     
     // Use ip-api.com (free, no API key needed, 45 req/min limit)
     const response = await fetch(`http://ip-api.com/json/${ip}?fields=countryCode,status`, {
@@ -80,22 +77,18 @@ async function detectCountryFromIP(req: Request): Promise<string | null> {
     });
     
     if (!response.ok) {
-      // SECURITY: Generic error message, don't expose status
-      console.log('Geolocation service unavailable');
       return null;
     }
     
     const data = await response.json();
     
     if (data.status === 'success' && data.countryCode) {
-      console.log(`Detected country: ${data.countryCode}`);
       return data.countryCode;
     }
     
     return null;
   } catch (error) {
-    // SECURITY: Don't log error details that might reveal internal info
-    console.log('Geolocation failed silently');
+    // Fail silently - don't log errors that might reveal internal info
     return null;
   }
 }
@@ -146,7 +139,8 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
     if (authError) {
-      console.error("Auth error:", authError);
+      // SECURITY: Log error type only, not details
+      console.error("Auth error occurred during signup");
       if (authError.message.includes("already been registered")) {
         return new Response(
           JSON.stringify({ error: "An account with this email already exists" }),
@@ -188,7 +182,8 @@ const handler = async (req: Request): Promise<Response> => {
       }, { onConflict: 'user_id' });
 
     if (profileError) {
-      console.error("Profile error:", profileError);
+      // SECURITY: Log error type only, not full error details
+      console.error("Profile creation error occurred");
       // Try to clean up the auth user if profile creation fails
       await supabase.auth.admin.deleteUser(userId);
       throw profileError;
@@ -196,7 +191,6 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Track affiliate referral if code provided
     if (referralCode) {
-      console.log(`Tracking referral registration - code: ${referralCode}, userId: ${userId}`);
       try {
         const trackResponse = await fetch(`${supabaseUrl}/functions/v1/track-affiliate-registration`, {
           method: 'POST',
@@ -211,24 +205,18 @@ const handler = async (req: Request): Promise<Response> => {
           }),
         });
         
-        const trackResult = await trackResponse.json();
-        console.log(`Affiliate tracking response:`, trackResult);
-        
         if (!trackResponse.ok) {
-          console.error(`Affiliate tracking failed: ${trackResponse.status}`, trackResult);
-        } else {
-          console.log(`✓ Referral registration tracked successfully for code: ${referralCode}`);
+          // SECURITY: Log failure without exposing response details
+          console.error("Affiliate tracking failed");
         }
       } catch (trackError) {
-        console.error("Error tracking affiliate:", trackError);
+        // SECURITY: Don't log error details
+        console.error("Affiliate tracking error");
         // Don't fail signup if tracking fails
       }
-    } else {
-      console.log('No referral code provided for this signup');
     }
 
     // Send verification email
-    console.log(`Sending verification email to ${normalizedEmail}`);
     const sendEmailResponse = await fetch(`${supabaseUrl}/functions/v1/send-email`, {
       method: 'POST',
       headers: {
@@ -243,14 +231,10 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
     if (!sendEmailResponse.ok) {
-      const errorText = await sendEmailResponse.text();
-      console.error(`Failed to send verification email: ${sendEmailResponse.status} - ${errorText}`);
+      // SECURITY: Log failure without exposing email or response details
+      console.error("Failed to send verification email");
       // Don't fail signup if email fails - user can resend
-    } else {
-      console.log(`✓ Verification email sent to ${normalizedEmail}`);
     }
-
-    console.log(`User created successfully: ${userId}`);
 
     return new Response(
       JSON.stringify({ 
@@ -262,9 +246,10 @@ const handler = async (req: Request): Promise<Response> => {
     );
 
   } catch (error: any) {
-    console.error("Error in signup-user function:", error);
+    // SECURITY: Log error occurrence only, not details that could aid attackers
+    console.error("Signup function error occurred");
     return new Response(
-      JSON.stringify({ error: error.message || "Signup failed" }),
+      JSON.stringify({ error: "Signup failed. Please try again or contact support." }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

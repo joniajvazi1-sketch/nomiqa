@@ -703,7 +703,7 @@ serve(async (req) => {
     // Check signal log limit
     if (incomingSignalLogs > 0 && currentSignalCount + incomingSignalLogs > MAX_SIGNAL_LOGS_PER_DAY) {
       const remaining = Math.max(0, MAX_SIGNAL_LOGS_PER_DAY - currentSignalCount);
-      console.log(`Daily signal log limit reached for user ${user.id}: ${currentSignalCount}/${MAX_SIGNAL_LOGS_PER_DAY}, attempted +${incomingSignalLogs}`);
+      // SECURITY: Log without user ID
       return new Response(
         JSON.stringify({ 
           error: 'daily_limit_reached',
@@ -719,7 +719,7 @@ serve(async (req) => {
     // Check speed test limit
     if (incomingSpeedTests > 0 && currentSpeedTestCount + incomingSpeedTests > MAX_SPEED_TESTS_PER_DAY) {
       const remaining = Math.max(0, MAX_SPEED_TESTS_PER_DAY - currentSpeedTestCount);
-      console.log(`Daily speed test limit reached for user ${user.id}: ${currentSpeedTestCount}/${MAX_SPEED_TESTS_PER_DAY}, attempted +${incomingSpeedTests}`);
+      // SECURITY: Log without user ID
       return new Response(
         JSON.stringify({ 
           error: 'speed_test_limit_reached',
@@ -736,7 +736,7 @@ serve(async (req) => {
     let signalLogsResult = { inserted: 0, rejected: 0, flags: [] as string[] };
     
     if (signalLogs && Array.isArray(signalLogs) && signalLogs.length > 0) {
-      console.log(`Processing ${signalLogs.length} signal logs for user ${user.id}`);
+      // Processing signal logs (count logged without user ID for debugging)
       
       const validSignalLogs: Record<string, unknown>[] = [];
       const allFlags: string[] = [];
@@ -747,7 +747,7 @@ serve(async (req) => {
         if (!validation.valid) {
           signalLogsResult.rejected++;
           allFlags.push(...validation.flags);
-          console.log(`Rejected signal log: ${validation.flags.join(', ')}`);
+          // Signal log rejected - flags recorded internally only
           continue;
         }
         
@@ -825,7 +825,7 @@ serve(async (req) => {
                                 s.device_integrity_flags?.includes('platform:root') || false,
         });
         
-        console.log(`Signal log: geohash=${geohash}, country=${countryCode || '?'}, gen=${networkGeneration || '?'}, conf=${validation.confidenceScore}, mock=${s.is_mock_location || false}`);
+        // Signal log processed - internal tracking only
       }
       
       if (validSignalLogs.length > 0) {
@@ -834,11 +834,11 @@ serve(async (req) => {
           .insert(validSignalLogs);
         
         if (signalInsertError) {
-          console.error('Signal logs insert error:', signalInsertError);
+          console.error('Signal logs insert error occurred');
           signalLogsResult.rejected += validSignalLogs.length;
         } else {
           signalLogsResult.inserted = validSignalLogs.length;
-          console.log(`Inserted ${validSignalLogs.length} signal logs`);
+          // Logs inserted successfully
           
           // P0.3: Update daily limits after successful insert
           const speedTestsInserted = validSignalLogs.filter(
@@ -858,7 +858,7 @@ serve(async (req) => {
               ignoreDuplicates: false 
             });
           
-          console.log(`Updated daily limits: signals=${currentSignalCount + validSignalLogs.length}/${MAX_SIGNAL_LOGS_PER_DAY}, speed_tests=${currentSpeedTestCount + speedTestsInserted}/${MAX_SPEED_TESTS_PER_DAY}`);
+          // Daily limits updated
         }
       }
       
@@ -887,7 +887,7 @@ serve(async (req) => {
       );
     }
 
-    console.log(`Validating ${contributions.length} contributions for user ${user.id}`);
+    // Validating contributions (count logged without user ID)
 
     const { data: recentContributions } = await supabase
       .from('offline_contribution_queue')
@@ -931,17 +931,17 @@ serve(async (req) => {
         if (validation.reason) {
           rejectionReasons.push(validation.reason);
         }
-        console.log(`Rejected contribution: ${validation.reason} (score: ${validation.suspicionScore})`);
+        // Contribution rejected - reason recorded internally
       }
     }
 
     const avgSuspicionScore = totalSuspicionScore / contributions.length;
     if (avgSuspicionScore > 3) {
-      console.warn(`High suspicion score for user ${user.id}: ${avgSuspicionScore.toFixed(2)}`);
+      // SECURITY: Log high suspicion without user ID - investigate via secure channels
+      console.warn(`High suspicion score detected: ${avgSuspicionScore.toFixed(2)}`);
     }
 
     if (validContributions.length === 0) {
-      console.log(`All ${contributions.length} contributions rejected for user ${user.id}`);
       return new Response(
         JSON.stringify({
           success: false,
@@ -956,7 +956,7 @@ serve(async (req) => {
       );
     }
 
-    console.log(`Validated: ${validCount} valid, ${rejectedCount} rejected`);
+    // Validation complete
 
     const serverSecret = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')?.substring(0, 32) || 'default-secret';
     const proofs: LocationProof[] = [];
@@ -966,7 +966,7 @@ serve(async (req) => {
       proofs.push(proof);
     }
 
-    console.log(`Generated ${proofs.length} location proofs for user ${user.id}`);
+    // Location proofs generated
 
     const totalPointsEarned = Math.floor(validContributions.length * 5);
 
