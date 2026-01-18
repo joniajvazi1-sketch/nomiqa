@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useLayoutEffect } from 'react';
+import React, { useEffect, useRef, useState, useLayoutEffect, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Capacitor } from '@capacitor/core';
 import { useTheme } from 'next-themes';
@@ -34,6 +34,31 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 
   // WebGL/canvas safety: avoid parent transforms on map/network routes
   const isMapRoute = location.pathname === '/app/map' || location.pathname === '/app/network';
+
+  // iOS viewport height fix - sets --vh CSS variable for reliable 100vh
+  const setViewportHeight = useCallback(() => {
+    const vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+  }, []);
+
+  useEffect(() => {
+    setViewportHeight();
+    window.addEventListener('resize', setViewportHeight);
+    window.addEventListener('orientationchange', setViewportHeight);
+    
+    // Also listen to visual viewport changes (keyboard, etc.)
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', setViewportHeight);
+    }
+    
+    return () => {
+      window.removeEventListener('resize', setViewportHeight);
+      window.removeEventListener('orientationchange', setViewportHeight);
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', setViewportHeight);
+      }
+    };
+  }, [setViewportHeight]);
 
   // Scroll to top on route change - critical for native app feel
   useLayoutEffect(() => {
@@ -106,8 +131,8 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           : "light bg-gradient-to-b from-[hsl(210,40%,98%)] via-[hsl(210,35%,96%)] to-[hsl(210,30%,94%)]"
       )}
       style={{
-        // Fill viewport height
-        minHeight: '100dvh',
+        // Fill viewport height - use --vh for iOS compatibility, fallback to 100dvh
+        minHeight: 'calc(var(--vh, 1vh) * 100)',
         // Safe area padding for notch/edges
         paddingTop: 'env(safe-area-inset-top, 0px)',
         paddingLeft: 'env(safe-area-inset-left, 0px)',
