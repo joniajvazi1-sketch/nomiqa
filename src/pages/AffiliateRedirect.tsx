@@ -21,9 +21,11 @@ export default function AffiliateRedirect() {
         return;
       }
 
+      // Define affiliateCode outside try block so it's accessible later
+      let affiliateCode: string | null = null;
+
       try {
         // Look up the affiliate by code or username to get the affiliate_code and username
-        let affiliateCode: string | null = null;
         let affiliateUsername: string | null = null;
         let affiliateId: string | null = null;
         
@@ -97,9 +99,18 @@ export default function AffiliateRedirect() {
       // Small delay to ensure localStorage write completes before navigation
       await new Promise(resolve => setTimeout(resolve, 100));
       
-      // Preserve any destination parameter
+      // Preserve any destination parameter and add referral code to URL as backup
       const destination = searchParams.get('dest') || '/';
-      navigate(destination, { replace: true });
+      
+      // If destination is auth page, append referral code to URL as backup
+      // This ensures referral survives even if user clears localStorage
+      if (affiliateCode && (destination.includes('/auth') || destination === '/')) {
+        const destUrl = new URL(destination, window.location.origin);
+        destUrl.searchParams.set('ref', affiliateCode);
+        navigate(destUrl.pathname + destUrl.search, { replace: true });
+      } else {
+        navigate(destination, { replace: true });
+      }
     };
 
     handleRedirect();
