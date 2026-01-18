@@ -37,6 +37,21 @@ export interface LocationUpdate {
   timestamp: number;
 }
 
+export interface NativeDeviceInfo {
+  manufacturer: string;  // "Samsung", "Apple"
+  model: string;         // "SM-S918B" (Android) or "iPhone17,2" (iOS)
+  brand?: string;        // "samsung", "Apple"
+  device?: string;       // "b0q" (Android) or "iPhone" (iOS)
+  product?: string;      // Android only
+  osVersion: string;     // "14" (Android) or "17.4" (iOS)
+  sdkInt?: number;       // Android SDK version (e.g., 34)
+  platform: string;      // "android" or "ios"
+  buildId?: string;      // Android build ID
+  fingerprint?: string;  // Android build fingerprint
+  modelIdentifier?: string; // iOS raw model (same as model)
+  deviceName?: string;   // iOS user's device name
+}
+
 export interface BackgroundLocationPlugin {
   /**
    * Get detailed permission status for all location-related permissions
@@ -85,6 +100,13 @@ export interface BackgroundLocationPlugin {
    * Use when permissions are permanently denied
    */
   openAppSettings(): Promise<ServiceResult>;
+
+  /**
+   * Get accurate device info from native APIs
+   * Android: Uses Build.MANUFACTURER, Build.MODEL
+   * iOS: Uses raw model identifier (e.g., "iPhone17,2")
+   */
+  getDeviceInfo(): Promise<NativeDeviceInfo>;
 
   /**
    * Add a listener for location updates (iOS only currently)

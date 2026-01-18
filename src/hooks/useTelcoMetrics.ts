@@ -112,38 +112,83 @@ export const useTelcoMetrics = () => {
     timestamp: number;
   } | null>(null);
   const deviceModuleRef = useRef<DeviceModule | null>(null);
+  // Ref for native device info - always fresh from native APIs
+  const nativeDeviceInfoRef = useRef<{
+    model: string;
+    manufacturer: string;
+    osVersion: string;
+    platform: string;
+  } | null>(null);
   
   /**
-   * Initialize device info (call once on mount)
+   * Initialize device info from NATIVE platform APIs (not Capacitor Device plugin)
+   * This ensures we always get accurate values:
+   * - Android: Build.MANUFACTURER + Build.MODEL
+   * - iOS: Raw model identifier (e.g., "iPhone17,2")
+   * 
+   * Called on every app launch to ensure fresh values
    */
   const initDeviceInfo = useCallback(async () => {
     if (!Capacitor.isNativePlatform()) {
-      setDeviceInfo({
+      const info = {
         model: 'Web Browser',
         manufacturer: 'Unknown',
-        osVersion: navigator.userAgent.includes('iPhone') ? 'iOS' : 
-                   navigator.userAgent.includes('Android') ? 'Android' : 'Web'
-      });
+        osVersion: 'Web'
+      };
+      setDeviceInfo(info);
+      nativeDeviceInfoRef.current = { ...info, platform: 'web' };
       return;
     }
     
     try {
-      // Dynamically load Device module
-      if (!deviceModuleRef.current) {
-        deviceModuleRef.current = await import('@capacitor/device');
+      // Use our native plugins for accurate device info
+      if (isAndroid) {
+        // Android: Use TelephonyInfoPlugin.getDeviceInfo()
+        const info = await TelephonyInfoPlugin.getDeviceInfo();
+        const deviceData = {
+          model: info.model || 'Unknown',
+          manufacturer: info.manufacturer || 'Unknown',
+          osVersion: `Android ${info.osVersion || 'Unknown'}`
+        };
+        setDeviceInfo(deviceData);
+        nativeDeviceInfoRef.current = { ...deviceData, platform: 'android' };
+        console.log('[TelcoMetrics] Android device info from native:', JSON.stringify(info));
+      } else if (isIOS) {
+        // iOS: Use BackgroundLocation.getDeviceInfo()
+        const BackgroundLocation = (await import('@/plugins/BackgroundLocationPlugin')).default;
+        const info = await BackgroundLocation.getDeviceInfo();
+        const deviceData = {
+          // Use raw model identifier (e.g., "iPhone17,2") NOT marketing name
+          model: info.model || info.modelIdentifier || 'Unknown',
+          manufacturer: 'Apple',
+          osVersion: `iOS ${info.osVersion || 'Unknown'}`
+        };
+        setDeviceInfo(deviceData);
+        nativeDeviceInfoRef.current = { ...deviceData, platform: 'ios' };
+        console.log('[TelcoMetrics] iOS device info from native:', JSON.stringify(info));
       }
-      const { Device } = deviceModuleRef.current;
-      
-      const info = await Device.getInfo();
-      setDeviceInfo({
-        model: info.model || 'Unknown',
-        manufacturer: info.manufacturer || 'Unknown',
-        osVersion: `${info.platform} ${info.osVersion}`
-      });
     } catch (error) {
-      console.error('Failed to get device info:', error);
+      console.error('Failed to get native device info:', error);
+      // Fallback to Capacitor Device plugin (less reliable)
+      try {
+        if (!deviceModuleRef.current) {
+          deviceModuleRef.current = await import('@capacitor/device');
+        }
+        const { Device } = deviceModuleRef.current;
+        const info = await Device.getInfo();
+        const deviceData = {
+          model: info.model || 'Unknown',
+          manufacturer: info.manufacturer || 'Unknown',
+          osVersion: `${info.platform} ${info.osVersion}`
+        };
+        setDeviceInfo(deviceData);
+        nativeDeviceInfoRef.current = { ...deviceData, platform: info.platform };
+        console.warn('[TelcoMetrics] Using Capacitor fallback for device info');
+      } catch (fallbackError) {
+        console.error('Fallback device info also failed:', fallbackError);
+      }
     }
-  }, []);
+  }, [isAndroid, isIOS]);
 
   /**
    * Check if we should log based on distance/time thresholds AND hourly cap

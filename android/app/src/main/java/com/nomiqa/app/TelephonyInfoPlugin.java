@@ -193,6 +193,38 @@ public class TelephonyInfoPlugin extends Plugin {
         return false;
     }
 
+    /**
+     * Get accurate device info directly from Android Build class
+     * This is more reliable than Capacitor's Device plugin which may return user-agent fallbacks
+     */
+    @PluginMethod
+    public void getDeviceInfo(PluginCall call) {
+        JSObject result = new JSObject();
+        
+        try {
+            // These come directly from android.os.Build - always accurate
+            result.put("manufacturer", Build.MANUFACTURER);
+            result.put("model", Build.MODEL);
+            result.put("brand", Build.BRAND);
+            result.put("device", Build.DEVICE);
+            result.put("product", Build.PRODUCT);
+            
+            // Android version info
+            result.put("osVersion", Build.VERSION.RELEASE);
+            result.put("sdkInt", Build.VERSION.SDK_INT);
+            result.put("platform", "android");
+            
+            // Build info for debugging
+            result.put("buildId", Build.ID);
+            result.put("fingerprint", Build.FINGERPRINT);
+            
+        } catch (Exception e) {
+            result.put("error", "Failed to get device info: " + e.getMessage());
+        }
+        
+        call.resolve(result);
+    }
+
     @PluginMethod
     public void getCarrierInfo(PluginCall call) {
         JSObject result = new JSObject();
