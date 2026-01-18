@@ -24,6 +24,7 @@ import { UsernameSelection } from '@/components/UsernameSelection';
 import { EmailVerification } from '@/components/EmailVerification';
 import { Capacitor } from '@capacitor/core';
 import { Browser } from '@capacitor/browser';
+import { App } from '@capacitor/app';
 import { z } from 'zod';
 
 // Validation schemas
@@ -198,6 +199,29 @@ export const AppAuth: React.FC = () => {
       subscription.unsubscribe();
     };
   }, [navigate, successPattern, toast]);
+
+  // Listen for app resume to reset loading state (after OAuth browser closes)
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return;
+
+    const listener = App.addListener('appStateChange', (state) => {
+      if (state.isActive && googleLoading) {
+        // App came back to foreground while we were waiting for OAuth
+        // Check if we have a session now
+        supabase.auth.getSession().then(({ data: { session } }) => {
+          if (!session) {
+            // No session yet - user might have cancelled
+            setGoogleLoading(false);
+          }
+          // If session exists, the onAuthStateChange will handle it
+        });
+      }
+    });
+
+    return () => {
+      listener.then(l => l.remove());
+    };
+  }, [googleLoading]);
 
   const handleUsernameComplete = () => {
     successPattern();
@@ -399,10 +423,15 @@ export const AppAuth: React.FC = () => {
     try {
       const isNativeApp = Capacitor.isNativePlatform();
       
-      // For native apps, use a web intermediary that redirects to the deep link
-      // This is required because Supabase only allows https:// redirect URLs
+      // For native apps, redirect to the published website's OAuth handler
+      // This is required because:
+      // 1. Supabase only allows https:// redirect URLs  
+      // 2. The redirect page then deep links back to the native app
+      // IMPORTANT: Must use the PUBLISHED URL, not window.location.origin (which is localhost in webview)
+      const publishedUrl = 'https://nomiqa.lovable.app';
+      
       const redirectTo = isNativeApp
-        ? `${window.location.origin}/app/oauth-redirect`
+        ? `${publishedUrl}/app/oauth-redirect`
         : `${window.location.origin}/app/auth`;
 
       // Native iOS/Android: do NOT redirect the WebView (it can strand users in Safari)
@@ -420,7 +449,16 @@ export const AppAuth: React.FC = () => {
       if (isNativeApp) {
         const url = data?.url;
         if (!url) throw new Error('Missing OAuth URL');
-        await Browser.open({ url });
+        
+        // Open in system browser (Safari/Chrome)
+        await Browser.open({ 
+          url,
+          presentationStyle: 'popover', // iOS: Use popover for better UX
+          windowName: '_blank',
+        });
+        
+        // Don't reset loading state here - it will be reset when the app receives
+        // the deep link callback or when user returns to the app
       }
     } catch (error: any) {
       setFormError(getReadableError(error.message || 'Failed to sign in with Google'));
