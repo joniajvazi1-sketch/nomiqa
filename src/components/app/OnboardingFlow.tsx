@@ -144,12 +144,14 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[100] bg-background touch-none select-none"
+      className="fixed inset-0 z-[9999] bg-background touch-none select-none"
       style={{
         paddingTop: 'env(safe-area-inset-top, 0px)',
         paddingBottom: 'env(safe-area-inset-bottom, 0px)',
         height: '100dvh',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        // Ensure we're above everything including BottomTabBar (z-50)
+        isolation: 'isolate'
       }}
     >
       {/* Skip button - top left */}

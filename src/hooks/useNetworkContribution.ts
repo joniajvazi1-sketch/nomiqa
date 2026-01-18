@@ -148,8 +148,13 @@ const ensureLocationPermission = async (): Promise<{ granted: boolean; status: s
     const currentStatus = await BackgroundLocation.getPermissionStatus();
     console.log(`[Permission] ${platform} - Current status:`, JSON.stringify(currentStatus));
     
+    // CRITICAL: For iOS, check foregroundStatus explicitly - don't rely on fineLocation/coarseLocation
+    // These may not be set correctly before the first request
+    const iosForegroundGranted = platform === 'ios' && currentStatus.foregroundStatus === 'granted';
+    const androidForegroundGranted = platform === 'android' && (currentStatus.fineLocation || currentStatus.coarseLocation);
+    
     // Already have foreground permission
-    if (currentStatus.fineLocation || currentStatus.coarseLocation) {
+    if (iosForegroundGranted || androidForegroundGranted) {
       console.log(`[Permission] ${platform} - Foreground already granted`);
       
       // On Android 10+, also request background for true background scanning
@@ -160,6 +165,14 @@ const ensureLocationPermission = async (): Promise<{ granted: boolean; status: s
       }
       
       return { granted: true, status: 'already_granted' };
+    }
+    
+    // iOS: If status is "not_determined", we MUST request permission - don't skip
+    if (platform === 'ios' && currentStatus.foregroundStatus === 'not_determined') {
+      console.log(`[Permission] ios - Status is not_determined, requesting When In Use...`);
+      const fgResult = await BackgroundLocation.requestForegroundPermission();
+      console.log(`[Permission] ios - Foreground result:`, JSON.stringify(fgResult));
+      return { granted: fgResult.granted, status: fgResult.granted ? 'granted' : 'denied' };
     }
     
     // Check if permanently denied

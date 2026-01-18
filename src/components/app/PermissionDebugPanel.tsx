@@ -25,8 +25,8 @@ interface PermissionState {
   shouldShowBackgroundRationale: boolean;
   androidVersion: number;
   requiresBackgroundPermission: boolean;
-  foregroundStatus: 'granted' | 'denied' | 'prompt';
-  backgroundStatus: 'granted' | 'denied' | 'prompt';
+  foregroundStatus: 'granted' | 'denied' | 'prompt' | 'not_determined';
+  backgroundStatus: 'granted' | 'denied' | 'prompt' | 'not_determined';
 }
 
 /**
@@ -179,19 +179,20 @@ export const PermissionDebugPanel: React.FC = () => {
     }
   }, [isNative]);
 
-  const getStatusIcon = (status: 'granted' | 'denied' | 'prompt') => {
+  const getStatusIcon = (status: 'granted' | 'denied' | 'prompt' | 'not_determined') => {
     if (status === 'granted') return <CheckCircle className="w-4 h-4 text-green-500" />;
     if (status === 'denied') return <XCircle className="w-4 h-4 text-red-500" />;
     return <AlertCircle className="w-4 h-4 text-amber-500" />;
   };
 
-  const getStatusBadge = (status: 'granted' | 'denied' | 'prompt') => {
+  const getStatusBadge = (status: 'granted' | 'denied' | 'prompt' | 'not_determined') => {
     const variants: Record<string, 'default' | 'secondary' | 'destructive'> = {
       granted: 'default',
       denied: 'destructive',
-      prompt: 'secondary'
+      prompt: 'secondary',
+      not_determined: 'secondary'
     };
-    return <Badge variant={variants[status]}>{status.toUpperCase()}</Badge>;
+    return <Badge variant={variants[status]}>{status.toUpperCase().replace('_', ' ')}</Badge>;
   };
 
   if (!isNative) {
