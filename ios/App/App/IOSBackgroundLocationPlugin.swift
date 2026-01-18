@@ -27,7 +27,8 @@ public class IOSBackgroundLocationPlugin: CAPPlugin, CAPBridgedPlugin, CLLocatio
         CAPPluginMethod(name: "requestNotificationPermission", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "startForegroundService", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "stopForegroundService", returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "openAppSettings", returnType: CAPPluginReturnPromise)
+        CAPPluginMethod(name: "openAppSettings", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "getDeviceInfo", returnType: CAPPluginReturnPromise)
     ]
     
     private var locationManager: CLLocationManager!
@@ -271,6 +272,67 @@ public class IOSBackgroundLocationPlugin: CAPPlugin, CAPBridgedPlugin, CLLocatio
                 ])
             }
         }
+    }
+    
+    // MARK: - Get Device Info (Raw iOS identifiers)
+    
+    /**
+     * Get accurate device info directly from iOS APIs
+     * Returns raw model identifier (e.g., "iPhone17,2") NOT marketing names
+     * This is more reliable for B2B data than guessed names
+     */
+    @objc func getDeviceInfo(_ call: CAPPluginCall) {
+        var systemInfo = utsname()
+        uname(&systemInfo)
+        
+        // Get raw model identifier (e.g., "iPhone17,2", "iPad14,3")
+        let modelIdentifier = withUnsafePointer(to: &systemInfo.machine) {
+            $0.withMemoryRebound(to: CChar.self, capacity: 1) {
+                String(validatingUTF8: $0) ?? "Unknown"
+            }
+        }
+        
+        // Get iOS version
+        let systemVersion = UIDevice.current.systemVersion
+        let systemName = UIDevice.current.systemName // "iOS" or "iPadOS"
+        
+        // Get device name (user-set name, might be useful for debugging)
+        let deviceName = UIDevice.current.name
+        
+        // Get device family
+        let userInterfaceIdiom = UIDevice.current.userInterfaceIdiom
+        var deviceFamily = "Unknown"
+        switch userInterfaceIdiom {
+        case .phone:
+            deviceFamily = "iPhone"
+        case .pad:
+            deviceFamily = "iPad"
+        case .tv:
+            deviceFamily = "Apple TV"
+        case .carPlay:
+            deviceFamily = "CarPlay"
+        case .mac:
+            deviceFamily = "Mac"
+        case .vision:
+            deviceFamily = "Vision Pro"
+        @unknown default:
+            deviceFamily = "Unknown"
+        }
+        
+        call.resolve([
+            // Raw model identifier - this is what B2B customers want
+            "model": modelIdentifier,
+            // Device family for quick filtering
+            "manufacturer": "Apple",
+            "brand": "Apple",
+            "device": deviceFamily,
+            // OS info
+            "osVersion": systemVersion,
+            "platform": systemName.lowercased(), // "ios" or "ipados"
+            // Extra context
+            "deviceName": deviceName, // User's custom name for their device
+            "modelIdentifier": modelIdentifier // Same as model, explicit naming
+        ])
     }
     
     // MARK: - CLLocationManagerDelegate

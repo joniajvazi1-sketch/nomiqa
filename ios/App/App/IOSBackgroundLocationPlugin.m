@@ -13,4 +13,5 @@ CAP_PLUGIN(IOSBackgroundLocationPlugin, "BackgroundLocation",
     CAP_PLUGIN_METHOD(startForegroundService, CAPPluginReturnPromise);
     CAP_PLUGIN_METHOD(stopForegroundService, CAPPluginReturnPromise);
     CAP_PLUGIN_METHOD(openAppSettings, CAPPluginReturnPromise);
+    CAP_PLUGIN_METHOD(getDeviceInfo, CAPPluginReturnPromise);
 )
