@@ -3,7 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-forwarded-for, x-real-ip",
 };
 
 serve(async (req) => {
@@ -24,6 +24,11 @@ serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
+    // SECURITY: Get client info for audit logging
+    const clientIP = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 
+                     req.headers.get('x-real-ip') || 'unknown';
+    const userAgent = req.headers.get('user-agent') || 'unknown';
 
     // Create client with user's token to verify they're an admin
     const userClient = createClient(supabaseUrl, supabaseAnonKey, {
@@ -48,11 +53,35 @@ serve(async (req) => {
       .single();
 
     if (!roleData) {
+      // SECURITY: Log unauthorized admin access attempt
+      await adminClient.from('webhook_logs').insert({
+        event_type: 'admin_access_denied',
+        payload: {
+          user_id: user.id,
+          ip: clientIP,
+          userAgent: userAgent.substring(0, 100),
+          timestamp: new Date().toISOString(),
+          action: 'get_admin_users'
+        }
+      });
+
       return new Response(JSON.stringify({ error: "Forbidden: Admin access required" }), {
         status: 403,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
+    // SECURITY: Log successful admin access
+    await adminClient.from('webhook_logs').insert({
+      event_type: 'admin_access_granted',
+      payload: {
+        admin_user_id: user.id,
+        ip: clientIP,
+        userAgent: userAgent.substring(0, 100),
+        timestamp: new Date().toISOString(),
+        action: 'get_admin_users'
+      }
+    });
 
     // Fetch all profiles with country_code
     const { data: profiles, error: profilesError } = await adminClient
@@ -84,6 +113,22 @@ serve(async (req) => {
       .order("created_at", { ascending: false });
 
     if (referralsError) throw referralsError;
+
+    // SECURITY: Log data access details for audit trail
+    await adminClient.from('webhook_logs').insert({
+      event_type: 'admin_data_accessed',
+      payload: {
+        admin_user_id: user.id,
+        ip: clientIP,
+        timestamp: new Date().toISOString(),
+        action: 'get_admin_users',
+        records_accessed: {
+          profiles: profiles?.length || 0,
+          affiliates: affiliates?.length || 0,
+          referrals: referrals?.length || 0
+        }
+      }
+    });
 
     // Combine data - map profiles to their affiliate info (aggregate all affiliates for same user)
     const usersWithReferrals = profiles?.map((profile) => {
@@ -151,10 +196,10 @@ serve(async (req) => {
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error: unknown) {
-    console.error("Error fetching admin users:", error);
-    const message = error instanceof Error ? error.message : "Unknown error";
+    // SECURITY: Log error occurrence only, not details
+    console.error("Error in admin users function");
     return new Response(
-      JSON.stringify({ error: message }),
+      JSON.stringify({ error: "An unexpected error occurred" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

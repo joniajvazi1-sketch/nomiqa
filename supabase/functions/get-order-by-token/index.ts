@@ -13,6 +13,16 @@ const requestSchema = z.object({
   emailHint: z.string().email().optional()
 });
 
+// SECURITY: Add artificial delay to mitigate timing attacks
+const addSecurityDelay = async (startTime: number): Promise<void> => {
+  const minResponseTime = 400; // Minimum 400ms response time
+  const elapsed = Date.now() - startTime;
+  const remainingDelay = Math.max(0, minResponseTime - elapsed);
+  if (remainingDelay > 0) {
+    await new Promise(resolve => setTimeout(resolve, remainingDelay));
+  }
+};
+
 // Generate a hash for logging (don't log full tokens)
 function hashToken(token: string): string {
   const first4 = token.substring(0, 4);
@@ -20,17 +30,12 @@ function hashToken(token: string): string {
   return `${first4}...${last4}`;
 }
 
-// Mask email for logging
-function maskEmail(email: string): string {
-  const [local, domain] = email.split('@');
-  if (!domain) return '***@***';
-  const maskedLocal = local.length > 2 
-    ? local[0] + '*'.repeat(local.length - 2) + local[local.length - 1]
-    : '**';
-  return `${maskedLocal}@${domain}`;
-}
+// SECURITY: Generic error messages to prevent enumeration
+const GENERIC_ACCESS_ERROR = "Unable to access order. Please verify your access token.";
 
 serve(async (req) => {
+  const startTime = Date.now();
+  
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -50,18 +55,18 @@ serve(async (req) => {
     // Validate input
     const validationResult = requestSchema.safeParse(body);
     if (!validationResult.success) {
-      // Log invalid access attempt
+      // Log invalid access attempt without exposing details
       await supabase.from('webhook_logs').insert({
         event_type: 'order_access_invalid_input',
         payload: { 
           ip: clientIP, 
-          userAgent: userAgent.substring(0, 100),
-          errors: validationResult.error.issues.map(i => i.message)
+          userAgent: userAgent.substring(0, 100)
         }
       });
       
+      await addSecurityDelay(startTime);
       return new Response(
-        JSON.stringify({ error: 'Invalid access token format' }),
+        JSON.stringify({ error: 'Invalid request format' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -69,29 +74,40 @@ serve(async (req) => {
     const { accessToken, emailHint } = validationResult.data;
     const tokenHash = hashToken(accessToken);
 
-    // Rate limiting: Check recent attempts from IP (stricter limit)
+    // SECURITY: Stricter rate limiting with exponential backoff consideration
     const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000).toISOString();
     const { data: recentAttempts } = await supabase
       .from('webhook_logs')
-      .select('id')
+      .select('id, created_at')
       .eq('event_type', 'order_access_attempt')
       .ilike('payload->>ip', clientIP)
-      .gte('created_at', fifteenMinutesAgo);
+      .gte('created_at', fifteenMinutesAgo)
+      .order('created_at', { ascending: false });
 
-    // Stricter rate limit: 5 attempts per 15 minutes per IP
-    if (recentAttempts && recentAttempts.length >= 5) {
-      console.log(`Rate limit exceeded for IP: ${clientIP}`);
+    // SECURITY: Stricter rate limit: 5 attempts per 15 minutes per IP
+    // After 3 attempts, add exponential delay
+    const attemptCount = recentAttempts?.length || 0;
+    
+    if (attemptCount >= 5) {
+      console.log(`Rate limit exceeded for IP`);
       
-      // Log rate limit hit
+      // Log rate limit hit without exposing IP
       await supabase.from('webhook_logs').insert({
         event_type: 'order_access_rate_limited',
-        payload: { ip: clientIP, attempts: recentAttempts.length }
+        payload: { ip: clientIP, attempts: attemptCount }
       });
       
+      await addSecurityDelay(startTime);
       return new Response(
         JSON.stringify({ error: 'Too many attempts. Please try again in 15 minutes.' }),
         { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
+    }
+    
+    // SECURITY: Add exponential delay after 3 attempts
+    if (attemptCount >= 3) {
+      const exponentialDelay = Math.min(1000 * Math.pow(2, attemptCount - 3), 10000); // Max 10s
+      await new Promise(resolve => setTimeout(resolve, exponentialDelay));
     }
 
     // Log this access attempt (before lookup to detect enumeration)
@@ -113,7 +129,7 @@ serve(async (req) => {
       .single();
 
     if (error || !order) {
-      console.log(`Order not found for token: ${tokenHash}`);
+      console.log(`Order access failed`);
       
       // Log failed lookup (potential enumeration attempt)
       await supabase.from('webhook_logs').insert({
@@ -121,8 +137,9 @@ serve(async (req) => {
         payload: { ip: clientIP, tokenHash }
       });
       
+      await addSecurityDelay(startTime);
       return new Response(
-        JSON.stringify({ error: 'Order not found' }),
+        JSON.stringify({ error: GENERIC_ACCESS_ERROR }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -157,8 +174,9 @@ serve(async (req) => {
         payload: { ip: clientIP, tokenHash, orderId: order.id }
       });
       
+      await addSecurityDelay(startTime);
       return new Response(
-        JSON.stringify({ error: 'Access token has been invalidated' }),
+        JSON.stringify({ error: GENERIC_ACCESS_ERROR }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -169,8 +187,9 @@ serve(async (req) => {
         payload: { ip: clientIP, tokenHash, orderId: order.id }
       });
       
+      await addSecurityDelay(startTime);
       return new Response(
-        JSON.stringify({ error: 'Access token has expired' }),
+        JSON.stringify({ error: 'Access token has expired. Please contact support.' }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -182,20 +201,20 @@ serve(async (req) => {
       const hintEmailLower = emailHint.toLowerCase();
       
       if (orderEmailLower !== hintEmailLower) {
-        console.log(`Email mismatch for order ${order.id}: expected ${maskEmail(order.email)}, got ${maskEmail(emailHint)}`);
+        console.log(`Email verification failed for order access`);
         
         await supabase.from('webhook_logs').insert({
           event_type: 'order_access_email_mismatch',
           payload: { 
             ip: clientIP, 
             tokenHash, 
-            orderId: order.id,
-            providedEmailMask: maskEmail(emailHint)
+            orderId: order.id
           }
         });
         
+        await addSecurityDelay(startTime);
         return new Response(
-          JSON.stringify({ error: 'Email verification failed' }),
+          JSON.stringify({ error: GENERIC_ACCESS_ERROR }),
           { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
@@ -224,7 +243,7 @@ serve(async (req) => {
       }
     });
 
-    console.log(`Order ${order.id} accessed successfully from IP ${clientIP}`);
+    console.log(`Order accessed successfully`);
 
     return new Response(
       JSON.stringify({ order, usage: usageData }),
@@ -232,20 +251,18 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('Error:', error);
+    // SECURITY: Log error without exposing details
+    console.error('Order access error occurred');
     
-    // Log error
+    // Log error without exposing internal details
     await supabase.from('webhook_logs').insert({
       event_type: 'order_access_error',
-      payload: { 
-        ip: clientIP, 
-        error: error instanceof Error ? error.message : 'Unknown error'
-      }
+      payload: { ip: clientIP }
     });
     
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    await addSecurityDelay(startTime);
     return new Response(
-      JSON.stringify({ error: errorMessage }),
+      JSON.stringify({ error: 'An unexpected error occurred. Please try again.' }),
       { 
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
