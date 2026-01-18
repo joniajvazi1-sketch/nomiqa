@@ -62,8 +62,9 @@ public class IOSBackgroundLocationPlugin: CAPPlugin, CAPBridgedPlugin, CLLocatio
         
         switch status {
         case .notDetermined:
-            foregroundStatus = "prompt"
-            backgroundStatus = "prompt"
+            // CRITICAL: Return "not_determined" so JS can detect first-time state
+            foregroundStatus = "not_determined"
+            backgroundStatus = "not_determined"
             fineLocation = false
             coarseLocation = false
             backgroundLocation = false
@@ -90,8 +91,8 @@ public class IOSBackgroundLocationPlugin: CAPPlugin, CAPBridgedPlugin, CLLocatio
             backgroundLocation = true
             
         @unknown default:
-            foregroundStatus = "prompt"
-            backgroundStatus = "prompt"
+            foregroundStatus = "not_determined"
+            backgroundStatus = "not_determined"
             fineLocation = false
             coarseLocation = false
             backgroundLocation = false
