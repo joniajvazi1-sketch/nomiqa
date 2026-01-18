@@ -23,7 +23,22 @@ async function hashCode(code: string): Promise<string> {
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
+// SECURITY: Add artificial delay to mitigate timing attacks
+const addSecurityDelay = async (startTime: number): Promise<void> => {
+  const minResponseTime = 300; // Minimum 300ms response time
+  const elapsed = Date.now() - startTime;
+  const remainingDelay = Math.max(0, minResponseTime - elapsed);
+  if (remainingDelay > 0) {
+    await new Promise(resolve => setTimeout(resolve, remainingDelay));
+  }
+};
+
+// SECURITY: Generic error message to prevent enumeration
+const GENERIC_AUTH_ERROR = "Password reset failed. Please check your credentials and try again.";
+
 const handler = async (req: Request): Promise<Response> => {
+  const startTime = Date.now();
+  
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -34,8 +49,9 @@ const handler = async (req: Request): Promise<Response> => {
     // Validate input
     const validationResult = resetPasswordSchema.safeParse(rawBody);
     if (!validationResult.success) {
+      await addSecurityDelay(startTime);
       return new Response(
-        JSON.stringify({ error: "Invalid input", details: validationResult.error.issues }),
+        JSON.stringify({ error: "Invalid input format" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -57,12 +73,18 @@ const handler = async (req: Request): Promise<Response> => {
       .eq('password_reset_code', hashedToken)
       .limit(1);
 
-    if (profileError) throw profileError;
+    if (profileError) {
+      // SECURITY: Log error without exposing details
+      console.error("Profile lookup error occurred");
+      throw new Error("Database error");
+    }
 
     if (!profiles || profiles.length === 0) {
-      console.log(`Invalid reset token provided for email: ${normalizedEmail}`);
+      // SECURITY: Log without exposing email
+      console.log("Invalid reset token provided");
+      await addSecurityDelay(startTime);
       return new Response(
-        JSON.stringify({ error: "Invalid reset token" }),
+        JSON.stringify({ error: GENERIC_AUTH_ERROR }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -73,25 +95,30 @@ const handler = async (req: Request): Promise<Response> => {
     // Verify email matches by checking auth.users for this user_id
     const { data: userData, error: userError } = await supabase.auth.admin.getUserById(userId);
     if (userError || !userData.user) {
-      console.log(`User not found for id: ${userId}`);
+      // SECURITY: Log without exposing user details
+      console.log("User lookup failed during password reset");
+      await addSecurityDelay(startTime);
       return new Response(
-        JSON.stringify({ error: "User not found" }),
-        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        JSON.stringify({ error: GENERIC_AUTH_ERROR }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
     if (userData.user.email?.toLowerCase() !== normalizedEmail) {
-      console.log(`Email mismatch: provided ${normalizedEmail}, actual ${userData.user.email}`);
+      // SECURITY: Log without exposing actual emails
+      console.log("Email verification failed during password reset");
+      await addSecurityDelay(startTime);
       return new Response(
-        JSON.stringify({ error: "Email mismatch" }),
+        JSON.stringify({ error: GENERIC_AUTH_ERROR }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
     // Check expiration
     if (new Date(profile.password_reset_expires_at) < new Date()) {
+      await addSecurityDelay(startTime);
       return new Response(
-        JSON.stringify({ error: "Reset token has expired" }),
+        JSON.stringify({ error: "Reset code has expired. Please request a new one." }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -102,7 +129,11 @@ const handler = async (req: Request): Promise<Response> => {
       { password: newPassword }
     );
 
-    if (updateError) throw updateError;
+    if (updateError) {
+      // SECURITY: Log error occurrence only
+      console.error("Password update error occurred");
+      throw new Error("Password update failed");
+    }
 
     // Clear reset token
     await supabase
@@ -113,7 +144,8 @@ const handler = async (req: Request): Promise<Response> => {
       })
       .eq('user_id', userId);
 
-    console.log(`Password reset successfully for user ${userId}`);
+    // SECURITY: Log success without exposing user ID
+    console.log("Password reset completed successfully");
 
     return new Response(
       JSON.stringify({ success: true, message: "Password reset successfully" }),
@@ -121,9 +153,11 @@ const handler = async (req: Request): Promise<Response> => {
     );
 
   } catch (error: any) {
-    console.error("Error in reset-password function:", error);
+    // SECURITY: Log error occurrence only, not details
+    console.error("Error in reset-password function");
+    await addSecurityDelay(Date.now());
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: "An unexpected error occurred. Please try again." }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },

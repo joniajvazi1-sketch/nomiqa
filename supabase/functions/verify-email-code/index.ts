@@ -32,6 +32,10 @@ const addSecurityDelay = async (startTime: number): Promise<void> => {
   }
 };
 
+// SECURITY: Generic error messages to prevent enumeration
+const GENERIC_VERIFICATION_ERROR = "Verification failed. Please check your code and try again.";
+const GENERIC_NOT_FOUND_ERROR = "Unable to process request. Please try again.";
+
 const handler = async (req: Request): Promise<Response> => {
   const startTime = Date.now();
   
@@ -72,12 +76,15 @@ const handler = async (req: Request): Promise<Response> => {
           .eq('verification_code', hashedCode)
           .limit(1);
         
-        if (profileError) throw profileError;
+        if (profileError) {
+          console.error("Profile lookup error occurred");
+          throw new Error("Database error");
+        }
         
         if (!profiles || profiles.length === 0) {
           await addSecurityDelay(startTime);
           return new Response(
-            JSON.stringify({ error: "Invalid verification code" }),
+            JSON.stringify({ error: GENERIC_VERIFICATION_ERROR }),
             { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
           );
         }
@@ -86,8 +93,9 @@ const handler = async (req: Request): Promise<Response> => {
         userId = profile.user_id;
         
         if (!userId) {
+          await addSecurityDelay(startTime);
           return new Response(
-            JSON.stringify({ error: "Invalid profile data" }),
+            JSON.stringify({ error: GENERIC_VERIFICATION_ERROR }),
             { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
           );
         }
@@ -97,7 +105,7 @@ const handler = async (req: Request): Promise<Response> => {
         if (userError || !userData.user || userData.user.email?.toLowerCase() !== normalizedEmail) {
           await addSecurityDelay(startTime);
           return new Response(
-            JSON.stringify({ error: "Email mismatch or user not found" }),
+            JSON.stringify({ error: GENERIC_VERIFICATION_ERROR }),
             { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
           );
         }
@@ -106,7 +114,7 @@ const handler = async (req: Request): Promise<Response> => {
         if (new Date(profile.verification_code_expires_at) < new Date()) {
           await addSecurityDelay(startTime);
           return new Response(
-            JSON.stringify({ error: "Verification code has expired" }),
+            JSON.stringify({ error: "Verification code has expired. Please request a new one." }),
             { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
           );
         }
@@ -130,13 +138,14 @@ const handler = async (req: Request): Promise<Response> => {
         );
         
         if (authUpdateError) {
-          console.error(`Failed to confirm email in auth: ${authUpdateError.message}`);
+          // SECURITY: Log error without exposing details
+          console.error("Auth email confirmation failed");
         } else {
-          console.log(`✓ Email confirmed in auth for user ${userId}`);
+          console.log("Email confirmed in auth successfully");
         }
 
         // Send early member welcome email
-        console.log(`Sending early member welcome email to ${normalizedEmail}`);
+        console.log("Sending early member welcome email");
         const sendEmailResponse = await fetch(`${supabaseUrl}/functions/v1/send-email`, {
           method: 'POST',
           headers: {
@@ -153,13 +162,13 @@ const handler = async (req: Request): Promise<Response> => {
         });
         
         if (!sendEmailResponse.ok) {
-          const errorText = await sendEmailResponse.text();
-          console.error(`Failed to send early member welcome email: ${sendEmailResponse.status} - ${errorText}`);
+          // SECURITY: Log failure without exposing response details
+          console.error("Failed to send early member welcome email");
         } else {
-          console.log(`✓ Early member welcome email sent to ${normalizedEmail}`);
+          console.log("Early member welcome email sent successfully");
         }
 
-        console.log(`Email verified for user ${userId}`);
+        console.log("Email verification completed successfully");
         return new Response(
           JSON.stringify({ success: true, message: "Email verified successfully" }),
           { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -173,12 +182,15 @@ const handler = async (req: Request): Promise<Response> => {
           .eq('password_reset_code', hashedCode)
           .limit(1);
         
-        if (profileError) throw profileError;
+        if (profileError) {
+          console.error("Profile lookup error occurred");
+          throw new Error("Database error");
+        }
         
         if (!profiles || profiles.length === 0) {
           await addSecurityDelay(startTime);
           return new Response(
-            JSON.stringify({ error: "Invalid reset code" }),
+            JSON.stringify({ error: GENERIC_VERIFICATION_ERROR }),
             { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
           );
         }
@@ -189,7 +201,7 @@ const handler = async (req: Request): Promise<Response> => {
         if (!userId) {
           await addSecurityDelay(startTime);
           return new Response(
-            JSON.stringify({ error: "Invalid profile data" }),
+            JSON.stringify({ error: GENERIC_VERIFICATION_ERROR }),
             { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
           );
         }
@@ -199,7 +211,7 @@ const handler = async (req: Request): Promise<Response> => {
         if (userError || !userData.user || userData.user.email?.toLowerCase() !== normalizedEmail) {
           await addSecurityDelay(startTime);
           return new Response(
-            JSON.stringify({ error: "Email mismatch or user not found" }),
+            JSON.stringify({ error: GENERIC_VERIFICATION_ERROR }),
             { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
           );
         }
@@ -208,14 +220,14 @@ const handler = async (req: Request): Promise<Response> => {
         if (new Date(profile.password_reset_expires_at) < new Date()) {
           await addSecurityDelay(startTime);
           return new Response(
-            JSON.stringify({ error: "Reset code has expired" }),
+            JSON.stringify({ error: "Reset code has expired. Please request a new one." }),
             { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
           );
         }
 
         // Return success with the original code (not hash) for password reset flow
         // The code acts as a short-lived token for the next step
-        console.log(`Password reset code verified for user ${userId}`);
+        console.log("Password reset code verified successfully");
         return new Response(
           JSON.stringify({ 
             success: true, 
@@ -237,9 +249,10 @@ const handler = async (req: Request): Promise<Response> => {
 
       if (affiliateError || !affiliate) {
         await addSecurityDelay(startTime);
+        // SECURITY: Use generic message to prevent affiliate enumeration
         return new Response(
-          JSON.stringify({ error: "Affiliate not found" }),
-          { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          JSON.stringify({ error: GENERIC_NOT_FOUND_ERROR }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
 
@@ -247,7 +260,7 @@ const handler = async (req: Request): Promise<Response> => {
       if (!affiliate.verification_token || affiliate.verification_token !== hashedCode) {
         await addSecurityDelay(startTime);
         return new Response(
-          JSON.stringify({ error: "Invalid verification code" }),
+          JSON.stringify({ error: GENERIC_VERIFICATION_ERROR }),
           { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
@@ -255,7 +268,7 @@ const handler = async (req: Request): Promise<Response> => {
       if (affiliate.verification_code_expires_at && new Date(affiliate.verification_code_expires_at) < new Date()) {
         await addSecurityDelay(startTime);
         return new Response(
-          JSON.stringify({ error: "Verification code has expired" }),
+          JSON.stringify({ error: "Verification code has expired. Please request a new one." }),
           { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
@@ -274,7 +287,7 @@ const handler = async (req: Request): Promise<Response> => {
       if (updateError) throw updateError;
 
       // Send welcome email using direct HTTP call
-      console.log(`Sending affiliate welcome email to ${normalizedEmail}`);
+      console.log("Sending affiliate welcome email");
       const sendEmailResponse = await fetch(`${supabaseUrl}/functions/v1/send-email`, {
         method: 'POST',
         headers: {
@@ -292,10 +305,10 @@ const handler = async (req: Request): Promise<Response> => {
       });
       
       if (!sendEmailResponse.ok) {
-        const errorText = await sendEmailResponse.text();
-        console.error(`Failed to send affiliate welcome email: ${sendEmailResponse.status} - ${errorText}`);
+        // SECURITY: Log failure without exposing response details
+        console.error("Failed to send affiliate welcome email");
       } else {
-        console.log(`✓ Affiliate welcome email sent to ${normalizedEmail}`);
+        console.log("Affiliate welcome email sent successfully");
       }
 
       return new Response(
@@ -307,9 +320,11 @@ const handler = async (req: Request): Promise<Response> => {
     throw new Error("Invalid verification type");
 
   } catch (error: any) {
-    console.error("Error in verify-email-code function:", error);
+    // SECURITY: Log error occurrence only, not details
+    console.error("Error in verify-email-code function");
+    await addSecurityDelay(Date.now());
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: "An unexpected error occurred. Please try again." }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },

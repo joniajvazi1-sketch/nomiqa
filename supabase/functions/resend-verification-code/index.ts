@@ -27,7 +27,19 @@ async function hashCode(code: string): Promise<string> {
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
+// SECURITY: Add artificial delay to mitigate timing attacks
+const addSecurityDelay = async (startTime: number): Promise<void> => {
+  const minResponseTime = 300; // Minimum 300ms response time
+  const elapsed = Date.now() - startTime;
+  const remainingDelay = Math.max(0, minResponseTime - elapsed);
+  if (remainingDelay > 0) {
+    await new Promise(resolve => setTimeout(resolve, remainingDelay));
+  }
+};
+
 const handler = async (req: Request): Promise<Response> => {
+  const startTime = Date.now();
+  
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -38,12 +50,10 @@ const handler = async (req: Request): Promise<Response> => {
     // Validate input with Zod schema
     const validationResult = resendRequestSchema.safeParse(rawBody);
     if (!validationResult.success) {
-      console.error("Resend validation error:", validationResult.error.issues);
+      // SECURITY: Don't expose validation details
+      console.error("Resend validation error occurred");
       return new Response(
-        JSON.stringify({ 
-          error: "Invalid request format",
-          details: validationResult.error.issues 
-        }),
+        JSON.stringify({ error: "Invalid request format" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -65,7 +75,8 @@ const handler = async (req: Request): Promise<Response> => {
       .gte('sent_at', fifteenMinutesAgo);
 
     if (!rateLimitError && recentResends && recentResends.length >= 3) {
-      console.log(`Rate limit exceeded for resend to: ${normalizedEmail}`);
+      // SECURITY: Log without exposing email
+      console.log("Rate limit exceeded for resend request");
       return new Response(
         JSON.stringify({ error: 'Too many resend requests. Please wait 15 minutes before trying again.' }),
         { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -86,14 +97,14 @@ const handler = async (req: Request): Promise<Response> => {
         .maybeSingle();
       
       if (profileError) {
-        console.error("Profile lookup error:", profileError);
+        console.error("Profile lookup error occurred");
         throw profileError;
       }
 
       if (type === 'registration') {
-        // For registration resend, we avoid leaking whether a user exists.
-        // If a profile exists but auth isn't confirmed, we allow resending.
+        // SECURITY: Always return success to prevent email enumeration
         if (!profile) {
+          await addSecurityDelay(startTime);
           return new Response(
             JSON.stringify({ success: true, message: "If an account exists, a verification code has been sent" }),
             { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -112,6 +123,7 @@ const handler = async (req: Request): Promise<Response> => {
         }
 
         if (authEmailConfirmed) {
+          await addSecurityDelay(startTime);
           return new Response(
             JSON.stringify({ success: true, alreadyVerified: true, message: "Email is already verified" }),
             { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -131,7 +143,7 @@ const handler = async (req: Request): Promise<Response> => {
         if (updateError) throw updateError;
 
         // Send verification email with original (unhashed) code
-        console.log(`Sending verification email to ${normalizedEmail}`);
+        console.log("Sending verification email");
         const sendEmailResponse = await fetch(`${supabaseUrl}/functions/v1/send-email`, {
           method: 'POST',
           headers: {
@@ -146,17 +158,17 @@ const handler = async (req: Request): Promise<Response> => {
         });
 
         if (!sendEmailResponse.ok) {
-          const errorText = await sendEmailResponse.text();
-          console.error(`Failed to send verification email: ${sendEmailResponse.status} - ${errorText}`);
+          // SECURITY: Log failure without exposing email or response details
+          console.error("Failed to send verification email");
         } else {
-          console.log(`✓ Verification email sent to ${normalizedEmail}`);
+          console.log("Verification email sent successfully");
         }
 
       } else {
-        // Password reset
+        // Password reset - SECURITY: Always return success to prevent email enumeration
         if (!profile) {
-          console.log(`No profile found for password reset: ${normalizedEmail}`);
-          // Return success to prevent email enumeration attacks
+          console.log("No profile found for password reset");
+          await addSecurityDelay(startTime);
           return new Response(
             JSON.stringify({ success: true, message: "If an account exists, a reset code has been sent" }),
             { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -175,7 +187,7 @@ const handler = async (req: Request): Promise<Response> => {
         if (updateError) throw updateError;
 
         // Send password reset email with original (unhashed) code
-        console.log(`Sending password reset email to ${normalizedEmail}`);
+        console.log("Sending password reset email");
         const sendEmailResponse = await fetch(`${supabaseUrl}/functions/v1/send-email`, {
           method: 'POST',
           headers: {
@@ -190,10 +202,10 @@ const handler = async (req: Request): Promise<Response> => {
         });
 
         if (!sendEmailResponse.ok) {
-          const errorText = await sendEmailResponse.text();
-          console.error(`Failed to send password reset email: ${sendEmailResponse.status} - ${errorText}`);
+          // SECURITY: Log failure without exposing email or response details
+          console.error("Failed to send password reset email");
         } else {
-          console.log(`✓ Password reset email sent to ${normalizedEmail}`);
+          console.log("Password reset email sent successfully");
         }
       }
 
@@ -207,10 +219,12 @@ const handler = async (req: Request): Promise<Response> => {
       
       if (affiliateError) throw affiliateError;
       
+      // SECURITY: Use consistent response to prevent affiliate enumeration
       if (!affiliate) {
+        await addSecurityDelay(startTime);
         return new Response(
-          JSON.stringify({ error: "Affiliate not found" }),
-          { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          JSON.stringify({ success: true, message: "If an affiliate account exists, a verification code has been sent" }),
+          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
 
@@ -226,7 +240,7 @@ const handler = async (req: Request): Promise<Response> => {
       if (updateError) throw updateError;
 
       // Send affiliate verification email with original code
-      console.log(`Sending affiliate verification email to ${normalizedEmail}`);
+      console.log("Sending affiliate verification email");
       const sendEmailResponse = await fetch(`${supabaseUrl}/functions/v1/send-email`, {
         method: 'POST',
         headers: {
@@ -241,10 +255,10 @@ const handler = async (req: Request): Promise<Response> => {
       });
       
       if (!sendEmailResponse.ok) {
-        const errorText = await sendEmailResponse.text();
-        console.error(`Failed to send affiliate verification email: ${sendEmailResponse.status} - ${errorText}`);
+        // SECURITY: Log failure without exposing email or response details
+        console.error("Failed to send affiliate verification email");
       } else {
-        console.log(`✓ Affiliate verification email sent to ${normalizedEmail}`);
+        console.log("Affiliate verification email sent successfully");
       }
     }
 
@@ -256,7 +270,7 @@ const handler = async (req: Request): Promise<Response> => {
         email_type: `resend_${type}`,
       });
 
-    console.log(`Resent ${type} code to ${normalizedEmail}`);
+    console.log("Verification code resend completed");
 
     return new Response(
       JSON.stringify({ success: true, message: "Verification code resent" }),
@@ -264,9 +278,11 @@ const handler = async (req: Request): Promise<Response> => {
     );
 
   } catch (error: any) {
-    console.error("Error in resend-verification-code function:", error);
+    // SECURITY: Log error occurrence only, not details
+    console.error("Error in resend-verification-code function");
+    await addSecurityDelay(Date.now());
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: "An unexpected error occurred. Please try again." }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },
