@@ -6,6 +6,7 @@ import {
 } from '@/plugins/TelephonyInfoPlugin';
 import { calculateDataQualityScore } from '@/utils/dataQualityScoring';
 import { runSpeedTest, type SpeedTestResult as ProviderSpeedTestResult, type SpeedTestProgressCallback } from '@/utils/speedTestProviders';
+import { getIOSDeviceName } from '@/utils/iosDeviceModels';
 
 // Type-only imports
 type Position = import('@capacitor/geolocation').Position;
@@ -155,17 +156,32 @@ export const useTelcoMetrics = () => {
         console.log('[TelcoMetrics] Android device info from native:', JSON.stringify(info));
       } else if (isIOS) {
         // iOS: Use BackgroundLocation.getDeviceInfo()
+        // This method works independently of location permission
         const BackgroundLocation = (await import('@/plugins/BackgroundLocationPlugin')).default;
         const info = await BackgroundLocation.getDeviceInfo();
+        
+        // Raw model identifier (e.g., "iPhone17,2")
+        const rawModel = info.model || info.modelIdentifier || 'Unknown';
+        // Map to marketing name (e.g., "iPhone 16 Pro")
+        const marketingName = getIOSDeviceName(rawModel);
+        
         const deviceData = {
-          // Use raw model identifier (e.g., "iPhone17,2") NOT marketing name
-          model: info.model || info.modelIdentifier || 'Unknown',
+          // Use marketing name for user-friendly display, store raw for accuracy
+          model: marketingName,
           manufacturer: 'Apple',
           osVersion: `iOS ${info.osVersion || 'Unknown'}`
         };
         setDeviceInfo(deviceData);
-        nativeDeviceInfoRef.current = { ...deviceData, platform: 'ios' };
-        console.log('[TelcoMetrics] iOS device info from native:', JSON.stringify(info));
+        nativeDeviceInfoRef.current = { 
+          ...deviceData, 
+          platform: 'ios',
+          // Also store raw identifier for B2B data accuracy
+        };
+        console.log('[TelcoMetrics] iOS device info from native:', {
+          rawIdentifier: rawModel,
+          marketingName,
+          osVersion: info.osVersion
+        });
       }
     } catch (error) {
       console.error('Failed to get native device info:', error);
