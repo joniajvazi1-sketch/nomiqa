@@ -167,9 +167,10 @@ const ensureLocationPermission = async (): Promise<{ granted: boolean; status: s
       return { granted: true, status: 'already_granted' };
     }
     
-    // iOS: If status is "not_determined", we MUST request permission - don't skip
-    if (platform === 'ios' && currentStatus.foregroundStatus === 'not_determined') {
-      console.log(`[Permission] ios - Status is not_determined, requesting When In Use...`);
+    // iOS: If status is "not_determined" OR "prompt", we MUST request permission
+    // The native plugin returns "not_determined" for first-time, handle both just in case
+    if (platform === 'ios' && (currentStatus.foregroundStatus === 'not_determined' || currentStatus.foregroundStatus === 'prompt')) {
+      console.log(`[Permission] ios - Status is ${currentStatus.foregroundStatus}, requesting When In Use...`);
       const fgResult = await BackgroundLocation.requestForegroundPermission();
       console.log(`[Permission] ios - Foreground result:`, JSON.stringify(fgResult));
       return { granted: fgResult.granted, status: fgResult.granted ? 'granted' : 'denied' };
@@ -182,6 +183,7 @@ const ensureLocationPermission = async (): Promise<{ granted: boolean; status: s
     }
     
     // Step 2: Request foreground permission (triggers system dialog)
+    // This catches Android and any edge cases
     console.log(`[Permission] ${platform} - Requesting foreground permission...`);
     const fgResult = await BackgroundLocation.requestForegroundPermission();
     console.log(`[Permission] ${platform} - Foreground result:`, JSON.stringify(fgResult));
