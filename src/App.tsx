@@ -36,6 +36,7 @@ const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
 const AdminUsers = lazy(() => import("./pages/AdminUsers"));
 const Download = lazy(() => import("./pages/Download"));
 const HowItWorks = lazy(() => import("./pages/HowItWorks"));
+const MobileOnly = lazy(() => import("./pages/MobileOnly"));
 
 // Lazy load APP pages (native only)
 const AppHome = lazy(() => import("./pages/app/AppHome").then(m => ({ default: m.AppHome })));
@@ -172,12 +173,10 @@ const NativeAppRoutes = () => (
 const WebRoutes = () => (
   <WebLayout>
     <Routes>
-      {/* OAuth redirect handler for native app - must be accessible from web */}
-      <Route path="/app/oauth-redirect" element={<OAuthRedirect />} />
-      
-      {/* Redirect other /app routes to home - native app only */}
-      <Route path="/app/*" element={<Navigate to="/" replace />} />
-      <Route path="/app" element={<Navigate to="/" replace />} />
+      {/* Block ALL /app routes on web - redirect to mobile-only page */}
+      {/* OAuth redirect is handled separately before WebRoutes */}
+      <Route path="/app/*" element={<Navigate to="/mobile-only" replace />} />
+      <Route path="/app" element={<Navigate to="/mobile-only" replace />} />
       
       {/* Base routes (no locale prefix) */}
       <Route path="/" element={<Index />} />
@@ -412,10 +411,30 @@ const WebRoutes = () => (
 );
 
 /**
+ * Standalone Routes - Routes that don't need layout wrappers
+ * These are rendered without WebLayout/AppLayout
+ */
+const StandaloneRoutes = () => {
+  const location = useLocation();
+  
+  // OAuth redirect - minimal page for OAuth callback, no layout
+  if (location.pathname === '/app/oauth-redirect') {
+    return <OAuthRedirect />;
+  }
+  
+  // Mobile-only page - shown when web users try to access /app/*
+  if (location.pathname === '/mobile-only') {
+    return <MobileOnly />;
+  }
+  
+  return null;
+};
+
+/**
  * Main App Router - Detects platform and renders appropriate UI
  * CRITICAL: Website visitors see WebRoutes, Native app users see NativeAppRoutes
  * 
- * Web users visiting /app/* are redirected to home page.
+ * Web users visiting /app/* are redirected to /mobile-only page.
  * Only actual native platform OR localhost preview mode can access app UI.
  */
 const AppRouter = () => {
@@ -423,6 +442,12 @@ const AppRouter = () => {
   
   // Handle OAuth deep link callbacks on native platforms
   useDeepLinkAuth();
+  
+  // Check for standalone routes first (OAuth, mobile-only page)
+  const standaloneRoute = StandaloneRoutes();
+  if (standaloneRoute) {
+    return standaloneRoute;
+  }
   
   // Only native platform (or localhost preview via ?appPreview=true) sees app UI
   return isNative ? <NativeAppRoutes /> : <WebRoutes />;
