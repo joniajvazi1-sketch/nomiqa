@@ -92,8 +92,8 @@ export function initSentry() {
         },
       },
       
-      // Always enabled (DSN check above handles disabled state)
-      enabled: true,
+      // Only enable in production builds (native apps or published web)
+      enabled: import.meta.env.PROD,
       
       // Ignore common non-actionable errors
       ignoreErrors: [
