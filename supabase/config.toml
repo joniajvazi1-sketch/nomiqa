@@ -42,17 +42,11 @@ verify_jwt = false
 [functions.submit-claim-request]
 verify_jwt = true
 
-[functions.submit-order]
-verify_jwt = true
-
 [functions.notify-tier-upgrade]
 verify_jwt = false
 
 [functions.get-esim-usage]
 verify_jwt = true
-
-[functions.register-network]
-verify_jwt = false
 
 [functions.auth-email-hook]
 verify_jwt = false
@@ -81,19 +75,7 @@ verify_jwt = false
 [functions.generate-speed-test-files]
 verify_jwt = false
 
-[functions.get-remote-config]
-verify_jwt = false
-
 [functions.get-admin-users]
-verify_jwt = true
-
-[functions.log-connection-event]
-verify_jwt = true
-
-[functions.submit-coverage-confirmation]
-verify_jwt = true
-
-[functions.export-user-data]
 verify_jwt = true
 
 [functions.log-referral-visit]
@@ -105,8 +87,8 @@ verify_jwt = true
 [functions.sync-affiliate-stats]
 verify_jwt = false
 
-[functions.process-referral-commission]
+[functions.join-waitlist]
 verify_jwt = false
 
-[functions.join-waitlist]
+[functions.get-mapbox-token]
 verify_jwt = false
