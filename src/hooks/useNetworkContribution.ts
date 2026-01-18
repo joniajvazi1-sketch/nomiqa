@@ -137,79 +137,87 @@ const ensureLocationPermission = async (): Promise<{ granted: boolean; status: s
     console.log('[Permission] Not native platform, skipping');
     return { granted: false, status: 'not_native' };
   }
-  
+
   const platform = Capacitor.getPlatform();
-  
+  const isIOS = platform === 'ios';
+
   try {
     // Both Android and iOS: Use our unified BackgroundLocationPlugin
     const BackgroundLocation = (await import('@/plugins/BackgroundLocationPlugin')).default;
-    
+
     // Step 1: Check current permission status
     const currentStatus = await BackgroundLocation.getPermissionStatus();
     console.log(`[Permission] ${platform} - Current status:`, JSON.stringify(currentStatus));
-    
+
     // CRITICAL: For iOS, check foregroundStatus explicitly - don't rely on fineLocation/coarseLocation
     // These may not be set correctly before the first request
-    const iosForegroundGranted = platform === 'ios' && currentStatus.foregroundStatus === 'granted';
+    const iosForegroundGranted = isIOS && currentStatus.foregroundStatus === 'granted';
     const androidForegroundGranted = platform === 'android' && (currentStatus.fineLocation || currentStatus.coarseLocation);
-    
+
     // Already have foreground permission
     if (iosForegroundGranted || androidForegroundGranted) {
       console.log(`[Permission] ${platform} - Foreground already granted`);
-      
+
       // On Android 10+, also request background for true background scanning
       if (platform === 'android' && currentStatus.requiresBackgroundPermission && !currentStatus.backgroundLocation) {
         console.log(`[Permission] android - Requesting background permission...`);
         const bgResult = await BackgroundLocation.requestBackgroundPermission();
         console.log(`[Permission] android - Background result:`, JSON.stringify(bgResult));
       }
-      
+
       return { granted: true, status: 'already_granted' };
     }
-    
-    // iOS: If status is "not_determined" OR "prompt", we MUST request permission
-    // The native plugin returns "not_determined" for first-time, handle both just in case
-    if (platform === 'ios' && (currentStatus.foregroundStatus === 'not_determined' || currentStatus.foregroundStatus === 'prompt')) {
-      console.log(`[Permission] ios - Status is ${currentStatus.foregroundStatus}, requesting When In Use...`);
+
+    // iOS: ALWAYS attempt the native request when foreground isn't granted.
+    // - If status is not_determined, this triggers the iOS popup.
+    // - If status is denied/restricted, iOS will NOT re-prompt; we fall back to Settings.
+    if (isIOS) {
+      console.log('[Permission] ios - Requesting When In Use authorization...');
       const fgResult = await BackgroundLocation.requestForegroundPermission();
-      console.log(`[Permission] ios - Foreground result:`, JSON.stringify(fgResult));
-      return { granted: fgResult.granted, status: fgResult.granted ? 'granted' : 'denied' };
-    }
-    
-    // Check if permanently denied
-    if (currentStatus.foregroundStatus === 'denied' && !currentStatus.shouldShowForegroundRationale) {
-      console.log(`[Permission] ${platform} - Permanently denied, must open Settings`);
+      console.log('[Permission] ios - Foreground result:', JSON.stringify(fgResult));
+
+      if (fgResult.granted) {
+        return { granted: true, status: 'granted' };
+      }
+
+      // Double-check post-request status for clearer debugging
+      try {
+        const afterStatus = await BackgroundLocation.getPermissionStatus();
+        console.log('[Permission] ios - Status after request:', JSON.stringify(afterStatus));
+      } catch {
+        // ignore
+      }
+
       return { granted: false, status: 'denied_open_settings' };
     }
-    
+
+    // Android: Check if permanently denied
+    if (currentStatus.foregroundStatus === 'denied' && !currentStatus.shouldShowForegroundRationale) {
+      console.log('[Permission] android - Permanently denied, must open Settings');
+      return { granted: false, status: 'denied_open_settings' };
+    }
+
     // Step 2: Request foreground permission (triggers system dialog)
-    // This catches Android and any edge cases
-    console.log(`[Permission] ${platform} - Requesting foreground permission...`);
+    console.log('[Permission] android - Requesting foreground permission...');
     const fgResult = await BackgroundLocation.requestForegroundPermission();
-    console.log(`[Permission] ${platform} - Foreground result:`, JSON.stringify(fgResult));
-    
+    console.log('[Permission] android - Foreground result:', JSON.stringify(fgResult));
+
     if (!fgResult.granted) {
-      console.log(`[Permission] ${platform} - Foreground DENIED by user`);
+      console.log('[Permission] android - Foreground DENIED by user');
       return { granted: false, status: 'denied' };
     }
-    
+
     // On Android, also request background permission immediately
-    if (platform === 'android') {
-      const updatedStatus = await BackgroundLocation.getPermissionStatus();
-      if (updatedStatus.requiresBackgroundPermission && !updatedStatus.backgroundLocation) {
-        console.log(`[Permission] android - Now requesting background permission...`);
-        const bgResult = await BackgroundLocation.requestBackgroundPermission();
-        console.log(`[Permission] android - Background result:`, JSON.stringify(bgResult));
-        // Don't fail if background is denied - foreground is enough to start
-      }
+    const updatedStatus = await BackgroundLocation.getPermissionStatus();
+    if (updatedStatus.requiresBackgroundPermission && !updatedStatus.backgroundLocation) {
+      console.log('[Permission] android - Now requesting background permission...');
+      const bgResult = await BackgroundLocation.requestBackgroundPermission();
+      console.log('[Permission] android - Background result:', JSON.stringify(bgResult));
+      // Don't fail if background is denied - foreground is enough to start
     }
-    
-    // On iOS, we DON'T request background immediately
-    // The user will be prompted via BackgroundLocationRationale after session starts
-    
-    console.log(`[Permission] ${platform} - Permission flow complete, foreground GRANTED`);
+
+    console.log('[Permission] android - Permission flow complete, foreground GRANTED');
     return { granted: true, status: 'granted' };
-    
   } catch (error) {
     console.error(`[Permission] ${platform} - Error:`, error);
     return { granted: false, status: 'error' };
