@@ -77,10 +77,12 @@ export const DataConsentModal: React.FC<DataConsentModalProps> = ({ onConsentCom
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[100] bg-background"
+          className="fixed inset-0 z-[9999] bg-background"
           style={{
             paddingTop: 'env(safe-area-inset-top, 0px)',
             paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+            // Ensure we're above everything including BottomTabBar (z-50)
+            isolation: 'isolate'
           }}
         >
           {/* Header - Fixed at top */}

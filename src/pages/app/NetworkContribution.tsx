@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, lazy, Suspense } from 'react';
+import React, { useState, useCallback, useRef, useEffect, lazy, Suspense } from 'react';
 import { Capacitor } from '@capacitor/core';
 import { 
   Pause,
@@ -7,10 +7,11 @@ import {
   Zap,
   Play,
   Gauge,
-  Signal
+  Signal,
+  MapPin
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useNetworkContribution, requestIOSAlwaysPermission } from '@/hooks/useNetworkContribution';
+import { useNetworkContribution, requestIOSAlwaysPermission, getIOSPermissionStatus } from '@/hooks/useNetworkContribution';
 import { useGlobalCoverage } from '@/hooks/useGlobalCoverage';
 import { useEnhancedHaptics } from '@/hooks/useEnhancedHaptics';
 import { useEnhancedSounds } from '@/hooks/useEnhancedSounds';
@@ -22,6 +23,9 @@ import { IOSPermissionBanner, IOSPermissionIndicator } from '@/components/app/IO
 import { cn } from '@/lib/utils';
 
 const NetworkGlobe = lazy(() => import('@/components/app/NetworkGlobe').then(m => ({ default: m.NetworkGlobe })));
+
+// Permission status type for iOS display
+type IOSPermissionStatusLabel = 'Not Determined' | 'While Using' | 'Always' | 'Denied' | 'Unknown';
 
 export const NetworkContribution: React.FC = () => {
   const navigate = useNavigate();
@@ -35,6 +39,9 @@ export const NetworkContribution: React.FC = () => {
   const [showConsentModal, setShowConsentModal] = useState(false);
   const [showBackgroundRationale, setShowBackgroundRationale] = useState(false);
   const startButtonRef = useRef<HTMLButtonElement>(null);
+  
+  // iOS permission status for visibility
+  const [iosPermissionLabel, setIosPermissionLabel] = useState<IOSPermissionStatusLabel>('Unknown');
   
   const {
     user,
@@ -67,6 +74,49 @@ export const NetworkContribution: React.FC = () => {
   const userPosition: [number, number] | null = lastPosition 
     ? [lastPosition.coords.longitude, lastPosition.coords.latitude]
     : null;
+
+  // Track iOS permission status for display
+  useEffect(() => {
+    if (!isIOS) return;
+    
+    const checkPermissionStatus = async () => {
+      try {
+        const status = await getIOSPermissionStatus();
+        if (status.backgroundGranted) {
+          setIosPermissionLabel('Always');
+        } else if (status.foregroundGranted) {
+          setIosPermissionLabel('While Using');
+        } else {
+          // Check native status for "not determined" vs "denied"
+          const BackgroundLocation = (await import('@/plugins/BackgroundLocationPlugin')).default;
+          const nativeStatus = await BackgroundLocation.getPermissionStatus();
+          if (nativeStatus.foregroundStatus === 'not_determined') {
+            setIosPermissionLabel('Not Determined');
+          } else if (nativeStatus.foregroundStatus === 'denied') {
+            setIosPermissionLabel('Denied');
+          } else {
+            setIosPermissionLabel('Unknown');
+          }
+        }
+      } catch (e) {
+        console.error('[NetworkContribution] Failed to check iOS permission:', e);
+        setIosPermissionLabel('Unknown');
+      }
+    };
+    
+    checkPermissionStatus();
+    
+    // Re-check when app resumes
+    const handleResume = () => {
+      checkPermissionStatus();
+    };
+    
+    import('@capacitor/app').then(({ App }) => {
+      App.addListener('appStateChange', ({ isActive }) => {
+        if (isActive) handleResume();
+      });
+    }).catch(() => {});
+  }, [isIOS, isActive]);
 
   const handleStopContribution = useCallback(() => {
     if (stats.pointsEarned > 0) {
@@ -234,9 +284,52 @@ export const NetworkContribution: React.FC = () => {
           className="absolute right-4 z-30 flex items-center gap-2"
           style={{ top: 'calc(env(safe-area-inset-top, 0px) + 4px)' }}
         >
-          {/* iOS permission indicator - only shows if "While Using" */}
-          {isIOS && isActive && (
-            <IOSPermissionIndicator onClick={() => setShowBackgroundRationale(true)} />
+          {/* iOS permission status indicator - always visible on iOS */}
+          {isIOS && (
+            <button
+              onClick={() => {
+                if (iosPermissionLabel === 'While Using') {
+                  setShowBackgroundRationale(true);
+                } else if (iosPermissionLabel === 'Denied') {
+                  import('@/plugins/BackgroundLocationPlugin').then(({ default: BackgroundLocation }) => {
+                    BackgroundLocation.openAppSettings();
+                  }).catch(() => {});
+                }
+              }}
+              className={cn(
+                "flex items-center gap-1.5 px-2.5 py-1 rounded-full backdrop-blur-md border transition-colors",
+                iosPermissionLabel === 'Always' 
+                  ? "bg-emerald-500/20 border-emerald-500/40" 
+                  : iosPermissionLabel === 'While Using'
+                    ? "bg-amber-500/20 border-amber-500/40"
+                    : iosPermissionLabel === 'Denied'
+                      ? "bg-red-500/20 border-red-500/40"
+                      : "bg-white/10 border-white/20"
+              )}
+            >
+              <MapPin className={cn(
+                "w-3.5 h-3.5",
+                iosPermissionLabel === 'Always' 
+                  ? "text-emerald-400" 
+                  : iosPermissionLabel === 'While Using'
+                    ? "text-amber-400"
+                    : iosPermissionLabel === 'Denied'
+                      ? "text-red-400"
+                      : "text-white/60"
+              )} />
+              <span className={cn(
+                "text-[10px] font-semibold uppercase tracking-wider",
+                iosPermissionLabel === 'Always' 
+                  ? "text-emerald-400" 
+                  : iosPermissionLabel === 'While Using'
+                    ? "text-amber-400"
+                    : iosPermissionLabel === 'Denied'
+                      ? "text-red-400"
+                      : "text-white/60"
+              )}>
+                {iosPermissionLabel}
+              </span>
+            </button>
           )}
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/40 backdrop-blur-md border border-white/10">
             <Signal className={cn("w-3.5 h-3.5", isCellular ? "text-[#00d4ff]" : "text-amber-400")} />

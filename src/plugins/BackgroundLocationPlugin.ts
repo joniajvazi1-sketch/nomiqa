@@ -10,8 +10,8 @@ export interface PermissionStatus {
   androidVersion: number;
   iosVersion?: number;
   requiresBackgroundPermission: boolean;
-  foregroundStatus: 'granted' | 'denied' | 'prompt';
-  backgroundStatus: 'granted' | 'denied' | 'prompt';
+  foregroundStatus: 'granted' | 'denied' | 'prompt' | 'not_determined';
+  backgroundStatus: 'granted' | 'denied' | 'prompt' | 'not_determined';
   // iOS-specific
   accuracyAuthorization?: 'full' | 'reduced' | 'unknown';
   isBackgroundActive?: boolean;
