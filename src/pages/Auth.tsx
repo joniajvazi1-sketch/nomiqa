@@ -105,10 +105,18 @@ export default function Auth() {
 
           if (insertError) throw insertError;
 
-          // Track affiliate if applicable - get from zustand AND localStorage fallback
-          let { referralCode, clearReferralCode } = useAffiliateTracking.getState();
+          // Track affiliate if applicable - get from: 1) URL params, 2) zustand, 3) localStorage
+          let { referralCode, clearReferralCode, setReferralCode } = useAffiliateTracking.getState();
           
-          // Fallback: also check localStorage directly in case zustand hasn't rehydrated
+          // Priority 1: Check URL params (most reliable - survives cross-device/browser)
+          const urlRefCode = searchParams.get('ref');
+          if (urlRefCode && !referralCode) {
+            referralCode = urlRefCode;
+            console.log('OAuth: Referral code from URL parameter:', referralCode);
+            setReferralCode(referralCode);
+          }
+          
+          // Priority 2: Check localStorage directly in case zustand hasn't rehydrated
           if (!referralCode) {
             try {
               const storedData = localStorage.getItem('affiliate-tracking');
@@ -287,10 +295,19 @@ export default function Auth() {
     try {
       if (isSignup) {
         // Use signup-user edge function to handle signup with service role
-        // Get referral code from zustand store AND localStorage fallback for reliability
-        let { referralCode, clearReferralCode } = useAffiliateTracking.getState();
+        // Get referral code from: 1) URL params, 2) zustand store, 3) localStorage fallback
+        let { referralCode, clearReferralCode, setReferralCode } = useAffiliateTracking.getState();
         
-        // Fallback: also check localStorage directly in case zustand hasn't rehydrated
+        // Priority 1: Check URL params (most reliable - survives cross-device/browser)
+        const urlRefCode = searchParams.get('ref');
+        if (urlRefCode && !referralCode) {
+          referralCode = urlRefCode;
+          console.log('Referral code from URL parameter:', referralCode);
+          // Also save to localStorage for consistency
+          setReferralCode(referralCode);
+        }
+        
+        // Priority 2: Check localStorage directly in case zustand hasn't rehydrated
         if (!referralCode) {
           try {
             const storedData = localStorage.getItem('affiliate-tracking');
