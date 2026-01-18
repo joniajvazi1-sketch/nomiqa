@@ -102,14 +102,19 @@ function AffiliateTracker() {
     if (ref) {
       setReferralCode(ref);
       
-      // Track click via secure edge function
+      // Track referral click via secure edge function
       const trackClick = async () => {
         try {
-          await supabase.functions.invoke('track-affiliate-click', {
-            body: { referralCode: ref }
+          await supabase.functions.invoke('log-referral-visit', {
+            body: { 
+              affiliateCode: ref,
+              referrerUrl: document.referrer || null,
+              landingPage: window.location.pathname,
+              userAgent: navigator.userAgent,
+            }
           });
         } catch (error) {
-          console.error('Error tracking affiliate click:', error);
+          console.error('Error tracking referral click:', error);
         }
       };
 
