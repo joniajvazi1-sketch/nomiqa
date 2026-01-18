@@ -126,8 +126,11 @@ const isSessionStale = (startedAt: number | null): boolean => {
  * 3. Optionally request background permission for true background scanning
  * 4. Log all states for debugging
  * 
- * iOS FLOW:
- * Uses standard Capacitor Geolocation plugin
+ * iOS FLOW (using IOSBackgroundLocationPlugin):
+ * 1. Check current permission status
+ * 2. Request "When In Use" permission first
+ * 3. If granted, return - background request handled separately via rationale
+ * 4. Log all states for debugging
  */
 const ensureLocationPermission = async (): Promise<{ granted: boolean; status: string }> => {
   if (!Capacitor.isNativePlatform()) {
@@ -138,45 +141,45 @@ const ensureLocationPermission = async (): Promise<{ granted: boolean; status: s
   const platform = Capacitor.getPlatform();
   
   try {
-    // ANDROID: Use our custom BackgroundLocationPlugin for detailed control
+    // Both Android and iOS: Use our unified BackgroundLocationPlugin
+    const BackgroundLocation = (await import('@/plugins/BackgroundLocationPlugin')).default;
+    
+    // Step 1: Check current permission status
+    const currentStatus = await BackgroundLocation.getPermissionStatus();
+    console.log(`[Permission] ${platform} - Current status:`, JSON.stringify(currentStatus));
+    
+    // Already have foreground permission
+    if (currentStatus.fineLocation || currentStatus.coarseLocation) {
+      console.log(`[Permission] ${platform} - Foreground already granted`);
+      
+      // On Android 10+, also request background for true background scanning
+      if (platform === 'android' && currentStatus.requiresBackgroundPermission && !currentStatus.backgroundLocation) {
+        console.log(`[Permission] android - Requesting background permission...`);
+        const bgResult = await BackgroundLocation.requestBackgroundPermission();
+        console.log(`[Permission] android - Background result:`, JSON.stringify(bgResult));
+      }
+      
+      return { granted: true, status: 'already_granted' };
+    }
+    
+    // Check if permanently denied
+    if (currentStatus.foregroundStatus === 'denied' && !currentStatus.shouldShowForegroundRationale) {
+      console.log(`[Permission] ${platform} - Permanently denied, must open Settings`);
+      return { granted: false, status: 'denied_open_settings' };
+    }
+    
+    // Step 2: Request foreground permission (triggers system dialog)
+    console.log(`[Permission] ${platform} - Requesting foreground permission...`);
+    const fgResult = await BackgroundLocation.requestForegroundPermission();
+    console.log(`[Permission] ${platform} - Foreground result:`, JSON.stringify(fgResult));
+    
+    if (!fgResult.granted) {
+      console.log(`[Permission] ${platform} - Foreground DENIED by user`);
+      return { granted: false, status: 'denied' };
+    }
+    
+    // On Android, also request background permission immediately
     if (platform === 'android') {
-      const BackgroundLocation = (await import('@/plugins/BackgroundLocationPlugin')).default;
-      
-      // Step 1: Check current permission status
-      const currentStatus = await BackgroundLocation.getPermissionStatus();
-      console.log(`[Permission] android - Current status:`, JSON.stringify(currentStatus));
-      
-      // Already have foreground permission
-      if (currentStatus.fineLocation || currentStatus.coarseLocation) {
-        console.log(`[Permission] android - Foreground already granted`);
-        
-        // On Android 10+, also request background for true background scanning
-        if (currentStatus.requiresBackgroundPermission && !currentStatus.backgroundLocation) {
-          console.log(`[Permission] android - Requesting background permission...`);
-          const bgResult = await BackgroundLocation.requestBackgroundPermission();
-          console.log(`[Permission] android - Background result:`, JSON.stringify(bgResult));
-        }
-        
-        return { granted: true, status: 'already_granted' };
-      }
-      
-      // Check if permanently denied
-      if (currentStatus.foregroundStatus === 'denied' && !currentStatus.shouldShowForegroundRationale) {
-        console.log(`[Permission] android - Permanently denied, must open Settings`);
-        return { granted: false, status: 'denied_open_settings' };
-      }
-      
-      // Step 2: Request foreground permission (triggers system dialog)
-      console.log(`[Permission] android - Requesting foreground permission...`);
-      const fgResult = await BackgroundLocation.requestForegroundPermission();
-      console.log(`[Permission] android - Foreground result:`, JSON.stringify(fgResult));
-      
-      if (!fgResult.granted) {
-        console.log(`[Permission] android - Foreground DENIED by user`);
-        return { granted: false, status: 'denied' };
-      }
-      
-      // Step 3: Request background permission on Android 10+
       const updatedStatus = await BackgroundLocation.getPermissionStatus();
       if (updatedStatus.requiresBackgroundPermission && !updatedStatus.backgroundLocation) {
         console.log(`[Permission] android - Now requesting background permission...`);
@@ -184,45 +187,64 @@ const ensureLocationPermission = async (): Promise<{ granted: boolean; status: s
         console.log(`[Permission] android - Background result:`, JSON.stringify(bgResult));
         // Don't fail if background is denied - foreground is enough to start
       }
-      
-      console.log(`[Permission] android - Permission flow complete, foreground GRANTED`);
-      return { granted: true, status: 'granted' };
     }
     
-    // iOS: Use standard Capacitor Geolocation
-    const { Geolocation } = await import('@capacitor/geolocation');
+    // On iOS, we DON'T request background immediately
+    // The user will be prompted via BackgroundLocationRationale after session starts
     
-    const currentStatus = await Geolocation.checkPermissions();
-    console.log(`[Permission] ios - Current status:`, JSON.stringify(currentStatus));
+    console.log(`[Permission] ${platform} - Permission flow complete, foreground GRANTED`);
+    return { granted: true, status: 'granted' };
     
-    if (currentStatus.location === 'granted') {
-      console.log(`[Permission] ios - Already granted`);
-      return { granted: true, status: 'already_granted' };
-    }
-    
-    if (currentStatus.location === 'denied') {
-      console.log(`[Permission] ios - Previously denied, user must go to Settings`);
-      return { granted: false, status: 'denied_open_settings' };
-    }
-    
-    console.log(`[Permission] ios - Requesting permission...`);
-    const request = await Geolocation.requestPermissions({
-      permissions: ['location']
-    });
-    console.log(`[Permission] ios - Request result:`, JSON.stringify(request));
-    
-    const granted = request.location === 'granted' || request.coarseLocation === 'granted';
-    
-    if (granted) {
-      console.log(`[Permission] ios - Permission GRANTED`);
-      return { granted: true, status: 'granted' };
-    } else {
-      console.log(`[Permission] ios - Permission DENIED by user`);
-      return { granted: false, status: 'denied' };
-    }
   } catch (error) {
     console.error(`[Permission] ${platform} - Error:`, error);
     return { granted: false, status: 'error' };
+  }
+};
+
+/**
+ * Check iOS permission status and return detailed info
+ */
+export const getIOSPermissionStatus = async (): Promise<{
+  foregroundGranted: boolean;
+  backgroundGranted: boolean;
+  canRequestBackground: boolean;
+  isBackgroundActive: boolean;
+}> => {
+  if (Capacitor.getPlatform() !== 'ios') {
+    return { foregroundGranted: true, backgroundGranted: true, canRequestBackground: false, isBackgroundActive: true };
+  }
+  
+  try {
+    const BackgroundLocation = (await import('@/plugins/BackgroundLocationPlugin')).default;
+    const status = await BackgroundLocation.getPermissionStatus();
+    
+    return {
+      foregroundGranted: status.foregroundStatus === 'granted',
+      backgroundGranted: status.backgroundStatus === 'granted',
+      canRequestBackground: status.foregroundStatus === 'granted' && status.backgroundStatus !== 'granted',
+      isBackgroundActive: status.isBackgroundActive || false
+    };
+  } catch (error) {
+    console.error('[Permission] Failed to get iOS status:', error);
+    return { foregroundGranted: false, backgroundGranted: false, canRequestBackground: false, isBackgroundActive: false };
+  }
+};
+
+/**
+ * Request iOS upgrade to "Always" location permission
+ * Must only be called after showing BackgroundLocationRationale to user
+ */
+export const requestIOSAlwaysPermission = async (): Promise<boolean> => {
+  if (Capacitor.getPlatform() !== 'ios') return true;
+  
+  try {
+    const BackgroundLocation = (await import('@/plugins/BackgroundLocationPlugin')).default;
+    const result = await BackgroundLocation.requestBackgroundPermission();
+    console.log('[Permission] iOS Always permission result:', JSON.stringify(result));
+    return result.granted;
+  } catch (error) {
+    console.error('[Permission] Failed to request iOS Always:', error);
+    return false;
   }
 };
 
@@ -857,14 +879,15 @@ export const useNetworkContribution = () => {
         return false;
       }
 
-      // Start Android foreground service for true background scanning
-      if (isAndroid) {
+      // Start background location service for true background scanning
+      // Works on both Android (foreground service) and iOS (significant location changes)
+      if (isNative) {
         try {
           const BackgroundLocation = (await import('@/plugins/BackgroundLocationPlugin')).default;
           await BackgroundLocation.startForegroundService();
-          console.log('[NetworkContribution] Android foreground service started');
+          console.log(`[NetworkContribution] ${isAndroid ? 'Android' : 'iOS'} background service started`);
         } catch (e) {
-          console.warn('[NetworkContribution] Could not start foreground service:', e);
+          console.warn('[NetworkContribution] Could not start background service:', e);
           // Continue anyway - foreground tracking will still work
         }
       }

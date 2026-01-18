@@ -1,0 +1,346 @@
+import Foundation
+import Capacitor
+import CoreLocation
+
+/**
+ * IOSBackgroundLocationPlugin - iOS Native Background Location Permission Handler
+ * 
+ * This plugin implements Apple's required 2-step location permission flow:
+ * 1. Request "When In Use" permission first
+ * 2. Request "Always" permission after user starts using location features
+ * 
+ * Without this, iOS only shows "Allow Once" and "While Using" options.
+ * The "Always Allow" option only appears when:
+ * - App has "Background Modes > Location updates" capability enabled
+ * - Info.plist has NSLocationAlwaysAndWhenInUseUsageDescription
+ * - App requests upgrade from "When In Use" to "Always"
+ */
+@objc(IOSBackgroundLocationPlugin)
+public class IOSBackgroundLocationPlugin: CAPPlugin, CAPBridgedPlugin, CLLocationManagerDelegate {
+    
+    public let identifier = "IOSBackgroundLocationPlugin"
+    public let jsName = "BackgroundLocation"
+    public let pluginMethods: [CAPPluginMethod] = [
+        CAPPluginMethod(name: "getPermissionStatus", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "requestForegroundPermission", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "requestBackgroundPermission", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "requestNotificationPermission", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "startForegroundService", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "stopForegroundService", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "openAppSettings", returnType: CAPPluginReturnPromise)
+    ]
+    
+    private var locationManager: CLLocationManager!
+    private var pendingCall: CAPPluginCall?
+    private var isRequestingAlways = false
+    private var isBackgroundUpdatesActive = false
+    
+    override public func load() {
+        locationManager = CLLocationManager()
+        locationManager.delegate = self
+        locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        locationManager.allowsBackgroundLocationUpdates = true
+        locationManager.pausesLocationUpdatesAutomatically = false
+        
+        // Enable showing user location indicator
+        if #available(iOS 14.0, *) {
+            // Accuracy authorization is handled automatically
+        }
+    }
+    
+    // MARK: - Get Permission Status
+    
+    @objc func getPermissionStatus(_ call: CAPPluginCall) {
+        let status = CLLocationManager.authorizationStatus()
+        
+        let foregroundStatus: String
+        let backgroundStatus: String
+        let fineLocation: Bool
+        let coarseLocation: Bool
+        let backgroundLocation: Bool
+        
+        switch status {
+        case .notDetermined:
+            foregroundStatus = "prompt"
+            backgroundStatus = "prompt"
+            fineLocation = false
+            coarseLocation = false
+            backgroundLocation = false
+            
+        case .restricted, .denied:
+            foregroundStatus = "denied"
+            backgroundStatus = "denied"
+            fineLocation = false
+            coarseLocation = false
+            backgroundLocation = false
+            
+        case .authorizedWhenInUse:
+            foregroundStatus = "granted"
+            backgroundStatus = "prompt" // Can still request Always
+            fineLocation = true
+            coarseLocation = true
+            backgroundLocation = false
+            
+        case .authorizedAlways:
+            foregroundStatus = "granted"
+            backgroundStatus = "granted"
+            fineLocation = true
+            coarseLocation = true
+            backgroundLocation = true
+            
+        @unknown default:
+            foregroundStatus = "prompt"
+            backgroundStatus = "prompt"
+            fineLocation = false
+            coarseLocation = false
+            backgroundLocation = false
+        }
+        
+        // iOS accuracy authorization (iOS 14+)
+        var accuracyAuthorization = "full"
+        if #available(iOS 14.0, *) {
+            switch locationManager.accuracyAuthorization {
+            case .reducedAccuracy:
+                accuracyAuthorization = "reduced"
+            case .fullAccuracy:
+                accuracyAuthorization = "full"
+            @unknown default:
+                accuracyAuthorization = "unknown"
+            }
+        }
+        
+        call.resolve([
+            "fineLocation": fineLocation,
+            "coarseLocation": coarseLocation,
+            "backgroundLocation": backgroundLocation,
+            "notification": true, // iOS doesn't require separate notification permission for location
+            "shouldShowForegroundRationale": false, // iOS doesn't have this concept
+            "shouldShowBackgroundRationale": status == .authorizedWhenInUse, // Show rationale before Always request
+            "androidVersion": 0, // Not Android
+            "iosVersion": ProcessInfo.processInfo.operatingSystemVersion.majorVersion,
+            "requiresBackgroundPermission": true,
+            "foregroundStatus": foregroundStatus,
+            "backgroundStatus": backgroundStatus,
+            "accuracyAuthorization": accuracyAuthorization,
+            "isBackgroundActive": isBackgroundUpdatesActive
+        ])
+    }
+    
+    // MARK: - Request Foreground (When In Use) Permission
+    
+    @objc func requestForegroundPermission(_ call: CAPPluginCall) {
+        let status = CLLocationManager.authorizationStatus()
+        
+        // Already have permission
+        if status == .authorizedWhenInUse || status == .authorizedAlways {
+            call.resolve([
+                "granted": true,
+                "status": "granted",
+                "note": status == .authorizedAlways ? "Already have Always permission" : "Already have When In Use permission"
+            ])
+            return
+        }
+        
+        // Permanently denied
+        if status == .denied || status == .restricted {
+            call.resolve([
+                "granted": false,
+                "status": "denied",
+                "note": "Permission denied. User must enable in Settings > Privacy > Location Services"
+            ])
+            return
+        }
+        
+        // Request When In Use permission
+        pendingCall = call
+        isRequestingAlways = false
+        
+        DispatchQueue.main.async {
+            self.locationManager.requestWhenInUseAuthorization()
+        }
+    }
+    
+    // MARK: - Request Background (Always) Permission
+    
+    @objc func requestBackgroundPermission(_ call: CAPPluginCall) {
+        let status = CLLocationManager.authorizationStatus()
+        
+        // Already have Always permission
+        if status == .authorizedAlways {
+            call.resolve([
+                "granted": true,
+                "status": "granted",
+                "note": "Already have Always permission"
+            ])
+            return
+        }
+        
+        // Must have When In Use first
+        if status != .authorizedWhenInUse {
+            call.resolve([
+                "granted": false,
+                "status": "denied",
+                "note": "Must have When In Use permission first. Current status: \(statusString(status))"
+            ])
+            return
+        }
+        
+        // Request upgrade to Always
+        // IMPORTANT: This will trigger iOS's "upgrade to Always" dialog
+        pendingCall = call
+        isRequestingAlways = true
+        
+        DispatchQueue.main.async {
+            self.locationManager.requestAlwaysAuthorization()
+        }
+    }
+    
+    // MARK: - Notification Permission (No-op on iOS for location)
+    
+    @objc func requestNotificationPermission(_ call: CAPPluginCall) {
+        // iOS doesn't require notification permission for location services
+        call.resolve([
+            "granted": true,
+            "status": "granted",
+            "note": "iOS doesn't require separate notification permission for location tracking"
+        ])
+    }
+    
+    // MARK: - Start Background Location Updates
+    
+    @objc func startForegroundService(_ call: CAPPluginCall) {
+        let status = CLLocationManager.authorizationStatus()
+        
+        guard status == .authorizedAlways || status == .authorizedWhenInUse else {
+            call.resolve([
+                "success": false,
+                "note": "Location permission not granted"
+            ])
+            return
+        }
+        
+        DispatchQueue.main.async {
+            // Enable background location updates
+            self.locationManager.allowsBackgroundLocationUpdates = true
+            self.locationManager.pausesLocationUpdatesAutomatically = false
+            
+            // Use significant location change for battery efficiency
+            // This works even when app is terminated
+            self.locationManager.startMonitoringSignificantLocationChanges()
+            
+            // Also start standard updates for more accuracy when active
+            self.locationManager.startUpdatingLocation()
+            
+            self.isBackgroundUpdatesActive = true
+            
+            call.resolve([
+                "success": true,
+                "note": "Background location updates started"
+            ])
+        }
+    }
+    
+    // MARK: - Stop Background Location Updates
+    
+    @objc func stopForegroundService(_ call: CAPPluginCall) {
+        DispatchQueue.main.async {
+            self.locationManager.stopUpdatingLocation()
+            self.locationManager.stopMonitoringSignificantLocationChanges()
+            self.isBackgroundUpdatesActive = false
+            
+            call.resolve([
+                "success": true,
+                "note": "Background location updates stopped"
+            ])
+        }
+    }
+    
+    // MARK: - Open App Settings
+    
+    @objc func openAppSettings(_ call: CAPPluginCall) {
+        DispatchQueue.main.async {
+            if let url = URL(string: UIApplication.openSettingsURLString) {
+                UIApplication.shared.open(url, options: [:]) { success in
+                    call.resolve([
+                        "success": success
+                    ])
+                }
+            } else {
+                call.resolve([
+                    "success": false
+                ])
+            }
+        }
+    }
+    
+    // MARK: - CLLocationManagerDelegate
+    
+    public func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        handleAuthorizationChange(manager.authorizationStatus)
+    }
+    
+    // iOS 13 and earlier
+    public func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+        handleAuthorizationChange(status)
+    }
+    
+    private func handleAuthorizationChange(_ status: CLAuthorizationStatus) {
+        guard let call = pendingCall else { return }
+        pendingCall = nil
+        
+        if isRequestingAlways {
+            // We were requesting Always permission
+            let granted = status == .authorizedAlways
+            call.resolve([
+                "granted": granted,
+                "status": granted ? "granted" : "denied",
+                "note": granted 
+                    ? "Always permission granted - background tracking enabled" 
+                    : "User did not upgrade to Always. Background tracking limited."
+            ])
+        } else {
+            // We were requesting When In Use permission
+            let granted = status == .authorizedWhenInUse || status == .authorizedAlways
+            call.resolve([
+                "granted": granted,
+                "status": granted ? "granted" : "denied",
+                "note": granted 
+                    ? "Location permission granted" 
+                    : "User denied location permission"
+            ])
+        }
+        
+        isRequestingAlways = false
+    }
+    
+    public func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        // Forward location updates to the webview if needed
+        guard let location = locations.last else { return }
+        
+        notifyListeners("locationUpdate", data: [
+            "latitude": location.coordinate.latitude,
+            "longitude": location.coordinate.longitude,
+            "accuracy": location.horizontalAccuracy,
+            "altitude": location.altitude,
+            "speed": location.speed,
+            "timestamp": location.timestamp.timeIntervalSince1970 * 1000
+        ])
+    }
+    
+    public func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        print("[IOSBackgroundLocation] Location error: \(error.localizedDescription)")
+    }
+    
+    // MARK: - Helper
+    
+    private func statusString(_ status: CLAuthorizationStatus) -> String {
+        switch status {
+        case .notDetermined: return "notDetermined"
+        case .restricted: return "restricted"
+        case .denied: return "denied"
+        case .authorizedWhenInUse: return "whenInUse"
+        case .authorizedAlways: return "always"
+        @unknown default: return "unknown"
+        }
+    }
+}
