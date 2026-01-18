@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useRef, lazy, Suspense } from 'react';
+import { Capacitor } from '@capacitor/core';
 import { 
   Pause,
   Wifi,
@@ -9,13 +10,15 @@ import {
   Signal
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useNetworkContribution } from '@/hooks/useNetworkContribution';
+import { useNetworkContribution, requestIOSAlwaysPermission } from '@/hooks/useNetworkContribution';
 import { useGlobalCoverage } from '@/hooks/useGlobalCoverage';
 import { useEnhancedHaptics } from '@/hooks/useEnhancedHaptics';
 import { useEnhancedSounds } from '@/hooks/useEnhancedSounds';
 import { toast } from '@/hooks/use-toast';
 import { RewardCelebration } from '@/components/app/RewardCelebration';
 import { DataConsentModal, hasDataConsent } from '@/components/app/DataConsentModal';
+import { BackgroundLocationRationale } from '@/components/app/BackgroundLocationRationale';
+import { IOSPermissionBanner, IOSPermissionIndicator } from '@/components/app/IOSPermissionBanner';
 import { cn } from '@/lib/utils';
 
 const NetworkGlobe = lazy(() => import('@/components/app/NetworkGlobe').then(m => ({ default: m.NetworkGlobe })));
@@ -24,11 +27,13 @@ export const NetworkContribution: React.FC = () => {
   const navigate = useNavigate();
   const { buttonTap, successPattern } = useEnhancedHaptics();
   const { playCoin, playSuccess } = useEnhancedSounds();
+  const isIOS = Capacitor.getPlatform() === 'ios';
   
   const [showCelebration, setShowCelebration] = useState(false);
   const [celebrationPoints, setCelebrationPoints] = useState(0);
   const [consentGiven, setConsentGiven] = useState(() => hasDataConsent());
   const [showConsentModal, setShowConsentModal] = useState(false);
+  const [showBackgroundRationale, setShowBackgroundRationale] = useState(false);
   const startButtonRef = useRef<HTMLButtonElement>(null);
   
   const {
@@ -142,12 +147,29 @@ export const NetworkContribution: React.FC = () => {
     }
   };
 
+  // Handle iOS "Always" permission request
+  const handleRequestAlwaysPermission = async () => {
+    setShowBackgroundRationale(false);
+    const granted = await requestIOSAlwaysPermission();
+    if (granted) {
+      toast({
+        title: "Background Location Enabled ✓",
+        description: "You can now earn points with your screen locked!",
+      });
+    } else {
+      toast({
+        title: "Background Location Not Enabled",
+        description: "You can still earn while the app is open.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div 
       className="fixed inset-0 flex flex-col overflow-hidden"
       style={{ 
         background: 'linear-gradient(180deg, hsl(222 30% 7%) 0%, hsl(222 35% 12%) 100%)',
-        // No paddingTop - badges handle their own safe area offsets
         paddingBottom: 'calc(72px + env(safe-area-inset-bottom))'
       }}
     >
@@ -162,6 +184,14 @@ export const NetworkContribution: React.FC = () => {
           }} 
         />
       )}
+
+      {/* iOS Background Location Rationale */}
+      <BackgroundLocationRationale
+        isOpen={showBackgroundRationale}
+        onRequestAlways={handleRequestAlwaysPermission}
+        onSkip={() => setShowBackgroundRationale(false)}
+        onClose={() => setShowBackgroundRationale(false)}
+      />
       
       {/* Celebration */}
       <RewardCelebration 
@@ -199,11 +229,15 @@ export const NetworkContribution: React.FC = () => {
           </div>
         </div>
 
-        {/* Connection Type - Top Right - tight to safe area */}
+        {/* Connection Type + iOS Permission Indicator - Top Right */}
         <div 
-          className="absolute right-4 z-30"
+          className="absolute right-4 z-30 flex items-center gap-2"
           style={{ top: 'calc(env(safe-area-inset-top, 0px) + 4px)' }}
         >
+          {/* iOS permission indicator - only shows if "While Using" */}
+          {isIOS && isActive && (
+            <IOSPermissionIndicator onClick={() => setShowBackgroundRationale(true)} />
+          )}
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/40 backdrop-blur-md border border-white/10">
             <Signal className={cn("w-3.5 h-3.5", isCellular ? "text-[#00d4ff]" : "text-amber-400")} />
             <span className="text-[10px] font-medium text-white/90">{getConnectionLabel()}</span>
