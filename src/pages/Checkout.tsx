@@ -7,14 +7,17 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ArrowLeft, ShoppingCart, Trash2 } from "lucide-react";
+import { ArrowLeft, ShoppingCart, Trash2, CreditCard, Wallet } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { z } from "zod";
 import { useAffiliateTracking } from "@/hooks/useAffiliateTracking";
 import { useTranslation } from "@/contexts/TranslationContext";
+import { cn } from "@/lib/utils";
 
 const emailSchema = z.string().email("Please enter a valid email address");
+
+type PaymentMethod = 'card' | 'crypto';
 
 export default function Checkout() {
   const navigate = useNavigate();
@@ -29,6 +32,7 @@ export default function Checkout() {
   const [currentOrderId, setCurrentOrderId] = useState<string | null>(null);
   const [paymentCompleted, setPaymentCompleted] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('card');
 
   // Check authentication status without redirecting
   useEffect(() => {
@@ -90,39 +94,69 @@ export default function Checkout() {
       
       // Get visitor ID for affiliate tracking
       const visitorId = getVisitorId();
-
-      // Create Helio paylink (server creates order securely)
       const primaryItem = items[0];
 
-      const { data: paylinkData, error: paylinkError } = await supabase.functions.invoke(
-        'create-helio-paylink',
-        {
-          body: {
-            email,
-            fullName: fullName.trim(),
-            productId: primaryItem.product.id,
-            quantity: primaryItem.quantity,
-            referralCode: referralCode || null,
-            visitorId,
-            userId: user?.id || null,
+      if (paymentMethod === 'card') {
+        // Stripe checkout - opens in new tab
+        const { data: stripeData, error: stripeError } = await supabase.functions.invoke(
+          'create-stripe-checkout',
+          {
+            body: {
+              email,
+              fullName: fullName.trim(),
+              productId: primaryItem.product.id,
+              quantity: primaryItem.quantity,
+              referralCode: referralCode || null,
+              visitorId,
+            }
           }
+        );
+
+        if (stripeError || !stripeData?.url) {
+          console.error('Error creating Stripe checkout:', stripeError);
+          throw new Error('Failed to create checkout session');
         }
-      );
 
-      if (paylinkError || !paylinkData?.paylinkUrl) {
-        console.error('Error creating paylink:', paylinkError);
-        throw new Error('Failed to create payment link');
+        console.log('Stripe checkout created:', stripeData.url, 'Order ID:', stripeData.orderId);
+        setCurrentOrderId(stripeData.orderId);
+        
+        // Open Stripe checkout in new tab
+        window.open(stripeData.url, '_blank');
+        toast.info('Complete payment in the new tab');
+        setIsSubmitting(false);
+        
+      } else {
+        // Helio crypto checkout - embedded modal
+        const { data: paylinkData, error: paylinkError } = await supabase.functions.invoke(
+          'create-helio-paylink',
+          {
+            body: {
+              email,
+              fullName: fullName.trim(),
+              productId: primaryItem.product.id,
+              quantity: primaryItem.quantity,
+              referralCode: referralCode || null,
+              visitorId,
+              userId: user?.id || null,
+            }
+          }
+        );
+
+        if (paylinkError || !paylinkData?.paylinkUrl) {
+          console.error('Error creating paylink:', paylinkError);
+          throw new Error('Failed to create payment link');
+        }
+
+        console.log('Paylink created:', paylinkData.paylinkUrl, 'Order ID:', paylinkData.orderId);
+        
+        // Store order ID for status polling
+        setCurrentOrderId(paylinkData.orderId);
+        
+        // Show embedded payment modal with iframe
+        setPaylinkUrl(paylinkData.paylinkUrl);
+        setShowPaymentModal(true);
+        setIsSubmitting(false);
       }
-
-      console.log('Paylink created:', paylinkData.paylinkUrl, 'Order ID:', paylinkData.orderId);
-      
-      // Store order ID for status polling
-      setCurrentOrderId(paylinkData.orderId);
-      
-      // Show embedded payment modal with iframe
-      setPaylinkUrl(paylinkData.paylinkUrl);
-      setShowPaymentModal(true);
-      setIsSubmitting(false);
       
     } catch (error: any) {
       console.error('Checkout error:', error);
@@ -382,6 +416,51 @@ export default function Checkout() {
                           </p>
                         </>
                       )}
+                    </div>
+                  </div>
+
+                  {/* Payment Method Selection */}
+                  <div className="space-y-3">
+                    <Label className="text-sm font-medium text-white/80">Payment Method</Label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setPaymentMethod('card')}
+                        className={cn(
+                          "p-4 rounded-xl border-2 flex flex-col items-center gap-2 transition-all",
+                          paymentMethod === 'card'
+                            ? "border-neon-cyan bg-neon-cyan/10"
+                            : "border-white/20 bg-white/5 hover:border-white/40"
+                        )}
+                      >
+                        <CreditCard className={cn(
+                          "w-6 h-6",
+                          paymentMethod === 'card' ? "text-neon-cyan" : "text-white/60"
+                        )} />
+                        <span className={cn(
+                          "text-sm font-medium",
+                          paymentMethod === 'card' ? "text-neon-cyan" : "text-white/60"
+                        )}>Card</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setPaymentMethod('crypto')}
+                        className={cn(
+                          "p-4 rounded-xl border-2 flex flex-col items-center gap-2 transition-all",
+                          paymentMethod === 'crypto'
+                            ? "border-neon-cyan bg-neon-cyan/10"
+                            : "border-white/20 bg-white/5 hover:border-white/40"
+                        )}
+                      >
+                        <Wallet className={cn(
+                          "w-6 h-6",
+                          paymentMethod === 'crypto' ? "text-neon-cyan" : "text-white/60"
+                        )} />
+                        <span className={cn(
+                          "text-sm font-medium",
+                          paymentMethod === 'crypto' ? "text-neon-cyan" : "text-white/60"
+                        )}>Crypto</span>
+                      </button>
                     </div>
                   </div>
 
