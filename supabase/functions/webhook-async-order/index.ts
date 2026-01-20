@@ -13,26 +13,37 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // Generate correlation ID for tracking (no sensitive data)
+  const correlationId = crypto.randomUUID().substring(0, 8);
+
   try {
     const payload = await req.text();
     const airaloSignature = req.headers.get('airalo-signature');
+    const requestTimestamp = req.headers.get('x-airalo-timestamp') || req.headers.get('timestamp');
     
-    console.log('Received Airalo webhook');
-    console.log('Headers:', Object.fromEntries(req.headers.entries()));
-    console.log('Payload:', payload);
-    console.log('Airalo Signature:', airaloSignature);
+    // SECURITY: Log only non-sensitive metadata
+    console.log(`[${correlationId}] Webhook received: Airalo async order`);
+    console.log(`[${correlationId}] Auth check:`, { 
+      hasSignature: !!airaloSignature,
+      hasTimestamp: !!requestTimestamp
+    });
     
-    // Verify HMAC signature (temporarily disabled for debugging)
     const apiSecret = Deno.env.get('AIRLO_CLIENT_SECRET');
-    const expectedSignature = createHmac('sha512', apiSecret!)
+    if (!apiSecret) {
+      console.error(`[${correlationId}] Missing API secret configuration`);
+      return new Response(
+        JSON.stringify({ error: 'Server configuration error' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const expectedSignature = createHmac('sha512', apiSecret)
       .update(payload)
       .digest('hex');
 
-    console.log('Expected Signature:', expectedSignature);
-
     // SECURITY: Enforce strict signature verification
     if (!airaloSignature) {
-      console.error('Missing Airalo signature header');
+      console.error(`[${correlationId}] Missing signature header - rejecting`);
       return new Response(
         JSON.stringify({ error: 'Missing signature' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -40,18 +51,36 @@ serve(async (req) => {
     }
 
     if (airaloSignature !== expectedSignature) {
-      console.error('Signature mismatch - rejecting webhook');
+      console.error(`[${correlationId}] Signature mismatch - rejecting`);
       return new Response(
         JSON.stringify({ error: 'Invalid signature' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    console.log('Airalo webhook signature verified successfully');
+    console.log(`[${correlationId}] Signature verified`);
 
     const data = JSON.parse(payload);
 
-    console.log('Parsed payload:', JSON.stringify(data, null, 2));
+    // SECURITY: Timestamp validation to prevent replay attacks
+    // Check if payload contains a timestamp (Airalo may include in data or headers)
+    const payloadTimestamp = data.timestamp || data.created_at || requestTimestamp;
+    if (payloadTimestamp) {
+      const requestTime = new Date(payloadTimestamp).getTime();
+      const now = Date.now();
+      const maxAge = 10 * 60 * 1000; // 10 minutes window
+      
+      if (isNaN(requestTime) || Math.abs(now - requestTime) > maxAge) {
+        console.error(`[${correlationId}] Request timestamp outside valid window`);
+        return new Response(
+          JSON.stringify({ error: 'Request expired' }),
+          { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+    }
+
+    // SECURITY: Log only structure info, not full payload
+    console.log(`[${correlationId}] Payload received: request_id=${data.request_id || 'none'}`);
 
     // Validate webhook payload structure - Airalo sends request_id at root level
     const webhookSchema = z.object({
@@ -76,14 +105,15 @@ serve(async (req) => {
 
     const validationResult = webhookSchema.safeParse(data);
     if (!validationResult.success) {
-      console.error('Invalid webhook payload:', validationResult.error);
+      // SECURITY: Log validation failure type only, not full error details
+      console.error(`[${correlationId}] Invalid webhook payload structure`);
       return new Response(
-        JSON.stringify({ error: 'Invalid payload structure', details: validationResult.error }),
+        JSON.stringify({ error: 'Invalid payload structure' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    console.log('Validation passed! Processing webhook...');
+    console.log(`[${correlationId}] Validation passed, processing...`);
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -111,7 +141,7 @@ serve(async (req) => {
     // Extract the nested data object from Airalo's payload
     const airaloData = data.data;
 
-    console.log('Processing order with request_id:', data.request_id);
+    console.log(`[${correlationId}] Processing order lookup`);
 
     // Find order by request_id
     const { data: order } = await supabase
@@ -121,18 +151,19 @@ serve(async (req) => {
       .single();
 
     if (!order) {
-      console.error('Order not found:', airaloData.request_id);
+      console.error(`[${correlationId}] Order not found`);
       return new Response(
         JSON.stringify({ status: 'Order not found but acknowledged' }),
         { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    console.log('Order found:', order.id);
+    console.log(`[${correlationId}] Order found, processing`);
 
     // Check for errors
     if (airaloData.reason && !airaloData.sims) {
-      console.log('Order failed with reason:', airaloData.reason);
+      console.log(`[${correlationId}] Order failed with reason`);
+      // Log error type but not the specific reason which may contain sensitive info
       await supabase
         .from('orders')
         .update({
@@ -151,7 +182,8 @@ serve(async (req) => {
     if (airaloData.sims && airaloData.sims.length > 0) {
       const sim = airaloData.sims[0];
       
-      console.log('Updating order with eSIM data, ICCID:', sim.iccid);
+      // SECURITY: Log processing status, not PII like ICCID
+      console.log(`[${correlationId}] Updating order with eSIM data`);
       
       // Update non-PII fields in orders table (PII columns were removed)
       const { error: orderUpdateError } = await supabase
@@ -164,9 +196,10 @@ serve(async (req) => {
         .eq('id', order.id);
 
       if (orderUpdateError) {
-        console.error('Error updating order status:', orderUpdateError);
+        // SECURITY: Log error occurrence, not the full error object
+        console.error(`[${correlationId}] Error updating order status`);
       } else {
-        console.log('Order status updated to completed');
+        console.log(`[${correlationId}] Order status updated to completed`);
       }
 
       // Store PII in orders_pii table (secure storage)
@@ -186,7 +219,8 @@ serve(async (req) => {
         .eq('id', order.id);
 
       if (piiUpdateError) {
-        console.error('Error updating orders_pii:', piiUpdateError);
+        // SECURITY: Log error occurrence, not full error details
+        console.error(`[${correlationId}] Error updating orders_pii`);
         // Try insert if update fails (in case PII record doesn't exist yet)
         const { error: piiInsertError } = await supabase
           .from('orders_pii')
@@ -204,18 +238,18 @@ serve(async (req) => {
           });
         
         if (piiInsertError) {
-          console.error('Error inserting orders_pii:', piiInsertError);
+          console.error(`[${correlationId}] Error inserting orders_pii`);
         } else {
-          console.log('Created orders_pii record for order');
+          console.log(`[${correlationId}] Created orders_pii record`);
         }
       } else {
-        console.log('orders_pii updated successfully with eSIM data');
+        console.log(`[${correlationId}] orders_pii updated`);
       }
 
-      console.log('Order updated successfully with eSIM data');
+      console.log(`[${correlationId}] Order updated with eSIM data`);
 
       // Create eSIM usage record
-      console.log('Creating eSIM usage record');
+      console.log(`[${correlationId}] Creating eSIM usage record`);
       await supabase.from('esim_usage').insert({
         order_id: order.id,
         iccid: sim.iccid,
@@ -224,11 +258,11 @@ serve(async (req) => {
         status: 'NOT_ACTIVE'
       });
 
-      console.log('eSIM usage record created successfully');
+      console.log(`[${correlationId}] eSIM usage record created`);
 
       // Update user spending for membership tier tracking (only if user is logged in)
       if (order.user_id) {
-        console.log('Updating user spending for membership tier...');
+        console.log(`[${correlationId}] Updating user spending`);
         
         // Get current spending or create new record
         const { data: currentSpending } = await supabase
@@ -247,7 +281,7 @@ serve(async (req) => {
             })
             .eq('user_id', order.user_id);
           
-          console.log(`Updated user spending: $${currentSpending.total_spent_usd} + $${order.total_amount_usd}`);
+          console.log(`[${correlationId}] User spending updated`);
         } else {
           // Create new spending record
           await supabase
@@ -257,7 +291,7 @@ serve(async (req) => {
               total_spent_usd: order.total_amount_usd
             });
           
-          console.log(`Created new user spending record: $${order.total_amount_usd}`);
+          console.log(`[${correlationId}] New user spending record created`);
         }
       }
 
@@ -273,9 +307,10 @@ serve(async (req) => {
         const customerEmail = orderPii?.email;
         
         if (!customerEmail || customerEmail === 'see-orders-pii@private') {
-          console.log('No valid customer email found in orders_pii, skipping email');
+          console.log(`[${correlationId}] No valid customer email, skipping`);
         } else {
-          console.log('Sending order confirmation email to:', customerEmail);
+          // SECURITY: Don't log email addresses
+          console.log(`[${correlationId}] Sending order confirmation email`);
           
           const { data: product } = await supabase
             .from('products')
@@ -299,13 +334,15 @@ serve(async (req) => {
           });
 
           if (emailResponse.error) {
-            console.error('Failed to send order confirmation email:', emailResponse.error);
+            // SECURITY: Log failure occurrence only
+            console.error(`[${correlationId}] Failed to send confirmation email`);
           } else {
-            console.log('Order confirmation email sent successfully');
+            console.log(`[${correlationId}] Order confirmation email sent`);
           }
         }
       } catch (emailError) {
-        console.error('Error sending order confirmation email:', emailError);
+        // SECURITY: Log error type only, not full error
+        console.error(`[${correlationId}] Email sending error occurred`);
         // Don't fail the webhook, just log the error
       }
     }
@@ -322,7 +359,8 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('Error processing webhook:', error);
+    // SECURITY: Log error type only, no details that could aid attackers
+    console.error(`Webhook processing error occurred`);
     return new Response(
       JSON.stringify({ error: 'Processing error' }),
       { status: 422, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

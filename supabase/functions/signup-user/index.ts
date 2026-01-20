@@ -32,6 +32,30 @@ async function hashCode(code: string): Promise<string> {
 function isValidPublicIP(ip: string): boolean {
   if (!ip) return false;
   
+  // Check for IPv6 first
+  if (ip.includes(':')) {
+    // Block IPv6 loopback and private ranges
+    const ipLower = ip.toLowerCase();
+    if (ipLower === '::1') return false;                     // IPv6 loopback
+    if (ipLower.startsWith('::ffff:')) {                      // IPv4-mapped IPv6
+      // Extract the IPv4 portion and validate it
+      const ipv4Part = ipLower.replace('::ffff:', '');
+      return isValidPublicIPv4(ipv4Part);
+    }
+    if (ipLower.startsWith('fc') || ipLower.startsWith('fd')) return false;  // fc00::/7 (unique local)
+    if (ipLower.startsWith('fe80')) return false;            // fe80::/10 (link-local)
+    if (ipLower.startsWith('ff')) return false;              // ff00::/8 (multicast)
+    if (ipLower === '::') return false;                      // Unspecified address
+    // Allow public IPv6 addresses
+    return true;
+  }
+  
+  // Validate IPv4
+  return isValidPublicIPv4(ip);
+}
+
+// Validate IPv4 addresses
+function isValidPublicIPv4(ip: string): boolean {
   // Basic IPv4 format check
   const ipv4Regex = /^(\d{1,3}\.){3}\d{1,3}$/;
   if (!ipv4Regex.test(ip)) return false;
