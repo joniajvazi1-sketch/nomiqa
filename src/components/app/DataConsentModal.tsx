@@ -16,7 +16,7 @@ interface ConsentState {
 }
 
 interface DataConsentModalProps {
-  onConsentComplete: () => void;
+  onConsentComplete: (accepted: boolean) => void;
 }
 
 /**
@@ -56,13 +56,13 @@ export const DataConsentModal: React.FC<DataConsentModalProps> = ({ onConsentCom
 
     localStorage.setItem(CONSENT_KEY, JSON.stringify(consentState));
     setIsOpen(false);
-    onConsentComplete();
+    onConsentComplete(true);
   };
 
   const handleDecline = () => {
     // User can still use the app but won't earn points
     setIsOpen(false);
-    onConsentComplete();
+    onConsentComplete(false);
   };
 
   const canConsent = dataConsent && anonymizationConsent;

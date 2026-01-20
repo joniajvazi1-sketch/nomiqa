@@ -226,12 +226,37 @@ export const NetworkContribution: React.FC = () => {
       {/* GDPR Consent Modal */}
       {showConsentModal && !consentGiven && (
         <DataConsentModal 
-          onConsentComplete={() => {
-            setConsentGiven(true);
+          onConsentComplete={async (accepted) => {
             setShowConsentModal(false);
-            startContribution();
-            playCoin();
-          }} 
+
+            if (!accepted) {
+              setConsentGiven(false);
+              toast({
+                title: "Consent required",
+                description: "Accept data collection to enable scanning and earn points.",
+                variant: "destructive",
+              });
+              return;
+            }
+
+            setConsentGiven(true);
+            const started = await startContribution();
+            if (started) {
+              playCoin();
+              toast({
+                title: "Contribution Started ✓",
+                description: "Location permission granted. Earning points!",
+              });
+            } else {
+              toast({
+                title: "Location Permission Required",
+                description: isIOS
+                  ? "Enable Location: Settings → Privacy & Security → Location Services → Nomiqa."
+                  : "Please enable location in Settings to earn points.",
+                variant: "destructive",
+              });
+            }
+          }}
         />
       )}
 
@@ -287,13 +312,43 @@ export const NetworkContribution: React.FC = () => {
           {/* iOS permission status indicator - always visible on iOS */}
           {isIOS && (
             <button
-              onClick={() => {
+              onClick={async () => {
                 if (iosPermissionLabel === 'While Using') {
                   setShowBackgroundRationale(true);
-                } else if (iosPermissionLabel === 'Denied') {
-                  import('@/plugins/BackgroundLocationPlugin').then(({ default: BackgroundLocation }) => {
-                    BackgroundLocation.openAppSettings();
-                  }).catch(() => {});
+                  return;
+                }
+
+                try {
+                  const BackgroundLocation = (await import('@/plugins/BackgroundLocationPlugin')).default;
+
+                  // If never requested (or unknown), let user explicitly trigger the iOS popup.
+                  if (iosPermissionLabel === 'Not Determined' || iosPermissionLabel === 'Unknown') {
+                    const res = await BackgroundLocation.requestForegroundPermission();
+                    if (res.granted) {
+                      toast({
+                        title: 'Location Enabled ✓',
+                        description: 'You can now start scanning.',
+                      });
+                    } else {
+                      toast({
+                        title: 'Location Permission Required',
+                        description: "Enable Location: Settings → Privacy & Security → Location Services → Nomiqa.",
+                        variant: 'destructive',
+                      });
+                    }
+                    return;
+                  }
+
+                  // iOS will not re-prompt after denial; all we can do is open Settings.
+                  if (iosPermissionLabel === 'Denied') {
+                    await BackgroundLocation.openAppSettings();
+                    toast({
+                      title: 'Enable Location',
+                      description: "Settings → Privacy & Security → Location Services → Nomiqa.",
+                    });
+                  }
+                } catch {
+                  // ignore
                 }
               }}
               className={cn(
@@ -408,7 +463,9 @@ export const NetworkContribution: React.FC = () => {
                 } else {
                   toast({
                     title: "Location Permission Required",
-                    description: "Please enable location in Settings to earn points.",
+                    description: isIOS
+                      ? "Enable Location: Settings → Privacy & Security → Location Services → Nomiqa."
+                      : "Please enable location in Settings to earn points.",
                     variant: "destructive",
                   });
                 }
