@@ -168,11 +168,38 @@ const ensureLocationPermission = async (): Promise<{ granted: boolean; status: s
       return { granted: true, status: 'already_granted' };
     }
 
-    // iOS: ALWAYS attempt the native request when foreground isn't granted.
-    // - If status is not_determined, this triggers the iOS popup.
-    // - If status is denied/restricted, iOS will NOT re-prompt; we fall back to Settings.
+    // iOS: Prefer Capacitor Geolocation's permission request first.
+    // This reliably triggers the system popup AND makes iOS register the permission category
+    // so the Location section appears under Settings → Nomiqa.
     if (isIOS) {
-      console.log('[Permission] ios - Requesting When In Use authorization...');
+      let geoGranted: boolean | null = null;
+
+      try {
+        const { Geolocation } = await import('@capacitor/geolocation');
+        const geoStatus = await Geolocation.requestPermissions();
+        geoGranted = geoStatus.location === 'granted' || geoStatus.coarseLocation === 'granted';
+        console.log('[Permission] ios - Geolocation.requestPermissions result:', JSON.stringify(geoStatus));
+      } catch (e) {
+        console.warn('[Permission] ios - Geolocation.requestPermissions failed (continuing):', e);
+      }
+
+      if (geoGranted) {
+        return { granted: true, status: 'granted' };
+      }
+
+      // Re-check after the Geolocation request (in case our native plugin status is lagging)
+      try {
+        const afterStatus = await BackgroundLocation.getPermissionStatus();
+        console.log('[Permission] ios - Status after Geolocation request:', JSON.stringify(afterStatus));
+        if (afterStatus.foregroundStatus === 'granted' || afterStatus.backgroundStatus === 'granted') {
+          return { granted: true, status: 'granted' };
+        }
+      } catch (e) {
+        console.warn('[Permission] ios - Could not re-check native status after Geolocation request:', e);
+      }
+
+      // Fallback: explicit request via our native plugin
+      console.log('[Permission] ios - Requesting When In Use authorization (native plugin)...');
       const fgResult = await BackgroundLocation.requestForegroundPermission();
       console.log('[Permission] ios - Foreground result:', JSON.stringify(fgResult));
 
@@ -183,7 +210,7 @@ const ensureLocationPermission = async (): Promise<{ granted: boolean; status: s
       // Double-check post-request status for clearer debugging
       try {
         const afterStatus = await BackgroundLocation.getPermissionStatus();
-        console.log('[Permission] ios - Status after request:', JSON.stringify(afterStatus));
+        console.log('[Permission] ios - Status after native request:', JSON.stringify(afterStatus));
       } catch {
         // ignore
       }
