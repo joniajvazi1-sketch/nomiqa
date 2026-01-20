@@ -35,6 +35,7 @@ public class IOSBackgroundLocationPlugin: CAPPlugin, CAPBridgedPlugin, CLLocatio
     private var pendingCall: CAPPluginCall?
     private var isRequestingAlways = false
     private var isBackgroundUpdatesActive = false
+    private var hasReceivedInitialCallback = false // Ignore iOS 14+ initial callback
     
     override public func load() {
         // Create location manager on main thread
@@ -138,10 +139,16 @@ public class IOSBackgroundLocationPlugin: CAPPlugin, CAPBridgedPlugin, CLLocatio
         }
     }
     
+    // Timeout work item for permission requests
+    private var permissionTimeoutWork: DispatchWorkItem?
+    
     // MARK: - Request Foreground (When In Use) Permission
     
     @objc func requestForegroundPermission(_ call: CAPPluginCall) {
         DispatchQueue.main.async {
+            // Cancel any existing timeout
+            self.permissionTimeoutWork?.cancel()
+            
             let status: CLAuthorizationStatus
             if #available(iOS 14.0, *) {
                 status = self.locationManager.authorizationStatus
@@ -178,6 +185,36 @@ public class IOSBackgroundLocationPlugin: CAPPlugin, CAPBridgedPlugin, CLLocatio
             self.pendingCall = call
             self.isRequestingAlways = false
             
+            // Set up timeout - if delegate doesn't fire within 30s, re-check status
+            let timeoutWork = DispatchWorkItem { [weak self] in
+                guard let self = self, let pendingCall = self.pendingCall else { return }
+                
+                print("[IOSBackgroundLocation] Permission request timeout - checking status again...")
+                
+                let currentStatus: CLAuthorizationStatus
+                if #available(iOS 14.0, *) {
+                    currentStatus = self.locationManager.authorizationStatus
+                } else {
+                    currentStatus = CLLocationManager.authorizationStatus()
+                }
+                
+                // If status changed while we were waiting, handle it
+                if currentStatus != .notDetermined {
+                    self.handleAuthorizationChange(currentStatus)
+                } else {
+                    // Still not determined - user didn't respond or dismissed
+                    print("[IOSBackgroundLocation] Timeout: still notDetermined, returning denied")
+                    self.pendingCall = nil
+                    pendingCall.resolve([
+                        "granted": false,
+                        "status": "denied",
+                        "note": "Permission request timed out or was dismissed"
+                    ])
+                }
+            }
+            self.permissionTimeoutWork = timeoutWork
+            DispatchQueue.main.asyncAfter(deadline: .now() + 30.0, execute: timeoutWork)
+            
             // This MUST trigger the iOS permission popup
             self.locationManager.requestWhenInUseAuthorization()
             print("[IOSBackgroundLocation] requestWhenInUseAuthorization() called")
@@ -188,6 +225,9 @@ public class IOSBackgroundLocationPlugin: CAPPlugin, CAPBridgedPlugin, CLLocatio
     
     @objc func requestBackgroundPermission(_ call: CAPPluginCall) {
         DispatchQueue.main.async {
+            // Cancel any existing timeout
+            self.permissionTimeoutWork?.cancel()
+            
             let status: CLAuthorizationStatus
             if #available(iOS 14.0, *) {
                 status = self.locationManager.authorizationStatus
@@ -222,6 +262,37 @@ public class IOSBackgroundLocationPlugin: CAPPlugin, CAPBridgedPlugin, CLLocatio
             print("[IOSBackgroundLocation] Requesting upgrade to Always authorization...")
             self.pendingCall = call
             self.isRequestingAlways = true
+            
+            // Set up timeout for Always request
+            let timeoutWork = DispatchWorkItem { [weak self] in
+                guard let self = self, let pendingCall = self.pendingCall else { return }
+                
+                print("[IOSBackgroundLocation] Always permission request timeout - checking status...")
+                
+                let currentStatus: CLAuthorizationStatus
+                if #available(iOS 14.0, *) {
+                    currentStatus = self.locationManager.authorizationStatus
+                } else {
+                    currentStatus = CLLocationManager.authorizationStatus()
+                }
+                
+                // Check if we got Always permission
+                if currentStatus == .authorizedAlways {
+                    self.handleAuthorizationChange(currentStatus)
+                } else {
+                    // User didn't upgrade to Always
+                    print("[IOSBackgroundLocation] Timeout: user did not upgrade to Always")
+                    self.pendingCall = nil
+                    self.isRequestingAlways = false
+                    pendingCall.resolve([
+                        "granted": false,
+                        "status": "denied",
+                        "note": "User did not upgrade to Always permission"
+                    ])
+                }
+            }
+            self.permissionTimeoutWork = timeoutWork
+            DispatchQueue.main.asyncAfter(deadline: .now() + 30.0, execute: timeoutWork)
             
             self.locationManager.requestAlwaysAuthorization()
             print("[IOSBackgroundLocation] requestAlwaysAuthorization() called")
@@ -384,17 +455,41 @@ public class IOSBackgroundLocationPlugin: CAPPlugin, CAPBridgedPlugin, CLLocatio
         } else {
             status = CLLocationManager.authorizationStatus()
         }
+        
+        // iOS 14+ fires this immediately when locationManager is created
+        // Ignore the first callback if we're not actively requesting permission
+        if !hasReceivedInitialCallback {
+            hasReceivedInitialCallback = true
+            if pendingCall == nil {
+                print("[IOSBackgroundLocation] Initial authorization callback (ignored): \(statusString(status))")
+                return
+            }
+        }
+        
         print("[IOSBackgroundLocation] Authorization changed to: \(statusString(status))")
         handleAuthorizationChange(status)
     }
     
     // iOS 13 and earlier
     public func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+        // iOS 13 also fires on initial setup
+        if !hasReceivedInitialCallback {
+            hasReceivedInitialCallback = true
+            if pendingCall == nil {
+                print("[IOSBackgroundLocation] Initial authorization callback (legacy, ignored): \(statusString(status))")
+                return
+            }
+        }
+        
         print("[IOSBackgroundLocation] Authorization changed (legacy) to: \(statusString(status))")
         handleAuthorizationChange(status)
     }
     
     private func handleAuthorizationChange(_ status: CLAuthorizationStatus) {
+        // Cancel any pending timeout since delegate fired
+        permissionTimeoutWork?.cancel()
+        permissionTimeoutWork = nil
+        
         guard let call = pendingCall else {
             print("[IOSBackgroundLocation] No pending call to resolve")
             return
