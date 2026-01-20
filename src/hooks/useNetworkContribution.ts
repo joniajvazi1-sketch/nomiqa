@@ -406,9 +406,11 @@ export const useNetworkContribution = () => {
       }
       
       // Restart timers (geo tracking will be handled by background geolocation hook)
-      if (!timerRef.current) {
+      // Duration is now calculated from real sessionStartedAt, not incremented
+      if (!timerRef.current && sessionStartedAt) {
         timerRef.current = setInterval(() => {
-          setStats(prev => ({ ...prev, duration: prev.duration + 1 }));
+          const realDuration = Math.floor((Date.now() - sessionStartedAt) / 1000);
+          setStats(prev => ({ ...prev, duration: realDuration }));
         }, 1000);
       }
     }
@@ -942,14 +944,16 @@ export const useNetworkContribution = () => {
         }
       }
 
-      // Start duration timer
+      // Start duration timer - uses real elapsed time from session start
+      const timerStartedAt = Date.now();
       timerRef.current = setInterval(() => {
+        const realDuration = Math.floor((Date.now() - timerStartedAt) / 1000);
         setStats(prev => {
           // Periodically save cumulative stats for persistence
-          if (prev.duration > 0 && prev.duration % 30 === 0) {
-            recordCumulativeStats(prev.pointsEarned, prev.distanceMeters, prev.duration);
+          if (realDuration > 0 && realDuration % 30 === 0) {
+            recordCumulativeStats(prev.pointsEarned, prev.distanceMeters, realDuration);
           }
-          return { ...prev, duration: prev.duration + 1 };
+          return { ...prev, duration: realDuration };
         });
       }, 1000);
 
