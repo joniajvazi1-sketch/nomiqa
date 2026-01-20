@@ -311,45 +311,66 @@ export default function Checkout() {
             </h1>
             
             {items.map((item) => (
-              <Card key={item.product.id} className="bg-white/[0.03] backdrop-blur-xl border border-white/10 hover:border-neon-cyan/30 transition-all duration-300">
+              <Card key={item.product.id} className="bg-white/[0.03] backdrop-blur-xl border border-white/10 hover:border-neon-cyan/30 transition-all duration-300 overflow-hidden">
+                {/* Product Hero Image */}
+                {item.product.country_image_url && (
+                  <div className="relative h-40 w-full overflow-hidden">
+                    <img 
+                      src={item.product.country_image_url} 
+                      alt={item.product.country_name}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                    <div className="absolute bottom-4 left-6">
+                      <h3 className="font-bold text-2xl text-white drop-shadow-lg">
+                        {item.product.country_name}
+                      </h3>
+                      <p className="text-sm text-white/80">
+                        {item.product.data_amount} • {item.product.validity_days} days
+                      </p>
+                    </div>
+                  </div>
+                )}
                 <CardContent className="p-6">
-                  <div className="flex flex-col md:flex-row justify-between items-start gap-4">
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-lg mb-1 text-white">
+                  {!item.product.country_image_url && (
+                    <div className="mb-4">
+                      <h3 className="font-semibold text-lg text-white">
                         {item.product.country_name} - {item.product.data_amount} - {item.product.validity_days} days
                       </h3>
-                      <p className="text-sm text-white/60 mb-4">
+                      <p className="text-sm text-white/60">
                         {item.product.country_name} • {item.product.data_amount} • {item.product.validity_days} days
                       </p>
-                      <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
-                            className="bg-white/5 border-white/20 hover:bg-white/10 hover:border-neon-cyan/40 text-white h-8 w-8 p-0"
-                          >
-                            -
-                          </Button>
-                          <span className="w-8 text-center text-white font-medium">{item.quantity}</span>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
-                            className="bg-white/5 border-white/20 hover:bg-white/10 hover:border-neon-cyan/40 text-white h-8 w-8 p-0"
-                          >
-                            +
-                          </Button>
-                        </div>
+                    </div>
+                  )}
+                  <div className="flex flex-col md:flex-row justify-between items-start gap-4">
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-2">
                         <Button
-                          variant="ghost"
+                          variant="outline"
                           size="sm"
-                          onClick={() => removeItem(item.product.id)}
-                          className="text-white/60 hover:text-red-400 hover:bg-red-500/10"
+                          onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
+                          className="bg-white/5 border-white/20 hover:bg-white/10 hover:border-neon-cyan/40 text-white h-8 w-8 p-0"
                         >
-                          <Trash2 className="h-4 w-4" />
+                          -
+                        </Button>
+                        <span className="w-8 text-center text-white font-medium">{item.quantity}</span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
+                          className="bg-white/5 border-white/20 hover:bg-white/10 hover:border-neon-cyan/40 text-white h-8 w-8 p-0"
+                        >
+                          +
                         </Button>
                       </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeItem(item.product.id)}
+                        className="text-white/60 hover:text-red-400 hover:bg-red-500/10"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
                     <div className="text-left md:text-right w-full md:w-auto">
                       <p className="text-xl font-bold text-neon-cyan">
