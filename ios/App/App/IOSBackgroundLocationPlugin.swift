@@ -414,6 +414,8 @@ public class IOSBackgroundLocationPlugin: CAPPlugin, CAPBridgedPlugin, CLLocatio
         let userInterfaceIdiom = UIDevice.current.userInterfaceIdiom
         var deviceFamily = "Unknown"
         switch userInterfaceIdiom {
+        case .unspecified:
+            deviceFamily = "Unknown"
         case .phone:
             deviceFamily = "iPhone"
         case .pad:
