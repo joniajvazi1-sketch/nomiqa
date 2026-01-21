@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Build;
 import android.provider.Settings;
 import android.util.Log;
@@ -24,8 +25,10 @@ import com.getcapacitor.annotation.PermissionCallback;
  * Provides:
  * - Detailed permission status checking
  * - Two-step permission flow (foreground → background)
- * - Foreground service management
+ * - Foreground service management with location tracking
+ * - Location update broadcasting to JS
  * - Open app settings
+ * - Native device info
  */
 @CapacitorPlugin(
     name = "BackgroundLocation",
@@ -47,8 +50,32 @@ import com.getcapacitor.annotation.PermissionCallback;
         )
     }
 )
-public class BackgroundLocationPlugin extends Plugin {
+public class BackgroundLocationPlugin extends Plugin implements LocationForegroundService.LocationUpdateListener {
     private static final String TAG = "BackgroundLocationPlugin";
+
+    @Override
+    public void load() {
+        super.load();
+        // Register this plugin as the location update listener
+        LocationForegroundService.setLocationUpdateListener(this);
+        Log.d(TAG, "BackgroundLocationPlugin loaded and registered as location listener");
+    }
+
+    @Override
+    public void onLocationUpdate(Location location) {
+        // Forward location updates to the webview
+        JSObject data = new JSObject();
+        data.put("latitude", location.getLatitude());
+        data.put("longitude", location.getLongitude());
+        data.put("accuracy", location.getAccuracy());
+        data.put("altitude", location.getAltitude());
+        data.put("speed", location.getSpeed());
+        data.put("timestamp", location.getTime());
+        
+        notifyListeners("locationUpdate", data);
+        Log.d(TAG, String.format("Location update sent to JS: %.6f, %.6f", 
+                location.getLatitude(), location.getLongitude()));
+    }
 
     /**
      * Get detailed permission status for debugging
@@ -222,9 +249,10 @@ public class BackgroundLocationPlugin extends Plugin {
                 context.startService(serviceIntent);
             }
 
-            Log.d(TAG, "Foreground service started");
+            Log.d(TAG, "Foreground service started with location tracking");
             JSObject result = new JSObject();
             result.put("success", true);
+            result.put("note", "Background location tracking started");
             call.resolve(result);
         } catch (Exception e) {
             Log.e(TAG, "Failed to start foreground service", e);
@@ -271,5 +299,27 @@ public class BackgroundLocationPlugin extends Plugin {
             Log.e(TAG, "Failed to open app settings", e);
             call.reject("Failed to open settings: " + e.getMessage());
         }
+    }
+
+    /**
+     * Get accurate device info from native Android APIs
+     */
+    @PluginMethod
+    public void getDeviceInfo(PluginCall call) {
+        JSObject result = new JSObject();
+        
+        result.put("manufacturer", Build.MANUFACTURER);
+        result.put("model", Build.MODEL);
+        result.put("brand", Build.BRAND);
+        result.put("device", Build.DEVICE);
+        result.put("product", Build.PRODUCT);
+        result.put("osVersion", Build.VERSION.RELEASE);
+        result.put("sdkInt", Build.VERSION.SDK_INT);
+        result.put("platform", "android");
+        result.put("buildId", Build.ID);
+        result.put("fingerprint", Build.FINGERPRINT);
+        
+        Log.d(TAG, "Device info: " + result.toString());
+        call.resolve(result);
     }
 }
