@@ -938,6 +938,32 @@ export const useNetworkContribution = () => {
           const BackgroundLocation = (await import('@/plugins/BackgroundLocationPlugin')).default;
           await BackgroundLocation.startForegroundService();
           console.log(`[NetworkContribution] ${isAndroid ? 'Android' : 'iOS'} background service started`);
+          
+          // Listen for background location updates from native plugin
+          const listener = await BackgroundLocation.addListener('locationUpdate', (location) => {
+            console.log('[NetworkContribution] Background location update:', location.latitude, location.longitude);
+            
+            // Convert to Position format and handle
+            const position: Position = {
+              coords: {
+                latitude: location.latitude,
+                longitude: location.longitude,
+                accuracy: location.accuracy,
+                altitude: location.altitude,
+                altitudeAccuracy: null,
+                heading: null,
+                speed: location.speed
+              },
+              timestamp: location.timestamp
+            };
+            
+            // Process background location update
+            handlePositionUpdate(position);
+          });
+          
+          // Store listener for cleanup
+          (window as any).__nomiqaBackgroundLocationListener = listener;
+          console.log('[NetworkContribution] Background location listener registered');
         } catch (e) {
           console.warn('[NetworkContribution] Could not start background service:', e);
           // Continue anyway - foreground tracking will still work
@@ -983,12 +1009,21 @@ export const useNetworkContribution = () => {
 
     await stopGeoTracking();
 
-    // Stop Android foreground service
-    if (isAndroid) {
+    // Stop background location service and clean up listener (Android & iOS)
+    if (isNative) {
       try {
+        // Clean up background location listener
+        const listener = (window as any).__nomiqaBackgroundLocationListener;
+        if (listener && typeof listener.remove === 'function') {
+          listener.remove();
+          (window as any).__nomiqaBackgroundLocationListener = null;
+          console.log('[NetworkContribution] Background location listener removed');
+        }
+        
+        // Stop the foreground service
         const BackgroundLocation = (await import('@/plugins/BackgroundLocationPlugin')).default;
         await BackgroundLocation.stopForegroundService();
-        console.log('[NetworkContribution] Android foreground service stopped');
+        console.log(`[NetworkContribution] ${isAndroid ? 'Android' : 'iOS'} foreground service stopped`);
       } catch (e) {
         console.warn('[NetworkContribution] Could not stop foreground service:', e);
       }
