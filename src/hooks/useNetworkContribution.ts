@@ -374,6 +374,7 @@ export const useNetworkContribution = () => {
   const lastTimePointsRef = useRef<number>(0);
 
   // Restore session from persistence on mount or app resume
+  // This enables AUTO-RESUME when iOS relaunches app from significantLocationChange
   useEffect(() => {
     if (isContributionEnabled && persistedSessionId && user && session.status === 'idle') {
       // Check for stale session (exceeded 4 hours)
@@ -413,10 +414,56 @@ export const useNetworkContribution = () => {
           setStats(prev => ({ ...prev, duration: realDuration }));
         }, 1000);
       }
+      
+      // AUTO-RESUME: Restart background location service and listener
+      // This is critical for iOS significantLocationChange relaunches
+      const restartBackgroundTracking = async () => {
+        if (!isNative) return;
+        
+        try {
+          const BackgroundLocation = (await import('@/plugins/BackgroundLocationPlugin')).default;
+          
+          // Check if we already have a listener
+          if ((window as any).__nomiqaBackgroundLocationListener) {
+            console.log('[NetworkContribution] Background listener already exists, skipping');
+            return;
+          }
+          
+          // Restart the foreground service
+          await BackgroundLocation.startForegroundService();
+          console.log('[NetworkContribution] Auto-resumed background service');
+          
+          // Re-register the location listener
+          const listener = await BackgroundLocation.addListener('locationUpdate', (location) => {
+            console.log('[NetworkContribution] Background location (auto-resume):', location.latitude, location.longitude);
+            
+            const position: Position = {
+              coords: {
+                latitude: location.latitude,
+                longitude: location.longitude,
+                accuracy: location.accuracy,
+                altitude: location.altitude,
+                altitudeAccuracy: null,
+                heading: null,
+                speed: location.speed
+              },
+              timestamp: location.timestamp
+            };
+            
+            // This will trigger handlePositionUpdate once session is active
+            setLastPosition(position);
+          });
+          
+          (window as any).__nomiqaBackgroundLocationListener = listener;
+          console.log('[NetworkContribution] Auto-resumed background location listener');
+        } catch (e) {
+          console.warn('[NetworkContribution] Failed to auto-resume background tracking:', e);
+        }
+      };
+      
+      restartBackgroundTracking();
     }
-    // Note: startGeoTracking is intentionally not called here to avoid circular deps
-    // The useBackgroundGeolocation hook handles its own restoration
-  }, [isContributionEnabled, persistedSessionId, user, session.status, resumeTrigger, cumulativePoints, cumulativeDurationSeconds, sessionStartedAt, getTimeSinceLastEvent, disableContribution, clearCumulativeStats]);
+  }, [isContributionEnabled, persistedSessionId, user, session.status, resumeTrigger, cumulativePoints, cumulativeDurationSeconds, sessionStartedAt, getTimeSinceLastEvent, disableContribution, clearCumulativeStats, isNative]);
 
   // Position update handler
   const handlePositionUpdate = useCallback(async (position: Position) => {
@@ -461,6 +508,18 @@ export const useNetworkContribution = () => {
     // Queue basic data for coverage mapping
     queueContributionData(position);
   }, [session.status, connectionType, telcoMetrics]);
+
+  // Process lastPosition changes when session is active (for auto-resumed background updates)
+  // This effect must be AFTER handlePositionUpdate is declared
+  useEffect(() => {
+    if (session.status === 'active' && lastPosition && isContributionEnabled) {
+      // Only process if this is from a background update (not initial render)
+      const listener = (window as any).__nomiqaBackgroundLocationListener;
+      if (listener) {
+        handlePositionUpdate(lastPosition);
+      }
+    }
+  }, [lastPosition, session.status, isContributionEnabled, handlePositionUpdate]);
 
   /**
    * Log a telco-grade signal data point via edge function
