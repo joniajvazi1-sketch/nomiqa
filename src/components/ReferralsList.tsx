@@ -77,17 +77,17 @@ export function ReferralsList({ affiliateId }: ReferralsListProps) {
   return (
     <div className="rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/10 overflow-hidden">
       {/* Header */}
-      <div className="p-5 md:p-6 border-b border-white/10 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center border border-primary/20">
+      <div className="p-5 md:p-6 border-b border-white/10 flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center border border-primary/20 shrink-0">
             <Users className="w-5 h-5 text-primary" strokeWidth={2.5} />
           </div>
-          <div>
-            <h3 className="text-lg font-light text-white">{t("affiliateMyReferrals")}</h3>
-            <p className="text-sm text-white/50">{t("affiliateMyReferralsDesc")}</p>
+          <div className="min-w-0">
+            <h3 className="text-lg font-light text-white truncate">{t("affiliateMyReferrals")}</h3>
+            <p className="text-sm text-white/50 truncate">{t("affiliateMyReferralsDesc")}</p>
           </div>
         </div>
-        <Badge className="bg-primary/10 text-primary border-primary/20">
+        <Badge className="bg-primary/10 text-primary border-primary/20 shrink-0 w-fit">
           {referrals.length} {referrals.length === 1 ? t("affiliateReferralSingular") : t("affiliateReferralPlural")}
         </Badge>
       </div>
