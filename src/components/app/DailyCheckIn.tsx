@@ -141,13 +141,28 @@ export const DailyCheckIn = ({ userId, onClose }: DailyCheckInProps) => {
   const nextStreakDay = (currentStreak % 7) + 1;
   const todayReward = STREAK_REWARDS[nextStreakDay - 1];
 
+  // Prevent body scroll when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
+    }
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+    };
+  }, [isOpen]);
+
   return (
     <AnimatePresence>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+        className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+        style={{ touchAction: 'none' }}
         onClick={handleClose}
       >
         <motion.div
@@ -155,17 +170,17 @@ export const DailyCheckIn = ({ userId, onClose }: DailyCheckInProps) => {
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
           onClick={(e) => e.stopPropagation()}
-          className="relative w-full max-w-[280px] bg-card rounded-2xl p-3 shadow-2xl border border-border"
+          className="relative w-full max-w-[280px] bg-slate-900 rounded-2xl p-3 shadow-2xl border border-slate-700"
         >
           {/* Background decoration */}
-          <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-primary/20 to-transparent" />
+          <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-primary/20 to-transparent rounded-t-2xl" />
           
           {/* Close button */}
           <button
             onClick={handleClose}
-            className="absolute top-2 right-2 p-1 rounded-full hover:bg-muted transition-colors z-10"
+            className="absolute top-2 right-2 p-1 rounded-full hover:bg-slate-700 transition-colors z-10"
           >
-            <X className="w-4 h-4" />
+            <X className="w-4 h-4 text-slate-300" />
           </button>
 
           <div className="relative">
@@ -180,12 +195,12 @@ export const DailyCheckIn = ({ userId, onClose }: DailyCheckInProps) => {
             </motion.div>
 
             {/* Title */}
-            <h2 className="text-base font-bold text-center">Daily Check-in</h2>
+            <h2 className="text-base font-bold text-center text-white">Daily Check-in</h2>
             
             {/* Streak indicator */}
             <div className="flex items-center justify-center gap-1 my-1">
               <Flame className="w-3 h-3 text-orange-500" />
-              <span className="text-xs font-medium">
+              <span className="text-xs font-medium text-slate-300">
                 {currentStreak > 0 ? `${currentStreak} day streak` : 'Start your streak!'}
               </span>
             </div>
@@ -210,9 +225,9 @@ export const DailyCheckIn = ({ userId, onClose }: DailyCheckInProps) => {
                     {isPast ? (
                       <Check className="w-2.5 h-2.5 text-green-500" />
                     ) : (
-                      <Calendar className="w-2.5 h-2.5 text-muted-foreground" />
+                      <Calendar className="w-2.5 h-2.5 text-slate-400" />
                     )}
-                    <span className={`text-[8px] font-bold ${isCurrent ? 'text-primary' : ''}`}>
+                    <span className={`text-[8px] font-bold ${isCurrent ? 'text-primary' : 'text-slate-300'}`}>
                       +{reward.points}
                     </span>
                   </div>
@@ -224,7 +239,7 @@ export const DailyCheckIn = ({ userId, onClose }: DailyCheckInProps) => {
             <div className="bg-primary/10 rounded-lg p-2 mb-2 border border-primary/20">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-[9px] text-muted-foreground">Today's Reward</p>
+                  <p className="text-[9px] text-slate-400">Today's Reward</p>
                   <p className="text-lg font-bold text-primary">+{todayReward?.points} pts</p>
                 </div>
                 <Gift className="w-6 h-6 text-primary" />
