@@ -310,7 +310,6 @@ All colors MUST be HSL.
   .animate-fade-out,
   .animate-scale-in,
   .animate-slide-in-right,
-  [class*="animate-"],
   .motion-safe,
   .gpu-accelerated {
     will-change: transform, opacity;
@@ -336,6 +335,32 @@ All colors MUST be HSL.
   
   .contain-layout {
     contain: layout;
+  }
+
+  /* Mobile performance: disable heavy animations on slow devices */
+  @media (max-width: 768px) {
+    .animate-fade-in,
+    .animate-fade-in-up {
+      animation-duration: 0.15s !important;
+      animation-delay: 0s !important;
+    }
+    
+    /* Reduce will-change on mobile to save memory */
+    [class*="animate-"] {
+      will-change: auto;
+    }
+  }
+  
+  /* Respect reduced motion preference */
+  @media (prefers-reduced-motion: reduce) {
+    .animate-fade-in,
+    .animate-fade-in-up,
+    .animate-scale-in,
+    [class*="animate-"] {
+      animation: none !important;
+      opacity: 1 !important;
+      transform: none !important;
+    }
   }
   
   .contain-strict {
