@@ -455,11 +455,29 @@ All colors MUST be HSL.
   /* ============================================
      SIMPLIFIED ANIMATIONS
      Only essential: fade-in, spin, button press
+     iOS 26 Liquid Glass animations
      ============================================ */
   
   @keyframes fade-in-up {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* iOS 26 Liquid Glass fade with spring */
+  @keyframes liquidFadeIn {
+    0% { 
+      opacity: 0; 
+      transform: scale(0.8); 
+    }
+    100% { 
+      opacity: 1; 
+      transform: scale(1); 
+    }
   }
 
   .animate-fade-in-up {

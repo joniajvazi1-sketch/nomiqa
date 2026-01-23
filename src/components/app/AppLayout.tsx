@@ -17,13 +17,16 @@ interface AppLayoutProps {
 }
 
 /**
- * Native App Layout - Modern edge-to-edge fullscreen design
- * Uses .app-shell class for safe area handling via CSS
- * Handles notch/cutout on iOS (Dynamic Island) and Android (punch-hole cameras)
+ * iOS 26 / Android 16 Native App Layout
+ * - Liquid Glass design language (iOS 26)
+ * - Full edge-to-edge with system bar handling (Android 16 SDK 35+)
+ * - Dynamic Island / punch-hole camera safe areas
+ * - Floating navigation with proper content insets
  */
 export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const isNative = Capacitor.isNativePlatform();
   const isAndroid = Capacitor.getPlatform() === 'android';
+  const isIOS = Capacitor.getPlatform() === 'ios';
   const location = useLocation();
   const statusBarRef = useRef<StatusBarModule | null>(null);
   const { isOffline } = useNetworkStatus();
@@ -35,10 +38,16 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   // WebGL/canvas safety: avoid parent transforms on map/network routes
   const isMapRoute = location.pathname === '/app/map' || location.pathname === '/app/network';
 
-  // iOS viewport height fix - sets --vh CSS variable for reliable 100vh
+  // Floating tab bar height + margin (52px bar + 8px bottom margin + safe area)
+  const FLOATING_TAB_HEIGHT = 68;
+
+  // iOS 26 / Android 16 viewport height fix
+  // Uses dvh where available, falls back to --vh for legacy
   const setViewportHeight = useCallback(() => {
     const vh = window.innerHeight * 0.01;
     document.documentElement.style.setProperty('--vh', `${vh}px`);
+    // Also set actual pixel height for calculations
+    document.documentElement.style.setProperty('--viewport-height', `${window.innerHeight}px`);
   }, []);
 
   useEffect(() => {
@@ -46,9 +55,10 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
     window.addEventListener('resize', setViewportHeight);
     window.addEventListener('orientationchange', setViewportHeight);
     
-    // Also listen to visual viewport changes (keyboard, etc.)
+    // Visual viewport API for keyboard/address bar changes
     if (window.visualViewport) {
       window.visualViewport.addEventListener('resize', setViewportHeight);
+      window.visualViewport.addEventListener('scroll', setViewportHeight);
     }
     
     return () => {
@@ -56,11 +66,12 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       window.removeEventListener('orientationchange', setViewportHeight);
       if (window.visualViewport) {
         window.visualViewport.removeEventListener('resize', setViewportHeight);
+        window.visualViewport.removeEventListener('scroll', setViewportHeight);
       }
     };
   }, [setViewportHeight]);
 
-  // Scroll to top on route change - critical for native app feel
+  // Scroll to top on route change
   useLayoutEffect(() => {
     if (mainRef.current) {
       mainRef.current.scrollTop = 0;
@@ -69,35 +80,32 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   }, [location.pathname]);
 
   useEffect(() => {
-    // Configure status bar for native app - translucent overlay style
+    // Configure status bar for iOS 26 / Android 16
     if (isNative) {
       const configureStatusBar = async () => {
         try {
-          // Dynamically load StatusBar module
           if (!statusBarRef.current) {
             statusBarRef.current = await import('@capacitor/status-bar');
           }
           const { StatusBar, Style } = statusBarRef.current;
           
-          // Set style based on theme - light icons on dark bg, dark icons on light bg
+          // Adaptive style based on theme
           await StatusBar.setStyle({ 
             style: isDark ? Style.Dark : Style.Light 
           });
           
-          // CRITICAL: Both platforms need overlay mode for true edge-to-edge
-          // iOS: Works with viewport-fit=cover + this setting
-          // Android: Requires transparent background + overlay
+          // Edge-to-edge: overlay mode for both platforms
           await StatusBar.setOverlaysWebView({ overlay: true });
           
           if (isAndroid) {
-            // Android: Also needs transparent background color
+            // Android 16: Transparent system bars for full edge-to-edge
             await StatusBar.setBackgroundColor({ color: '#00000000' });
           }
           
           setSafeAreaReady(true);
         } catch (error) {
           console.warn('StatusBar configuration failed:', error);
-          setSafeAreaReady(true); // Continue anyway
+          setSafeAreaReady(true);
         }
       };
       configureStatusBar();
@@ -106,7 +114,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
     }
   }, [isNative, isAndroid, isDark]);
 
-  // Update status bar style when theme changes
+  // Theme change handler
   useEffect(() => {
     if (isNative && statusBarRef.current) {
       const { StatusBar, Style } = statusBarRef.current;
@@ -116,34 +124,30 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
     }
   }, [isDark, isNative]);
 
-  // Show offline screen when no internet connection
   if (isOffline) {
     return <OfflineScreen />;
   }
 
-  // Tab bar height: 49pt (Apple HIG) + safe area
-  const TAB_BAR_HEIGHT = 49;
-
   return (
     <div 
       className={cn(
-        // Edge-to-edge fullscreen container
+        // iOS 26 Liquid Glass / Android 16 edge-to-edge container
         "app-theme flex flex-col transition-colors duration-300",
         isDark 
           ? "dark bg-gradient-to-b from-[hsl(220,40%,10%)] via-[hsl(220,40%,8%)] to-[hsl(220,45%,6%)]" 
           : "light bg-gradient-to-b from-[hsl(210,40%,98%)] via-[hsl(210,35%,96%)] to-[hsl(210,30%,94%)]"
       )}
       style={{
-        // Dynamic viewport height for iOS keyboard/address bar handling
+        // Modern viewport units with fallback
         minHeight: 'calc(var(--vh, 1dvh) * 100)',
         height: 'calc(var(--vh, 1dvh) * 100)',
-        // Safe area for notch (Dynamic Island) and edges
+        // Safe areas for Dynamic Island (iOS) / punch-hole (Android)
         paddingTop: 'env(safe-area-inset-top, 0px)',
         paddingLeft: 'env(safe-area-inset-left, 0px)',
         paddingRight: 'env(safe-area-inset-right, 0px)',
       }}
     >
-      {/* Main scrollable content - single scroll container pattern */}
+      {/* Scrollable content area */}
       <main 
         ref={mainRef}
         className={cn(
@@ -151,11 +155,11 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           isMapRoute ? "overflow-hidden" : "overflow-y-auto"
         )}
         style={{ 
-          // Bottom padding: tab bar + home indicator safe area
-          paddingBottom: `calc(${TAB_BAR_HEIGHT}px + env(safe-area-inset-bottom, 0px))`,
-          // iOS momentum scrolling for native feel
+          // Floating tab bar needs more bottom space
+          paddingBottom: `calc(${FLOATING_TAB_HEIGHT}px + env(safe-area-inset-bottom, 0px))`,
+          // iOS momentum scrolling
           WebkitOverflowScrolling: isMapRoute ? undefined : 'touch',
-          // Contain scroll bounce within this element
+          // Contain overscroll
           overscrollBehavior: 'contain',
         }}
       >
@@ -170,7 +174,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         </SwipeablePages>
       </main>
       
-      {/* Fixed bottom navigation */}
+      {/* iOS 26 Floating Tab Bar */}
       <BottomTabBar />
     </div>
   );
