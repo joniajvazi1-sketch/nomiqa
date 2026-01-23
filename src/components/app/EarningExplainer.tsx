@@ -16,20 +16,20 @@ interface EarningExplainerProps {
 
 const EXPLAINERS = {
   network: {
-    label: 'Network Earnings',
-    description: 'You receive 5% of your direct referrals\' network rewards',
+    label: 'Network Value Share',
+    description: 'Share of value from your direct referrals\' contributions',
   },
   referral: {
-    label: 'Friends Joined',
-    description: 'People who signed up using your link',
+    label: 'Contributors Invited',
+    description: 'People who joined using your link',
   },
   boost: {
-    label: 'Reward Boost',
-    description: 'Active community = higher bonus on all your rewards',
+    label: 'Contribution Boost',
+    description: 'Active community = higher bonus on your rewards',
   },
   commission: {
-    label: 'Commission Rate',
-    description: 'Percentage you earn when referrals purchase eSIMs',
+    label: 'Value Share Rate',
+    description: 'Percentage shared when referrals use network services',
   },
 };
 

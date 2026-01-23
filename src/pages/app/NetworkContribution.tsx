@@ -204,12 +204,12 @@ export const NetworkContribution: React.FC = () => {
     if (granted) {
       toast({
         title: "Background Location Enabled ✓",
-        description: "You can now earn points with your screen locked!",
+        description: "You can now contribute with your screen locked!",
       });
     } else {
       toast({
         title: "Background Location Not Enabled",
-        description: "You can still earn while the app is open.",
+        description: "You can still contribute while the app is open.",
         variant: "destructive",
       });
     }
@@ -245,14 +245,14 @@ export const NetworkContribution: React.FC = () => {
               playCoin();
               toast({
                 title: "Contribution Started ✓",
-                description: "Location permission granted. Earning points!",
+                description: "Location permission granted. Contributing data!",
               });
             } else {
               toast({
                 title: "Location Permission Required",
                 description: isIOS
                   ? "Enable Location: Settings → Privacy & Security → Location Services → Nomiqa."
-                  : "Please enable location in Settings to earn points.",
+                  : "Please enable location in Settings to contribute.",
                 variant: "destructive",
               });
             }
@@ -410,7 +410,7 @@ export const NetworkContribution: React.FC = () => {
             style={{ top: 'calc(env(safe-area-inset-top, 0px) + 36px)' }}
           >
             <Wifi className="w-4 h-4 text-amber-400" />
-            <span className="text-xs text-amber-300">Switch to cellular to earn</span>
+            <span className="text-xs text-amber-300">Switch to cellular to contribute network data</span>
           </div>
         )}
       </div>
@@ -458,14 +458,14 @@ export const NetworkContribution: React.FC = () => {
                   playCoin();
                   toast({
                     title: "Contribution Started ✓",
-                    description: "Location permission granted. Earning points!",
+                    description: "Location permission granted. Contributing data!",
                   });
                 } else {
                   toast({
                     title: "Location Permission Required",
                     description: isIOS
                       ? "Enable Location: Settings → Privacy & Security → Location Services → Nomiqa."
-                      : "Please enable location in Settings to earn points.",
+                      : "Please enable location in Settings to contribute.",
                     variant: "destructive",
                   });
                 }

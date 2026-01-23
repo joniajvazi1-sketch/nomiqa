@@ -25,12 +25,12 @@ const SLIDES: OnboardingSlide[] = [
   {
     icon: <MapPin className="w-8 h-8 text-primary-foreground" />,
     title: 'Walk Normally',
-    subtitle: 'Earn points passively as you go about your day',
+    subtitle: 'Contribute data automatically as you go about your day',
   },
   {
     icon: <Users className="w-8 h-8 text-primary-foreground" />,
-    title: 'Invite Friends',
-    subtitle: 'Get bonus points for every friend who joins',
+    title: 'Invite Contributors',
+    subtitle: 'Share in the value your network helps create',
   },
   {
     icon: <Globe className="w-8 h-8 text-primary-foreground" />,

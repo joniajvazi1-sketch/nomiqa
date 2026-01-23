@@ -99,15 +99,15 @@ export const AppInvite: React.FC = () => {
     buttonTap();
     await share({
       title: 'Join Nomiqa',
-      text: `Join me on Nomiqa and earn rewards for mapping mobile networks! Use my link and we both get ${TOKENOMICS.REFERRAL_BONUS_POINTS} bonus points.`,
+      text: `Contribute to better mobile connectivity with Nomiqa! Use my link to join and we both get ${TOKENOMICS.REFERRAL_BONUS_POINTS} bonus points.`,
       url: referralLink,
-      dialogTitle: 'Invite Friends'
+      dialogTitle: 'Invite Contributors'
     });
   };
 
   const handleShareVia = async (platform: 'whatsapp' | 'telegram' | 'sms' | 'email') => {
     buttonTap();
-    const message = `Join me on Nomiqa and earn rewards for mapping mobile networks! Use my link: ${referralLink}`;
+    const message = `Contribute to better mobile connectivity with Nomiqa! Use my link: ${referralLink}`;
     
     const urls: Record<string, string> = {
       whatsapp: `https://wa.me/?text=${encodeURIComponent(message)}`,
@@ -148,9 +148,9 @@ export const AppInvite: React.FC = () => {
     <div className="flex-1 overflow-y-auto pb-24">
       {/* Header */}
       <div className="px-4 pt-4 pb-2">
-        <h1 className="text-2xl font-bold text-foreground">Invite Friends</h1>
+        <h1 className="text-2xl font-bold text-foreground">Invite Contributors</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          Earn rewards when friends join and contribute
+          Share in the value your network helps create
         </p>
       </div>
 
@@ -188,12 +188,12 @@ export const AppInvite: React.FC = () => {
                     <div className="text-2xl font-bold text-gradient-reward">
                       {(TOKENOMICS.REFERRAL_COMMISSION_RATE * 100).toFixed(0)}%
                     </div>
-                    <div className="text-xs text-muted-foreground">of their earnings</div>
+                    <div className="text-xs text-muted-foreground">value share</div>
                   </div>
                 </div>
 
                 <p className="text-xs text-muted-foreground mt-3 text-center">
-                  Earn ongoing commission from your friends' network contributions
+                  Share in the value from your network's contributions
                 </p>
               </div>
             </CardContent>
@@ -316,7 +316,7 @@ export const AppInvite: React.FC = () => {
                   <div className="text-2xl font-bold text-foreground">
                     {affiliate?.total_registrations || 0}
                   </div>
-                  <div className="text-xs text-muted-foreground">Recruits</div>
+                  <div className="text-xs text-muted-foreground">Contributors</div>
                 </motion.div>
                 <motion.div 
                   initial={{ scale: 0.9, opacity: 0 }}
@@ -338,7 +338,7 @@ export const AppInvite: React.FC = () => {
                   <div className="text-2xl font-bold text-gradient-reward">
                     ${(affiliate?.total_earnings_usd || 0).toFixed(2)}
                   </div>
-                  <div className="text-xs text-muted-foreground">Earned</div>
+                  <div className="text-xs text-muted-foreground">Value Shared</div>
                 </motion.div>
               </div>
             </CardContent>
@@ -372,7 +372,7 @@ export const AppInvite: React.FC = () => {
               {/* Current boost */}
               <div className="bg-muted/50 rounded-lg p-3 mb-4 flex items-center justify-between">
                 <div>
-                  <div className="text-sm text-muted-foreground">Reward Boost</div>
+                  <div className="text-sm text-muted-foreground">Contribution Boost</div>
                   <div className="text-xl font-bold text-reward">
                     +{affiliate?.miner_boost_percentage || currentTier.boost}%
                   </div>
@@ -400,7 +400,7 @@ export const AppInvite: React.FC = () => {
                     />
                   </div>
                   <p className="text-xs text-muted-foreground mt-2 text-center">
-                    {recruitsToNext} more recruits for +{nextTier.boost}% boost
+                    {recruitsToNext} more contributors for +{nextTier.boost}% boost
                   </p>
                 </div>
               )}
