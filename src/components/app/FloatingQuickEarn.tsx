@@ -82,18 +82,18 @@ export const FloatingQuickEarn = ({ isSessionActive = false, livePoints = 0 }: F
           w-14 h-14 rounded-full shadow-lg
           ${isSessionActive 
             ? 'bg-green-500 text-white' 
-            : 'bg-gradient-to-br from-primary to-primary/80 text-primary-foreground'
+            : 'bg-red-500 text-white'
           }
         `}
       >
-        {/* Pulse animation ring */}
+        {/* Pulse animation ring - red when not active */}
         {!isSessionActive && (
           <>
             <motion.div
-              className="absolute inset-0 rounded-full bg-primary/30"
+              className="absolute inset-0 rounded-full bg-red-500/40"
               animate={{
                 scale: [1, 1.5, 1.5],
-                opacity: [0.5, 0, 0],
+                opacity: [0.6, 0, 0],
               }}
               transition={{
                 duration: 2,
@@ -102,10 +102,10 @@ export const FloatingQuickEarn = ({ isSessionActive = false, livePoints = 0 }: F
               }}
             />
             <motion.div
-              className="absolute inset-0 rounded-full bg-primary/20"
+              className="absolute inset-0 rounded-full bg-red-500/30"
               animate={{
                 scale: [1, 1.8, 1.8],
-                opacity: [0.3, 0, 0],
+                opacity: [0.4, 0, 0],
               }}
               transition={{
                 duration: 2,
@@ -132,18 +132,20 @@ export const FloatingQuickEarn = ({ isSessionActive = false, livePoints = 0 }: F
       </motion.button>
 
       {/* Label */}
-      {!isSessionActive && (
-        <motion.div
-          initial={{ opacity: 0, x: 10 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.5 }}
-          className="absolute right-16 top-1/2 -translate-y-1/2 whitespace-nowrap"
-        >
-          <span className="bg-card/90 backdrop-blur-sm px-3 py-1.5 rounded-full text-sm font-medium border border-border shadow-sm">
-            Start Contributing
-          </span>
-        </motion.div>
-      )}
+      <motion.div
+        initial={{ opacity: 0, x: 10 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.5 }}
+        className="absolute right-16 top-1/2 -translate-y-1/2 whitespace-nowrap"
+      >
+        <span className={`backdrop-blur-sm px-3 py-1.5 rounded-full text-sm font-medium border shadow-sm ${
+          isSessionActive 
+            ? 'bg-green-500/20 border-green-500/40 text-green-400' 
+            : 'bg-red-500/20 border-red-500/40 text-red-400'
+        }`}>
+          {isSessionActive ? 'Contributing' : 'Start Contributing'}
+        </span>
+      </motion.div>
     </div>
   );
 };
