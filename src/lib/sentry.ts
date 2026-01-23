@@ -10,6 +10,7 @@ import { Capacitor } from "@capacitor/core";
  * - Release version tags (app_version)
  * - Source maps for readable stack traces
  * - Non-blocking initialization (won't crash app if Sentry fails)
+ * - DEFERRED initialization after first paint for better LCP
  */
 
 // App version - update this when releasing new versions
@@ -43,7 +44,10 @@ function getEnvironment(): string {
   return 'production';
 }
 
-export function initSentry() {
+/**
+ * Core Sentry initialization - called after first paint
+ */
+function doInitSentry() {
   const dsn = import.meta.env.VITE_SENTRY_DSN;
   
   // Don't block app startup if no DSN configured
@@ -69,18 +73,14 @@ export function initSentry() {
       // Dist helps differentiate builds with same version
       dist: isNative ? platform : 'web',
       
-      // Integrations
+      // Integrations - REMOVED replayIntegration to save ~50KB
       integrations: [
         Sentry.browserTracingIntegration(),
-        Sentry.replayIntegration(),
+        // Replay removed for performance - adds ~50KB to bundle
       ],
       
       // Performance monitoring - more sampling in dev
       tracesSampleRate: environment === 'production' ? 0.1 : 0.5,
-      
-      // Session replay - capture 10% normally, 100% on errors
-      replaysSessionSampleRate: environment === 'production' ? 0.1 : 0.5,
-      replaysOnErrorSampleRate: 1.0,
       
       // Configure scope with platform info
       initialScope: {
@@ -139,6 +139,26 @@ export function initSentry() {
   } catch (error) {
     // Non-blocking - don't crash app if Sentry fails to initialize
     console.error('[Sentry] Failed to initialize:', error);
+  }
+}
+
+/**
+ * Initialize Sentry AFTER first paint for better LCP performance
+ * Uses requestIdleCallback to defer initialization until browser is idle
+ */
+export function initSentry() {
+  // Skip in development
+  if (import.meta.env.DEV) {
+    console.log('[Sentry] Skipping in development mode');
+    return;
+  }
+  
+  // Defer initialization using requestIdleCallback (with setTimeout fallback)
+  if ('requestIdleCallback' in window) {
+    requestIdleCallback(() => doInitSentry(), { timeout: 5000 });
+  } else {
+    // Fallback for Safari - defer by 2 seconds after load
+    setTimeout(doInitSentry, 2000);
   }
 }
 
