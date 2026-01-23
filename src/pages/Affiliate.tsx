@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { 
   Copy, TrendingUp, Users, DollarSign, CheckCircle2, Loader2, 
-  Award, Share2, ArrowRight, Zap, Network, Link
+  Award, Share2, ArrowRight, Network
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAffiliateTracking } from "@/hooks/useAffiliateTracking";
@@ -306,13 +306,6 @@ export default function Affiliate() {
     );
   }
 
-  const benefits = [
-    { icon: Zap, title: "Up to +100% Boost", desc: "Earn more from YOUR contributions", color: "from-neon-cyan to-neon-cyan/50" },
-    { icon: TrendingUp, title: "5% Passive Earnings", desc: "From all your referrals' points", color: "from-neon-violet to-neon-violet/50" },
-    { icon: DollarSign, title: "Sales Commissions", desc: "9% / 6% / 3% on eSIM purchases", color: "from-neon-coral to-neon-coral/50" },
-    { icon: Link, title: "Your Unique Link", desc: "One personalized invite link", color: "from-primary to-primary/50" },
-  ];
-
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
       <SEO page="affiliate" />
@@ -321,7 +314,7 @@ export default function Affiliate() {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(0,255,200,0.08),transparent_50%)]" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(139,92,246,0.08),transparent_50%)]" />
 
-      {/* Hero Section - Updated messaging */}
+      {/* Hero Section */}
       <section className="pt-28 pb-12 md:pt-36 md:pb-16 px-4 relative z-10">
         <div className="container max-w-5xl mx-auto text-center">
           {/* Badge */}
@@ -353,26 +346,6 @@ export default function Affiliate() {
               <span className="text-2xl font-bold text-foreground">9%</span>
               <span className="text-sm text-muted-foreground ml-2">Sales Commission</span>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Benefits Grid */}
-      <section className="py-12 md:py-16 px-4 relative z-10">
-        <div className="container max-w-5xl mx-auto">
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {benefits.map((benefit, index) => {
-              const Icon = benefit.icon;
-              return (
-                <div key={index} className="p-5 rounded-2xl bg-white/[0.02] border border-white/10 hover:border-primary/30 transition-all group">
-                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${benefit.color} flex items-center justify-center mb-4`}>
-                    <Icon className="w-6 h-6 text-white" />
-                  </div>
-                  <h3 className="text-base font-medium text-white mb-1">{benefit.title}</h3>
-                  <p className="text-sm text-muted-foreground">{benefit.desc}</p>
-                </div>
-              );
-            })}
           </div>
         </div>
       </section>
