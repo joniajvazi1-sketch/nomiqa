@@ -378,15 +378,23 @@ export const useNetworkContribution = () => {
   const lastTimePointsRef = useRef<number>(0);
   const lastAutoSavePointsRef = useRef<number>(0);
 
+  // Refs for callbacks to avoid dependency array issues
+  const disableContributionRef = useRef(disableContribution);
+  const clearCumulativeStatsRef = useRef(clearCumulativeStats);
+  const getTimeSinceLastEventRef = useRef(getTimeSinceLastEvent);
+  disableContributionRef.current = disableContribution;
+  clearCumulativeStatsRef.current = clearCumulativeStats;
+  getTimeSinceLastEventRef.current = getTimeSinceLastEvent;
+
   // Restore session from persistence on mount or app resume
   // This enables AUTO-RESUME when iOS relaunches app from significantLocationChange
   useEffect(() => {
     if (isContributionEnabled && persistedSessionId && user && session.status === 'idle') {
-      // Check for stale session (exceeded 4 hours)
+      // Check for stale session (exceeded 24 hours)
       if (isSessionStale(sessionStartedAt)) {
-        console.log('[NetworkContribution] Session stale (>4h), resetting');
-        disableContribution();
-        clearCumulativeStats();
+        console.log('[NetworkContribution] Session stale (>24h), resetting');
+        disableContributionRef.current();
+        clearCumulativeStatsRef.current();
         return;
       }
       
@@ -399,7 +407,7 @@ export const useNetworkContribution = () => {
       
       // Restore cumulative stats
       if (cumulativePoints > 0 || cumulativeDurationSeconds > 0) {
-        const offlineSeconds = getTimeSinceLastEvent();
+        const offlineSeconds = getTimeSinceLastEventRef.current();
         const totalDuration = cumulativeDurationSeconds + offlineSeconds;
         
         setStats(prev => ({
@@ -468,7 +476,7 @@ export const useNetworkContribution = () => {
       
       restartBackgroundTracking();
     }
-  }, [isContributionEnabled, persistedSessionId, user, session.status, resumeTrigger, cumulativePoints, cumulativeDurationSeconds, sessionStartedAt, getTimeSinceLastEvent, disableContribution, clearCumulativeStats, isNative]);
+  }, [isContributionEnabled, persistedSessionId, user, session.status, resumeTrigger, cumulativePoints, cumulativeDurationSeconds, sessionStartedAt, isNative]);
 
   // Position update handler
   const handlePositionUpdate = useCallback(async (position: Position) => {
@@ -515,16 +523,19 @@ export const useNetworkContribution = () => {
   }, [session.status, connectionType, telcoMetrics]);
 
   // Process lastPosition changes when session is active (for auto-resumed background updates)
-  // This effect must be AFTER handlePositionUpdate is declared
+  // Use a ref for handlePositionUpdate to avoid re-triggering on every dependency change
+  const handlePositionUpdateRef = useRef(handlePositionUpdate);
+  handlePositionUpdateRef.current = handlePositionUpdate;
+  
   useEffect(() => {
     if (session.status === 'active' && lastPosition && isContributionEnabled) {
       // Only process if this is from a background update (not initial render)
       const listener = (window as any).__nomiqaBackgroundLocationListener;
       if (listener) {
-        handlePositionUpdate(lastPosition);
+        handlePositionUpdateRef.current(lastPosition);
       }
     }
-  }, [lastPosition, session.status, isContributionEnabled, handlePositionUpdate]);
+  }, [lastPosition, session.status, isContributionEnabled]); // Removed handlePositionUpdate from deps
 
   /**
    * Log a telco-grade signal data point via edge function
@@ -729,11 +740,26 @@ export const useNetworkContribution = () => {
 
   // AUTO-SAVE: Periodically save points to database (every 5 minutes)
   // This ensures users don't lose points even if they forget to stop or app crashes
+  // IMPORTANT: Use a ref to access current stats to avoid recreating the interval on every stats change
+  const statsRef = useRef(stats);
+  statsRef.current = stats;
+  
   useEffect(() => {
-    if (session.status !== 'active' || !user || !session.id) return;
+    if (session.status !== 'active' || !user || !session.id) {
+      // Clear timer if session becomes inactive
+      if (autoSaveTimerRef.current) {
+        clearInterval(autoSaveTimerRef.current);
+        autoSaveTimerRef.current = null;
+      }
+      return;
+    }
+    
+    // Don't create a new timer if one already exists
+    if (autoSaveTimerRef.current) return;
     
     const autoSavePoints = async () => {
-      const currentPoints = Math.floor(stats.pointsEarned);
+      const currentStats = statsRef.current;
+      const currentPoints = Math.floor(currentStats.pointsEarned);
       const pointsDelta = currentPoints - lastAutoSavePointsRef.current;
       
       // Only save if there are new points to save (at least 1)
@@ -746,9 +772,9 @@ export const useNetworkContribution = () => {
         await supabase
           .from('contribution_sessions')
           .update({
-            total_distance_meters: stats.distanceMeters,
+            total_distance_meters: currentStats.distanceMeters,
             total_points_earned: currentPoints,
-            data_points_count: stats.dataPointsCount
+            data_points_count: currentStats.dataPointsCount
           })
           .eq('id', session.id);
         
@@ -764,7 +790,7 @@ export const useNetworkContribution = () => {
             .from('user_points')
             .update({
               total_points: (existingPoints.total_points || 0) + pointsDelta,
-              total_distance_meters: (existingPoints.total_distance_meters || 0) + (stats.distanceMeters - (existingPoints.total_distance_meters || 0)),
+              total_distance_meters: (existingPoints.total_distance_meters || 0) + (currentStats.distanceMeters - (existingPoints.total_distance_meters || 0)),
               total_contribution_time_seconds: (existingPoints.total_contribution_time_seconds || 0) + Math.floor(AUTO_SAVE_INTERVAL_MS / 1000)
             })
             .eq('user_id', user.id);
@@ -774,8 +800,8 @@ export const useNetworkContribution = () => {
             .insert({
               user_id: user.id,
               total_points: pointsDelta,
-              total_distance_meters: stats.distanceMeters,
-              total_contribution_time_seconds: stats.duration
+              total_distance_meters: currentStats.distanceMeters,
+              total_contribution_time_seconds: currentStats.duration
             });
         }
         
@@ -796,7 +822,7 @@ export const useNetworkContribution = () => {
         autoSaveTimerRef.current = null;
       }
     };
-  }, [session.status, session.id, user, stats.pointsEarned, stats.distanceMeters, stats.dataPointsCount, stats.duration]);
+  }, [session.status, session.id, user?.id]); // Only depend on session state and user, not stats
 
   const calculateDistance = (pos1: Position, pos2: Position): number => {
     const R = 6371e3;
