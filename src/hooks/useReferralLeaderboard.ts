@@ -16,6 +16,8 @@ interface UseReferralLeaderboardReturn {
   refresh: () => Promise<void>;
   challengeEndsAt: Date;
   daysRemaining: number;
+  dailyRegistrations: number;
+  totalWeeklyRegistrations: number;
 }
 
 // Genesis Referral Challenge: 7-day rolling window
@@ -27,6 +29,8 @@ export const useReferralLeaderboard = (): UseReferralLeaderboardReturn => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [dailyRegistrations, setDailyRegistrations] = useState(0);
+  const [totalWeeklyRegistrations, setTotalWeeklyRegistrations] = useState(0);
 
   // Calculate challenge end date (7 days from now, resets weekly)
   const getNextSundayMidnight = () => {
@@ -89,6 +93,21 @@ export const useReferralLeaderboard = (): UseReferralLeaderboardReturn => {
         weeklyCountMap.set(ref.affiliate_id, current + 1);
       });
 
+      // Set total weekly registrations
+      setTotalWeeklyRegistrations(weeklyReferrals?.length || 0);
+
+      // Fetch today's registrations
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      const { data: todayReferrals } = await supabase
+        .from('affiliate_referrals')
+        .select('id')
+        .gte('registered_at', today.toISOString())
+        .not('registered_user_id', 'is', null);
+      
+      setDailyRegistrations(todayReferrals?.length || 0);
+
       // Build leaderboard entries with weekly counts
       const leaderboardEntries = affiliatesData
         .map(affiliate => ({
@@ -132,5 +151,7 @@ export const useReferralLeaderboard = (): UseReferralLeaderboardReturn => {
     refresh: fetchLeaderboard,
     challengeEndsAt,
     daysRemaining,
+    dailyRegistrations,
+    totalWeeklyRegistrations,
   };
 };
