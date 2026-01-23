@@ -85,15 +85,42 @@ export const Navbar = () => {
   ];
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-    });
+    let isMounted = true;
+    
+    // Add timeout to prevent hanging on stale sessions
+    const timeout = setTimeout(() => {
+      if (isMounted) {
+        // Session check taking too long, continue without user
+        console.warn('Navbar: Session check timeout');
+      }
+    }, 5000);
+
+    supabase.auth.getSession()
+      .then(({ data: { session } }) => {
+        clearTimeout(timeout);
+        if (isMounted) {
+          setUser(session?.user ?? null);
+        }
+      })
+      .catch((err) => {
+        clearTimeout(timeout);
+        console.error('Navbar: Session error', err);
+        if (isMounted) {
+          setUser(null);
+        }
+      });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
+      if (isMounted) {
+        setUser(session?.user ?? null);
+      }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      isMounted = false;
+      clearTimeout(timeout);
+      subscription.unsubscribe();
+    };
   }, []);
 
   const handleSignOut = async () => {
