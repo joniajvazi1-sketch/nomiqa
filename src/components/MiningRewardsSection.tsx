@@ -85,7 +85,7 @@ export const MiningRewardsSection = ({
         {nextMilestone && <div className="space-y-3">
             <div className="flex items-center justify-between text-sm">
               <span className="text-white/60">{t("progressTo")} {t(nextMilestone.nameKey)}</span>
-              <span className="font-medium text-white px-[10px]">{remainingToNext} {t("moreRegistrationsNeeded")}</span>
+              <span className="font-medium text-white px-[10px] mx-px text-center">{remainingToNext} {t("moreRegistrationsNeeded")}</span>
             </div>
             <Progress value={getProgressToNext()} className="h-2 bg-white/10" />
             <div className="flex items-center justify-between text-xs text-white/40">
