@@ -23,7 +23,7 @@ export const Navbar = () => {
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [desktopMenuOpen, setDesktopMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const [_scrolled, setScrolled] = useState(false); // kept for potential future use
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearchResults, setShowSearchResults] = useState(false);
   const { language, setLanguage, t } = useTranslation();
@@ -270,14 +270,10 @@ export const Navbar = () => {
   };
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-      scrolled 
-        ? 'bg-deep-space/90 backdrop-blur-xl border-b border-white/10 shadow-xl' 
-        : 'bg-gradient-to-b from-deep-space/80 via-deep-space/50 to-transparent border-b border-white/5'
-    }`}>
-      {/* Simplified decorative effects */}
-      <div className={`absolute inset-0 bg-gradient-to-r from-neon-violet/5 via-transparent to-neon-cyan/5 pointer-events-none transition-opacity duration-300 ${scrolled ? 'opacity-30' : 'opacity-60'}`} />
-      <div className={`absolute top-0 left-1/4 w-96 h-px bg-gradient-to-r from-transparent via-neon-cyan/20 to-transparent transition-opacity duration-300 ${scrolled ? 'opacity-20' : 'opacity-60'}`} />
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-deep-space/95 backdrop-blur-xl border-b border-white/10 shadow-lg">
+      {/* Subtle decorative gradient */}
+      <div className="absolute inset-0 bg-gradient-to-r from-neon-violet/5 via-transparent to-neon-cyan/5 pointer-events-none opacity-40" />
+      <div className="absolute top-0 left-1/4 w-96 h-px bg-gradient-to-r from-transparent via-neon-cyan/20 to-transparent opacity-30" />
       
       <div className="container mx-auto px-4 sm:px-6 relative">
         <div className="flex items-center justify-between gap-4 h-16 sm:h-18 md:h-20">
