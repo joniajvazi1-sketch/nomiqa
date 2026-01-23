@@ -212,10 +212,10 @@ export const Navbar = () => {
       
       <div className="container mx-auto px-4 sm:px-6 relative">
         <div className="flex items-center justify-between gap-4 h-16 sm:h-18 md:h-20">
-          {/* Logo - Text only */}
+          {/* Logo - Text only, larger when logged in */}
           <div className="flex items-center flex-shrink-0">
             <button onClick={() => navigate('/')} className="group">
-              <span className="text-xl sm:text-2xl font-light bg-gradient-to-r from-neon-cyan via-white to-neon-violet bg-clip-text text-transparent group-hover:from-white group-hover:via-neon-cyan group-hover:to-white transition-all duration-700 group-hover:tracking-wide">
+              <span className={`font-light bg-gradient-to-r from-neon-cyan via-white to-neon-violet bg-clip-text text-transparent group-hover:from-white group-hover:via-neon-cyan group-hover:to-white transition-all duration-700 group-hover:tracking-wide ${user ? 'text-2xl sm:text-3xl md:text-4xl' : 'text-xl sm:text-2xl md:text-3xl'}`}>
                 nomiqa
               </span>
             </button>
