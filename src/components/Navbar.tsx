@@ -433,15 +433,15 @@ export const Navbar = () => {
                   <div className="flex flex-col gap-0.5 mt-6 relative z-10">
                     {/* Featured: Download App - Subtle highlight */}
                     <button onClick={() => handleNavClick('/download')} className="group text-left text-white hover:text-white bg-white/[0.06] hover:bg-white/[0.1] transition-all duration-300 py-4 px-5 rounded-lg font-normal text-base tracking-wide backdrop-blur-sm border border-white/15 hover:border-white/30 mb-2">
-                      <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5 flex items-center gap-2">
-                        📱 {t("navDownloadApp")}
+                      <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">
+                        {t("navDownloadApp")}
                       </span>
                     </button>
                     
                     {/* Getting Started - Subtle highlight */}
                     <button onClick={() => handleNavClick('/getting-started')} className="group text-left text-white/90 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-normal text-base tracking-wide backdrop-blur-sm border border-white/10 hover:border-white/25 mb-2">
-                      <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5 flex items-center gap-2">
-                        🚀 {t("navGettingStarted")}
+                      <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">
+                        {t("navGettingStarted")}
                       </span>
                     </button>
                     
@@ -453,8 +453,8 @@ export const Navbar = () => {
                     </button>
                     {/* Earn & Refer - Highlighted */}
                     <button onClick={() => handleNavClick('/affiliate')} className="group text-left text-white hover:text-white bg-neon-cyan/10 hover:bg-neon-cyan/20 transition-all duration-300 py-4 px-5 rounded-lg font-normal text-base tracking-wide backdrop-blur-sm border border-neon-cyan/30 hover:border-neon-cyan/50">
-                      <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5 flex items-center gap-2">
-                        💰 {t("navEarnRefer")}
+                      <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">
+                        {t("navEarnRefer")}
                       </span>
                     </button>
                     <button onClick={() => handleNavClick('/token')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-base tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
@@ -523,15 +523,15 @@ export const Navbar = () => {
                   <div className="flex flex-col gap-0.5 mt-6 relative z-10">
                     {/* Featured: Download App - Subtle highlight */}
                     <button onClick={() => handleNavClick('/download')} className="group text-left text-white hover:text-white bg-white/[0.06] hover:bg-white/[0.1] transition-all duration-300 py-4 px-5 rounded-lg font-normal text-[15px] tracking-wide backdrop-blur-sm border border-white/15 hover:border-white/30 mb-2">
-                      <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5 flex items-center gap-2">
-                        📱 {t("navDownloadApp")}
+                      <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">
+                        {t("navDownloadApp")}
                       </span>
                     </button>
                     
                     {/* Getting Started - Subtle highlight */}
                     <button onClick={() => handleNavClick('/getting-started')} className="group text-left text-white/90 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-normal text-[15px] tracking-wide backdrop-blur-sm border border-white/10 hover:border-white/25 mb-2">
-                      <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5 flex items-center gap-2">
-                        🚀 {t("navGettingStarted")}
+                      <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">
+                        {t("navGettingStarted")}
                       </span>
                     </button>
                     
@@ -544,8 +544,8 @@ export const Navbar = () => {
                     </button>
                     {/* Earn & Refer - Highlighted */}
                     <button onClick={() => handleNavClick('/affiliate')} className="group text-left text-white hover:text-white bg-neon-cyan/10 hover:bg-neon-cyan/20 transition-all duration-300 py-4 px-5 rounded-lg font-normal text-[15px] tracking-wide backdrop-blur-sm border border-neon-cyan/30 hover:border-neon-cyan/50">
-                      <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5 flex items-center gap-2">
-                        💰 {t("navEarnRefer")}
+                      <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">
+                        {t("navEarnRefer")}
                       </span>
                     </button>
                     <button onClick={() => handleNavClick('/token')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-[15px] tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
