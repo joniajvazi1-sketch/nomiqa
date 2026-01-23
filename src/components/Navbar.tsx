@@ -224,9 +224,9 @@ export const Navbar = () => {
                 <img 
                   src={headerLogo} 
                   alt="nomiqa" 
-                  width={32}
+                  width={40}
                   height={32}
-                  className="w-7 h-7 sm:w-8 sm:h-8 rounded-md relative z-10 opacity-95 group-hover:opacity-100 transition-all duration-500 group-hover:scale-110 shadow-lg group-hover:shadow-neon-cyan/50 object-contain"
+                  className="w-9 h-7 sm:w-10 sm:h-8 rounded-md relative z-10 opacity-95 group-hover:opacity-100 transition-all duration-500 group-hover:scale-110 shadow-lg group-hover:shadow-neon-cyan/50 object-contain"
                 />
                 
                 {/* Shine effect on hover */}
