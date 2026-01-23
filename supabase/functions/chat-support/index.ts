@@ -116,7 +116,7 @@ Nomiqa is building the world's first community-owned mobile network. We combine 
 
 Key Facts:
 - 200+ countries coverage with instant eSIM activation
-- Crypto payments only: SOL and USDC on Solana blockchain
+- Multiple payment options: Credit/Debit Cards (Visa, Mastercard, Amex) AND Crypto (SOL, USDC)
 - No KYC/ID required - true privacy, no surveillance
 - $NOMIQA network token (coming soon, NOT yet launched)
 - 99.9% network uptime
@@ -170,17 +170,26 @@ Plan options:
 - Regional and global plans available
 - Top-up option for active eSIMs
 
-=== PAYMENT INFO ===
-Accepted payments:
-- SOL (Solana)
-- USDC (on Solana)
-- NO credit cards, PayPal, or bank transfers
+=== PAYMENT OPTIONS ===
+We accept multiple payment methods:
 
-Getting started with crypto:
-1. Download Phantom wallet (phantom.app)
-2. Buy SOL/USDC through Phantom or an exchange
-3. Connect wallet at checkout
-4. One-click payment
+1. Credit/Debit Cards (via Stripe):
+   - Visa, Mastercard, American Express
+   - Apple Pay, Google Pay
+   - Secure checkout powered by Stripe
+   - Instant processing
+
+2. Cryptocurrency (via Helio):
+   - SOL (Solana)
+   - USDC (on Solana)
+   - Connect your Phantom wallet at checkout
+   - One-click payment
+
+How to pay:
+- At checkout, choose "Card" or "Crypto"
+- Card: Enter card details securely via Stripe
+- Crypto: Connect Phantom wallet (phantom.app) and approve transaction
+- Both methods deliver your eSIM instantly via email
 
 === DEVICE COMPATIBILITY ===
 Compatible devices:
