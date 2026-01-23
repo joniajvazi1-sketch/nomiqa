@@ -371,8 +371,8 @@ export const AppHome: React.FC = () => {
               <Users className="w-4 h-4 text-primary" />
             </div>
             <div className="flex-1 text-left">
-              <p className="text-sm font-semibold text-foreground">Invite friends</p>
-              <p className="text-xs text-muted-foreground">Earn 10% of their lifetime rewards</p>
+              <p className="text-sm font-semibold text-foreground">Invite contributors</p>
+              <p className="text-xs text-muted-foreground">Share in the value they help create</p>
             </div>
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-medium">
               <Share2 className="w-3 h-3" />

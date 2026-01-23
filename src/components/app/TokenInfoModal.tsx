@@ -75,19 +75,22 @@ export const TokenInfoModal: React.FC<TokenInfoModalProps> = ({ isOpen, onClose 
 
             {/* Content */}
             <div className="p-4 space-y-5 overflow-y-auto max-h-[calc(85vh-120px)]">
-              {/* Conversion Rate */}
+              {/* Ready to Claim Header */}
               <div className="bg-primary/10 rounded-xl p-4 border border-primary/20">
                 <div className="flex items-center gap-2 mb-2">
                   <Info className="w-4 h-4 text-primary" />
-                  <span className="text-sm font-medium text-foreground">Points = Tokens</span>
+                  <span className="text-sm font-medium text-foreground">Ready to Claim?</span>
                 </div>
+                <p className="text-sm text-foreground mb-2">
+                  Convert your points into network tokens for connectivity and rewards.
+                </p>
                 <div className="flex items-baseline gap-2">
                   <span className="text-3xl font-bold text-foreground">1:1</span>
                   <span className="text-sm text-muted-foreground">conversion ratio</span>
                 </div>
                 <p className="text-xs text-muted-foreground mt-2">
-                  Every point you earn converts directly to 1 NOMIQA token. 
-                  Estimated value: ${TOKENOMICS.ESTIMATED_TOKEN_VALUE_USD} per token.
+                  Tokens are used within the Nomiqa network for access, services, and rewards.
+                  Conversion rates and usage may evolve as the network grows.
                 </p>
               </div>
 
@@ -169,23 +172,23 @@ export const TokenInfoModal: React.FC<TokenInfoModalProps> = ({ isOpen, onClose 
                   {formatTokens(TOKENOMICS.USER_REWARDS_POOL)}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  500 Million tokens reserved for user rewards — that's 50% of total supply 
-                  dedicated to rewarding contributors like you.
+                  500 Million tokens reserved for contributor rewards — that's 50% of total supply 
+                  dedicated to rewarding network contributors like you.
                 </p>
               </div>
 
-              {/* Beta Notice */}
+              {/* Test Phase Notice */}
               <div className="bg-amber-500/10 rounded-xl p-4 border border-amber-500/20">
                 <div className="flex items-start gap-3">
                   <div className="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center shrink-0">
                     <Info className="w-4 h-4 text-amber-500" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-medium text-foreground mb-1">Beta Phase</h4>
+                    <h4 className="text-sm font-medium text-foreground mb-1">Test Phase</h4>
                     <p className="text-xs text-muted-foreground">
-                      We're currently in beta. Your points are being tracked and will convert 
-                      to tokens when the NOMIQA token launches. Early contributors may receive 
-                      bonus rewards!
+                      We're in test phase. Your points are being tracked for future rewards.
+                      Points convert to network tokens used inside the Nomiqa ecosystem.
+                      Conversion rates and usage may evolve as the network grows.
                     </p>
                   </div>
                 </div>
