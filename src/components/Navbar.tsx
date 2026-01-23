@@ -270,9 +270,9 @@ export const Navbar = () => {
   };
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-300 ${
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
       scrolled 
-        ? 'bg-black/80 border-b border-white/10 shadow-xl' 
+        ? 'bg-black/90 backdrop-blur-xl border-b border-white/10 shadow-xl' 
         : 'bg-gradient-to-b from-black/70 via-black/40 to-transparent border-b border-white/5'
     }`}>
       {/* Simplified decorative effects */}
@@ -318,7 +318,7 @@ export const Navbar = () => {
                   placeholder={t("searchEsims")}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 h-11 bg-white/[0.05] border border-white/20 hover:border-white/30 focus:border-neon-cyan/40 text-white placeholder:text-white/40 rounded-xl transition-colors duration-200 text-sm font-light"
+                  className="w-full pl-10 pr-4 h-11 bg-black/60 backdrop-blur-xl border border-white/20 hover:border-white/30 focus:border-neon-cyan/40 text-white placeholder:text-white/40 rounded-xl transition-colors duration-200 text-sm font-light"
                 />
               </form>
             </div>
