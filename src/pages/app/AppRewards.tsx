@@ -217,15 +217,6 @@ export const AppRewards: React.FC = () => {
       pointsCost: 1000,
       available: false,
       badge: 'Coming Soon'
-    },
-    {
-      id: 'charity',
-      icon: Heart,
-      title: 'Support Connectivity Access',
-      description: 'Fund subsidized connectivity in underserved regions',
-      pointsCost: 100,
-      available: false,
-      badge: 'Coming Soon'
     }
   ];
 
