@@ -1,6 +1,7 @@
 import { lazy, Suspense, memo } from "react";
 import { Hero } from "@/components/Hero";
 import { SEO } from "@/components/SEO";
+import { ChatbotBubble } from "@/components/ChatbotBubble";
 
 // Lazy load all below-the-fold components to improve TTI
 const SupportChatbot = lazy(() => import("@/components/SupportChatbot").then(m => ({ default: m.SupportChatbot })));
@@ -58,6 +59,7 @@ const Index = () => {
         <FAQ />
         <SiteNavigation />
       </Suspense>
+      <ChatbotBubble />
       <Suspense fallback={null}>
         <SupportChatbot />
       </Suspense>
