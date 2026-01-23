@@ -226,18 +226,39 @@ export default function Auth() {
       }
     });
 
-    // THEN check for any already-persisted session
+    // THEN check for any already-persisted session with timeout
+    // This prevents infinite loading if session refresh hangs (e.g., expired refresh token)
+    const sessionCheckTimeout = setTimeout(() => {
+      if (isMounted) {
+        console.warn('Session check timeout - clearing stale session');
+        setCheckingSession(false);
+        // Clear potentially corrupted session data
+        supabase.auth.signOut().catch(() => {});
+      }
+    }, 8000); // 8 second timeout
+
     supabase.auth.getSession().then(({ data: { session }, error }) => {
+      clearTimeout(sessionCheckTimeout);
+      if (!isMounted) return;
+      
       if (error) {
         console.error("Session error:", error);
+        // If there's an error (like expired token), sign out and show login
+        supabase.auth.signOut().catch(() => {});
         setCheckingSession(false);
         return;
       }
       handleSession(session, false);
+    }).catch((err) => {
+      clearTimeout(sessionCheckTimeout);
+      if (!isMounted) return;
+      console.error("Session fetch failed:", err);
+      setCheckingSession(false);
     });
 
     return () => {
       isMounted = false;
+      clearTimeout(sessionCheckTimeout);
       subscription.unsubscribe();
     };
   }, [navigate, searchParams]);
