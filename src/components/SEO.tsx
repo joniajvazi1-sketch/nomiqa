@@ -558,10 +558,10 @@ export const SEO = ({ page = "home" }: SEOProps) => {
   const { language } = useTranslation();
   const data = seoData[page]?.[language] || seoData[page].EN;
   
-  // Site URL and logo for social sharing
-  const siteUrl = "https://nomiqa-esim.com";
-  const ogImageUrl = `${siteUrl}/nomiqa-og-image.jpg`;
-  const logoUrl = `${siteUrl}/nomiqa-logo.jpg`;
+  // Site URL and logo for social sharing - use proper production URLs
+  const siteUrl = "https://nomiqa.app";
+  const ogImageUrl = "https://storage.googleapis.com/gpt-engineer-file-uploads/PQFXlcHCciXpAnpHtuACtPV6p0v1/social-images/social-1765549316985-b2bf91d4-7954-4a88-97d2-fd66cc9586e1.jpg";
+  const logoUrl = "https://storage.googleapis.com/gpt-engineer-file-uploads/PQFXlcHCciXpAnpHtuACtPV6p0v1/uploads/1765549310896-b2bf91d4-7954-4a88-97d2-fd66cc9586e1.jpg";
   const currentUrl = `${siteUrl}${window.location.pathname}`;
 
   // Structured data for organization
