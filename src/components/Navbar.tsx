@@ -14,7 +14,7 @@ import { toast } from "sonner";
 import { Language, useTranslation } from "@/contexts/TranslationContext";
 import { localizedPath } from "@/utils/localizedLinks";
 import { getTranslatedCountryName } from "@/utils/countryTranslations";
-import headerLogo from "@/assets/nomiqa-header-logo-small.png";
+
 // Country flags now use emoji for performance (removed country-flag-icons library - 53KB savings)
 
 export const Navbar = () => {
@@ -212,27 +212,9 @@ export const Navbar = () => {
       
       <div className="container mx-auto px-4 sm:px-6 relative">
         <div className="flex items-center justify-between gap-4 h-16 sm:h-18 md:h-20">
-          {/* Logo */}
-          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-            <button onClick={() => navigate('/')} className="flex items-center gap-2 sm:gap-3 group">
-              <div className="relative">
-                {/* Pulsing outer glow */}
-                <div className="absolute inset-0 bg-neon-cyan/20 rounded-lg blur-lg group-hover:animate-pulse transition-all duration-500" />
-                <div className="absolute inset-0 bg-gradient-to-r from-neon-cyan/30 via-neon-violet/20 to-neon-cyan/30 rounded-lg blur-md opacity-0 group-hover:opacity-100 transition-all duration-700 animate-pulse" />
-                
-                {/* Logo image with smooth transitions */}
-                <img 
-                  src={headerLogo} 
-                  alt="nomiqa" 
-                  width={40}
-                  height={32}
-                  className="w-9 h-7 sm:w-10 sm:h-8 rounded-md relative z-10 opacity-95 group-hover:opacity-100 transition-all duration-500 group-hover:scale-110 shadow-lg group-hover:shadow-neon-cyan/50 object-contain"
-                />
-                
-                {/* Shine effect on hover */}
-                <div className="absolute inset-0 rounded-lg bg-gradient-to-tr from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 z-20 pointer-events-none" />
-              </div>
-              
+          {/* Logo - Text only */}
+          <div className="flex items-center flex-shrink-0">
+            <button onClick={() => navigate('/')} className="group">
               <span className="text-xl sm:text-2xl font-light bg-gradient-to-r from-neon-cyan via-white to-neon-violet bg-clip-text text-transparent group-hover:from-white group-hover:via-neon-cyan group-hover:to-white transition-all duration-700 group-hover:tracking-wide">
                 nomiqa
               </span>
