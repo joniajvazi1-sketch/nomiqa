@@ -220,6 +220,7 @@ const WebRoutes = () => (
         <Route path="token" element={<Token />} />
         <Route path="help" element={<Help />} />
         <Route path="rewards" element={<Rewards />} />
+        <Route path="leaderboard" element={<ReferralLeaderboard />} />
         <Route path="download" element={<Download />} />
         <Route path="how-it-works" element={<HowItWorks />} />
       </Route>
@@ -240,6 +241,7 @@ const WebRoutes = () => (
         <Route path="token" element={<Token />} />
         <Route path="help" element={<Help />} />
         <Route path="rewards" element={<Rewards />} />
+        <Route path="leaderboard" element={<ReferralLeaderboard />} />
         <Route path="download" element={<Download />} />
         <Route path="how-it-works" element={<HowItWorks />} />
       </Route>
@@ -260,6 +262,7 @@ const WebRoutes = () => (
         <Route path="token" element={<Token />} />
         <Route path="help" element={<Help />} />
         <Route path="rewards" element={<Rewards />} />
+        <Route path="leaderboard" element={<ReferralLeaderboard />} />
         <Route path="download" element={<Download />} />
         <Route path="how-it-works" element={<HowItWorks />} />
       </Route>
@@ -280,6 +283,7 @@ const WebRoutes = () => (
         <Route path="token" element={<Token />} />
         <Route path="help" element={<Help />} />
         <Route path="rewards" element={<Rewards />} />
+        <Route path="leaderboard" element={<ReferralLeaderboard />} />
         <Route path="download" element={<Download />} />
         <Route path="how-it-works" element={<HowItWorks />} />
       </Route>
@@ -300,6 +304,7 @@ const WebRoutes = () => (
         <Route path="token" element={<Token />} />
         <Route path="help" element={<Help />} />
         <Route path="rewards" element={<Rewards />} />
+        <Route path="leaderboard" element={<ReferralLeaderboard />} />
         <Route path="download" element={<Download />} />
         <Route path="how-it-works" element={<HowItWorks />} />
       </Route>
@@ -320,6 +325,7 @@ const WebRoutes = () => (
         <Route path="token" element={<Token />} />
         <Route path="help" element={<Help />} />
         <Route path="rewards" element={<Rewards />} />
+        <Route path="leaderboard" element={<ReferralLeaderboard />} />
         <Route path="download" element={<Download />} />
         <Route path="how-it-works" element={<HowItWorks />} />
       </Route>
@@ -340,6 +346,7 @@ const WebRoutes = () => (
         <Route path="token" element={<Token />} />
         <Route path="help" element={<Help />} />
         <Route path="rewards" element={<Rewards />} />
+        <Route path="leaderboard" element={<ReferralLeaderboard />} />
         <Route path="download" element={<Download />} />
         <Route path="how-it-works" element={<HowItWorks />} />
       </Route>
@@ -360,6 +367,7 @@ const WebRoutes = () => (
         <Route path="token" element={<Token />} />
         <Route path="help" element={<Help />} />
         <Route path="rewards" element={<Rewards />} />
+        <Route path="leaderboard" element={<ReferralLeaderboard />} />
         <Route path="download" element={<Download />} />
         <Route path="how-it-works" element={<HowItWorks />} />
       </Route>
@@ -380,6 +388,7 @@ const WebRoutes = () => (
         <Route path="token" element={<Token />} />
         <Route path="help" element={<Help />} />
         <Route path="rewards" element={<Rewards />} />
+        <Route path="leaderboard" element={<ReferralLeaderboard />} />
         <Route path="download" element={<Download />} />
         <Route path="how-it-works" element={<HowItWorks />} />
       </Route>
@@ -400,6 +409,7 @@ const WebRoutes = () => (
         <Route path="token" element={<Token />} />
         <Route path="help" element={<Help />} />
         <Route path="rewards" element={<Rewards />} />
+        <Route path="leaderboard" element={<ReferralLeaderboard />} />
         <Route path="download" element={<Download />} />
         <Route path="how-it-works" element={<HowItWorks />} />
       </Route>
