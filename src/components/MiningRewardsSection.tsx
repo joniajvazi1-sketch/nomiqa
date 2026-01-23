@@ -2,50 +2,66 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Lock, Unlock, Network, Users, Zap, Rocket, Crown, Star, Gift } from "lucide-react";
 import { useTranslation } from "@/contexts/TranslationContext";
-
 interface MiningRewardsSectionProps {
   totalRegistrations: number;
   currentMilestoneLevel: number;
   minerBoostPercentage: number;
 }
-
-const MILESTONES = [
-  { level: 1, nameKey: 'affiliateTierRecruiter', registrations: 5, boost: 10, icon: Users },
-  { level: 2, nameKey: 'affiliateTierInfluencer', registrations: 15, boost: 20, icon: Zap },
-  { level: 3, nameKey: 'affiliateTierAmbassador', registrations: 30, boost: 40, icon: Star },
-  { level: 4, nameKey: 'affiliateTierChampion', registrations: 50, boost: 70, icon: Rocket },
-  { level: 5, nameKey: 'affiliateTierLegend', registrations: 100, boost: 100, icon: Crown },
-];
-
-export const MiningRewardsSection = ({ 
-  totalRegistrations, 
+const MILESTONES = [{
+  level: 1,
+  nameKey: 'affiliateTierRecruiter',
+  registrations: 5,
+  boost: 10,
+  icon: Users
+}, {
+  level: 2,
+  nameKey: 'affiliateTierInfluencer',
+  registrations: 15,
+  boost: 20,
+  icon: Zap
+}, {
+  level: 3,
+  nameKey: 'affiliateTierAmbassador',
+  registrations: 30,
+  boost: 40,
+  icon: Star
+}, {
+  level: 4,
+  nameKey: 'affiliateTierChampion',
+  registrations: 50,
+  boost: 70,
+  icon: Rocket
+}, {
+  level: 5,
+  nameKey: 'affiliateTierLegend',
+  registrations: 100,
+  boost: 100,
+  icon: Crown
+}];
+export const MiningRewardsSection = ({
+  totalRegistrations,
   currentMilestoneLevel,
-  minerBoostPercentage 
+  minerBoostPercentage
 }: MiningRewardsSectionProps) => {
-  const { t } = useTranslation();
-  
+  const {
+    t
+  } = useTranslation();
   const getNextMilestone = () => {
     return MILESTONES.find(m => m.level > currentMilestoneLevel);
   };
-  
   const getCurrentMilestone = () => {
     return MILESTONES.find(m => m.level === currentMilestoneLevel);
   };
-  
   const nextMilestone = getNextMilestone();
   const currentMilestone = getCurrentMilestone();
-  
   const getProgressToNext = () => {
     if (!nextMilestone) return 100;
     const prevThreshold = currentMilestone?.registrations || 0;
-    const progress = ((totalRegistrations - prevThreshold) / (nextMilestone.registrations - prevThreshold)) * 100;
+    const progress = (totalRegistrations - prevThreshold) / (nextMilestone.registrations - prevThreshold) * 100;
     return Math.min(Math.max(progress, 0), 100);
   };
-  
   const remainingToNext = nextMilestone ? nextMilestone.registrations - totalRegistrations : 0;
-
-  return (
-    <div className="rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/10 overflow-hidden">
+  return <div className="rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/10 overflow-hidden">
       {/* Header */}
       <div className="p-5 md:p-6 border-b border-white/10">
         <div className="flex items-center gap-3">
@@ -58,29 +74,25 @@ export const MiningRewardsSection = ({
           </div>
         </div>
         
-        {minerBoostPercentage > 0 && (
-          <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-neon-cyan/10 rounded-full border border-neon-cyan/20">
+        {minerBoostPercentage > 0 && <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-neon-cyan/10 rounded-full border border-neon-cyan/20">
             <Zap className="w-4 h-4 text-neon-cyan" />
             <span className="font-medium text-neon-cyan">+{minerBoostPercentage}% {t("miningBoostActive")}</span>
-          </div>
-        )}
+          </div>}
       </div>
       
       <div className="p-5 md:p-6 space-y-6">
         {/* Progress to next milestone */}
-        {nextMilestone && (
-          <div className="space-y-3">
+        {nextMilestone && <div className="space-y-3">
             <div className="flex items-center justify-between text-sm">
               <span className="text-white/60">{t("progressTo")} {t(nextMilestone.nameKey)}</span>
-              <span className="font-medium text-white">{remainingToNext} {t("moreRegistrationsNeeded")}</span>
+              <span className="font-medium text-white px-[10px]">{remainingToNext} {t("moreRegistrationsNeeded")}</span>
             </div>
             <Progress value={getProgressToNext()} className="h-2 bg-white/10" />
             <div className="flex items-center justify-between text-xs text-white/40">
               <span>{totalRegistrations} {t("registrationsCount")}</span>
               <span>{nextMilestone.registrations} {t("required")}</span>
             </div>
-          </div>
-        )}
+          </div>}
         
         {/* Milestones */}
         <div className="space-y-3">
@@ -90,28 +102,13 @@ export const MiningRewardsSection = ({
           </h4>
           
           <div className="grid gap-2">
-            {MILESTONES.map((milestone) => {
-              const isUnlocked = currentMilestoneLevel >= milestone.level;
-              const Icon = milestone.icon;
-              
-              return (
-                <div
-                  key={milestone.level}
-                  className={`flex items-center justify-between p-3 rounded-xl border transition-all ${
-                    isUnlocked
-                      ? 'bg-neon-cyan/5 border-neon-cyan/20'
-                      : 'bg-white/[0.02] border-white/5 opacity-60'
-                  }`}
-                >
+            {MILESTONES.map(milestone => {
+            const isUnlocked = currentMilestoneLevel >= milestone.level;
+            const Icon = milestone.icon;
+            return <div key={milestone.level} className={`flex items-center justify-between p-3 rounded-xl border transition-all ${isUnlocked ? 'bg-neon-cyan/5 border-neon-cyan/20' : 'bg-white/[0.02] border-white/5 opacity-60'}`}>
                   <div className="flex items-center gap-3">
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                      isUnlocked ? 'bg-neon-cyan/20' : 'bg-white/5'
-                    }`}>
-                      {isUnlocked ? (
-                        <Icon className="w-4 h-4 text-neon-cyan" />
-                      ) : (
-                        <Lock className="w-4 h-4 text-white/30" />
-                      )}
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isUnlocked ? 'bg-neon-cyan/20' : 'bg-white/5'}`}>
+                      {isUnlocked ? <Icon className="w-4 h-4 text-neon-cyan" /> : <Lock className="w-4 h-4 text-white/30" />}
                     </div>
                     <div>
                       <span className={`text-sm font-medium ${isUnlocked ? 'text-white' : 'text-white/50'}`}>
@@ -125,9 +122,8 @@ export const MiningRewardsSection = ({
                     <div className="font-bold">+{milestone.boost}%</div>
                     <div className="text-xs opacity-70">{t("miningBoost")}</div>
                   </div>
-                </div>
-              );
-            })}
+                </div>;
+          })}
           </div>
         </div>
         
@@ -166,6 +162,5 @@ export const MiningRewardsSection = ({
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
