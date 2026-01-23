@@ -1,4 +1,3 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Lock, Unlock, Network, Users, Zap, Rocket, Crown, Star, Gift } from "lucide-react";
@@ -46,117 +45,85 @@ export const MiningRewardsSection = ({
   const remainingToNext = nextMilestone ? nextMilestone.registrations - totalRegistrations : 0;
 
   return (
-    <Card className="mb-8 bg-gradient-to-br from-card/90 via-card/70 to-card/50 backdrop-blur-xl border-border/50 shadow-xl overflow-hidden relative">
-      {/* Animated background glow */}
-      <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 via-orange-500/5 to-yellow-500/5 pointer-events-none" />
-      <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
-      
-      <CardHeader className="pb-4 border-b border-border/50 relative">
+    <div className="rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/10 overflow-hidden">
+      {/* Header */}
+      <div className="p-5 md:p-6 border-b border-white/10">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 bg-gradient-to-br from-amber-500/20 to-orange-500/20 rounded-xl border border-amber-500/30">
-            <Network className="w-6 h-6 text-amber-500" />
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-neon-cyan/20 to-neon-cyan/10 flex items-center justify-center border border-neon-cyan/20">
+            <Network className="w-5 h-5 text-neon-cyan" />
           </div>
           <div>
-            <CardTitle className="text-xl md:text-2xl font-bold bg-gradient-to-r from-amber-400 via-orange-400 to-yellow-400 bg-clip-text text-transparent">
-              {t("miningRewardsTitle")}
-            </CardTitle>
-            <CardDescription className="text-sm">
-              {t("miningRewardsDesc")}
-            </CardDescription>
+            <h3 className="text-lg font-light text-white">{t("miningRewardsTitle")}</h3>
+            <p className="text-sm text-white/50">{t("miningRewardsDesc")}</p>
           </div>
         </div>
         
-        {/* Current boost display */}
         {minerBoostPercentage > 0 && (
-          <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-500/20 to-orange-500/20 rounded-full border border-amber-500/30">
-            <Zap className="w-4 h-4 text-amber-400" />
-            <span className="font-bold text-amber-400">+{minerBoostPercentage}% {t("miningBoostActive")}</span>
+          <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-neon-cyan/10 rounded-full border border-neon-cyan/20">
+            <Zap className="w-4 h-4 text-neon-cyan" />
+            <span className="font-medium text-neon-cyan">+{minerBoostPercentage}% {t("miningBoostActive")}</span>
           </div>
         )}
-      </CardHeader>
+      </div>
       
-      <CardContent className="pt-6 relative space-y-8">
+      <div className="p-5 md:p-6 space-y-6">
         {/* Progress to next milestone */}
         {nextMilestone && (
           <div className="space-y-3">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">{t("progressTo")} {t(nextMilestone.nameKey)}</span>
-              <span className="font-semibold text-foreground">{remainingToNext} {t("moreRegistrationsNeeded")}</span>
+              <span className="text-white/60">{t("progressTo")} {t(nextMilestone.nameKey)}</span>
+              <span className="font-medium text-white">{remainingToNext} {t("moreRegistrationsNeeded")}</span>
             </div>
-            <Progress value={getProgressToNext()} className="h-3 bg-muted/50" />
-            <div className="flex items-center justify-between text-xs text-muted-foreground">
+            <Progress value={getProgressToNext()} className="h-2 bg-white/10" />
+            <div className="flex items-center justify-between text-xs text-white/40">
               <span>{totalRegistrations} {t("registrationsCount")}</span>
               <span>{nextMilestone.registrations} {t("required")}</span>
             </div>
           </div>
         )}
         
-        {/* Milestones Grid */}
-        <div className="space-y-4">
-          <h3 className="font-semibold text-base flex items-center gap-2">
-            <Gift className="w-4 h-4 text-primary" />
+        {/* Milestones */}
+        <div className="space-y-3">
+          <h4 className="text-sm font-medium text-white/80 flex items-center gap-2">
+            <Gift className="w-4 h-4 text-neon-violet" />
             {t("minerBoostMilestones")}
-          </h3>
+          </h4>
           
-          <div className="grid gap-3">
+          <div className="grid gap-2">
             {MILESTONES.map((milestone) => {
               const isUnlocked = currentMilestoneLevel >= milestone.level;
-              const isCurrent = currentMilestoneLevel === milestone.level;
               const Icon = milestone.icon;
               
               return (
                 <div
                   key={milestone.level}
-                  className={`relative p-4 rounded-xl border transition-all duration-300 ${
+                  className={`flex items-center justify-between p-3 rounded-xl border transition-all ${
                     isUnlocked
-                      ? 'bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-yellow-500/10 border-amber-500/30 shadow-lg'
-                      : 'bg-muted/30 border-border/50 opacity-70'
-                  } ${isCurrent ? 'ring-2 ring-amber-500/50 ring-offset-2 ring-offset-background' : ''}`}
+                      ? 'bg-neon-cyan/5 border-neon-cyan/20'
+                      : 'bg-white/[0.02] border-white/5 opacity-60'
+                  }`}
                 >
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-4">
-                      {/* Icon */}
-                      <div className={`p-2.5 rounded-xl ${
-                        isUnlocked 
-                          ? 'bg-gradient-to-br from-amber-500/30 to-orange-500/30' 
-                          : 'bg-muted/50'
-                      }`}>
-                        {isUnlocked ? (
-                          <Icon className="w-5 h-5 text-amber-400" />
-                        ) : (
-                          <Lock className="w-5 h-5 text-muted-foreground" />
-                        )}
-                      </div>
-                      
-                      {/* Info */}
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className={`font-bold ${isUnlocked ? 'text-foreground' : 'text-muted-foreground'}`}>
-                            {t(milestone.nameKey)}
-                          </span>
-                          {isUnlocked && (
-                            <Badge variant="outline" className="text-xs bg-amber-500/10 text-amber-400 border-amber-500/30">
-                              <Unlock className="w-3 h-3 mr-1" />
-                              {t("unlocked")}
-                            </Badge>
-                          )}
-                          {isCurrent && (
-                            <Badge className="text-xs bg-amber-500 text-black">
-                              {t("current")}
-                            </Badge>
-                          )}
-                        </div>
-                        <p className="text-sm text-muted-foreground">
-                          {milestone.registrations} {t("registrationsCount")}
-                        </p>
-                      </div>
+                  <div className="flex items-center gap-3">
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                      isUnlocked ? 'bg-neon-cyan/20' : 'bg-white/5'
+                    }`}>
+                      {isUnlocked ? (
+                        <Icon className="w-4 h-4 text-neon-cyan" />
+                      ) : (
+                        <Lock className="w-4 h-4 text-white/30" />
+                      )}
                     </div>
-                    
-                    {/* Reward */}
-                    <div className={`text-right ${isUnlocked ? 'text-amber-400' : 'text-muted-foreground'}`}>
-                      <div className="font-bold text-lg">+{milestone.boost}%</div>
-                      <div className="text-xs">{t("miningBoost")}</div>
+                    <div>
+                      <span className={`text-sm font-medium ${isUnlocked ? 'text-white' : 'text-white/50'}`}>
+                        {t(milestone.nameKey)}
+                      </span>
+                      <p className="text-xs text-white/40">{milestone.registrations} {t("registrationsCount")}</p>
                     </div>
+                  </div>
+                  
+                  <div className={`text-right ${isUnlocked ? 'text-neon-cyan' : 'text-white/40'}`}>
+                    <div className="font-bold">+{milestone.boost}%</div>
+                    <div className="text-xs opacity-70">{t("miningBoost")}</div>
                   </div>
                 </div>
               );
@@ -164,43 +131,41 @@ export const MiningRewardsSection = ({
           </div>
         </div>
         
-        {/* Referral Mining Bonus Card */}
-        <div className="p-5 bg-gradient-to-br from-primary/10 via-accent/5 to-primary/5 rounded-xl border border-primary/20 space-y-4">
+        {/* Referral Mining Bonus */}
+        <div className="p-4 rounded-xl bg-white/[0.02] border border-white/10 space-y-4">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-primary/20 rounded-xl">
-              <Users className="w-5 h-5 text-primary" />
+            <div className="w-10 h-10 rounded-xl bg-neon-violet/20 flex items-center justify-center">
+              <Users className="w-5 h-5 text-neon-violet" />
             </div>
             <div>
-              <h3 className="font-bold text-base">{t("referralMiningBonus")}</h3>
-              <p className="text-sm text-muted-foreground">{t("passiveIncomeFromNetwork")}</p>
+              <h4 className="font-medium text-white">{t("referralMiningBonus")}</h4>
+              <p className="text-xs text-white/50">{t("passiveIncomeFromNetwork")}</p>
             </div>
           </div>
           
-          <div className="p-4 bg-background/50 rounded-lg border border-border/50">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500/20 to-emerald-500/20 flex items-center justify-center">
-                <span className="text-lg font-bold text-green-400">5%</span>
-              </div>
-              <div>
-                <p className="font-semibold text-foreground">{t("earnFromReferralMining")}</p>
-                <p className="text-xs text-muted-foreground">{t("theyDontLoseAnything")}</p>
-              </div>
+          <div className="flex items-center gap-3 p-3 bg-white/[0.03] rounded-lg border border-white/5">
+            <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center">
+              <span className="text-sm font-bold text-emerald-400">5%</span>
             </div>
-            
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Users className="w-4 h-4" />
-              <span><strong className="text-foreground">{totalRegistrations}</strong> {t("peopleInYourNetwork")}</span>
+            <div>
+              <p className="text-sm text-white">{t("earnFromReferralMining")}</p>
+              <p className="text-xs text-white/40">{t("theyDontLoseAnything")}</p>
             </div>
           </div>
           
-          <div className="flex items-center gap-2 p-3 bg-amber-500/10 rounded-lg border border-amber-500/20">
-            <Rocket className="w-5 h-5 text-amber-400" />
-            <p className="text-sm text-amber-200/80">
-              <strong className="text-amber-400">{t("comingSoonMining")}</strong> {t("miningRewardsActivate")}
+          <div className="flex items-center gap-2 text-sm text-white/50">
+            <Users className="w-4 h-4" />
+            <span><strong className="text-white">{totalRegistrations}</strong> {t("peopleInYourNetwork")}</span>
+          </div>
+          
+          <div className="flex items-center gap-2 p-3 bg-neon-violet/10 rounded-lg border border-neon-violet/20">
+            <Rocket className="w-4 h-4 text-neon-violet" />
+            <p className="text-xs text-white/70">
+              <strong className="text-neon-violet">{t("comingSoonMining")}</strong> {t("miningRewardsActivate")}
             </p>
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
