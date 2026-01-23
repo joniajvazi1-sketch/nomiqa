@@ -38,24 +38,21 @@ export const DataMarketplace = () => {
   ];
 
   return (
-    <section ref={sectionRef} className="relative py-20 md:py-32 overflow-hidden bg-gradient-to-b from-background to-background/95">
-      {/* Background */}
-      <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--neon-violet)/0.08),transparent_60%)]"></div>
-        <div className="absolute inset-0 bg-grid-white/[0.01] bg-[size:60px_60px]"></div>
-      </div>
+    <section ref={sectionRef} className="relative py-16 md:py-24 overflow-hidden bg-gradient-to-b from-background via-card/20 to-background">
+      {/* Cleaner background */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(var(--neon-violet)/0.04),transparent_70%)]" />
       
-      <div className="container relative z-10 px-4 sm:px-6 md:px-8">
+      <div className="container relative z-10 px-4 sm:px-6">
         {/* Header */}
-        <div className={`text-center mb-16 md:mb-20 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neon-violet/10 border border-neon-violet/20 mb-6">
+        <div className={`text-center mb-12 md:mb-16 transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neon-violet/10 border border-neon-violet/20 mb-5">
             <TrendingUp className="w-4 h-4 text-neon-violet" />
             <span className="text-sm font-medium text-neon-violet">{t("dataMarketplaceBadge")}</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 leading-tight">
             <span className="text-foreground">{t("dataMarketplaceTitle")}</span>
           </h2>
-          <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+          <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
             {t("dataMarketplaceSubtitle")}
           </p>
         </div>

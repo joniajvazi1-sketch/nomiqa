@@ -217,16 +217,30 @@ Earn cashback on every eSIM purchase:
 
 Cashback is applied to your account for future purchases.
 
-=== REFERRAL/AFFILIATE PROGRAM ===
-Share Nomiqa and earn from your network:
-- Level 1 (Direct referrals): 9% commission
-- Level 2 (Their referrals): 6% commission  
-- Level 3 (Third level): 3% commission
+=== REFERRAL/INVITE PROGRAM (MAIN FOCUS) ===
+The referral program is about inviting USERS to join the network, NOT about selling eSIMs.
 
-Network Tier bonuses for active referrers:
-- More verified recruits = higher reward boost (up to +100%)
-- Track your stats in the app or at nomiqa.com/affiliate
-- Get your unique referral link to share
+MAIN BENEFITS OF INVITING USERS:
+1. REWARD BOOSTS: The more users you invite, the higher your point boost when contributing to the network
+   - More contributors in your network = up to +100% boost on YOUR earnings
+   - This is the primary incentive - grow your network, earn more from your own contributions
+
+2. PASSIVE EARNINGS FROM NETWORK: Earn 5% of all points your referred users earn from THEIR network contributions
+   - When they contribute data, you earn 5% of their points automatically
+   - This continues as long as they keep contributing
+
+3. SALES COMMISSIONS (Secondary): If your referrals buy eSIM plans, you also earn:
+   - Level 1 (Direct referrals): 9% commission on purchases
+   - Level 2 (Their referrals): 6% commission
+   - Level 3 (Third level): 3% commission
+
+HOW IT WORKS:
+1. Share your unique referral link from the app or nomiqa.com/affiliate
+2. When someone signs up with your link, they're added to your network
+3. You immediately get boost benefits and start earning 5% of their contributions
+4. If they buy eSIMs, you get additional sales commissions
+
+KEY POINT: Focus on inviting active users who will contribute to the network, not just buyers!
 
 === TROUBLESHOOTING ===
 Lost QR code?
