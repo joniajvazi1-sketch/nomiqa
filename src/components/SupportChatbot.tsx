@@ -47,7 +47,7 @@ export const SupportChatbot = () => {
       // Check for same domain
       const urlObj = new URL(url, window.location.origin);
       return urlObj.host === currentHost || 
-             url.includes('nomiqa.lovable.app') || 
+             url.includes('nomiqa-depin.com') || 
              url.includes('lovableproject.com');
     } catch {
       return false;

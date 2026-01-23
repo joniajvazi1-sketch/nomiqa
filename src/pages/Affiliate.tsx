@@ -397,7 +397,7 @@ export default function Affiliate() {
                         </Button>
                       </div>
                       <p className="text-xs text-white/50">
-                        Your personalized link: <span className="text-primary font-medium">nomiqa.app/{affiliate.username}</span>
+                        Your personalized link: <span className="text-primary font-medium">nomiqa-depin.com/{affiliate.username}</span>
                       </p>
                     </div>
                   ) : (
@@ -419,7 +419,7 @@ export default function Affiliate() {
                       </div>
                       {username && (
                         <p className="text-xs text-white/50">
-                          Preview: <span className="text-primary">nomiqa.app/{username}</span>
+                          Preview: <span className="text-primary">nomiqa-depin.com/{username}</span>
                         </p>
                       )}
                     </div>

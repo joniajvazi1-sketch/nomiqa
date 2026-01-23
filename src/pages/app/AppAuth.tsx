@@ -526,7 +526,7 @@ export const AppAuth: React.FC = () => {
       // 1. Supabase only allows https:// redirect URLs  
       // 2. The redirect page then deep links back to the native app
       // IMPORTANT: Must use the PUBLISHED URL, not window.location.origin (which is localhost in webview)
-      const publishedUrl = 'https://nomiqa.lovable.app';
+      const publishedUrl = 'https://nomiqa-depin.com';
       
       const redirectTo = isNativeApp
         ? `${publishedUrl}/app/oauth-redirect`

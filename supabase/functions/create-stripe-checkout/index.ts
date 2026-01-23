@@ -168,7 +168,7 @@ serve(async (req) => {
     }
 
     // Get origin for redirect URLs
-    const origin = req.headers.get("origin") || "https://nomiqa.lovable.app";
+    const origin = req.headers.get("origin") || "https://nomiqa-depin.com";
 
     // Create Stripe Checkout session with dynamic pricing
     const session = await stripe.checkout.sessions.create({

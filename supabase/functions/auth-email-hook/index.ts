@@ -25,7 +25,7 @@ interface AuthEmailPayload {
 }
 
 const generateAuthEmailHTML = (type: string, data: { email: string; confirmLink: string; token: string; siteUrl: string }): { html: string; subject: string } => {
-  const logoUrl = "https://nomiqa-esim.com/nomiqa-logo.jpg";
+  const logoUrl = "https://nomiqa-depin.com/nomiqa-logo.jpg";
   const { email, confirmLink, token, siteUrl } = data;
 
   switch (type) {

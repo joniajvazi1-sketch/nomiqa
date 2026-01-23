@@ -235,7 +235,7 @@ serve(async (req) => {
     const webhookUrl = `${supabaseUrl}/functions/v1/helio-webhook`;
     
     // Get the origin from the request or use a default
-    const origin = req.headers.get('origin') || 'https://nomiqa-esim.com';
+    const origin = req.headers.get('origin') || 'https://nomiqa-depin.com';
     
     // Success URL redirects directly to My eSIMs page (orders) after payment
     // This is critical for Phantom wallet flow where user leaves app and returns

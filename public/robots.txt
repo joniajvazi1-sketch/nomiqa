@@ -5,4 +5,4 @@ Disallow: /app
 Disallow: /app/
 
 # Sitemap
-Sitemap: https://nomiqa.io/sitemap.xml
+Sitemap: https://nomiqa-depin.com/sitemap.xml

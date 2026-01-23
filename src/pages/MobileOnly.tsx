@@ -21,10 +21,10 @@ const MobileOnly = () => {
     setTimeout(() => {
       if (isIOS) {
         // iOS App Store link (update with actual App Store ID when available)
-        window.location.href = 'https://nomiqa.lovable.app/download';
+        window.location.href = 'https://nomiqa-depin.com/download';
       } else if (isAndroid) {
         // Google Play Store link (update with actual Play Store ID when available)
-        window.location.href = 'https://nomiqa.lovable.app/download';
+        window.location.href = 'https://nomiqa-depin.com/download';
       }
     }, 2000);
   };
