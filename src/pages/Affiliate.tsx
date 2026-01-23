@@ -142,9 +142,9 @@ export default function Affiliate() {
   const tierInfo = useMemo(() => {
     if (!affiliate) return null;
     const tiers = [
-      { level: 1, name: 'Starter', conversions: 0, description: '9% on direct sales', color: 'text-neon-cyan' },
-      { level: 2, name: 'Pro', conversions: 10, description: 'Additional 6% on 2nd level', color: 'text-neon-violet' },
-      { level: 3, name: 'Elite', conversions: 30, description: 'Additional 3% on 3rd level', color: 'text-neon-coral' },
+      { level: 1, nameKey: 'affiliateTierStarter', conversions: 0, color: 'text-neon-cyan' },
+      { level: 2, nameKey: 'affiliateTierPro', conversions: 10, color: 'text-neon-violet' },
+      { level: 3, nameKey: 'affiliateTierElite', conversions: 30, color: 'text-neon-coral' },
     ];
     const currentTier = tiers.find(t => t.level === affiliate.tier_level) || tiers[0];
     const nextTier = tiers.find(t => t.level === affiliate.tier_level + 1);
@@ -319,32 +319,32 @@ export default function Affiliate() {
         <div className="container max-w-5xl mx-auto text-center">
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neon-cyan/10 border border-neon-cyan/30 mb-6">
-            <Users className="w-4 h-4 text-neon-cyan" />
-            <span className="text-sm font-medium text-neon-cyan">Grow Your Network, Boost Your Rewards</span>
+            <Users className="w-4 h-4 text-neon-cyan" strokeWidth={2.5} />
+            <span className="text-sm font-medium text-neon-cyan">{t("affiliateHeroBadge")}</span>
           </div>
           
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
-            <span className="text-foreground">Invite Friends.</span>{" "}
-            <span className="bg-gradient-to-r from-neon-cyan to-neon-violet bg-clip-text text-transparent">Earn More.</span>
+            <span className="text-foreground">{t("affiliateHeroTitle1")}</span>{" "}
+            <span className="bg-gradient-to-r from-neon-cyan to-neon-violet bg-clip-text text-transparent">{t("affiliateHeroTitle2")}</span>
           </h1>
           
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10">
-            The more users you invite, the higher YOUR reward boost. Plus earn 5% of everything your network earns — forever.
+            {t("affiliateHeroDescription")}
           </p>
 
           {/* Main Value Props */}
           <div className="flex flex-wrap items-center justify-center gap-4 mb-12">
             <div className="px-5 py-3 rounded-xl bg-neon-cyan/10 border border-neon-cyan/30">
               <span className="text-2xl font-bold text-neon-cyan">+100%</span>
-              <span className="text-sm text-muted-foreground ml-2">Max Boost</span>
+              <span className="text-sm text-muted-foreground ml-2">{t("affiliateMaxBoost")}</span>
             </div>
             <div className="px-5 py-3 rounded-xl bg-neon-violet/10 border border-neon-violet/30">
               <span className="text-2xl font-bold text-neon-violet">5%</span>
-              <span className="text-sm text-muted-foreground ml-2">From Network</span>
+              <span className="text-sm text-muted-foreground ml-2">{t("affiliateFromNetwork")}</span>
             </div>
             <div className="px-5 py-3 rounded-xl bg-muted/50 border border-border">
               <span className="text-2xl font-bold text-foreground">9%</span>
-              <span className="text-sm text-muted-foreground ml-2">Sales Commission</span>
+              <span className="text-sm text-muted-foreground ml-2">{t("affiliateSalesCommission")}</span>
             </div>
           </div>
         </div>
@@ -375,11 +375,11 @@ export default function Affiliate() {
                 <div className="p-5 md:p-6 border-b border-white/10">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center border border-primary/20">
-                      <Share2 className="w-5 h-5 text-primary" />
+                      <Share2 className="w-5 h-5 text-primary" strokeWidth={2.5} />
                     </div>
                     <div>
-                      <h3 className="text-lg font-light text-white">Your Invite Link</h3>
-                      <p className="text-sm text-white/50">Share this personalized link to grow your network</p>
+                      <h3 className="text-lg font-light text-white">{t("affiliateYourLink")}</h3>
+                      <p className="text-sm text-white/50">{t("affiliateYourLinkDesc")}</p>
                     </div>
                   </div>
                 </div>
@@ -438,15 +438,12 @@ export default function Affiliate() {
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
-                        <Award className={`w-5 h-5 ${tierInfo.currentTier.color}`} />
+                        <Award className={`w-5 h-5 ${tierInfo.currentTier.color}`} strokeWidth={2.5} />
                       </div>
-                      <div>
-                        <p className="font-medium text-white">{tierInfo.currentTier.name} Tier</p>
-                        <p className="text-xs text-white/50">{tierInfo.currentTier.description}</p>
-                      </div>
+                      <p className="font-medium text-white">{t("affiliateProgressTo")} {t(tierInfo.nextTier.nameKey)}</p>
                     </div>
-                    <Badge variant="outline" className="border-primary/30 text-primary">
-                      {tierInfo.remaining} to {tierInfo.nextTier.name}
+                    <Badge variant="outline" className="border-primary/30 text-primary whitespace-nowrap">
+                      {tierInfo.remaining} {t("affiliateRegistrationsNeeded")}
                     </Badge>
                   </div>
                   <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
