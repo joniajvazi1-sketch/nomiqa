@@ -17,26 +17,21 @@ export const DePINAdvantage = () => {
   ];
 
   return (
-    <section className="py-24 relative overflow-hidden">
-      {/* Premium gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background via-background/50 to-background" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,rgba(0,255,200,0.08),transparent_50%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_70%,rgba(139,92,246,0.08),transparent_50%)]" />
+    <section className="py-16 md:py-24 relative overflow-hidden">
+      {/* Cleaner gradient background */}
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-card/30 to-background" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,hsl(var(--neon-cyan)/0.06),transparent_50%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,hsl(var(--neon-violet)/0.06),transparent_50%)]" />
       
-      {/* Subtle grid background */}
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,200,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,200,0.02)_1px,transparent_1px)] bg-[size:60px_60px]" />
-      
-      <div className="container px-4 relative z-10">
-        <div className="text-center mb-16 animate-fade-in">
-          <span className="inline-block px-5 py-2 rounded-full bg-white/[0.03] backdrop-blur-xl text-neon-cyan text-sm font-medium mb-6 border border-white/10 shadow-lg shadow-neon-cyan/5">
+      <div className="container px-4 sm:px-6 relative z-10">
+        <div className="text-center mb-10 md:mb-14 animate-fade-in">
+          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neon-cyan/10 border border-neon-cyan/20 text-neon-cyan text-sm font-medium mb-5">
             {t("depinBadge")}
           </span>
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-light font-display mb-6">
-            <span className="bg-gradient-to-r from-neon-cyan via-white to-neon-violet bg-clip-text text-transparent font-semibold">
-              {t("depinHeadline")}
-            </span>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 leading-tight">
+            <span className="text-foreground">{t("depinHeadline")}</span>
           </h2>
-          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto font-light">
+          <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
             {t("depinSubheadline")}
           </p>
         </div>

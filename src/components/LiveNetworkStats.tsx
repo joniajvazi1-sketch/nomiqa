@@ -150,23 +150,21 @@ export const LiveNetworkStats = () => {
   ];
 
   return (
-    <section ref={sectionRef} className="relative py-16 md:py-24 overflow-hidden bg-gradient-to-b from-background/95 to-background">
-      {/* Background pulse effect */}
-      <div className="absolute inset-0">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-neon-cyan/5 rounded-full blur-3xl animate-pulse"></div>
-      </div>
+    <section ref={sectionRef} className="relative py-14 md:py-20 overflow-hidden bg-gradient-to-b from-card/20 via-background to-background">
+      {/* Subtle glow */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(var(--neon-cyan)/0.03),transparent_60%)]" />
       
-      <div className="container relative z-10 px-4 sm:px-6 md:px-8">
+      <div className="container relative z-10 px-4 sm:px-6">
         {/* Header */}
-        <div className={`text-center mb-12 md:mb-16 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neon-cyan/10 border border-neon-cyan/20 mb-6">
+        <div className={`text-center mb-10 md:mb-12 transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neon-cyan/10 border border-neon-cyan/20 mb-5">
             <div className="w-2 h-2 rounded-full bg-neon-cyan animate-pulse"></div>
             <span className="text-sm font-medium text-neon-cyan">{t("liveStatsBadge")}</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 text-foreground">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 text-foreground">
             {t("liveStatsTitle")}
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg text-muted-foreground max-w-xl mx-auto">
             {t("liveStatsSubtitle")}
           </p>
         </div>
