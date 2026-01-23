@@ -7,13 +7,13 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ShoppingCart, LogOut, LogIn, Menu, Globe, Check, User as UserIcon, Search, MapPin } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
-import { useProducts } from "@/hooks/useProducts";
+import { useNavbarSearch } from "@/hooks/useNavbarSearch";
 import { supabase } from "@/integrations/supabase/client";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import { toast } from "sonner";
 import { Language, useTranslation } from "@/contexts/TranslationContext";
 import { localizedPath } from "@/utils/localizedLinks";
-import { getTranslatedCountryName, getAllTranslatedNames } from "@/utils/countryTranslations";
+import { getTranslatedCountryName } from "@/utils/countryTranslations";
 // Country flags now use emoji for performance (removed country-flag-icons library - 53KB savings)
 
 export const Navbar = () => {
@@ -24,10 +24,10 @@ export const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [desktopMenuOpen, setDesktopMenuOpen] = useState(false);
   const [_scrolled, setScrolled] = useState(false); // kept for potential future use
-  const [searchQuery, setSearchQuery] = useState("");
   const [showSearchResults, setShowSearchResults] = useState(false);
   const { language, setLanguage, t } = useTranslation();
-  const { data: products } = useProducts();
+  // Use lightweight search hook instead of fetching ALL products
+  const { searchQuery, setSearchQuery, searchResults } = useNavbarSearch(language);
 
   // Check if we're on the shop page
   const isShopPage = location.pathname.includes('/shop');
@@ -147,73 +147,7 @@ export const Navbar = () => {
     navigate(localizedPath(path, language));
   };
 
-  // Fuzzy search helper - calculates similarity between two strings
-  const calculateSimilarity = (str1: string, str2: string): number => {
-    const s1 = str1.toLowerCase();
-    const s2 = str2.toLowerCase();
-    
-    // Exact match
-    if (s1 === s2) return 1;
-    
-    // Substring match
-    if (s2.includes(s1) || s1.includes(s2)) return 0.8;
-    
-    // Character-based similarity
-    let matches = 0;
-    const maxLength = Math.max(s1.length, s2.length);
-    for (let i = 0; i < Math.min(s1.length, s2.length); i++) {
-      if (s1[i] === s2[i]) matches++;
-    }
-    
-    return matches / maxLength;
-  };
-
-  // Get search results with fuzzy matching - show unique countries AND regions
-  const getSearchResults = () => {
-    if (!searchQuery.trim() || !products) return [];
-    
-    const searchLower = searchQuery.toLowerCase();
-    
-    // Group products by country/region and calculate best score for each
-    const resultMap = new Map<string, { code: string; name: string; score: number; isRegional: boolean }>();
-    
-    products.forEach(product => {
-      const isRegional = (product as any).package_type === 'regional';
-      const allNames = getAllTranslatedNames(product.country_code);
-      const currentName = isRegional ? product.country_name : getTranslatedCountryName(product.country_code, language);
-      
-      // Calculate similarity scores
-      const scores = [
-        calculateSimilarity(searchLower, currentName.toLowerCase()),
-        calculateSimilarity(searchLower, product.country_name.toLowerCase()),
-        ...allNames.map(name => calculateSimilarity(searchLower, name.toLowerCase())),
-      ];
-      
-      const maxScore = Math.max(...scores);
-      
-      // Use a unique key combining code and type
-      const key = `${product.country_code}-${isRegional ? 'regional' : 'local'}`;
-      const existing = resultMap.get(key);
-      if (!existing || maxScore > existing.score) {
-        resultMap.set(key, {
-          code: product.country_code,
-          name: currentName,
-          score: maxScore,
-          isRegional
-        });
-      }
-    });
-    
-    // Convert to array, filter, sort and limit
-    const results = Array.from(resultMap.values())
-      .filter(item => item.score > 0.4)
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 6);
-    
-    return results;
-  };
-
-  const searchResults = getSearchResults();
+  // Search is now handled by useNavbarSearch hook
 
   const handleSearch = (e: React.FormEvent, fromMobile: boolean = false) => {
     e.preventDefault();

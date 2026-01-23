@@ -1,10 +1,11 @@
+import { memo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { useFeaturedProducts } from "@/hooks/useProducts";
+import { useFeaturedProducts, Product } from "@/hooks/useProducts";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
-import { Loader2, ArrowRight, Globe, Map } from "lucide-react";
+import { Loader2, ArrowRight } from "lucide-react";
 import { Card, CardContent } from "./ui/card";
-import { useTranslation } from "@/contexts/TranslationContext";
+import { useTranslation, Language } from "@/contexts/TranslationContext";
 import { getTranslatedCountryName } from "@/utils/countryTranslations";
 
 // Convert country code to emoji flag
@@ -51,54 +52,145 @@ const REGION_IMAGES: Record<string, string> = {
   'WORLD': '/regions/world.png',
 };
 
+// Memoized product card for desktop - prevents re-renders
+interface ProductCardProps {
+  product: Product;
+  index: number;
+  language: Language;
+  formatPrice: (price: number) => string;
+  t: (key: string) => string;
+  onClick: () => void;
+}
+
+const DesktopProductCard = memo(({ product, index, language, formatPrice, t, onClick }: ProductCardProps) => {
+  const isRegional = product.package_type === 'regional';
+  const displayName = isRegional ? product.country_name : getTranslatedCountryName(product.country_code, language);
+  
+  const flag = isRegional ? (
+    REGION_IMAGES[product.country_code] ? (
+      <img 
+        src={REGION_IMAGES[product.country_code]} 
+        alt={product.country_code} 
+        width={40}
+        height={28}
+        loading="lazy"
+        decoding="async"
+        className="w-10 h-7 rounded object-cover"
+      />
+    ) : (
+      <div className="w-10 h-7 rounded bg-white/5 flex items-center justify-center text-base">🌐</div>
+    )
+  ) : (
+    <div className="w-10 h-7 rounded bg-white/5 flex items-center justify-center text-xl">
+      {getEmojiFlag(product.country_code)}
+    </div>
+  );
+
+  return (
+    <Card 
+      className="group relative overflow-hidden backdrop-blur-xl bg-card/50 border-border/50 hover:border-neon-cyan/30 transition-all duration-300 hover:shadow-xl hover:shadow-neon-cyan/10 hover:-translate-y-1 animate-fade-in cursor-pointer"
+      style={{ animationDelay: `${index * 0.05}s` }}
+      onClick={onClick}
+    >
+      <CardContent className="p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            {flag}
+            <div>
+              <h3 className="text-lg font-semibold group-hover:text-neon-cyan transition-colors">
+                {displayName}
+              </h3>
+              <p className="text-xs text-muted-foreground">
+                {product.package_type === 'regional' ? t("regionalData") : product.data_amount}
+              </p>
+            </div>
+          </div>
+        </div>
+        
+        <div className="flex items-center justify-between pt-4 border-t border-border/50">
+          <div className="text-3xl font-semibold bg-gradient-to-r from-white via-neon-cyan to-white bg-clip-text text-transparent drop-shadow-[0_0_8px_rgba(6,182,212,0.3)]">
+            {formatPrice(product.price_usd)}
+          </div>
+          <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-neon-cyan group-hover:translate-x-1 transition-all" />
+        </div>
+      </CardContent>
+    </Card>
+  );
+});
+DesktopProductCard.displayName = 'DesktopProductCard';
+
+// Memoized mobile product row
+const MobileProductRow = memo(({ product, index, language, formatPrice, t, onClick }: ProductCardProps) => {
+  const isRegional = product.package_type === 'regional';
+  const displayName = isRegional ? product.country_name : getTranslatedCountryName(product.country_code, language);
+  
+  const flag = isRegional ? (
+    REGION_IMAGES[product.country_code] ? (
+      <img 
+        src={REGION_IMAGES[product.country_code]} 
+        alt={product.country_code} 
+        width={40}
+        height={28}
+        loading="lazy"
+        decoding="async"
+        className="w-10 h-7 rounded object-cover"
+      />
+    ) : (
+      <div className="w-10 h-7 rounded bg-white/5 flex items-center justify-center text-base">🌐</div>
+    )
+  ) : (
+    <div className="w-10 h-7 rounded bg-white/5 flex items-center justify-center text-xl">
+      {getEmojiFlag(product.country_code)}
+    </div>
+  );
+
+  return (
+    <div
+      className="group relative overflow-hidden backdrop-blur-xl bg-card/50 border border-border/50 hover:border-neon-cyan/30 rounded-2xl transition-all duration-300 hover:shadow-xl hover:shadow-neon-cyan/10 cursor-pointer animate-fade-in p-4"
+      style={{ animationDelay: `${index * 0.05}s` }}
+      onClick={onClick}
+    >
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          {flag}
+          <div className="flex-1 min-w-0">
+            <h3 className="text-base font-semibold group-hover:text-neon-cyan transition-colors truncate">
+              {displayName}
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              {product.package_type === 'regional' ? t("regionalData") : product.data_amount}
+            </p>
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-3">
+          <div className="text-2xl font-semibold bg-gradient-to-r from-white via-neon-cyan to-white bg-clip-text text-transparent drop-shadow-[0_0_8px_rgba(6,182,212,0.3)] whitespace-nowrap">
+            {formatPrice(product.price_usd)}
+          </div>
+          <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-neon-cyan group-hover:translate-x-1 transition-all flex-shrink-0" />
+        </div>
+      </div>
+    </div>
+  );
+});
+MobileProductRow.displayName = 'MobileProductRow';
+
 export const FeaturedProducts = () => {
   const navigate = useNavigate();
   const { data: featuredProducts, isLoading } = useFeaturedProducts(FEATURED_LOCAL_COUNTRIES, FEATURED_REGIONAL_CODES);
   const { language, t, formatPrice } = useTranslation();
 
-  const handleProductClick = (product: any) => {
+  const handleProductClick = useCallback((product: Product) => {
     const isRegional = product.package_type === 'regional';
     if (isRegional) {
-      // For regional products, search by region name
       navigate(`/shop?type=regional&search=${encodeURIComponent(product.country_name)}`);
     } else {
-      // For local products, search by country name
       const translatedCountryName = getTranslatedCountryName(product.country_code, language);
       navigate(`/shop?search=${encodeURIComponent(translatedCountryName)}`);
     }
-  };
+  }, [navigate, language]);
 
-  const getCountryFlag = (countryCode: string, isRegional: boolean) => {
-    if (isRegional) {
-      const regionImage = REGION_IMAGES[countryCode];
-      if (regionImage) {
-        return (
-          <img 
-            src={regionImage} 
-            alt={countryCode} 
-            width={40}
-            height={28}
-            loading="lazy"
-            decoding="async"
-            className="w-10 h-7 rounded object-cover"
-          />
-        );
-      }
-      return (
-        <div className="w-10 h-7 rounded bg-white/5 flex items-center justify-center text-base">
-          🌐
-        </div>
-      );
-    }
-    // Use emoji flag for local countries
-    return (
-      <div className="w-10 h-7 rounded bg-white/5 flex items-center justify-center text-xl">
-        {getEmojiFlag(countryCode)}
-      </div>
-    );
-  };
-
-  if (isLoading) {
+  if (isLoading || !featuredProducts) {
     return (
       <section className="py-24 relative overflow-hidden bg-gradient-to-b from-background via-background/50 to-background">
         <div className="container px-6 md:px-8">
@@ -134,82 +226,34 @@ export const FeaturedProducts = () => {
           </p>
         </div>
 
-        {/* Desktop Grid */}
+        {/* Desktop Grid - using memoized cards */}
         <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
-          {featuredProducts.map((product, index) => {
-            const isRegional = product.package_type === 'regional';
-            const displayName = isRegional ? product.country_name : getTranslatedCountryName(product.country_code, language);
-            
-            return (
-              <Card 
-                key={product.id} 
-                className="group relative overflow-hidden backdrop-blur-xl bg-card/50 border-border/50 hover:border-neon-cyan/30 transition-all duration-300 hover:shadow-xl hover:shadow-neon-cyan/10 hover:-translate-y-1 animate-fade-in cursor-pointer"
-                style={{ animationDelay: `${index * 0.05}s` }}
-                onClick={() => handleProductClick(product)}
-              >
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      {getCountryFlag(product.country_code, isRegional)}
-                      <div>
-                        <h3 className="text-lg font-semibold group-hover:text-neon-cyan transition-colors">
-                          {displayName}
-                        </h3>
-                        <p className="text-xs text-muted-foreground">
-                          {product.package_type === 'regional' ? t("regionalData") : product.data_amount}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center justify-between pt-4 border-t border-border/50">
-                    <div className="text-3xl font-semibold bg-gradient-to-r from-white via-neon-cyan to-white bg-clip-text text-transparent drop-shadow-[0_0_8px_rgba(6,182,212,0.3)]">
-                      {formatPrice(product.price_usd)}
-                    </div>
-                    <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-neon-cyan group-hover:translate-x-1 transition-all" />
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
+          {featuredProducts.map((product, index) => (
+            <DesktopProductCard
+              key={product.id}
+              product={product}
+              index={index}
+              language={language}
+              formatPrice={formatPrice}
+              t={t}
+              onClick={() => handleProductClick(product)}
+            />
+          ))}
         </div>
 
-        {/* Mobile Compact List */}
+        {/* Mobile Compact List - using memoized rows */}
         <div className="md:hidden space-y-3 mb-12">
-          {featuredProducts.map((product, index) => {
-            const isRegional = product.package_type === 'regional';
-            const displayName = isRegional ? product.country_name : getTranslatedCountryName(product.country_code, language);
-            
-            return (
-              <div
-                key={product.id}
-                className="group relative overflow-hidden backdrop-blur-xl bg-card/50 border border-border/50 hover:border-neon-cyan/30 rounded-2xl transition-all duration-300 hover:shadow-xl hover:shadow-neon-cyan/10 cursor-pointer animate-fade-in p-4"
-                style={{ animationDelay: `${index * 0.05}s` }}
-                onClick={() => handleProductClick(product)}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3 flex-1 min-w-0">
-                    {getCountryFlag(product.country_code, isRegional)}
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-base font-semibold group-hover:text-neon-cyan transition-colors truncate">
-                        {displayName}
-                      </h3>
-                      <p className="text-xs text-muted-foreground">
-                        {product.package_type === 'regional' ? t("regionalData") : product.data_amount}
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-3">
-                    <div className="text-2xl font-semibold bg-gradient-to-r from-white via-neon-cyan to-white bg-clip-text text-transparent drop-shadow-[0_0_8px_rgba(6,182,212,0.3)] whitespace-nowrap">
-                      {formatPrice(product.price_usd)}
-                    </div>
-                    <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-neon-cyan group-hover:translate-x-1 transition-all flex-shrink-0" />
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+          {featuredProducts.map((product, index) => (
+            <MobileProductRow
+              key={product.id}
+              product={product}
+              index={index}
+              language={language}
+              formatPrice={formatPrice}
+              t={t}
+              onClick={() => handleProductClick(product)}
+            />
+          ))}
         </div>
 
         {/* View All CTA */}
