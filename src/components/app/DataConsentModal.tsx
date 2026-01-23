@@ -163,7 +163,7 @@ export const DataConsentModal: React.FC<DataConsentModalProps> = ({ onConsentCom
                   <h2 className="text-base font-semibold text-foreground">How It's Used</h2>
                   <div className="bg-card rounded-2xl border border-border p-4">
                     <p className="text-sm text-muted-foreground leading-relaxed">
-                      Your anonymized data is aggregated with other users to create coverage maps. This helps telecom companies improve network quality in your area.
+                      Your anonymized data is aggregated with other users to create coverage maps. This helps connectivity providers, roaming platforms, and infrastructure planners improve network quality.
                     </p>
                   </div>
                 </section>

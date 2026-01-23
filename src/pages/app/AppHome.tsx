@@ -95,7 +95,7 @@ export const AppHome: React.FC = () => {
     
     await share({
       title: 'Join Nomiqa',
-      text: 'Earn rewards just by using your phone. Join me on Nomiqa!',
+      text: 'Contribute to better connectivity and share in the value you help create. Join me on Nomiqa!',
       url: referralLink
     });
   };

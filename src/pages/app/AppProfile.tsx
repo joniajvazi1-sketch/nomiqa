@@ -616,7 +616,7 @@ export const AppProfile: React.FC = () => {
                   <Wallet className="w-5 h-5 text-violet-500" />
                   <div>
                     <p className="text-sm font-medium text-foreground">Rewards Wallet</p>
-                    <p className="text-xs text-muted-foreground">Optional - for future payouts</p>
+                    <p className="text-xs text-muted-foreground">Optional - for token claims</p>
                   </div>
                 </div>
                 <Button variant="ghost" size="sm" onClick={() => setIsEditingWallet(!isEditingWallet)} className="text-xs">

@@ -205,15 +205,15 @@ export const AppRewards: React.FC = () => {
       id: 'data',
       icon: Wifi,
       title: 'Mobile Data Pack',
-      description: '1GB eSIM data',
+      description: '1GB eSIM connectivity',
       pointsCost: 500,
       available: true
     },
     {
       id: 'gift',
       icon: CreditCard,
-      title: 'Gift Cards',
-      description: 'Amazon, Apple, Google Play',
+      title: 'Connectivity Rewards',
+      description: 'Gift cards and network credits',
       pointsCost: 1000,
       available: false,
       badge: 'Coming Soon'
@@ -221,8 +221,8 @@ export const AppRewards: React.FC = () => {
     {
       id: 'charity',
       icon: Heart,
-      title: 'Donate to Connectivity',
-      description: 'Fund rural network access',
+      title: 'Support Connectivity Access',
+      description: 'Fund subsidized connectivity in underserved regions',
       pointsCost: 100,
       available: false,
       badge: 'Coming Soon'
@@ -392,15 +392,15 @@ export const AppRewards: React.FC = () => {
           )}
         </div>
 
-        {/* Earning Factors - Glassmorphism */}
+        {/* Contribution Quality - Glassmorphism */}
         <div className="rounded-2xl bg-card/60 backdrop-blur-sm border border-border p-4">
           <div className="flex items-center gap-2 mb-3">
             <Activity className="w-4 h-4 text-primary" />
-            <span className="text-sm font-semibold text-foreground">Your Earning Factors</span>
+            <span className="text-sm font-semibold text-foreground">Your Contribution Quality</span>
           </div>
           
           <p className="text-xs text-muted-foreground bg-muted/50 rounded-lg px-3 py-2 mb-4">
-            💡 Earn more by: keep app active + confirm coverage when asked
+            💡 Higher-quality and more diverse coverage earns higher rewards
           </p>
 
           <div className="space-y-4">
@@ -436,7 +436,7 @@ export const AppRewards: React.FC = () => {
 
             <div className="grid grid-cols-2 gap-3 pt-2">
               <button 
-                onClick={() => { mediumTap(); toast({ title: 'Run Speed Tests', description: 'Tap the speed test button on the Map screen to earn +5 points each!' }); }}
+                onClick={() => { mediumTap(); toast({ title: 'Run Speed Tests', description: 'Quick contribution – run a speed test for +5 points!' }); }}
                 className="bg-card/60 rounded-lg p-3 text-center border border-border hover:border-primary/30 active:scale-95 transition-all"
               >
                 <Target className="w-4 h-4 text-primary mx-auto mb-1" />
@@ -445,7 +445,7 @@ export const AppRewards: React.FC = () => {
                 <p className="text-[9px] text-primary mt-1">Tap to learn more</p>
               </button>
               <button 
-                onClick={() => { mediumTap(); toast({ title: 'Explore New Areas', description: 'Move around to map new locations and earn bonus points!' }); }}
+                onClick={() => { mediumTap(); toast({ title: 'Explore New Areas', description: 'Contribute network data while moving to map new locations!' }); }}
                 className="bg-card/60 rounded-lg p-3 text-center border border-border hover:border-primary/30 active:scale-95 transition-all"
               >
                 <Zap className="w-4 h-4 text-amber-500 mx-auto mb-1" />
@@ -461,7 +461,7 @@ export const AppRewards: React.FC = () => {
         <div>
           <h2 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
             <Gift className="w-4 h-4 text-primary" />
-            Redeem Your Points
+            Use Your Points for Network Services
           </h2>
 
           <div className="space-y-2">
