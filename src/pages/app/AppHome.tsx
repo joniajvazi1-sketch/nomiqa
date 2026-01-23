@@ -337,7 +337,7 @@ export const AppHome: React.FC = () => {
                 Estimated value: ${totalUSD.toFixed(2)}
               </div>
               <p className="text-[10px] text-muted-foreground/70 mt-1">
-                1 point = 1 token (redeem in app)
+                Points convert to network tokens for services & rewards
               </p>
             </div>
 
