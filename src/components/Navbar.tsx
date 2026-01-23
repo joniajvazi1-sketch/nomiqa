@@ -272,8 +272,8 @@ export const Navbar = () => {
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
       scrolled 
-        ? 'bg-black/90 backdrop-blur-xl border-b border-white/10 shadow-xl' 
-        : 'bg-gradient-to-b from-black/70 via-black/40 to-transparent border-b border-white/5'
+        ? 'bg-deep-space/90 backdrop-blur-xl border-b border-white/10 shadow-xl' 
+        : 'bg-gradient-to-b from-deep-space/80 via-deep-space/50 to-transparent border-b border-white/5'
     }`}>
       {/* Simplified decorative effects */}
       <div className={`absolute inset-0 bg-gradient-to-r from-neon-violet/5 via-transparent to-neon-cyan/5 pointer-events-none transition-opacity duration-300 ${scrolled ? 'opacity-30' : 'opacity-60'}`} />
