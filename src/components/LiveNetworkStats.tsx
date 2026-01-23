@@ -1,6 +1,6 @@
 import { Database, Globe, Users, TrendingUp, Activity } from "lucide-react";
 import { useTranslation } from "@/contexts/TranslationContext";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, memo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface NetworkStats {
@@ -9,6 +9,25 @@ interface NetworkStats {
   countriesCovered: number;
   sessionsToday: number;
 }
+
+// CSS-only animated counter to eliminate React re-renders
+const CSSCounter = memo(({ value, isVisible }: { value: number; isVisible: boolean }) => {
+  const formattedValue = value.toLocaleString();
+  
+  return (
+    <span 
+      className={`inline-block tabular-nums transition-opacity duration-500 ${
+        isVisible ? 'opacity-100' : 'opacity-0'
+      }`}
+      style={{ 
+        fontVariantNumeric: 'tabular-nums',
+      }}
+    >
+      {formattedValue}
+    </span>
+  );
+});
+CSSCounter.displayName = "CSSCounter";
 
 export const LiveNetworkStats = () => {
   const { t } = useTranslation();
@@ -42,7 +61,21 @@ export const LiveNetworkStats = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        // Fetch stats in parallel - optimized to avoid fetching 1000+ products
+        // Try cached edge function first for faster response
+        const { data: cachedData, error: cacheError } = await supabase.functions.invoke('get-network-stats-cached');
+        
+        if (!cacheError && cachedData) {
+          setStats({
+            totalDataPoints: cachedData.totalDataPoints || 0,
+            totalContributors: cachedData.totalContributors || 0,
+            countriesCovered: cachedData.countriesCovered || 180,
+            sessionsToday: cachedData.sessionsToday || 0,
+          });
+          setIsLoading(false);
+          return;
+        }
+        
+        // Fallback: Fetch stats in parallel - optimized to avoid fetching 1000+ products
         const [signalLogsResult, contributorsResult, sessionsResult] = await Promise.all([
           supabase.from('signal_logs').select('id', { count: 'exact', head: true }),
           supabase.from('user_points').select('id', { count: 'exact', head: true }),
@@ -81,38 +114,6 @@ export const LiveNetworkStats = () => {
 
     fetchStats();
   }, []);
-
-  // Animated counter component
-  const AnimatedNumber = ({ value, suffix = "" }: { value: number; suffix?: string }) => {
-    const [displayValue, setDisplayValue] = useState(0);
-    
-    useEffect(() => {
-      if (!isVisible || isLoading) return;
-      
-      const duration = 2000;
-      const steps = 60;
-      const increment = value / steps;
-      let current = 0;
-      
-      const timer = setInterval(() => {
-        current += increment;
-        if (current >= value) {
-          setDisplayValue(value);
-          clearInterval(timer);
-        } else {
-          setDisplayValue(Math.floor(current));
-        }
-      }, duration / steps);
-      
-      return () => clearInterval(timer);
-    }, [value, isVisible, isLoading]);
-    
-    return (
-      <span>
-        {displayValue.toLocaleString()}{suffix}
-      </span>
-    );
-  };
 
   const statItems = [
     {
@@ -179,9 +180,9 @@ export const LiveNetworkStats = () => {
               <item.icon className={`w-8 h-8 ${item.color} mx-auto mb-4`} />
               <div className={`text-3xl md:text-4xl lg:text-5xl font-bold ${item.color} mb-2`}>
                 {isLoading ? (
-                  <span className="inline-block w-16 h-8 bg-muted animate-pulse rounded"></span>
+                  <span className="inline-block w-16 h-8 bg-muted/30 rounded"></span>
                 ) : (
-                  <AnimatedNumber value={item.value} />
+                  <CSSCounter value={item.value} isVisible={isVisible && !isLoading} />
                 )}
               </div>
               <p className="text-sm text-muted-foreground font-medium">{item.label}</p>
