@@ -223,9 +223,9 @@ export const Navbar = () => {
                 <img 
                   src="https://storage.googleapis.com/gpt-engineer-file-uploads/PQFXlcHCciXpAnpHtuACtPV6p0v1/uploads/1769189669099-Screenshot 2026-01-08 at 16.15.57.png" 
                   alt="nomiqa" 
-                  width={40}
-                  height={40}
-                  className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg relative z-10 opacity-95 group-hover:opacity-100 transition-all duration-500 group-hover:scale-110 group-hover:rotate-2 shadow-lg group-hover:shadow-neon-cyan/50"
+                  width={32}
+                  height={32}
+                  className="w-7 h-7 sm:w-8 sm:h-8 rounded-md relative z-10 opacity-95 group-hover:opacity-100 transition-all duration-500 group-hover:scale-110 shadow-lg group-hover:shadow-neon-cyan/50 object-contain"
                 />
                 
                 {/* Shine effect on hover */}
