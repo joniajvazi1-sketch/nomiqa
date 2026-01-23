@@ -121,25 +121,29 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
     return <OfflineScreen />;
   }
 
+  // Tab bar height: 49pt (Apple HIG) + safe area
+  const TAB_BAR_HEIGHT = 49;
+
   return (
     <div 
       className={cn(
-        // Flex column fills viewport, no overflow:hidden so scroll works
+        // Edge-to-edge fullscreen container
         "app-theme flex flex-col transition-colors duration-300",
         isDark 
           ? "dark bg-gradient-to-b from-[hsl(220,40%,10%)] via-[hsl(220,40%,8%)] to-[hsl(220,45%,6%)]" 
           : "light bg-gradient-to-b from-[hsl(210,40%,98%)] via-[hsl(210,35%,96%)] to-[hsl(210,30%,94%)]"
       )}
       style={{
-        // Fill viewport height - use --vh for iOS compatibility, fallback to 100dvh
-        minHeight: 'calc(var(--vh, 1vh) * 100)',
-        // Safe area padding for notch/edges
+        // Dynamic viewport height for iOS keyboard/address bar handling
+        minHeight: 'calc(var(--vh, 1dvh) * 100)',
+        height: 'calc(var(--vh, 1dvh) * 100)',
+        // Safe area for notch (Dynamic Island) and edges
         paddingTop: 'env(safe-area-inset-top, 0px)',
         paddingLeft: 'env(safe-area-inset-left, 0px)',
         paddingRight: 'env(safe-area-inset-right, 0px)',
       }}
     >
-      {/* Scrollable content area - THE ONLY scroll container */}
+      {/* Main scrollable content - single scroll container pattern */}
       <main 
         ref={mainRef}
         className={cn(
@@ -147,11 +151,11 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           isMapRoute ? "overflow-hidden" : "overflow-y-auto"
         )}
         style={{ 
-          // Bottom padding: 64px tab bar height + safe area for home indicator
-          paddingBottom: 'calc(64px + env(safe-area-inset-bottom, 0px))',
-          // iOS momentum scrolling - critical for smooth scroll
+          // Bottom padding: tab bar + home indicator safe area
+          paddingBottom: `calc(${TAB_BAR_HEIGHT}px + env(safe-area-inset-bottom, 0px))`,
+          // iOS momentum scrolling for native feel
           WebkitOverflowScrolling: isMapRoute ? undefined : 'touch',
-          // Prevent overscroll bounce but allow normal scroll
+          // Contain scroll bounce within this element
           overscrollBehavior: 'contain',
         }}
       >
@@ -166,7 +170,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         </SwipeablePages>
       </main>
       
-      {/* Bottom navigation - fixed to screen bottom, handles its own safe area */}
+      {/* Fixed bottom navigation */}
       <BottomTabBar />
     </div>
   );
