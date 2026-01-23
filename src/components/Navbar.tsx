@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { Language, useTranslation } from "@/contexts/TranslationContext";
 import { localizedPath } from "@/utils/localizedLinks";
 import { getTranslatedCountryName } from "@/utils/countryTranslations";
+import headerLogo from "@/assets/nomiqa-token-logo.png";
 // Country flags now use emoji for performance (removed country-flag-icons library - 53KB savings)
 
 export const Navbar = () => {
@@ -221,7 +222,7 @@ export const Navbar = () => {
                 
                 {/* Logo image with smooth transitions */}
                 <img 
-                  src="https://storage.googleapis.com/gpt-engineer-file-uploads/PQFXlcHCciXpAnpHtuACtPV6p0v1/uploads/1769189669099-Screenshot 2026-01-08 at 16.15.57.png" 
+                  src={headerLogo} 
                   alt="nomiqa" 
                   width={32}
                   height={32}
