@@ -1,8 +1,8 @@
-import { lazy, Suspense, memo } from "react";
+import { lazy, Suspense, memo, useState, useEffect } from "react";
 import { Hero } from "@/components/Hero";
 import { SEO } from "@/components/SEO";
 
-// Lazy load ChatbotBubble to defer framer-motion loading (~50KB saved from initial bundle)
+// Lazy load ChatbotBubble with extra deferral - only load after FCP
 const ChatbotBubble = lazy(() => import("@/components/ChatbotBubble").then(m => ({ default: m.ChatbotBubble })));
 
 // Lazy load all below-the-fold components to improve TTI
@@ -91,6 +91,19 @@ const SectionSkeleton = memo(() => (
 SectionSkeleton.displayName = "SectionSkeleton";
 
 const Index = () => {
+  // Defer non-critical components until after FCP to improve initial paint time
+  const [showDeferredComponents, setShowDeferredComponents] = useState(false);
+  
+  useEffect(() => {
+    // Use requestIdleCallback if available, otherwise setTimeout
+    // This ensures ChatbotBubble and SupportChatbot load after FCP
+    if ('requestIdleCallback' in window) {
+      (window as any).requestIdleCallback(() => setShowDeferredComponents(true), { timeout: 2000 });
+    } else {
+      setTimeout(() => setShowDeferredComponents(true), 500);
+    }
+  }, []);
+
   return (
     <>
       <SEO page="home" />
@@ -123,13 +136,17 @@ const Index = () => {
         <FAQ />
         <SiteNavigation />
       </Suspense>
-      {/* ChatbotBubble lazy-loaded to defer framer-motion */}
-      <Suspense fallback={null}>
-        <ChatbotBubble />
-      </Suspense>
-      <Suspense fallback={null}>
-        <SupportChatbot />
-      </Suspense>
+      {/* ChatbotBubble and SupportChatbot deferred until after FCP */}
+      {showDeferredComponents && (
+        <>
+          <Suspense fallback={null}>
+            <ChatbotBubble />
+          </Suspense>
+          <Suspense fallback={null}>
+            <SupportChatbot />
+          </Suspense>
+        </>
+      )}
     </>
   );
 };
