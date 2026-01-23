@@ -221,11 +221,11 @@ export const Navbar = () => {
                 
                 {/* Logo image with smooth transitions */}
                 <img 
-                  src="/nomiqa-logo.jpg" 
+                  src="https://storage.googleapis.com/gpt-engineer-file-uploads/PQFXlcHCciXpAnpHtuACtPV6p0v1/uploads/1769189669099-Screenshot 2026-01-08 at 16.15.57.png" 
                   alt="nomiqa" 
                   width={40}
                   height={40}
-                  className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg relative z-10 opacity-95 group-hover:opacity-100 transition-all duration-500 group-hover:scale-110 group-hover:rotate-2 shadow-lg group-hover:shadow-neon-cyan/50" 
+                  className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg relative z-10 opacity-95 group-hover:opacity-100 transition-all duration-500 group-hover:scale-110 group-hover:rotate-2 shadow-lg group-hover:shadow-neon-cyan/50"
                 />
                 
                 {/* Shine effect on hover */}
