@@ -1,14 +1,11 @@
-import { TrendingUp } from "lucide-react";
 import solanaLogo from "@/assets/solana-logo.svg";
 import phantomLogo from "@/assets/phantom-logo.png";
 import meteoraLogo from "@/assets/meteora-logo.jpg";
 import moonpayLogo from "@/assets/moonpay-logo.jpg";
-import { useSolanaPrice } from "@/hooks/useSolanaPrice";
 import { useTranslation } from "@/contexts/TranslationContext";
 import { useEffect, useRef, useState } from "react";
 
 export const TrustPartners = () => {
-  const { price, isLoading } = useSolanaPrice();
   const { t } = useTranslation();
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -53,14 +50,7 @@ export const TrustPartners = () => {
               <img src={solanaLogo} alt="Solana" width={40} height={40} className="w-8 h-8 sm:w-10 sm:h-10" loading="lazy" />
             </div>
             <span className="text-foreground font-medium text-sm sm:text-base mb-0.5">Solana</span>
-            {!isLoading && price ? (
-              <div className="flex items-center gap-1 mt-1">
-                <span className="text-neon-cyan text-xs sm:text-sm">${price.usd.toFixed(2)}</span>
-                <TrendingUp className={`w-3 h-3 ${price.usd_24h_change >= 0 ? 'text-green-500' : 'text-red-500'}`} />
-              </div>
-            ) : (
-              <span className="text-muted-foreground text-xs mt-1">{t("trustLightningFast")}</span>
-            )}
+            <span className="text-muted-foreground text-xs mt-1">{t("trustLightningFast")}</span>
           </div>
           
           {/* Phantom */}
