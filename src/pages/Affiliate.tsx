@@ -370,27 +370,7 @@ export default function Affiliate() {
             /* Has Affiliate - Dashboard */
             <div className="space-y-6">
 
-              {/* Stats Grid */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                <div className="p-4 rounded-xl bg-white/[0.03] backdrop-blur-xl border border-white/10 text-center">
-                  <p className="text-2xl font-bold text-neon-cyan">{affiliate.total_registrations}</p>
-                  <p className="text-xs text-white/50">Network Users</p>
-                </div>
-                <div className="p-4 rounded-xl bg-white/[0.03] backdrop-blur-xl border border-white/10 text-center">
-                  <p className="text-2xl font-bold text-neon-violet">+{affiliate.miner_boost_percentage}%</p>
-                  <p className="text-xs text-white/50">Your Boost</p>
-                </div>
-                <div className="p-4 rounded-xl bg-white/[0.03] backdrop-blur-xl border border-white/10 text-center">
-                  <p className="text-2xl font-bold text-neon-coral">{affiliate.total_conversions}</p>
-                  <p className="text-xs text-white/50">Purchases</p>
-                </div>
-                <div className="p-4 rounded-xl bg-white/[0.03] backdrop-blur-xl border border-white/10 text-center">
-                  <p className="text-2xl font-bold text-primary">${affiliate.total_earnings_usd.toFixed(2)}</p>
-                  <p className="text-xs text-white/50">Earned</p>
-                </div>
-              </div>
-
-              {/* Your Link */}
+              {/* Your Link - FIRST */}
               <div className="rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/10 overflow-hidden">
                 <div className="p-5 md:p-6 border-b border-white/10">
                   <div className="flex items-center gap-3">
@@ -447,6 +427,11 @@ export default function Affiliate() {
                 </div>
               </div>
 
+              {/* Referrals List - SECOND */}
+              <Suspense fallback={<div className="h-40 animate-pulse bg-white/5 rounded-xl" />}>
+                <ReferralsList affiliateId={affiliate.id} />
+              </Suspense>
+
               {/* Tier Progress */}
               {tierInfo && tierInfo.nextTier && (
                 <div className="p-5 rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/10">
@@ -487,9 +472,6 @@ export default function Affiliate() {
                   currentTierLevel={affiliate.tier_level}
                   totalEarnings={affiliate.total_earnings_usd}
                 />
-              </Suspense>
-              <Suspense fallback={<div className="h-40 animate-pulse bg-white/5 rounded-xl" />}>
-                <ReferralsList affiliateId={affiliate.id} />
               </Suspense>
             </div>
           )}
