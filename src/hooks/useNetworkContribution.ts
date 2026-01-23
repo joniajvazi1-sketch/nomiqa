@@ -8,6 +8,7 @@ import { useTelcoMetrics, SignalLogEntry } from './useTelcoMetrics';
 import { type SpeedTestProgressCallback } from '@/utils/speedTestProviders';
 import { useContributionPersistence } from './useContributionPersistence';
 import { checkDeviceIntegrity, DeviceIntegrityResult } from '@/utils/deviceIntegrity';
+import { secureStorage } from '@/utils/localStorageEncryption';
 
 // Type-only import
 type GeolocationModule = typeof import('@capacitor/geolocation');
@@ -737,17 +738,34 @@ export const useNetworkContribution = () => {
     return R * c;
   };
 
-  // Offline queue management
+  // Offline queue management with encryption
+  // Use a ref to cache the queue to avoid async issues in sync callbacks
+  const offlineQueueCacheRef = useRef<OfflineQueueItem[]>([]);
+  const queueLoadedRef = useRef(false);
+
+  // Load queue on mount (async)
+  useEffect(() => {
+    const loadQueue = async () => {
+      try {
+        const stored = await secureStorage.getItem(OFFLINE_QUEUE_KEY);
+        const queue = stored ? JSON.parse(stored) : [];
+        offlineQueueCacheRef.current = queue;
+        setOfflineQueueCount(queue.length);
+        queueLoadedRef.current = true;
+      } catch (error) {
+        console.error('[OfflineQueue] Failed to load encrypted queue:', error);
+        offlineQueueCacheRef.current = [];
+        queueLoadedRef.current = true;
+      }
+    };
+    loadQueue();
+  }, []);
+
   const getOfflineQueue = (): OfflineQueueItem[] => {
-    try {
-      const stored = localStorage.getItem(OFFLINE_QUEUE_KEY);
-      return stored ? JSON.parse(stored) : [];
-    } catch {
-      return [];
-    }
+    return offlineQueueCacheRef.current;
   };
 
-  const saveOfflineQueue = (queue: OfflineQueueItem[]) => {
+  const saveOfflineQueue = async (queue: OfflineQueueItem[]) => {
     try {
       // P1.2: FIFO cap - drop oldest items if queue exceeds max size
       let trimmedQueue = queue;
@@ -757,8 +775,12 @@ export const useNetworkContribution = () => {
         console.warn(`[OfflineQueue] Exceeded max size (${MAX_OFFLINE_QUEUE_SIZE}). Dropped ${excess} oldest items.`);
       }
       
-      localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(trimmedQueue));
+      // Update cache immediately for sync access
+      offlineQueueCacheRef.current = trimmedQueue;
       setOfflineQueueCount(trimmedQueue.length);
+      
+      // Save encrypted data asynchronously
+      await secureStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(trimmedQueue));
       
       // Warn user when queue is getting full (>80% capacity)
       if (trimmedQueue.length > MAX_OFFLINE_QUEUE_SIZE * 0.8) {
@@ -771,7 +793,8 @@ export const useNetworkContribution = () => {
         console.warn('[OfflineQueue] localStorage quota exceeded - trimming to 500 items');
         try {
           const reducedQueue = queue.slice(-500); // Keep only last 500
-          localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(reducedQueue));
+          offlineQueueCacheRef.current = reducedQueue;
+          await secureStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(reducedQueue));
           setOfflineQueueCount(reducedQueue.length);
         } catch (retryError) {
           console.error('[OfflineQueue] Failed even after trimming:', retryError);

@@ -34,7 +34,7 @@ function isValidPublicIP(ip: string): boolean {
   
   // Check for IPv6 first
   if (ip.includes(':')) {
-    // Block IPv6 loopback and private ranges
+    // Block IPv6 loopback and private/reserved ranges
     const ipLower = ip.toLowerCase();
     if (ipLower === '::1') return false;                     // IPv6 loopback
     if (ipLower.startsWith('::ffff:')) {                      // IPv4-mapped IPv6
@@ -44,8 +44,14 @@ function isValidPublicIP(ip: string): boolean {
     }
     if (ipLower.startsWith('fc') || ipLower.startsWith('fd')) return false;  // fc00::/7 (unique local)
     if (ipLower.startsWith('fe80')) return false;            // fe80::/10 (link-local)
+    if (ipLower.startsWith('fec0')) return false;            // fec0::/10 (deprecated site-local)
     if (ipLower.startsWith('ff')) return false;              // ff00::/8 (multicast)
     if (ipLower === '::') return false;                      // Unspecified address
+    if (ipLower.startsWith('2001:db8')) return false;        // 2001:db8::/32 (documentation/examples)
+    if (ipLower.startsWith('2001:') && ipLower.charAt(5) === '0') return false; // 2001::/32 (Teredo tunneling)
+    if (ipLower.startsWith('2002:')) return false;           // 2002::/16 (6to4)
+    if (ipLower.startsWith('64:ff9b')) return false;         // 64:ff9b::/96 (IPv4/IPv6 translation)
+    if (ipLower.startsWith('100::')) return false;           // 100::/64 (discard prefix)
     // Allow public IPv6 addresses
     return true;
   }
