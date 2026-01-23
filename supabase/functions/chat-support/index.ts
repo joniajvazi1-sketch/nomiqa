@@ -158,7 +158,7 @@ Contributor Levels (based on total points):
 How to buy and activate:
 1. Browse plans at nomiqa.com/shop
 2. Select your destination country/region
-3. Pay with SOL or USDC (Solana wallet like Phantom)
+3. Pay with Card (Visa/Mastercard/Amex) OR Crypto (SOL/USDC)
 4. Receive QR code via email instantly
 5. Scan QR code in phone settings to install
 6. Activation takes under 60 seconds
@@ -209,13 +209,13 @@ NOT compatible:
 - Carrier-locked devices
 
 === LOYALTY PROGRAM ===
-Earn real crypto cashback on every purchase:
+Earn cashback on every eSIM purchase:
 - Beginner: 5% cashback (all new users)
 - Traveler ($20 total spent): 6% cashback
 - Adventurer ($50 total spent): 7% cashback
 - Explorer ($150 total spent): 10% cashback
 
-Cashback is paid in USDC or SOL to your wallet.
+Cashback is applied to your account for future purchases.
 
 === REFERRAL/AFFILIATE PROGRAM ===
 Share Nomiqa and earn from your network:
