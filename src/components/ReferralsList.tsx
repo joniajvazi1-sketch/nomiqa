@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { Users, Loader2, UserCheck, ShoppingCart, Clock } from "lucide-react";
@@ -42,7 +41,6 @@ export function ReferralsList({ affiliateId }: ReferralsListProps) {
   const fetchReferrals = async () => {
     setLoading(true);
     try {
-      // Use edge function to securely fetch referral data
       const { data, error } = await supabase.functions.invoke('get-affiliate-referrals', {
         body: { affiliate_id: affiliateId }
       });
@@ -68,84 +66,76 @@ export function ReferralsList({ affiliateId }: ReferralsListProps) {
     });
   };
 
-
   if (loading) {
     return (
-      <Card className="bg-card/80 backdrop-blur-xl border-border/50">
-        <CardContent className="flex items-center justify-center py-8">
-          <Loader2 className="h-6 w-6 animate-spin text-primary" />
-        </CardContent>
-      </Card>
+      <div className="rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/10 p-8 flex items-center justify-center">
+        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+      </div>
     );
   }
 
   return (
-    <Card className="bg-card/80 backdrop-blur-xl border-border/50 shadow-xl">
-      <CardHeader className="pb-4 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 border-b border-border/50">
-        <div className="flex items-center justify-between">
-          <div className="space-y-1">
-            <CardTitle className="flex items-center gap-3 text-lg md:text-xl">
-              <div className="p-2 bg-primary/10 rounded-lg">
-                <Users className="w-5 h-5 md:w-6 md:h-6 text-primary" />
-              </div>
-              <span className="bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent font-bold">
-                My Referrals
-              </span>
-            </CardTitle>
-            <CardDescription className="pl-11">
-              People who signed up using your link
-            </CardDescription>
+    <div className="rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/10 overflow-hidden">
+      {/* Header */}
+      <div className="p-5 md:p-6 border-b border-white/10 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center border border-primary/20">
+            <Users className="w-5 h-5 text-primary" />
           </div>
-          <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/30 font-semibold">
-            {referrals.length} {referrals.length === 1 ? 'referral' : 'referrals'}
-          </Badge>
+          <div>
+            <h3 className="text-lg font-light text-white">My Referrals</h3>
+            <p className="text-sm text-white/50">People who signed up using your link</p>
+          </div>
         </div>
-      </CardHeader>
-      <CardContent className="pt-4">
+        <Badge className="bg-primary/10 text-primary border-primary/20">
+          {referrals.length} {referrals.length === 1 ? 'referral' : 'referrals'}
+        </Badge>
+      </div>
+
+      {/* Content */}
+      <div className="p-5 md:p-6">
         {referrals.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
-            <Users className="w-12 h-12 mx-auto mb-3 opacity-30" />
-            <p className="text-sm">No referrals yet. Share your link to start earning!</p>
+          <div className="text-center py-8">
+            <Users className="w-12 h-12 mx-auto mb-3 text-white/20" />
+            <p className="text-sm text-white/50">No referrals yet. Share your link to start earning!</p>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-2">
             {referrals.map((referral) => (
               <div
                 key={referral.id}
-                className="p-4 bg-muted/50 backdrop-blur-sm border border-border/50 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-muted/70 transition-colors"
+                className="p-4 bg-white/[0.02] border border-white/5 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-white/[0.04] transition-colors"
               >
                 <div className="flex items-center gap-3">
-                  {/* Country flag */}
                   <div className="text-2xl" title={referral.countryCode || 'Unknown'}>
                     {countryToFlag(referral.countryCode)}
                   </div>
-                  <div className={`p-2 rounded-full ${referral.hasConverted ? 'bg-green-500/20' : 'bg-blue-500/20'}`}>
+                  <div className={`p-2 rounded-full ${referral.hasConverted ? 'bg-emerald-500/20' : 'bg-neon-cyan/20'}`}>
                     {referral.hasConverted ? (
-                      <ShoppingCart className="w-4 h-4 text-green-500" />
+                      <ShoppingCart className="w-4 h-4 text-emerald-400" />
                     ) : (
-                      <UserCheck className="w-4 h-4 text-blue-500" />
+                      <UserCheck className="w-4 h-4 text-neon-cyan" />
                     )}
                   </div>
                   <div>
-                    <div className="font-medium text-sm md:text-base">
+                    <div className="font-medium text-sm">
                       {referral.username ? (
-                        <span className="text-primary">@{referral.username}</span>
+                        <span className="text-white">@{referral.username}</span>
                       ) : (
-                        <span className="text-muted-foreground italic">No username</span>
+                        <span className="text-white/40 italic">No username</span>
                       )}
                     </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 pl-11 sm:pl-0">
-                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <div className="flex items-center gap-1.5 text-xs text-white/40">
                     <Clock className="w-3.5 h-3.5" />
                     {formatDate(referral.registeredAt)}
                   </div>
                   <Badge 
-                    variant={referral.hasConverted ? "default" : "secondary"}
                     className={referral.hasConverted 
-                      ? "bg-green-500/20 text-green-600 dark:text-green-400 border-green-500/30" 
-                      : "bg-blue-500/20 text-blue-600 dark:text-blue-400 border-blue-500/30"
+                      ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" 
+                      : "bg-neon-cyan/10 text-neon-cyan border-neon-cyan/20"
                     }
                   >
                     {referral.hasConverted ? 'Purchased' : 'Registered'}
@@ -155,7 +145,7 @@ export function ReferralsList({ affiliateId }: ReferralsListProps) {
             ))}
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
