@@ -972,7 +972,10 @@ export default function MyAccount() {
                       </CardHeader>
                       <CardContent>
                         <p className="text-3xl font-bold text-primary">
-                          ${affiliateData?.total_earnings_usd.toFixed(2) || "0.00"}
+                          {((affiliateData?.total_conversions || 0) * 50).toLocaleString()} pts
+                        </p>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {affiliateData?.total_conversions || 0} conversions × 50 pts
                         </p>
                       </CardContent>
                     </Card>
