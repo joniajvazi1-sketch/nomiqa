@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import { 
   Copy, TrendingUp, Users, DollarSign, CheckCircle2, Loader2, 
   XCircle, AlertCircle, Award, UserPlus, Share2, ArrowRight,
-  Coins, Zap, Gift, Network, ChevronRight
+  Coins, Zap, Gift, Network, ChevronRight, Link
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAffiliateTracking } from "@/hooks/useAffiliateTracking";
@@ -312,7 +312,7 @@ export default function Affiliate() {
     { icon: Zap, title: "Up to +100% Boost", desc: "Earn more from YOUR contributions", color: "from-neon-cyan to-neon-cyan/50" },
     { icon: TrendingUp, title: "5% Passive Earnings", desc: "From all your referrals' points", color: "from-neon-violet to-neon-violet/50" },
     { icon: DollarSign, title: "Sales Commissions", desc: "9% / 6% / 3% on eSIM purchases", color: "from-neon-coral to-neon-coral/50" },
-    { icon: Gift, title: "3 Unique Links", desc: "Per account allowed", color: "from-primary to-primary/50" },
+    { icon: Link, title: "Your Unique Link", desc: "One personalized invite link", color: "from-primary to-primary/50" },
   ];
 
   return (
@@ -441,78 +441,55 @@ export default function Affiliate() {
                 </div>
               </div>
 
-              {/* Your Links */}
+              {/* Your Link - Single username-based link */}
               <Card className="bg-card/50 border-border/50">
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-2">
                     <Share2 className="w-5 h-5 text-primary" />
                     Your Invite Link
                   </CardTitle>
-                  <CardDescription>Share this link to grow your network and boost your earnings</CardDescription>
+                  <CardDescription>Share this personalized link to grow your network</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {/* Primary Link */}
-                  <div className="flex gap-2">
-                    <Input 
-                      value={customLink || affiliateLink} 
-                      readOnly 
-                      className="bg-background/50 border-border"
-                    />
-                    <Button onClick={() => copyLink(customLink || affiliateLink)} variant="outline">
-                      <Copy className="w-4 h-4" />
-                    </Button>
-                  </div>
-
-                  {/* Custom Username */}
-                  {!affiliate.username && (
-                    <div className="pt-4 border-t border-border">
-                      <p className="text-sm text-muted-foreground mb-3">Create a custom link (e.g., nomiqa.lovable.app/yourname)</p>
+                  {affiliate.username ? (
+                    /* Has username - show the clean link */
+                    <div className="space-y-3">
+                      <div className="flex gap-2">
+                        <Input 
+                          value={customLink} 
+                          readOnly 
+                          className="bg-background/50 border-border font-medium"
+                        />
+                        <Button onClick={() => copyLink(customLink)} variant="outline">
+                          <Copy className="w-4 h-4" />
+                        </Button>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Your personalized link: <span className="text-primary font-medium">nomiqa.app/{affiliate.username}</span>
+                      </p>
+                    </div>
+                  ) : (
+                    /* No username yet - prompt to create one */
+                    <div className="space-y-4">
+                      <div className="p-4 rounded-xl bg-primary/5 border border-primary/20">
+                        <p className="text-sm text-foreground mb-1 font-medium">Create your personalized link</p>
+                        <p className="text-xs text-muted-foreground">Choose a unique username for your invite link (e.g., nomiqa.app/yourname)</p>
+                      </div>
                       <div className="flex gap-2">
                         <Input 
                           value={username}
-                          onChange={(e) => setUsername(e.target.value.toLowerCase())}
-                          placeholder="your-custom-name"
+                          onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
+                          placeholder="your-username"
                           className="bg-background/50 border-border"
                         />
-                        <Button onClick={updateUsername} disabled={updatingUsername} variant="outline">
-                          {updatingUsername ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save"}
+                        <Button onClick={updateUsername} disabled={updatingUsername || !username.trim()}>
+                          {updatingUsername ? <Loader2 className="w-4 h-4 animate-spin" /> : "Create Link"}
                         </Button>
                       </div>
-                    </div>
-                  )}
-
-                  {/* Add New Link */}
-                  {allAffiliates.length < 3 && (
-                    <div className="pt-4 border-t border-border">
-                      {!showNewLinkInput ? (
-                        <Button onClick={() => setShowNewLinkInput(true)} variant="outline" className="w-full border-dashed">
-                          <UserPlus className="w-4 h-4 mr-2" />
-                          Create Additional Link ({allAffiliates.length}/3)
-                        </Button>
-                      ) : (
-                        <div className="space-y-3">
-                          <div className="flex gap-2">
-                            <Input 
-                              value={newLinkUsername}
-                              onChange={(e) => setNewLinkUsername(e.target.value.toLowerCase())}
-                              placeholder="new-link-name"
-                              className="bg-background/50 border-border"
-                            />
-                            <Button onClick={createAffiliate} disabled={creating || usernameAvailability !== 'available'}>
-                              {creating ? <Loader2 className="w-4 h-4 animate-spin" /> : "Create"}
-                            </Button>
-                          </div>
-                          {usernameAvailability === 'available' && (
-                            <p className="text-xs text-green-500 flex items-center gap-1">
-                              <CheckCircle2 className="w-3 h-3" /> Username available
-                            </p>
-                          )}
-                          {usernameAvailability === 'taken' && (
-                            <p className="text-xs text-red-500 flex items-center gap-1">
-                              <XCircle className="w-3 h-3" /> Username taken
-                            </p>
-                          )}
-                        </div>
+                      {username && (
+                        <p className="text-xs text-muted-foreground">
+                          Preview: <span className="text-primary">nomiqa.app/{username}</span>
+                        </p>
                       )}
                     </div>
                   )}
