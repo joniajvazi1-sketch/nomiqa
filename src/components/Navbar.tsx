@@ -34,7 +34,7 @@ export const Navbar = () => {
   
   // Pages where search should be hidden for cleaner UX (check without language prefix)
   const pathWithoutLang = location.pathname.replace(/^\/(english|espanol|francais|deutsch|italiano|portugues|russian|chinese|japanese|arabic)/, '');
-  const hideSearchPages = ['/affiliate', '/auth', '/leaderboard', '/checkout', '/account'];
+  const hideSearchPages = ['/affiliate', '/auth', '/checkout', '/account'];
   const shouldHideSearch = isShopPage || hideSearchPages.some(page => pathWithoutLang.includes(page) || location.pathname.includes(page));
 
   // Scroll detection for blur effect - works with both window and WebLayout scroll container
@@ -532,12 +532,6 @@ export const Navbar = () => {
                       </span>
                     </button>
                     
-                    {/* Referral Challenge - Featured */}
-                    <button onClick={() => handleNavClick('/leaderboard')} className="group text-left text-white hover:text-white bg-gradient-to-r from-orange-500/20 to-red-500/20 hover:from-orange-500/30 hover:to-red-500/30 transition-all duration-300 py-4 px-5 rounded-lg font-normal text-[15px] tracking-wide backdrop-blur-sm border border-orange-500/30 hover:border-orange-500/50 mb-2">
-                      <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5 flex items-center gap-2">
-                        🔥 {t("referralChallenge") || "Referral Challenge"}
-                      </span>
-                    </button>
                     
                     <button onClick={() => handleNavClick('/how-it-works')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-[15px] tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
                       <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("navHowDePINWorks")}</span>
