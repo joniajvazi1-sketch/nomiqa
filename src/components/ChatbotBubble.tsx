@@ -14,18 +14,32 @@ export const ChatbotBubble = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      const scrollY = window.scrollY;
-      // Show after scrolling 300px, hide if dismissed
-      if (scrollY > 300 && !hasBeenDismissed) {
+      // WebLayout uses a fixed scroll container, so check both window and the container
+      const scrollContainer = document.querySelector('.fixed.inset-0.overflow-y-auto');
+      const scrollY = scrollContainer ? scrollContainer.scrollTop : window.scrollY;
+      
+      // Show after scrolling 200px, hide if dismissed
+      if (scrollY > 200 && !hasBeenDismissed) {
         setIsVisible(true);
-      } else if (scrollY <= 100) {
+      } else if (scrollY <= 50) {
         setIsVisible(false);
         setHasBeenDismissed(false); // Reset when back at top
       }
     };
 
+    // Listen to both window and the scroll container
+    const scrollContainer = document.querySelector('.fixed.inset-0.overflow-y-auto');
+    
     window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+    scrollContainer?.addEventListener("scroll", handleScroll, { passive: true });
+    
+    // Check initial scroll position
+    handleScroll();
+    
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      scrollContainer?.removeEventListener("scroll", handleScroll);
+    };
   }, [hasBeenDismissed]);
 
   const handleClick = () => {
