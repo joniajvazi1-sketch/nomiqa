@@ -39,6 +39,11 @@ interface AffiliateData {
   tier_level: number;
 }
 
+interface UserPointsData {
+  total_points: number;
+  pending_points: number;
+}
+
 const TIER_COLORS = {
   beginner: "bg-gradient-to-br from-amber-900 via-amber-700 to-orange-800",
   traveler: "bg-gradient-to-br from-slate-500 via-slate-400 to-slate-600",
@@ -74,6 +79,7 @@ export default function MyAccount() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [membership, setMembership] = useState<MembershipData | null>(null);
   const [affiliateData, setAffiliateData] = useState<AffiliateData | null>(null);
+  const [userPoints, setUserPoints] = useState<UserPointsData | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);
   const [showClaimDialog, setShowClaimDialog] = useState(false);
   const [walletAddress, setWalletAddress] = useState("");
@@ -158,6 +164,20 @@ export default function MyAccount() {
           total_earnings_usd: totalEarnings,
           total_conversions: totalConversions,
           tier_level: highestTier
+        });
+      }
+
+      // Fetch user points from app
+      const { data: pointsData } = await supabase
+        .from('user_points')
+        .select('total_points, pending_points')
+        .eq('user_id', session.user.id)
+        .maybeSingle();
+
+      if (pointsData) {
+        setUserPoints({
+          total_points: pointsData.total_points || 0,
+          pending_points: pointsData.pending_points || 0
         });
       }
 
@@ -967,15 +987,18 @@ export default function MyAccount() {
                       <CardHeader>
                         <CardTitle className="text-lg flex items-center gap-2">
                           <Gift className="w-5 h-5 text-primary" />
-                          {t("affiliateEarnings")}
+                          Total Points
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
                         <p className="text-3xl font-bold text-primary">
-                          {((affiliateData?.total_conversions || 0) * 50).toLocaleString()} pts
+                          {(userPoints?.total_points || 0).toLocaleString()} pts
                         </p>
                         <p className="text-sm text-muted-foreground mt-1">
-                          {affiliateData?.total_conversions || 0} conversions × 50 pts
+                          ≈ ${((userPoints?.total_points || 0) * 0.01).toFixed(2)} USD
+                        </p>
+                        <p className="text-xs text-muted-foreground/70 mt-0.5">
+                          Est. value at $0.01/point
                         </p>
                       </CardContent>
                     </Card>
@@ -1002,10 +1025,13 @@ export default function MyAccount() {
                         <div className="flex-1">
                           <p className="text-sm text-muted-foreground mb-1">{t("totalEarningsLabel")}</p>
                           <p className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
-                            ${((affiliateData?.total_earnings_usd || 0) + totalCashbackEarned).toFixed(2)}
+                            {(userPoints?.total_points || 0).toLocaleString()} pts
+                          </p>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            ≈ ${(((userPoints?.total_points || 0) * 0.01) + totalCashbackEarned).toFixed(2)} USD estimated
                           </p>
                           <p className="text-xs text-muted-foreground mt-2">
-                            Minimum withdrawal: $5.00 USD
+                            Points claimable after token launch
                           </p>
                         </div>
                         <Dialog open={showClaimDialog} onOpenChange={setShowClaimDialog}>
@@ -1013,7 +1039,7 @@ export default function MyAccount() {
                             <Button
                               size="lg"
                               className="w-full md:w-auto h-auto py-4 px-6 md:px-8 text-base md:text-lg font-light bg-white/[0.05] backdrop-blur-xl border-2 border-neon-violet/40 text-white hover:bg-neon-violet/10 hover:border-neon-violet/60 rounded-2xl transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-neon-violet/20 disabled:opacity-50 disabled:cursor-not-allowed"
-                              disabled={((affiliateData?.total_earnings_usd || 0) + totalCashbackEarned) < 5}
+                              disabled={(userPoints?.total_points || 0) < 500}
                             >
                               <Wallet className="w-5 h-5 md:w-6 md:h-6 mr-2 shrink-0" />
                               <span className="break-words">{t("claimAll")}</span>
@@ -1030,7 +1056,7 @@ export default function MyAccount() {
                               {/* Minimum Withdrawal Notice */}
                               <Alert className="border-primary/20 bg-primary/5">
                                 <AlertDescription className="text-sm font-medium">
-                                  💰 Minimum withdrawal: $5.00 USD (combined affiliate + cashback earnings)
+                                  💰 Minimum claim: 500 pts (≈ $5.00 USD estimated value)
                                 </AlertDescription>
                               </Alert>
 
