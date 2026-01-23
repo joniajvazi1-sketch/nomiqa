@@ -1,7 +1,7 @@
 import { SiteNavigation } from "@/components/SiteNavigation";
 import { SupportChatbot } from "@/components/SupportChatbot";
 import { SEO } from "@/components/SEO";
-import { Rocket, Users, Globe, Shield, TrendingUp, ArrowRight, Sparkles } from "lucide-react";
+import { Users, Globe, Shield, TrendingUp, ArrowRight, Sparkles } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import { useTranslation } from "@/contexts/TranslationContext";
 import { Button } from "@/components/ui/button";
@@ -96,7 +96,6 @@ const Token = () => {
             {/* Launch info with premium styling */}
             <div className="pt-4">
               <div className="inline-flex items-center gap-3 px-6 py-3 rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/10">
-                <Rocket className="w-5 h-5 text-neon-violet" />
                 <span className="font-light text-white/80">{t("tokenLaunchingOn")}</span>
               </div>
             </div>
