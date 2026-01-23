@@ -136,17 +136,16 @@ export const DailyCheckIn = ({ userId, onClose }: DailyCheckInProps) => {
     onClose?.();
   };
 
-  if (isLoading || !isOpen) return null;
-
-  const nextStreakDay = (currentStreak % 7) + 1;
-  const todayReward = STREAK_REWARDS[nextStreakDay - 1];
-
-  // Prevent body scroll when modal is open
+  // Prevent body scroll when modal is open - must be before any conditional returns
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
       document.body.style.position = 'fixed';
       document.body.style.width = '100%';
+    } else {
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
     }
     return () => {
       document.body.style.overflow = '';
@@ -154,6 +153,11 @@ export const DailyCheckIn = ({ userId, onClose }: DailyCheckInProps) => {
       document.body.style.width = '';
     };
   }, [isOpen]);
+
+  if (isLoading || !isOpen) return null;
+
+  const nextStreakDay = (currentStreak % 7) + 1;
+  const todayReward = STREAK_REWARDS[nextStreakDay - 1];
 
   return (
     <AnimatePresence>
