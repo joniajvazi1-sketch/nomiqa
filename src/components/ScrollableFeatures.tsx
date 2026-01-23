@@ -6,8 +6,8 @@ import { localizedPath } from "@/utils/localizedLinks";
 import { useEffect, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 
-// Use static path instead of importing large GIF to avoid bundling
-const tokenLogoUrl = "/nomiqa-token-logo.gif";
+// Use static PNG instead of large animated GIF for performance
+const tokenLogoUrl = "/nomiqa-token-logo.png";
 
 export const ScrollableFeatures = () => {
   const navigate = useNavigate();

@@ -1,5 +1,5 @@
 import CSSGlobe from './CSSGlobe';
-import coverageGroupSunset from '@/assets/coverage-group-sunset.png';
+import coverageGroupSunset from '@/assets/coverage-group-sunset.webp';
 import { useTranslation } from "@/contexts/TranslationContext";
 import { useEffect, useRef, useState } from "react";
 

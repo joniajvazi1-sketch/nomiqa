@@ -13,7 +13,7 @@
 /nomiqa-og-image.jpg
   Cache-Control: public, max-age=31536000, immutable
 
-/nomiqa-token-logo.gif
+/nomiqa-token-logo.png
   Cache-Control: public, max-age=31536000, immutable
 
 # Default: do NOT aggressively cache HTML or route responses.
