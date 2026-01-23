@@ -155,100 +155,89 @@ export const DailyCheckIn = ({ userId, onClose }: DailyCheckInProps) => {
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
           onClick={(e) => e.stopPropagation()}
-          className="relative w-full max-w-xs bg-card rounded-2xl p-4 shadow-2xl border border-border overflow-hidden max-h-[75vh]"
+          className="relative w-full max-w-[280px] bg-card rounded-2xl p-3 shadow-2xl border border-border"
         >
           {/* Background decoration */}
-          <div className="absolute top-0 left-0 right-0 h-20 bg-gradient-to-b from-primary/20 to-transparent" />
+          <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-primary/20 to-transparent" />
           
           {/* Close button */}
           <button
             onClick={handleClose}
-            className="absolute top-3 right-3 p-1.5 rounded-full hover:bg-muted transition-colors z-10"
+            className="absolute top-2 right-2 p-1 rounded-full hover:bg-muted transition-colors z-10"
           >
             <X className="w-4 h-4" />
           </button>
 
           <div className="relative">
-            {/* Icon - smaller */}
+            {/* Icon */}
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ type: 'spring', delay: 0.1 }}
-              className="mx-auto w-14 h-14 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center mb-3 shadow-lg"
+              className="mx-auto w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center mb-2 shadow-lg"
             >
-              <Gift className="w-7 h-7 text-white" />
+              <Gift className="w-5 h-5 text-white" />
             </motion.div>
 
-            {/* Title - smaller */}
-            <h2 className="text-lg font-bold text-center mb-1">Daily Check-in</h2>
-            <p className="text-center text-xs text-muted-foreground mb-3">
-              Claim your daily reward!
-            </p>
-
-            {/* Streak indicator - more compact */}
-            <div className="flex items-center justify-center gap-1.5 mb-3">
-              <Flame className="w-4 h-4 text-orange-500" />
-              <span className="text-sm font-semibold">
+            {/* Title */}
+            <h2 className="text-base font-bold text-center">Daily Check-in</h2>
+            
+            {/* Streak indicator */}
+            <div className="flex items-center justify-center gap-1 my-1">
+              <Flame className="w-3 h-3 text-orange-500" />
+              <span className="text-xs font-medium">
                 {currentStreak > 0 ? `${currentStreak} day streak` : 'Start your streak!'}
               </span>
             </div>
 
-            {/* Week progress - compact grid */}
-            <div className="grid grid-cols-7 gap-1 mb-3">
+            {/* Week progress - ultra compact */}
+            <div className="grid grid-cols-7 gap-0.5 mb-2">
               {STREAK_REWARDS.map((reward, index) => {
                 const isPast = index < currentStreak % 7;
                 const isCurrent = index === nextStreakDay - 1;
                 const isFuture = index > nextStreakDay - 1;
 
                 return (
-                  <motion.div
+                  <div
                     key={reward.day}
-                    initial={{ opacity: 0, y: 5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.05 + index * 0.03 }}
                     className={`
-                      flex flex-col items-center py-1.5 rounded-lg text-center
-                      ${isPast ? 'bg-green-500/20 border-green-500/50' : ''}
-                      ${isCurrent ? 'bg-primary/20 border border-primary scale-105' : 'border border-border/50'}
+                      flex flex-col items-center py-1 rounded text-center
+                      ${isPast ? 'bg-green-500/20' : ''}
+                      ${isCurrent ? 'bg-primary/20 ring-1 ring-primary' : ''}
                       ${isFuture ? 'opacity-40' : ''}
                     `}
                   >
                     {isPast ? (
-                      <Check className="w-3 h-3 text-green-500" />
+                      <Check className="w-2.5 h-2.5 text-green-500" />
                     ) : (
-                      <Calendar className="w-3 h-3 text-muted-foreground" />
+                      <Calendar className="w-2.5 h-2.5 text-muted-foreground" />
                     )}
-                    <span className={`text-[9px] font-bold mt-0.5 ${isCurrent ? 'text-primary' : ''}`}>
+                    <span className={`text-[8px] font-bold ${isCurrent ? 'text-primary' : ''}`}>
                       +{reward.points}
                     </span>
-                  </motion.div>
+                  </div>
                 );
               })}
             </div>
 
-            {/* Today's reward highlight - compact */}
-            <div className="bg-primary/10 rounded-xl p-3 mb-3 border border-primary/20">
+            {/* Today's reward - compact */}
+            <div className="bg-primary/10 rounded-lg p-2 mb-2 border border-primary/20">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-[10px] text-muted-foreground">Today's Reward</p>
-                  <p className="text-xl font-bold text-primary">+{todayReward?.points} pts</p>
+                  <p className="text-[9px] text-muted-foreground">Today's Reward</p>
+                  <p className="text-lg font-bold text-primary">+{todayReward?.points} pts</p>
                 </div>
-                <motion.div
-                  animate={{ rotate: [0, 10, -10, 0] }}
-                  transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 2 }}
-                >
-                  <Gift className="w-8 h-8 text-primary" />
-                </motion.div>
+                <Gift className="w-6 h-6 text-primary" />
               </div>
             </div>
 
-            {/* Claim button - smaller */}
+            {/* Claim button */}
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={handleCheckIn}
               disabled={isClaiming || hasCheckedInToday}
               className={`
-                w-full py-3 rounded-xl font-semibold text-base
+                w-full py-2.5 rounded-xl font-semibold text-sm
                 transition-all duration-200
                 ${hasCheckedInToday
                   ? 'bg-green-500 text-white'
@@ -262,13 +251,13 @@ export const DailyCheckIn = ({ userId, onClose }: DailyCheckInProps) => {
                   <motion.div
                     animate={{ rotate: 360 }}
                     transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                    className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
+                    className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full"
                   />
                   Claiming...
                 </span>
               ) : hasCheckedInToday ? (
-                <span className="flex items-center justify-center gap-2">
-                  <Check className="w-4 h-4" />
+                <span className="flex items-center justify-center gap-1">
+                  <Check className="w-3 h-3" />
                   Claimed!
                 </span>
               ) : (
