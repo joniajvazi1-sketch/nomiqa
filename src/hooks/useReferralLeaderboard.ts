@@ -58,7 +58,7 @@ export const useReferralLeaderboard = (): UseReferralLeaderboardReturn => {
       const weekAgo = new Date();
       weekAgo.setDate(weekAgo.getDate() - CHALLENGE_DURATION_DAYS);
 
-      // First get all affiliates with usernames
+      // First get all affiliates with usernames (this is public data)
       const { data: affiliatesData, error: affiliatesError } = await supabase
         .from('affiliates')
         .select('id, user_id, username, total_registrations')
@@ -66,47 +66,82 @@ export const useReferralLeaderboard = (): UseReferralLeaderboardReturn => {
         .order('total_registrations', { ascending: false })
         .limit(100);
 
-      if (affiliatesError) throw affiliatesError;
+      if (affiliatesError) {
+        console.error('Affiliates query error:', affiliatesError);
+        // If user not authenticated, show empty leaderboard gracefully
+        if (affiliatesError.code === 'PGRST301' || affiliatesError.message?.includes('JWT')) {
+          setEntries([]);
+          setUserRank(null);
+          setTotalWeeklyRegistrations(0);
+          setDailyRegistrations(0);
+          return;
+        }
+        throw affiliatesError;
+      }
 
       if (!affiliatesData || affiliatesData.length === 0) {
         setEntries([]);
         setUserRank(null);
+        setTotalWeeklyRegistrations(0);
+        setDailyRegistrations(0);
         return;
       }
 
       // Get weekly registration counts for each affiliate
       const affiliateIds = affiliatesData.map(a => a.id);
       
-      const { data: weeklyReferrals, error: referralsError } = await supabase
-        .from('affiliate_referrals')
-        .select('affiliate_id')
-        .in('affiliate_id', affiliateIds)
-        .gte('registered_at', weekAgo.toISOString())
-        .not('registered_user_id', 'is', null);
+      // Get weekly registration counts - use total_registrations as fallback for public view
+      // affiliate_referrals has RLS so we'll use the cached total_registrations from affiliates table
+      // For the weekly view, we can only get detailed data if user is authenticated
+      let weeklyCountMap = new Map<string, number>();
+      let weeklyTotal = 0;
+      let todayTotal = 0;
 
-      if (referralsError) throw referralsError;
+      // Try to get referral data if user is logged in (RLS requires auth)
+      if (user) {
+        try {
+          const { data: weeklyReferrals } = await supabase
+            .from('affiliate_referrals')
+            .select('affiliate_id')
+            .in('affiliate_id', affiliateIds)
+            .gte('registered_at', weekAgo.toISOString())
+            .not('registered_user_id', 'is', null);
 
-      // Count referrals per affiliate
-      const weeklyCountMap = new Map<string, number>();
-      weeklyReferrals?.forEach(ref => {
-        const current = weeklyCountMap.get(ref.affiliate_id) || 0;
-        weeklyCountMap.set(ref.affiliate_id, current + 1);
-      });
+          weeklyReferrals?.forEach(ref => {
+            const current = weeklyCountMap.get(ref.affiliate_id) || 0;
+            weeklyCountMap.set(ref.affiliate_id, current + 1);
+          });
+          weeklyTotal = weeklyReferrals?.length || 0;
 
-      // Set total weekly registrations
-      setTotalWeeklyRegistrations(weeklyReferrals?.length || 0);
+          // Fetch today's registrations
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          
+          const { data: todayReferrals } = await supabase
+            .from('affiliate_referrals')
+            .select('id')
+            .gte('registered_at', today.toISOString())
+            .not('registered_user_id', 'is', null);
+          
+          todayTotal = todayReferrals?.length || 0;
+        } catch (e) {
+          // If referral query fails, fall back to total_registrations
+          console.log('Using cached totals for leaderboard');
+        }
+      }
 
-      // Fetch today's registrations
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
+      // If no weekly data (not logged in or query failed), use total_registrations
+      if (weeklyCountMap.size === 0) {
+        affiliatesData.forEach(a => {
+          if (a.total_registrations > 0) {
+            weeklyCountMap.set(a.id, a.total_registrations);
+            weeklyTotal += a.total_registrations;
+          }
+        });
+      }
       
-      const { data: todayReferrals } = await supabase
-        .from('affiliate_referrals')
-        .select('id')
-        .gte('registered_at', today.toISOString())
-        .not('registered_user_id', 'is', null);
-      
-      setDailyRegistrations(todayReferrals?.length || 0);
+      setTotalWeeklyRegistrations(weeklyTotal);
+      setDailyRegistrations(todayTotal);
 
       // Build leaderboard entries with weekly counts
       const leaderboardEntries = affiliatesData

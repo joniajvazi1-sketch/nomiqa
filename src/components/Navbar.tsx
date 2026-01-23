@@ -32,9 +32,10 @@ export const Navbar = () => {
   // Check if we're on the shop page
   const isShopPage = location.pathname.includes('/shop');
   
-  // Pages where search should be hidden for cleaner UX
+  // Pages where search should be hidden for cleaner UX (check without language prefix)
+  const pathWithoutLang = location.pathname.replace(/^\/(english|espanol|francais|deutsch|italiano|portugues|russian|chinese|japanese|arabic)/, '');
   const hideSearchPages = ['/affiliate', '/auth', '/leaderboard', '/checkout', '/account'];
-  const shouldHideSearch = isShopPage || hideSearchPages.some(page => location.pathname.includes(page));
+  const shouldHideSearch = isShopPage || hideSearchPages.some(page => pathWithoutLang.includes(page) || location.pathname.includes(page));
 
   // Scroll detection for blur effect - works with both window and WebLayout scroll container
   useEffect(() => {
