@@ -17,6 +17,7 @@ export const WebLayout: React.FC<WebLayoutProps> = ({ children }) => {
   const location = useLocation();
   const isAdminPage = location.pathname.startsWith('/admin');
   const isCheckoutPage = location.pathname.includes('/checkout');
+  const isAuthPage = location.pathname.includes('/auth');
 
   // Scroll to top on route change
   useEffect(() => {
@@ -32,11 +33,11 @@ export const WebLayout: React.FC<WebLayoutProps> = ({ children }) => {
   return (
     <div className="fixed inset-0 overflow-y-auto overflow-x-hidden bg-background">
       <div className="min-h-full flex flex-col">
-        {!isAdminPage && !isCheckoutPage && <Navbar />}
+        {!isAdminPage && !isCheckoutPage && !isAuthPage && <Navbar />}
         <main className="flex-1">
           {children}
         </main>
-        {!isAdminPage && !isCheckoutPage && <Footer />}
+        {!isAdminPage && !isCheckoutPage && !isAuthPage && <Footer />}
       </div>
     </div>
   );
