@@ -2,13 +2,19 @@ import { useTranslation } from "@/contexts/TranslationContext";
 import { Link } from "react-router-dom";
 import socialFacebook from "@/assets/social-facebook.webp";
 import socialInstagram from "@/assets/social-instagram.webp";
-import socialTiktok from "@/assets/social-tiktok.webp";
 import socialYoutube from "@/assets/social-youtube.webp";
 
-// Custom X (Twitter) logo component
+// Custom X (Twitter) logo component - SVG for crisp rendering
 const XLogo = () => (
   <svg viewBox="0 0 24 24" className="w-5 h-5 fill-white" aria-hidden="true">
     <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+  </svg>
+);
+
+// Custom TikTok logo component - SVG for crisp rendering
+const TikTokLogo = () => (
+  <svg viewBox="0 0 24 24" className="w-5 h-5 fill-white" aria-hidden="true">
+    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
   </svg>
 );
 
@@ -18,7 +24,7 @@ export const Footer = () => {
   const socialLinks = [
     { href: "https://www.facebook.com/share/1ZfyMXTQfP/?mibextid=wwXIfr", icon: socialFacebook, label: "Facebook" },
     { href: "https://www.instagram.com/nomiqaesim?igsh=MWtjMDFkM3BjZ2t2aA%3D%3D&utm_source=qr", icon: socialInstagram, label: "Instagram" },
-    { href: "https://www.tiktok.com/@nomiqaesim?_r=1&_t=ZN-91m8zWG0IVC", icon: socialTiktok, label: "TikTok" },
+    { href: "https://www.tiktok.com/@nomiqaesim?_r=1&_t=ZN-91m8zWG0IVC", icon: null, label: "TikTok", isTikTok: true },
     { href: "https://x.com/nomiqaesim?s=11", icon: null, label: "X", isX: true },
     { href: "https://youtube.com/@nomiqaesim?si=zCWrU1r-I1sOR4C9", icon: socialYoutube, label: "YouTube" },
   ];
@@ -76,6 +82,8 @@ export const Footer = () => {
               >
                 {'isX' in social && social.isX ? (
                   <XLogo />
+                ) : 'isTikTok' in social && social.isTikTok ? (
+                  <TikTokLogo />
                 ) : (
                   <img 
                     src={social.icon as string} 
