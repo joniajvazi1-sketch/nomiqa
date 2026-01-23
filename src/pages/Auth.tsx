@@ -10,7 +10,7 @@ import { NetworkBackground } from "@/components/NetworkBackground";
 import { toast } from "sonner";
 import { Loader2, Mail, Eye, EyeOff } from "lucide-react";
 import { useTranslation } from "@/contexts/TranslationContext";
-import nomiqaAnimatedLogo from "@/assets/nomiqa-animated-logo.gif";
+import nomiqaAnimatedLogo from "@/assets/nomiqa-token-logo.png";
 import { useAffiliateTracking } from "@/hooks/useAffiliateTracking";
 import { UsernameSelection } from "@/components/UsernameSelection";
 import { EmailVerification } from "@/components/EmailVerification";
