@@ -109,15 +109,15 @@ export default function About() {
         ref={(el: HTMLDivElement | null) => { sectionRefs.current['stats'] = el; }}
         className="py-12 px-4 relative z-10"
       >
-        <div className={`container max-w-5xl mx-auto transition-all duration-1000 ${visibleSections.has('stats') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-          <div className="grid grid-cols-3 gap-4 md:gap-6">
+        <div className={`container max-w-4xl mx-auto transition-all duration-1000 ${visibleSections.has('stats') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+          <div className="grid grid-cols-3 gap-3 md:gap-8">
             {stats.map((stat, index) => (
               <div 
                 key={index}
-                className="text-center p-6 rounded-2xl bg-white/[0.02] border border-white/10"
+                className="text-center p-3 md:p-6 rounded-xl md:rounded-2xl bg-white/[0.02] border border-white/10"
               >
-                <div className="text-3xl md:text-4xl font-light text-primary mb-2">{stat.value}</div>
-                <div className="text-sm text-muted-foreground">{stat.label}</div>
+                <div className="text-xl sm:text-2xl md:text-4xl font-light text-primary mb-1 md:mb-2 whitespace-nowrap">{stat.value}</div>
+                <div className="text-[10px] sm:text-xs md:text-sm text-muted-foreground leading-tight">{stat.label}</div>
               </div>
             ))}
           </div>
