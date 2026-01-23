@@ -14,9 +14,16 @@ export const ChatbotBubble = () => {
   const [hasBeenDismissed, setHasBeenDismissed] = useState(false);
 
   useEffect(() => {
+    // Cache the scroll container reference to avoid repeated DOM queries (fixes forced reflow)
+    let scrollContainer: Element | null = null;
+    let rafId: number | null = null;
+    
     const handleScroll = () => {
-      // WebLayout uses a fixed scroll container
-      const scrollContainer = document.querySelector('.fixed.inset-0.overflow-y-auto');
+      // Use cached reference, only query once
+      if (!scrollContainer) {
+        scrollContainer = document.querySelector('.fixed.inset-0.overflow-y-auto');
+      }
+      
       const scrollY = scrollContainer ? scrollContainer.scrollTop : window.scrollY;
       const scrollHeight = scrollContainer ? scrollContainer.scrollHeight : document.body.scrollHeight;
       const clientHeight = scrollContainer ? scrollContainer.clientHeight : window.innerHeight;
@@ -38,18 +45,31 @@ export const ChatbotBubble = () => {
       }
     };
 
-    // Listen to both window and the scroll container
-    const scrollContainer = document.querySelector('.fixed.inset-0.overflow-y-auto');
-    
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    scrollContainer?.addEventListener("scroll", handleScroll, { passive: true });
-    
-    // Check initial scroll position
-    handleScroll();
+    // Throttle scroll handler with rAF to prevent forced reflow
+    const throttledScroll = () => {
+      if (rafId !== null) return;
+      rafId = requestAnimationFrame(() => {
+        handleScroll();
+        rafId = null;
+      });
+    };
+
+    // Defer initial setup to avoid blocking FCP
+    const timeoutId = setTimeout(() => {
+      scrollContainer = document.querySelector('.fixed.inset-0.overflow-y-auto');
+      
+      window.addEventListener("scroll", throttledScroll, { passive: true });
+      scrollContainer?.addEventListener("scroll", throttledScroll, { passive: true });
+      
+      // Check initial scroll position
+      handleScroll();
+    }, 100);
     
     return () => {
-      window.removeEventListener("scroll", handleScroll);
-      scrollContainer?.removeEventListener("scroll", handleScroll);
+      clearTimeout(timeoutId);
+      if (rafId !== null) cancelAnimationFrame(rafId);
+      window.removeEventListener("scroll", throttledScroll);
+      scrollContainer?.removeEventListener("scroll", throttledScroll);
     };
   }, [hasBeenDismissed]);
 
