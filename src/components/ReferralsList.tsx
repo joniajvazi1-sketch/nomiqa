@@ -80,15 +80,15 @@ export function ReferralsList({ affiliateId }: ReferralsListProps) {
       <div className="p-5 md:p-6 border-b border-white/10 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center border border-primary/20">
-            <Users className="w-5 h-5 text-primary" />
+            <Users className="w-5 h-5 text-primary" strokeWidth={2.5} />
           </div>
           <div>
-            <h3 className="text-lg font-light text-white">My Referrals</h3>
-            <p className="text-sm text-white/50">People who signed up using your link</p>
+            <h3 className="text-lg font-light text-white">{t("affiliateMyReferrals")}</h3>
+            <p className="text-sm text-white/50">{t("affiliateMyReferralsDesc")}</p>
           </div>
         </div>
         <Badge className="bg-primary/10 text-primary border-primary/20">
-          {referrals.length} {referrals.length === 1 ? 'referral' : 'referrals'}
+          {referrals.length} {referrals.length === 1 ? t("affiliateReferralSingular") : t("affiliateReferralPlural")}
         </Badge>
       </div>
 
@@ -96,8 +96,8 @@ export function ReferralsList({ affiliateId }: ReferralsListProps) {
       <div className="p-5 md:p-6">
         {referrals.length === 0 ? (
           <div className="text-center py-8">
-            <Users className="w-12 h-12 mx-auto mb-3 text-white/20" />
-            <p className="text-sm text-white/50">No referrals yet. Share your link to start earning!</p>
+            <Users className="w-12 h-12 mx-auto mb-3 text-white/20" strokeWidth={2.5} />
+            <p className="text-sm text-white/50">{t("affiliateNoReferrals")}</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -138,7 +138,7 @@ export function ReferralsList({ affiliateId }: ReferralsListProps) {
                       : "bg-neon-cyan/10 text-neon-cyan border-neon-cyan/20"
                     }
                   >
-                    {referral.hasConverted ? 'Purchased' : 'Registered'}
+                    {referral.hasConverted ? t("affiliateStatusPurchased") : t("affiliateStatusRegistered")}
                   </Badge>
                 </div>
               </div>
