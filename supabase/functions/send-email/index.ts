@@ -417,12 +417,8 @@ const generateEmailHTML = (type: string, data: any): { html: string; subject: st
                 <h2 style="color: #a78bfa; font-size: 18px; margin-bottom: 20px; font-weight: 400;">✨ What happens next?</h2>
                 <div style="space-y: 16px;">
                   <div style="display: flex; align-items: flex-start; margin-bottom: 16px;">
-                    <span style="color: #22d3ee; margin-right: 12px; font-size: 18px;">🔧</span>
-                    <p style="color: #cbd5e1; margin: 0; font-size: 15px;">We're building the network infrastructure</p>
-                  </div>
-                  <div style="display: flex; align-items: flex-start; margin-bottom: 16px;">
-                    <span style="color: #22d3ee; margin-right: 12px; font-size: 18px;">📧</span>
-                    <p style="color: #cbd5e1; margin: 0; font-size: 15px;">You'll receive updates on our progress</p>
+                    <span style="color: #22d3ee; margin-right: 12px; font-size: 18px;">📱</span>
+                    <p style="color: #cbd5e1; margin: 0; font-size: 15px;">Download the app and start contributing to the network</p>
                   </div>
                   <div style="display: flex; align-items: flex-start; margin-bottom: 16px;">
                     <span style="color: #22d3ee; margin-right: 12px; font-size: 18px;">⭐</span>
@@ -435,9 +431,19 @@ const generateEmailHTML = (type: string, data: any): { html: string; subject: st
                 </div>
               </div>
               
-              <div style="background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 12px; padding: 20px; margin: 24px 0; text-align: center;">
-                <p style="color: #4ade80; font-size: 15px; margin: 0;">
-                  <span style="font-size: 18px;">✓</span> <strong>No action needed</strong> — we'll email you when it's time to activate
+              <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 20px; margin: 24px 0;">
+                <p style="color: #10b981; font-size: 16px; font-weight: bold; margin: 0 0 12px 0; text-align: center;">
+                  💰 Boost Your Rewards — Invite Friends!
+                </p>
+                <p style="color: #cbd5e1; font-size: 14px; margin: 0; text-align: center; line-height: 1.6;">
+                  The more friends you invite, the higher your <strong style="color: #22d3ee;">reward boost</strong> (up to +100%).<br/>
+                  Plus, earn <strong style="color: #10b981;">5% of all points</strong> your referrals earn — forever!
+                </p>
+              </div>
+              
+              <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.2); border-radius: 12px; padding: 16px; margin: 24px 0; text-align: center;">
+                <p style="color: #4ade80; font-size: 14px; margin: 0;">
+                  <span style="font-size: 16px;">✓</span> <strong>Ready to start?</strong> Open the app and share your invite link!
                 </p>
               </div>
               
