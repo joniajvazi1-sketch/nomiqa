@@ -205,7 +205,7 @@ export const Navbar = () => {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-deep-space/95 backdrop-blur-xl border-b border-white/10 shadow-lg">
+    <nav className="sticky top-0 left-0 right-0 z-50 bg-deep-space/95 backdrop-blur-xl border-b border-white/10 shadow-lg">
       {/* Subtle decorative gradient */}
       <div className="absolute inset-0 bg-gradient-to-r from-neon-violet/5 via-transparent to-neon-cyan/5 pointer-events-none opacity-40" />
       <div className="absolute top-0 left-1/4 w-96 h-px bg-gradient-to-r from-transparent via-neon-cyan/20 to-transparent opacity-30" />

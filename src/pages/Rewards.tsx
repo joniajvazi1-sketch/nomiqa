@@ -73,7 +73,7 @@ export default function Rewards() {
         <div className="absolute top-40 right-20 w-80 h-80 bg-neon-coral/30 rounded-full blur-3xl"></div>
         <div className="absolute bottom-40 left-1/4 w-[500px] h-[500px] bg-amber-500/20 rounded-full blur-3xl"></div>
       </div>
-      <main ref={sectionRef} className="relative z-10 pt-32 pb-20 px-4 sm:px-6">
+      <main ref={sectionRef} className="relative z-10 pt-8 pb-20 px-4 sm:px-6">
         <div className="container mx-auto max-w-6xl">
           {/* Hero Section */}
           <div className={`text-center mb-16 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>

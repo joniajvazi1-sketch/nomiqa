@@ -94,7 +94,7 @@ export default function Roadmap() {
         <div className="absolute bottom-40 left-20 w-[500px] h-[500px] bg-neon-cyan/30 rounded-full blur-3xl"></div>
         <div className="absolute top-1/2 right-1/4 w-80 h-80 bg-neon-coral/20 rounded-full blur-3xl"></div>
       </div>
-      <div className="container mx-auto px-4 py-20 relative z-10">
+      <div className="container mx-auto px-4 py-8 relative z-10">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12 animate-fade-in">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-light mb-4 bg-gradient-to-r from-white via-neon-cyan to-white bg-clip-text text-transparent">{t("roadmapTitle")}</h1>

@@ -29,7 +29,7 @@ const Help = () => {
       </div>
       
       {/* Help Center Section */}
-      <section className="pt-32 md:pt-40 pb-12 md:pb-16 relative overflow-hidden">
+      <section className="pt-8 md:pt-16 pb-12 md:pb-16 relative overflow-hidden">
         {/* Premium background decorations */}
         <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-neon-cyan/5 rounded-full blur-3xl"></div>
         <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-neon-violet/5 rounded-full blur-3xl"></div>

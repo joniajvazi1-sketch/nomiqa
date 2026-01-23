@@ -64,7 +64,7 @@ const Token = () => {
         <div className="absolute bottom-20 right-10 w-80 h-80 bg-neon-violet/30 rounded-full blur-3xl"></div>
       </div>
 
-      <main className="relative z-10 pt-32 md:pt-40 pb-24 px-4" ref={sectionRef}>
+      <main className="relative z-10 pt-8 md:pt-16 pb-24 px-4" ref={sectionRef}>
         <div className="max-w-5xl mx-auto">
           
           {/* Hero Section */}
