@@ -65,8 +65,10 @@ const SPEED_TEST_BONUS_POINTS = 2; // Bonus points per speed test
 const PREMIUM_SPEED_THRESHOLD = 50; // Mbps - extra bonus for fast connections
 const DAILY_SPEED_TEST_LIMIT = 10; // Server enforces this - matches MAX_SPEED_TESTS_PER_DAY in edge function
 const SPEED_TEST_DAILY_KEY = 'nomiqa_speed_tests_today';
-const MAX_SESSION_DURATION_MS = 4 * 60 * 60 * 1000; // 4 hours max session before auto-expiry
+const MAX_SESSION_DURATION_MS = 24 * 60 * 60 * 1000; // 24 hours max session - runs all day!
 const MAX_OFFLINE_QUEUE_SIZE = 1000; // FIFO cap to prevent localStorage overflow
+const AUTO_SAVE_INTERVAL_MS = 5 * 60 * 1000; // Auto-save points every 5 minutes
+const LAST_AUTO_SAVE_KEY = 'nomiqa_last_auto_save';
 
 /**
  * Check if connection type is cellular (earns points)
@@ -372,7 +374,9 @@ export const useNetworkContribution = () => {
   const lastPositionRef = useRef<Position | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const speedTestTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
   const lastTimePointsRef = useRef<number>(0);
+  const lastAutoSavePointsRef = useRef<number>(0);
 
   // Restore session from persistence on mount or app resume
   // This enables AUTO-RESUME when iOS relaunches app from significantLocationChange
@@ -722,6 +726,77 @@ export const useNetworkContribution = () => {
       lastTimePointsRef.current = currentMinute;
     }
   }, [stats.duration, session.status, isCellular]);
+
+  // AUTO-SAVE: Periodically save points to database (every 5 minutes)
+  // This ensures users don't lose points even if they forget to stop or app crashes
+  useEffect(() => {
+    if (session.status !== 'active' || !user || !session.id) return;
+    
+    const autoSavePoints = async () => {
+      const currentPoints = Math.floor(stats.pointsEarned);
+      const pointsDelta = currentPoints - lastAutoSavePointsRef.current;
+      
+      // Only save if there are new points to save (at least 1)
+      if (pointsDelta < 1) return;
+      
+      try {
+        console.log(`[NetworkContribution] Auto-saving ${pointsDelta} points (total: ${currentPoints})`);
+        
+        // Update session progress
+        await supabase
+          .from('contribution_sessions')
+          .update({
+            total_distance_meters: stats.distanceMeters,
+            total_points_earned: currentPoints,
+            data_points_count: stats.dataPointsCount
+          })
+          .eq('id', session.id);
+        
+        // Update user points (incremental)
+        const { data: existingPoints } = await supabase
+          .from('user_points')
+          .select('*')
+          .eq('user_id', user.id)
+          .maybeSingle();
+        
+        if (existingPoints) {
+          await supabase
+            .from('user_points')
+            .update({
+              total_points: (existingPoints.total_points || 0) + pointsDelta,
+              total_distance_meters: (existingPoints.total_distance_meters || 0) + (stats.distanceMeters - (existingPoints.total_distance_meters || 0)),
+              total_contribution_time_seconds: (existingPoints.total_contribution_time_seconds || 0) + Math.floor(AUTO_SAVE_INTERVAL_MS / 1000)
+            })
+            .eq('user_id', user.id);
+        } else {
+          await supabase
+            .from('user_points')
+            .insert({
+              user_id: user.id,
+              total_points: pointsDelta,
+              total_distance_meters: stats.distanceMeters,
+              total_contribution_time_seconds: stats.duration
+            });
+        }
+        
+        lastAutoSavePointsRef.current = currentPoints;
+        localStorage.setItem(LAST_AUTO_SAVE_KEY, Date.now().toString());
+        console.log('[NetworkContribution] Auto-save completed');
+      } catch (error) {
+        console.error('[NetworkContribution] Auto-save failed:', error);
+      }
+    };
+    
+    // Start auto-save timer
+    autoSaveTimerRef.current = setInterval(autoSavePoints, AUTO_SAVE_INTERVAL_MS);
+    
+    return () => {
+      if (autoSaveTimerRef.current) {
+        clearInterval(autoSaveTimerRef.current);
+        autoSaveTimerRef.current = null;
+      }
+    };
+  }, [session.status, session.id, user, stats.pointsEarned, stats.distanceMeters, stats.dataPointsCount, stats.duration]);
 
   const calculateDistance = (pos1: Position, pos2: Position): number => {
     const R = 6371e3;
@@ -1120,6 +1195,11 @@ export const useNetworkContribution = () => {
       clearInterval(speedTestTimerRef.current);
       speedTestTimerRef.current = null;
     }
+    
+    if (autoSaveTimerRef.current) {
+      clearInterval(autoSaveTimerRef.current);
+      autoSaveTimerRef.current = null;
+    }
 
     if (session.id && user) {
       try {
@@ -1140,26 +1220,32 @@ export const useNetworkContribution = () => {
           .eq('user_id', user.id)
           .maybeSingle();
 
-        const totalPoints = Math.floor(stats.pointsEarned);
+        // Only save the REMAINING points not yet auto-saved
+        const remainingPoints = Math.floor(stats.pointsEarned) - lastAutoSavePointsRef.current;
+        const pointsToSave = Math.max(0, remainingPoints);
+        
+        console.log(`[NetworkContribution] Final save: ${pointsToSave} remaining points (${lastAutoSavePointsRef.current} already auto-saved)`);
 
-        if (existingPoints) {
-          await supabase
-            .from('user_points')
-            .update({
-              total_points: (existingPoints.total_points || 0) + totalPoints,
-              total_distance_meters: (existingPoints.total_distance_meters || 0) + stats.distanceMeters,
-              total_contribution_time_seconds: (existingPoints.total_contribution_time_seconds || 0) + stats.duration
-            })
-            .eq('user_id', user.id);
-        } else {
-          await supabase
-            .from('user_points')
-            .insert({
-              user_id: user.id,
-              total_points: totalPoints,
-              total_distance_meters: stats.distanceMeters,
-              total_contribution_time_seconds: stats.duration
-            });
+        if (pointsToSave > 0) {
+          if (existingPoints) {
+            await supabase
+              .from('user_points')
+              .update({
+                total_points: (existingPoints.total_points || 0) + pointsToSave,
+                total_distance_meters: (existingPoints.total_distance_meters || 0) + stats.distanceMeters,
+                total_contribution_time_seconds: (existingPoints.total_contribution_time_seconds || 0) + stats.duration
+              })
+              .eq('user_id', user.id);
+          } else {
+            await supabase
+              .from('user_points')
+              .insert({
+                user_id: user.id,
+                total_points: pointsToSave,
+                total_distance_meters: stats.distanceMeters,
+                total_contribution_time_seconds: stats.duration
+              });
+          }
         }
 
         success();
@@ -1167,6 +1253,9 @@ export const useNetworkContribution = () => {
         console.error('Failed to save session:', error);
       }
     }
+    
+    // Reset auto-save tracker
+    lastAutoSavePointsRef.current = 0;
 
     await syncOfflineQueue();
 
