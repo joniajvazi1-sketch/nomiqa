@@ -200,7 +200,7 @@ export const WeeklySummaryModal: React.FC = () => {
                 onClick={handleClose} 
                 className="w-full"
               >
-                Keep Earning
+                Keep Contributing
                 <ChevronRight className="w-4 h-4 ml-1" />
               </Button>
             </div>

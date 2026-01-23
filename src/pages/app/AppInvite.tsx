@@ -30,12 +30,12 @@ interface AffiliateData {
 
 // Milestone tiers for reward boost
 const MILESTONE_TIERS = [
-  { level: 0, name: 'Starter', recruits: 0, boost: 0 },
-  { level: 1, name: 'Recruiter', recruits: 5, boost: 10 },
-  { level: 2, name: 'Ambassador', recruits: 15, boost: 25 },
-  { level: 3, name: 'Champion', recruits: 30, boost: 50 },
-  { level: 4, name: 'Elite', recruits: 50, boost: 75 },
-  { level: 5, name: 'Legend', recruits: 100, boost: 100 },
+  { level: 0, name: 'Starter', contributors: 0, boost: 0 },
+  { level: 1, name: 'Advocate', contributors: 5, boost: 10 },
+  { level: 2, name: 'Ambassador', contributors: 15, boost: 25 },
+  { level: 3, name: 'Champion', contributors: 30, boost: 50 },
+  { level: 4, name: 'Elite', contributors: 50, boost: 75 },
+  { level: 5, name: 'Legend', contributors: 100, boost: 100 },
 ];
 
 export const AppInvite: React.FC = () => {
@@ -122,7 +122,7 @@ export const AppInvite: React.FC = () => {
   // Calculate current tier and progress
   const currentTier = MILESTONE_TIERS.find(t => t.level === (affiliate?.registration_milestone_level || 0)) || MILESTONE_TIERS[0];
   const nextTier = MILESTONE_TIERS.find(t => t.level === (affiliate?.registration_milestone_level || 0) + 1);
-  const recruitsToNext = nextTier ? nextTier.recruits - (affiliate?.total_registrations || 0) : 0;
+  const contributorsToNext = nextTier ? nextTier.contributors - (affiliate?.total_registrations || 0) : 0;
 
   if (loading) {
     return (
@@ -386,7 +386,7 @@ export const AppInvite: React.FC = () => {
                   <div className="flex items-center justify-between text-xs mb-2">
                     <span className="text-muted-foreground">Progress to {nextTier.name}</span>
                     <span className="text-foreground font-medium">
-                      {affiliate?.total_registrations || 0} / {nextTier.recruits}
+                      {affiliate?.total_registrations || 0} / {nextTier.contributors}
                     </span>
                   </div>
                   <div className="h-2 bg-muted rounded-full overflow-hidden">
@@ -394,13 +394,13 @@ export const AppInvite: React.FC = () => {
                       className="h-full bg-primary rounded-full"
                       initial={{ width: 0 }}
                       animate={{ 
-                        width: `${Math.min(((affiliate?.total_registrations || 0) / nextTier.recruits) * 100, 100)}%` 
+                        width: `${Math.min(((affiliate?.total_registrations || 0) / nextTier.contributors) * 100, 100)}%` 
                       }}
                       transition={{ delay: 0.5, duration: 0.5 }}
                     />
                   </div>
                   <p className="text-xs text-muted-foreground mt-2 text-center">
-                    {recruitsToNext} more contributors for +{nextTier.boost}% boost
+                    {contributorsToNext} more contributors for +{nextTier.boost}% boost
                   </p>
                 </div>
               )}
@@ -433,7 +433,7 @@ export const AppInvite: React.FC = () => {
                           {tier.name}
                         </span>
                         <span className="text-xs text-muted-foreground">
-                          ({tier.recruits} recruits)
+                          ({tier.contributors} contributors)
                         </span>
                       </div>
                       <Badge 

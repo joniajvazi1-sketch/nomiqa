@@ -140,7 +140,7 @@ export const FloatingQuickEarn = ({ isSessionActive = false, livePoints = 0 }: F
           className="absolute right-16 top-1/2 -translate-y-1/2 whitespace-nowrap"
         >
           <span className="bg-card/90 backdrop-blur-sm px-3 py-1.5 rounded-full text-sm font-medium border border-border shadow-sm">
-            Start Earning
+            Start Contributing
           </span>
         </motion.div>
       )}

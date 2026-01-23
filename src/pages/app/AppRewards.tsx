@@ -369,7 +369,7 @@ export const AppRewards: React.FC = () => {
                     fontSize: '12px',
                     color: 'hsl(var(--foreground))'
                   }}
-                  formatter={(value: number) => [`${value} pts`, 'Earned']}
+                  formatter={(value: number) => [`${value} pts`, 'Contributed']}
                 />
                 <Bar 
                   dataKey="points" 
