@@ -16,12 +16,10 @@
     <link rel="dns-prefetch" href="https://gzhmbiopiciugriatsdb.supabase.co" />
     <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
     <!-- Preconnect to API origins used after initial render -->
-    <link rel="preconnect" href="https://api.coingecko.com" crossorigin />
     <link rel="preconnect" href="https://cdn.airalo.com" crossorigin />
     
-    <!-- Preload LCP hero image for faster Largest Contentful Paint -->
+    <!-- Preload LCP hero image for faster Largest Contentful Paint - mobile WebP only -->
     <link rel="preload" as="image" type="image/webp" href="/src/assets/hero-mobile-sunset.webp" media="(max-width: 767px)" fetchpriority="high" />
-    <link rel="preload" as="image" type="image/png" href="/src/assets/hero-sunset-background.png" media="(min-width: 768px)" fetchpriority="high" />
     
     <!-- Critical CSS for above-the-fold content - eliminates render blocking -->
     <style>
@@ -56,9 +54,9 @@
     <meta name="twitter:site" content="@nomiqaesim" />
     <meta name="twitter:image" content="https://storage.googleapis.com/gpt-engineer-file-uploads/PQFXlcHCciXpAnpHtuACtPV6p0v1/social-images/social-1769189952024-unnamed.jpg">
     
-    <!-- Fonts with display=swap loaded async to avoid render-blocking -->
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Poppins:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" onload="this.onload=null;this.rel='stylesheet'" />
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Poppins:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" /></noscript>
+    <!-- Fonts with display=swap loaded async - reduced to only essential weights -->
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&display=swap" onload="this.onload=null;this.rel='stylesheet'" />
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&display=swap" /></noscript>
     
     <!-- CSS loading optimization script -->
     <script>

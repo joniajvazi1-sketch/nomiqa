@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import heroSunsetBg from "@/assets/hero-sunset-background.png";
 import heroMobileSunsetWebp from "@/assets/hero-mobile-sunset.webp";
-import heroMobileSunsetPng from "@/assets/hero-mobile-sunset.png";
 import { useTranslation } from "@/contexts/TranslationContext";
 import { ArrowRight, Check, Wifi, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -95,13 +94,13 @@ export const Hero = () => {
           <source media="(min-width: 768px)" srcSet={heroSunsetBg} type="image/png" />
           <source srcSet={heroMobileSunsetWebp} type="image/webp" />
           <img 
-            src={heroMobileSunsetPng} 
-            alt="Sunset cityscape" 
-            width={1080}
-            height={1920}
+            src={heroMobileSunsetWebp} 
+            alt="" 
+            width={540}
+            height={960}
             className="w-full h-full object-cover object-center md:object-center object-[70%_center]" 
             loading="eager"
-            decoding="async"
+            decoding="sync"
             fetchPriority="high"
           />
         </picture>
@@ -112,8 +111,8 @@ export const Hero = () => {
       <div className="container relative z-10 px-6 md:px-8 pt-32 pb-24 md:py-32">
         <div className="max-w-4xl mx-auto">
           
-          {/* DePIN Trust Badge */}
-          <div className="flex justify-center mb-6 animate-fade-in" style={{ animationDelay: "0.05s" }}>
+          {/* DePIN Trust Badge - removed animation delay for faster mobile LCP */}
+          <div className="flex justify-center mb-6 animate-fade-in">
             <div className="inline-flex items-center justify-center gap-2 px-3 md:px-4 py-2 rounded-full bg-white/15 border border-neon-cyan/30 text-neon-cyan text-[10px] md:text-sm font-medium text-center">
               <Wifi className="w-3 h-3 md:w-3.5 md:h-3.5 flex-shrink-0" />
               <span className="whitespace-nowrap">{t("heroNetworkBadge")}</span>
@@ -136,8 +135,8 @@ export const Hero = () => {
             </p>
           </div>
 
-          {/* Benefits List */}
-          <div className="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-6 mb-8 md:mb-10 animate-fade-in" style={{ animationDelay: "0.2s" }}>
+          {/* Benefits List - removed animation delay */}
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-6 mb-8 md:mb-10 animate-fade-in">
             <div className="flex items-center gap-2 text-white/80 text-sm md:text-base">
               <div className="w-5 h-5 rounded-full bg-neon-cyan/20 flex items-center justify-center">
                 <Check className="w-3 h-3 text-neon-cyan" />
@@ -158,8 +157,8 @@ export const Hero = () => {
             </div>
           </div>
           
-          {/* CTA Buttons */}
-          <div className="max-w-md mx-auto animate-fade-in text-center" style={{ animationDelay: "0.25s" }}>
+          {/* CTA Buttons - removed animation delay */}
+          <div className="max-w-md mx-auto animate-fade-in text-center">
             {isLoggedIn ? (
               <div className="space-y-3">
                 <p className="text-neon-cyan text-xs md:text-sm font-medium animate-pulse">
@@ -192,8 +191,8 @@ export const Hero = () => {
             </p>
           </div>
 
-          {/* Secondary Action - View eSIM Plans Button */}
-          <div className="text-center mt-6 animate-fade-in" style={{ animationDelay: "0.3s" }}>
+          {/* Secondary Action - View eSIM Plans Button - removed animation delay */}
+          <div className="text-center mt-6 animate-fade-in">
             <Button 
               onClick={() => navigate('/shop')} 
               variant="outline"

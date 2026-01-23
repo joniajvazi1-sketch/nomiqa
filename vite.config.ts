@@ -23,41 +23,37 @@ export default defineConfig(({ mode }) => {
       port: 8080,
     },
     build: {
-      sourcemap: true, // Generate source maps and reference them for debugging
-      cssCodeSplit: true, // Split CSS for better loading
+      sourcemap: true,
+      cssCodeSplit: true,
+      // Reduce chunk size for faster mobile parsing
+      chunkSizeWarningLimit: 500,
       rollupOptions: {
         output: {
-          // Ensure CSS is chunked for async loading
           assetFileNames: (assetInfo) => {
             if (assetInfo.name?.endsWith(".css")) {
               return "assets/[name]-[hash][extname]";
             }
             return "assets/[name]-[hash][extname]";
           },
-          // Manual chunk splitting to reduce main bundle size
-          manualChunks: {
-            // Core React framework
-            "react-vendor": ["react", "react-dom"],
-            // Router
-            router: ["react-router-dom"],
-            // State management and data fetching
-            query: ["@tanstack/react-query"],
-            // UI components library
-            radix: [
-              "@radix-ui/react-accordion",
-              "@radix-ui/react-alert-dialog",
-              "@radix-ui/react-dialog",
-              "@radix-ui/react-dropdown-menu",
-              "@radix-ui/react-popover",
-              "@radix-ui/react-select",
-              "@radix-ui/react-tabs",
-              "@radix-ui/react-toast",
-              "@radix-ui/react-tooltip",
-            ],
-            // Animation library
-            framer: ["framer-motion"],
-            // Supabase client
-            supabase: ["@supabase/supabase-js"],
+          // Optimized chunk splitting for mobile
+          manualChunks: (id) => {
+            // Core React - smallest possible
+            if (id.includes("react-dom")) return "react-dom";
+            if (id.includes("node_modules/react/")) return "react-core";
+            // Router - separate for code splitting
+            if (id.includes("react-router")) return "router";
+            // Query client
+            if (id.includes("@tanstack/react-query")) return "query";
+            // Radix UI - split into smaller chunks
+            if (id.includes("@radix-ui")) return "radix";
+            // Framer Motion - only load when needed
+            if (id.includes("framer-motion")) return "framer";
+            // Supabase - defer until auth/data needed
+            if (id.includes("@supabase")) return "supabase";
+            // Sentry - load last
+            if (id.includes("@sentry")) return "sentry";
+            // Lucide icons
+            if (id.includes("lucide-react")) return "icons";
           },
         },
       },
