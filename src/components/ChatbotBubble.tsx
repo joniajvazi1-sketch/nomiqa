@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "@/contexts/TranslationContext";
-import { Sparkles } from "lucide-react";
+import { Bot } from "lucide-react";
 
 /**
  * Premium animated assistant bubble that appears while scrolling
@@ -124,20 +124,19 @@ export const ChatbotBubble = () => {
               {/* Gradient overlay */}
               <div className="absolute inset-0 bg-gradient-to-br from-neon-cyan/20 via-transparent to-neon-violet/20 rounded-2xl pointer-events-none" />
               
-              {/* Sparkle icon with twinkle animation */}
+              {/* Robot icon with subtle twinkle */}
               <motion.div
                 animate={{ 
-                  opacity: [0.7, 1, 0.7],
-                  rotate: [0, 5, -5, 0]
+                  opacity: [0.85, 1, 0.85],
                 }}
                 transition={{ 
-                  duration: 3,
+                  duration: 2.5,
                   repeat: Infinity,
                   ease: "easeInOut"
                 }}
                 className="relative z-10"
               >
-                <Sparkles className="w-5 h-5 text-neon-cyan" />
+                <Bot className="w-6 h-6 text-neon-cyan" />
               </motion.div>
             </motion.div>
 
