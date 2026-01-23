@@ -211,14 +211,19 @@ export const Navbar = () => {
       <div className="absolute top-0 left-1/4 w-96 h-px bg-gradient-to-r from-transparent via-neon-cyan/20 to-transparent opacity-30" />
       
       <div className="container mx-auto px-4 sm:px-6 relative">
-        <div className="flex items-center justify-between gap-4 h-16 sm:h-18 md:h-20">
-          {/* Logo - Text only, larger when logged in */}
-          <div className="flex items-center flex-shrink-0">
+        <div className="flex items-center justify-between gap-4 h-16 sm:h-18 md:h-20 relative">
+          {/* Centered Logo - Absolutely positioned to always be in the middle */}
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-auto">
             <button onClick={() => navigate('/')} className="group">
               <span className={`font-light bg-gradient-to-r from-neon-cyan via-white to-neon-violet bg-clip-text text-transparent group-hover:from-white group-hover:via-neon-cyan group-hover:to-white transition-all duration-700 group-hover:tracking-wide ${user ? 'text-2xl sm:text-3xl md:text-4xl' : 'text-xl sm:text-2xl md:text-3xl'}`}>
                 nomiqa
               </span>
             </button>
+          </div>
+          
+          {/* Left spacer to balance the layout */}
+          <div className="flex-shrink-0 invisible">
+            <span className="text-xl sm:text-2xl md:text-3xl">nomiqa</span>
           </div>
 
           {/* Desktop Search Bar - Hidden on certain pages */}
