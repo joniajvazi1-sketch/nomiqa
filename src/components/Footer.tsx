@@ -20,7 +20,6 @@ export const Footer = () => {
   ];
 
   const quickLinks = [
-    { to: "/leaderboard", label: "🔥 " + (t("referralChallenge") || "Referral Challenge") },
     { to: "/getting-started", label: t("footerHowDepinWorks") },
     { to: "/download", label: t("footerDownloadApp") },
     { to: "/shop", label: t("navEsimPlans") },

@@ -1,9 +1,8 @@
 import { memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { CheckCircle2, Flame, Trophy, ChevronRight, Users, Sparkles } from 'lucide-react';
+import { CheckCircle2, ChevronRight, Users, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
 
 interface PostSignupSuccessProps {
   username: string;
@@ -13,9 +12,6 @@ interface PostSignupSuccessProps {
 export const PostSignupSuccess = memo(({ username, onContinue }: PostSignupSuccessProps) => {
   const navigate = useNavigate();
 
-  const handleViewLeaderboard = () => {
-    navigate('/leaderboard');
-  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4 py-8">
@@ -55,7 +51,7 @@ export const PostSignupSuccess = memo(({ username, onContinue }: PostSignupSucce
           </p>
         </motion.div>
 
-        {/* Referral Challenge Card */}
+        {/* Referral CTA Card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -63,61 +59,30 @@ export const PostSignupSuccess = memo(({ username, onContinue }: PostSignupSucce
           className="mb-6"
         >
           <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/10 via-card to-accent/10 border border-primary/30 p-6">
-            {/* Flame decoration */}
             <div className="absolute -top-6 -right-6 w-24 h-24 bg-primary/20 rounded-full blur-2xl" />
             
             <div className="relative z-10">
               <div className="flex items-center gap-2 mb-3">
-                <Flame className="w-5 h-5 text-primary animate-pulse" />
-                <span className="font-bold text-primary">Genesis Referral Challenge</span>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-primary/20 text-primary">7 days</span>
+                <Users className="w-5 h-5 text-primary" />
+                <span className="font-bold text-primary">Invite Friends & Earn</span>
               </div>
 
               <h2 className="text-xl font-bold text-foreground mb-2">
-                Invite Friends → Climb the Leaderboard → Earn Rewards
+                Share Nomiqa → Earn Rewards
               </h2>
 
               <p className="text-sm text-muted-foreground mb-4">
-                The top referrers this week win exclusive prizes and bonus tokens. Start inviting now!
+                Invite friends and earn bonus points for every signup. Start inviting now!
               </p>
 
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-background/50 mb-4">
-                <div className="flex -space-x-2">
-                  <div className="w-8 h-8 rounded-full bg-yellow-500/20 border-2 border-yellow-500 flex items-center justify-center">
-                    <Trophy className="w-4 h-4 text-yellow-500" />
-                  </div>
-                  <div className="w-8 h-8 rounded-full bg-gray-400/20 border-2 border-gray-400 flex items-center justify-center">
-                    <span className="text-xs font-bold text-gray-400">2</span>
-                  </div>
-                  <div className="w-8 h-8 rounded-full bg-amber-600/20 border-2 border-amber-600 flex items-center justify-center">
-                    <span className="text-xs font-bold text-amber-600">3</span>
-                  </div>
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm text-foreground font-medium">Top 3 win special prizes</p>
-                  <p className="text-xs text-muted-foreground">All referrers earn bonus points</p>
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <Button 
-                  onClick={handleViewLeaderboard}
-                  className="w-full gap-2 bg-primary hover:bg-primary/90"
-                >
-                  <Trophy className="w-4 h-4" />
-                  View Leaderboard
-                  <ChevronRight className="w-4 h-4" />
-                </Button>
-                <Button 
-                  onClick={() => navigate('/affiliate')}
-                  variant="outline"
-                  className="w-full gap-2"
-                >
-                  <Users className="w-4 h-4" />
-                  Get Your Invite Link
-                  <ChevronRight className="w-4 h-4" />
-                </Button>
-              </div>
+              <Button 
+                onClick={() => navigate('/affiliate')}
+                className="w-full gap-2 bg-primary hover:bg-primary/90"
+              >
+                <Users className="w-4 h-4" />
+                Get Your Invite Link
+                <ChevronRight className="w-4 h-4" />
+              </Button>
             </div>
           </div>
         </motion.div>
