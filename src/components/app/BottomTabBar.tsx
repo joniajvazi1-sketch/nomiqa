@@ -11,9 +11,11 @@ interface TabItem {
 }
 
 /**
- * Clean bottom navigation bar (4 tabs)
- * Single nav element with proper safe area padding
- * Height: 64px content + safe area inset for home indicator
+ * Modern iOS 18 / Android 15 Bottom Tab Bar
+ * - 49pt standard height (Apple HIG) + safe area
+ * - Subtle glassmorphism with premium blur
+ * - Active indicator pill (iOS 18 style)
+ * - Minimum 44pt touch targets
  */
 export const BottomTabBar: React.FC = () => {
   const navigate = useNavigate();
@@ -41,43 +43,60 @@ export const BottomTabBar: React.FC = () => {
 
   return (
     <nav 
-      className="fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-xl border-t border-border"
+      className="fixed bottom-0 left-0 right-0 z-50"
       style={{
-        // Extend into safe area to fill behind home indicator
         paddingBottom: 'env(safe-area-inset-bottom, 0px)',
         paddingLeft: 'env(safe-area-inset-left, 0px)',
         paddingRight: 'env(safe-area-inset-right, 0px)',
       }}
     >
-      {/* Tab buttons - fixed 64px height, icons pushed lower */}
-      <div className="flex items-stretch h-16">
+      {/* Premium glassmorphism background */}
+      <div className="absolute inset-0 bg-card/80 backdrop-blur-2xl border-t border-border/50" />
+      
+      {/* Tab buttons container - 49pt Apple HIG standard */}
+      <div className="relative flex items-stretch" style={{ height: '49px' }}>
         {tabs.map((tab) => {
           const active = isActive(tab.path);
           const Icon = tab.icon;
-          const isRewardsTab = tab.path === '/app/rewards';
           
           return (
             <button
               key={tab.path}
               onClick={() => handleTabPress(tab.path)}
               aria-label={tab.label}
+              aria-current={active ? 'page' : undefined}
               className={cn(
-                'flex-1 flex flex-col items-center justify-end pb-2 gap-0.5',
-                'touch-manipulation min-h-[44px]',
-                'transition-colors duration-150',
-                'active:bg-muted/50',
-                active ? 'text-primary' : 'text-muted-foreground'
+                'flex-1 flex flex-col items-center justify-center gap-0.5',
+                'touch-manipulation relative',
+                'transition-all duration-200 ease-out',
+                'active:scale-95 active:opacity-70',
+                // Minimum 44pt touch target (Apple HIG)
+                'min-h-[44px] min-w-[44px]'
               )}
             >
+              {/* Active indicator - subtle pill behind icon (iOS 18 style) */}
+              {active && (
+                <div 
+                  className="absolute inset-x-3 top-1 bottom-1 rounded-xl bg-primary/10"
+                  style={{ 
+                    animation: 'fadeIn 200ms ease-out' 
+                  }}
+                />
+              )}
+              
               <Icon 
                 className={cn(
-                  isRewardsTab ? 'w-[22px] h-[22px]' : 'w-5 h-5'
+                  'relative z-10 transition-all duration-200',
+                  active ? 'w-[22px] h-[22px]' : 'w-5 h-5',
+                  active ? 'text-primary' : 'text-muted-foreground'
                 )}
-                strokeWidth={active ? 2.5 : (isRewardsTab ? 2.2 : 2)}
+                strokeWidth={active ? 2.5 : 1.8}
               />
               <span className={cn(
-                'text-[10px] transition-all duration-150',
-                active ? 'font-semibold text-primary' : 'font-medium'
+                'relative z-10 text-[10px] leading-tight transition-all duration-200',
+                active 
+                  ? 'font-semibold text-primary' 
+                  : 'font-medium text-muted-foreground'
               )}>
                 {tab.label}
               </span>
