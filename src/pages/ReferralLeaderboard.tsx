@@ -1,9 +1,8 @@
 import { memo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Trophy, Medal, Award, Clock, Users, Flame, ChevronRight, Share2 } from 'lucide-react';
+import { Trophy, Medal, Award, Clock, Users, Flame, ChevronRight, Share2, TrendingUp } from 'lucide-react';
 import { useReferralLeaderboard } from '@/hooks/useReferralLeaderboard';
-import { useTranslation } from '@/contexts/TranslationContext';
 import { Button } from '@/components/ui/button';
 import { SEO } from '@/components/SEO';
 import { Navbar } from '@/components/Navbar';
@@ -79,8 +78,7 @@ const LeaderboardEntry = memo(({ entry, index }: { entry: any; index: number }) 
 LeaderboardEntry.displayName = 'LeaderboardEntry';
 
 const ReferralLeaderboard = () => {
-  const { t } = useTranslation();
-  const { entries, userRank, loading, daysRemaining, refresh } = useReferralLeaderboard();
+  const { entries, userRank, loading, daysRemaining, dailyRegistrations, totalWeeklyRegistrations, refresh } = useReferralLeaderboard();
 
   const handleShare = async () => {
     const shareText = userRank 
@@ -146,16 +144,32 @@ const ReferralLeaderboard = () => {
                 The top referrers this week win exclusive prizes and bonus tokens.
               </motion.p>
 
-              {/* Timer */}
+              {/* Stats Row */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="inline-flex items-center gap-3 px-6 py-3 rounded-xl bg-card/80 border border-border backdrop-blur-sm"
+                className="flex flex-wrap items-center justify-center gap-4"
               >
-                <Clock className="w-5 h-5 text-primary" />
-                <span className="text-muted-foreground">Challenge ends in:</span>
-                <span className="font-bold text-xl text-foreground">{daysRemaining} days</span>
+                <div className="inline-flex items-center gap-3 px-5 py-3 rounded-xl bg-card/80 border border-border backdrop-blur-sm">
+                  <Clock className="w-5 h-5 text-primary" />
+                  <span className="text-muted-foreground text-sm">Ends in:</span>
+                  <span className="font-bold text-lg text-foreground">{daysRemaining} days</span>
+                </div>
+                
+                <div className="inline-flex items-center gap-3 px-5 py-3 rounded-xl bg-card/80 border border-border backdrop-blur-sm">
+                  <TrendingUp className="w-5 h-5 text-green-500" />
+                  <span className="text-muted-foreground text-sm">This week:</span>
+                  <span className="font-bold text-lg text-green-500">{totalWeeklyRegistrations} signups</span>
+                </div>
+
+                {dailyRegistrations > 0 && (
+                  <div className="inline-flex items-center gap-3 px-5 py-3 rounded-xl bg-green-500/10 border border-green-500/30 backdrop-blur-sm">
+                    <Users className="w-5 h-5 text-green-500" />
+                    <span className="text-muted-foreground text-sm">Today:</span>
+                    <span className="font-bold text-lg text-green-500">+{dailyRegistrations}</span>
+                  </div>
+                )}
               </motion.div>
             </div>
 
@@ -196,9 +210,9 @@ const ReferralLeaderboard = () => {
                 transition={{ delay: 0.4 }}
                 className="max-w-md mx-auto mb-8 text-center"
               >
-                <div className="p-6 rounded-2xl bg-card/80 border border-border backdrop-blur-sm">
+              <div className="p-6 rounded-2xl bg-card/80 border border-border backdrop-blur-sm">
                   <p className="text-muted-foreground mb-4">Ready to compete? Start referring friends to join the leaderboard!</p>
-                  <Link to="/app/invite">
+                  <Link to="/affiliate">
                     <Button className="gap-2">
                       Get Your Invite Link
                       <ChevronRight className="w-4 h-4" />
@@ -231,7 +245,7 @@ const ReferralLeaderboard = () => {
                   <Users className="w-16 h-16 mx-auto text-muted-foreground/30 mb-4" />
                   <p className="text-lg text-muted-foreground mb-2">No referrals yet this week</p>
                   <p className="text-sm text-muted-foreground/70">Be the first to climb the leaderboard!</p>
-                  <Link to="/app/invite">
+                  <Link to="/affiliate">
                     <Button className="mt-6 gap-2">
                       Start Inviting
                       <ChevronRight className="w-4 h-4" />

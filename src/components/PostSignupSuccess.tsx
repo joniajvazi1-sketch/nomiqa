@@ -99,14 +99,25 @@ export const PostSignupSuccess = memo(({ username, onContinue }: PostSignupSucce
                 </div>
               </div>
 
-              <Button 
-                onClick={handleViewLeaderboard}
-                className="w-full gap-2 bg-primary hover:bg-primary/90"
-              >
-                <Users className="w-4 h-4" />
-                View Leaderboard
-                <ChevronRight className="w-4 h-4" />
-              </Button>
+              <div className="flex flex-col gap-2">
+                <Button 
+                  onClick={handleViewLeaderboard}
+                  className="w-full gap-2 bg-primary hover:bg-primary/90"
+                >
+                  <Trophy className="w-4 h-4" />
+                  View Leaderboard
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+                <Button 
+                  onClick={() => navigate('/affiliate')}
+                  variant="outline"
+                  className="w-full gap-2"
+                >
+                  <Users className="w-4 h-4" />
+                  Get Your Invite Link
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
           </div>
         </motion.div>
