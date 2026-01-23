@@ -421,9 +421,9 @@ export const AppProfile: React.FC = () => {
                   </Button>
                 </div>
                 
-                {/* Key motivator - Lifetime earnings */}
+                {/* Key motivator - Contribution value sharing */}
                 <p className="text-xs text-primary font-semibold mb-3 pl-[52px]">
-                  You earn 10% of their lifetime rewards
+                  Share in the value they help create
                 </p>
                 
                 <div className="grid grid-cols-2 gap-2 text-center text-xs">

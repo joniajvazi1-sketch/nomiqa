@@ -16,7 +16,7 @@ const claimRequestSchema = z.object({
   message: z.string().max(500).optional(),
   affiliateEarnings: z.number().min(0),
   cashbackEarnings: z.number().min(0),
-  totalAmount: z.number().min(5, "Minimum withdrawal is $5"),
+  totalAmount: z.number().min(5, "Minimum claim amount is $5"),
   userEmail: z.string().email(),
   username: z.string().min(1).max(100)
 });

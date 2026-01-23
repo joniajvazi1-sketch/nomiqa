@@ -320,10 +320,10 @@ export const AppRewards: React.FC = () => {
             ≈ ${totalUsd.toFixed(2)} USD
           </div>
           <p className="text-xs font-medium text-muted-foreground mb-1">
-            1 point = 1 token (redeem on website)
+            Points convert to network tokens for services & rewards
           </p>
           <p className="text-xs font-semibold text-primary">
-            🎁 Invite friends → Earn 10% lifetime rewards
+            🎁 Invite contributors → Share in network value
           </p>
         </motion.div>
 

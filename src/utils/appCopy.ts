@@ -1,25 +1,25 @@
 /**
  * App Copy Constants
- * Centralized copy following UX blueprint guidelines:
- * - Avoid crypto jargon ("points" not "mining")
- * - Emphasize rewards not speculation
- * - Privacy reassurances throughout
- * - Friendly, supportive tone
+ * Centralized copy following REGULATOR-SAFE guidelines:
+ * - Avoid MLM/pyramid optics
+ * - Avoid securities-like language (expectation of profit)
+ * - Pass EU/GDPR/App Store & Play Store review
+ * - From "earning money" → to "contributing infrastructure and sharing value"
  */
 
 export const APP_COPY = {
   // Status Messages
   status: {
-    collecting: "Collecting data… ✅",
-    collectingSubtext: "You're earning as you go!",
+    collecting: "Contributing data… ✅",
+    collectingSubtext: "You're helping improve the network!",
     paused: "Paused",
-    pausedCta: "Tap to resume earning",
+    pausedCta: "Tap to resume contributing",
     noGps: "No GPS signal",
     noGpsHint: "Move to an open area",
     permissionDenied: "Location permission is off",
     permissionDeniedCta: "Tap to enable",
     offline: "You're offline",
-    offlineHint: "Connect to earn points",
+    offlineHint: "Connect to contribute data",
   },
 
   // Permission Requests
@@ -28,12 +28,12 @@ export const APP_COPY = {
     locationDescription: "We collect signal data tied to location to map network coverage. We never associate this with your identity.",
     locationReasoning: "Location helps us understand where network coverage is strong or weak.",
     
-    backgroundTitle: "Keep Earning in Background",
-    backgroundDescription: "Allow the app to run in the background so you can continue earning even when you close it.",
+    backgroundTitle: "Background Network Contribution",
+    backgroundDescription: "Allow the app to run in the background for continuous coverage mapping.",
     backgroundReasoning: "Uses very little battery – typically less than 3% per day.",
     
     notificationTitle: "Stay Updated",
-    notificationDescription: "Get updates on your earnings and important milestones. No spam, we promise!",
+    notificationDescription: "Get updates on your contributions and important milestones. No spam, we promise!",
   },
 
   // Privacy Reassurances
@@ -43,18 +43,19 @@ export const APP_COPY = {
     lowBattery: "Uses very little battery – typically less than 3% per day.",
     minimalData: "Uses only tiny bits of mobile data – comparable to sending a few messages a day.",
     yourControl: "You can turn off data collection anytime in settings.",
+    dataUsage: "Your anonymized data is aggregated with other users to create coverage maps. This helps connectivity providers, roaming platforms, and infrastructure planners improve network quality.",
   },
 
   // Onboarding
   onboarding: {
     welcomeTitle: "Welcome to Nomiqa",
-    welcomeSubtitle: "Get Rewards for Improving Mobile Networks!",
+    welcomeSubtitle: "A community-powered global connectivity network",
     
-    slide1Title: "Turn Your Signal Into Rewards",
-    slide1Description: "This app runs in the background to collect network quality data. Earn points just by carrying your phone!",
+    slide1Title: "Contribute Network Data",
+    slide1Description: "This app runs in the background to collect network quality data. Earn points for your contributions!",
     
     slide2Title: "It's This Simple",
-    slide2Description: "1. Open app  2. Connect to cellular  3. Earn automatically in the background",
+    slide2Description: "1. Open app  2. Connect to cellular  3. Contribute automatically in the background",
     
     slide3Title: "Your Privacy Matters",
     slide3Description: "Location maps coverage, not you. Data is anonymized and never sold.",
@@ -63,14 +64,14 @@ export const APP_COPY = {
     allSetDescription: "The app is ready to start collecting in the background. You can turn off data collection anytime.",
   },
 
-  // Points & Earnings
+  // Points & Contributions
   earnings: {
     todayLabel: "Today",
     totalBalance: "Total Balance",
     betaBadge: "Points",
-    betaExplanation: "Points are being tracked for future rewards. Redemption options coming soon!",
-    pointsExplanation: "Points are in-app rewards that can be redeemed for mobile data, gift cards, and more.",
-    earningsEstimate: "Most users earn a few dollars worth of points each month – it adds up over time!",
+    betaExplanation: "Points are being tracked. Conversion rates and usage may evolve as the network grows.",
+    pointsExplanation: "Points convert to network tokens used inside the Nomiqa ecosystem for access, services, and rewards.",
+    earningsEstimate: "Rewards reflect data quality, coverage value, and network demand.",
   },
 
   // Contributor Levels
@@ -96,35 +97,35 @@ export const APP_COPY = {
     achievementUnlocked: "Achievement Unlocked!",
   },
 
-  // Referrals
+  // Referrals / Invitations (REGULATOR-SAFE)
   referral: {
-    inviteTitle: "Invite Friends",
-    inviteDescription: "Help expand the network – invite friends and you'll each get a bonus!",
-    bonusExplanation: "You'll both receive bonus points after they've used the app for 7 days.",
-    shareMessage: "Join me on Nomiqa! Get travel eSIMs and earn rewards for helping improve mobile networks.",
+    inviteTitle: "Invite Contributors",
+    inviteDescription: "Invite contributors → Earn a share of the value they help create",
+    bonusExplanation: "Referral rewards are based on verified network contributions.",
+    shareMessage: "Join me on Nomiqa! Help improve mobile networks and earn rewards for your contributions.",
   },
 
   // Settings
   settings: {
-    dataCollectionTitle: "Network Data Collection",
-    dataCollectionOn: "Collecting and earning",
-    dataCollectionOff: "Paused – not earning points",
+    dataCollectionTitle: "Network Data Contribution",
+    dataCollectionOn: "Contributing and earning points",
+    dataCollectionOff: "Paused – not contributing",
     pauseOptions: {
       oneHour: "1 hour",
       untilTomorrow: "Until tomorrow",
       indefinitely: "Until I turn it back on",
     },
     batterySaverTitle: "Battery Saver",
-    batterySaverDescription: "Earn while charging only",
+    batterySaverDescription: "Contribute while charging only",
     lowPowerTitle: "Low Power Mode",
-    lowPowerDescription: "Reduces collection frequency (earnings may decrease)",
-    backgroundCollection: "Earn rewards automatically in the background",
+    lowPowerDescription: "Reduces collection frequency (rewards may decrease)",
+    backgroundCollection: "Contribute network data automatically in the background",
     dataValueExplanation: "This data is valuable to network operators — that's why we can reward you.",
   },
 
   // Errors & Recovery
   errors: {
-    locationOff: "Looks like location access is off. To earn points, please enable location.",
+    locationOff: "Looks like location access is off. To contribute, please enable location.",
     networkError: "Connection issue. Your data is saved and will sync when you're back online.",
     syncFailed: "Couldn't sync your data. We'll try again automatically.",
   },
@@ -137,20 +138,30 @@ export const APP_COPY = {
     dataQuestion: "What data is collected?",
     dataAnswer: "We collect signal strength, GPS coordinates, and network type (like 4G/5G). We do NOT collect any personal content or identities.",
     
-    redeemQuestion: "How do I redeem points?",
-    redeemAnswer: "Points can be converted to tokens or used for discounts on eSIM plans. Full cash-out coming soon!",
+    redeemQuestion: "How do I use my points?",
+    redeemAnswer: "Points can be converted to network tokens for connectivity and rewards within the Nomiqa ecosystem.",
     
     privacyQuestion: "Is my data safe?",
     privacyAnswer: "Yes! Your location is anonymized and never tied to your identity. We never sell personal data.",
   },
 
-  // Rewards & Redemption
+  // Rewards & Redemption (REGULATOR-SAFE)
   rewards: {
-    uptimeTip: "Keep the app running longer to increase uptime points.",
-    conversionInfo: "Points will convert to NOMIQA tokens when we launch. Visit our web portal to learn more about token conversion and cash-out options.",
-    privacyNote: "Your earning data is private and only visible to you.",
+    uptimeTip: "Higher-quality and more diverse coverage earns higher rewards.",
+    conversionInfo: "Convert your points into network tokens for connectivity and rewards. Tokens are used within the Nomiqa network for access, services, and rewards.",
+    privacyNote: "Your contribution data is private and only visible to you.",
     comingSoon: "Coming soon!",
-    redemptionAvailable: "Redemption available",
+    redemptionAvailable: "Use Your Points for Network Services",
+  },
+
+  // Contribution Quality (REGULATOR-SAFE)
+  contribution: {
+    qualityTitle: "Your Contribution Quality",
+    qualityDescription: "Rewards reflect data quality, coverage value, and network demand.",
+    noCoverage: "No coverage data yet — start contributing to improve",
+    coverageDetected: "Coverage detected — contribution value increasing",
+    networkModePrompt: "Switch to cellular to contribute network data",
+    highValueBadge: "Higher-value coverage detected",
   },
 
   // Weekly Summary
@@ -161,6 +172,13 @@ export const APP_COPY = {
     streakDays: "Day streak",
     encouragement: "Great job! You're helping build better mobile coverage.",
     topContributor: "You're in the top 20% of contributors!",
+  },
+
+  // Challenges & Activities (REGULATOR-SAFE)
+  challenges: {
+    moveContribute: "Contribute network data while moving",
+    quickSession: "Quick contribution – short session",
+    backgroundContribution: "Background network contribution",
   },
 } as const;
 
