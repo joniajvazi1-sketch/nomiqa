@@ -1,21 +1,16 @@
 import { SiteNavigation } from "@/components/SiteNavigation";
 import { SupportChatbot } from "@/components/SupportChatbot";
 import { SEO } from "@/components/SEO";
-import { Rocket, Users, Globe, Shield, TrendingUp, ArrowRight, Sparkles, Mail, CheckCircle, Loader2 } from "lucide-react";
+import { Rocket, Users, Globe, Shield, TrendingUp, ArrowRight, Sparkles } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import { useTranslation } from "@/contexts/TranslationContext";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import { NetworkBackground } from "@/components/NetworkBackground";
 
 const Token = () => {
   const { t } = useTranslation();
   const [isVisible, setIsVisible] = useState(false);
-  const [email, setEmail] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSubscribed, setIsSubscribed] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -34,58 +29,6 @@ const Token = () => {
 
     return () => observer.disconnect();
   }, []);
-
-  const handleWaitlistSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Basic email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email || !emailRegex.test(email)) {
-      toast.error(t("tokenInvalidEmail"));
-      return;
-    }
-
-    // Length limit
-    if (email.length > 255) {
-      toast.error(t("tokenInvalidEmail"));
-      return;
-    }
-
-    setIsSubmitting(true);
-
-    try {
-      // Use secure Edge Function with rate limiting
-      const { data, error } = await supabase.functions.invoke('join-waitlist', {
-        body: { email: email.trim().toLowerCase(), source: "token_page" }
-      });
-
-      if (error) {
-        // Handle edge function errors
-        console.error("Waitlist error:", error);
-        toast.error(t("tokenWaitlistError"));
-        return;
-      }
-
-      if (data?.code === "ALREADY_EXISTS") {
-        toast.info(t("tokenAlreadySubscribed"));
-        setIsSubscribed(true);
-      } else if (data?.code === "RATE_LIMITED") {
-        toast.error("Too many requests. Please try again later.");
-      } else if (data?.code === "DISPOSABLE_EMAIL") {
-        toast.error("Please use a permanent email address.");
-      } else if (data?.success) {
-        setIsSubscribed(true);
-        toast.success(t("tokenWaitlistSuccess"));
-      } else if (data?.error) {
-        toast.error(data.error);
-      }
-    } catch (error) {
-      console.error("Waitlist error:", error);
-      toast.error(t("tokenWaitlistError"));
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
   const utilities = [
     {
@@ -111,125 +54,90 @@ const Token = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-black/40 via-deep-space/60 to-black/40 relative">
       <SEO page="token" />
+      <NetworkBackground />
       
-      {/* Subtle gradient background */}
-      <div className="fixed inset-0 -z-10">
-        <div className="absolute inset-0 bg-gradient-to-b from-background via-background to-background" />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-primary/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-accent/5 rounded-full blur-3xl" />
+      {/* Premium background decorations */}
+      <div className="fixed inset-0 -z-10 overflow-hidden opacity-20">
+        <div className="absolute top-20 left-10 w-96 h-96 bg-neon-cyan/30 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 right-10 w-80 h-80 bg-neon-violet/30 rounded-full blur-3xl"></div>
       </div>
 
-      <main className="relative z-10 pt-28 md:pt-36 pb-24 px-4" ref={sectionRef}>
+      <main className="relative z-10 pt-32 md:pt-40 pb-24 px-4" ref={sectionRef}>
         <div className="max-w-5xl mx-auto">
           
           {/* Hero Section */}
-          <div className={`text-center space-y-8 mb-20 md:mb-28 transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+          <div className={`text-center space-y-8 mb-16 md:mb-24 transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
             
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
-              <Sparkles className="w-4 h-4 text-primary" />
-              <span className="text-sm font-medium text-primary">{t("tokenBadge")}</span>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.05] backdrop-blur-xl border border-white/10">
+              <Sparkles className="w-4 h-4 text-neon-cyan" />
+              <span className="text-sm font-light text-white/90">{t("tokenBadge")}</span>
             </div>
 
             {/* Main heading */}
             <div className="space-y-4">
-              <h1 className="text-4xl md:text-6xl lg:text-7xl font-light tracking-tight text-foreground">
-                NOMIQA
+              <h1 className="text-4xl md:text-6xl lg:text-7xl font-light tracking-tight">
+                <span className="bg-gradient-to-r from-neon-cyan via-white to-neon-violet bg-clip-text text-transparent">
+                  $NOMIQA
+                </span>
               </h1>
-              <p className="text-xl md:text-2xl lg:text-3xl font-light text-muted-foreground">
+              <p className="text-xl md:text-2xl lg:text-3xl font-light text-white/70">
                 {t("tokenComingSoon")}
               </p>
             </div>
 
             {/* Subtitle */}
-            <p className="text-lg md:text-xl text-muted-foreground/80 max-w-2xl mx-auto font-light leading-relaxed">
+            <p className="text-base md:text-lg text-white/60 max-w-2xl mx-auto font-light leading-relaxed">
               {t("tokenSubtitle")}
             </p>
 
-            {/* Email Waitlist Form */}
-            <div className="max-w-md mx-auto pt-4">
-              {!isSubscribed ? (
-                <form onSubmit={handleWaitlistSubmit} className="flex flex-col sm:flex-row gap-3">
-                  <div className="relative flex-1">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                    <Input
-                      type="email"
-                      placeholder={t("tokenEmailPlaceholder")}
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="pl-10 h-12 bg-white/[0.03] backdrop-blur-xl border-white/10 focus:border-primary/50 rounded-xl"
-                      disabled={isSubmitting}
-                    />
-                  </div>
-                  <Button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="h-12 px-6 gap-2"
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        {t("tokenSubmitting")}
-                      </>
-                    ) : (
-                      <>
-                        {t("tokenNotifyMe")}
-                        <ArrowRight className="w-4 h-4" />
-                      </>
-                    )}
-                  </Button>
-                </form>
-              ) : (
-                <div className="flex items-center justify-center gap-2 p-4 rounded-xl bg-primary/10 border border-primary/20">
-                  <CheckCircle className="w-5 h-5 text-primary" />
-                  <span className="text-primary font-medium">{t("tokenSubscribed")}</span>
-                </div>
-              )}
-              <p className="text-xs text-muted-foreground/60 mt-3">
-                {t("tokenWaitlistNote")}
-              </p>
+            {/* Launch info with premium styling */}
+            <div className="pt-4">
+              <div className="inline-flex items-center gap-3 px-6 py-3 rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/10">
+                <Rocket className="w-5 h-5 text-neon-violet" />
+                <span className="font-light text-white/80">{t("tokenLaunchingOn")}</span>
+              </div>
             </div>
 
-            {/* Subtle glow effect */}
-            <div className="py-4 md:py-8">
-              <div className="w-24 h-1 mx-auto bg-gradient-to-r from-transparent via-primary/50 to-transparent rounded-full" />
-            </div>
-            
-            {/* Launch info */}
-            <div className="flex items-center justify-center gap-2 text-muted-foreground">
-              <Rocket className="w-5 h-5 text-accent" />
-              <span className="font-light">{t("tokenLaunchingOn")}</span>
+            {/* Decorative line */}
+            <div className="py-4">
+              <div className="w-32 h-px mx-auto bg-gradient-to-r from-transparent via-neon-cyan/50 to-transparent" />
             </div>
           </div>
 
           {/* Token Utilities Section */}
-          <div className={`mb-20 transition-all duration-700 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-            <div className="text-center mb-12">
-              <h2 className="text-2xl md:text-3xl font-light text-foreground mb-3">
-                {t("tokenUtilitiesTitle")}
+          <div className={`mb-16 md:mb-24 transition-all duration-700 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+            <div className="text-center mb-10 md:mb-12">
+              <h2 className="text-2xl md:text-3xl font-light mb-3">
+                <span className="bg-gradient-to-r from-white via-white/90 to-white/80 bg-clip-text text-transparent">
+                  {t("tokenUtilitiesTitle")}
+                </span>
               </h2>
-              <p className="text-muted-foreground font-light">
+              <p className="text-white/60 font-light">
                 {t("tokenUtilitiesSubtitle")}
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-4 md:gap-6">
+            <div className="grid md:grid-cols-2 gap-4 md:gap-5">
               {utilities.map((utility, index) => (
                 <div
                   key={index}
-                  className="group p-6 md:p-8 rounded-2xl bg-card/50 border border-border/50 hover:border-primary/30 transition-all duration-300 hover:bg-card/80"
+                  className="group relative p-6 md:p-7 rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/10 hover:border-neon-cyan/30 transition-all duration-300 hover:bg-white/[0.05]"
                 >
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/15 transition-colors">
-                      <utility.icon className="w-6 h-6 text-primary" />
+                  {/* Hover gradient overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-neon-cyan/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  
+                  <div className="relative z-10 flex items-start gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-neon-cyan/20 to-neon-cyan/10 flex items-center justify-center flex-shrink-0 border border-neon-cyan/20 group-hover:scale-105 transition-transform duration-300">
+                      <utility.icon className="w-6 h-6 text-neon-cyan" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-medium text-foreground mb-2">
+                      <h3 className="text-lg font-light text-white mb-2">
                         {utility.title}
                       </h3>
-                      <p className="text-muted-foreground font-light leading-relaxed text-sm md:text-base">
+                      <p className="text-white/60 font-light leading-relaxed text-sm md:text-base">
                         {utility.description}
                       </p>
                     </div>
@@ -240,11 +148,11 @@ const Token = () => {
           </div>
 
           {/* Description Section */}
-          <div className={`text-center max-w-2xl mx-auto mb-16 transition-all duration-700 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-            <p className="text-lg text-muted-foreground font-light leading-relaxed mb-6">
+          <div className={`text-center max-w-2xl mx-auto mb-12 md:mb-16 transition-all duration-700 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+            <p className="text-base md:text-lg text-white/70 font-light leading-relaxed mb-5">
               {t("tokenDescription1")}
             </p>
-            <p className="text-muted-foreground/70 font-light">
+            <p className="text-white/50 font-light text-sm md:text-base">
               {t("tokenDescription2")}
             </p>
           </div>
@@ -252,13 +160,13 @@ const Token = () => {
           {/* CTA Section */}
           <div className={`text-center transition-all duration-700 delay-400 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
             <div className="inline-flex flex-col sm:flex-row gap-4">
-              <Button asChild size="lg" className="gap-2">
+              <Button asChild size="lg" className="gap-2 bg-gradient-to-r from-neon-cyan/20 to-neon-violet/20 border border-neon-cyan/30 hover:border-neon-cyan/50 hover:bg-neon-cyan/20 text-white">
                 <Link to="/affiliate">
                   {t("tokenStartEarning")}
                   <ArrowRight className="w-4 h-4" />
                 </Link>
               </Button>
-              <Button asChild variant="outline" size="lg">
+              <Button asChild variant="outline" size="lg" className="border-white/20 hover:border-white/40 hover:bg-white/[0.05] text-white">
                 <Link to="/getting-started">
                   {t("tokenLearnMore")}
                 </Link>
