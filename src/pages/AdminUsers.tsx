@@ -35,15 +35,6 @@ interface UserData {
   referral_status: string | null;
 }
 
-// Convert country code to flag emoji
-const countryToFlag = (countryCode: string | null): string => {
-  if (!countryCode || countryCode.length !== 2) return '';
-  const codePoints = countryCode
-    .toUpperCase()
-    .split('')
-    .map(char => 127397 + char.charCodeAt(0));
-  return String.fromCodePoint(...codePoints);
-};
 
 interface Stats {
   total_users: number;
@@ -192,11 +183,6 @@ export default function AdminUsers() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    {selectedUser.country_code && (
-                      <span className="text-lg" title={selectedUser.country_code}>
-                        {countryToFlag(selectedUser.country_code)}
-                      </span>
-                    )}
                     <h2 className="font-semibold truncate">{selectedUser.username}</h2>
                   </div>
                   <p className="text-sm text-muted-foreground truncate">{selectedUser.email || "No email"}</p>
@@ -360,17 +346,10 @@ export default function AdminUsers() {
               >
                 <CardContent className="p-3">
                   <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-2 shrink-0">
-                      {user.country_code && (
-                        <span className="text-lg" title={user.country_code}>
-                          {countryToFlag(user.country_code)}
-                        </span>
-                      )}
-                      <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                        <span className="text-sm font-bold text-primary">
-                          {user.username?.charAt(0).toUpperCase()}
-                        </span>
-                      </div>
+                    <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+                      <span className="text-sm font-bold text-primary">
+                        {user.username?.charAt(0).toUpperCase()}
+                      </span>
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
@@ -411,7 +390,6 @@ export default function AdminUsers() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-white/10">
-                    <th className="text-left py-3 px-2 font-medium text-muted-foreground">🌍</th>
                     <th className="text-left py-3 px-2 font-medium text-muted-foreground">User</th>
                     <th className="text-left py-3 px-2 font-medium text-muted-foreground">Verified</th>
                     <th className="text-left py-3 px-2 font-medium text-muted-foreground">Referred By</th>
@@ -424,16 +402,13 @@ export default function AdminUsers() {
                 <tbody>
                   {filteredUsers.length === 0 ? (
                     <tr>
-                      <td colSpan={8} className="text-center py-8 text-muted-foreground">
+                      <td colSpan={7} className="text-center py-8 text-muted-foreground">
                         {searchTerm ? "No users match your search" : "No users found"}
                       </td>
                     </tr>
                   ) : (
                     filteredUsers.map((user) => (
                       <tr key={user.id} className="border-b border-white/5 hover:bg-white/5">
-                        <td className="py-3 px-2 text-lg">
-                          {user.country_code ? countryToFlag(user.country_code) : ''}
-                        </td>
                         <td className="py-3 px-2">
                           <div>
                             <p className="font-medium">{user.username}</p>
