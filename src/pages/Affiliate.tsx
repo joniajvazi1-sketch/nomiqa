@@ -435,14 +435,14 @@ export default function Affiliate() {
               {/* Tier Progress */}
               {tierInfo && tierInfo.nextTier && (
                 <div className="p-5 rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/10">
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between mb-4">
-                    <div className="flex items-center gap-3 min-w-0">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
                       <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center shrink-0">
                         <Award className={`w-5 h-5 ${tierInfo.currentTier.color}`} strokeWidth={2.5} />
                       </div>
                       <p className="font-medium text-white truncate">{t("affiliateProgressTo")} {t(tierInfo.nextTier.nameKey)}</p>
                     </div>
-                    <Badge variant="outline" className="border-primary/30 text-primary whitespace-nowrap shrink-0 w-fit">
+                    <Badge variant="outline" className="border-primary/30 text-primary whitespace-nowrap shrink-0 sm:ml-auto">
                       {tierInfo.remaining} {t("affiliateRegistrationsNeeded")}
                     </Badge>
                   </div>
