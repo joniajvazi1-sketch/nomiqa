@@ -273,28 +273,60 @@ export const SupportChatbot = () => {
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          <div className="flex-1 overflow-y-auto p-4 space-y-3">
             {messages.map((msg, idx) => (
               <div
                 key={idx}
-                className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                className={`flex items-end gap-2 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
               >
-                <div
-                  className={`max-w-[80%] rounded-2xl px-4 py-2.5 ${
-                    msg.role === "user"
-                      ? "bg-neon-cyan/10 border border-neon-cyan/30 text-foreground"
-                      : "bg-white/5 border border-white/10 text-foreground/90"
-                  }`}
-                >
-                  <p className="text-sm whitespace-pre-wrap">
-                    {renderMessageWithLinks(msg.content)}
-                  </p>
+                {/* Assistant avatar */}
+                {msg.role === "assistant" && (
+                  <div className="flex-shrink-0 w-7 h-7 rounded-full bg-neon-cyan/10 border border-neon-cyan/30 flex items-center justify-center">
+                    <MessageCircle className="h-3.5 w-3.5 text-neon-cyan" />
+                  </div>
+                )}
+                
+                {/* Message bubble with arrow */}
+                <div className="relative">
+                  {/* Arrow pointing to avatar */}
+                  {msg.role === "assistant" && (
+                    <div className="absolute left-0 bottom-2 -translate-x-full">
+                      <div className="w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-r-[8px] border-r-white/10" />
+                    </div>
+                  )}
+                  {msg.role === "user" && (
+                    <div className="absolute right-0 bottom-2 translate-x-full">
+                      <div className="w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-l-[8px] border-l-neon-cyan/30" />
+                    </div>
+                  )}
+                  
+                  <div
+                    className={`max-w-[75%] rounded-2xl px-4 py-2.5 ${
+                      msg.role === "user"
+                        ? "bg-neon-cyan/10 border border-neon-cyan/30 text-foreground rounded-br-md"
+                        : "bg-white/5 border border-white/10 text-foreground/90 rounded-bl-md"
+                    }`}
+                  >
+                    <p className="text-sm whitespace-pre-wrap leading-relaxed">
+                      {renderMessageWithLinks(msg.content)}
+                    </p>
+                  </div>
                 </div>
+                
+                {/* User indicator */}
+                {msg.role === "user" && (
+                  <div className="flex-shrink-0 w-7 h-7 rounded-full bg-neon-violet/10 border border-neon-violet/30 flex items-center justify-center">
+                    <span className="text-xs font-medium text-neon-violet">You</span>
+                  </div>
+                )}
               </div>
             ))}
             {isLoading && (
-              <div className="flex justify-start">
-                <div className="bg-white/5 rounded-2xl px-4 py-2.5">
+              <div className="flex items-end gap-2 justify-start">
+                <div className="flex-shrink-0 w-7 h-7 rounded-full bg-neon-cyan/10 border border-neon-cyan/30 flex items-center justify-center">
+                  <MessageCircle className="h-3.5 w-3.5 text-neon-cyan" />
+                </div>
+                <div className="bg-white/5 border border-white/10 rounded-2xl rounded-bl-md px-4 py-2.5">
                   <Loader2 className="h-5 w-5 animate-spin text-neon-cyan" />
                 </div>
               </div>
