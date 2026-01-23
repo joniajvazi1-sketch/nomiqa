@@ -3,6 +3,7 @@ import { MessageCircle, X, Send, Loader2 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { useTranslation } from "@/contexts/TranslationContext";
+import { useNavigate } from "react-router-dom";
 
 type Message = {
   role: "user" | "assistant";
@@ -11,6 +12,7 @@ type Message = {
 
 export const SupportChatbot = () => {
   const { t, language } = useTranslation();
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -36,6 +38,35 @@ export const SupportChatbot = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  // Check if URL is internal (same domain or relative path)
+  const isInternalLink = (url: string) => {
+    try {
+      const currentHost = window.location.host;
+      // Check for relative paths
+      if (url.startsWith('/')) return true;
+      // Check for same domain
+      const urlObj = new URL(url, window.location.origin);
+      return urlObj.host === currentHost || 
+             url.includes('nomiqa.lovable.app') || 
+             url.includes('lovableproject.com');
+    } catch {
+      return false;
+    }
+  };
+
+  // Handle internal link click
+  const handleInternalLinkClick = (e: React.MouseEvent, url: string) => {
+    e.preventDefault();
+    setIsOpen(false); // Close chatbot
+    // Extract path from URL
+    try {
+      const urlObj = new URL(url, window.location.origin);
+      navigate(urlObj.pathname + urlObj.search + urlObj.hash);
+    } catch {
+      navigate(url);
+    }
+  };
+
   // Render markdown links as clickable
   const renderMessageWithLinks = (content: string) => {
     // Match markdown links: [text](url)
@@ -49,16 +80,22 @@ export const SupportChatbot = () => {
       if (match.index > lastIndex) {
         parts.push(content.slice(lastIndex, match.index));
       }
-      // Add the clickable link
+      
+      const linkText = match[1];
+      const linkUrl = match[2];
+      const isInternal = isInternalLink(linkUrl);
+      
+      // Add the clickable link - internal links open in same tab
       parts.push(
         <a
           key={match.index}
-          href={match[2]}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-neon-cyan hover:text-neon-cyan/80 underline underline-offset-2"
+          href={linkUrl}
+          onClick={isInternal ? (e) => handleInternalLinkClick(e, linkUrl) : undefined}
+          target={isInternal ? undefined : "_blank"}
+          rel={isInternal ? undefined : "noopener noreferrer"}
+          className="text-neon-cyan hover:text-neon-cyan/80 underline underline-offset-2 cursor-pointer"
         >
-          {match[1]}
+          {linkText}
         </a>
       );
       lastIndex = match.index + match[0].length;
