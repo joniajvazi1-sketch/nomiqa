@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import heroSunsetBg from "@/assets/hero-sunset-background.png";
+import heroSunsetBg from "@/assets/hero-sunset-background.webp";
 import heroMobileSunsetWebp from "@/assets/hero-mobile-sunset.webp";
 import { useTranslation } from "@/contexts/TranslationContext";
 import { ArrowRight, Check, Wifi, Users } from "lucide-react";
@@ -91,7 +91,7 @@ export const Hero = () => {
       {/* Premium background with elegant overlay */}
       <div className="absolute inset-0">
         <picture>
-          <source media="(min-width: 768px)" srcSet={heroSunsetBg} type="image/png" />
+          <source media="(min-width: 768px)" srcSet={heroSunsetBg} type="image/webp" />
           <source srcSet={heroMobileSunsetWebp} type="image/webp" />
           <img 
             src={heroMobileSunsetWebp} 
