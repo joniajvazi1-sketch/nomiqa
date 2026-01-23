@@ -145,6 +145,7 @@ export const AppAuth: React.FC = () => {
       }
 
       const userId = session.user?.id;
+      const email = session.user?.email || '';
       if (!userId) {
         setCheckingSession(false);
         return;
@@ -160,11 +161,83 @@ export const AppAuth: React.FC = () => {
         if (profileError) throw profileError;
         if (!isMounted) return;
 
-        if (!existingProfile || existingProfile.username?.startsWith('temp_')) {
-          setCurrentUser({ id: userId, email: session.user.email || '' });
+        if (!existingProfile) {
+          // NEW OAuth user - create profile with temp username
+          const tempUsername = `temp_${Date.now()}`;
+          
+          const { error: insertError } = await supabase.from('profiles').insert({
+            user_id: userId,
+            username: tempUsername,
+            email,
+            email_verified: true,
+            is_early_member: true,
+          });
+
+          if (insertError) throw insertError;
+
+          // Track affiliate if applicable
+          let { referralCode, clearReferralCode } = useAffiliateTracking.getState();
+          
+          if (!referralCode) {
+            try {
+              const storedData = localStorage.getItem('affiliate-tracking');
+              if (storedData) {
+                const parsed = JSON.parse(storedData);
+                referralCode = parsed?.state?.referralCode || null;
+              }
+            } catch (e) {
+              console.error('Error reading referral code:', e);
+            }
+          }
+          
+          if (referralCode) {
+            try {
+              await supabase.functions.invoke('track-affiliate-registration', {
+                body: { referralCode, userId, referrer: document.referrer }
+              });
+              clearReferralCode();
+              try {
+                const storedData = localStorage.getItem('affiliate-tracking');
+                if (storedData) {
+                  const parsed = JSON.parse(storedData);
+                  parsed.state.referralCode = null;
+                  parsed.state.referralTimestamp = null;
+                  localStorage.setItem('affiliate-tracking', JSON.stringify(parsed));
+                }
+              } catch (e) {}
+            } catch (trackError) {
+              console.error('Error tracking affiliate:', trackError);
+            }
+          }
+
+          // Send welcome email for new Google OAuth registrations
+          try {
+            await supabase.functions.invoke('send-email', {
+              body: {
+                type: 'early_member_welcome',
+                email: email,
+                data: { email }
+              }
+            });
+            console.log('Welcome email sent to Google OAuth user:', email);
+          } catch (emailError) {
+            console.error('Error sending welcome email:', emailError);
+          }
+
+          console.log('New OAuth user registered:', email);
+          
+          toast({ title: 'Welcome! Choose a username to continue.' });
+          setCurrentUser({ id: userId, email });
+          setShowUsernameSelection(true);
+          setCheckingSession(false);
+        } else if (existingProfile.username?.startsWith('temp_')) {
+          // User has incomplete profile - needs to choose username
+          toast({ title: 'Welcome back! Please choose your username.' });
+          setCurrentUser({ id: userId, email });
           setShowUsernameSelection(true);
           setCheckingSession(false);
         } else {
+          // Existing user with proper profile - just redirect
           if (isNewSignIn) {
             successPattern();
             toast({ title: 'Welcome back!' });
