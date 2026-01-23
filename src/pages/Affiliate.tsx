@@ -91,15 +91,29 @@ export default function Affiliate() {
   }, [newLinkUsername, showNewLinkInput]);
 
   const checkUser = async () => {
+    // Add timeout to prevent infinite loading
+    const timeoutId = setTimeout(() => {
+      setLoading(false);
+    }, 8000);
+    
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        setUser(user);
-        await fetchAffiliates(user.id, user.email || undefined);
+      clearTimeout(timeoutId);
+      
+      if (!user) {
+        // Redirect to auth if not signed in
+        navigate('/auth?mode=signup&redirect=/affiliate');
+        return;
       }
+      
+      setUser(user);
+      await fetchAffiliates(user.id, user.email || undefined);
     } catch (error) {
       console.error('Error checking user:', error);
+      // Redirect on error as well
+      navigate('/auth?mode=signup&redirect=/affiliate');
     } finally {
+      clearTimeout(timeoutId);
       setLoading(false);
     }
   };
@@ -295,9 +309,9 @@ export default function Affiliate() {
   }
 
   const benefits = [
-    { icon: DollarSign, title: t("multiTierSystem"), desc: "9% direct + 6% L2 + 3% L3", color: "from-neon-cyan to-neon-cyan/50" },
-    { icon: Users, title: t("trackReferrals"), desc: t("realTimeStats"), color: "from-neon-violet to-neon-violet/50" },
-    { icon: Award, title: "+100% Mining Boost", desc: "Grow your network tier", color: "from-neon-coral to-neon-coral/50" },
+    { icon: Zap, title: "Up to +100% Boost", desc: "Earn more from YOUR contributions", color: "from-neon-cyan to-neon-cyan/50" },
+    { icon: TrendingUp, title: "5% Passive Earnings", desc: "From all your referrals' points", color: "from-neon-violet to-neon-violet/50" },
+    { icon: DollarSign, title: "Sales Commissions", desc: "9% / 6% / 3% on eSIM purchases", color: "from-neon-coral to-neon-coral/50" },
     { icon: Gift, title: "3 Unique Links", desc: "Per account allowed", color: "from-primary to-primary/50" },
   ];
 
@@ -305,43 +319,41 @@ export default function Affiliate() {
     <div className="min-h-screen bg-background relative overflow-hidden">
       <SEO page="affiliate" />
       
-      {/* Background effects - matching Download/GettingStarted style */}
+      {/* Background effects */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(0,255,200,0.08),transparent_50%)]" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(139,92,246,0.08),transparent_50%)]" />
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,200,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,200,0.02)_1px,transparent_1px)] bg-[size:60px_60px]" />
 
-      {/* Hero Section */}
+      {/* Hero Section - Updated messaging */}
       <section className="pt-28 pb-12 md:pt-36 md:pb-16 px-4 relative z-10">
         <div className="container max-w-5xl mx-auto text-center">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neon-coral/10 border border-neon-coral/30 mb-6">
-            <Coins className="w-4 h-4 text-neon-coral" />
-            <span className="text-sm font-medium text-neon-coral">{t("earnWhileTheyTravel")}</span>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neon-cyan/10 border border-neon-cyan/30 mb-6">
+            <Users className="w-4 h-4 text-neon-cyan" />
+            <span className="text-sm font-medium text-neon-cyan">Grow Your Network, Boost Your Rewards</span>
           </div>
           
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-light mb-6">
-            <span className="bg-gradient-to-r from-neon-cyan via-white to-neon-violet bg-clip-text text-transparent">
-              Refer Friends. Earn Rewards.
-            </span>
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
+            <span className="text-foreground">Invite Friends.</span>{" "}
+            <span className="bg-gradient-to-r from-neon-cyan to-neon-violet bg-clip-text text-transparent">Earn More.</span>
           </h1>
           
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10">
-            {t("oneLinkTagline")}
+            The more users you invite, the higher YOUR reward boost. Plus earn 5% of everything your network earns — forever.
           </p>
 
-          {/* Commission Display */}
+          {/* Main Value Props */}
           <div className="flex flex-wrap items-center justify-center gap-4 mb-12">
             <div className="px-5 py-3 rounded-xl bg-neon-cyan/10 border border-neon-cyan/30">
-              <span className="text-2xl font-bold text-neon-cyan">9%</span>
-              <span className="text-sm text-white/70 ml-2">Direct</span>
+              <span className="text-2xl font-bold text-neon-cyan">+100%</span>
+              <span className="text-sm text-muted-foreground ml-2">Max Boost</span>
             </div>
             <div className="px-5 py-3 rounded-xl bg-neon-violet/10 border border-neon-violet/30">
-              <span className="text-2xl font-bold text-neon-violet">6%</span>
-              <span className="text-sm text-white/70 ml-2">Level 2</span>
+              <span className="text-2xl font-bold text-neon-violet">5%</span>
+              <span className="text-sm text-muted-foreground ml-2">From Network</span>
             </div>
-            <div className="px-5 py-3 rounded-xl bg-neon-coral/10 border border-neon-coral/30">
-              <span className="text-2xl font-bold text-neon-coral">3%</span>
-              <span className="text-sm text-white/70 ml-2">Level 3</span>
+            <div className="px-5 py-3 rounded-xl bg-muted/50 border border-border">
+              <span className="text-2xl font-bold text-foreground">9%</span>
+              <span className="text-sm text-muted-foreground ml-2">Sales Commission</span>
             </div>
           </div>
         </div>
@@ -367,50 +379,16 @@ export default function Affiliate() {
         </div>
       </section>
 
-      {/* Main Content */}
+      {/* Main Content - Logged in users only now */}
       <section className="py-12 md:py-16 px-4 relative z-10">
         <div className="container max-w-4xl mx-auto">
-          {!user ? (
-            /* Not Logged In - CTA Card */
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-neon-cyan/10 to-neon-violet/10 rounded-3xl blur-2xl" />
-              <Card className="relative bg-white/[0.02] backdrop-blur-xl border-white/10 overflow-hidden">
-                <CardContent className="p-8 md:p-12 text-center">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-neon-cyan to-neon-violet flex items-center justify-center mx-auto mb-6">
-                    <Share2 className="w-8 h-8 text-white" />
-                  </div>
-                  <h2 className="text-2xl md:text-3xl font-light text-white mb-4">
-                    {t("affiliateAuthTitle")}
-                  </h2>
-                  <p className="text-muted-foreground mb-8 max-w-lg mx-auto">
-                    {t("affiliateAuthDesc")}
-                  </p>
-                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <Button 
-                      onClick={() => navigate('/auth?mode=signup')}
-                      className="bg-gradient-to-r from-neon-cyan to-neon-violet hover:opacity-90 text-white px-8 py-6 rounded-xl"
-                    >
-                      {t("affiliateRegisterNow")}
-                      <ArrowRight className="ml-2 h-5 w-5" />
-                    </Button>
-                    <Button 
-                      onClick={() => navigate('/auth')}
-                      variant="outline"
-                      className="border-white/20 text-white hover:bg-white/5 px-8 py-6 rounded-xl"
-                    >
-                      {t("affiliateLogIn")}
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          ) : !affiliate ? (
+          {!affiliate ? (
             /* Logged In - No Affiliate Yet */
-            <Card className="bg-white/[0.02] backdrop-blur-xl border-white/10">
+            <Card className="bg-card/50 border-border/50">
               <CardContent className="p-8 text-center">
                 <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto mb-4" />
-                <h2 className="text-xl font-medium text-white mb-2">Welcome, {user.email}</h2>
-                <p className="text-muted-foreground mb-6">Create your first affiliate link to start earning</p>
+                <h2 className="text-xl font-medium text-foreground mb-2">Welcome, {user?.email}</h2>
+                <p className="text-muted-foreground mb-6">Create your first invite link to start earning boosts and passive rewards</p>
                 <Button onClick={createAffiliate} size="lg" disabled={creating} className="bg-primary hover:bg-primary/90">
                   {creating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   {t("affiliateCreateButton")}
@@ -443,33 +421,34 @@ export default function Affiliate() {
                 </Card>
               )}
 
-              {/* Stats Grid */}
+              {/* Stats Grid - Updated labels */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="p-4 rounded-xl bg-white/[0.02] border border-white/10 text-center">
+                <div className="p-4 rounded-xl bg-card/50 border border-border/50 text-center">
                   <p className="text-2xl font-bold text-neon-cyan">{affiliate.total_registrations}</p>
-                  <p className="text-xs text-muted-foreground">Recruits</p>
+                  <p className="text-xs text-muted-foreground">Network Users</p>
                 </div>
-                <div className="p-4 rounded-xl bg-white/[0.02] border border-white/10 text-center">
-                  <p className="text-2xl font-bold text-neon-violet">{affiliate.total_conversions}</p>
-                  <p className="text-xs text-muted-foreground">Conversions</p>
+                <div className="p-4 rounded-xl bg-card/50 border border-border/50 text-center">
+                  <p className="text-2xl font-bold text-neon-violet">+{affiliate.miner_boost_percentage}%</p>
+                  <p className="text-xs text-muted-foreground">Your Boost</p>
                 </div>
-                <div className="p-4 rounded-xl bg-white/[0.02] border border-white/10 text-center">
-                  <p className="text-2xl font-bold text-neon-coral">${affiliate.total_earnings_usd.toFixed(2)}</p>
+                <div className="p-4 rounded-xl bg-card/50 border border-border/50 text-center">
+                  <p className="text-2xl font-bold text-neon-coral">{affiliate.total_conversions}</p>
+                  <p className="text-xs text-muted-foreground">Purchases</p>
+                </div>
+                <div className="p-4 rounded-xl bg-card/50 border border-border/50 text-center">
+                  <p className="text-2xl font-bold text-primary">${affiliate.total_earnings_usd.toFixed(2)}</p>
                   <p className="text-xs text-muted-foreground">Earned</p>
-                </div>
-                <div className="p-4 rounded-xl bg-white/[0.02] border border-white/10 text-center">
-                  <p className="text-2xl font-bold text-primary">+{affiliate.miner_boost_percentage}%</p>
-                  <p className="text-xs text-muted-foreground">Mining Boost</p>
                 </div>
               </div>
 
               {/* Your Links */}
-              <Card className="bg-white/[0.02] backdrop-blur-xl border-white/10">
+              <Card className="bg-card/50 border-border/50">
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-2">
                     <Share2 className="w-5 h-5 text-primary" />
                     Your Invite Link
                   </CardTitle>
+                  <CardDescription>Share this link to grow your network and boost your earnings</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {/* Primary Link */}
@@ -477,25 +456,25 @@ export default function Affiliate() {
                     <Input 
                       value={customLink || affiliateLink} 
                       readOnly 
-                      className="bg-background/50 border-white/10 text-white"
+                      className="bg-background/50 border-border"
                     />
-                    <Button onClick={() => copyLink(customLink || affiliateLink)} variant="outline" className="border-white/20">
+                    <Button onClick={() => copyLink(customLink || affiliateLink)} variant="outline">
                       <Copy className="w-4 h-4" />
                     </Button>
                   </div>
 
                   {/* Custom Username */}
                   {!affiliate.username && (
-                    <div className="pt-4 border-t border-white/10">
+                    <div className="pt-4 border-t border-border">
                       <p className="text-sm text-muted-foreground mb-3">Create a custom link (e.g., nomiqa.lovable.app/yourname)</p>
                       <div className="flex gap-2">
                         <Input 
                           value={username}
                           onChange={(e) => setUsername(e.target.value.toLowerCase())}
                           placeholder="your-custom-name"
-                          className="bg-background/50 border-white/10"
+                          className="bg-background/50 border-border"
                         />
-                        <Button onClick={updateUsername} disabled={updatingUsername} variant="outline" className="border-white/20">
+                        <Button onClick={updateUsername} disabled={updatingUsername} variant="outline">
                           {updatingUsername ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save"}
                         </Button>
                       </div>
@@ -504,9 +483,9 @@ export default function Affiliate() {
 
                   {/* Add New Link */}
                   {allAffiliates.length < 3 && (
-                    <div className="pt-4 border-t border-white/10">
+                    <div className="pt-4 border-t border-border">
                       {!showNewLinkInput ? (
-                        <Button onClick={() => setShowNewLinkInput(true)} variant="outline" className="w-full border-dashed border-white/20">
+                        <Button onClick={() => setShowNewLinkInput(true)} variant="outline" className="w-full border-dashed">
                           <UserPlus className="w-4 h-4 mr-2" />
                           Create Additional Link ({allAffiliates.length}/3)
                         </Button>
@@ -517,7 +496,7 @@ export default function Affiliate() {
                               value={newLinkUsername}
                               onChange={(e) => setNewLinkUsername(e.target.value.toLowerCase())}
                               placeholder="new-link-name"
-                              className="bg-background/50 border-white/10"
+                              className="bg-background/50 border-border"
                             />
                             <Button onClick={createAffiliate} disabled={creating || usernameAvailability !== 'available'}>
                               {creating ? <Loader2 className="w-4 h-4 animate-spin" /> : "Create"}
@@ -542,15 +521,15 @@ export default function Affiliate() {
 
               {/* Tier Progress */}
               {tierInfo && (
-                <Card className="bg-white/[0.02] backdrop-blur-xl border-white/10">
+                <Card className="bg-card/50 border-border/50">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-3">
-                        <div className={`w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center`}>
+                        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
                           <Award className={`w-5 h-5 ${tierInfo.currentTier.color}`} />
                         </div>
                         <div>
-                          <p className="font-medium text-white">{tierInfo.currentTier.name} Tier</p>
+                          <p className="font-medium text-foreground">{tierInfo.currentTier.name} Tier</p>
                           <p className="text-xs text-muted-foreground">{tierInfo.currentTier.description}</p>
                         </div>
                       </div>
@@ -561,7 +540,7 @@ export default function Affiliate() {
                       )}
                     </div>
                     {tierInfo.nextTier && (
-                      <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
+                      <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
                         <div 
                           className="h-full bg-gradient-to-r from-neon-cyan to-neon-violet rounded-full transition-all"
                           style={{ width: `${tierInfo.progress}%` }}
@@ -595,36 +574,33 @@ export default function Affiliate() {
         </div>
       </section>
 
-      {/* CTA Section */}
+      {/* CTA Section - Updated */}
       {!affiliate && (
         <section className="py-16 md:py-20 px-4 relative z-10">
           <div className="container max-w-4xl mx-auto">
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-accent/10 rounded-3xl blur-2xl" />
-              <div className="relative p-8 md:p-12 rounded-3xl bg-white/[0.02] border border-white/10 text-center">
-                <Network className="w-12 h-12 text-primary mx-auto mb-6" />
-                <h2 className="text-2xl md:text-3xl font-light text-white mb-4">
-                  Join the Nomiqa Network
-                </h2>
-                <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
-                  Start earning today by sharing Nomiqa with your network. Every signup and purchase earns you rewards.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <Button 
-                    onClick={() => navigate(localizedPath('/download', language))}
-                    className="bg-primary hover:bg-primary/90 text-white px-8 py-6 rounded-xl"
-                  >
-                    Download the App
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </Button>
-                  <Button 
-                    onClick={() => navigate(localizedPath('/getting-started', language))}
-                    variant="outline" 
-                    className="border-white/20 text-white hover:bg-white/5 px-8 py-6 rounded-xl"
-                  >
-                    Learn How It Works
-                  </Button>
-                </div>
+            <div className="p-8 md:p-12 rounded-2xl bg-card/50 border border-border/50 text-center">
+              <Network className="w-12 h-12 text-primary mx-auto mb-6" />
+              <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
+                Start Building Your Network
+              </h2>
+              <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
+                Every user you invite boosts YOUR earning power. The more your network grows, the more you earn from your own contributions.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button 
+                  onClick={() => navigate(localizedPath('/download', language))}
+                  className="bg-primary hover:bg-primary/90 px-8 py-6 rounded-xl"
+                >
+                  Download the App
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+                <Button 
+                  onClick={() => navigate(localizedPath('/getting-started', language))}
+                  variant="outline" 
+                  className="px-8 py-6 rounded-xl"
+                >
+                  Learn How It Works
+                </Button>
               </div>
             </div>
           </div>
