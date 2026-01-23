@@ -31,6 +31,10 @@ export const Navbar = () => {
 
   // Check if we're on the shop page
   const isShopPage = location.pathname.includes('/shop');
+  
+  // Pages where search should be hidden for cleaner UX
+  const hideSearchPages = ['/affiliate', '/auth', '/leaderboard', '/checkout', '/account'];
+  const shouldHideSearch = isShopPage || hideSearchPages.some(page => location.pathname.includes(page));
 
   // Scroll detection for blur effect - works with both window and WebLayout scroll container
   useEffect(() => {
@@ -276,8 +280,8 @@ export const Navbar = () => {
             </button>
           </div>
 
-          {/* Desktop Search Bar - Hidden on shop page */}
-          {!isShopPage && (
+          {/* Desktop Search Bar - Hidden on certain pages */}
+          {!shouldHideSearch && (
             <div className="hidden lg:flex flex-1 max-w-4xl">
               <form onSubmit={(e) => handleSearch(e, false)} className="w-full relative">
                 <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
