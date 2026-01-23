@@ -108,7 +108,7 @@ export const Hero = () => {
         <div className="absolute inset-0 bg-black/20"></div>
       </div>
       
-      <div className="container relative z-10 px-6 md:px-8 pt-32 pb-24 md:py-32">
+      <div className="container relative z-10 px-6 md:px-8 pt-8 pb-24 md:py-32">
         <div className="max-w-4xl mx-auto">
           
           {/* DePIN Trust Badge - removed animation delay for faster mobile LCP */}
