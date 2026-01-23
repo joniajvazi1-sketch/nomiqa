@@ -283,14 +283,14 @@ Email: support@nomiqa-esim.com
 Response time: Usually within 24 hours
 
 Useful links:
-- [Shop Plans](https://nomiqa.lovable.app/shop)
-- [Getting Started Guide](https://nomiqa.lovable.app/getting-started)
-- [My Account](https://nomiqa.lovable.app/account)
-- [Download App](https://nomiqa.lovable.app/download)
-- [Referral Program](https://nomiqa.lovable.app/affiliate)
-- [$NOMIQA Token Info](https://nomiqa.lovable.app/token)
-- [Help Center & FAQ](https://nomiqa.lovable.app/help)
-- [How It Works](https://nomiqa.lovable.app/how-it-works)
+- [Shop Plans](https://nomiqa-depin.com/shop)
+- [Getting Started Guide](https://nomiqa-depin.com/getting-started)
+- [My Account](https://nomiqa-depin.com/account)
+- [Download App](https://nomiqa-depin.com/download)
+- [Referral Program](https://nomiqa-depin.com/affiliate)
+- [$NOMIQA Token Info](https://nomiqa-depin.com/token)
+- [Help Center & FAQ](https://nomiqa-depin.com/help)
+- [How It Works](https://nomiqa-depin.com/how-it-works)
 
 === RESPONSE RULES ===
 1. Keep responses concise (under 100 words unless detail is specifically needed)

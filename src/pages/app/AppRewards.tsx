@@ -247,7 +247,7 @@ export const AppRewards: React.FC = () => {
 
   const handleClaimPoints = () => {
     mediumTap();
-    window.open('https://nomiqa.lovable.app/token', '_blank');
+    window.open('https://nomiqa-depin.com/token', '_blank');
   };
 
   return (
