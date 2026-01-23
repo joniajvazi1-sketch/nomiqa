@@ -19,7 +19,7 @@ const ShopPage = () => {
         <div className="absolute top-40 right-20 w-80 h-80 bg-neon-violet/20 rounded-full blur-2xl"></div>
       </div>
       
-      <div className="pt-20 relative z-10">
+      <div className="pt-4 relative z-10">
         <Shop />
       </div>
       <SiteNavigation />

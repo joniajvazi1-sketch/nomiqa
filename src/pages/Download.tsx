@@ -28,7 +28,7 @@ const Download = () => {
       <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,200,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,200,0.02)_1px,transparent_1px)] bg-[size:60px_60px]" />
 
       {/* Hero Section */}
-      <section className="pt-28 pb-16 md:pt-36 md:pb-24 px-4 relative z-10">
+      <section className="pt-8 pb-16 md:pt-16 md:pb-24 px-4 relative z-10">
         <div className="container max-w-6xl mx-auto">
           <div className="text-center mb-16">
             {/* Coming Soon Badge */}

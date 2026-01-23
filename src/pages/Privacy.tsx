@@ -71,7 +71,7 @@ export default function Privacy() {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_70%,hsl(var(--accent)/0.08),transparent_50%)]" />
 
       {/* Hero Section */}
-      <section className="relative pt-28 pb-12 md:pt-36 md:pb-16 px-4">
+      <section className="relative pt-8 pb-12 md:pt-16 md:pb-16 px-4">
         <div className="container max-w-5xl mx-auto relative z-10">
           <div className="text-center">
             <div className="relative inline-block mb-6">

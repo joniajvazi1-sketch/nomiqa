@@ -85,7 +85,7 @@ const HowItWorks = () => {
       <section 
         id="hero"
         ref={(el: HTMLDivElement | null) => { sectionRefs.current['hero'] = el; }}
-        className="pt-28 pb-16 md:pt-36 md:pb-24 px-4 relative z-10"
+        className="pt-8 pb-16 md:pt-16 md:pb-24 px-4 relative z-10"
       >
         <div className={`container max-w-4xl mx-auto text-center transition-all duration-1000 ${visibleSections.has('hero') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           <span className="inline-block px-5 py-2 rounded-full bg-white/[0.03] backdrop-blur-xl text-neon-cyan text-sm font-medium mb-6 border border-white/10">
