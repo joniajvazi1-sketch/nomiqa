@@ -4,8 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "@/contexts/TranslationContext";
 
-// Use static image path instead of importing large GIF
-const tokenLogoUrl = "/nomiqa-token-logo.gif";
+// Use static PNG instead of large animated GIF for performance
+const tokenLogoUrl = "/nomiqa-token-logo.png";
 
 export const EarnRewardBlock = () => {
   const navigate = useNavigate();
