@@ -479,13 +479,13 @@ export const NetworkContribution: React.FC = () => {
               isActive 
                 ? isPaused 
                   ? 'bg-amber-500/20 border-amber-400/50' 
-                  : 'bg-[#00d4ff]/20 border-[#00d4ff]/50'
-                : 'bg-[#00d4ff]/20 border-[#00d4ff]/50 hover:bg-[#00d4ff]/30'
+                  : 'bg-green-500/20 border-green-500/50'
+                : 'bg-red-500/20 border-red-500/50 hover:bg-red-500/30'
             )}
             style={{
               boxShadow: isActive && !isPaused
-                ? '0 0 40px rgba(0, 212, 255, 0.3), inset 0 1px 0 rgba(255,255,255,0.1)'
-                : '0 0 30px rgba(0, 212, 255, 0.2), inset 0 1px 0 rgba(255,255,255,0.1)',
+                ? '0 0 40px rgba(34, 197, 94, 0.3), inset 0 1px 0 rgba(255,255,255,0.1)'
+                : '0 0 30px rgba(239, 68, 68, 0.3), inset 0 1px 0 rgba(255,255,255,0.1)',
             }}
           >
             <div className="flex items-center gap-2">
@@ -493,16 +493,16 @@ export const NetworkContribution: React.FC = () => {
                 isPaused ? (
                   <Wifi className="w-5 h-5 text-amber-400" />
                 ) : (
-                  <Pause className="w-5 h-5 text-[#00d4ff]" />
+                  <Pause className="w-5 h-5 text-green-400" />
                 )
               ) : (
-                <Play className="w-5 h-5 text-[#00d4ff] ml-0.5" />
+                <Play className="w-5 h-5 text-red-400 ml-0.5" />
               )}
               <span className={cn(
                 "text-sm font-bold uppercase tracking-wider",
-                isActive ? isPaused ? "text-amber-400" : "text-[#00d4ff]" : "text-[#00d4ff]"
+                isActive ? isPaused ? "text-amber-400" : "text-green-400" : "text-red-400"
               )}>
-                {isActive ? (isPaused ? 'Paused' : 'Stop') : 'Start'}
+                {isActive ? (isPaused ? 'Paused' : 'Contributing') : 'Contribute'}
               </span>
             </div>
             
@@ -514,7 +514,7 @@ export const NetworkContribution: React.FC = () => {
                 </span>
               </div>
             ) : (
-              <span className="text-[10px] text-white/50">Contribute</span>
+              <span className="text-[10px] text-white/50">{isActive ? '' : 'Tap to start'}</span>
             )}
           </button>
 
