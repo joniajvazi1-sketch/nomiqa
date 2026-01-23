@@ -22,6 +22,7 @@ import {
 import { useAffiliateTracking } from '@/hooks/useAffiliateTracking';
 import { UsernameSelection } from '@/components/UsernameSelection';
 import { EmailVerification } from '@/components/EmailVerification';
+import { PostSignupSuccess } from '@/components/PostSignupSuccess';
 import { Capacitor } from '@capacitor/core';
 import { Browser } from '@capacitor/browser';
 import { App } from '@capacitor/app';
@@ -87,6 +88,8 @@ export const AppAuth: React.FC = () => {
   // UI states
   const [showUsernameSelection, setShowUsernameSelection] = useState(false);
   const [showEmailVerification, setShowEmailVerification] = useState(false);
+  const [showPostSignupSuccess, setShowPostSignupSuccess] = useState(false);
+  const [completedUsername, setCompletedUsername] = useState('');
   const [currentUser, setCurrentUser] = useState<{ id: string; email: string } | null>(null);
 
   // Form states
@@ -223,8 +226,30 @@ export const AppAuth: React.FC = () => {
     };
   }, [googleLoading]);
 
-  const handleUsernameComplete = () => {
+  const handleUsernameComplete = async () => {
+    // Fetch the username that was just set
+    if (currentUser) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('username')
+        .eq('user_id', currentUser.id)
+        .single();
+      
+      if (profile?.username) {
+        setCompletedUsername(profile.username);
+        setShowUsernameSelection(false);
+        setShowPostSignupSuccess(true);
+        successPattern();
+        return;
+      }
+    }
+    // Fallback if username fetch fails
     successPattern();
+    toast({ title: 'Welcome to Nomiqa!' });
+    navigate('/app');
+  };
+
+  const handlePostSignupContinue = () => {
     toast({ title: 'Welcome to Nomiqa!' });
     navigate('/app');
   };
@@ -495,6 +520,16 @@ export const AppAuth: React.FC = () => {
           onComplete={handleUsernameComplete} 
         />
       </div>
+    );
+  }
+
+  // Post-signup success screen with referral challenge
+  if (showPostSignupSuccess) {
+    return (
+      <PostSignupSuccess 
+        username={completedUsername}
+        onContinue={handlePostSignupContinue}
+      />
     );
   }
 

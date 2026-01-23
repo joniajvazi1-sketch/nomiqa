@@ -37,6 +37,7 @@ const AdminUsers = lazy(() => import("./pages/AdminUsers"));
 const Download = lazy(() => import("./pages/Download"));
 const HowItWorks = lazy(() => import("./pages/HowItWorks"));
 const MobileOnly = lazy(() => import("./pages/MobileOnly"));
+const ReferralLeaderboard = lazy(() => import("./pages/ReferralLeaderboard"));
 
 // Lazy load APP pages (native only)
 const AppHome = lazy(() => import("./pages/app/AppHome").then(m => ({ default: m.AppHome })));
@@ -195,6 +196,7 @@ const WebRoutes = () => (
       <Route path="/token" element={<Token />} />
       <Route path="/help" element={<Help />} />
       <Route path="/rewards" element={<Rewards />} />
+      <Route path="/leaderboard" element={<ReferralLeaderboard />} />
       <Route path="/payment-success" element={<PaymentSuccess />} />
       <Route path="/admin/users" element={<AdminUsers />} />
       <Route path="/download" element={<Download />} />
