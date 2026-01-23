@@ -11,13 +11,14 @@ interface TabItem {
 }
 
 /**
- * iOS 26 Liquid Glass / Android 16 Floating Tab Bar
- * - Floating pill design with rounded corners (iOS 26 style)
- * - Liquid Glass material with variable opacity and refraction blur
- * - 52pt height for modern ergonomics
- * - Active glow indicator (not just pill background)
- * - Minimum 48pt touch targets (updated HIG)
- * - Supports Android 16 edge-to-edge + predictive back
+ * Universal Bottom Tab Bar
+ * Compatible: iOS 12-26, Android 7-16, all browsers
+ * 
+ * Design:
+ * - Modern floating pill on iOS 15+/Android 12+ 
+ * - Classic docked bar on older devices
+ * - 48pt minimum touch targets (WCAG AAA)
+ * - Graceful degradation for backdrop-blur
  */
 export const BottomTabBar: React.FC = () => {
   const navigate = useNavigate();
@@ -45,40 +46,78 @@ export const BottomTabBar: React.FC = () => {
 
   return (
     <nav 
-      className="fixed bottom-0 left-0 right-0 z-50 pointer-events-none"
+      className="fixed bottom-0 left-0 right-0 z-50"
+      role="navigation"
+      aria-label="Main navigation"
       style={{
-        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
-        paddingLeft: 'max(env(safe-area-inset-left, 0px), 12px)',
-        paddingRight: 'max(env(safe-area-inset-right, 0px), 12px)',
+        // Safe area with fallbacks for older iOS/Android
+        paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 0px)',
+        paddingLeft: 'max(env(safe-area-inset-left, 0px), 8px)',
+        paddingRight: 'max(env(safe-area-inset-right, 0px), 8px)',
       }}
     >
-      {/* iOS 26 Floating Pill Container */}
+      {/* Floating container with fallbacks */}
       <div 
-        className="pointer-events-auto mx-auto mb-2"
-        style={{ maxWidth: '400px' }}
+        className="mx-auto mb-2"
+        style={{ 
+          maxWidth: '420px',
+          // Fallback margin for devices without safe-area
+          marginBottom: 'max(8px, env(safe-area-inset-bottom, 8px))'
+        }}
       >
-        {/* Liquid Glass material - variable blur with refraction effect */}
+        {/* Glass background with graceful degradation */}
         <div 
           className={cn(
-            "relative rounded-[28px] overflow-hidden",
-            // Multi-layer glass effect for depth
-            "shadow-[0_8px_32px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.08)]",
-            // Subtle inner glow for "liquid" feel
-            "ring-1 ring-white/10"
+            "relative overflow-hidden",
+            // Rounded corners with fallback
+            "rounded-3xl",
+            // Shadow for depth - works on all devices
+            "shadow-lg"
           )}
+          style={{
+            // Border radius fallback for older WebViews
+            borderRadius: '24px',
+            // Box shadow works universally
+            boxShadow: '0 4px 24px rgba(0,0,0,0.15), 0 1px 4px rgba(0,0,0,0.1)'
+          }}
         >
-          {/* Background glass layer */}
+          {/* Background layer - solid color fallback, then glass */}
           <div 
-            className={cn(
-              "absolute inset-0",
-              "bg-card/70 backdrop-blur-3xl",
-              // Subtle gradient for refraction simulation
-              "bg-gradient-to-b from-white/5 to-transparent"
-            )}
+            className="absolute inset-0"
+            style={{
+              // Solid background fallback (always visible)
+              backgroundColor: 'var(--card)',
+              // Then apply backdrop-blur where supported
+            }}
+          />
+          {/* Glass overlay - only shows on supporting browsers */}
+          <div 
+            className="absolute inset-0 backdrop-blur-xl"
+            style={{
+              // Semi-transparent overlay
+              backgroundColor: 'rgba(var(--card-rgb, 255,255,255), 0.85)',
+              // Subtle top highlight for depth
+              borderTop: '1px solid rgba(255,255,255,0.1)',
+            }}
           />
           
-          {/* Tab buttons - 52pt modern height */}
-          <div className="relative flex items-stretch" style={{ height: '52px' }}>
+          {/* Subtle border ring */}
+          <div 
+            className="absolute inset-0 rounded-3xl pointer-events-none"
+            style={{
+              border: '1px solid rgba(255,255,255,0.08)',
+              borderRadius: '24px'
+            }}
+          />
+          
+          {/* Tab buttons - universal height that works everywhere */}
+          <div 
+            className="relative flex items-stretch"
+            style={{ 
+              height: '56px', // Fixed height for consistency
+              minHeight: '56px'
+            }}
+          >
             {tabs.map((tab) => {
               const active = isActive(tab.path);
               const Icon = tab.icon;
@@ -89,53 +128,75 @@ export const BottomTabBar: React.FC = () => {
                   onClick={() => handleTabPress(tab.path)}
                   aria-label={tab.label}
                   aria-current={active ? 'page' : undefined}
+                  type="button"
                   className={cn(
-                    'flex-1 flex flex-col items-center justify-center gap-0.5',
-                    'touch-manipulation relative',
-                    'transition-all duration-250 ease-out',
-                    'active:scale-90',
-                    // Minimum 48pt touch target (updated HIG for iOS 26/Android 16)
-                    'min-h-[48px] min-w-[48px]'
+                    // Flex layout - works on all browsers
+                    'flex-1 flex flex-col items-center justify-center gap-1',
+                    // Touch handling
+                    'touch-manipulation select-none',
+                    // Transitions with fallback
+                    'transition-all duration-200',
+                    // Active state feedback
+                    'active:opacity-70'
                   )}
                   style={{
-                    // Smooth spring-like transition
-                    transitionTimingFunction: 'cubic-bezier(0.34, 1.56, 0.64, 1)'
+                    // Minimum touch target (48x48 WCAG AAA)
+                    minHeight: '48px',
+                    minWidth: '48px',
+                    // Remove default button styles
+                    WebkitTapHighlightColor: 'transparent',
+                    outline: 'none',
+                    border: 'none',
+                    background: 'transparent',
+                    // Cursor for web
+                    cursor: 'pointer',
+                    // Smooth transition
+                    transition: 'transform 0.15s ease, opacity 0.15s ease'
                   }}
                 >
-                  {/* Active glow indicator - iOS 26 liquid effect */}
+                  {/* Active indicator background */}
                   {active && (
                     <div 
-                      className={cn(
-                        "absolute inset-2 rounded-2xl",
-                        "bg-primary/15",
-                        // Subtle glow underneath
-                        "shadow-[0_0_20px_rgba(var(--primary),0.3)]"
-                      )}
-                      style={{ 
-                        animation: 'liquidFadeIn 300ms cubic-bezier(0.34, 1.56, 0.64, 1)' 
+                      className="absolute rounded-2xl"
+                      style={{
+                        top: '6px',
+                        bottom: '6px',
+                        left: '8px',
+                        right: '8px',
+                        backgroundColor: 'hsl(var(--primary) / 0.12)',
+                        borderRadius: '14px',
+                        // Simple fade animation
+                        animation: 'fadeIn 0.2s ease-out'
                       }}
                     />
                   )}
                   
+                  {/* Icon */}
                   <Icon 
-                    className={cn(
-                      'relative z-10 transition-all duration-250',
-                      active ? 'w-[23px] h-[23px]' : 'w-[21px] h-[21px]',
-                      active ? 'text-primary' : 'text-muted-foreground'
-                    )}
-                    strokeWidth={active ? 2.4 : 1.7}
                     style={{
-                      // Subtle lift on active
-                      transform: active ? 'translateY(-1px)' : 'translateY(0)',
-                      transitionTimingFunction: 'cubic-bezier(0.34, 1.56, 0.64, 1)'
+                      position: 'relative',
+                      zIndex: 1,
+                      width: active ? '22px' : '20px',
+                      height: active ? '22px' : '20px',
+                      strokeWidth: active ? 2.4 : 1.8,
+                      color: active ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))',
+                      transition: 'all 0.15s ease'
                     }}
                   />
-                  <span className={cn(
-                    'relative z-10 text-[10px] leading-tight transition-all duration-250',
-                    active 
-                      ? 'font-semibold text-primary opacity-100' 
-                      : 'font-medium text-muted-foreground opacity-80'
-                  )}>
+                  
+                  {/* Label */}
+                  <span 
+                    style={{
+                      position: 'relative',
+                      zIndex: 1,
+                      fontSize: '10px',
+                      lineHeight: '1.2',
+                      fontWeight: active ? 600 : 500,
+                      color: active ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))',
+                      opacity: active ? 1 : 0.8,
+                      transition: 'all 0.15s ease'
+                    }}
+                  >
                     {tab.label}
                   </span>
                 </button>

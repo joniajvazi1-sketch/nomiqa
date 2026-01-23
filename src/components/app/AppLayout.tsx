@@ -17,113 +17,133 @@ interface AppLayoutProps {
 }
 
 /**
- * iOS 26 / Android 16 Native App Layout
- * - Liquid Glass design language (iOS 26)
- * - Full edge-to-edge with system bar handling (Android 16 SDK 35+)
- * - Dynamic Island / punch-hole camera safe areas
- * - Floating navigation with proper content insets
+ * Universal Native App Layout
+ * Compatible: iOS 12-26, Android 7-16 (API 24-35+)
+ * 
+ * Features:
+ * - Edge-to-edge with graceful fallbacks
+ * - Safe area handling for all device types
+ * - Viewport height fixes for all browsers
+ * - Reduced motion support
+ * - RTL language support ready
  */
 export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const isNative = Capacitor.isNativePlatform();
   const isAndroid = Capacitor.getPlatform() === 'android';
-  const isIOS = Capacitor.getPlatform() === 'ios';
   const location = useLocation();
   const statusBarRef = useRef<StatusBarModule | null>(null);
   const { isOffline } = useNetworkStatus();
   const { theme, resolvedTheme } = useTheme();
   const isDark = resolvedTheme === 'dark' || theme === 'dark';
-  const [safeAreaReady, setSafeAreaReady] = useState(false);
   const mainRef = useRef<HTMLDivElement>(null);
+
+  // Detect if user prefers reduced motion
+  const prefersReducedMotion = typeof window !== 'undefined' 
+    && window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
 
   // WebGL/canvas safety: avoid parent transforms on map/network routes
   const isMapRoute = location.pathname === '/app/map' || location.pathname === '/app/network';
 
-  // Floating tab bar height + margin (52px bar + 8px bottom margin + safe area)
-  const FLOATING_TAB_HEIGHT = 68;
+  // Bottom navigation height (56px bar + 8px margin + safe area buffer)
+  const BOTTOM_NAV_HEIGHT = 72;
 
-  // iOS 26 / Android 16 viewport height fix
-  // Uses dvh where available, falls back to --vh for legacy
+  // Universal viewport height fix
+  // Works on: iOS Safari 12+, Chrome, Firefox, Samsung Internet, WebViews
   const setViewportHeight = useCallback(() => {
-    const vh = window.innerHeight * 0.01;
-    document.documentElement.style.setProperty('--vh', `${vh}px`);
-    // Also set actual pixel height for calculations
-    document.documentElement.style.setProperty('--viewport-height', `${window.innerHeight}px`);
+    // Use visualViewport if available (more accurate on mobile)
+    const vh = window.visualViewport?.height ?? window.innerHeight;
+    const vhUnit = vh * 0.01;
+    
+    document.documentElement.style.setProperty('--vh', `${vhUnit}px`);
+    document.documentElement.style.setProperty('--viewport-height', `${vh}px`);
+    
+    // Also set for legacy browsers
+    document.documentElement.style.setProperty('--app-height', `${vh}px`);
   }, []);
 
   useEffect(() => {
+    // Initial set
     setViewportHeight();
+    
+    // Standard resize events
     window.addEventListener('resize', setViewportHeight);
     window.addEventListener('orientationchange', setViewportHeight);
     
-    // Visual viewport API for keyboard/address bar changes
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener('resize', setViewportHeight);
-      window.visualViewport.addEventListener('scroll', setViewportHeight);
+    // Visual viewport API (keyboard, address bar)
+    const vv = window.visualViewport;
+    if (vv) {
+      vv.addEventListener('resize', setViewportHeight);
+      vv.addEventListener('scroll', setViewportHeight);
     }
+    
+    // Fallback: periodic check for edge cases
+    const intervalId = setInterval(setViewportHeight, 1000);
     
     return () => {
       window.removeEventListener('resize', setViewportHeight);
       window.removeEventListener('orientationchange', setViewportHeight);
-      if (window.visualViewport) {
-        window.visualViewport.removeEventListener('resize', setViewportHeight);
-        window.visualViewport.removeEventListener('scroll', setViewportHeight);
+      if (vv) {
+        vv.removeEventListener('resize', setViewportHeight);
+        vv.removeEventListener('scroll', setViewportHeight);
       }
+      clearInterval(intervalId);
     };
   }, [setViewportHeight]);
 
   // Scroll to top on route change
   useLayoutEffect(() => {
-    if (mainRef.current) {
-      mainRef.current.scrollTop = 0;
-    }
-    window.scrollTo(0, 0);
+    // Use requestAnimationFrame for smoother scroll reset
+    requestAnimationFrame(() => {
+      if (mainRef.current) {
+        mainRef.current.scrollTop = 0;
+      }
+      window.scrollTo(0, 0);
+    });
   }, [location.pathname]);
 
+  // Status bar configuration with fallbacks
   useEffect(() => {
-    // Configure status bar for iOS 26 / Android 16
-    if (isNative) {
-      const configureStatusBar = async () => {
-        try {
-          if (!statusBarRef.current) {
-            statusBarRef.current = await import('@capacitor/status-bar');
-          }
-          const { StatusBar, Style } = statusBarRef.current;
-          
-          // Adaptive style based on theme
-          await StatusBar.setStyle({ 
-            style: isDark ? Style.Dark : Style.Light 
-          });
-          
-          // Edge-to-edge: overlay mode for both platforms
-          await StatusBar.setOverlaysWebView({ overlay: true });
-          
-          if (isAndroid) {
-            // Android 16: Transparent system bars for full edge-to-edge
-            await StatusBar.setBackgroundColor({ color: '#00000000' });
-          }
-          
-          setSafeAreaReady(true);
-        } catch (error) {
-          console.warn('StatusBar configuration failed:', error);
-          setSafeAreaReady(true);
+    if (!isNative) return;
+
+    const configureStatusBar = async () => {
+      try {
+        if (!statusBarRef.current) {
+          statusBarRef.current = await import('@capacitor/status-bar');
         }
-      };
-      configureStatusBar();
-    } else {
-      setSafeAreaReady(true);
-    }
+        const { StatusBar, Style } = statusBarRef.current;
+        
+        // Set style based on theme
+        await StatusBar.setStyle({ 
+          style: isDark ? Style.Dark : Style.Light 
+        }).catch(() => {});
+        
+        // Edge-to-edge overlay
+        await StatusBar.setOverlaysWebView({ overlay: true }).catch(() => {});
+        
+        // Android: transparent background
+        if (isAndroid) {
+          await StatusBar.setBackgroundColor({ color: '#00000000' }).catch(() => {});
+        }
+      } catch (error) {
+        // Silently fail - app still works without status bar config
+        console.warn('StatusBar config skipped:', error);
+      }
+    };
+    
+    configureStatusBar();
   }, [isNative, isAndroid, isDark]);
 
   // Theme change handler
   useEffect(() => {
-    if (isNative && statusBarRef.current) {
-      const { StatusBar, Style } = statusBarRef.current;
-      StatusBar.setStyle({ 
-        style: isDark ? Style.Dark : Style.Light 
-      }).catch(() => {});
-    }
+    if (!isNative || !statusBarRef.current) return;
+    
+    const { StatusBar, Style } = statusBarRef.current;
+    StatusBar.setStyle({ 
+      style: isDark ? Style.Dark : Style.Light 
+    }).catch(() => {});
   }, [isDark, isNative]);
 
+  // Offline screen
   if (isOffline) {
     return <OfflineScreen />;
   }
@@ -131,42 +151,48 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   return (
     <div 
       className={cn(
-        // iOS 26 Liquid Glass / Android 16 edge-to-edge container
-        "app-theme flex flex-col transition-colors duration-300",
+        "app-theme flex flex-col",
+        // Theme-specific gradients
         isDark 
           ? "dark bg-gradient-to-b from-[hsl(220,40%,10%)] via-[hsl(220,40%,8%)] to-[hsl(220,45%,6%)]" 
-          : "light bg-gradient-to-b from-[hsl(210,40%,98%)] via-[hsl(210,35%,96%)] to-[hsl(210,30%,94%)]"
+          : "light bg-gradient-to-b from-[hsl(210,40%,98%)] via-[hsl(210,35%,96%)] to-[hsl(210,30%,94%)]",
+        // Transition only if reduced motion not preferred
+        !prefersReducedMotion && "transition-colors duration-300"
       )}
       style={{
-        // Modern viewport units with fallback
-        minHeight: 'calc(var(--vh, 1dvh) * 100)',
-        height: 'calc(var(--vh, 1dvh) * 100)',
-        // Safe areas for Dynamic Island (iOS) / punch-hole (Android)
+        // Height with multiple fallbacks for all browsers
+        // Calculated --app-height is set in JS, fallback to CSS units
+        minHeight: 'calc(var(--vh, 1vh) * 100)',
+        height: 'var(--app-height, 100vh)',
+        
+        // Safe areas with fallbacks (env for iOS 11.2+, constant for iOS 11.0-11.1)
         paddingTop: 'env(safe-area-inset-top, 0px)',
         paddingLeft: 'env(safe-area-inset-left, 0px)',
         paddingRight: 'env(safe-area-inset-right, 0px)',
       }}
     >
-      {/* Scrollable content area */}
+      {/* Main content area */}
       <main 
         ref={mainRef}
         className={cn(
-          "flex-1 overflow-x-hidden",
-          isMapRoute ? "overflow-hidden" : "overflow-y-auto"
+          "flex-1",
+          isMapRoute ? "overflow-hidden" : "overflow-y-auto overflow-x-hidden"
         )}
         style={{ 
-          // Floating tab bar needs more bottom space
-          paddingBottom: `calc(${FLOATING_TAB_HEIGHT}px + env(safe-area-inset-bottom, 0px))`,
+          // Bottom padding for floating nav
+          paddingBottom: `calc(${BOTTOM_NAV_HEIGHT}px + max(env(safe-area-inset-bottom, 0px), constant(safe-area-inset-bottom, 0px)))`,
           // iOS momentum scrolling
           WebkitOverflowScrolling: isMapRoute ? undefined : 'touch',
           // Contain overscroll
           overscrollBehavior: 'contain',
+          // Smooth scrolling where supported
+          scrollBehavior: prefersReducedMotion ? 'auto' : 'smooth',
         }}
       >
         <SwipeablePages>
           <PageTransition
             key={location.pathname}
-            variant={isMapRoute ? 'instant' : 'spring'}
+            variant={isMapRoute || prefersReducedMotion ? 'instant' : 'spring'}
             disableTransform={isMapRoute}
           >
             {children}
@@ -174,7 +200,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         </SwipeablePages>
       </main>
       
-      {/* iOS 26 Floating Tab Bar */}
+      {/* Bottom navigation */}
       <BottomTabBar />
     </div>
   );

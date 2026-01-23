@@ -75,6 +75,10 @@ All colors MUST be HSL.
     --popover: 220 35% 14%;
     --popover-foreground: 210 40% 98%;
     
+    /* RGB versions for rgba() usage (older browser compat) */
+    --card-rgb: 22, 30, 46;
+    --background-rgb: 13, 19, 33;
+    
     /* Primary - Electric blue (iOS accent) */
     --primary: 210 100% 60%;             /* #3b82f6 */
     --primary-foreground: 210 40% 98%;
@@ -124,6 +128,10 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 220 40% 15%;
     
+    /* RGB versions for rgba() usage (older browser compat) */
+    --card-rgb: 255, 255, 255;
+    --background-rgb: 240, 243, 247;
+    
     /* Primary - Electric blue */
     --primary: 210 100% 50%;             /* Vibrant blue */
     --primary-foreground: 0 0% 100%;
@@ -162,6 +170,33 @@ All colors MUST be HSL.
     --glass-bg: hsl(0 0% 100% / 0.7);
     --glass-border: hsl(215 30% 85% / 0.8);
     --glass-bg-elevated: hsl(0 0% 100% / 0.85);
+  }
+
+  /* ============================================
+     BACKDROP-FILTER FALLBACKS
+     For browsers without backdrop-blur support
+     (iOS Safari <9, older Android WebViews)
+     ============================================ */
+  @supports not (backdrop-filter: blur(10px)) {
+    .backdrop-blur-xl,
+    .backdrop-blur-2xl,
+    .backdrop-blur-3xl {
+      /* Solid fallback - no transparency */
+      background-color: var(--card) !important;
+    }
+  }
+
+  /* Webkit prefix fallback for Safari 8 */
+  @supports (-webkit-backdrop-filter: blur(10px)) and (not (backdrop-filter: blur(10px))) {
+    .backdrop-blur-xl {
+      -webkit-backdrop-filter: blur(24px);
+    }
+    .backdrop-blur-2xl {
+      -webkit-backdrop-filter: blur(40px);
+    }
+    .backdrop-blur-3xl {
+      -webkit-backdrop-filter: blur(64px);
+    }
   }
   
   /* App typography refinements */
@@ -368,24 +403,56 @@ All colors MUST be HSL.
   }
 
   #root {
-    /* Fill viewport without position:fixed to allow normal scroll flow */
+    /* Fill viewport with multiple fallbacks */
     height: 100%;
-    height: 100vh;
-    height: 100dvh;
+    height: 100vh; /* Legacy */
+    height: -webkit-fill-available; /* iOS Safari 12-14 */
+    height: 100dvh; /* Modern browsers */
+    height: var(--app-height, 100dvh); /* Our custom variable */
     width: 100%;
-    /* Use flex to let AppLayout fill space */
+    /* Flex layout */
     display: flex;
+    display: -webkit-flex; /* Safari 8 */
     flex-direction: column;
+    -webkit-flex-direction: column;
   }
 
-  /* App shell container for native apps - edge-to-edge with safe areas
-     NOTE: Safe areas are now handled inline in AppLayout.tsx for better control */
+  /* App shell container with universal fallbacks */
   .app-shell {
-    min-height: 100dvh;
-    min-height: -webkit-fill-available; /* iOS Safari fallback */
+    min-height: 100vh; /* Fallback */
+    min-height: -webkit-fill-available; /* iOS Safari 12-14 */
+    min-height: 100dvh; /* Modern */
+    min-height: var(--app-height, 100dvh); /* Custom */
     display: flex;
+    display: -webkit-flex;
     flex-direction: column;
-    /* Safe area padding now handled by AppLayout inline styles */
+    -webkit-flex-direction: column;
+  }
+
+  /* Safe area fallbacks for iOS 11 (constant) and iOS 11.2+ (env) */
+  @supports (padding: max(0px)) {
+    .safe-area-top {
+      padding-top: max(env(safe-area-inset-top, 0px), constant(safe-area-inset-top, 0px));
+    }
+    .safe-area-bottom {
+      padding-bottom: max(env(safe-area-inset-bottom, 0px), constant(safe-area-inset-bottom, 0px));
+    }
+    .safe-area-left {
+      padding-left: max(env(safe-area-inset-left, 0px), constant(safe-area-inset-left, 0px));
+    }
+    .safe-area-right {
+      padding-right: max(env(safe-area-inset-right, 0px), constant(safe-area-inset-right, 0px));
+    }
+  }
+
+  /* Fallback for browsers without max() support */
+  @supports not (padding: max(0px)) {
+    .safe-area-top {
+      padding-top: env(safe-area-inset-top, 20px);
+    }
+    .safe-area-bottom {
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
   }
 
   /* Keyboard-aware input container */
