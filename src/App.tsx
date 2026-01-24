@@ -55,7 +55,10 @@ const AppAuth = lazy(() => import("./pages/app/AppAuth").then(m => ({ default: m
 const OAuthRedirect = lazy(() => import("./pages/app/OAuthRedirect"));
 
 // Loading fallback component (with a safety timeout for slow/blocked mobile networks)
-const PageLoader = () => {
+// Using forwardRef to prevent React warnings when used with Suspense
+import { forwardRef } from "react";
+
+const PageLoader = forwardRef<HTMLDivElement>((_, ref) => {
   const [showHelp, setShowHelp] = useState(false);
 
   useEffect(() => {
@@ -64,7 +67,7 @@ const PageLoader = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center">
+    <div ref={ref} className="min-h-screen bg-background flex items-center justify-center">
       <div className="relative flex flex-col items-center gap-5 px-6 text-center">
         <div className="relative">
           <div className="w-16 h-16 border-4 border-neon-cyan/20 border-t-neon-cyan rounded-full animate-spin" />
@@ -88,7 +91,8 @@ const PageLoader = () => {
       </div>
     </div>
   );
-};
+});
+PageLoader.displayName = 'PageLoader';
 
 const queryClient = new QueryClient();
 
@@ -104,23 +108,26 @@ function AffiliateTracker() {
     if (ref) {
       setReferralCode(ref);
       
-      // Track referral click via secure edge function
-      const trackClick = async () => {
-        try {
-          await supabase.functions.invoke('log-referral-visit', {
-            body: { 
-              affiliateCode: ref,
-              referrerUrl: document.referrer || null,
-              landingPage: window.location.pathname,
-              userAgent: navigator.userAgent,
-            }
-          });
-        } catch (error) {
+      // Defer referral tracking to not block initial render
+      const trackClick = () => {
+        supabase.functions.invoke('log-referral-visit', {
+          body: { 
+            affiliateCode: ref,
+            referrerUrl: document.referrer || null,
+            landingPage: window.location.pathname,
+            userAgent: navigator.userAgent,
+          }
+        }).catch((error) => {
           console.error('Error tracking referral click:', error);
-        }
+        });
       };
 
-      trackClick();
+      // Use requestIdleCallback for non-blocking tracking, fallback to setTimeout
+      if (typeof requestIdleCallback !== 'undefined') {
+        requestIdleCallback(trackClick, { timeout: 5000 });
+      } else {
+        setTimeout(trackClick, 100);
+      }
     }
   }, [location, setReferralCode]);
 
