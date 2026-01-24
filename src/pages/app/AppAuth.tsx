@@ -551,12 +551,13 @@ export const AppAuth: React.FC = () => {
         return;
       }
 
-      // Fallback to browser-based OAuth with proper native deep link
+      // Fallback to browser-based OAuth
+      // Use HTTPS redirect (required by Supabase), then OAuthRedirect page triggers deep link
       const isNativePlatform = Capacitor.isNativePlatform();
       
-      // Use native deep link for Capacitor apps, web URL for browser
+      // Always use HTTPS URL for Supabase - the OAuthRedirect page handles native deep linking
       const redirectTo = isNativePlatform
-        ? 'com.nomiqa.app://oauth-callback' // Native deep link - handled by AppDelegate/MainActivity
+        ? 'https://nomiqa.lovable.app/app/oauth-redirect' // Web page that triggers deep link
         : `${window.location.origin}/app/auth`;
 
       console.log('[AppAuth] OAuth redirect URL:', redirectTo);
