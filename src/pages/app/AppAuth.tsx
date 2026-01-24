@@ -17,7 +17,8 @@ import {
   ArrowLeft,
   AlertCircle,
   CheckCircle2,
-  XCircle
+  XCircle,
+  Fingerprint
 } from 'lucide-react';
 import { useAffiliateTracking } from '@/hooks/useAffiliateTracking';
 import { UsernameSelection } from '@/components/UsernameSelection';
@@ -27,6 +28,8 @@ import { Capacitor } from '@capacitor/core';
 import { Browser } from '@capacitor/browser';
 import { App } from '@capacitor/app';
 import { z } from 'zod';
+import { useNativeGoogleAuth } from '@/hooks/useNativeGoogleAuth';
+import { useBiometricAuth } from '@/hooks/useBiometricAuth';
 
 // Validation schemas
 const emailSchema = z.string().email('Please enter a valid email address').max(255, 'Email is too long');
@@ -79,6 +82,17 @@ export const AppAuth: React.FC = () => {
   const [searchParams] = useSearchParams();
   const { buttonTap, successPattern, errorPattern } = useEnhancedHaptics();
   const { toast } = useToast();
+
+  // Native auth hooks
+  const { signIn: nativeGoogleSignIn, isInitialized: googleAuthReady, isLoading: nativeGoogleLoading, isNative } = useNativeGoogleAuth();
+  const { 
+    isAvailable: biometricAvailable, 
+    isEnabled: biometricEnabled, 
+    isLoading: biometricLoading,
+    getBiometryName,
+    enableBiometric,
+    authenticate: biometricAuthenticate,
+  } = useBiometricAuth();
 
   // Loading states
   const [loading, setLoading] = useState(false);
@@ -519,49 +533,95 @@ export const AppAuth: React.FC = () => {
     setFormError('');
 
     try {
-      const isNativeApp = Capacitor.isNativePlatform();
-      
-      // For native apps, redirect to the published website's OAuth handler
-      // This is required because:
-      // 1. Supabase only allows https:// redirect URLs  
-      // 2. The redirect page then deep links back to the native app
-      // IMPORTANT: Must use the PUBLISHED URL, not window.location.origin (which is localhost in webview)
+      // Try native Google Sign-In first (uses device's Google account directly)
+      if (isNative && googleAuthReady) {
+        console.log('[AppAuth] Using native Google Sign-In');
+        const result = await nativeGoogleSignIn();
+        
+        if (!result.success) {
+          if (result.error !== 'Sign-in cancelled') {
+            setFormError(result.error || 'Google sign-in failed');
+            errorPattern();
+          }
+          setGoogleLoading(false);
+          return;
+        }
+        
+        // Success - onAuthStateChange will handle navigation
+        return;
+      }
+
+      // Fallback to browser-based OAuth
       const publishedUrl = 'https://nomiqa-depin.com';
       
-      const redirectTo = isNativeApp
+      const redirectTo = isNative
         ? `${publishedUrl}/app/oauth-redirect`
         : `${window.location.origin}/app/auth`;
 
-      // Native iOS/Android: do NOT redirect the WebView (it can strand users in Safari)
-      // Instead, get the provider URL and open it in the system browser.
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo,
-          skipBrowserRedirect: isNativeApp,
+          skipBrowserRedirect: isNative,
         },
       });
 
       if (error) throw error;
 
-      if (isNativeApp) {
+      if (isNative) {
         const url = data?.url;
         if (!url) throw new Error('Missing OAuth URL');
         
-        // Open in system browser (Safari/Chrome)
         await Browser.open({ 
           url,
-          presentationStyle: 'popover', // iOS: Use popover for better UX
+          presentationStyle: 'popover',
           windowName: '_blank',
         });
-        
-        // Don't reset loading state here - it will be reset when the app receives
-        // the deep link callback or when user returns to the app
       }
     } catch (error: any) {
       setFormError(getReadableError(error.message || 'Failed to sign in with Google'));
       errorPattern();
       setGoogleLoading(false);
+    }
+  };
+
+  // Biometric sign-in handler
+  const handleBiometricSignIn = async () => {
+    buttonTap();
+    setFormError('');
+
+    try {
+      const credentials = await biometricAuthenticate();
+      
+      if (!credentials) {
+        // User cancelled or auth failed - don't show error
+        return;
+      }
+
+      setLoading(true);
+
+      // Use stored tokens to restore session
+      const { data, error } = await supabase.auth.setSession({
+        access_token: credentials.accessToken,
+        refresh_token: credentials.refreshToken,
+      });
+
+      if (error) {
+        // Tokens may have expired - ask user to sign in again
+        setFormError('Session expired. Please sign in with your password.');
+        errorPattern();
+        return;
+      }
+
+      successPattern();
+      toast({ title: `Signed in with ${getBiometryName()}!` });
+      // Navigation handled by onAuthStateChange
+    } catch (error: any) {
+      console.error('[AppAuth] Biometric sign-in error:', error);
+      setFormError('Biometric sign-in failed. Please try again.');
+      errorPattern();
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -699,6 +759,32 @@ export const AppAuth: React.FC = () => {
               </>
             )}
           </Button>
+
+          {/* Biometric Sign-In (only for login, not signup) */}
+          {!isSignup && biometricAvailable && biometricEnabled && (
+            <Button
+              type="button"
+              variant="outline"
+              className={cn(
+                "w-full h-12 bg-card border-border text-foreground transition-all duration-200",
+                biometricLoading && "opacity-70"
+              )}
+              onClick={handleBiometricSignIn}
+              disabled={isFormDisabled || biometricLoading}
+            >
+              {biometricLoading ? (
+                <div className="flex items-center gap-2">
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>Authenticating...</span>
+                </div>
+              ) : (
+                <>
+                  <Fingerprint className="w-5 h-5 mr-2" />
+                  Sign in with {getBiometryName()}
+                </>
+              )}
+            </Button>
+          )}
 
           {/* Divider */}
           <div className="relative">

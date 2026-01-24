@@ -31,6 +31,14 @@ const config: CapacitorConfig = {
       // Use 'native' for proper input scrolling on both platforms
       resize: 'native',
       resizeOnFullScreen: true
+    },
+    GoogleAuth: {
+      // Web client ID for native Google Sign-In
+      // This is the Web Client ID from Google Cloud Console (not the Android/iOS client ID)
+      // Replace with your actual client ID
+      scopes: ['profile', 'email'],
+      serverClientId: '', // Will be populated from native config
+      forceCodeForRefreshToken: true
     }
   },
   ios: {

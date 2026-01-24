@@ -76,6 +76,21 @@
 				<string>com.nomiqa.app</string>
 			</array>
 		</dict>
+		<!-- Google Sign-In URL Scheme: Reversed Client ID from GoogleService-Info.plist -->
+		<!-- User must add their actual reversed client ID here after adding GoogleService-Info.plist -->
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>Google Sign-In</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<!-- Replace with your reversed client ID from GoogleService-Info.plist -->
+				<string>com.googleusercontent.apps.YOUR_CLIENT_ID</string>
+			</array>
+		</dict>
 	</array>
+	
+	<!-- Face ID usage description for biometric authentication -->
+	<key>NSFaceIDUsageDescription</key>
+	<string>Nomiqa uses Face ID for quick and secure sign-in.</string>
 </dict>
 </plist>
