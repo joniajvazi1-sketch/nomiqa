@@ -551,27 +551,31 @@ export const AppAuth: React.FC = () => {
         return;
       }
 
-      // Fallback to browser-based OAuth
-      const publishedUrl = 'https://nomiqa-depin.com';
+      // Fallback to browser-based OAuth with proper native deep link
+      const isNativePlatform = Capacitor.isNativePlatform();
       
-      const redirectTo = isNative
-        ? `${publishedUrl}/app/oauth-redirect`
+      // Use native deep link for Capacitor apps, web URL for browser
+      const redirectTo = isNativePlatform
+        ? 'com.nomiqa.app://oauth-callback' // Native deep link - handled by AppDelegate/MainActivity
         : `${window.location.origin}/app/auth`;
+
+      console.log('[AppAuth] OAuth redirect URL:', redirectTo);
 
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo,
-          skipBrowserRedirect: isNative,
-        },
+          ...(isNativePlatform ? { skipBrowserRedirect: true } : {}),
+        } as any,
       });
 
       if (error) throw error;
 
-      if (isNative) {
+      if (isNativePlatform) {
         const url = data?.url;
         if (!url) throw new Error('Missing OAuth URL');
         
+        console.log('[AppAuth] Opening browser for OAuth:', url);
         await Browser.open({ 
           url,
           presentationStyle: 'popover',
