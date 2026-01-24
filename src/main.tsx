@@ -5,10 +5,10 @@ import { ThemeProvider } from "next-themes";
 import App from "./App.tsx";
 import "./index.css";
 
-// Initialize Sentry error monitoring before app renders
-import { initSentry, ErrorBoundary } from "@/lib/sentry";
-initSentry();
+// Import ErrorBoundary synchronously (lightweight), but defer Sentry init
+import { ErrorBoundary } from "@/lib/sentry";
 
+// Render app immediately - don't block on Sentry
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ErrorBoundary fallback={<div className="flex items-center justify-center min-h-screen bg-background text-foreground">Something went wrong. Please refresh the page.</div>}>
@@ -20,3 +20,17 @@ createRoot(document.getElementById("root")!).render(
     </ErrorBoundary>
   </StrictMode>
 );
+
+// Defer Sentry initialization until after first paint (non-blocking)
+const initSentryDeferred = () => {
+  import("@/lib/sentry").then(({ initSentry }) => {
+    initSentry();
+  });
+};
+
+// Use requestIdleCallback for maximum performance, fallback to setTimeout
+if (typeof requestIdleCallback !== 'undefined') {
+  requestIdleCallback(initSentryDeferred, { timeout: 3000 });
+} else {
+  setTimeout(initSentryDeferred, 100);
+}
