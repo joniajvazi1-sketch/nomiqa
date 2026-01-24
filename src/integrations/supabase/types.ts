@@ -154,6 +154,33 @@ export type Database = {
           },
         ]
       }
+      api_rate_limits: {
+        Row: {
+          created_at: string | null
+          endpoint: string
+          id: string
+          identifier: string
+          request_count: number | null
+          window_start: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          endpoint: string
+          id?: string
+          identifier: string
+          request_count?: number | null
+          window_start?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          endpoint?: string
+          id?: string
+          identifier?: string
+          request_count?: number | null
+          window_start?: string | null
+        }
+        Relationships: []
+      }
       app_remote_config: {
         Row: {
           config_key: string
@@ -1055,6 +1082,36 @@ export type Database = {
         }
         Relationships: []
       }
+      security_audit_log: {
+        Row: {
+          created_at: string | null
+          details: Json | null
+          event_type: string
+          id: string
+          ip_hash: string | null
+          severity: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          details?: Json | null
+          event_type: string
+          id?: string
+          ip_hash?: string | null
+          severity?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          details?: Json | null
+          event_type?: string
+          id?: string
+          ip_hash?: string | null
+          severity?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       signal_logs: {
         Row: {
           accuracy_meters: number | null
@@ -1665,6 +1722,7 @@ export type Database = {
       cleanup_expired_order_pii: { Args: never; Returns: number }
       cleanup_old_email_rate_limits: { Args: never; Returns: undefined }
       cleanup_old_mining_logs: { Args: never; Returns: number }
+      cleanup_old_rate_limits: { Args: never; Returns: undefined }
       cleanup_old_webhook_requests: { Args: never; Returns: undefined }
       get_user_daily_speed_tests: {
         Args: { p_user_id: string }
@@ -1677,6 +1735,20 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      lookup_affiliate_by_code: {
+        Args: { lookup_code: string }
+        Returns: {
+          id: string
+          username: string
+        }[]
+      }
+      lookup_affiliate_by_username: {
+        Args: { lookup_username: string }
+        Returns: {
+          affiliate_code: string
+          id: string
+        }[]
       }
       refresh_coverage_tiles: { Args: never; Returns: undefined }
       request_data_deletion: {

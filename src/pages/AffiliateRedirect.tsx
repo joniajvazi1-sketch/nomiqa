@@ -5,6 +5,16 @@ import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
+/**
+ * AffiliateRedirect - Secure handler for referral links
+ * 
+ * Uses secure RPC functions instead of direct table queries to prevent
+ * exposure of affiliate email addresses and other sensitive data.
+ * 
+ * Supports two URL formats:
+ * - /r/:code - Direct affiliate code (e.g., /r/ABC123)
+ * - /:username - Username-based link (e.g., /kodak)
+ */
 export default function AffiliateRedirect() {
   const { code, username } = useParams<{ code?: string; username?: string }>();
   const [searchParams] = useSearchParams();
@@ -21,43 +31,43 @@ export default function AffiliateRedirect() {
         return;
       }
 
-      // Define affiliateCode outside try block so it's accessible later
       let affiliateCode: string | null = null;
 
       try {
-        // Look up the affiliate by code or username to get the affiliate_code and username
         let affiliateUsername: string | null = null;
         let affiliateId: string | null = null;
         
         if (code) {
-          // Verify the code exists in the database
-          const { data: affiliate } = await supabase
-            .from('affiliates')
-            .select('id, affiliate_code, username')
-            .eq('affiliate_code', code.toUpperCase())
-            .maybeSingle();
+          // Use secure RPC function to look up by affiliate code
+          // This only returns id and username - no sensitive data exposed
+          const { data: result, error } = await supabase
+            .rpc('lookup_affiliate_by_code', { lookup_code: code.toUpperCase() });
           
-          if (affiliate) {
-            affiliateCode = affiliate.affiliate_code;
+          if (error) {
+            console.warn('Error looking up affiliate code:', error.message);
+          } else if (result && result.length > 0) {
+            const affiliate = result[0];
+            affiliateCode = code.toUpperCase();
             affiliateUsername = affiliate.username;
             affiliateId = affiliate.id;
           } else {
-            console.warn('Invalid referral code:', code);
+            console.warn('Invalid referral code');
           }
         } else if (username) {
-          // If redirected via username, look up the affiliate_code
-          const { data: affiliate } = await supabase
-            .from('affiliates')
-            .select('id, affiliate_code, username')
-            .eq('username', username.toLowerCase())
-            .maybeSingle();
+          // Use secure RPC function to look up by username
+          // This only returns id and affiliate_code - no sensitive data exposed
+          const { data: result, error } = await supabase
+            .rpc('lookup_affiliate_by_username', { lookup_username: username.toLowerCase() });
           
-          if (affiliate) {
+          if (error) {
+            console.warn('Error looking up affiliate username:', error.message);
+          } else if (result && result.length > 0) {
+            const affiliate = result[0];
             affiliateCode = affiliate.affiliate_code;
-            affiliateUsername = affiliate.username;
+            affiliateUsername = username.toLowerCase();
             affiliateId = affiliate.id;
           } else {
-            console.warn('Invalid username:', username);
+            console.warn('Invalid username');
           }
         }
 
@@ -65,23 +75,20 @@ export default function AffiliateRedirect() {
         if (affiliateCode) {
           // Set the referral code in zustand store (persisted to localStorage)
           setReferralCode(affiliateCode);
-          console.log('Referral code stored:', affiliateCode);
           
           // Also store directly in localStorage as backup to ensure persistence
-          // This prevents race conditions with zustand's async persist
           try {
             const existingStorage = localStorage.getItem('affiliate-tracking');
             const parsed = existingStorage ? JSON.parse(existingStorage) : { state: {} };
             parsed.state.referralCode = affiliateCode;
             parsed.state.referralTimestamp = Date.now();
             localStorage.setItem('affiliate-tracking', JSON.stringify(parsed));
-            console.log('Referral code also saved directly to localStorage');
           } catch (storageError) {
-            console.error('Error saving to localStorage:', storageError);
+            // Silent fail - storage errors should not affect user experience
           }
 
-          // Show confirmation toast with affiliate username
-          const displayName = affiliateUsername || code || username;
+          // Show confirmation toast with affiliate username (not code for privacy)
+          const displayName = affiliateUsername || 'a friend';
           toast.success(`Referred by ${displayName}`, {
             description: "Your referral has been recorded!",
             duration: 4000,
@@ -91,7 +98,8 @@ export default function AffiliateRedirect() {
           logReferralVisit(affiliateCode, affiliateUsername, affiliateId);
         }
       } catch (error) {
-        console.error('Error looking up affiliate:', error);
+        // Silent fail - errors should not block user navigation
+        console.error('Error processing referral:', error);
       }
 
       setIsProcessing(false);
@@ -103,7 +111,6 @@ export default function AffiliateRedirect() {
       const destination = searchParams.get('dest') || '/';
       
       // If destination is auth page, append referral code to URL as backup
-      // This ensures referral survives even if user clears localStorage
       if (affiliateCode && (destination.includes('/auth') || destination === '/')) {
         const destUrl = new URL(destination, window.location.origin);
         destUrl.searchParams.set('ref', affiliateCode);
@@ -116,7 +123,7 @@ export default function AffiliateRedirect() {
     handleRedirect();
   }, [code, username, navigate, setReferralCode, searchParams]);
 
-  // Fire-and-forget logging function
+  // Fire-and-forget logging function - no sensitive data logged to console
   const logReferralVisit = async (
     affiliateCode: string, 
     affiliateUsername: string | null, 
@@ -130,12 +137,25 @@ export default function AffiliateRedirect() {
           affiliateId,
           referrerUrl: document.referrer || null,
           landingPage: window.location.pathname,
-          userAgent: navigator.userAgent,
+          // Don't send full userAgent - hash it server-side for fingerprinting protection
+          userAgentHash: await hashString(navigator.userAgent),
         },
       });
-    } catch (error) {
+    } catch {
       // Silent fail - logging should not affect user experience
-      console.error('Failed to log referral visit:', error);
+    }
+  };
+
+  // Simple hash function for user agent fingerprint protection
+  const hashString = async (str: string): Promise<string> => {
+    try {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(str);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 16);
+    } catch {
+      return 'unknown';
     }
   };
 
