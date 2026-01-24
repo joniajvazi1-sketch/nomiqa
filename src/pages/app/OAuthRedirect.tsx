@@ -1,27 +1,30 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Loader2, ExternalLink, AlertCircle } from 'lucide-react';
+import { Loader2, ExternalLink, AlertCircle, Smartphone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { Capacitor } from '@capacitor/core';
-import { App } from '@capacitor/app';
 
 /**
  * OAuth Redirect Handler
  * 
- * This page handles OAuth callbacks for both web and native apps.
- * For native apps using deep links (com.nomiqa.app://oauth-callback),
- * this is used as a fallback when the web redirect is used.
+ * This page handles OAuth callbacks. For native apps:
+ * 1. Supabase redirects here with tokens in URL hash or code in query
+ * 2. We extract tokens and trigger deep link to native app
+ * 3. Native app receives tokens via deep link and establishes session
  */
 const OAuthRedirect = () => {
   const navigate = useNavigate();
-  const [showFallback, setShowFallback] = useState(false);
+  const [showNativePrompt, setShowNativePrompt] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState('Completing sign in...');
+  const [tokens, setTokens] = useState<{ access: string; refresh: string } | null>(null);
   const hasProcessed = useRef(false);
 
+  // Detect if user is on mobile (likely came from native app)
+  const isMobileDevice = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
   useEffect(() => {
-    // Prevent double processing
     if (hasProcessed.current) return;
     hasProcessed.current = true;
 
@@ -30,8 +33,8 @@ const OAuthRedirect = () => {
       const search = window.location.search;
 
       console.log('[OAuthRedirect] Processing callback...');
-      console.log('[OAuthRedirect] Hash:', hash ? 'present' : 'none');
-      console.log('[OAuthRedirect] Search:', search);
+      console.log('[OAuthRedirect] User agent:', navigator.userAgent);
+      console.log('[OAuthRedirect] Is mobile:', isMobileDevice);
 
       const urlParams = new URLSearchParams(search);
       const errorParam = urlParams.get('error');
@@ -42,39 +45,48 @@ const OAuthRedirect = () => {
       if (errorParam) {
         console.error('[OAuthRedirect] OAuth error:', errorParam, errorDescription);
         setError(errorDescription || errorParam);
-        setShowFallback(true);
         return;
       }
 
       // PKCE flow: provider redirects with ?code=...
       if (code) {
-        console.log('[OAuthRedirect] PKCE flow - exchanging code for session...');
+        console.log('[OAuthRedirect] PKCE flow - exchanging code...');
         setStatusMessage('Exchanging authorization code...');
         
         try {
           const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
           
-          if (exchangeError) {
-            console.error('[OAuthRedirect] Code exchange failed:', exchangeError);
-            throw exchangeError;
-          }
+          if (exchangeError) throw exchangeError;
 
           if (data?.session) {
-            console.log('[OAuthRedirect] Session established successfully');
-            setStatusMessage('Sign in successful!');
+            const accessToken = data.session.access_token;
+            const refreshToken = data.session.refresh_token;
             
-            // Small delay to show success message
-            setTimeout(() => {
-              navigate('/app', { replace: true });
-            }, 500);
+            console.log('[OAuthRedirect] Session obtained');
+            
+            // Clear code from URL
+            window.history.replaceState(null, '', window.location.pathname);
+            
+            // If on mobile, show prompt to return to app
+            if (isMobileDevice) {
+              setTokens({ access: accessToken, refresh: refreshToken });
+              setShowNativePrompt(true);
+              
+              // Auto-trigger deep link
+              triggerDeepLink(accessToken, refreshToken);
+              return;
+            }
+            
+            // On desktop/web, just navigate
+            setStatusMessage('Sign in successful!');
+            setTimeout(() => navigate('/app', { replace: true }), 500);
             return;
           }
           
-          throw new Error('No session returned after code exchange');
+          throw new Error('No session returned');
         } catch (err: any) {
           console.error('[OAuthRedirect] Error:', err?.message);
           setError(err?.message || 'Failed to complete sign in');
-          setShowFallback(true);
           return;
         }
       }
@@ -82,107 +94,90 @@ const OAuthRedirect = () => {
       // Implicit flow: tokens in hash fragment
       if (hash && (hash.includes('access_token') || hash.includes('refresh_token'))) {
         console.log('[OAuthRedirect] Implicit flow - tokens in hash');
-        setStatusMessage('Processing authentication...');
         
-        try {
-          // Parse tokens from hash
-          const fragment = hash.startsWith('#') ? hash.slice(1) : hash;
-          const params = new URLSearchParams(fragment);
-          const accessToken = params.get('access_token');
-          const refreshToken = params.get('refresh_token');
+        const fragment = hash.startsWith('#') ? hash.slice(1) : hash;
+        const params = new URLSearchParams(fragment);
+        const accessToken = params.get('access_token');
+        const refreshToken = params.get('refresh_token');
 
-          if (accessToken && refreshToken) {
-            // Set session with tokens
-            const { error: sessionError } = await supabase.auth.setSession({
+        if (accessToken && refreshToken) {
+          // Clear hash from URL for security
+          window.history.replaceState(null, '', window.location.pathname);
+          
+          // If on mobile, show prompt to return to app
+          if (isMobileDevice) {
+            setTokens({ access: accessToken, refresh: refreshToken });
+            setShowNativePrompt(true);
+            
+            // Auto-trigger deep link
+            triggerDeepLink(accessToken, refreshToken);
+            return;
+          }
+          
+          // On web, set session directly
+          try {
+            await supabase.auth.setSession({
               access_token: accessToken,
               refresh_token: refreshToken,
             });
-
-            if (sessionError) throw sessionError;
-
-            console.log('[OAuthRedirect] Session set successfully');
+            
             setStatusMessage('Sign in successful!');
-            
-            // Clear hash from URL for security
-            window.history.replaceState(null, '', window.location.pathname);
-            
-            setTimeout(() => {
-              navigate('/app', { replace: true });
-            }, 500);
-            return;
+            setTimeout(() => navigate('/app', { replace: true }), 500);
+          } catch (err: any) {
+            setError(err?.message || 'Failed to set session');
           }
-        } catch (err: any) {
-          console.error('[OAuthRedirect] Error setting session:', err);
-          setError(err?.message || 'Failed to process authentication');
-          setShowFallback(true);
           return;
         }
       }
 
-      // No tokens or code - check existing session
-      console.log('[OAuthRedirect] No tokens/code, checking existing session...');
+      // No tokens - check existing session
+      console.log('[OAuthRedirect] No tokens, checking session...');
+      const { data: { session } } = await supabase.auth.getSession();
       
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-
-        if (session) {
-          console.log('[OAuthRedirect] Existing session found');
-          navigate('/app', { replace: true });
-        } else {
-          console.log('[OAuthRedirect] No session, redirecting to auth');
-          navigate('/app/auth', { replace: true });
-        }
-      } catch (err) {
-        console.error('[OAuthRedirect] Session check error:', err);
+      if (session) {
+        navigate('/app', { replace: true });
+      } else {
         navigate('/app/auth', { replace: true });
       }
     };
 
     handleOAuthCallback();
-  }, [navigate]);
+  }, [navigate, isMobileDevice]);
 
-  // Listen for deep link callbacks when app is in foreground (native only)
-  useEffect(() => {
-    if (!Capacitor.isNativePlatform()) return;
-
-    const handleDeepLink = async (event: { url: string }) => {
-      console.log('[OAuthRedirect] Deep link received:', event.url);
-      
-      if (event.url.includes('oauth-callback')) {
-        const url = new URL(event.url);
-        const hash = url.hash;
-        
-        if (hash) {
-          const params = new URLSearchParams(hash.slice(1));
-          const accessToken = params.get('access_token');
-          const refreshToken = params.get('refresh_token');
-
-          if (accessToken && refreshToken) {
-            try {
-              await supabase.auth.setSession({
-                access_token: accessToken,
-                refresh_token: refreshToken,
-              });
-              navigate('/app', { replace: true });
-            } catch (err) {
-              console.error('[OAuthRedirect] Deep link session error:', err);
-              setError('Failed to complete sign in');
-              setShowFallback(true);
-            }
-          }
-        }
-      }
-    };
-
-    const listener = App.addListener('appUrlOpen', handleDeepLink);
+  const triggerDeepLink = (accessToken: string, refreshToken: string) => {
+    const params = new URLSearchParams();
+    params.set('access_token', accessToken);
+    params.set('refresh_token', refreshToken);
     
-    return () => {
-      listener.then(l => l.remove());
-    };
-  }, [navigate]);
+    const deepLinkUrl = `com.nomiqa.app://oauth-callback#${params.toString()}`;
+    console.log('[OAuthRedirect] Triggering deep link...');
+    
+    // Try to open the app
+    window.location.href = deepLinkUrl;
+  };
 
-  const handleRetryAuth = () => {
-    navigate('/app/auth', { replace: true });
+  const handleOpenApp = () => {
+    if (tokens) {
+      triggerDeepLink(tokens.access, tokens.refresh);
+    } else {
+      window.location.href = 'com.nomiqa.app://app/auth';
+    }
+  };
+
+  const handleContinueOnWeb = async () => {
+    if (tokens) {
+      try {
+        await supabase.auth.setSession({
+          access_token: tokens.access,
+          refresh_token: tokens.refresh,
+        });
+        navigate('/app', { replace: true });
+      } catch {
+        navigate('/app/auth', { replace: true });
+      }
+    } else {
+      navigate('/app/auth', { replace: true });
+    }
   };
 
   if (error) {
@@ -196,7 +191,7 @@ const OAuthRedirect = () => {
             <h2 className="text-lg font-semibold mb-2">Sign in failed</h2>
             <p className="text-sm text-muted-foreground">{error}</p>
           </div>
-          <Button onClick={handleRetryAuth} className="w-full">
+          <Button onClick={() => navigate('/app/auth', { replace: true })} className="w-full">
             Try Again
           </Button>
         </div>
@@ -204,22 +199,31 @@ const OAuthRedirect = () => {
     );
   }
 
-  if (showFallback) {
+  if (showNativePrompt) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background p-4">
         <div className="flex flex-col items-center gap-6 max-w-sm text-center">
           <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-            <ExternalLink className="w-8 h-8 text-primary" />
+            <Smartphone className="w-8 h-8 text-primary" />
           </div>
           <div>
-            <h2 className="text-lg font-semibold mb-2">Almost there!</h2>
+            <h2 className="text-lg font-semibold mb-2">Sign in complete!</h2>
             <p className="text-sm text-muted-foreground">
-              Please return to the app to complete sign in.
+              Tap below to return to the Nomiqa app.
             </p>
           </div>
-          <Button onClick={handleRetryAuth} className="w-full">
-            Return to Sign In
-          </Button>
+          <div className="flex flex-col gap-3 w-full">
+            <Button onClick={handleOpenApp} className="w-full gap-2">
+              <ExternalLink className="w-4 h-4" />
+              Open Nomiqa App
+            </Button>
+            <Button variant="outline" onClick={handleContinueOnWeb} className="w-full text-sm">
+              Continue on web instead
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            If the app doesn't open, make sure Nomiqa is installed.
+          </p>
         </div>
       </div>
     );
@@ -232,9 +236,7 @@ const OAuthRedirect = () => {
           <div className="w-16 h-16 rounded-full border-4 border-muted animate-pulse" />
           <Loader2 className="w-8 h-8 animate-spin text-primary absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
         </div>
-        <p className="text-sm text-muted-foreground animate-pulse">
-          {statusMessage}
-        </p>
+        <p className="text-sm text-muted-foreground animate-pulse">{statusMessage}</p>
       </div>
     </div>
   );
