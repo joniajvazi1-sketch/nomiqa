@@ -40,6 +40,12 @@ dependencies {
     // Google Play Services Location for FusedLocationProviderClient
     implementation 'com.google.android.gms:play-services-location:21.1.0'
     
+    // Google Play Services Auth for Native Google Sign-In
+    implementation 'com.google.android.gms:play-services-auth:21.2.0'
+    
+    // AndroidX Biometric for fingerprint/face authentication
+    implementation 'androidx.biometric:biometric:1.1.0'
+    
     testImplementation "junit:junit:$junitVersion"
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
