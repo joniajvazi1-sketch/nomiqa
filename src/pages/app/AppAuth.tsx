@@ -84,7 +84,7 @@ export const AppAuth: React.FC = () => {
   const { toast } = useToast();
 
   // Native auth hooks
-  const { signIn: nativeGoogleSignIn, isInitialized: googleAuthReady, isLoading: nativeGoogleLoading, isNative } = useNativeGoogleAuth();
+  const { signIn: nativeGoogleSignIn } = useNativeGoogleAuth();
   const { 
     isAvailable: biometricAvailable, 
     isEnabled: biometricEnabled, 
@@ -533,31 +533,11 @@ export const AppAuth: React.FC = () => {
     setFormError('');
 
     try {
-      // Try native Google Sign-In first (uses device's Google account directly)
-      if (isNative && googleAuthReady) {
-        console.log('[AppAuth] Using native Google Sign-In');
-        const result = await nativeGoogleSignIn();
-        
-        if (!result.success) {
-          if (result.error !== 'Sign-in cancelled') {
-            setFormError(result.error || 'Google sign-in failed');
-            errorPattern();
-          }
-          setGoogleLoading(false);
-          return;
-        }
-        
-        // Success - onAuthStateChange will handle navigation
-        return;
-      }
-
-      // Fallback to browser-based OAuth
-      // Use HTTPS redirect (required by Supabase), then OAuthRedirect page triggers deep link
       const isNativePlatform = Capacitor.isNativePlatform();
       
-      // Always use HTTPS URL for Supabase - the OAuthRedirect page handles native deep linking
+      // Use HTTPS redirect - OAuthRedirect page handles native deep linking
       const redirectTo = isNativePlatform
-        ? 'https://nomiqa.lovable.app/app/oauth-redirect' // Web page that triggers deep link
+        ? 'https://nomiqa.lovable.app/app/oauth-redirect'
         : `${window.location.origin}/app/auth`;
 
       console.log('[AppAuth] OAuth redirect URL:', redirectTo);
