@@ -413,37 +413,46 @@ const generateEmailHTML = (type: string, data: any): { html: string; subject: st
                 </p>
               </div>
               
+              <div style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(234, 179, 8, 0.15) 100%); border: 2px solid #f59e0b; border-radius: 12px; padding: 24px; margin: 24px 0; text-align: center;">
+                <p style="color: #fbbf24; font-size: 24px; font-weight: bold; margin: 0 0 8px 0;">
+                  🏆 50% REWARDS BOOST FOR LIFE
+                </p>
+                <p style="color: #fcd34d; font-size: 15px; margin: 0;">
+                  As an early member, you'll earn <strong>50% more rewards</strong> on all contributions — forever!
+                </p>
+              </div>
+              
               <div style="margin: 30px 0;">
                 <h2 style="color: #a78bfa; font-size: 18px; margin-bottom: 20px; font-weight: 400;">✨ What happens next?</h2>
                 <div style="space-y: 16px;">
                   <div style="display: flex; align-items: flex-start; margin-bottom: 16px;">
                     <span style="color: #22d3ee; margin-right: 12px; font-size: 18px;">📱</span>
-                    <p style="color: #cbd5e1; margin: 0; font-size: 15px;">Download the app and start contributing to the network</p>
+                    <p style="color: #cbd5e1; margin: 0; font-size: 15px;"><strong>App coming soon!</strong> We'll notify you as soon as it's ready to download</p>
                   </div>
                   <div style="display: flex; align-items: flex-start; margin-bottom: 16px;">
                     <span style="color: #22d3ee; margin-right: 12px; font-size: 18px;">⭐</span>
-                    <p style="color: #cbd5e1; margin: 0; font-size: 15px;">Early members get priority access to rewards</p>
+                    <p style="color: #cbd5e1; margin: 0; font-size: 15px;">Your 50% lifetime boost is locked in — no action needed</p>
                   </div>
                   <div style="display: flex; align-items: flex-start; margin-bottom: 16px;">
                     <span style="color: #22d3ee; margin-right: 12px; font-size: 18px;">🚀</span>
-                    <p style="color: #cbd5e1; margin: 0; font-size: 15px;">When we launch, you'll be first in line</p>
+                    <p style="color: #cbd5e1; margin: 0; font-size: 15px;">When we launch, you'll be first in line to start earning</p>
                   </div>
                 </div>
               </div>
               
               <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 20px; margin: 24px 0;">
                 <p style="color: #10b981; font-size: 16px; font-weight: bold; margin: 0 0 12px 0; text-align: center;">
-                  💰 Boost Your Rewards — Invite Friends!
+                  👥 Start Building Your Network Now!
                 </p>
                 <p style="color: #cbd5e1; font-size: 14px; margin: 0; text-align: center; line-height: 1.6;">
-                  The more friends you invite, the higher your <strong style="color: #22d3ee;">reward boost</strong> (up to +100%).<br/>
-                  Plus, earn <strong style="color: #10b981;">5% of all points</strong> your referrals earn — forever!
+                  Don't wait for the app — <strong style="color: #22d3ee;">invite friends today</strong> and boost your rewards even more!<br/>
+                  Share your referral link and earn <strong style="color: #10b981;">5% of all points</strong> your referrals earn — forever!
                 </p>
               </div>
               
               <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.2); border-radius: 12px; padding: 16px; margin: 24px 0; text-align: center;">
                 <p style="color: #4ade80; font-size: 14px; margin: 0;">
-                  <span style="font-size: 16px;">✓</span> <strong>Ready to start?</strong> Open the app and share your invite link!
+                  <span style="font-size: 16px;">✓</span> <strong>Pro tip:</strong> The more friends you refer now, the more you'll earn when the app launches!
                 </p>
               </div>
               
