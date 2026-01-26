@@ -60,7 +60,7 @@ interface OfflineQueueItem {
 }
 
 const OFFLINE_QUEUE_KEY = 'nomiqa_offline_contribution_queue';
-const SPEED_TEST_INTERVAL = 10 * 60 * 1000; // Run speed test every 10 minutes
+const SPEED_TEST_INTERVAL = 30 * 60 * 1000; // Run speed test every 30 minutes (Wi-Fi only to save data)
 const SPEED_TEST_BONUS_POINTS = 2; // Bonus points per speed test
 const PREMIUM_SPEED_THRESHOLD = 50; // Mbps - extra bonus for fast connections
 const DAILY_SPEED_TEST_LIMIT = 10; // Server enforces this - matches MAX_SPEED_TESTS_PER_DAY in edge function
@@ -1166,16 +1166,24 @@ export const useNetworkContribution = () => {
         });
       }, 1000);
 
-      // Start periodic speed tests (every 10 minutes)
+      // Start periodic speed tests (Wi-Fi only to save cellular data - was consuming ~300MB/30hr)
       speedTestTimerRef.current = setInterval(async () => {
-        if (isCellular) {
+        // CRITICAL: Only run speed tests on Wi-Fi to prevent massive cellular data usage
+        // Speed tests download 3-25MB each, running every 10min on cellular = ~240MB/day
+        if (connectionType.toLowerCase() === 'wifi') {
           await runSpeedTestWithBonus();
+        } else {
+          console.log('[NetworkContribution] Skipping speed test on cellular (data saver mode)');
         }
       }, SPEED_TEST_INTERVAL);
 
-      // Run initial speed test after a short delay (let GPS stabilize)
+      // Run initial speed test after a short delay (Wi-Fi only)
       setTimeout(() => {
-        if (isCellular) runSpeedTestWithBonus();
+        if (connectionType.toLowerCase() === 'wifi') {
+          runSpeedTestWithBonus();
+        } else {
+          console.log('[NetworkContribution] Skipping initial speed test on cellular');
+        }
       }, 5000);
 
       return true;
