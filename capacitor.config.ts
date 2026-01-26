@@ -6,14 +6,17 @@ const config: CapacitorConfig = {
   webDir: 'dist',
   plugins: {
     SplashScreen: {
-      launchShowDuration: 2000,
+      launchShowDuration: 3000,
       launchAutoHide: true,
+      launchFadeOutDuration: 300,
       backgroundColor: '#0a0a0a',
       androidSplashResourceName: 'splash',
       androidScaleType: 'CENTER_CROP',
       showSpinner: false,
       splashFullScreen: true,
-      splashImmersive: true
+      splashImmersive: true,
+      // iOS: wait for WebView content to be ready
+      useDialog: false
     },
     StatusBar: {
       // Use overlay style for edge-to-edge display
@@ -41,7 +44,10 @@ const config: CapacitorConfig = {
     // Allow content to extend into safe areas
     preferredContentMode: 'mobile',
     // Ensure webview extends behind status bar
-    webContentsDebuggingEnabled: false
+    webContentsDebuggingEnabled: false,
+    // Allow inline media playback (required for video/animations)
+    allowsLinkPreview: true,
+    scrollEnabled: true
   },
   android: {
     backgroundColor: '#0a0a0a',
