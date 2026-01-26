@@ -46,23 +46,24 @@ export const BottomTabBar: React.FC = () => {
 
   return (
     <nav 
-      className="fixed bottom-0 left-0 right-0 z-50"
+      className="fixed bottom-0 left-0 right-0 z-50 layer-promote"
       role="navigation"
       aria-label="Main navigation"
       style={{
         // Safe area with fallbacks for older iOS/Android
-        paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 0px)',
+        // NOTE: we add a small fixed gap (8px) ON TOP of the safe-area inset.
+        // This prevents the bar from visually sticking to the home indicator,
+        // while avoiding double-application of safe-area spacing.
+        paddingBottom: 'calc(max(env(safe-area-inset-bottom, 0px), 0px) + 8px)',
         paddingLeft: 'max(env(safe-area-inset-left, 0px), 8px)',
         paddingRight: 'max(env(safe-area-inset-right, 0px), 8px)',
       }}
     >
       {/* Floating container with fallbacks */}
       <div 
-        className="mx-auto mb-2"
+        className="mx-auto"
         style={{ 
           maxWidth: '420px',
-          // Fallback margin for devices without safe-area
-          marginBottom: 'max(8px, env(safe-area-inset-bottom, 8px))'
         }}
       >
         {/* Glass background with graceful degradation */}
@@ -83,21 +84,23 @@ export const BottomTabBar: React.FC = () => {
         >
           {/* Background layer - solid color fallback, then glass */}
           <div 
-            className="absolute inset-0"
+            className="absolute inset-0 pointer-events-none"
             style={{
               // Solid background fallback (always visible)
               backgroundColor: 'var(--card)',
               // Then apply backdrop-blur where supported
+              zIndex: 0,
             }}
           />
           {/* Glass overlay - only shows on supporting browsers */}
           <div 
-            className="absolute inset-0 backdrop-blur-xl"
+            className="absolute inset-0 backdrop-blur-xl pointer-events-none"
             style={{
               // Semi-transparent overlay
               backgroundColor: 'rgba(var(--card-rgb, 255,255,255), 0.85)',
               // Subtle top highlight for depth
               borderTop: '1px solid rgba(255,255,255,0.1)',
+              zIndex: 1,
             }}
           />
           
@@ -106,13 +109,14 @@ export const BottomTabBar: React.FC = () => {
             className="absolute inset-0 rounded-3xl pointer-events-none"
             style={{
               border: '1px solid rgba(255,255,255,0.08)',
-              borderRadius: '24px'
+              borderRadius: '24px',
+              zIndex: 2,
             }}
           />
           
           {/* Tab buttons - universal height that works everywhere */}
           <div 
-            className="relative flex items-stretch"
+            className="relative z-10 flex items-stretch"
             style={{ 
               height: '56px', // Fixed height for consistency
               minHeight: '56px'
@@ -131,7 +135,7 @@ export const BottomTabBar: React.FC = () => {
                   type="button"
                   className={cn(
                     // Flex layout - works on all browsers
-                    'flex-1 flex flex-col items-center justify-center gap-1',
+                    'relative flex-1 flex flex-col items-center justify-center gap-1',
                     // Touch handling
                     'touch-manipulation select-none',
                     // Transitions with fallback
@@ -166,7 +170,9 @@ export const BottomTabBar: React.FC = () => {
                         backgroundColor: 'hsl(var(--primary) / 0.12)',
                         borderRadius: '14px',
                         // Simple fade animation
-                        animation: 'fadeIn 0.2s ease-out'
+                        animation: 'fadeIn 0.2s ease-out',
+                        // Critical: never let decorative layers steal taps
+                        pointerEvents: 'none',
                       }}
                     />
                   )}
