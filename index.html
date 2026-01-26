@@ -15,18 +15,18 @@
     <!-- Preconnect to API origins used after initial render -->
     <link rel="preconnect" href="https://cdn.airalo.com" crossorigin />
     
-    <!-- Preload self-hosted fonts for instant text rendering -->
-    <link rel="preload" as="font" type="font/woff2" href="/fonts/inter-latin.woff2" crossorigin />
-    <link rel="preload" as="font" type="font/woff2" href="/fonts/space-grotesk-latin.woff2" crossorigin />
+    <!-- Preload self-hosted fonts for instant text rendering (relative paths for native compat) -->
+    <link rel="preload" as="font" type="font/woff2" href="./fonts/inter-latin.woff2" crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href="./fonts/space-grotesk-latin.woff2" crossorigin />
     
-    <!-- Preload LCP hero image for faster Largest Contentful Paint - mobile WebP only -->
-    <link rel="preload" as="image" type="image/webp" href="/src/assets/hero-mobile-sunset.webp" media="(max-width: 767px)" fetchpriority="high" />
+    <!-- Preload LCP hero image - disabled on native (uses bundled assets) -->
+    <!-- <link rel="preload" as="image" type="image/webp" href="./src/assets/hero-mobile-sunset.webp" media="(max-width: 767px)" fetchpriority="high" /> -->
     
     <!-- Critical CSS + Self-hosted fonts for maximum performance -->
     <style>
       /* Self-hosted fonts - eliminates external font requests */
-      @font-face{font-family:'Inter';font-style:normal;font-weight:400 600;font-display:swap;src:url('/fonts/inter-latin.woff2') format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
-      @font-face{font-family:'Space Grotesk';font-style:normal;font-weight:500 600;font-display:swap;src:url('/fonts/space-grotesk-latin.woff2') format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+      @font-face{font-family:'Inter';font-style:normal;font-weight:400 600;font-display:swap;src:url('./fonts/inter-latin.woff2') format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+      @font-face{font-family:'Space Grotesk';font-style:normal;font-weight:500 600;font-display:swap;src:url('./fonts/space-grotesk-latin.woff2') format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
       
       :root{--background:220 35% 8%;--foreground:40 40% 98%;--neon-cyan:190 100% 65%;--neon-violet:270 85% 72%;--primary:190 100% 65%}
       *,::before,::after{box-sizing:border-box;border-width:0;border-style:solid}
@@ -62,12 +62,12 @@
     <meta name="twitter:description" content="Nomiqa is a DePIN-powered eSIM network turning mobile connectivity into a crypto-native, user-owned infrastructure layer.">
     <meta name="twitter:image" content="https://storage.googleapis.com/gpt-engineer-file-uploads/PQFXlcHCciXpAnpHtuACtPV6p0v1/social-images/social-1769189952024-unnamed.jpg">
     
-    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="icon" type="image/png" href="./favicon.png">
   </head>
 
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <script type="module" src="./src/main.tsx"></script>
     
     <!-- Boot failsafe: If the app fails to render within 12s, show recovery UI -->
     <script>
