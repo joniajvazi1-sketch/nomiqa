@@ -36,11 +36,11 @@ export const ShareModal = ({ open, onOpenChange, product }: ShareModalProps) => 
       const { data: { user } } = await supabase.auth.getUser();
       
       if (user) {
-        // Fetch affiliate by user email
+        // Fetch affiliate by user_id (using _safe view)
         const { data } = await supabase
-          .from('affiliates')
+          .from('affiliates_safe')
           .select('affiliate_code')
-          .eq('email', user.email)
+          .eq('user_id', user.id)
           .maybeSingle();
         
         if (data) {

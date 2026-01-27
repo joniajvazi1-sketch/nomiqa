@@ -69,6 +69,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "affiliate_referrals_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "affiliates_safe"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "affiliate_referrals_order_id_fkey"
             columns: ["order_id"]
             isOneToOne: false
@@ -150,6 +157,13 @@ export type Database = {
             columns: ["parent_affiliate_id"]
             isOneToOne: false
             referencedRelation: "affiliates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "affiliates_parent_affiliate_id_fkey"
+            columns: ["parent_affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "affiliates_safe"
             referencedColumns: ["id"]
           },
         ]
@@ -1688,6 +1702,78 @@ export type Database = {
       }
     }
     Views: {
+      affiliates_safe: {
+        Row: {
+          affiliate_code: string | null
+          commission_rate: number | null
+          created_at: string | null
+          email_verified: boolean | null
+          id: string | null
+          miner_boost_percentage: number | null
+          parent_affiliate_id: string | null
+          registration_milestone_level: number | null
+          status: string | null
+          tier_level: number | null
+          total_conversions: number | null
+          total_earnings_usd: number | null
+          total_registrations: number | null
+          updated_at: string | null
+          user_id: string | null
+          username: string | null
+        }
+        Insert: {
+          affiliate_code?: string | null
+          commission_rate?: number | null
+          created_at?: string | null
+          email_verified?: boolean | null
+          id?: string | null
+          miner_boost_percentage?: number | null
+          parent_affiliate_id?: string | null
+          registration_milestone_level?: number | null
+          status?: string | null
+          tier_level?: number | null
+          total_conversions?: number | null
+          total_earnings_usd?: number | null
+          total_registrations?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+          username?: string | null
+        }
+        Update: {
+          affiliate_code?: string | null
+          commission_rate?: number | null
+          created_at?: string | null
+          email_verified?: boolean | null
+          id?: string | null
+          miner_boost_percentage?: number | null
+          parent_affiliate_id?: string | null
+          registration_milestone_level?: number | null
+          status?: string | null
+          tier_level?: number | null
+          total_conversions?: number | null
+          total_earnings_usd?: number | null
+          total_registrations?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+          username?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliates_parent_affiliate_id_fkey"
+            columns: ["parent_affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "affiliates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "affiliates_parent_affiliate_id_fkey"
+            columns: ["parent_affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "affiliates_safe"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       coverage_tiles: {
         Row: {
           avg_confidence: number | null
@@ -1713,6 +1799,51 @@ export type Database = {
           pct_roaming: number | null
           sample_count: number | null
           unique_users: number | null
+        }
+        Relationships: []
+      }
+      profiles_safe: {
+        Row: {
+          country_code: string | null
+          created_at: string | null
+          data_consent_accepted_at: string | null
+          data_consent_version: string | null
+          email: string | null
+          email_verified: boolean | null
+          id: string | null
+          is_early_member: boolean | null
+          solana_wallet: string | null
+          updated_at: string | null
+          user_id: string | null
+          username: string | null
+        }
+        Insert: {
+          country_code?: string | null
+          created_at?: string | null
+          data_consent_accepted_at?: string | null
+          data_consent_version?: string | null
+          email?: string | null
+          email_verified?: boolean | null
+          id?: string | null
+          is_early_member?: boolean | null
+          solana_wallet?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          username?: string | null
+        }
+        Update: {
+          country_code?: string | null
+          created_at?: string | null
+          data_consent_accepted_at?: string | null
+          data_consent_version?: string | null
+          email?: string | null
+          email_verified?: boolean | null
+          id?: string | null
+          is_early_member?: boolean | null
+          solana_wallet?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          username?: string | null
         }
         Relationships: []
       }

@@ -64,9 +64,9 @@ export const AppHome: React.FC = () => {
       setUser(currentUser);
 
       if (currentUser) {
-        // Load profile
+        // Load profile (using _safe view to exclude sensitive fields)
         const { data: profileData } = await supabase
-          .from('profiles')
+          .from('profiles_safe')
           .select('username')
           .eq('user_id', currentUser.id)
           .maybeSingle();
@@ -86,9 +86,9 @@ export const AppHome: React.FC = () => {
           setPoints(pointsData);
         }
 
-        // Load referral count from affiliate data
+        // Load referral count from affiliate data (using _safe view)
         const { data: affiliateData } = await supabase
-          .from('affiliates')
+          .from('affiliates_safe')
           .select('total_registrations')
           .eq('user_id', currentUser.id)
           .maybeSingle();

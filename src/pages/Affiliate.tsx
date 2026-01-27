@@ -117,12 +117,9 @@ export default function Affiliate() {
   };
 
   const fetchAffiliates = async (userId: string, userEmail?: string) => {
-    let query = supabase.from('affiliates').select('*');
-    if (userEmail) {
-      query = query.or(`user_id.eq.${userId},email.eq.${userEmail}`);
-    } else {
-      query = query.eq('user_id', userId);
-    }
+    // Using _safe view for SELECT to exclude sensitive verification fields
+    let query = supabase.from('affiliates_safe').select('*');
+    query = query.eq('user_id', userId);
     const { data, error } = await query.order('created_at', { ascending: true });
     if (!error && data && data.length > 0) {
       setAllAffiliates(data);

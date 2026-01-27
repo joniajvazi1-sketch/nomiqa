@@ -153,10 +153,11 @@ export default function MyAccount() {
       setMembership(membershipData);
 
       // Fetch ALL affiliate accounts for this user (query by both user_id and email)
+      // Using affiliates_safe view to exclude sensitive verification fields
       const { data: affiliateAccounts } = await supabase
-        .from('affiliates')
+        .from('affiliates_safe')
         .select('total_earnings_usd, total_conversions, tier_level, total_registrations, miner_boost_percentage, registration_milestone_level')
-        .or(`user_id.eq.${session.user.id},email.eq.${session.user.email}`);
+        .or(`user_id.eq.${session.user.id}`);
 
       // Calculate total earnings and conversions from all affiliate accounts
       if (affiliateAccounts && affiliateAccounts.length > 0) {

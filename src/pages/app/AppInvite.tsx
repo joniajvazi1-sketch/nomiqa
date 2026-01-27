@@ -59,10 +59,11 @@ export const AppInvite: React.FC = () => {
       setUser(currentUser);
 
       if (currentUser) {
+        // Using _safe view to exclude sensitive verification fields
         const { data } = await supabase
-          .from('affiliates')
+          .from('affiliates_safe')
           .select('*')
-          .or(`user_id.eq.${currentUser.id},email.eq.${currentUser.email}`)
+          .eq('user_id', currentUser.id)
           .order('tier_level', { ascending: false })
           .limit(1)
           .maybeSingle();
