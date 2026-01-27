@@ -1097,7 +1097,7 @@ export default function Auth() {
                 <Button 
                   type="submit"
                   className="w-full h-12 text-base font-medium"
-                  disabled={loading || (isSignup && (!agreedToTerms || !usernameAvailable))}
+                  disabled={loading || (isSignup && (!agreedToTerms || username.length < 3))}
                 >
                   {loading ? (
                     <Loader2 className="h-5 w-5 animate-spin mr-2" />
