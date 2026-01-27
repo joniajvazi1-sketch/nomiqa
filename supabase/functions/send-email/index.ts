@@ -427,16 +427,16 @@ const generateEmailHTML = (type: string, data: any): { html: string; subject: st
                 <h2 style="color: #a78bfa; font-size: 18px; margin-bottom: 20px; font-weight: 400;">✨ What's Next?</h2>
                 <div style="space-y: 16px;">
                   <div style="display: flex; align-items: flex-start; margin-bottom: 16px;">
-                    <span style="color: #22d3ee; margin-right: 12px; font-size: 18px;">📱</span>
-                    <p style="color: #cbd5e1; margin: 0; font-size: 15px;"><strong>Download the app</strong> — Start contributing to the network today</p>
+                    <span style="color: #22d3ee; margin-right: 12px; font-size: 18px;">🔔</span>
+                    <p style="color: #cbd5e1; margin: 0; font-size: 15px;"><strong>App coming soon!</strong> — We'll notify you when it's ready to download</p>
                   </div>
                   <div style="display: flex; align-items: flex-start; margin-bottom: 16px;">
                     <span style="color: #22d3ee; margin-right: 12px; font-size: 18px;">⭐</span>
                     <p style="color: #cbd5e1; margin: 0; font-size: 15px;">Your <strong>50% lifetime boost</strong> is locked in — no action needed</p>
                   </div>
                   <div style="display: flex; align-items: flex-start; margin-bottom: 16px;">
-                    <span style="color: #22d3ee; margin-right: 12px; font-size: 18px;">🌐</span>
-                    <p style="color: #cbd5e1; margin: 0; font-size: 15px;">Help build the network — earn points automatically in the background</p>
+                    <span style="color: #22d3ee; margin-right: 12px; font-size: 18px;">👥</span>
+                    <p style="color: #cbd5e1; margin: 0; font-size: 15px;"><strong>Start inviting friends now</strong> — Build your team before launch</p>
                   </div>
                 </div>
               </div>
@@ -452,7 +452,7 @@ const generateEmailHTML = (type: string, data: any): { html: string; subject: st
               </div>
               
               <div style="text-align: center; margin-top: 30px;">
-                <a href="https://nomiqa-depin.com" style="display: inline-block; background: linear-gradient(135deg, #22d3ee 0%, #a78bfa 100%); color: #0f172a; text-decoration: none; padding: 14px 36px; border-radius: 8px; font-weight: bold; font-size: 15px;">Explore Nomiqa</a>
+                <a href="https://nomiqa-depin.com" style="display: inline-block; background: linear-gradient(135deg, #22d3ee 0%, #a78bfa 100%); color: #0f172a; text-decoration: none; padding: 14px 36px; border-radius: 8px; font-weight: bold; font-size: 15px;">Start Inviting Friends</a>
               </div>
               
               <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); text-align: center;">
