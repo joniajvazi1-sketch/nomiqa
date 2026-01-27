@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { NetworkBackground } from "@/components/NetworkBackground";
 import { toast } from "sonner";
-import { Loader2, Mail, Eye, EyeOff } from "lucide-react";
+import { Loader2, Mail, Eye, EyeOff, User, CheckCircle2, XCircle } from "lucide-react";
 import { useTranslation } from "@/contexts/TranslationContext";
 import nomiqaAnimatedLogo from "@/assets/nomiqa-token-logo.png";
 import { useAffiliateTracking } from "@/hooks/useAffiliateTracking";
@@ -33,11 +33,17 @@ export default function Auth() {
   // Email auth states
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [showResetPassword, setShowResetPassword] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  
+  // Username validation states
+  const [checkingUsername, setCheckingUsername] = useState(false);
+  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
+  const [usernameError, setUsernameError] = useState("");
   
   const isSignup = searchParams.get('mode') === 'signup' || searchParams.get('mode') === 'register';
   const isResetMode = searchParams.get('mode') === 'reset';
@@ -270,6 +276,65 @@ export default function Auth() {
     navigate(redirectUrl);
   };
 
+  // Username validation
+  const validateUsername = async (value: string): Promise<boolean> => {
+    const sanitized = value.toLowerCase().replace(/[^a-zA-Z0-9_]/g, '');
+    
+    if (sanitized.length < 3) {
+      setUsernameError(t("usernameMinLength") || "Username must be at least 3 characters");
+      setUsernameAvailable(null);
+      return false;
+    }
+
+    if (sanitized.length > 20) {
+      setUsernameError(t("usernameMaxLength") || "Username must be less than 20 characters");
+      setUsernameAvailable(false);
+      return false;
+    }
+
+    if (!/^[a-zA-Z0-9_]+$/.test(sanitized)) {
+      setUsernameError(t("usernameInvalidChars") || "Only letters, numbers, and underscores allowed");
+      setUsernameAvailable(false);
+      return false;
+    }
+
+    setCheckingUsername(true);
+    setUsernameError("");
+
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('username', sanitized)
+        .maybeSingle();
+
+      if (error) throw error;
+
+      if (data) {
+        setUsernameError(t("usernameTaken") || "Username is already taken");
+        setUsernameAvailable(false);
+        setCheckingUsername(false);
+        return false;
+      }
+
+      setUsernameAvailable(true);
+      setCheckingUsername(false);
+      return true;
+    } catch (err) {
+      console.error('Error checking username:', err);
+      setUsernameAvailable(null);
+      setCheckingUsername(false);
+      return false;
+    }
+  };
+
+  const handleUsernameChange = (value: string) => {
+    const sanitized = value.toLowerCase().replace(/[^a-zA-Z0-9_]/g, '');
+    setUsername(sanitized);
+    setUsernameError("");
+    setUsernameAvailable(null);
+  };
+
   const handleGoogleSignIn = async () => {
     if (isSignup && !agreedToTerms) {
       toast.error(t("pleaseAgreeToTerms") || "Please agree to our Terms and Privacy Policy");
@@ -297,13 +362,26 @@ export default function Auth() {
     e.preventDefault();
     
     if (!email || !password) {
-      toast.error("Please enter your email and password");
+      toast.error(t("enterEmailAndPassword") || "Please enter your email and password");
       return;
     }
 
     if (password.length < 6) {
-      toast.error("Password must be at least 6 characters");
+      toast.error(t("passwordMinLength") || "Password must be at least 6 characters");
       return;
+    }
+
+    // For signup, validate username
+    if (isSignup) {
+      if (!username || username.length < 3) {
+        toast.error(t("usernameRequired") || "Please choose a username (minimum 3 characters)");
+        return;
+      }
+      
+      const isUsernameValid = await validateUsername(username);
+      if (!isUsernameValid) {
+        return;
+      }
     }
 
     if (isSignup && !agreedToTerms) {
@@ -348,6 +426,7 @@ export default function Auth() {
           body: {
             email: email.toLowerCase(),
             password,
+            username: username.toLowerCase().trim(),
             referralCode: referralCode || undefined,
           }
         });
@@ -502,19 +581,21 @@ export default function Auth() {
         }
 
         if (data?.user) {
-          // Check if user needs username selection
+          // Check if user needs username selection (temp_ from OAuth, user_ from old email signup)
           const { data: profile } = await supabase
             .from("profiles")
             .select("username")
             .eq("user_id", data.user.id)
             .single();
 
-          if (profile?.username?.startsWith("temp_")) {
-            toast.success("Email verified! Now choose your username.");
+          const isTemporaryUsername = profile?.username?.startsWith("temp_") || profile?.username?.startsWith("user_");
+          
+          if (isTemporaryUsername) {
+            toast.success(t("emailVerifiedChooseUsername") || "Email verified! Now choose your username.");
             setCurrentUser({ id: data.user.id, email: data.user.email || "" });
             setShowUsernameSelection(true);
           } else {
-            toast.success("Welcome to Nomiqa!");
+            toast.success(t("welcomeToNomiqa") || "Welcome to Nomiqa!");
             navigate('/');
           }
         }
@@ -942,6 +1023,45 @@ export default function Auth() {
                   </div>
                 </div>
 
+                {/* Username Input (signup only) */}
+                {isSignup && (
+                  <div className="space-y-2">
+                    <Label htmlFor="username">{t("usernameLabel") || "Username"}</Label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="username"
+                        type="text"
+                        value={username}
+                        onChange={(e) => handleUsernameChange(e.target.value)}
+                        onBlur={() => {
+                          if (username.length >= 3) validateUsername(username);
+                        }}
+                        placeholder={t("usernamePlaceholder") || "your_username"}
+                        disabled={loading}
+                        className="pl-10 pr-10"
+                        maxLength={20}
+                        autoComplete="username"
+                        autoCapitalize="none"
+                      />
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                        {checkingUsername && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+                        {!checkingUsername && usernameAvailable === true && <CheckCircle2 className="h-4 w-4 text-green-500" />}
+                        {!checkingUsername && usernameAvailable === false && <XCircle className="h-4 w-4 text-destructive" />}
+                      </div>
+                    </div>
+                    {usernameError && (
+                      <p className="text-xs text-destructive">{usernameError}</p>
+                    )}
+                    {usernameAvailable && !usernameError && (
+                      <p className="text-xs text-green-500">{t("usernameAvailable") || "Username is available!"}</p>
+                    )}
+                    <p className="text-xs text-muted-foreground">
+                      {t("usernameHint") || "3-20 characters, letters, numbers and underscores only"}
+                    </p>
+                  </div>
+                )}
+
                 {isSignup && (
                   <div className="flex items-start space-x-3 p-3 bg-muted/50 rounded-lg">
                     <Checkbox 
@@ -977,7 +1097,7 @@ export default function Auth() {
                 <Button 
                   type="submit"
                   className="w-full h-12 text-base font-medium"
-                  disabled={loading || (isSignup && !agreedToTerms)}
+                  disabled={loading || (isSignup && (!agreedToTerms || !usernameAvailable))}
                 >
                   {loading ? (
                     <Loader2 className="h-5 w-5 animate-spin mr-2" />
