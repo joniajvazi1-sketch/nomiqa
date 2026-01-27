@@ -135,8 +135,10 @@ const handler = async (req: Request): Promise<Response> => {
     // Validate input
     const validationResult = signupSchema.safeParse(rawBody);
     if (!validationResult.success) {
+      // SECURITY: Log validation details server-side only, return generic error to client
+      console.error("Signup validation failed");
       return new Response(
-        JSON.stringify({ error: "Invalid input", details: validationResult.error.issues }),
+        JSON.stringify({ error: "Invalid input. Please check your email, password, and username format." }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
