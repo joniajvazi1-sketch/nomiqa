@@ -229,7 +229,7 @@ export const AppAuth: React.FC = () => {
             await supabase.functions.invoke('send-email', {
               body: {
                 type: 'early_member_welcome',
-                email: email,
+                to: email,
                 data: { email }
               }
             });
