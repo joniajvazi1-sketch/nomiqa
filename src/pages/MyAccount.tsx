@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteNavigation } from "@/components/SiteNavigation";
 import { SupportChatbot } from "@/components/SupportChatbot";
@@ -7,7 +7,7 @@ import { NetworkBackground } from "@/components/NetworkBackground";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Loader2, User, Award, Package, Gift, Crown, Star, TrendingUp, Zap, Sparkles, RefreshCw, Wallet, DollarSign, Copy, Pencil, Check, X, Shield } from "lucide-react";
+import { Loader2, User, Award, Package, Gift, Crown, Star, TrendingUp, Zap, Sparkles, RefreshCw, Wallet, DollarSign, Copy, Pencil, Check, X, Shield, Coins } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "@/contexts/TranslationContext";
 import { localizedPath } from "@/utils/localizedLinks";
@@ -19,6 +19,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { ReferralPointsSection } from "@/components/ReferralPointsSection";
 
 interface UserProfile {
   username: string;
@@ -37,6 +38,9 @@ interface AffiliateData {
   total_earnings_usd: number;
   total_conversions: number;
   tier_level: number;
+  total_registrations: number;
+  miner_boost_percentage: number;
+  registration_milestone_level: number;
 }
 
 interface UserPointsData {
@@ -151,7 +155,7 @@ export default function MyAccount() {
       // Fetch ALL affiliate accounts for this user (query by both user_id and email)
       const { data: affiliateAccounts } = await supabase
         .from('affiliates')
-        .select('total_earnings_usd, total_conversions, tier_level')
+        .select('total_earnings_usd, total_conversions, tier_level, total_registrations, miner_boost_percentage, registration_milestone_level')
         .or(`user_id.eq.${session.user.id},email.eq.${session.user.email}`);
 
       // Calculate total earnings and conversions from all affiliate accounts
@@ -159,11 +163,17 @@ export default function MyAccount() {
         const totalEarnings = affiliateAccounts.reduce((sum, acc) => sum + (acc.total_earnings_usd || 0), 0);
         const totalConversions = affiliateAccounts.reduce((sum, acc) => sum + (acc.total_conversions || 0), 0);
         const highestTier = Math.max(...affiliateAccounts.map(acc => acc.tier_level || 1));
+        const totalRegistrations = affiliateAccounts.reduce((sum, acc) => sum + (acc.total_registrations || 0), 0);
+        const highestBoost = Math.max(...affiliateAccounts.map(acc => acc.miner_boost_percentage || 0));
+        const highestMilestone = Math.max(...affiliateAccounts.map(acc => acc.registration_milestone_level || 0));
         
         setAffiliateData({
           total_earnings_usd: totalEarnings,
           total_conversions: totalConversions,
-          tier_level: highestTier
+          tier_level: highestTier,
+          total_registrations: totalRegistrations,
+          miner_boost_percentage: highestBoost,
+          registration_milestone_level: highestMilestone
         });
       }
 
@@ -393,7 +403,14 @@ export default function MyAccount() {
           </div>
 
           <Tabs defaultValue="info" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 md:grid-cols-6 mb-8 h-auto bg-card/50 backdrop-blur-sm border border-border/50 p-1 gap-1">
+            <TabsList className="grid w-full grid-cols-4 md:grid-cols-7 mb-8 h-auto bg-card/50 backdrop-blur-sm border border-border/50 p-1 gap-1">
+              <TabsTrigger 
+                value="points" 
+                className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2 sm:py-3 px-1 sm:px-2 data-[state=active]:bg-neon-cyan/10 data-[state=active]:text-neon-cyan transition-all duration-300 hover:scale-105"
+              >
+                <Coins className="w-4 h-4" />
+                <span className="text-[9px] sm:text-sm font-medium leading-tight">{t("referralPointsTab")}</span>
+              </TabsTrigger>
               <TabsTrigger 
                 value="info" 
                 className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2 sm:py-3 px-1 sm:px-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary transition-all duration-300 hover:scale-105"
@@ -1205,6 +1222,15 @@ export default function MyAccount() {
                   </Button>
                 </CardContent>
               </Card>
+            </TabsContent>
+
+            <TabsContent value="points" className="animate-fade-in">
+              <ReferralPointsSection
+                totalPoints={userPoints?.total_points || 0}
+                totalRegistrations={affiliateData?.total_registrations || 0}
+                minerBoostPercentage={affiliateData?.miner_boost_percentage || 0}
+                milestoneLevel={affiliateData?.registration_milestone_level || 0}
+              />
             </TabsContent>
           </Tabs>
         </div>
