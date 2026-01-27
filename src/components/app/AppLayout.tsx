@@ -6,6 +6,7 @@ import { BottomTabBar } from './BottomTabBar';
 import { PageTransition } from './PageTransition';
 import { OfflineScreen } from './OfflineScreen';
 import { SwipeablePages } from './SwipeablePages';
+import { FullscreenPortal } from './FullscreenPortal';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import { cn } from '@/lib/utils';
 
@@ -201,7 +202,14 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       </main>
       
       {/* Bottom navigation */}
-      <BottomTabBar />
+      {/*
+        IMPORTANT (iOS/WKWebView): rendering the fixed bottom nav via a portal prevents
+        scroll-layer / stacking-context bugs where a momentum scrolling container can
+        visually show the bar but intercept taps and/or shift its fixed positioning.
+      */}
+      <FullscreenPortal>
+        <BottomTabBar />
+      </FullscreenPortal>
     </div>
   );
 };
