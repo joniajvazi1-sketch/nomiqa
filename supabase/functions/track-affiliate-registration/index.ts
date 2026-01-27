@@ -13,6 +13,9 @@ const registrationSchema = z.object({
   referrer: z.string().optional(),
 });
 
+// Points awarded for referral signup
+const REFERRAL_BONUS_POINTS = 100;
+
 // Detect traffic source from referrer
 function detectSource(referrerUrl: string | null): string {
   if (!referrerUrl) return 'direct';
@@ -32,6 +35,16 @@ function detectSource(referrerUrl: string | null): string {
   if (url.includes('discord')) return 'discord';
   
   return 'other';
+}
+
+// Calculate mining boost based on total registrations
+function calculateMiningBoost(totalRegistrations: number): { level: number; boost: number } {
+  if (totalRegistrations >= 100) return { level: 5, boost: 100 };
+  if (totalRegistrations >= 50) return { level: 4, boost: 70 };
+  if (totalRegistrations >= 30) return { level: 3, boost: 40 };
+  if (totalRegistrations >= 15) return { level: 2, boost: 20 };
+  if (totalRegistrations >= 5) return { level: 1, boost: 10 };
+  return { level: 0, boost: 0 };
 }
 
 serve(async (req) => {
@@ -64,7 +77,7 @@ serve(async (req) => {
     // Find affiliate by code with username for the welcome email
     const { data: affiliate, error: affError } = await supabase
       .from('affiliates')
-      .select('id, affiliate_code, total_registrations, username')
+      .select('id, affiliate_code, total_registrations, username, user_id, miner_boost_percentage, registration_milestone_level')
       .eq('affiliate_code', referralCode)
       .maybeSingle();
 
@@ -123,11 +136,17 @@ serve(async (req) => {
       throw insertError;
     }
 
-    // Update total registrations count
+    // Calculate new registration count and mining boost
+    const newTotalRegistrations = (affiliate.total_registrations || 0) + 1;
+    const { level: newLevel, boost: newBoost } = calculateMiningBoost(newTotalRegistrations);
+
+    // Update total registrations count and mining boost for the referrer's affiliate record
     const { error: updateError } = await supabase
       .from('affiliates')
       .update({ 
-        total_registrations: (affiliate.total_registrations || 0) + 1,
+        total_registrations: newTotalRegistrations,
+        registration_milestone_level: newLevel,
+        miner_boost_percentage: newBoost,
         updated_at: new Date().toISOString()
       })
       .eq('id', affiliate.id);
@@ -136,7 +155,65 @@ serve(async (req) => {
       console.error('Error updating registration count:', updateError);
     }
 
-    console.log(`Registration tracked successfully for affiliate ${affiliate.affiliate_code}`);
+    // Award 100 points to the REFERRER (the person who invited)
+    if (affiliate.user_id) {
+      const { data: referrerPoints } = await supabase
+        .from('user_points')
+        .select('total_points')
+        .eq('user_id', affiliate.user_id)
+        .maybeSingle();
+
+      if (referrerPoints) {
+        // Update existing points record
+        await supabase
+          .from('user_points')
+          .update({
+            total_points: (referrerPoints.total_points || 0) + REFERRAL_BONUS_POINTS,
+            updated_at: new Date().toISOString()
+          })
+          .eq('user_id', affiliate.user_id);
+      } else {
+        // Create new points record for referrer
+        await supabase
+          .from('user_points')
+          .insert({
+            user_id: affiliate.user_id,
+            total_points: REFERRAL_BONUS_POINTS,
+            pending_points: 0
+          });
+      }
+      console.log(`Awarded ${REFERRAL_BONUS_POINTS} points to referrer ${affiliate.user_id}`);
+    }
+
+    // Award 100 points to the NEW USER (the person who got invited)
+    const { data: newUserPoints } = await supabase
+      .from('user_points')
+      .select('total_points')
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    if (newUserPoints) {
+      // Update existing points record
+      await supabase
+        .from('user_points')
+        .update({
+          total_points: (newUserPoints.total_points || 0) + REFERRAL_BONUS_POINTS,
+          updated_at: new Date().toISOString()
+        })
+        .eq('user_id', userId);
+    } else {
+      // Create new points record for new user
+      await supabase
+        .from('user_points')
+        .insert({
+          user_id: userId,
+          total_points: REFERRAL_BONUS_POINTS,
+          pending_points: 0
+        });
+    }
+    console.log(`Awarded ${REFERRAL_BONUS_POINTS} points to new user ${userId}`);
+
+    console.log(`Registration tracked successfully for affiliate ${affiliate.affiliate_code}, new boost: ${newBoost}%`);
     
     // Send welcome email to the new referred user
     if (newUserEmail) {
@@ -155,6 +232,7 @@ serve(async (req) => {
             to: newUserEmail,
             data: {
               referrerUsername: affiliate.username || affiliate.affiliate_code,
+              bonusPoints: REFERRAL_BONUS_POINTS,
             },
           }),
         });
@@ -169,7 +247,9 @@ serve(async (req) => {
       JSON.stringify({ 
         success: true,
         message: 'Registration tracked successfully',
-        affiliateCode: affiliate.affiliate_code
+        affiliateCode: affiliate.affiliate_code,
+        pointsAwarded: REFERRAL_BONUS_POINTS,
+        newMiningBoost: newBoost
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
