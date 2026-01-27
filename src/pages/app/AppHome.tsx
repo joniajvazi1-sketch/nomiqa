@@ -2,53 +2,43 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from 'next-themes';
 import { 
-  Zap,
-  MapPin,
   Settings,
-  Flame,
-  Signal,
-  Crown,
-  Gift,
-  Target,
-  Trophy,
-  ChevronRight,
   Users,
   Share2,
   Sun,
-  Moon
+  Moon,
+  ChevronRight,
+  CheckCircle2,
+  Copy,
+  Gift,
+  TrendingUp,
+  Clock
 } from 'lucide-react';
 import { useHaptics } from '@/hooks/useHaptics';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import { useAchievements } from '@/hooks/useAchievements';
-import { useChallenges } from '@/hooks/useChallenges';
 import { OnboardingFlow } from '@/components/app/OnboardingFlow';
 import { AnimatePresence, motion } from 'framer-motion';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from '@/components/app/PullToRefreshIndicator';
 import { AppSpinner } from '@/components/app/AppSpinner';
 import { DailyCheckIn } from '@/components/app/DailyCheckIn';
-// SpinWheel removed per user request
-import { StatusBanner } from '@/components/app/StatusBanner';
 import { WeeklySummaryModal } from '@/components/app/WeeklySummaryModal';
-import { TOKENOMICS, pointsToUsd } from '@/utils/tokenomics';
+import { pointsToUsd } from '@/utils/tokenomics';
 import { useNativeShare } from '@/hooks/useNativeShare';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { AppSEO } from '@/components/app/AppSEO';
+import { toast } from 'sonner';
 
 export const AppHome: React.FC = () => {
   const navigate = useNavigate();
-  const { mediumTap } = useHaptics();
-  const { isOnline, connectionType } = useNetworkStatus();
+  const { mediumTap, lightTap } = useHaptics();
+  const { isOnline } = useNetworkStatus();
   const { streakDays } = useAchievements();
-  const { unclaimedCount } = useChallenges();
   const { share } = useNativeShare();
   const { theme, setTheme, resolvedTheme } = useTheme();
   const isDark = resolvedTheme === 'dark' || theme === 'dark';
-  // SpinWheel removed
-  const [streakBonus, setStreakBonus] = useState(0);
-  const [showReferralNudge, setShowReferralNudge] = useState(false);
   
   const [showOnboarding, setShowOnboarding] = useState(() => {
     if (typeof window === 'undefined') return false;
@@ -63,43 +53,8 @@ export const AppHome: React.FC = () => {
     contribution_streak_days: number;
   } | null>(null);
   const [loading, setLoading] = useState(true);
-  const [todayPoints, setTodayPoints] = useState(0);
-  const [isActivelyContributing, setIsActivelyContributing] = useState(false);
-  const [recentActivity, setRecentActivity] = useState<Array<{
-    type: 'scan' | 'referral' | 'bonus';
-    points: number;
-    time: string;
-    distance?: number;
-    username?: string;
-  }>>([]);
-
-  // Check for one-time referral nudge (after 100 points)
-  useEffect(() => {
-    const hasSeenNudge = localStorage.getItem('hasSeenReferralNudge') === 'true';
-    const currentPoints = points?.total_points || 0;
-    if (!hasSeenNudge && currentPoints >= 100) {
-      // Small delay so it feels natural
-      const timer = setTimeout(() => setShowReferralNudge(true), 1500);
-      return () => clearTimeout(timer);
-    }
-  }, [points?.total_points]);
-
-  const handleDismissNudge = () => {
-    localStorage.setItem('hasSeenReferralNudge', 'true');
-    setShowReferralNudge(false);
-  };
-
-  const handleShareReferral = async () => {
-    const referralLink = username 
-      ? `https://nomiqa.com/${username}` 
-      : 'https://nomiqa.com/download';
-    
-    await share({
-      title: 'Join Nomiqa',
-      text: 'Contribute to better connectivity and share in the value you help create. Join me on Nomiqa!',
-      url: referralLink
-    });
-  };
+  const [referralCount, setReferralCount] = useState(0);
+  const [todayEarnings, setTodayEarnings] = useState(0);
 
   const loadData = useCallback(async () => {
     try {
@@ -129,82 +84,29 @@ export const AppHome: React.FC = () => {
           setPoints(pointsData);
         }
 
-        // Check for active contribution session
-        const { data: activeSession } = await supabase
-          .from('contribution_sessions')
-          .select('id')
+        // Load referral count from affiliate data
+        const { data: affiliateData } = await supabase
+          .from('affiliates')
+          .select('total_registrations')
           .eq('user_id', currentUser.id)
-          .eq('status', 'active')
           .maybeSingle();
         
-        setIsActivelyContributing(!!activeSession);
+        if (affiliateData?.total_registrations) {
+          setReferralCount(affiliateData.total_registrations);
+        }
 
-        // Load recent sessions for activity
+        // Calculate today's earnings
+        const todayStr = new Date().toISOString().split('T')[0];
         const { data: sessionsData } = await supabase
           .from('contribution_sessions')
-          .select('total_points_earned, started_at, total_distance_meters')
+          .select('total_points_earned, started_at')
           .eq('user_id', currentUser.id)
-          .order('started_at', { ascending: false })
-          .limit(5);
+          .gte('started_at', todayStr);
 
-        // Load recent referral commissions earned
-        const { data: commissionsData } = await supabase
-          .from('referral_commissions')
-          .select('commission_points, created_at, referred_user_id')
-          .eq('referrer_user_id', currentUser.id)
-          .order('created_at', { ascending: false })
-          .limit(3);
-
-        // Build combined activity list
-        const allActivity: typeof recentActivity = [];
-
-        const todayStr = new Date().toISOString().split('T')[0];
-        if (sessionsData && sessionsData.length > 0) {
-          // Calculate today's points
-          const todayTotal = sessionsData
-            .filter(s => s.started_at.startsWith(todayStr))
-            .reduce((sum, s) => sum + (s.total_points_earned || 0), 0);
-          setTodayPoints(todayTotal);
-
-          // Add scan activities
-          sessionsData.slice(0, 3).forEach(s => {
-            allActivity.push({
-              type: 'scan',
-              points: s.total_points_earned || 0,
-              distance: s.total_distance_meters || 0,
-              time: formatRelativeTime(new Date(s.started_at))
-            });
-          });
+        if (sessionsData) {
+          const todayTotal = sessionsData.reduce((sum, s) => sum + (s.total_points_earned || 0), 0);
+          setTodayEarnings(todayTotal);
         }
-
-        // Add referral commission activities
-        if (commissionsData && commissionsData.length > 0) {
-          commissionsData.forEach(c => {
-            allActivity.push({
-              type: 'referral',
-              points: c.commission_points || 0,
-              time: formatRelativeTime(new Date(c.created_at)),
-              username: 'friend'
-            });
-          });
-        }
-
-        // Sort and take top 5
-        allActivity.sort((a, b) => {
-          const getMinutes = (t: string) => {
-            const match = t.match(/(\d+)([mhd])/);
-            if (!match) return 0;
-            const [, num, unit] = match;
-            const n = parseInt(num);
-            if (unit === 'm') return n;
-            if (unit === 'h') return n * 60;
-            if (unit === 'd') return n * 1440;
-            return 0;
-          };
-          return getMinutes(a.time) - getMinutes(b.time);
-        });
-
-        setRecentActivity(allActivity.slice(0, 5));
       }
     } catch (error) {
       console.error('Error loading data:', error);
@@ -221,47 +123,47 @@ export const AppHome: React.FC = () => {
     onRefresh: loadData
   });
 
-  const formatRelativeTime = (date: Date) => {
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMs / 3600000);
-    const diffDays = Math.floor(diffMs / 86400000);
+  const handleShareReferral = async () => {
+    const referralLink = username 
+      ? `https://nomiqa.com/${username}` 
+      : 'https://nomiqa.com/download';
     
-    if (diffMins < 60) return `${diffMins}m ago`;
-    if (diffHours < 24) return `${diffHours}h ago`;
-    return `${diffDays}d ago`;
+    await share({
+      title: 'Join Nomiqa',
+      text: 'Earn by contributing to the network. Join me on Nomiqa!',
+      url: referralLink
+    });
   };
 
-  const formatDistance = (meters: number) => {
-    const km = meters / 1000;
-    if (km >= 1) return km.toFixed(1) + ' km';
-    return meters.toFixed(0) + ' m';
-  };
-
-  const getConnectionLabel = () => {
-    if (!isOnline) return 'Offline';
-    const type = connectionType?.toLowerCase() || 'wifi';
-    if (type === 'wifi') return 'WiFi';
-    if (type === 'cellular') return 'Cellular';
-    if (type === '4g') return 'LTE';
-    if (type === '5g') return '5G';
-    return type.toUpperCase();
+  const handleCopyLink = async () => {
+    const referralLink = username 
+      ? `https://nomiqa.com/${username}` 
+      : 'https://nomiqa.com/download';
+    
+    try {
+      await navigator.clipboard.writeText(referralLink);
+      lightTap();
+      toast.success('Link copied!');
+    } catch {
+      toast.error('Could not copy link');
+    }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <AppSpinner size="lg" />
       </div>
     );
   }
 
-  const displayName = username || 'Explorer';
-  const todayUSD = pointsToUsd(todayPoints);
+  const displayName = username || 'there';
   const totalPoints = points?.total_points || 0;
   const totalUSD = pointsToUsd(totalPoints);
-  const isNewUser = totalPoints === 0 && recentActivity.length === 0;
+
+  // Get greeting based on time
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
 
   return (
     <>
@@ -274,7 +176,7 @@ export const AppHome: React.FC = () => {
       </AnimatePresence>
 
       <div
-        className="min-h-screen overflow-y-auto"
+        className="min-h-screen bg-background"
         {...handlers}
       >
         <PullToRefreshIndicator 
@@ -283,249 +185,217 @@ export const AppHome: React.FC = () => {
           isRefreshing={isRefreshing}
         />
 
-        <div className="px-4 pb-24 space-y-4" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 16px)' }}>
-          {/* Header - Greeting left, actions right */}
-          <header className="flex items-center justify-between">
-            <h1 className="text-xl font-bold text-foreground">
-              {user ? `Hi, ${displayName}` : 'Welcome'}
-            </h1>
-
+        <div className="px-5 pb-28" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 20px)' }}>
+          
+          {/* Clean Header */}
+          <header className="flex items-center justify-between mb-6">
+            <div>
+              <p className="text-sm text-muted-foreground">{greeting}</p>
+              <h1 className="text-2xl font-bold text-foreground">{displayName}</h1>
+            </div>
             <div className="flex items-center gap-2">
               <button 
-                onClick={() => { mediumTap(); setTheme(isDark ? 'light' : 'dark'); }}
-                className="w-9 h-9 rounded-full bg-card/80 backdrop-blur-sm border border-border flex items-center justify-center active:scale-95 transition-transform"
+                onClick={() => { lightTap(); setTheme(isDark ? 'light' : 'dark'); }}
+                className="w-10 h-10 rounded-full bg-muted/50 flex items-center justify-center"
               >
-                {isDark ? <Sun className="w-4 h-4 text-muted-foreground" /> : <Moon className="w-4 h-4 text-muted-foreground" />}
+                {isDark ? <Sun className="w-5 h-5 text-muted-foreground" /> : <Moon className="w-5 h-5 text-muted-foreground" />}
               </button>
               <button 
-                onClick={() => { mediumTap(); navigate('/app/profile'); }}
-                className="w-9 h-9 rounded-full bg-card/80 backdrop-blur-sm border border-border flex items-center justify-center active:scale-95 transition-transform"
+                onClick={() => { lightTap(); navigate('/app/profile'); }}
+                className="w-10 h-10 rounded-full bg-muted/50 flex items-center justify-center"
               >
-                <Settings className="w-4 h-4 text-muted-foreground" />
+                <Settings className="w-5 h-5 text-muted-foreground" />
               </button>
             </div>
           </header>
 
-          {/* Hero Balance Card - Glassmorphism */}
-          <motion.div 
-            initial={{ opacity: 0, y: 10 }}
+          {/* Status Indicator */}
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.2 }}
-            className="rounded-2xl bg-card/80 backdrop-blur-xl border border-border shadow-[var(--shadow-elevated)] p-5"
+            className="flex items-center gap-2 mb-6"
           >
-            {/* Integrated status bar */}
-            <div className="flex items-center justify-between mb-3 pb-3 border-b border-border">
-              <div className="flex items-center gap-2">
-                <div className={cn(
-                  "w-2 h-2 rounded-full",
-                  isOnline ? "bg-green-500 animate-pulse" : "bg-muted-foreground"
-                )} />
-                <span className="text-xs font-medium text-muted-foreground">
-                  {isOnline ? 'Collecting ✓' : 'Paused'}
-                </span>
-              </div>
-              <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
-                <span>{connectionType || 'WiFi'}</span>
-                <span>•</span>
-                <span>Synced</span>
-              </div>
-            </div>
-            
-            {/* Main earnings display */}
-            <div className="mb-3">
-              <div className="text-3xl font-bold text-foreground tabular-nums">
-                {totalPoints.toLocaleString()} <span className="text-lg font-semibold text-muted-foreground">pts</span>
-              </div>
-              <div className="text-sm text-muted-foreground mt-0.5">
-                Estimated value: ${totalUSD.toFixed(2)}
-              </div>
-              <p className="text-[10px] text-muted-foreground/70 mt-1">
-                Points convert to network tokens for services & rewards
-              </p>
-            </div>
+            <div className={cn(
+              "w-2.5 h-2.5 rounded-full",
+              isOnline ? "bg-green-500" : "bg-muted-foreground"
+            )} />
+            <span className="text-sm text-muted-foreground">
+              {isOnline ? 'Earning in background' : 'Offline'}
+            </span>
+            {isOnline && <CheckCircle2 className="w-4 h-4 text-green-500" />}
+          </motion.div>
 
-            <p className="text-xs text-muted-foreground mb-4">
-              Uses &lt;3% battery per day · Runs quietly in the background
+          {/* Main Balance Card - Clean & Trustworthy */}
+          <motion.div 
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.05 }}
+            className="rounded-3xl bg-card border border-border p-6 mb-4"
+          >
+            <p className="text-sm text-muted-foreground mb-1">Total Balance</p>
+            <div className="flex items-baseline gap-2 mb-1">
+              <span className="text-4xl font-bold text-foreground tabular-nums">
+                {totalPoints.toLocaleString()}
+              </span>
+              <span className="text-lg text-muted-foreground">pts</span>
+            </div>
+            <p className="text-sm text-muted-foreground mb-6">
+              ≈ ${totalUSD.toFixed(2)} USD
             </p>
 
+            {/* Mini Stats Row */}
+            <div className="flex gap-4 pt-4 border-t border-border">
+              <div className="flex-1">
+                <div className="flex items-center gap-1.5 text-muted-foreground mb-1">
+                  <Clock className="w-3.5 h-3.5" />
+                  <span className="text-xs">Today</span>
+                </div>
+                <p className="text-sm font-semibold text-foreground">+{todayEarnings} pts</p>
+              </div>
+              <div className="w-px bg-border" />
+              <div className="flex-1">
+                <div className="flex items-center gap-1.5 text-muted-foreground mb-1">
+                  <TrendingUp className="w-3.5 h-3.5" />
+                  <span className="text-xs">Streak</span>
+                </div>
+                <p className="text-sm font-semibold text-foreground">{streakDays} days</p>
+              </div>
+              <div className="w-px bg-border" />
+              <div className="flex-1">
+                <div className="flex items-center gap-1.5 text-muted-foreground mb-1">
+                  <Users className="w-3.5 h-3.5" />
+                  <span className="text-xs">Team</span>
+                </div>
+                <p className="text-sm font-semibold text-foreground">{referralCount}</p>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Referral Section - Prominent & Clean */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="rounded-3xl bg-primary/5 border border-primary/20 p-5 mb-4"
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center">
+                <Gift className="w-5 h-5 text-primary" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-base font-semibold text-foreground">Invite & Earn Together</h3>
+                <p className="text-sm text-muted-foreground">Earn 10% of your team's earnings</p>
+              </div>
+            </div>
+
+            {/* Referral Link Display */}
+            <div className="bg-background rounded-xl p-3 flex items-center gap-2 mb-4 border border-border">
+              <span className="flex-1 text-sm text-muted-foreground truncate font-mono">
+                nomiqa.com/{username || 'invite'}
+              </span>
+              <button
+                onClick={() => { lightTap(); handleCopyLink(); }}
+                className="p-2 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
+              >
+                <Copy className="w-4 h-4 text-muted-foreground" />
+              </button>
+            </div>
+
             <button
-              onClick={() => { mediumTap(); navigate('/app/map'); }}
-              className={cn(
-                "w-full h-12 rounded-xl font-semibold text-sm active:scale-[0.98] transition-transform flex items-center justify-center gap-2",
-                isActivelyContributing 
-                  ? "bg-green-500 text-white" 
-                  : "bg-destructive text-destructive-foreground"
-              )}
+              onClick={() => { mediumTap(); handleShareReferral(); }}
+              className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-semibold flex items-center justify-center gap-2 active:scale-[0.98] transition-transform"
             >
-              <Signal className="w-4 h-4" />
-              {isActivelyContributing ? 'Contributing Now ✓' : 'Contribute Now'}
+              <Share2 className="w-4 h-4" />
+              Share Invite Link
+            </button>
+
+            {referralCount > 0 && (
+              <p className="text-center text-xs text-muted-foreground mt-3">
+                You have {referralCount} team member{referralCount !== 1 ? 's' : ''} earning with you
+              </p>
+            )}
+          </motion.div>
+
+          {/* How It Works - Simple */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+            className="rounded-3xl bg-card border border-border p-5 mb-4"
+          >
+            <h3 className="text-base font-semibold text-foreground mb-4">How You Earn</h3>
+            
+            <div className="space-y-3">
+              <div className="flex items-start gap-3">
+                <div className="w-7 h-7 rounded-full bg-green-500/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <span className="text-xs font-bold text-green-600">1</span>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-foreground">App runs in background</p>
+                  <p className="text-xs text-muted-foreground">Uses &lt;3% battery daily</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-3">
+                <div className="w-7 h-7 rounded-full bg-blue-500/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <span className="text-xs font-bold text-blue-600">2</span>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-foreground">Contribute network data</p>
+                  <p className="text-xs text-muted-foreground">Anonymous signal quality info</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-3">
+                <div className="w-7 h-7 rounded-full bg-purple-500/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <span className="text-xs font-bold text-purple-600">3</span>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-foreground">Earn points automatically</p>
+                  <p className="text-xs text-muted-foreground">Redeem for rewards anytime</p>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Quick Actions */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="space-y-2"
+          >
+            <button
+              onClick={() => { lightTap(); navigate('/app/rewards'); }}
+              className="w-full rounded-2xl bg-card border border-border p-4 flex items-center gap-4 active:scale-[0.99] transition-transform"
+            >
+              <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center">
+                <Gift className="w-5 h-5 text-amber-500" />
+              </div>
+              <div className="flex-1 text-left">
+                <p className="text-sm font-semibold text-foreground">Rewards</p>
+                <p className="text-xs text-muted-foreground">View your earnings</p>
+              </div>
+              <ChevronRight className="w-5 h-5 text-muted-foreground" />
+            </button>
+
+            <button
+              onClick={() => { lightTap(); navigate('/app/leaderboard'); }}
+              className="w-full rounded-2xl bg-card border border-border p-4 flex items-center gap-4 active:scale-[0.99] transition-transform"
+            >
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                <TrendingUp className="w-5 h-5 text-primary" />
+              </div>
+              <div className="flex-1 text-left">
+                <p className="text-sm font-semibold text-foreground">Leaderboard</p>
+                <p className="text-xs text-muted-foreground">See top earners</p>
+              </div>
+              <ChevronRight className="w-5 h-5 text-muted-foreground" />
             </button>
           </motion.div>
 
-          {/* Referral Micro-Card - Glassmorphism */}
-          <motion.button
-            initial={{ opacity: 0, y: 5 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.2, delay: 0.1 }}
-            onClick={() => { mediumTap(); handleShareReferral(); }}
-            className="w-full rounded-xl bg-card/60 backdrop-blur-sm border border-border p-3 flex items-center gap-3 active:scale-[0.98] transition-transform shadow-[var(--shadow-card)]"
-          >
-            <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-              <Users className="w-4 h-4 text-primary" />
-            </div>
-            <div className="flex-1 text-left">
-              <p className="text-sm font-semibold text-foreground">Invite contributors</p>
-              <p className="text-xs text-muted-foreground">Share in the value they help create</p>
-            </div>
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-medium">
-              <Share2 className="w-3 h-3" />
-              Share
-            </div>
-          </motion.button>
-
-          {/* Quick Stats - Glass cards */}
-          <div className="grid grid-cols-3 gap-2">
-            <div className="rounded-xl bg-card/60 backdrop-blur-sm border border-border p-3 text-center shadow-[var(--shadow-card)]">
-              <MapPin className="w-4 h-4 text-primary mx-auto mb-1" />
-              <div className="text-sm font-semibold text-foreground">
-                {formatDistance(points?.total_distance_meters || 0)}
-              </div>
-              <p className="text-xs text-muted-foreground">Distance</p>
-            </div>
-            
-            <div className="rounded-xl bg-card/60 backdrop-blur-sm border border-border p-3 text-center shadow-[var(--shadow-card)]">
-              <Flame className="w-4 h-4 text-orange-500 mx-auto mb-1" />
-              <div className="text-sm font-semibold text-foreground">
-                {streakDays}{streakDays >= 2 ? ' 🔥' : ''}
-              </div>
-              <p className="text-xs text-muted-foreground">Streak</p>
-            </div>
-            
-            <button 
-              onClick={() => { mediumTap(); navigate('/app/leaderboard'); }}
-              className="rounded-xl bg-card/60 backdrop-blur-sm border border-border p-3 text-center active:scale-95 transition-transform shadow-[var(--shadow-card)]"
-            >
-              <Crown className="w-4 h-4 text-amber-500 mx-auto mb-1" />
-              <div className="text-sm font-semibold text-foreground">
-                #{points?.total_points ? Math.max(1, Math.floor(1000 / (points.total_points || 1))) : '-'}
-              </div>
-              <p className="text-xs text-muted-foreground">Rank</p>
-            </button>
-          </div>
-
-          {/* Quick Actions - Glass cards */}
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              onClick={() => { mediumTap(); navigate('/app/challenges'); }}
-              className="rounded-xl bg-card/60 backdrop-blur-sm border border-border p-4 text-center relative active:scale-95 transition-transform shadow-[var(--shadow-card)]"
-            >
-              {unclaimedCount > 0 && (
-                <span className="absolute top-3 right-3 w-5 h-5 rounded-full bg-green-500 text-white text-[10px] font-bold flex items-center justify-center">
-                  {unclaimedCount}
-                </span>
-              )}
-              <Target className="w-6 h-6 text-blue-500 mx-auto mb-2" />
-              <p className="text-sm font-bold text-foreground">Challenges</p>
-              <p className="text-xs font-medium text-muted-foreground">{unclaimedCount > 0 ? 'Claim rewards!' : 'View all'}</p>
-            </button>
-            
-            <button
-              onClick={() => { mediumTap(); navigate('/app/leaderboard'); }}
-              className="rounded-xl bg-card/60 backdrop-blur-sm border border-border p-4 text-center active:scale-95 transition-transform shadow-[var(--shadow-card)]"
-            >
-              <Trophy className="w-6 h-6 text-amber-500 mx-auto mb-2" />
-              <p className="text-sm font-bold text-foreground">Leaderboard</p>
-              <p className="text-xs font-medium text-muted-foreground">Compete</p>
-            </button>
-          </div>
-
-          {/* Recent Activity - Glass card */}
-          <div className="rounded-xl bg-card/60 backdrop-blur-sm border border-border overflow-hidden shadow-[var(--shadow-card)]">
-            <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-              <h3 className="text-sm font-semibold text-foreground">Recent Activity</h3>
-              <button 
-                onClick={() => { mediumTap(); navigate('/app/rewards'); }}
-                className="text-xs text-primary flex items-center gap-0.5"
-              >
-                View all <ChevronRight className="w-3 h-3" />
-              </button>
-            </div>
-            
-            {recentActivity.length > 0 ? (
-              <div className="divide-y divide-border">
-                {recentActivity.map((activity, i) => (
-                  <div key={i} className="flex items-center gap-3 px-4 py-3">
-                    <div className={cn(
-                      "w-8 h-8 rounded-full flex items-center justify-center",
-                      activity.type === 'scan' ? "bg-green-500/20" :
-                      activity.type === 'referral' ? "bg-blue-500/20" : "bg-amber-500/20"
-                    )}>
-                      {activity.type === 'scan' ? (
-                        <Signal className="w-4 h-4 text-green-500" />
-                      ) : activity.type === 'referral' ? (
-                        <Gift className="w-4 h-4 text-blue-500" />
-                      ) : (
-                        <Zap className="w-4 h-4 text-amber-500" />
-                      )}
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-foreground">
-                        {activity.type === 'scan' ? 'Network scan' :
-                         activity.type === 'referral' ? 'Referral bonus' : 'Bonus'}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {activity.time}
-                        {activity.distance ? ` • ${formatDistance(activity.distance)}` : ''}
-                      </p>
-                    </div>
-                    <span className="text-sm font-semibold text-green-500">
-                      +{activity.points}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="px-4 py-8 text-center">
-                <Signal className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-                <p className="text-sm text-muted-foreground">No activity yet</p>
-                <p className="text-xs text-muted-foreground/70">Start a scan to earn points</p>
-              </div>
-            )}
-          </div>
         </div>
       </div>
-
-      {/* SpinWheel removed per user request */}
-
-      {/* One-time Referral Nudge - Semantic theme */}
-      <Sheet open={showReferralNudge} onOpenChange={setShowReferralNudge}>
-        <SheetContent side="bottom" className="rounded-t-2xl pb-8 bg-card border-border">
-          <SheetHeader className="text-center pb-4">
-            <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-2">
-              <Gift className="w-6 h-6 text-green-500" />
-            </div>
-            <SheetTitle className="text-lg text-foreground">You're earning automatically 🎉</SheetTitle>
-          </SheetHeader>
-          <p className="text-center text-muted-foreground text-sm mb-6">
-            Invite friends and earn <span className="font-semibold text-foreground">10% of everything they earn</span> — forever.
-          </p>
-          <div className="flex gap-3">
-            <button
-              onClick={handleDismissNudge}
-              className="flex-1 h-11 rounded-xl border border-border text-sm font-medium text-muted-foreground active:scale-95 transition-transform"
-            >
-              Maybe later
-            </button>
-            <button
-              onClick={() => { handleDismissNudge(); handleShareReferral(); }}
-              className="flex-1 h-11 rounded-xl bg-primary text-primary-foreground text-sm font-semibold flex items-center justify-center gap-2 active:scale-95 transition-transform"
-            >
-              <Share2 className="w-4 h-4" />
-              Share now
-            </button>
-          </div>
-        </SheetContent>
-      </Sheet>
 
       {user && <DailyCheckIn userId={user.id} />}
       <WeeklySummaryModal />
