@@ -31,6 +31,7 @@ import { HelpCenter } from '@/components/app/HelpCenter';
 import { captureError } from '@/lib/sentry';
 import { SpeedTestHistory } from '@/components/app/SpeedTestHistory';
 import { PermissionDebugPanel } from '@/components/app/PermissionDebugPanel';
+import { AppSEO } from '@/components/app/AppSEO';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -321,8 +322,10 @@ export const AppProfile: React.FC = () => {
   }
 
   return (
-    <div className="px-4 py-6 space-y-5 pb-24 min-h-screen overflow-y-auto">
-      {/* Header with glassmorphism */}
+    <>
+      <AppSEO />
+      <div className="px-4 py-6 space-y-5 pb-24 min-h-screen overflow-y-auto">
+        {/* Header with glassmorphism */}
       <div className="relative rounded-2xl bg-card/80 backdrop-blur-xl border border-border p-4 overflow-hidden shadow-[var(--shadow-card)]">
         
         <div className="relative z-10 flex items-center gap-4">
@@ -765,7 +768,8 @@ export const AppProfile: React.FC = () => {
       {showHelpCenter && (
         <HelpCenter onClose={() => setShowHelpCenter(false)} />
       )}
-    </div>
+      </div>
+    </>
   );
 };
 

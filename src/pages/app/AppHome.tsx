@@ -35,6 +35,7 @@ import { WeeklySummaryModal } from '@/components/app/WeeklySummaryModal';
 import { TOKENOMICS, pointsToUsd } from '@/utils/tokenomics';
 import { useNativeShare } from '@/hooks/useNativeShare';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { AppSEO } from '@/components/app/AppSEO';
 
 export const AppHome: React.FC = () => {
   const navigate = useNavigate();
@@ -264,13 +265,15 @@ export const AppHome: React.FC = () => {
 
   return (
     <>
+      <AppSEO />
+      
       <AnimatePresence>
         {showOnboarding && (
           <OnboardingFlow onComplete={() => setShowOnboarding(false)} />
         )}
       </AnimatePresence>
 
-      <div 
+      <div
         className="min-h-screen overflow-y-auto"
         {...handlers}
       >
