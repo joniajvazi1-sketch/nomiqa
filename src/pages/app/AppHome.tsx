@@ -12,7 +12,8 @@ import {
   Copy,
   Gift,
   TrendingUp,
-  Clock
+  Clock,
+  Radio
 } from 'lucide-react';
 import { useHaptics } from '@/hooks/useHaptics';
 import { supabase } from '@/integrations/supabase/client';
@@ -55,6 +56,7 @@ export const AppHome: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [referralCount, setReferralCount] = useState(0);
   const [todayEarnings, setTodayEarnings] = useState(0);
+  const [isActivelyContributing, setIsActivelyContributing] = useState(false);
 
   const loadData = useCallback(async () => {
     try {
@@ -94,6 +96,16 @@ export const AppHome: React.FC = () => {
         if (affiliateData?.total_registrations) {
           setReferralCount(affiliateData.total_registrations);
         }
+
+        // Check for active contribution session
+        const { data: activeSession } = await supabase
+          .from('contribution_sessions')
+          .select('id')
+          .eq('user_id', currentUser.id)
+          .eq('status', 'active')
+          .maybeSingle();
+        
+        setIsActivelyContributing(!!activeSession);
 
         // Calculate today's earnings
         const todayStr = new Date().toISOString().split('T')[0];
@@ -225,11 +237,50 @@ export const AppHome: React.FC = () => {
             {isOnline && <CheckCircle2 className="w-4 h-4 text-green-500" />}
           </motion.div>
 
+          {/* Contribution Status Card */}
+          <motion.button
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.05 }}
+            onClick={() => { mediumTap(); navigate('/app/map'); }}
+            className={cn(
+              "w-full rounded-2xl p-4 flex items-center gap-4 mb-4 active:scale-[0.98] transition-transform",
+              isActivelyContributing 
+                ? "bg-green-500/10 border border-green-500/30" 
+                : "bg-primary/10 border border-primary/30"
+            )}
+          >
+            <div className={cn(
+              "w-12 h-12 rounded-full flex items-center justify-center",
+              isActivelyContributing ? "bg-green-500/20" : "bg-primary/20"
+            )}>
+              <Radio className={cn(
+                "w-6 h-6",
+                isActivelyContributing ? "text-green-500" : "text-primary"
+              )} />
+            </div>
+            <div className="flex-1 text-left">
+              <p className={cn(
+                "text-base font-semibold",
+                isActivelyContributing ? "text-green-600 dark:text-green-400" : "text-foreground"
+              )}>
+                {isActivelyContributing ? 'Contributing Now' : 'Start Contributing'}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                {isActivelyContributing ? 'Earning points in background' : 'Tap to enable earning'}
+              </p>
+            </div>
+            <ChevronRight className={cn(
+              "w-5 h-5",
+              isActivelyContributing ? "text-green-500" : "text-muted-foreground"
+            )} />
+          </motion.button>
+
           {/* Main Balance Card - Clean & Trustworthy */}
           <motion.div 
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.05 }}
+            transition={{ delay: 0.1 }}
             className="rounded-3xl bg-card border border-border p-6 mb-4"
           >
             <p className="text-sm text-muted-foreground mb-1">Total Balance</p>
