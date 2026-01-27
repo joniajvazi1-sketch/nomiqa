@@ -41,9 +41,9 @@ export const ReferralCodeEntry: React.FC<ReferralCodeEntryProps> = ({
     setError(null);
     
     try {
-      // Check if the referral code (username) exists
+      // Check if the referral code (username) exists using _safe view
       const { data, error: queryError } = await supabase
-        .from('affiliates')
+        .from('affiliates_safe')
         .select('id, username')
         .eq('username', inputCode.toLowerCase().trim())
         .eq('status', 'active')

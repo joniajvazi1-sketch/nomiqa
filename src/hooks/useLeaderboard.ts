@@ -65,10 +65,10 @@ export const useLeaderboard = (): UseLeaderboardReturn => {
 
       if (pointsError) throw pointsError;
 
-      // Get usernames for all users
+      // Get usernames for all users (using _safe view)
       const userIds = pointsData?.map(p => p.user_id) || [];
       const { data: profilesData } = await supabase
-        .from('profiles')
+        .from('profiles_safe')
         .select('user_id, username')
         .in('user_id', userIds);
 

@@ -58,9 +58,9 @@ export const GlobalCommunityStats: React.FC = () => {
           .select('id', { count: 'exact', head: true })
           .gte('recorded_at', startOfMonth.toISOString());
 
-        // Get unique countries from profiles
+        // Get unique countries from profiles (using _safe view)
         const { data: countriesData } = await supabase
-          .from('profiles')
+          .from('profiles_safe')
           .select('country_code')
           .not('country_code', 'is', null);
         

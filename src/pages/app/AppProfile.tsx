@@ -124,10 +124,11 @@ export const AppProfile: React.FC = () => {
       setUser(currentUser);
 
       if (currentUser) {
+        // Using _safe views to exclude sensitive verification/reset fields
         const [profileResult, membershipResult, affiliateResult, ordersResult, statsResult] = await Promise.all([
-          supabase.from('profiles').select('username, solana_wallet').eq('user_id', currentUser.id).maybeSingle(),
+          supabase.from('profiles_safe').select('username, solana_wallet').eq('user_id', currentUser.id).maybeSingle(),
           supabase.from('user_spending').select('*').eq('user_id', currentUser.id).maybeSingle(),
-          supabase.from('affiliates').select('*').or(`user_id.eq.${currentUser.id},email.eq.${currentUser.email}`).order('tier_level', { ascending: false }).limit(1).maybeSingle(),
+          supabase.from('affiliates_safe').select('*').eq('user_id', currentUser.id).order('tier_level', { ascending: false }).limit(1).maybeSingle(),
           supabase.from('orders').select('id, package_name, data_amount, status, created_at').eq('user_id', currentUser.id).order('created_at', { ascending: false }).limit(10),
           supabase.functions.invoke('get-contribution-stats')
         ]);
@@ -197,7 +198,8 @@ export const AppProfile: React.FC = () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
 
-      const { data: existingUser } = await supabase.from('profiles').select('id').eq('username', editedUsername.trim()).neq('user_id', session.user.id).maybeSingle();
+      // Using _safe view for username availability check
+      const { data: existingUser } = await supabase.from('profiles_safe').select('id').eq('username', editedUsername.trim()).neq('user_id', session.user.id).maybeSingle();
       if (existingUser) {
         toast({ title: 'Username is already taken', variant: 'destructive' });
         setSavingUsername(false);

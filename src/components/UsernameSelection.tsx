@@ -46,8 +46,9 @@ export function UsernameSelection({ userId, email, onComplete }: UsernameSelecti
     setError(null);
 
     try {
+      // Using _safe view for username check
       const { data, error: queryError } = await supabase
-        .from('profiles')
+        .from('profiles_safe')
         .select('id')
         .eq('username', value.toLowerCase())
         .maybeSingle();

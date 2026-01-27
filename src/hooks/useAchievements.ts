@@ -82,11 +82,11 @@ export const useAchievements = (): UseAchievementsReturn => {
         .order('started_at', { ascending: false })
         .limit(500);
 
-      // Fetch referrals count
+      // Fetch referrals count (using _safe view)
       const { data: affiliateData } = await supabase
-        .from('affiliates')
+        .from('affiliates_safe')
         .select('total_registrations')
-        .or(`user_id.eq.${user.id},email.eq.${user.email}`)
+        .eq('user_id', user.id)
         .maybeSingle();
 
       const totalDataPoints = sessionsData?.reduce((sum, s) => sum + (s.data_points_count || 0), 0) || 0;

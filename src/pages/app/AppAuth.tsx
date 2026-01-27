@@ -180,8 +180,9 @@ export const AppAuth: React.FC = () => {
     setUsernameError('');
 
     try {
+      // Using _safe view for username check
       const { data, error } = await supabase
-        .from('profiles')
+        .from('profiles_safe')
         .select('id')
         .eq('username', sanitized)
         .maybeSingle();
@@ -230,8 +231,9 @@ export const AppAuth: React.FC = () => {
       }
 
       try {
+        // Using _safe view for profile check
         const { data: existingProfile, error: profileError } = await supabase
-          .from('profiles')
+          .from('profiles_safe')
           .select('id, username, email_verified')
           .eq('user_id', userId)
           .maybeSingle();
@@ -378,10 +380,10 @@ export const AppAuth: React.FC = () => {
   }, [googleLoading]);
 
   const handleUsernameComplete = async () => {
-    // Fetch the username that was just set
+    // Fetch the username that was just set (using _safe view)
     if (currentUser) {
       const { data: profile } = await supabase
-        .from('profiles')
+        .from('profiles_safe')
         .select('username')
         .eq('user_id', currentUser.id)
         .single();

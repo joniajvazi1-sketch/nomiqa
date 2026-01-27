@@ -44,8 +44,9 @@ export const ReferEarnModal = ({ open, onOpenChange, product }: ReferEarnModalPr
       setUser(user);
 
       if (user) {
+        // Using _safe view to exclude sensitive verification fields
         const { data, error } = await supabase
-          .from('affiliates')
+          .from('affiliates_safe')
           .select('*')
           .eq('user_id', user.id)
           .order('created_at', { ascending: true });

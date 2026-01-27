@@ -86,9 +86,9 @@ export default function Auth() {
       try {
         const email = session.user.email || "";
 
-        // Check if user has a profile with proper username
+        // Check if user has a profile with proper username (using _safe view)
         const { data: existingProfile, error: profileError } = await supabase
-          .from("profiles")
+          .from("profiles_safe")
           .select("id, username, email_verified")
           .eq("user_id", userId)
           .maybeSingle();
@@ -302,8 +302,9 @@ export default function Auth() {
     setUsernameError("");
 
     try {
+      // Using _safe view for username check
       const { data, error } = await supabase
-        .from('profiles')
+        .from('profiles_safe')
         .select('id')
         .eq('username', sanitized)
         .maybeSingle();
@@ -581,9 +582,9 @@ export default function Auth() {
         }
 
         if (data?.user) {
-          // Check if user needs username selection (temp_ from OAuth, user_ from old email signup)
+          // Check if user needs username selection (using _safe view)
           const { data: profile } = await supabase
-            .from("profiles")
+            .from("profiles_safe")
             .select("username")
             .eq("user_id", data.user.id)
             .single();
