@@ -244,8 +244,8 @@ export const AppAuth: React.FC = () => {
           setCurrentUser({ id: userId, email });
           setShowUsernameSelection(true);
           setCheckingSession(false);
-        } else if (existingProfile.username?.startsWith('temp_')) {
-          // User has incomplete profile - needs to choose username
+        } else if (existingProfile.username?.startsWith('temp_') || existingProfile.username?.startsWith('user_')) {
+          // User has incomplete profile (temp_ from OAuth, user_ from email signup) - needs to choose username
           toast({ title: 'Welcome back! Please choose your username.' });
           setCurrentUser({ id: userId, email });
           setShowUsernameSelection(true);
@@ -502,7 +502,10 @@ export const AppAuth: React.FC = () => {
             .eq('user_id', data.user.id)
             .single();
 
-          if (profile?.username?.startsWith('temp_')) {
+          // Check if username is temporary (starts with 'temp_' from OAuth or 'user_' from email signup)
+          const isTemporaryUsername = profile?.username?.startsWith('temp_') || profile?.username?.startsWith('user_');
+          
+          if (isTemporaryUsername) {
             toast({ title: 'Almost there!', description: 'Choose your username to complete setup.' });
             setCurrentUser({ id: data.user.id, email: data.user.email || '' });
             setShowUsernameSelection(true);
