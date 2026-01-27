@@ -11,6 +11,7 @@ const corsHeaders = {
 const signupSchema = z.object({
   email: z.string().email().max(255),
   password: z.string().min(6).max(128),
+  username: z.string().min(3).max(20).regex(/^[a-zA-Z0-9_]+$/).optional(),
   referralCode: z.string().optional(),
 });
 
@@ -140,7 +141,7 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    const { email, password, referralCode } = validationResult.data;
+    const { email, password, username, referralCode } = validationResult.data;
     const normalizedEmail = email.toLowerCase().trim();
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -191,8 +192,8 @@ const handler = async (req: Request): Promise<Response> => {
     const hashedCode = await hashCode(code);
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
 
-    // Generate a unique temporary username using user_id to guarantee uniqueness
-    const tempUsername = `user_${userId.replace(/-/g, '').substring(0, 12)}`;
+    // Use provided username or generate a temporary one
+    const finalUsername = username?.toLowerCase().trim() || `user_${userId.replace(/-/g, '').substring(0, 12)}`;
 
     // Detect country from IP (non-blocking, don't fail signup if this fails)
     const countryCode = await detectCountryFromIP(req);
@@ -202,7 +203,7 @@ const handler = async (req: Request): Promise<Response> => {
       .from('profiles')
       .upsert({
         user_id: userId,
-        username: tempUsername,
+        username: finalUsername,
         email: normalizedEmail,
         email_verified: false,
         is_early_member: true,

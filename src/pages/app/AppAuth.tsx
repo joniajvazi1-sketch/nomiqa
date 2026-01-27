@@ -18,7 +18,8 @@ import {
   AlertCircle,
   CheckCircle2,
   XCircle,
-  Fingerprint
+  Fingerprint,
+  User
 } from 'lucide-react';
 import { useAffiliateTracking } from '@/hooks/useAffiliateTracking';
 import { UsernameSelection } from '@/components/UsernameSelection';
@@ -36,6 +37,10 @@ const emailSchema = z.string().email('Please enter a valid email address').max(2
 const passwordSchema = z.string()
   .min(6, 'Password must be at least 6 characters')
   .max(128, 'Password is too long');
+const usernameSchema = z.string()
+  .min(3, 'Username must be at least 3 characters')
+  .max(20, 'Username must be less than 20 characters')
+  .regex(/^[a-zA-Z0-9_]+$/, 'Only letters, numbers, and underscores allowed');
 
 // Password strength checker
 const getPasswordStrength = (password: string): { score: number; label: string; color: string } => {
@@ -109,6 +114,7 @@ export const AppAuth: React.FC = () => {
   // Form states
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [username, setUsername] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
@@ -116,9 +122,13 @@ export const AppAuth: React.FC = () => {
   // Validation states
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const [usernameError, setUsernameError] = useState('');
   const [formError, setFormError] = useState('');
   const [emailTouched, setEmailTouched] = useState(false);
   const [passwordTouched, setPasswordTouched] = useState(false);
+  const [usernameTouched, setUsernameTouched] = useState(false);
+  const [checkingUsername, setCheckingUsername] = useState(false);
+  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
 
   const isSignup = searchParams.get('mode') === 'signup' || searchParams.get('mode') === 'register';
 
@@ -147,6 +157,60 @@ export const AppAuth: React.FC = () => {
     }
     setPasswordError('');
     return true;
+  };
+
+  // Validate and check username availability
+  const validateUsername = async (value: string): Promise<boolean> => {
+    const sanitized = value.toLowerCase().replace(/[^a-zA-Z0-9_]/g, '');
+    
+    if (sanitized.length < 3) {
+      setUsernameError('Username must be at least 3 characters');
+      setUsernameAvailable(null);
+      return false;
+    }
+
+    const result = usernameSchema.safeParse(sanitized);
+    if (!result.success) {
+      setUsernameError(result.error.errors[0].message);
+      setUsernameAvailable(false);
+      return false;
+    }
+
+    setCheckingUsername(true);
+    setUsernameError('');
+
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('username', sanitized)
+        .maybeSingle();
+
+      if (error) throw error;
+
+      if (data) {
+        setUsernameError('Username is already taken');
+        setUsernameAvailable(false);
+        setCheckingUsername(false);
+        return false;
+      }
+
+      setUsernameAvailable(true);
+      setCheckingUsername(false);
+      return true;
+    } catch (err) {
+      console.error('Error checking username:', err);
+      setUsernameAvailable(null);
+      setCheckingUsername(false);
+      return false;
+    }
+  };
+
+  const handleUsernameChange = (value: string) => {
+    const sanitized = value.toLowerCase().replace(/[^a-zA-Z0-9_]/g, '');
+    setUsername(sanitized);
+    setUsernameError('');
+    setUsernameAvailable(null);
   };
 
   useEffect(() => {
@@ -357,6 +421,16 @@ export const AppAuth: React.FC = () => {
       return;
     }
 
+    // For signup, also validate username
+    if (isSignup) {
+      setUsernameTouched(true);
+      const isUsernameValid = await validateUsername(username);
+      if (!isUsernameValid) {
+        errorPattern();
+        return;
+      }
+    }
+
     if (isSignup && !agreedToTerms) {
       setFormError('Please agree to our Terms and Privacy Policy');
       errorPattern();
@@ -385,6 +459,7 @@ export const AppAuth: React.FC = () => {
           body: {
             email: email.toLowerCase().trim(),
             password,
+            username: username.toLowerCase().trim(),
             referralCode: referralCode || undefined,
           }
         });
@@ -829,6 +904,55 @@ export const AppAuth: React.FC = () => {
               )}
             </div>
 
+            {/* Username Input (signup only) */}
+            {isSignup && (
+              <div className="space-y-2">
+                <Label htmlFor="username" className="text-foreground">Username</Label>
+                <div className="relative">
+                  <User className={cn(
+                    "absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors",
+                    usernameError && usernameTouched ? "text-destructive" : "text-muted-foreground"
+                  )} />
+                  <Input
+                    id="username"
+                    type="text"
+                    placeholder="your_username"
+                    value={username}
+                    onChange={(e) => handleUsernameChange(e.target.value)}
+                    onBlur={() => {
+                      setUsernameTouched(true);
+                      if (username.length >= 3) validateUsername(username);
+                    }}
+                    className={cn(
+                      "pl-10 h-12 bg-card border-border transition-all duration-200",
+                      usernameError && usernameTouched && "border-destructive focus-visible:ring-destructive"
+                    )}
+                    disabled={isFormDisabled}
+                    autoComplete="username"
+                    autoCapitalize="none"
+                    maxLength={20}
+                  />
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    {checkingUsername && <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />}
+                    {!checkingUsername && usernameAvailable === true && <CheckCircle2 className="w-4 h-4 text-green-500" />}
+                    {!checkingUsername && usernameAvailable === false && <XCircle className="w-4 h-4 text-destructive" />}
+                  </div>
+                </div>
+                {usernameError && usernameTouched && (
+                  <p className="text-xs text-destructive animate-in fade-in slide-in-from-top-1 duration-150">
+                    {usernameError}
+                  </p>
+                )}
+                {usernameAvailable && !usernameError && (
+                  <p className="text-xs text-green-500 animate-in fade-in duration-150">
+                    Username is available!
+                  </p>
+                )}
+                <p className="text-xs text-muted-foreground">
+                  3-20 characters, letters, numbers, and underscores only
+                </p>
+              </div>
+            )}
             {/* Password Input */}
             {!showForgotPassword && (
               <div className="space-y-2">
@@ -992,6 +1116,9 @@ export const AppAuth: React.FC = () => {
                     setFormError('');
                     setEmailError('');
                     setPasswordError('');
+                    setUsernameError('');
+                    setUsername('');
+                    setUsernameAvailable(null);
                     navigate('/app/auth?mode=login');
                   }}
                   className="text-primary font-medium hover:underline"
@@ -1009,6 +1136,9 @@ export const AppAuth: React.FC = () => {
                     setFormError('');
                     setEmailError('');
                     setPasswordError('');
+                    setUsernameError('');
+                    setUsername('');
+                    setUsernameAvailable(null);
                     navigate('/app/auth?mode=signup');
                   }}
                   className="text-primary font-medium hover:underline"
