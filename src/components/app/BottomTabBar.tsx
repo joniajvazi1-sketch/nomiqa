@@ -46,15 +46,14 @@ export const BottomTabBar: React.FC = () => {
 
   return (
     <nav 
-      className="fixed bottom-0 left-0 right-0 z-50 layer-promote"
+      className="fixed bottom-0 left-0 right-0 z-50"
       role="navigation"
       aria-label="Main navigation"
       style={{
         // Safe area with fallbacks for older iOS/Android
-        // NOTE: we add a small fixed gap (8px) ON TOP of the safe-area inset.
-        // This prevents the bar from visually sticking to the home indicator,
-        // while avoiding double-application of safe-area spacing.
-        paddingBottom: 'calc(max(env(safe-area-inset-bottom, 0px), 0px) + 8px)',
+        // NOTE: keep this FLUSH to the bottom; the safe-area inset is enough.
+        // Extra fixed gaps can look like the bar is “floating” on real devices.
+        paddingBottom: 'max(env(safe-area-inset-bottom, 0px), constant(safe-area-inset-bottom, 0px))',
         paddingLeft: 'max(env(safe-area-inset-left, 0px), 8px)',
         paddingRight: 'max(env(safe-area-inset-right, 0px), 8px)',
       }}
