@@ -75,7 +75,6 @@ export const ReferralPointsSection = ({
               <TrendingUp className="w-4 h-4 text-neon-violet" />
               <span className="text-neon-violet font-medium">≈ ${estimatedValue} USD</span>
             </div>
-            <p className="text-xs text-muted-foreground/60 mt-2">{t("estimatedAt")} $0.01/{t("point")}</p>
           </div>
 
           {/* How You Earned */}
