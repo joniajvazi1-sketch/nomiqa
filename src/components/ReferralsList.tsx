@@ -10,22 +10,11 @@ interface ReferredUser {
   registeredAt: string;
   status: string;
   hasConverted: boolean;
-  countryCode: string | null;
 }
 
 interface ReferralsListProps {
   affiliateId: string;
 }
-
-// Convert country code to flag emoji
-const countryToFlag = (countryCode: string | null): string => {
-  if (!countryCode || countryCode.length !== 2) return '🌍';
-  const codePoints = countryCode
-    .toUpperCase()
-    .split('')
-    .map(char => 127397 + char.charCodeAt(0));
-  return String.fromCodePoint(...codePoints);
-};
 
 export function ReferralsList({ affiliateId }: ReferralsListProps) {
   const { t } = useTranslation();
@@ -107,9 +96,6 @@ export function ReferralsList({ affiliateId }: ReferralsListProps) {
                 className="p-4 bg-white/[0.02] border border-white/5 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-white/[0.04] transition-colors"
               >
                 <div className="flex items-center gap-3">
-                  <div className="text-2xl" title={referral.countryCode || 'Unknown'}>
-                    {countryToFlag(referral.countryCode)}
-                  </div>
                   <div className={`p-2 rounded-full ${referral.hasConverted ? 'bg-emerald-500/20' : 'bg-neon-cyan/20'}`}>
                     {referral.hasConverted ? (
                       <ShoppingCart className="w-4 h-4 text-emerald-400" />
