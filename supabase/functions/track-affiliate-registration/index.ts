@@ -14,7 +14,7 @@ const registrationSchema = z.object({
 });
 
 // Points awarded for referral signup
-const REFERRAL_BONUS_POINTS = 100;
+const REFERRAL_BONUS_POINTS = 50;
 
 // Detect traffic source from referrer
 function detectSource(referrerUrl: string | null): string {
