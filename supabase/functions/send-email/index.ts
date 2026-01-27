@@ -35,37 +35,38 @@ const generateEmailHTML = (type: string, data: any): { html: string; subject: st
   switch (type) {
     case 'user_verification':
       return {
-        subject: "Verify Your Nomiqa Account ✨",
+        subject: "Your Nomiqa Verification Code 🔑",
         html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <div style="text-align: center; margin-bottom: 30px;">
-              <img src="${logoUrl}" alt="Nomiqa" style="width: 120px; height: 120px; border-radius: 20px; border: 2px solid #8b5cf6; box-shadow: 0 4px 16px rgba(139, 92, 246, 0.3);" />
-            </div>
-            
-            <h1 style="color: #333; border-bottom: 2px solid #8b5cf6; padding-bottom: 10px;">
-              ✨ Welcome to Nomiqa!
-            </h1>
-            
-            <div style="background: #f3e8ff; border: 2px solid #8b5cf6; border-radius: 8px; padding: 16px; margin: 20px 0;">
-              <p style="margin: 0; color: #6b21a8; font-weight: bold;">Your Verification Code</p>
-              <p style="margin: 8px 0 0 0; font-size: 32px; font-weight: 900; color: #7c3aed; letter-spacing: 8px; text-align: center;">${data.code}</p>
-            </div>
-            
-            <div style="margin: 20px 0;">
-              <p style="color: #666; line-height: 1.6;">Your account has been created successfully! Please enter the verification code above to activate your account and start your journey with Nomiqa.</p>
-            </div>
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0a0a0f;">
+            <div style="background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%); padding: 40px 20px; border-radius: 12px;">
+              <div style="text-align: center; margin-bottom: 30px;">
+                <img src="${logoUrl}" alt="Nomiqa" style="width: 100px; height: 100px; border-radius: 20px; border: 2px solid #22d3ee; box-shadow: 0 4px 20px rgba(34, 211, 238, 0.4);" />
+              </div>
+              
+              <div style="text-align: center; margin-bottom: 24px;">
+                <h1 style="color: #22d3ee; font-size: 28px; margin: 0 0 8px 0; font-weight: 400;">Verify Your Account</h1>
+                <p style="color: #94a3b8; font-size: 15px; margin: 0;">Enter this code to join the Nomiqa network</p>
+              </div>
+              
+              <div style="background: rgba(34, 211, 238, 0.1); border: 2px solid rgba(34, 211, 238, 0.4); border-radius: 12px; padding: 24px; margin: 24px 0; text-align: center;">
+                <p style="margin: 0 0 8px 0; color: #94a3b8; font-size: 13px; text-transform: uppercase; letter-spacing: 1px;">Verification Code</p>
+                <p style="margin: 0; font-size: 40px; font-weight: 900; color: #22d3ee; letter-spacing: 10px; font-family: monospace;">${data.code}</p>
+              </div>
+              
+              <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 8px; padding: 12px; margin: 20px 0; text-align: center;">
+                <p style="margin: 0; color: #fbbf24; font-size: 13px;">⏱️ This code expires in 15 minutes</p>
+              </div>
+              
+              <div style="margin: 24px 0; text-align: center;">
+                <p style="color: #64748b; font-size: 14px; line-height: 1.6; margin: 0;">
+                  Once verified, you'll be an early member of the world's first community-owned DePIN mobile network.
+                </p>
+              </div>
 
-            <div style="background: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; padding: 12px; margin: 20px 0;">
-              <p style="margin: 0; color: #92400e; font-size: 14px;">⏱️ This code expires in 15 minutes</p>
-            </div>
-
-            <div style="margin: 20px 0; padding: 15px; background: #f9f9f9; border-radius: 8px;">
-              <p style="margin: 0; color: #999; font-size: 14px;">If you didn't create this account, you can safely ignore this email.</p>
-            </div>
-
-            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; color: #999; font-size: 12px;">
-              <p>© 2025 Nomiqa - Private. Borderless. Human.</p>
-              <p style="margin: 8px 0 0 0;">This is an automated message from Nomiqa eSIM platform.</p>
+              <div style="margin-top: 32px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); text-align: center;">
+                <p style="color: #475569; font-size: 12px; margin: 0;">© 2025 Nomiqa — The World's First DePIN Mobile Network</p>
+                <p style="color: #334155; font-size: 11px; margin: 8px 0 0 0;">If you didn't create this account, you can safely ignore this email.</p>
+              </div>
             </div>
           </div>
         `,
@@ -75,35 +76,35 @@ const generateEmailHTML = (type: string, data: any): { html: string; subject: st
       return {
         subject: "Reset Your Nomiqa Password 🔐",
         html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <div style="text-align: center; margin-bottom: 30px;">
-              <img src="${logoUrl}" alt="Nomiqa" style="width: 120px; height: 120px; border-radius: 20px; border: 2px solid #0ea5e9; box-shadow: 0 4px 16px rgba(14, 165, 233, 0.3);" />
-            </div>
-            
-            <h1 style="color: #333; border-bottom: 2px solid #0ea5e9; padding-bottom: 10px;">
-              🔐 Reset Your Password
-            </h1>
-            
-            <div style="background: #dbeafe; border: 2px solid #0ea5e9; border-radius: 8px; padding: 16px; margin: 20px 0;">
-              <p style="margin: 0; color: #075985; font-weight: bold;">Your Reset Code</p>
-              <p style="margin: 8px 0 0 0; font-size: 32px; font-weight: 900; color: #0284c7; letter-spacing: 8px; text-align: center;">${data.code}</p>
-            </div>
-            
-            <div style="margin: 20px 0;">
-              <p style="color: #666; line-height: 1.6;">We received a request to reset your password. Use the code above to create a new password for your Nomiqa account.</p>
-            </div>
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0a0a0f;">
+            <div style="background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%); padding: 40px 20px; border-radius: 12px;">
+              <div style="text-align: center; margin-bottom: 30px;">
+                <img src="${logoUrl}" alt="Nomiqa" style="width: 100px; height: 100px; border-radius: 20px; border: 2px solid #0ea5e9; box-shadow: 0 4px 20px rgba(14, 165, 233, 0.4);" />
+              </div>
+              
+              <div style="text-align: center; margin-bottom: 24px;">
+                <h1 style="color: #0ea5e9; font-size: 28px; margin: 0 0 8px 0; font-weight: 400;">🔐 Reset Your Password</h1>
+                <p style="color: #94a3b8; font-size: 15px; margin: 0;">Use the code below to create a new password</p>
+              </div>
+              
+              <div style="background: rgba(14, 165, 233, 0.1); border: 2px solid rgba(14, 165, 233, 0.4); border-radius: 12px; padding: 24px; margin: 24px 0; text-align: center;">
+                <p style="margin: 0 0 8px 0; color: #94a3b8; font-size: 13px; text-transform: uppercase; letter-spacing: 1px;">Reset Code</p>
+                <p style="margin: 0; font-size: 40px; font-weight: 900; color: #0ea5e9; letter-spacing: 10px; font-family: monospace;">${data.code}</p>
+              </div>
+              
+              <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 8px; padding: 12px; margin: 20px 0; text-align: center;">
+                <p style="margin: 0; color: #fbbf24; font-size: 13px;">⏱️ This code expires in 15 minutes</p>
+              </div>
+              
+              <div style="margin: 24px 0; text-align: center;">
+                <p style="color: #64748b; font-size: 14px; line-height: 1.6; margin: 0;">
+                  If you didn't request this password reset, please ignore this email and your password will remain unchanged.
+                </p>
+              </div>
 
-            <div style="background: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; padding: 12px; margin: 20px 0;">
-              <p style="margin: 0; color: #92400e; font-size: 14px;">⏱️ This code expires in 15 minutes</p>
-            </div>
-
-            <div style="margin: 20px 0; padding: 15px; background: #f9f9f9; border-radius: 8px;">
-              <p style="margin: 0; color: #999; font-size: 14px;">If you didn't request this password reset, please ignore this email and your password will remain unchanged.</p>
-            </div>
-
-            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; color: #999; font-size: 12px;">
-              <p>© 2025 Nomiqa - Private. Borderless. Human.</p>
-              <p style="margin: 8px 0 0 0;">This is an automated message from Nomiqa eSIM platform.</p>
+              <div style="margin-top: 32px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); text-align: center;">
+                <p style="color: #475569; font-size: 12px; margin: 0;">© 2025 Nomiqa — The World's First DePIN Mobile Network</p>
+              </div>
             </div>
           </div>
         `,
@@ -393,7 +394,7 @@ const generateEmailHTML = (type: string, data: any): { html: string; subject: st
 
     case 'early_member_welcome':
       return {
-        subject: "🎉 You're In! Welcome to the Nomiqa Network",
+        subject: "🎉 Welcome to Nomiqa — You're In!",
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0a0a0f;">
             <div style="background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%); padding: 40px 20px; border-radius: 12px;">
@@ -423,46 +424,40 @@ const generateEmailHTML = (type: string, data: any): { html: string; subject: st
               </div>
               
               <div style="margin: 30px 0;">
-                <h2 style="color: #a78bfa; font-size: 18px; margin-bottom: 20px; font-weight: 400;">✨ What happens next?</h2>
+                <h2 style="color: #a78bfa; font-size: 18px; margin-bottom: 20px; font-weight: 400;">✨ What's Next?</h2>
                 <div style="space-y: 16px;">
                   <div style="display: flex; align-items: flex-start; margin-bottom: 16px;">
                     <span style="color: #22d3ee; margin-right: 12px; font-size: 18px;">📱</span>
-                    <p style="color: #cbd5e1; margin: 0; font-size: 15px;"><strong>App coming soon!</strong> We'll notify you as soon as it's ready to download</p>
+                    <p style="color: #cbd5e1; margin: 0; font-size: 15px;"><strong>Download the app</strong> — Start contributing to the network today</p>
                   </div>
                   <div style="display: flex; align-items: flex-start; margin-bottom: 16px;">
                     <span style="color: #22d3ee; margin-right: 12px; font-size: 18px;">⭐</span>
-                    <p style="color: #cbd5e1; margin: 0; font-size: 15px;">Your 50% lifetime boost is locked in — no action needed</p>
+                    <p style="color: #cbd5e1; margin: 0; font-size: 15px;">Your <strong>50% lifetime boost</strong> is locked in — no action needed</p>
                   </div>
                   <div style="display: flex; align-items: flex-start; margin-bottom: 16px;">
-                    <span style="color: #22d3ee; margin-right: 12px; font-size: 18px;">🚀</span>
-                    <p style="color: #cbd5e1; margin: 0; font-size: 15px;">When we launch, you'll be first in line to start earning</p>
+                    <span style="color: #22d3ee; margin-right: 12px; font-size: 18px;">🌐</span>
+                    <p style="color: #cbd5e1; margin: 0; font-size: 15px;">Help build the network — earn points automatically in the background</p>
                   </div>
                 </div>
               </div>
               
               <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 20px; margin: 24px 0;">
                 <p style="color: #10b981; font-size: 16px; font-weight: bold; margin: 0 0 12px 0; text-align: center;">
-                  👥 Start Building Your Network Now!
+                  👥 Grow Your Team, Grow Your Earnings
                 </p>
                 <p style="color: #cbd5e1; font-size: 14px; margin: 0; text-align: center; line-height: 1.6;">
-                  Don't wait for the app — <strong style="color: #22d3ee;">invite friends today</strong> and boost your rewards even more!<br/>
-                  Share your referral link and earn <strong style="color: #10b981;">5% of all points</strong> your referrals earn — forever!
-                </p>
-              </div>
-              
-              <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.2); border-radius: 12px; padding: 16px; margin: 24px 0; text-align: center;">
-                <p style="color: #4ade80; font-size: 14px; margin: 0;">
-                  <span style="font-size: 16px;">✓</span> <strong>Pro tip:</strong> The more friends you refer now, the more you'll earn when the app launches!
+                  Invite friends and earn <strong style="color: #10b981;">10% of all points</strong> they earn — forever!<br/>
+                  The more people you bring, the more you earn together.
                 </p>
               </div>
               
               <div style="text-align: center; margin-top: 30px;">
-                <a href="https://nomiqa-esim.com" style="display: inline-block; background: linear-gradient(135deg, #22d3ee 0%, #a78bfa 100%); color: #0f172a; text-decoration: none; padding: 14px 36px; border-radius: 8px; font-weight: bold; font-size: 15px;">Explore Nomiqa</a>
+                <a href="https://nomiqa-depin.com" style="display: inline-block; background: linear-gradient(135deg, #22d3ee 0%, #a78bfa 100%); color: #0f172a; text-decoration: none; padding: 14px 36px; border-radius: 8px; font-weight: bold; font-size: 15px;">Explore Nomiqa</a>
               </div>
               
               <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); text-align: center;">
-                <p style="color: #64748b; font-size: 12px; margin: 0;">© 2025 Nomiqa - Private. Borderless. Human.</p>
-                <p style="color: #475569; font-size: 11px; margin: 8px 0 0 0;">The world's first community-owned DePIN mobile network</p>
+                <p style="color: #64748b; font-size: 12px; margin: 0;">© 2025 Nomiqa — The World's First DePIN Mobile Network</p>
+                <p style="color: #475569; font-size: 11px; margin: 8px 0 0 0;">Join the network. Earn from day one.</p>
               </div>
             </div>
           </div>
