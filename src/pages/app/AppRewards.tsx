@@ -18,6 +18,7 @@ import { AppSpinner } from '@/components/app/AppSpinner';
 import { TOKENOMICS, pointsToUsd } from '@/utils/tokenomics';
 import { APP_COPY } from '@/utils/appCopy';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
+import { AppSEO } from '@/components/app/AppSEO';
 
 interface EarningsData {
   date: string;
@@ -251,8 +252,10 @@ export const AppRewards: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen pb-24">
-      <div className="px-4 py-6 space-y-5">
+    <>
+      <AppSEO />
+      <div className="min-h-screen pb-24">
+        <div className="px-4 py-6 space-y-5">
         {/* Header */}
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-extrabold text-foreground">Rewards</h1>
@@ -530,7 +533,8 @@ export const AppRewards: React.FC = () => {
           <ShoppingBag className="w-4 h-4" />
           Shop with Points
         </button>
+        </div>
       </div>
-    </div>
+    </>
   );
 };

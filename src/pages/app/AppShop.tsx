@@ -41,6 +41,7 @@ import { ProductContextMenu } from '@/components/app/ProductContextMenu';
 import { SwipeableDismiss } from '@/components/app/SwipeableDismiss';
 import { SectionErrorBoundary } from '@/components/app/SectionErrorBoundary';
 import { SwipeHint } from '@/components/app/GestureHints';
+import { AppSEO } from '@/components/app/AppSEO';
 import {
   Dialog,
   DialogContent,
@@ -267,16 +268,18 @@ export const AppShop: React.FC = () => {
   ];
 
   return (
-    <div 
-      className="min-h-screen relative overflow-hidden overflow-y-auto app-container momentum-scroll"
-      {...handlers}
-    >
-      {/* Pull to refresh indicator */}
-      <PullToRefreshIndicator 
-        pullDistance={pullDistance}
-        pullProgress={pullProgress}
-        isRefreshing={isRefreshing}
-      />
+    <>
+      <AppSEO />
+      <div 
+        className="min-h-screen relative overflow-hidden overflow-y-auto app-container momentum-scroll"
+        {...handlers}
+      >
+        {/* Pull to refresh indicator */}
+        <PullToRefreshIndicator 
+          pullDistance={pullDistance}
+          pullProgress={pullProgress}
+          isRefreshing={isRefreshing}
+        />
 
       <div className="relative z-10 px-5 py-6 pb-28 space-y-4">
         {/* Header - Glassmorphism */}
@@ -720,6 +723,7 @@ export const AppShop: React.FC = () => {
           scrollbar-width: none;
         }
       `}</style>
-    </div>
+      </div>
+    </>
   );
 };
