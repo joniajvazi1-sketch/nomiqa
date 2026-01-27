@@ -1014,9 +1014,6 @@ export default function MyAccount() {
                         <p className="text-sm text-muted-foreground mt-1">
                           ≈ ${((userPoints?.total_points || 0) * 0.01).toFixed(2)} USD
                         </p>
-                        <p className="text-xs text-muted-foreground/70 mt-0.5">
-                          Est. value at $0.01/point
-                        </p>
                       </CardContent>
                     </Card>
 
@@ -1212,7 +1209,18 @@ export default function MyAccount() {
                     {t("referEarnTab")}
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="pt-6">
+                <CardContent className="pt-6 space-y-6">
+                  {/* Total Points Display */}
+                  <div className="p-5 rounded-xl bg-gradient-to-br from-neon-cyan/10 to-neon-violet/10 border border-white/10 text-center">
+                    <p className="text-4xl font-bold bg-gradient-to-r from-neon-cyan via-neon-violet to-neon-cyan bg-clip-text text-transparent">
+                      {(userPoints?.total_points || 0).toLocaleString()}
+                    </p>
+                    <p className="text-sm text-muted-foreground mt-1">{t("totalPoints")}</p>
+                    <p className="text-xs text-muted-foreground/70 mt-2">
+                      {t("cryptoConversionMessage")}
+                    </p>
+                  </div>
+
                   <Button 
                     onClick={() => navigate(localizedPath('/affiliate', language))}
                     className="w-full h-auto py-3 px-4 text-sm md:text-base lg:text-lg font-light bg-white/[0.05] backdrop-blur-xl border-2 border-neon-coral/30 text-white hover:bg-neon-coral/10 hover:border-neon-coral/50 rounded-xl transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-neon-coral/20"
