@@ -219,7 +219,7 @@ export const Navbar = () => {
               <img 
                 src={headerLogo} 
                 alt="Nomiqa" 
-                className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 object-contain transition-transform duration-300 group-hover:scale-105"
+                className="w-6 h-6 sm:w-7 sm:h-7 rounded-md object-cover transition-transform duration-300 group-hover:scale-105"
               />
               <span className={`font-light bg-gradient-to-r from-neon-cyan via-white to-neon-violet bg-clip-text text-transparent group-hover:from-white group-hover:via-neon-cyan group-hover:to-white transition-all duration-700 group-hover:tracking-wide ${user ? 'text-2xl sm:text-3xl md:text-4xl' : 'text-xl sm:text-2xl md:text-3xl'}`}>
                 nomiqa
