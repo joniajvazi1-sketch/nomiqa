@@ -151,9 +151,50 @@ export const AppProfile: React.FC = () => {
             total_points: statsResult.data.points?.total || 0,
             total_distance_meters: statsResult.data.points?.total_distance_meters || 0
           });
+        } else {
+          // If stats fetch failed or returned empty, ensure user_points record exists
+          const { data: existingPoints } = await supabase
+            .from('user_points')
+            .select('total_points, total_distance_meters')
+            .eq('user_id', currentUser.id)
+            .maybeSingle();
+          
+          if (!existingPoints) {
+            // Create initial user_points record
+            await supabase
+              .from('user_points')
+              .insert({ user_id: currentUser.id, total_points: 0, pending_points: 0 });
+          }
+          
+          setUserPoints({
+            total_points: existingPoints?.total_points || 0,
+            total_distance_meters: existingPoints?.total_distance_meters || 0
+          });
         }
 
-        setAffiliate(affiliateResult.data);
+        // Auto-create affiliate account if doesn't exist
+        let affiliateData = affiliateResult.data;
+        if (!affiliateData) {
+          // Generate a unique affiliate code
+          const affiliateCode = Math.random().toString(36).substring(2, 10).toUpperCase();
+          const { data: newAffiliate, error: affiliateError } = await supabase
+            .from('affiliates')
+            .insert({ 
+              user_id: currentUser.id, 
+              email: currentUser.email || '',
+              affiliate_code: affiliateCode,
+              username: username,
+              email_verified: true,
+              status: 'active'
+            })
+            .select()
+            .single();
+          
+          if (!affiliateError && newAffiliate) {
+            affiliateData = newAffiliate;
+          }
+        }
+        setAffiliate(affiliateData);
         setOrders(ordersResult.data || []);
       }
     } catch (error) {
