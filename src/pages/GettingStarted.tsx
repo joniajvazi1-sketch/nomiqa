@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { 
   Smartphone, Shield, Coins, ArrowRight, Download, 
   Wifi, Globe, Users, Zap, Lock, CheckCircle2, 
-  Network, Wallet, TrendingUp, ShieldCheck
+  Network, Wallet, TrendingUp, ShieldCheck, UserPlus
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/contexts/TranslationContext";
@@ -27,7 +27,7 @@ export default function GettingStarted() {
     },
     {
       number: "02",
-      icon: Smartphone,
+      icon: UserPlus,
       title: t("gsStep2Title"),
       description: t("gsStep2Desc"),
       color: "from-neon-violet to-neon-violet/50",
