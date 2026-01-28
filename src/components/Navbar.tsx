@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { Language, useTranslation } from "@/contexts/TranslationContext";
 import { localizedPath } from "@/utils/localizedLinks";
 import { getTranslatedCountryName } from "@/utils/countryTranslations";
+import headerLogo from "@/assets/nomiqa-header-logo-small.png";
 
 // Country flags now use emoji for performance (removed country-flag-icons library - 53KB savings)
 
@@ -214,7 +215,12 @@ export const Navbar = () => {
         <div className="flex items-center justify-between gap-4 h-16 sm:h-18 md:h-20">
           {/* Logo - Centered in available space using flex-1 */}
           <div className="flex-1 flex items-center justify-center lg:justify-start">
-            <button onClick={() => navigate('/')} className="group">
+            <button onClick={() => navigate('/')} className="group flex items-center gap-2">
+              <img 
+                src={headerLogo} 
+                alt="Nomiqa" 
+                className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 object-contain transition-transform duration-300 group-hover:scale-105"
+              />
               <span className={`font-light bg-gradient-to-r from-neon-cyan via-white to-neon-violet bg-clip-text text-transparent group-hover:from-white group-hover:via-neon-cyan group-hover:to-white transition-all duration-700 group-hover:tracking-wide ${user ? 'text-2xl sm:text-3xl md:text-4xl' : 'text-xl sm:text-2xl md:text-3xl'}`}>
                 nomiqa
               </span>
