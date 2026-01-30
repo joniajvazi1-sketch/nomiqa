@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -345,14 +346,20 @@ export default function Auth() {
     setLoading(true);
     try {
       const redirect = validateRedirectUrl(searchParams.get("redirect"));
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/auth?redirect=${encodeURIComponent(redirect)}`,
-        }
+      
+      // Use Lovable Cloud managed OAuth
+      const result = await lovable.auth.signInWithOAuth('google', {
+        redirect_uri: `${window.location.origin}/auth?redirect=${encodeURIComponent(redirect)}`,
       });
 
-      if (error) throw error;
+      if (result.error) {
+        throw result.error;
+      }
+
+      // If not redirected, session was set automatically
+      if (!result.redirected) {
+        console.log('[Auth] Google sign-in successful');
+      }
     } catch (error: any) {
       toast.error(error.message || "Failed to sign in with Google");
       setLoading(false);

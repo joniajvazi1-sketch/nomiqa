@@ -29,7 +29,7 @@ import { Capacitor } from '@capacitor/core';
 import { Browser } from '@capacitor/browser';
 import { App } from '@capacitor/app';
 import { z } from 'zod';
-import { useNativeGoogleAuth } from '@/hooks/useNativeGoogleAuth';
+import { lovable } from '@/integrations/lovable';
 import { useBiometricAuth } from '@/hooks/useBiometricAuth';
 
 // Validation schemas
@@ -88,8 +88,7 @@ export const AppAuth: React.FC = () => {
   const { buttonTap, successPattern, errorPattern } = useEnhancedHaptics();
   const { toast } = useToast();
 
-  // Native auth hooks
-  const { signIn: nativeGoogleSignIn } = useNativeGoogleAuth();
+  // Biometric auth hook
   const { 
     isAvailable: biometricAvailable, 
     isEnabled: biometricEnabled, 
@@ -613,37 +612,23 @@ export const AppAuth: React.FC = () => {
     setFormError('');
 
     try {
-      const isNativePlatform = Capacitor.isNativePlatform();
-      
-      // Use HTTPS redirect - OAuthRedirect page handles native deep linking
-      const redirectTo = isNativePlatform
-        ? 'https://nomiqa.lovable.app/app/oauth-redirect'
-        : `${window.location.origin}/app/auth`;
-
-      console.log('[AppAuth] OAuth redirect URL:', redirectTo);
-
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo,
-          ...(isNativePlatform ? { skipBrowserRedirect: true } : {}),
-        } as any,
+      // Use Lovable Cloud managed OAuth - works on both web and native
+      const result = await lovable.auth.signInWithOAuth('google', {
+        redirect_uri: window.location.origin + '/app/auth',
       });
 
-      if (error) throw error;
+      if (result.error) {
+        throw result.error;
+      }
 
-      if (isNativePlatform) {
-        const url = data?.url;
-        if (!url) throw new Error('Missing OAuth URL');
-        
-        console.log('[AppAuth] Opening browser for OAuth:', url);
-        await Browser.open({ 
-          url,
-          presentationStyle: 'popover',
-          windowName: '_blank',
-        });
+      // If redirected, the page will reload with tokens
+      // If not redirected, session was set automatically by the lovable auth
+      if (!result.redirected) {
+        // Session was set, onAuthStateChange will handle navigation
+        console.log('[AppAuth] Google sign-in successful');
       }
     } catch (error: any) {
+      console.error('[AppAuth] Google sign-in error:', error);
       setFormError(getReadableError(error.message || 'Failed to sign in with Google'));
       errorPattern();
       setGoogleLoading(false);
