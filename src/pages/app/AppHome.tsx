@@ -291,7 +291,7 @@ export const AppHome: React.FC = () => {
               <span className="text-lg text-muted-foreground">pts</span>
             </div>
             <p className="text-sm text-muted-foreground mb-6">
-              ≈ ${totalUSD.toFixed(2)} USD
+              Convertible to $NOMIQA
             </p>
 
             {/* Mini Stats Row */}
