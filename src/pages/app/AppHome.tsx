@@ -444,7 +444,6 @@ export const AppHome: React.FC = () => {
         </div>
       </div>
 
-      {user && <DailyCheckIn userId={user.id} />}
       <WeeklySummaryModal />
     </>
   );
