@@ -1513,6 +1513,7 @@ export type Database = {
           created_at: string | null
           id: string
           limit_date: string
+          points_earned: number | null
           signal_logs_count: number | null
           speed_tests_count: number | null
           updated_at: string | null
@@ -1522,6 +1523,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           limit_date?: string
+          points_earned?: number | null
           signal_logs_count?: number | null
           speed_tests_count?: number | null
           updated_at?: string | null
@@ -1531,6 +1533,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           limit_date?: string
+          points_earned?: number | null
           signal_logs_count?: number | null
           speed_tests_count?: number | null
           updated_at?: string | null
@@ -1849,6 +1852,10 @@ export type Database = {
       }
     }
     Functions: {
+      add_points_with_cap: {
+        Args: { p_base_points: number; p_source?: string; p_user_id: string }
+        Returns: Json
+      }
       admin_update_leaderboard_rankings: { Args: never; Returns: undefined }
       cleanup_expired_order_pii: { Args: never; Returns: number }
       cleanup_old_email_rate_limits: { Args: never; Returns: undefined }
@@ -1859,6 +1866,7 @@ export type Database = {
         Args: { p_user_id: string }
         Returns: number
       }
+      get_user_earning_status: { Args: { p_user_id: string }; Returns: Json }
       get_user_email: { Args: never; Returns: string }
       has_role: {
         Args: {

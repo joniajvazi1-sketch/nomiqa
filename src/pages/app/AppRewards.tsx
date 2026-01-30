@@ -15,7 +15,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { AppSpinner } from '@/components/app/AppSpinner';
-import { TOKENOMICS, pointsToUsd } from '@/utils/tokenomics';
+import { TOKENOMICS, formatPoints } from '@/utils/tokenomics';
 import { APP_COPY } from '@/utils/appCopy';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
 import { AppSEO } from '@/components/app/AppSEO';
@@ -244,7 +244,7 @@ export const AppRewards: React.FC = () => {
     );
   }
 
-  const totalUsd = pointsToUsd(totalPoints);
+  // Points-only display - no USD estimate until token launch
 
   const handleClaimPoints = () => {
     mediumTap();
@@ -310,11 +310,8 @@ export const AppRewards: React.FC = () => {
             <span className="text-lg font-bold text-muted-foreground">pts</span>
           </div>
           
-          <div className="text-base font-semibold text-green-500 mb-1">
-            ≈ ${totalUsd.toFixed(2)} USD
-          </div>
-          <p className="text-xs font-medium text-muted-foreground mb-1">
-            Points convert to network tokens for services & rewards
+          <p className="text-xs font-medium text-muted-foreground mb-2">
+            Points convert to $NOMIQA tokens at launch
           </p>
           <p className="text-xs font-semibold text-primary">
             🎁 Invite contributors → Share in network value
