@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar, Gift, Flame, X, Check } from 'lucide-react';
+import { Gift, X, Check, Flame } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useEnhancedHaptics } from '@/hooks/useEnhancedHaptics';
 import { useEnhancedSounds } from '@/hooks/useEnhancedSounds';
@@ -12,13 +12,13 @@ interface DailyCheckInProps {
 }
 
 const STREAK_REWARDS = [
-  { day: 1, points: 10, label: 'D1' },
-  { day: 2, points: 15, label: 'D2' },
-  { day: 3, points: 25, label: 'D3' },
-  { day: 4, points: 30, label: 'D4' },
-  { day: 5, points: 40, label: 'D5' },
-  { day: 6, points: 50, label: 'D6' },
-  { day: 7, points: 100, label: 'D7' },
+  { day: 1, points: 10 },
+  { day: 2, points: 15 },
+  { day: 3, points: 25 },
+  { day: 4, points: 30 },
+  { day: 5, points: 40 },
+  { day: 6, points: 50 },
+  { day: 7, points: 100 },
 ];
 
 export const DailyCheckIn = ({ userId, onClose }: DailyCheckInProps) => {
@@ -28,7 +28,7 @@ export const DailyCheckIn = ({ userId, onClose }: DailyCheckInProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isClaiming, setIsClaiming] = useState(false);
   const { successPattern, buttonTap } = useEnhancedHaptics();
-  const { playCelebration, playCoin } = useEnhancedSounds();
+  const { playCelebration } = useEnhancedSounds();
 
   useEffect(() => {
     checkTodayStatus();
@@ -63,7 +63,7 @@ export const DailyCheckIn = ({ userId, onClose }: DailyCheckInProps) => {
         .maybeSingle();
 
       setCurrentStreak(yesterdayCheckIn?.streak_day || 0);
-      setIsOpen(true); // Show modal for new check-in
+      setIsOpen(true); // Auto-show for new check-in
       setIsLoading(false);
     } catch (error) {
       console.error('Error checking daily status:', error);
@@ -122,7 +122,7 @@ export const DailyCheckIn = ({ userId, onClose }: DailyCheckInProps) => {
       setTimeout(() => {
         setIsOpen(false);
         onClose?.();
-      }, 1500);
+      }, 1200);
     } catch (error) {
       console.error('Check-in error:', error);
       toast.error('Failed to check in. Please try again.');
@@ -131,14 +131,12 @@ export const DailyCheckIn = ({ userId, onClose }: DailyCheckInProps) => {
     }
   };
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setIsOpen(false);
     onClose?.();
-  };
+  }, [onClose]);
 
-  // Prevent ALL scrolling when modal is open.
-  // IMPORTANT: This app scrolls inside a dedicated <main> container (not the body),
-  // so we must lock that container too.
+  // Lock scroll when modal is open
   useEffect(() => {
     if (!isOpen) return;
 
@@ -147,48 +145,22 @@ export const DailyCheckIn = ({ userId, onClose }: DailyCheckInProps) => {
     const prevHtmlOverflow = document.documentElement.style.overflow;
     const prevBodyOverflow = document.body.style.overflow;
     const prevMainOverflow = main?.style.overflow ?? '';
-    const prevMainOverscroll = main?.style.overscrollBehavior ?? '';
-    const prevMainTouchAction = main?.style.touchAction ?? '';
-    const prevMainWebkitScroll = main?.style.getPropertyValue('-webkit-overflow-scrolling') ?? '';
 
-    // Lock page + app scroll container
     document.documentElement.style.overflow = 'hidden';
     document.body.style.overflow = 'hidden';
+    if (main) main.style.overflow = 'hidden';
 
-    if (main) {
-      main.style.overflow = 'hidden';
-      main.style.overscrollBehavior = 'contain';
-      main.style.touchAction = 'none';
-      // Disable momentum scrolling explicitly on iOS
-      main.style.setProperty('-webkit-overflow-scrolling', 'auto');
-    }
-
-    // Block native scroll gestures that can still move underlying containers on iOS
-    const preventScroll = (e: Event) => {
-      e.preventDefault();
-    };
-
-    const listenerOptions: AddEventListenerOptions = { passive: false, capture: true };
-    document.addEventListener('touchmove', preventScroll, listenerOptions);
-    document.addEventListener('wheel', preventScroll, listenerOptions);
+    const preventScroll = (e: Event) => e.preventDefault();
+    const opts: AddEventListenerOptions = { passive: false, capture: true };
+    document.addEventListener('touchmove', preventScroll, opts);
+    document.addEventListener('wheel', preventScroll, opts);
 
     return () => {
-      document.removeEventListener('touchmove', preventScroll, listenerOptions);
-      document.removeEventListener('wheel', preventScroll, listenerOptions);
-
+      document.removeEventListener('touchmove', preventScroll, opts);
+      document.removeEventListener('wheel', preventScroll, opts);
       document.documentElement.style.overflow = prevHtmlOverflow;
       document.body.style.overflow = prevBodyOverflow;
-
-      if (main) {
-        main.style.overflow = prevMainOverflow;
-        main.style.overscrollBehavior = prevMainOverscroll;
-        main.style.touchAction = prevMainTouchAction;
-        if (prevMainWebkitScroll) {
-          main.style.setProperty('-webkit-overflow-scrolling', prevMainWebkitScroll);
-        } else {
-          main.style.removeProperty('-webkit-overflow-scrolling');
-        }
-      }
+      if (main) main.style.overflow = prevMainOverflow;
     };
   }, [isOpen]);
 
@@ -199,133 +171,95 @@ export const DailyCheckIn = ({ userId, onClose }: DailyCheckInProps) => {
 
   return (
     <AnimatePresence>
+      {/* Fixed overlay - centered modal */}
       <motion.div
+        key="daily-checkin-overlay"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
-        style={{ 
-          touchAction: 'none',
-          overscrollBehavior: 'contain'
-        }}
+        className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-md"
+        style={{ touchAction: 'none' }}
         onClick={handleClose}
-        onTouchMove={(e) => e.preventDefault()}
       >
+        {/* Modal card - compact */}
         <motion.div
-          initial={{ scale: 0.9, opacity: 0 }}
+          key="daily-checkin-card"
+          initial={{ scale: 0.85, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          exit={{ scale: 0.9, opacity: 0 }}
+          exit={{ scale: 0.85, opacity: 0 }}
+          transition={{ type: 'spring', damping: 25, stiffness: 350 }}
           onClick={(e) => e.stopPropagation()}
-          className="relative w-full max-w-[280px] bg-slate-900 rounded-2xl p-3 shadow-2xl border border-slate-700"
+          className="relative w-[260px] bg-card rounded-3xl p-5 shadow-2xl border border-border"
         >
-          {/* Background decoration */}
-          <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-primary/20 to-transparent rounded-t-2xl" />
-          
           {/* Close button */}
           <button
             onClick={handleClose}
-            className="absolute top-2 right-2 p-1 rounded-full hover:bg-slate-700 transition-colors z-10"
+            className="absolute top-3 right-3 p-1.5 rounded-full bg-muted/50 hover:bg-muted transition-colors"
           >
-            <X className="w-4 h-4 text-slate-300" />
+            <X className="w-4 h-4 text-muted-foreground" />
           </button>
 
-          <div className="relative">
-            {/* Icon */}
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ type: 'spring', delay: 0.1 }}
-              className="mx-auto w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center mb-2 shadow-lg"
-            >
-              <Gift className="w-5 h-5 text-white" />
-            </motion.div>
+          {/* Icon */}
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: 'spring', delay: 0.1 }}
+            className="mx-auto w-14 h-14 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center mb-3 shadow-lg"
+          >
+            <Gift className="w-7 h-7 text-white" />
+          </motion.div>
 
-            {/* Title */}
-            <h2 className="text-base font-bold text-center text-white">Daily Check-in</h2>
-            
-            {/* Streak indicator */}
-            <div className="flex items-center justify-center gap-1 my-1">
-              <Flame className="w-3 h-3 text-orange-500" />
-              <span className="text-xs font-medium text-slate-300">
-                {currentStreak > 0 ? `${currentStreak} day streak` : 'Start your streak!'}
-              </span>
-            </div>
+          {/* Title */}
+          <h2 className="text-lg font-bold text-center text-foreground mb-1">Daily Check-in</h2>
 
-            {/* Week progress - ultra compact */}
-            <div className="grid grid-cols-7 gap-0.5 mb-2">
-              {STREAK_REWARDS.map((reward, index) => {
-                const isPast = index < currentStreak % 7;
-                const isCurrent = index === nextStreakDay - 1;
-                const isFuture = index > nextStreakDay - 1;
-
-                return (
-                  <div
-                    key={reward.day}
-                    className={`
-                      flex flex-col items-center py-1 rounded text-center
-                      ${isPast ? 'bg-green-500/20' : ''}
-                      ${isCurrent ? 'bg-primary/20 ring-1 ring-primary' : ''}
-                      ${isFuture ? 'opacity-40' : ''}
-                    `}
-                  >
-                    {isPast ? (
-                      <Check className="w-2.5 h-2.5 text-green-500" />
-                    ) : (
-                      <Calendar className="w-2.5 h-2.5 text-slate-400" />
-                    )}
-                    <span className={`text-[8px] font-bold ${isCurrent ? 'text-primary' : 'text-slate-300'}`}>
-                      +{reward.points}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Today's reward - compact */}
-            <div className="bg-primary/10 rounded-lg p-2 mb-2 border border-primary/20">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-[9px] text-slate-400">Today's Reward</p>
-                  <p className="text-lg font-bold text-primary">+{todayReward?.points} pts</p>
-                </div>
-                <Gift className="w-6 h-6 text-primary" />
-              </div>
-            </div>
-
-            {/* Claim button */}
-            <motion.button
-              whileTap={{ scale: 0.95 }}
-              onClick={handleCheckIn}
-              disabled={isClaiming || hasCheckedInToday}
-              className={`
-                w-full py-2.5 rounded-xl font-semibold text-sm
-                transition-all duration-200
-                ${hasCheckedInToday
-                  ? 'bg-green-500 text-white'
-                  : 'bg-gradient-to-r from-primary to-primary/80 text-primary-foreground'
-                }
-                disabled:opacity-70
-              `}
-            >
-              {isClaiming ? (
-                <span className="flex items-center justify-center gap-2">
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                    className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full"
-                  />
-                  Claiming...
-                </span>
-              ) : hasCheckedInToday ? (
-                <span className="flex items-center justify-center gap-1">
-                  <Check className="w-3 h-3" />
-                  Claimed!
-                </span>
-              ) : (
-                'Claim Reward'
-              )}
-            </motion.button>
+          {/* Streak indicator */}
+          <div className="flex items-center justify-center gap-1.5 mb-4">
+            <Flame className="w-4 h-4 text-orange-500" />
+            <span className="text-sm text-muted-foreground">
+              {currentStreak > 0 ? `${currentStreak} day streak` : 'Start your streak!'}
+            </span>
           </div>
+
+          {/* Today's reward - simple */}
+          <div className="bg-primary/10 rounded-2xl p-4 mb-4 border border-primary/20 text-center">
+            <p className="text-xs text-muted-foreground mb-1">Today's Reward</p>
+            <p className="text-3xl font-bold text-primary">+{todayReward?.points}</p>
+            <p className="text-xs text-muted-foreground">points</p>
+          </div>
+
+          {/* Claim button */}
+          <motion.button
+            whileTap={{ scale: 0.96 }}
+            onClick={handleCheckIn}
+            disabled={isClaiming || hasCheckedInToday}
+            className={`
+              w-full py-3 rounded-2xl font-semibold text-base
+              transition-all duration-200
+              ${hasCheckedInToday
+                ? 'bg-green-500 text-white'
+                : 'bg-gradient-to-r from-primary to-primary/80 text-primary-foreground'
+              }
+              disabled:opacity-70
+            `}
+          >
+            {isClaiming ? (
+              <span className="flex items-center justify-center gap-2">
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                  className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
+                />
+                Claiming...
+              </span>
+            ) : hasCheckedInToday ? (
+              <span className="flex items-center justify-center gap-2">
+                <Check className="w-4 h-4" />
+                Claimed!
+              </span>
+            ) : (
+              'Claim Reward'
+            )}
+          </motion.button>
         </motion.div>
       </motion.div>
     </AnimatePresence>
