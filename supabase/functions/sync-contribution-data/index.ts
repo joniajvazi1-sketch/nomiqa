@@ -1017,12 +1017,19 @@ serve(async (req) => {
 
     await supabase.from('mining_logs').insert(miningLogs);
 
-    // P2.0: Use the new capped points system with early user boost
+    // P2.0: Use the new capped points system with early user boost and streak multiplier
+    // Calculate session hours for time-based multiplier
+    const sessionHours = contributions.length > 1 
+      ? (new Date(contributions[contributions.length - 1].recorded_at).getTime() - 
+         new Date(contributions[0].recorded_at).getTime()) / (1000 * 60 * 60)
+      : null;
+    
     const { data: pointsResult, error: pointsError } = await supabase
       .rpc('add_points_with_cap', {
         p_user_id: user.id,
         p_base_points: basePointsEarned,
-        p_source: 'contribution'
+        p_source: 'contribution',
+        p_session_hours: sessionHours
       });
     
     let actualPointsEarned = basePointsEarned;
@@ -1060,7 +1067,7 @@ serve(async (req) => {
       }
     }
 
-    console.log(`Synced ${validContributions.length} contributions, earned ${actualPointsEarned} points${wasCapped ? ' (capped)' : ''}`);
+    console.log(`Synced ${validContributions.length} contributions, earned ${actualPointsEarned} pts${wasCapped ? ' (capped)' : ''}${pointsResult?.streak_days > 0 ? ` (${pointsResult.streak_days}d streak)` : ''}`);
 
     return new Response(
       JSON.stringify({
