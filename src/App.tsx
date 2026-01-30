@@ -67,21 +67,53 @@ const PageLoader = forwardRef<HTMLDivElement>((_, ref) => {
   }, []);
 
   return (
-    <div ref={ref} className="min-h-screen bg-background flex items-center justify-center">
+    <div 
+      ref={ref} 
+      className="min-h-screen bg-background flex items-center justify-center"
+      style={{ 
+        // Inline fallback for iOS WebView - CSS vars may not be ready yet
+        minHeight: '100vh',
+        backgroundColor: '#0a0a0a',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
       <div className="relative flex flex-col items-center gap-5 px-6 text-center">
         <div className="relative">
-          <div className="w-16 h-16 border-4 border-neon-cyan/20 border-t-neon-cyan rounded-full animate-spin" />
+          <div 
+            className="w-16 h-16 border-4 border-neon-cyan/20 border-t-neon-cyan rounded-full animate-spin" 
+            style={{
+              width: '64px',
+              height: '64px',
+              border: '4px solid rgba(0, 200, 255, 0.2)',
+              borderTopColor: '#00c8ff',
+              borderRadius: '50%',
+              animation: 'spin 1s linear infinite',
+            }}
+          />
           <div className="absolute inset-0 bg-neon-cyan/20 rounded-full blur-xl animate-pulse" />
         </div>
 
         {showHelp && (
           <div className="max-w-xs">
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground" style={{ fontSize: '14px', color: 'rgba(255, 255, 255, 0.6)' }}>
               Still loading? On some mobile browsers, storage/network settings can block the app from finishing.
             </p>
             <button
               type="button"
               className="mt-3 inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
+              style={{
+                marginTop: '12px',
+                backgroundColor: '#00c8ff',
+                color: '#0a0a0a',
+                padding: '8px 16px',
+                borderRadius: '6px',
+                fontWeight: 500,
+                fontSize: '14px',
+                border: 'none',
+                cursor: 'pointer',
+              }}
               onClick={() => window.location.reload()}
             >
               Reload
@@ -466,15 +498,43 @@ const AppRouter = () => {
 /**
  * Lightweight Boot Screen for iOS
  * Shows immediately while heavy modules load in background
+ * 
+ * CRITICAL: Uses inline styles as fallback because CSS variables may not be
+ * loaded yet on iOS WebView cold start (file:// protocol race condition).
+ * This prevents the "black screen" issue on native iOS.
  */
 const BootScreen = () => (
-  <div className="min-h-screen bg-background flex items-center justify-center">
-    <div className="flex flex-col items-center gap-4">
-      <div className="relative">
-        <div className="w-14 h-14 border-3 border-neon-cyan/20 border-t-neon-cyan rounded-full animate-spin" />
-        <div className="absolute inset-0 bg-neon-cyan/10 rounded-full blur-xl" />
+  <div 
+    className="min-h-screen bg-background flex items-center justify-center"
+    style={{ 
+      // Inline fallback for iOS WebView - CSS vars may not be ready yet
+      minHeight: '100vh',
+      backgroundColor: '#0a0a0a', // matches capacitor.config.ts & index.html
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    }}
+  >
+    <div className="flex flex-col items-center gap-4" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+      <div className="relative" style={{ position: 'relative' }}>
+        <div 
+          className="w-14 h-14 border-3 border-neon-cyan/20 border-t-neon-cyan rounded-full animate-spin" 
+          style={{
+            width: '56px',
+            height: '56px',
+            border: '3px solid rgba(0, 200, 255, 0.2)',
+            borderTopColor: '#00c8ff',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+          }}
+        />
       </div>
-      <p className="text-sm text-muted-foreground">Loading...</p>
+      <p 
+        className="text-sm text-muted-foreground"
+        style={{ fontSize: '14px', color: 'rgba(255, 255, 255, 0.6)' }}
+      >
+        Loading...
+      </p>
     </div>
   </div>
 );
