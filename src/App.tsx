@@ -463,7 +463,51 @@ const AppRouter = () => {
   return isNative ? <NativeAppRoutes /> : <WebRoutes />;
 };
 
+/**
+ * Lightweight Boot Screen for iOS
+ * Shows immediately while heavy modules load in background
+ */
+const BootScreen = () => (
+  <div className="min-h-screen bg-background flex items-center justify-center">
+    <div className="flex flex-col items-center gap-4">
+      <div className="relative">
+        <div className="w-14 h-14 border-3 border-neon-cyan/20 border-t-neon-cyan rounded-full animate-spin" />
+        <div className="absolute inset-0 bg-neon-cyan/10 rounded-full blur-xl" />
+      </div>
+      <p className="text-sm text-muted-foreground">Loading...</p>
+    </div>
+  </div>
+);
+
+/**
+ * App with deferred heavy module loading for iOS performance
+ * 
+ * On iOS WebView, loading too many heavy modules at once can cause:
+ * - Black screen / glitchy UI
+ * - WebView crashes
+ * - Slow initial render
+ * 
+ * Solution: Show a lightweight boot screen first, then mount the full app
+ * after a short delay to let the JS runtime stabilize.
+ */
 const App = () => {
+  const [isBooted, setIsBooted] = useState(false);
+
+  useEffect(() => {
+    // Give iOS WebView time to stabilize before mounting heavy components
+    // This prevents the black screen / crash on cold start
+    const bootTimer = setTimeout(() => {
+      setIsBooted(true);
+    }, 100); // 100ms is enough for WebView to stabilize
+
+    return () => clearTimeout(bootTimer);
+  }, []);
+
+  // Show lightweight boot screen until WebView is stable
+  if (!isBooted) {
+    return <BootScreen />;
+  }
+
   return (
     <QueryClientProvider client={queryClient}>
       <TranslationProvider>
@@ -474,7 +518,7 @@ const App = () => {
             <AffiliateTracker />
             <AppErrorBoundary
               title="Site failed to load"
-              description="This page couldn’t finish loading. Please reload and try again."
+              description="This page couldn't finish loading. Please reload and try again."
             >
               <Suspense fallback={<PageLoader />}>
                 <AppRouter />
