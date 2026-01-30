@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Users, UserCheck, Wallet, Search, CheckCircle, XCircle, ArrowLeft, ChevronRight, RefreshCw } from "lucide-react";
+import { Users, UserCheck, Wallet, Search, CheckCircle, XCircle, ArrowLeft, ChevronRight, RefreshCw, Trophy, Medal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -316,6 +316,67 @@ export default function AdminUsers() {
               </CardContent>
             </Card>
           </div>
+        )}
+
+        {/* Top Referrers Leaderboard */}
+        {stats && (
+          <Card className="bg-gradient-to-br from-amber-500/10 to-orange-500/10 border-amber-500/20">
+            <CardHeader className="pb-2 pt-4">
+              <CardTitle className="text-sm flex items-center gap-2">
+                <Trophy className="w-4 h-4 text-amber-500" />
+                Top Referrers
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pb-4">
+              {(() => {
+                const topReferrers = [...users]
+                  .filter(u => u.total_registrations > 0)
+                  .sort((a, b) => b.total_registrations - a.total_registrations)
+                  .slice(0, 10);
+                
+                if (topReferrers.length === 0) {
+                  return <p className="text-sm text-muted-foreground">No referrals yet</p>;
+                }
+                
+                return (
+                  <div className="space-y-2">
+                    {topReferrers.map((user, index) => (
+                      <div 
+                        key={user.id} 
+                        className="flex items-center gap-3 p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors cursor-pointer"
+                        onClick={() => setSelectedUser(user)}
+                      >
+                        <div className="w-6 h-6 flex items-center justify-center shrink-0">
+                          {index === 0 ? (
+                            <Medal className="w-5 h-5 text-amber-400" />
+                          ) : index === 1 ? (
+                            <Medal className="w-5 h-5 text-gray-400" />
+                          ) : index === 2 ? (
+                            <Medal className="w-5 h-5 text-orange-600" />
+                          ) : (
+                            <span className="text-xs text-muted-foreground font-medium">{index + 1}</span>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-sm truncate">{user.username}</p>
+                          <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <p className="font-bold text-primary">{user.total_registrations}</p>
+                          <p className="text-xs text-muted-foreground">refs</p>
+                        </div>
+                        {user.miner_boost_percentage > 0 && (
+                          <Badge variant="secondary" className="shrink-0 text-xs">
+                            +{user.miner_boost_percentage}%
+                          </Badge>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
+            </CardContent>
+          </Card>
         )}
 
         {/* Search */}
