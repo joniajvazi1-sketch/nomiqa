@@ -136,43 +136,59 @@ export const DailyCheckIn = ({ userId, onClose }: DailyCheckInProps) => {
     onClose?.();
   };
 
-  // Prevent ALL scrolling when modal is open
+  // Prevent ALL scrolling when modal is open.
+  // IMPORTANT: This app scrolls inside a dedicated <main> container (not the body),
+  // so we must lock that container too.
   useEffect(() => {
-    if (isOpen) {
-      // Lock both html and body to prevent any scroll
-      document.documentElement.style.overflow = 'hidden';
-      document.documentElement.style.position = 'fixed';
-      document.documentElement.style.width = '100%';
-      document.documentElement.style.height = '100%';
-      document.body.style.overflow = 'hidden';
-      document.body.style.position = 'fixed';
-      document.body.style.width = '100%';
-      document.body.style.height = '100%';
-      document.body.style.top = '0';
-      document.body.style.left = '0';
-    } else {
-      document.documentElement.style.overflow = '';
-      document.documentElement.style.position = '';
-      document.documentElement.style.width = '';
-      document.documentElement.style.height = '';
-      document.body.style.overflow = '';
-      document.body.style.position = '';
-      document.body.style.width = '';
-      document.body.style.height = '';
-      document.body.style.top = '';
-      document.body.style.left = '';
+    if (!isOpen) return;
+
+    const main = document.querySelector('main') as HTMLElement | null;
+
+    const prevHtmlOverflow = document.documentElement.style.overflow;
+    const prevBodyOverflow = document.body.style.overflow;
+    const prevMainOverflow = main?.style.overflow ?? '';
+    const prevMainOverscroll = main?.style.overscrollBehavior ?? '';
+    const prevMainTouchAction = main?.style.touchAction ?? '';
+    const prevMainWebkitScroll = main?.style.getPropertyValue('-webkit-overflow-scrolling') ?? '';
+
+    // Lock page + app scroll container
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
+
+    if (main) {
+      main.style.overflow = 'hidden';
+      main.style.overscrollBehavior = 'contain';
+      main.style.touchAction = 'none';
+      // Disable momentum scrolling explicitly on iOS
+      main.style.setProperty('-webkit-overflow-scrolling', 'auto');
     }
+
+    // Block native scroll gestures that can still move underlying containers on iOS
+    const preventScroll = (e: Event) => {
+      e.preventDefault();
+    };
+
+    const listenerOptions: AddEventListenerOptions = { passive: false, capture: true };
+    document.addEventListener('touchmove', preventScroll, listenerOptions);
+    document.addEventListener('wheel', preventScroll, listenerOptions);
+
     return () => {
-      document.documentElement.style.overflow = '';
-      document.documentElement.style.position = '';
-      document.documentElement.style.width = '';
-      document.documentElement.style.height = '';
-      document.body.style.overflow = '';
-      document.body.style.position = '';
-      document.body.style.width = '';
-      document.body.style.height = '';
-      document.body.style.top = '';
-      document.body.style.left = '';
+      document.removeEventListener('touchmove', preventScroll, listenerOptions);
+      document.removeEventListener('wheel', preventScroll, listenerOptions);
+
+      document.documentElement.style.overflow = prevHtmlOverflow;
+      document.body.style.overflow = prevBodyOverflow;
+
+      if (main) {
+        main.style.overflow = prevMainOverflow;
+        main.style.overscrollBehavior = prevMainOverscroll;
+        main.style.touchAction = prevMainTouchAction;
+        if (prevMainWebkitScroll) {
+          main.style.setProperty('-webkit-overflow-scrolling', prevMainWebkitScroll);
+        } else {
+          main.style.removeProperty('-webkit-overflow-scrolling');
+        }
+      }
     };
   }, [isOpen]);
 
