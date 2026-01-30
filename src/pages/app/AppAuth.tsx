@@ -100,15 +100,18 @@ export const AppAuth: React.FC = () => {
 
   // Loading states
   const [loading, setLoading] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(() => {
-    // Check if we're returning from OAuth redirect (prevents flash)
-    if (typeof window !== 'undefined') {
-      const isOAuthReturn = sessionStorage.getItem('nomiqa_oauth_pending') === 'true';
-      return isOAuthReturn;
-    }
-    return false;
-  });
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [checkingSession, setCheckingSession] = useState(true);
+  
+  // Clear any stale OAuth pending flags on mount (prevents black screen)
+  useEffect(() => {
+    // Only keep the flag if we have OAuth params in the URL
+    const hasOAuthParams = window.location.search.includes('code=') || 
+                           window.location.hash.includes('access_token');
+    if (!hasOAuthParams) {
+      sessionStorage.removeItem('nomiqa_oauth_pending');
+    }
+  }, []);
   
   // UI states
   const [showUsernameSelection, setShowUsernameSelection] = useState(false);
@@ -701,18 +704,16 @@ export const AppAuth: React.FC = () => {
   // Password strength indicator
   const passwordStrength = password ? getPasswordStrength(password) : null;
 
-  // Loading state - session check or OAuth in progress
-  // Use a stable loading state to prevent flashing during OAuth redirect
-  if (checkingSession || googleLoading) {
+  // Loading state - only block on initial session check
+  // googleLoading is handled inline to prevent black screen from stale flags
+  if (checkingSession) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
           <div className="relative">
             <div className="w-16 h-16 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
           </div>
-          <p className="text-sm text-muted-foreground">
-            {googleLoading ? 'Signing in with Google...' : 'Loading...'}
-          </p>
+          <p className="text-sm text-muted-foreground">Loading...</p>
         </div>
       </div>
     );
