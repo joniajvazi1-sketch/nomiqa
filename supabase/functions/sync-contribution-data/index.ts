@@ -968,7 +968,7 @@ serve(async (req) => {
 
     // Location proofs generated
 
-    const totalPointsEarned = Math.floor(validContributions.length * 5);
+    const basePointsEarned = Math.floor(validContributions.length * 5);
 
     const queueItems = validContributions.map((c, index) => ({
       user_id: user.id,
@@ -1017,39 +1017,59 @@ serve(async (req) => {
 
     await supabase.from('mining_logs').insert(miningLogs);
 
-    const { data: existingPoints } = await supabase
-      .from('user_points')
-      .select('*')
-      .eq('user_id', user.id)
-      .maybeSingle();
-
-    if (existingPoints) {
-      await supabase
-        .from('user_points')
-        .update({
-          pending_points: (existingPoints.pending_points || 0) + totalPointsEarned,
-          updated_at: new Date().toISOString()
-        })
-        .eq('user_id', user.id);
+    // P2.0: Use the new capped points system with early user boost
+    const { data: pointsResult, error: pointsError } = await supabase
+      .rpc('add_points_with_cap', {
+        p_user_id: user.id,
+        p_base_points: basePointsEarned,
+        p_source: 'contribution'
+      });
+    
+    let actualPointsEarned = basePointsEarned;
+    let wasCapped = false;
+    
+    if (pointsResult && !pointsError) {
+      actualPointsEarned = pointsResult.points_added || 0;
+      wasCapped = pointsResult.capped || false;
     } else {
-      await supabase
+      // Fallback: direct insert if RPC fails (shouldn't happen)
+      console.error('add_points_with_cap failed, using fallback:', pointsError);
+      const { data: existingPoints } = await supabase
         .from('user_points')
-        .insert({
-          user_id: user.id,
-          total_points: 0,
-          pending_points: totalPointsEarned,
-          total_distance_meters: 0
-        });
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (existingPoints) {
+        await supabase
+          .from('user_points')
+          .update({
+            pending_points: (existingPoints.pending_points || 0) + basePointsEarned,
+            updated_at: new Date().toISOString()
+          })
+          .eq('user_id', user.id);
+      } else {
+        await supabase
+          .from('user_points')
+          .insert({
+            user_id: user.id,
+            total_points: 0,
+            pending_points: basePointsEarned,
+            total_distance_meters: 0
+          });
+      }
     }
 
-    console.log(`Synced ${validContributions.length} contributions, earned ${totalPointsEarned} points`);
+    console.log(`Synced ${validContributions.length} contributions, earned ${actualPointsEarned} points${wasCapped ? ' (capped)' : ''}`);
 
     return new Response(
       JSON.stringify({
         success: true,
         synced_count: validContributions.length,
         rejected_count: rejectedCount,
-        points_earned: totalPointsEarned,
+        points_earned: actualPointsEarned,
+        base_points: basePointsEarned,
+        was_capped: wasCapped,
         proofs_generated: proofs.length,
         validation_summary: {
           avg_suspicion_score: avgSuspicionScore.toFixed(2),

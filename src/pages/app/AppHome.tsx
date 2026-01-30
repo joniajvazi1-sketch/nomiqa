@@ -27,7 +27,7 @@ import { PullToRefreshIndicator } from '@/components/app/PullToRefreshIndicator'
 import { AppSpinner } from '@/components/app/AppSpinner';
 import { DailyCheckIn } from '@/components/app/DailyCheckIn';
 import { WeeklySummaryModal } from '@/components/app/WeeklySummaryModal';
-import { pointsToUsd } from '@/utils/tokenomics';
+import { formatPoints } from '@/utils/tokenomics';
 import { useNativeShare } from '@/hooks/useNativeShare';
 import { AppSEO } from '@/components/app/AppSEO';
 import { toast } from 'sonner';
@@ -167,7 +167,6 @@ export const AppHome: React.FC = () => {
 
   const displayName = username || 'there';
   const totalPoints = points?.total_points || 0;
-  const totalUSD = pointsToUsd(totalPoints);
 
   // Get greeting based on time
   const hour = new Date().getHours();

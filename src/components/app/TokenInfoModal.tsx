@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Coins, Users, Code, Droplets, Shield, ExternalLink, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useHaptics } from '@/hooks/useHaptics';
-import { TOKENOMICS, TOKEN_ALLOCATION, formatTokens, pointsToUsd } from '@/utils/tokenomics';
+import { TOKENOMICS, TOKEN_ALLOCATION, formatTokens } from '@/utils/tokenomics';
 import { cn } from '@/lib/utils';
 
 interface TokenInfoModalProps {

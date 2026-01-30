@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useHaptics } from '@/hooks/useHaptics';
-import { pointsToUsd } from '@/utils/tokenomics';
+import { formatPoints } from '@/utils/tokenomics';
 import { APP_COPY } from '@/utils/appCopy';
 import { cn } from '@/lib/utils';
 
@@ -158,9 +158,6 @@ export const WeeklySummaryModal: React.FC = () => {
                     <p className="text-lg font-bold text-foreground">{data.pointsEarned.toLocaleString()}</p>
                   </div>
                 </div>
-                <p className="text-sm font-medium text-primary">
-                  ≈${pointsToUsd(data.pointsEarned).toFixed(2)}
-                </p>
               </div>
 
               {/* Areas & Streak */}
