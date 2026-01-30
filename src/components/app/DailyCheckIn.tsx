@@ -136,21 +136,43 @@ export const DailyCheckIn = ({ userId, onClose }: DailyCheckInProps) => {
     onClose?.();
   };
 
-  // Prevent body scroll when modal is open - must be before any conditional returns
+  // Prevent ALL scrolling when modal is open
   useEffect(() => {
     if (isOpen) {
+      // Lock both html and body to prevent any scroll
+      document.documentElement.style.overflow = 'hidden';
+      document.documentElement.style.position = 'fixed';
+      document.documentElement.style.width = '100%';
+      document.documentElement.style.height = '100%';
       document.body.style.overflow = 'hidden';
       document.body.style.position = 'fixed';
       document.body.style.width = '100%';
+      document.body.style.height = '100%';
+      document.body.style.top = '0';
+      document.body.style.left = '0';
     } else {
+      document.documentElement.style.overflow = '';
+      document.documentElement.style.position = '';
+      document.documentElement.style.width = '';
+      document.documentElement.style.height = '';
       document.body.style.overflow = '';
       document.body.style.position = '';
       document.body.style.width = '';
+      document.body.style.height = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
     }
     return () => {
+      document.documentElement.style.overflow = '';
+      document.documentElement.style.position = '';
+      document.documentElement.style.width = '';
+      document.documentElement.style.height = '';
       document.body.style.overflow = '';
       document.body.style.position = '';
       document.body.style.width = '';
+      document.body.style.height = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
     };
   }, [isOpen]);
 
@@ -165,9 +187,13 @@ export const DailyCheckIn = ({ userId, onClose }: DailyCheckInProps) => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
-        style={{ touchAction: 'none' }}
+        className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
+        style={{ 
+          touchAction: 'none',
+          overscrollBehavior: 'contain'
+        }}
         onClick={handleClose}
+        onTouchMove={(e) => e.preventDefault()}
       >
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
