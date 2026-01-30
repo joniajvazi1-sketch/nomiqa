@@ -1394,38 +1394,47 @@ export type Database = {
       }
       user_challenge_progress: {
         Row: {
+          active_days_this_period: number | null
           challenge_id: string
           claimed_at: string | null
           completed_at: string | null
           created_at: string | null
           current_value: number | null
           id: string
+          network_types_this_period: string[] | null
           period_start: string
           started_at: string | null
+          unique_geohashes_this_period: string[] | null
           updated_at: string | null
           user_id: string
         }
         Insert: {
+          active_days_this_period?: number | null
           challenge_id: string
           claimed_at?: string | null
           completed_at?: string | null
           created_at?: string | null
           current_value?: number | null
           id?: string
+          network_types_this_period?: string[] | null
           period_start?: string
           started_at?: string | null
+          unique_geohashes_this_period?: string[] | null
           updated_at?: string | null
           user_id: string
         }
         Update: {
+          active_days_this_period?: number | null
           challenge_id?: string
           claimed_at?: string | null
           completed_at?: string | null
           created_at?: string | null
           current_value?: number | null
           id?: string
+          network_types_this_period?: string[] | null
           period_start?: string
           started_at?: string | null
+          unique_geohashes_this_period?: string[] | null
           updated_at?: string | null
           user_id?: string
         }
@@ -1579,11 +1588,13 @@ export type Database = {
       }
       user_points: {
         Row: {
+          background_streak_days: number | null
           contribution_streak_days: number | null
           created_at: string | null
           daily_challenge_streak_days: number | null
           id: string
           last_all_daily_completed_date: string | null
+          last_background_date: string | null
           last_commission_points: number | null
           last_contribution_date: string | null
           pending_points: number | null
@@ -1594,11 +1605,13 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          background_streak_days?: number | null
           contribution_streak_days?: number | null
           created_at?: string | null
           daily_challenge_streak_days?: number | null
           id?: string
           last_all_daily_completed_date?: string | null
+          last_background_date?: string | null
           last_commission_points?: number | null
           last_contribution_date?: string | null
           pending_points?: number | null
@@ -1609,11 +1622,13 @@ export type Database = {
           user_id: string
         }
         Update: {
+          background_streak_days?: number | null
           contribution_streak_days?: number | null
           created_at?: string | null
           daily_challenge_streak_days?: number | null
           id?: string
           last_all_daily_completed_date?: string | null
+          last_background_date?: string | null
           last_commission_points?: number | null
           last_contribution_date?: string | null
           pending_points?: number | null
@@ -1852,16 +1867,32 @@ export type Database = {
       }
     }
     Functions: {
-      add_points_with_cap: {
-        Args: { p_base_points: number; p_source?: string; p_user_id: string }
-        Returns: Json
-      }
+      add_points_with_cap:
+        | {
+            Args: {
+              p_base_points: number
+              p_source?: string
+              p_user_id: string
+            }
+            Returns: Json
+          }
+        | {
+            Args: {
+              p_base_points: number
+              p_session_hours?: number
+              p_source?: string
+              p_user_id: string
+            }
+            Returns: Json
+          }
       admin_update_leaderboard_rankings: { Args: never; Returns: undefined }
       cleanup_expired_order_pii: { Args: never; Returns: number }
       cleanup_old_email_rate_limits: { Args: never; Returns: undefined }
       cleanup_old_mining_logs: { Args: never; Returns: number }
       cleanup_old_rate_limits: { Args: never; Returns: undefined }
       cleanup_old_webhook_requests: { Args: never; Returns: undefined }
+      get_streak_multiplier: { Args: { streak_days: number }; Returns: number }
+      get_time_multiplier: { Args: { hours: number }; Returns: number }
       get_user_daily_speed_tests: {
         Args: { p_user_id: string }
         Returns: number

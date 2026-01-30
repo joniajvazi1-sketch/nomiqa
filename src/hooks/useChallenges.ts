@@ -2,7 +2,19 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 type ChallengeType = 'daily' | 'weekly' | 'special';
-type MetricType = 'speed_tests' | 'distance_meters' | 'streak_days' | 'data_points' | 'sessions';
+type MetricType = 
+  | 'speed_tests' 
+  | 'distance_meters' 
+  | 'streak_days' 
+  | 'data_points' 
+  | 'sessions'
+  | 'session_hours'
+  | 'network_changes'
+  | 'passive'
+  | 'active_days'
+  | 'unique_locations'
+  | 'network_diversity'
+  | 'no_pause';
 
 interface Challenge {
   id: string;
@@ -23,6 +35,9 @@ interface ChallengeProgress {
   started_at: string;
   completed_at: string | null;
   claimed_at: string | null;
+  active_days_this_period?: number;
+  unique_geohashes_this_period?: string[];
+  network_types_this_period?: string[];
 }
 
 interface ChallengeWithProgress extends Challenge {
@@ -30,19 +45,18 @@ interface ChallengeWithProgress extends Challenge {
   isCompleted: boolean;
   isClaimed: boolean;
   progressId: string | null;
-  bonusPoints: number; // Bonus points from streak multiplier
+  bonusPoints: number;
 }
 
-// Streak bonus configuration: +10% per day, max 100% (10 days)
-const STREAK_BONUS_PER_DAY = 0.10; // 10% per day
-const MAX_STREAK_BONUS = 1.0; // 100% max bonus
-
-export const getStreakBonus = (streakDays: number): number => {
-  return Math.min(streakDays * STREAK_BONUS_PER_DAY, MAX_STREAK_BONUS);
+// Background streak bonus (7d = +10%, 30d = 2x)
+export const getStreakMultiplier = (streakDays: number): number => {
+  if (streakDays >= 30) return 2.0;
+  if (streakDays >= 7) return 1.1 + (0.9 * (streakDays - 7) / 23.0);
+  return 1.0;
 };
 
 export const getStreakBonusPercent = (streakDays: number): number => {
-  return Math.round(getStreakBonus(streakDays) * 100);
+  return Math.round((getStreakMultiplier(streakDays) - 1) * 100);
 };
 
 interface UseChallengesReturn {
@@ -58,6 +72,7 @@ interface UseChallengesReturn {
   completedTodayCount: number;
   dailyChallengeStreak: number;
   streakBonusPercent: number;
+  backgroundStreakDays: number;
 }
 
 const getPeriodStart = (type: 'daily' | 'weekly' | 'special'): string => {
@@ -65,13 +80,11 @@ const getPeriodStart = (type: 'daily' | 'weekly' | 'special'): string => {
   if (type === 'daily') {
     return now.toISOString().split('T')[0];
   } else if (type === 'weekly') {
-    // Get start of the week (Sunday)
     const day = now.getDay();
     const diff = now.getDate() - day;
     const weekStart = new Date(now.setDate(diff));
     return weekStart.toISOString().split('T')[0];
   }
-  // Special challenges don't reset
   return '2024-01-01';
 };
 
@@ -80,6 +93,7 @@ export const useChallenges = (): UseChallengesReturn => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [dailyChallengeStreak, setDailyChallengeStreak] = useState(0);
+  const [backgroundStreakDays, setBackgroundStreakDays] = useState(0);
 
   const fetchChallenges = useCallback(async () => {
     try {
@@ -109,34 +123,57 @@ export const useChallenges = (): UseChallengesReturn => {
 
       if (progressError) throw progressError;
 
-      // Fetch user stats for calculating progress
+      // Fetch user stats
       const { data: pointsData } = await supabase
         .from('user_points')
         .select('*')
         .eq('user_id', user.id)
         .single();
 
-      // Get the daily challenge streak
       const currentStreak = (pointsData as any)?.daily_challenge_streak_days || 0;
+      const bgStreak = (pointsData as any)?.background_streak_days || 0;
       setDailyChallengeStreak(currentStreak);
+      setBackgroundStreakDays(bgStreak);
 
-      // Get today's sessions count
+      // Get today's date range
       const today = new Date().toISOString().split('T')[0];
+      const todayStart = `${today}T00:00:00`;
+      const todayEnd = `${today}T23:59:59`;
+
+      // Get week start
+      const now = new Date();
+      const weekStart = new Date(now);
+      weekStart.setDate(now.getDate() - now.getDay());
+      const weekStartStr = weekStart.toISOString();
+
+      // Fetch today's sessions for session_hours calculation
       const { data: todaySessions } = await supabase
         .from('contribution_sessions')
-        .select('id, total_distance_meters, data_points_count')
+        .select('id, started_at, ended_at, total_distance_meters, data_points_count, status')
         .eq('user_id', user.id)
-        .gte('started_at', `${today}T00:00:00`)
-        .lte('started_at', `${today}T23:59:59`);
+        .gte('started_at', todayStart)
+        .lte('started_at', todayEnd);
 
-      // Get this week's sessions
-      const weekStart = new Date();
-      weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+      // Fetch this week's sessions
       const { data: weekSessions } = await supabase
         .from('contribution_sessions')
-        .select('id, total_distance_meters, data_points_count')
+        .select('id, started_at, ended_at, total_distance_meters, data_points_count')
         .eq('user_id', user.id)
-        .gte('started_at', weekStart.toISOString());
+        .gte('started_at', weekStartStr);
+
+      // Fetch signal logs for network changes detection
+      const { data: todaySignalLogs } = await supabase
+        .from('signal_logs')
+        .select('network_type, location_geohash')
+        .eq('user_id', user.id)
+        .gte('recorded_at', todayStart);
+
+      // Fetch week's signal logs for network diversity and unique locations
+      const { data: weekSignalLogs } = await supabase
+        .from('signal_logs')
+        .select('network_type, location_geohash, recorded_at')
+        .eq('user_id', user.id)
+        .gte('recorded_at', weekStartStr);
 
       // Calculate metrics
       const todayDistance = todaySessions?.reduce((sum, s) => sum + (s.total_distance_meters || 0), 0) || 0;
@@ -146,16 +183,34 @@ export const useChallenges = (): UseChallengesReturn => {
       const weekSessionCount = weekSessions?.length || 0;
       const streakDays = pointsData?.contribution_streak_days || 0;
 
-      // Get speed test count from signal_logs (approximation)
-      const { count: speedTestCount } = await supabase
-        .from('signal_logs')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id)
-        .not('speed_test_down', 'is', null)
-        .gte('recorded_at', `${today}T00:00:00`);
+      // Calculate session hours today (sum of active/completed sessions)
+      const sessionHoursToday = (todaySessions || []).reduce((sum, s) => {
+        const start = new Date(s.started_at).getTime();
+        const end = s.ended_at ? new Date(s.ended_at).getTime() : Date.now();
+        return sum + (end - start) / (1000 * 60 * 60); // Convert to hours
+      }, 0);
 
-      // Calculate streak bonus for daily challenges
-      const streakBonus = getStreakBonus(currentStreak);
+      // Count distinct network types today
+      const todayNetworkTypes = new Set((todaySignalLogs || []).map(l => l.network_type).filter(Boolean));
+      const networkChangesToday = todayNetworkTypes.size;
+
+      // Check if app was active at all today (passive bonus)
+      const wasActiveToday = (todaySessions?.length || 0) > 0 || (todaySignalLogs?.length || 0) > 0;
+
+      // Weekly metrics
+      const weekDates = new Set((weekSessions || []).map(s => s.started_at?.split('T')[0]).filter(Boolean));
+      const activeDaysThisWeek = weekDates.size;
+
+      // Unique locations this week (5-char geohash = ~5km cells)
+      const weekGeohashes = new Set((weekSignalLogs || []).map(l => l.location_geohash?.substring(0, 5)).filter(Boolean));
+      const uniqueLocationsWeek = weekGeohashes.size;
+
+      // Network diversity this week
+      const weekNetworkTypes = new Set((weekSignalLogs || []).map(l => l.network_type).filter(Boolean));
+      const networkDiversityWeek = weekNetworkTypes.size;
+
+      // Calculate streak bonus for background earnings (not challenge rewards)
+      // Challenge bonus points are calculated separately below
 
       // Combine challenges with progress
       const challengesWithProgress: ChallengeWithProgress[] = (challengesData || []).map((dbChallenge) => {
@@ -165,30 +220,53 @@ export const useChallenges = (): UseChallengesReturn => {
           metric_type: dbChallenge.metric_type as MetricType
         };
         const periodStart = getPeriodStart(challenge.type);
-        const progress = progressData?.find(
+        const progress = (progressData as ChallengeProgress[] | null)?.find(
           p => p.challenge_id === challenge.id && p.period_start === periodStart
         );
 
         // Calculate current value based on metric type
         let currentValue = progress?.current_value || 0;
         
-        if (!progress) {
-          // Calculate from actual user data
+        if (!progress || progress.current_value === 0) {
           switch (challenge.metric_type) {
-            case 'speed_tests':
-              currentValue = challenge.type === 'daily' ? (speedTestCount || 0) : 0;
+            case 'session_hours':
+              currentValue = challenge.type === 'daily' ? sessionHoursToday : 0;
               break;
             case 'distance_meters':
-              currentValue = challenge.type === 'daily' ? todayDistance : weekDistance;
+              currentValue = challenge.type === 'daily' ? todayDistance : 
+                           challenge.type === 'weekly' ? weekDistance : 
+                           weekDistance; // Special uses total
               break;
-            case 'streak_days':
-              currentValue = streakDays;
+            case 'network_changes':
+              currentValue = networkChangesToday;
               break;
             case 'data_points':
               currentValue = challenge.type === 'daily' ? todayDataPoints : 0;
               break;
+            case 'passive':
+              currentValue = wasActiveToday ? 1 : 0;
+              break;
+            case 'active_days':
+              currentValue = activeDaysThisWeek;
+              break;
+            case 'unique_locations':
+              currentValue = uniqueLocationsWeek;
+              break;
+            case 'network_diversity':
+              currentValue = networkDiversityWeek;
+              break;
+            case 'no_pause':
+              // Check if there was a pause in the week
+              currentValue = activeDaysThisWeek; // Simplified: days active = days without pause
+              break;
             case 'sessions':
               currentValue = challenge.type === 'daily' ? todaySessionCount : weekSessionCount;
+              break;
+            case 'streak_days':
+              currentValue = streakDays;
+              break;
+            case 'speed_tests':
+              // Already handled elsewhere
               break;
           }
         }
@@ -197,9 +275,9 @@ export const useChallenges = (): UseChallengesReturn => {
         const isCompleted = currentValue >= challenge.target_value;
         const isClaimed = !!progress?.claimed_at;
 
-        // Calculate bonus points for daily challenges
-        const bonusPoints = challenge.type === 'daily' 
-          ? Math.round(challenge.reward_points * streakBonus)
+        // Bonus points: daily challenges get streak bonus
+        const bonusPoints = challenge.type === 'daily' && currentStreak > 0
+          ? Math.round(challenge.reward_points * (getStreakMultiplier(currentStreak) - 1))
           : 0;
 
         return {
@@ -262,12 +340,11 @@ export const useChallenges = (): UseChallengesReturn => {
       const dailyChalls = challenges.filter(c => c.type === 'daily');
       const today = new Date().toISOString().split('T')[0];
       
-      // After claiming this one, check if all daily are now claimed
       const allDailyWillBeClaimed = dailyChalls.every(c => 
         c.id === challengeId ? true : c.isClaimed
       );
 
-      let updateData: any = {
+      let updateData: Record<string, unknown> = {
         user_id: user.id,
         total_points: newTotal,
         updated_at: new Date().toISOString()
@@ -278,31 +355,39 @@ export const useChallenges = (): UseChallengesReturn => {
         const lastCompletedDate = (currentPoints as any)?.last_all_daily_completed_date;
         const currentStreak = (currentPoints as any)?.daily_challenge_streak_days || 0;
         
-        // Check if already completed today
         if (lastCompletedDate !== today) {
-          // Check if this continues a streak (completed yesterday)
           const yesterday = new Date();
           yesterday.setDate(yesterday.getDate() - 1);
           const yesterdayStr = yesterday.toISOString().split('T')[0];
           
           if (lastCompletedDate === yesterdayStr) {
-            // Continue streak
             updateData.daily_challenge_streak_days = currentStreak + 1;
           } else {
-            // Start new streak
             updateData.daily_challenge_streak_days = 1;
           }
           updateData.last_all_daily_completed_date = today;
         }
       }
 
+      // Build the update data properly for the upsert
+      const upsertData = {
+        user_id: user.id,
+        total_points: updateData.total_points as number,
+        updated_at: updateData.updated_at as string,
+        ...(updateData.daily_challenge_streak_days !== undefined && {
+          daily_challenge_streak_days: updateData.daily_challenge_streak_days as number
+        }),
+        ...(updateData.last_all_daily_completed_date !== undefined && {
+          last_all_daily_completed_date: updateData.last_all_daily_completed_date as string
+        })
+      };
+
       await supabase
         .from('user_points')
-        .upsert(updateData, {
+        .upsert(upsertData, {
           onConflict: 'user_id'
         });
 
-      // Refresh challenges
       await fetchChallenges();
       return true;
     } catch (err) {
@@ -331,7 +416,7 @@ export const useChallenges = (): UseChallengesReturn => {
     dailyChallenges.filter(c => c.isCompleted).length, [dailyChallenges]);
 
   const streakBonusPercent = useMemo(() => 
-    getStreakBonusPercent(dailyChallengeStreak), [dailyChallengeStreak]);
+    getStreakBonusPercent(backgroundStreakDays), [backgroundStreakDays]);
 
   return {
     challenges,
@@ -345,6 +430,7 @@ export const useChallenges = (): UseChallengesReturn => {
     unclaimedCount,
     completedTodayCount,
     dailyChallengeStreak,
-    streakBonusPercent
+    streakBonusPercent,
+    backgroundStreakDays
   };
 };

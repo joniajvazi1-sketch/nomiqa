@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Target, ChevronRight, Flame, Calendar, Star } from 'lucide-react';
+import { Target, ChevronRight, Flame, Calendar, Star, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useChallenges } from '@/hooks/useChallenges';
 import { ChallengeCard } from './ChallengeCard';
@@ -30,7 +30,9 @@ export const ChallengesSection: React.FC<ChallengesSectionProps> = ({
     specialChallenges,
     loading,
     claimReward,
-    unclaimedCount 
+    unclaimedCount,
+    backgroundStreakDays,
+    streakBonusPercent
   } = useChallenges();
 
   const tabs = [
@@ -89,6 +91,16 @@ export const ChallengesSection: React.FC<ChallengesSectionProps> = ({
           </button>
         )}
       </div>
+
+      {/* Streak bonus indicator (only show if streak active) */}
+      {backgroundStreakDays >= 7 && (
+        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-primary/10 border border-primary/20">
+          <Zap className="w-4 h-4 text-primary" />
+          <span className="text-xs text-foreground">
+            <span className="font-semibold text-primary">+{streakBonusPercent}%</span> background bonus ({backgroundStreakDays} day streak)
+          </span>
+        </div>
+      )}
 
       {/* Tabs */}
       <div className="flex gap-2 overflow-x-auto pb-1">
