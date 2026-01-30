@@ -44,7 +44,42 @@ setupGlobalErrorHandlers();
 // Render app immediately - don't block on Sentry
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <ErrorBoundary fallback={<div className="flex items-center justify-center min-h-screen bg-background text-foreground">Something went wrong. Please refresh the page.</div>}>
+    <ErrorBoundary 
+      fallback={
+        <div 
+          className="flex items-center justify-center min-h-screen bg-background text-foreground"
+          style={{ 
+            minHeight: '100vh', 
+            backgroundColor: '#0a0a0a', 
+            color: '#fafaf9',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '24px',
+            textAlign: 'center',
+            fontFamily: 'system-ui, sans-serif',
+          }}
+        >
+          <div>
+            <p style={{ marginBottom: '16px' }}>Something went wrong.</p>
+            <button 
+              onClick={() => window.location.reload()}
+              style={{
+                backgroundColor: '#00c8ff',
+                color: '#0a0a0a',
+                padding: '12px 24px',
+                borderRadius: '8px',
+                fontWeight: 600,
+                border: 'none',
+                cursor: 'pointer',
+              }}
+            >
+              Reload Page
+            </button>
+          </div>
+        </div>
+      }
+    >
       <HelmetProvider>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
           <App />
