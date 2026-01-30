@@ -103,6 +103,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   }, [location.pathname]);
 
   // Status bar configuration with fallbacks
+  // DEFERRED: Wait 500ms before configuring to let WebView stabilize on iOS
   useEffect(() => {
     if (!isNative) return;
 
@@ -131,7 +132,9 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       }
     };
     
-    configureStatusBar();
+    // Delay status bar config to prevent blocking initial render
+    const timer = setTimeout(configureStatusBar, 300);
+    return () => clearTimeout(timer);
   }, [isNative, isAndroid, isDark]);
 
   // Theme change handler
