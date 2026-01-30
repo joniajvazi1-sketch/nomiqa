@@ -100,7 +100,14 @@ export const AppAuth: React.FC = () => {
 
   // Loading states
   const [loading, setLoading] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(() => {
+    // Check if we're returning from OAuth redirect (prevents flash)
+    if (typeof window !== 'undefined') {
+      const isOAuthReturn = sessionStorage.getItem('nomiqa_oauth_pending') === 'true';
+      return isOAuthReturn;
+    }
+    return false;
+  });
   const [checkingSession, setCheckingSession] = useState(true);
   
   // UI states
@@ -217,8 +224,12 @@ export const AppAuth: React.FC = () => {
     let isMounted = true;
 
     const handleSession = async (session: any, isNewSignIn = false) => {
+      // Clear OAuth pending flag when handling session
+      sessionStorage.removeItem('nomiqa_oauth_pending');
+      
       if (!isMounted || !session) {
         setCheckingSession(false);
+        setGoogleLoading(false);
         return;
       }
 
@@ -226,6 +237,7 @@ export const AppAuth: React.FC = () => {
       const email = session.user?.email || '';
       if (!userId) {
         setCheckingSession(false);
+        setGoogleLoading(false);
         return;
       }
 
@@ -325,8 +337,10 @@ export const AppAuth: React.FC = () => {
         }
       } catch (error) {
         console.error('Error handling session:', error);
+        sessionStorage.removeItem('nomiqa_oauth_pending');
         if (isMounted) {
           setCheckingSession(false);
+          setGoogleLoading(false);
         }
       }
     };
@@ -611,6 +625,9 @@ export const AppAuth: React.FC = () => {
     setGoogleLoading(true);
     setFormError('');
 
+    // Mark that we're starting OAuth (persists through redirect)
+    sessionStorage.setItem('nomiqa_oauth_pending', 'true');
+
     try {
       // Use Lovable Cloud managed OAuth - works on both web and native
       const result = await lovable.auth.signInWithOAuth('google', {
@@ -618,6 +635,8 @@ export const AppAuth: React.FC = () => {
       });
 
       if (result.error) {
+        // Clear OAuth pending on error
+        sessionStorage.removeItem('nomiqa_oauth_pending');
         throw result.error;
       }
 
@@ -625,10 +644,14 @@ export const AppAuth: React.FC = () => {
       // If not redirected, session was set automatically by the lovable auth
       if (!result.redirected) {
         // Session was set, onAuthStateChange will handle navigation
+        // Clear OAuth pending flag
+        sessionStorage.removeItem('nomiqa_oauth_pending');
         console.log('[AppAuth] Google sign-in successful');
       }
+      // If redirected, don't clear the flag - it will be cleared on return
     } catch (error: any) {
       console.error('[AppAuth] Google sign-in error:', error);
+      sessionStorage.removeItem('nomiqa_oauth_pending');
       setFormError(getReadableError(error.message || 'Failed to sign in with Google'));
       errorPattern();
       setGoogleLoading(false);
@@ -678,16 +701,18 @@ export const AppAuth: React.FC = () => {
   // Password strength indicator
   const passwordStrength = password ? getPasswordStrength(password) : null;
 
-  // Loading state - session check
-  if (checkingSession) {
+  // Loading state - session check or OAuth in progress
+  // Use a stable loading state to prevent flashing during OAuth redirect
+  if (checkingSession || googleLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
           <div className="relative">
-            <div className="w-16 h-16 rounded-full border-4 border-muted animate-pulse" />
-            <Loader2 className="w-8 h-8 animate-spin text-primary absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+            <div className="w-16 h-16 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
           </div>
-          <p className="text-sm text-muted-foreground animate-pulse">Checking session...</p>
+          <p className="text-sm text-muted-foreground">
+            {googleLoading ? 'Signing in with Google...' : 'Loading...'}
+          </p>
         </div>
       </div>
     );
