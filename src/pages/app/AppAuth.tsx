@@ -32,6 +32,36 @@ import { z } from 'zod';
 import { lovable } from '@/integrations/lovable';
 import { useBiometricAuth } from '@/hooks/useBiometricAuth';
 
+// sessionStorage can throw in some iOS/WKWebView privacy modes (or when storage is disabled).
+// If that happens during sign-in, it can crash the React tree and look like a black screen.
+const safeSessionStorage = {
+  getItem(key: string) {
+    try {
+      if (typeof window === 'undefined') return null;
+      return window.sessionStorage.getItem(key);
+    } catch (e) {
+      console.warn('[AppAuth] sessionStorage.getItem failed:', e);
+      return null;
+    }
+  },
+  setItem(key: string, value: string) {
+    try {
+      if (typeof window === 'undefined') return;
+      window.sessionStorage.setItem(key, value);
+    } catch (e) {
+      console.warn('[AppAuth] sessionStorage.setItem failed:', e);
+    }
+  },
+  removeItem(key: string) {
+    try {
+      if (typeof window === 'undefined') return;
+      window.sessionStorage.removeItem(key);
+    } catch (e) {
+      console.warn('[AppAuth] sessionStorage.removeItem failed:', e);
+    }
+  },
+};
+
 // Validation schemas
 const emailSchema = z.string().email('Please enter a valid email address').max(255, 'Email is too long');
 const passwordSchema = z.string()
@@ -109,7 +139,7 @@ export const AppAuth: React.FC = () => {
     const hasOAuthParams = window.location.search.includes('code=') || 
                            window.location.hash.includes('access_token');
     if (!hasOAuthParams) {
-      sessionStorage.removeItem('nomiqa_oauth_pending');
+      safeSessionStorage.removeItem('nomiqa_oauth_pending');
     }
   }, []);
   
@@ -226,9 +256,21 @@ export const AppAuth: React.FC = () => {
   useEffect(() => {
     let isMounted = true;
 
+    // Safety net: never let the auth screen sit in "checking session" forever.
+    // On iOS, storage/network edge cases can stall session initialization.
+    const BOOT_TIMEOUT_MS = 8000;
+    const bootTimer = window.setTimeout(() => {
+      if (!isMounted) return;
+      console.warn('[AppAuth] Session check timed out - continuing without blocking UI');
+      safeSessionStorage.removeItem('nomiqa_oauth_pending');
+      setCheckingSession(false);
+      setGoogleLoading(false);
+    }, BOOT_TIMEOUT_MS);
+
     const handleSession = async (session: any, isNewSignIn = false) => {
       // Clear OAuth pending flag when handling session
-      sessionStorage.removeItem('nomiqa_oauth_pending');
+      window.clearTimeout(bootTimer);
+      safeSessionStorage.removeItem('nomiqa_oauth_pending');
       
       if (!isMounted || !session) {
         setCheckingSession(false);
@@ -340,7 +382,7 @@ export const AppAuth: React.FC = () => {
         }
       } catch (error) {
         console.error('Error handling session:', error);
-        sessionStorage.removeItem('nomiqa_oauth_pending');
+        safeSessionStorage.removeItem('nomiqa_oauth_pending');
         if (isMounted) {
           setCheckingSession(false);
           setGoogleLoading(false);
@@ -351,7 +393,12 @@ export const AppAuth: React.FC = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (!isMounted) return;
       if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session) {
-        handleSession(session, event === 'SIGNED_IN');
+        handleSession(session, event === 'SIGNED_IN').catch((err) => {
+          console.error('[AppAuth] handleSession failed:', err);
+          safeSessionStorage.removeItem('nomiqa_oauth_pending');
+          setCheckingSession(false);
+          setGoogleLoading(false);
+        });
       }
       if (event === 'SIGNED_OUT') {
         setLoading(false);
@@ -362,12 +409,21 @@ export const AppAuth: React.FC = () => {
       }
     });
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      handleSession(session, false);
-    });
+    supabase.auth
+      .getSession()
+      .then(({ data: { session } }) => {
+        return handleSession(session, false);
+      })
+      .catch((err) => {
+        console.error('[AppAuth] getSession failed:', err);
+        safeSessionStorage.removeItem('nomiqa_oauth_pending');
+        setCheckingSession(false);
+        setGoogleLoading(false);
+      });
 
     return () => {
       isMounted = false;
+      window.clearTimeout(bootTimer);
       subscription.unsubscribe();
     };
   }, [navigate, successPattern, toast]);
@@ -629,7 +685,7 @@ export const AppAuth: React.FC = () => {
     setFormError('');
 
     // Mark that we're starting OAuth (persists through redirect)
-    sessionStorage.setItem('nomiqa_oauth_pending', 'true');
+    safeSessionStorage.setItem('nomiqa_oauth_pending', 'true');
 
     try {
       // Use Lovable Cloud managed OAuth - works on both web and native
@@ -639,7 +695,7 @@ export const AppAuth: React.FC = () => {
 
       if (result.error) {
         // Clear OAuth pending on error
-        sessionStorage.removeItem('nomiqa_oauth_pending');
+        safeSessionStorage.removeItem('nomiqa_oauth_pending');
         throw result.error;
       }
 
@@ -648,13 +704,13 @@ export const AppAuth: React.FC = () => {
       if (!result.redirected) {
         // Session was set, onAuthStateChange will handle navigation
         // Clear OAuth pending flag
-        sessionStorage.removeItem('nomiqa_oauth_pending');
+        safeSessionStorage.removeItem('nomiqa_oauth_pending');
         console.log('[AppAuth] Google sign-in successful');
       }
       // If redirected, don't clear the flag - it will be cleared on return
     } catch (error: any) {
       console.error('[AppAuth] Google sign-in error:', error);
-      sessionStorage.removeItem('nomiqa_oauth_pending');
+      safeSessionStorage.removeItem('nomiqa_oauth_pending');
       setFormError(getReadableError(error.message || 'Failed to sign in with Google'));
       errorPattern();
       setGoogleLoading(false);
