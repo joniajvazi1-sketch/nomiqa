@@ -704,41 +704,46 @@ export const AppAuth: React.FC = () => {
     }, 60000);
 
     try {
-      // NATIVE (iOS/Android): open the OAuth broker in the *system browser*.
-      // Why: Lovable's OAuth SDK redirects the current window to "/~oauth/initiate" when not in an iframe.
-      // In Capacitor, that becomes "capacitor://localhost/~oauth/initiate" which cannot work.
-      // Solution: open the broker on our HTTPS origin, and let it redirect to /app/oauth-redirect,
-      // which deep-links back into the native app (handled by useDeepLinkAuth).
+      // NATIVE (iOS/Android): Use Supabase OAuth directly with the published site as redirect.
+      // The flow:
+      // 1. Open system browser to Google OAuth
+      // 2. Google redirects to Supabase callback
+      // 3. Supabase redirects to our /app/oauth-redirect page on the published site
+      // 4. That page extracts tokens and triggers deep link back to native app
+      // 5. useDeepLinkAuth receives the deep link and sets the session
       if (Capacitor.isNativePlatform()) {
-        console.log('[AppAuth] Native platform - opening system browser for OAuth...');
+        console.log('[AppAuth] Native platform - initiating OAuth via Supabase...');
 
-        const OAUTH_SITE_ORIGIN = 'https://nomiqa.lovable.app';
-        const redirectUri = `${OAUTH_SITE_ORIGIN}/app/oauth-redirect`;
+        const SITE_ORIGIN = 'https://nomiqa.lovable.app';
+        const redirectUrl = `${SITE_ORIGIN}/app/oauth-redirect`;
+        
+        // Use Supabase auth directly (bypassing Lovable broker for native)
+        const { data, error } = await supabase.auth.signInWithOAuth({
+          provider: 'google',
+          options: {
+            redirectTo: redirectUrl,
+            skipBrowserRedirect: true, // We'll handle the redirect ourselves
+          },
+        });
 
-        // Mirror the SDK's state generation approach (used by the broker to prevent CSRF).
-        const state = (() => {
-          try {
-            if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
-              const bytes = crypto.getRandomValues(new Uint8Array(16));
-              return [...bytes].map((b) => b.toString(16).padStart(2, '0')).join('');
-            }
-          } catch {
-            // ignore
-          }
-          return Math.random().toString(36).slice(2) + Date.now().toString(36);
-        })();
+        if (error) {
+          window.clearTimeout(oauthTimeout);
+          safeSessionStorage.removeItem('nomiqa_oauth_pending');
+          throw error;
+        }
 
-        const oauthUrl = new URL('/~oauth/initiate', OAUTH_SITE_ORIGIN);
-        oauthUrl.searchParams.set('provider', 'google');
-        oauthUrl.searchParams.set('redirect_uri', redirectUri);
-        oauthUrl.searchParams.set('state', state);
-
-        await Browser.open({ url: oauthUrl.toString() });
-
-        // We intentionally clear this timeout after the browser opens.
-        // The native AppStateChange effect handles cancellation (no session) after returning.
-        window.clearTimeout(oauthTimeout);
-        console.log('[AppAuth] System browser opened for OAuth, waiting for deep link callback...');
+        if (data?.url) {
+          console.log('[AppAuth] Opening OAuth URL in system browser...');
+          await Browser.open({ url: data.url });
+          
+          // Clear timeout - deep link handler will take over
+          window.clearTimeout(oauthTimeout);
+          console.log('[AppAuth] System browser opened, waiting for OAuth callback...');
+        } else {
+          window.clearTimeout(oauthTimeout);
+          safeSessionStorage.removeItem('nomiqa_oauth_pending');
+          throw new Error('Failed to generate OAuth URL');
+        }
         return;
       }
 
