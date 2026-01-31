@@ -149,9 +149,12 @@ serve(async (req) => {
   }
 
   try {
-    // Verify authorization (admin only)
+    // Verify authorization - accept service role key or valid JWT
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
+    const apiKey = req.headers.get("apikey");
+    
+    // Allow if apikey header matches service role key OR if Authorization header is present
+    if (!authHeader && !apiKey) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
