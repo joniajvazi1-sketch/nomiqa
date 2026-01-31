@@ -1586,6 +1586,33 @@ export type Database = {
         }
         Relationships: []
       }
+      user_monthly_limits: {
+        Row: {
+          created_at: string | null
+          id: string
+          month_key: string
+          points_earned: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          month_key: string
+          points_earned?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          month_key?: string
+          points_earned?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_points: {
         Row: {
           background_streak_days: number | null
@@ -1899,6 +1926,7 @@ export type Database = {
       }
       get_user_earning_status: { Args: { p_user_id: string }; Returns: Json }
       get_user_email: { Args: never; Returns: string }
+      get_user_monthly_status: { Args: { p_user_id: string }; Returns: Json }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
