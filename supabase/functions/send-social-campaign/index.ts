@@ -149,8 +149,17 @@ serve(async (req) => {
   }
 
   try {
-    // One-time campaign - auth temporarily bypassed for batch execution
-    // TODO: Re-enable auth after campaign completes
+    // Verify authorization - accept service role key or valid JWT
+    const authHeader = req.headers.get("Authorization");
+    const apiKey = req.headers.get("apikey");
+    
+    // Allow if apikey header matches service role key OR if Authorization header is present
+    if (!authHeader && !apiKey) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
