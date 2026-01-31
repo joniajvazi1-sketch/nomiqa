@@ -27,10 +27,10 @@ export const Footer = () => {
   const { t } = useTranslation();
 
   const socialLinks = [
-    { href: "https://www.facebook.com/share/1ZfyMXTQfP/?mibextid=wwXIfr", icon: socialFacebook, label: "Facebook" },
-    { href: "https://www.instagram.com/nomiqaesim?igsh=MWtjMDFkM3BjZ2t2aA%3D%3D&utm_source=qr", icon: socialInstagram, label: "Instagram" },
-    { href: "https://www.tiktok.com/@nomiqaesim?_r=1&_t=ZN-91m8zWG0IVC", icon: null, label: "TikTok", isTikTok: true },
-    { href: "https://x.com/nomiqaesim?s=11", icon: null, label: "X", isX: true },
+    { href: "https://www.facebook.com/profile.php?id=61584420749164", icon: socialFacebook, label: "Facebook" },
+    { href: "https://www.instagram.com/nomiqadepin?igsh=MWtjMDFkM3BjZ2t2aA%3D%3D&utm_source=qr", icon: socialInstagram, label: "Instagram" },
+    { href: "https://www.tiktok.com/@nomiqadepin?_r=1&_t=ZG-93XESzLj6mX", icon: null, label: "TikTok", isTikTok: true },
+    { href: "https://x.com/nomiqadepin?s=21", icon: null, label: "X", isX: true },
     { href: "https://youtube.com/@nomiqaesim?si=zCWrU1r-I1sOR4C9", icon: socialYoutube, label: "YouTube" },
   ];
 
