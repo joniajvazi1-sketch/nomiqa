@@ -83,13 +83,27 @@ serve(async (req) => {
       }
     });
 
-    // Fetch all profiles with country_code
-    const { data: profiles, error: profilesError } = await adminClient
-      .from("profiles")
-      .select("*")
-      .order("created_at", { ascending: false });
-
-    if (profilesError) throw profilesError;
+    // Fetch all profiles with country_code (handle pagination for large datasets)
+    let allProfiles: any[] = [];
+    let page = 0;
+    const pageSize = 1000;
+    
+    while (true) {
+      const { data: profiles, error: profilesError } = await adminClient
+        .from("profiles")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .range(page * pageSize, (page + 1) * pageSize - 1);
+      
+      if (profilesError) throw profilesError;
+      if (!profiles || profiles.length === 0) break;
+      
+      allProfiles = [...allProfiles, ...profiles];
+      if (profiles.length < pageSize) break;
+      page++;
+    }
+    
+    const profiles = allProfiles;
 
     // Fetch all affiliates
     const { data: affiliates, error: affiliatesError } = await adminClient

@@ -7,6 +7,19 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-forwarded-for, x-real-ip",
 };
 
+// SECURITY: Known disposable/temporary email domains used by bots
+const BLOCKED_DOMAINS = new Set([
+  'virgilian.com', 'tempmail.com', 'temp-mail.org', 'guerrillamail.com', 
+  'mailinator.com', '10minutemail.com', 'throwaway.email', 'fakeinbox.com',
+  'sharklasers.com', 'yopmail.com', 'maildrop.cc', 'dispostable.com',
+  'getnada.com', 'trashmail.com', 'mytrashmail.com', 'mailnesia.com',
+  'tempr.email', 'discard.email', 'spamgourmet.com', 'mailcatch.com',
+  'emailondeck.com', 'moakt.com', 'tempinbox.com', 'throwawaymail.com',
+  'mintemail.com', 'incognitomail.com', 'tempail.com', 'fakemailgenerator.com',
+  'mohmal.com', 'emailfake.com', 'crazymailing.com', 'temp.mail', 
+  'burnermail.io', 'guerrillamail.info', 'guerrillamail.net', 'guerrillamail.org',
+]);
+
 // Input validation
 const signupSchema = z.object({
   email: z.string().email().max(255),
@@ -146,9 +159,86 @@ const handler = async (req: Request): Promise<Response> => {
     const { email, password, username, referralCode } = validationResult.data;
     const normalizedEmail = email.toLowerCase().trim();
 
+    // SECURITY: Block disposable/bot email domains
+    const emailDomain = normalizedEmail.split('@')[1];
+    if (BLOCKED_DOMAINS.has(emailDomain)) {
+      console.error("Blocked disposable email domain signup attempt");
+      return new Response(
+        JSON.stringify({ error: "Please use a valid, non-disposable email address" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // SECURITY: Block suspicious username patterns (hex-like, bot-generated)
+    if (username) {
+      const hexPattern = /^[a-f0-9]{6,}$/i;
+      if (hexPattern.test(username)) {
+        console.error("Blocked suspicious hex-pattern username");
+        return new Response(
+          JSON.stringify({ error: "Please choose a more descriptive username" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    }
+
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // SECURITY: Rate limit signups per IP (max 10 per hour)
+    const forwardedFor = req.headers.get('x-forwarded-for');
+    const realIp = req.headers.get('x-real-ip');
+    const clientIP = forwardedFor?.split(',')[0]?.trim() || realIp || 'unknown';
+    
+    if (clientIP !== 'unknown') {
+      // Hash IP for privacy
+      const encoder = new TextEncoder();
+      const ipData = encoder.encode(clientIP);
+      const ipHashBuffer = await crypto.subtle.digest('SHA-256', ipData);
+      const ipHash = Array.from(new Uint8Array(ipHashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('').substring(0, 16);
+      
+      // Check rate limit
+      const { data: rateData } = await supabase
+        .from('api_rate_limits')
+        .select('request_count, window_start')
+        .eq('identifier', ipHash)
+        .eq('endpoint', 'signup')
+        .single();
+      
+      const now = new Date();
+      const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
+      
+      if (rateData) {
+        const windowStart = new Date(rateData.window_start);
+        if (windowStart > oneHourAgo && rateData.request_count >= 10) {
+          console.error("Rate limit exceeded for signup");
+          return new Response(
+            JSON.stringify({ error: "Too many signup attempts. Please try again later." }),
+            { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+        
+        // Update or reset counter
+        if (windowStart <= oneHourAgo) {
+          await supabase.from('api_rate_limits').update({
+            request_count: 1,
+            window_start: now.toISOString()
+          }).eq('identifier', ipHash).eq('endpoint', 'signup');
+        } else {
+          await supabase.from('api_rate_limits').update({
+            request_count: rateData.request_count + 1
+          }).eq('identifier', ipHash).eq('endpoint', 'signup');
+        }
+      } else {
+        // Create new rate limit entry
+        await supabase.from('api_rate_limits').insert({
+          identifier: ipHash,
+          endpoint: 'signup',
+          request_count: 1,
+          window_start: now.toISOString()
+        });
+      }
+    }
 
     // Check if user already exists in auth.users (primary check)
     // Use listUsers since getUserByEmail doesn't exist in this SDK version
