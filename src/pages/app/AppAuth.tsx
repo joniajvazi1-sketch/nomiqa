@@ -674,6 +674,12 @@ export const AppAuth: React.FC = () => {
   };
 
   const handleGoogleSignIn = async () => {
+    // Prevent multiple concurrent sign-in attempts
+    if (googleLoading) {
+      console.log('[AppAuth] Google sign-in already in progress, ignoring');
+      return;
+    }
+
     if (isSignup && !agreedToTerms) {
       setFormError('Please agree to our Terms and Privacy Policy');
       errorPattern();
@@ -687,6 +693,14 @@ export const AppAuth: React.FC = () => {
     // Mark that we're starting OAuth (persists through redirect)
     safeSessionStorage.setItem('nomiqa_oauth_pending', 'true');
 
+    // Safety timeout - if OAuth doesn't complete in 30 seconds, reset state
+    const oauthTimeout = window.setTimeout(() => {
+      console.warn('[AppAuth] OAuth timeout - resetting loading state');
+      safeSessionStorage.removeItem('nomiqa_oauth_pending');
+      setGoogleLoading(false);
+      setFormError('Sign-in timed out. Please try again.');
+    }, 30000);
+
     try {
       // Use Lovable Cloud managed OAuth - works on both web and native
       const result = await lovable.auth.signInWithOAuth('google', {
@@ -695,6 +709,7 @@ export const AppAuth: React.FC = () => {
 
       if (result.error) {
         // Clear OAuth pending on error
+        window.clearTimeout(oauthTimeout);
         safeSessionStorage.removeItem('nomiqa_oauth_pending');
         throw result.error;
       }
@@ -703,12 +718,16 @@ export const AppAuth: React.FC = () => {
       // If not redirected, session was set automatically by the lovable auth
       if (!result.redirected) {
         // Session was set, onAuthStateChange will handle navigation
-        // Clear OAuth pending flag
+        window.clearTimeout(oauthTimeout);
         safeSessionStorage.removeItem('nomiqa_oauth_pending');
         console.log('[AppAuth] Google sign-in successful');
+      } else {
+        // Redirected - clear loading since we're navigating away
+        // The timeout will handle cases where redirect fails
+        console.log('[AppAuth] Redirecting to Google OAuth...');
       }
-      // If redirected, don't clear the flag - it will be cleared on return
     } catch (error: any) {
+      window.clearTimeout(oauthTimeout);
       console.error('[AppAuth] Google sign-in error:', error);
       safeSessionStorage.removeItem('nomiqa_oauth_pending');
       setFormError(getReadableError(error.message || 'Failed to sign in with Google'));
