@@ -112,9 +112,9 @@ export default function MyAccount() {
         return;
       }
 
-      // Fetch profile
+      // Fetch profile - use profiles_safe view to exclude sensitive fields
       const { data: profileData } = await supabase
-        .from('profiles')
+        .from('profiles_safe')
         .select('username, solana_wallet')
         .eq('user_id', session.user.id)
         .maybeSingle();
@@ -277,9 +277,9 @@ export default function MyAccount() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
 
-      // Check if username is already taken
+      // Check if username is already taken - use profiles_safe view
       const { data: existingUser } = await supabase
-        .from('profiles')
+        .from('profiles_safe')
         .select('id')
         .eq('username', editedUsername.trim())
         .neq('user_id', session.user.id)

@@ -228,7 +228,8 @@ export default function Affiliate() {
       const isFirstAffiliate = !existingAffiliates || existingAffiliates.length === 0;
       let affiliateUsername = newLinkUsername.toLowerCase() || username;
       if (isFirstAffiliate) {
-        const { data: profile } = await supabase.from('profiles').select('username').eq('user_id', user.id).maybeSingle();
+        // Use profiles_safe view to exclude sensitive fields
+        const { data: profile } = await supabase.from('profiles_safe').select('username').eq('user_id', user.id).maybeSingle();
         if (profile?.username) {
           affiliateUsername = profile.username;
         } else {

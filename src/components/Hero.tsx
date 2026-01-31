@@ -26,8 +26,9 @@ export const Hero = () => {
       setIsLoggedIn(!!session);
 
       if (session?.user) {
+        // Use profiles_safe view to exclude sensitive fields
         const { data: profile } = await supabase
-          .from("profiles")
+          .from("profiles_safe")
           .select("username")
           .eq("user_id", session.user.id)
           .maybeSingle();
@@ -54,8 +55,9 @@ export const Hero = () => {
       setIsLoggedIn(!!session);
 
       if (session?.user) {
+        // Use profiles_safe view to exclude sensitive fields
         const { data: profile } = await supabase
-          .from("profiles")
+          .from("profiles_safe")
           .select("username")
           .eq("user_id", session.user.id)
           .maybeSingle();
