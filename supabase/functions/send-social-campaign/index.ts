@@ -237,8 +237,8 @@ serve(async (req) => {
           console.error(`Failed to send to ${user.email}:`, errorText);
         }
 
-        // Rate limiting - Resend allows 10 emails/second on free tier
-        await new Promise(resolve => setTimeout(resolve, 150));
+        // Rate limiting - Resend free tier allows 2 emails/second
+        await new Promise(resolve => setTimeout(resolve, 600));
 
       } catch (err) {
         results.failed++;
