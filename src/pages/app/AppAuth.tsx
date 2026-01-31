@@ -439,6 +439,7 @@ export const AppAuth: React.FC = () => {
         supabase.auth.getSession().then(({ data: { session } }) => {
           if (!session) {
             // No session yet - user might have cancelled
+            safeSessionStorage.removeItem('nomiqa_oauth_pending');
             setGoogleLoading(false);
           }
           // If session exists, the onAuthStateChange will handle it
@@ -703,33 +704,41 @@ export const AppAuth: React.FC = () => {
     }, 60000);
 
     try {
-      // For NATIVE apps: Use Browser plugin to open OAuth in system browser
-      // The OAuth flow will redirect to OAuthRedirect page which triggers deep link back
+      // NATIVE (iOS/Android): open the OAuth broker in the *system browser*.
+      // Why: Lovable's OAuth SDK redirects the current window to "/~oauth/initiate" when not in an iframe.
+      // In Capacitor, that becomes "capacitor://localhost/~oauth/initiate" which cannot work.
+      // Solution: open the broker on our HTTPS origin, and let it redirect to /app/oauth-redirect,
+      // which deep-links back into the native app (handled by useDeepLinkAuth).
       if (Capacitor.isNativePlatform()) {
-        console.log('[AppAuth] Native platform - using Browser plugin for OAuth...');
-        
-        // Get the OAuth URL from Lovable Cloud without auto-redirecting
-        const result = await lovable.auth.signInWithOAuth('google', {
-          // Redirect to OAuthRedirect page which handles deep link back to app
-          redirect_uri: 'https://nomiqa.lovable.app/oauth-redirect',
-        });
+        console.log('[AppAuth] Native platform - opening system browser for OAuth...');
 
-        if (result.error) {
-          window.clearTimeout(oauthTimeout);
-          safeSessionStorage.removeItem('nomiqa_oauth_pending');
-          throw result.error;
-        }
+        const OAUTH_SITE_ORIGIN = 'https://nomiqa.lovable.app';
+        const redirectUri = `${OAUTH_SITE_ORIGIN}/app/oauth-redirect`;
 
-        // The Lovable auth will have redirected in browser, or if not redirected,
-        // the session was set and we can proceed
-        if (!result.redirected) {
-          window.clearTimeout(oauthTimeout);
-          safeSessionStorage.removeItem('nomiqa_oauth_pending');
-          console.log('[AppAuth] Native Google sign-in successful (no redirect needed)');
-        } else {
-          console.log('[AppAuth] Browser opened for OAuth, waiting for deep link callback...');
-          // Deep link handler (useDeepLinkAuth) will handle the callback
-        }
+        // Mirror the SDK's state generation approach (used by the broker to prevent CSRF).
+        const state = (() => {
+          try {
+            if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+              const bytes = crypto.getRandomValues(new Uint8Array(16));
+              return [...bytes].map((b) => b.toString(16).padStart(2, '0')).join('');
+            }
+          } catch {
+            // ignore
+          }
+          return Math.random().toString(36).slice(2) + Date.now().toString(36);
+        })();
+
+        const oauthUrl = new URL('/~oauth/initiate', OAUTH_SITE_ORIGIN);
+        oauthUrl.searchParams.set('provider', 'google');
+        oauthUrl.searchParams.set('redirect_uri', redirectUri);
+        oauthUrl.searchParams.set('state', state);
+
+        await Browser.open({ url: oauthUrl.toString() });
+
+        // We intentionally clear this timeout after the browser opens.
+        // The native AppStateChange effect handles cancellation (no session) after returning.
+        window.clearTimeout(oauthTimeout);
+        console.log('[AppAuth] System browser opened for OAuth, waiting for deep link callback...');
         return;
       }
 
