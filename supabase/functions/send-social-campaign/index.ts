@@ -108,7 +108,7 @@ const generateEmailHTML = (username: string, unsubscribeUrl: string) => `
                   <td style="background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(0, 255, 255, 0.2)); border: 1px solid rgba(168,85,247,0.3); border-radius: 16px; padding: 24px;">
                     <h3 style="color: #a855f7; font-size: 18px; margin: 0 0 12px 0; text-align: center;">💜 Don't Forget Your Wallet!</h3>
                     <p style="color: rgba(255,255,255,0.9); font-size: 15px; line-height: 1.6; margin: 0; text-align: center;">
-                      Connect your <strong>Solana wallet</strong> in your account settings to be eligible for token rewards and airdrops. No wallet = no tokens!
+                      Enter your <strong>Solana address</strong> in your account settings to be eligible for token rewards and airdrops. No address = no tokens!
                     </p>
                     <p style="text-align: center; margin-top: 16px;">
                       <a href="https://nomiqa.lovable.app/my-account" target="_blank" style="display: inline-block; background: linear-gradient(135deg, #a855f7, #6366f1); color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 10px; font-size: 14px; font-weight: 500;">
