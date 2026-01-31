@@ -7,18 +7,39 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-forwarded-for, x-real-ip",
 };
 
-// SECURITY: Known disposable/temporary email domains used by bots
+// SECURITY: Known disposable/temporary email domains + bot domains
 const BLOCKED_DOMAINS = new Set([
-  'virgilian.com', 'tempmail.com', 'temp-mail.org', 'guerrillamail.com', 
-  'mailinator.com', '10minutemail.com', 'throwaway.email', 'fakeinbox.com',
-  'sharklasers.com', 'yopmail.com', 'maildrop.cc', 'dispostable.com',
-  'getnada.com', 'trashmail.com', 'mytrashmail.com', 'mailnesia.com',
-  'tempr.email', 'discard.email', 'spamgourmet.com', 'mailcatch.com',
-  'emailondeck.com', 'moakt.com', 'tempinbox.com', 'throwawaymail.com',
-  'mintemail.com', 'incognitomail.com', 'tempail.com', 'fakemailgenerator.com',
-  'mohmal.com', 'emailfake.com', 'crazymailing.com', 'temp.mail', 
-  'burnermail.io', 'guerrillamail.info', 'guerrillamail.net', 'guerrillamail.org',
+  // Disposable email providers
+  'tempmail.com', 'temp-mail.org', 'guerrillamail.com', 'guerrillamail.info',
+  'guerrillamail.net', 'guerrillamail.org', 'mailinator.com', '10minutemail.com',
+  'throwaway.email', 'fakeinbox.com', 'sharklasers.com', 'yopmail.com',
+  'maildrop.cc', 'dispostable.com', 'getnada.com', 'trashmail.com',
+  'mytrashmail.com', 'mailnesia.com', 'tempr.email', 'discard.email',
+  'spamgourmet.com', 'mailcatch.com', 'emailondeck.com', 'moakt.com',
+  'tempinbox.com', 'throwawaymail.com', 'mintemail.com', 'incognitomail.com',
+  'tempail.com', 'fakemailgenerator.com', 'mohmal.com', 'emailfake.com',
+  'crazymailing.com', 'temp.mail', 'burnermail.io',
+  // Bot attack domains (detected from signup analysis)
+  'virgilian.com', 'raleigh-construction.com', 'questtechsystems.com',
 ]);
+
+// Check if email domain contains known disposable patterns
+function isDisposableEmail(email: string): boolean {
+  const domain = email.split('@')[1]?.toLowerCase();
+  if (!domain) return true;
+  
+  // Direct match
+  if (BLOCKED_DOMAINS.has(domain)) return true;
+  
+  // Pattern matching for common disposable indicators
+  const suspiciousPatterns = [
+    /^temp/i, /temp$/i, /^fake/i, /fake$/i, /^trash/i, /trash$/i,
+    /^throw/i, /^disposable/i, /^mailinator/i, /^guerrilla/i,
+    /10minute/i, /minutemail/i,
+  ];
+  
+  return suspiciousPatterns.some(pattern => pattern.test(domain));
+}
 
 // Input validation
 const signupSchema = z.object({
@@ -161,8 +182,8 @@ const handler = async (req: Request): Promise<Response> => {
 
     // SECURITY: Block disposable/bot email domains
     const emailDomain = normalizedEmail.split('@')[1];
-    if (BLOCKED_DOMAINS.has(emailDomain)) {
-      console.error("Blocked disposable email domain signup attempt");
+    if (BLOCKED_DOMAINS.has(emailDomain) || isDisposableEmail(normalizedEmail)) {
+      console.error("Blocked disposable/bot email domain signup attempt");
       return new Response(
         JSON.stringify({ error: "Please use a valid, non-disposable email address" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
