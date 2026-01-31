@@ -13,20 +13,30 @@ This plan implements your complete points-scaling and behavior-shaping system wi
 | Feature | Status | Notes |
 |---------|--------|-------|
 | Daily point cap | ✅ Done | 200 pts/day via `add_points_with_cap` RPC |
+| Monthly point cap | ✅ Done | 6,000 pts/month via `user_monthly_limits` table |
 | Early user boost | ✅ Done | +50% for first 30 days |
 | Relative token model | ✅ Done | Points = share of pool, not fixed USD |
-| Remote config system | ✅ Done | `app_remote_config` table with kill switches |
+| Remote config system | ✅ Done | `app_remote_config` table with all point values configurable |
 | Challenges table | ✅ Done | 3 daily, 3 weekly challenges exist |
 | Signal log limits | ✅ Done | 500 logs/day, 10 speed tests/day |
 | Device integrity checks | ✅ Done | Mock location, emulator, root detection |
+| Time-based multipliers | ✅ Done | 0-2h = 0%, 2-6h = 50%, 6-12h = 100%, 12h+ = 110% cap |
+| Streak multipliers | ✅ Done | 7d = +10%, 30d = 2x, applied to background only |
+| Referral commissions | ✅ Done | 5% of referred user's earnings, redistributive (no new tokens) |
 
-### What Needs to Be Built
-1. **Behavior-shaping challenges** (passive, not button-tap based)
-2. **Time-based rewards** (diminishing returns after 8h)
-3. **Network/location change detection**
-4. **Streak multiplier on background only** (not challenges)
-5. **Admin controls for dynamic point adjustments**
-6. **Analytics for challenge value correlation**
+### Remote Config Entries (All Adjustable)
+- `max_daily_points`: 200
+- `max_monthly_points`: 6000
+- `background_base_points`: 50
+- `daily_challenge_total_target`: 80
+- `weekly_challenge_total_target`: 120
+- `speed_test_bonus_points`: 5
+- `speed_test_daily_limit`: 5
+- `early_user_boost_multiplier`: 1.5
+- `early_user_boost_days`: 30
+- `streak_max_multiplier`: 2.0
+- `min_active_hours_for_rewards`: 2
+- `referral_commission_rate`: 0.05
 
 ---
 

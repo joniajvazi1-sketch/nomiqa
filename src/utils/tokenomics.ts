@@ -37,6 +37,9 @@ export const TOKENOMICS = {
   // Daily cap (hard limit to prevent abuse)
   DAILY_POINT_CAP: 200,
   
+  // Monthly cap (prevents whales/bots from draining supply)
+  MONTHLY_POINT_CAP: 6000,
+  
   // ============ BOOST MULTIPLIERS ============
   BOOSTS: {
     // Early user boost: +50% for first 30 days
@@ -155,10 +158,24 @@ export const getRemainingDailyPoints = (pointsEarnedToday: number): number => {
 };
 
 /**
+ * Calculate points remaining before monthly cap
+ */
+export const getRemainingMonthlyPoints = (pointsEarnedThisMonth: number): number => {
+  return Math.max(0, TOKENOMICS.MONTHLY_POINT_CAP - pointsEarnedThisMonth);
+};
+
+/**
  * Check if daily cap has been reached
  */
 export const isDailyCapReached = (pointsEarnedToday: number): boolean => {
   return pointsEarnedToday >= TOKENOMICS.DAILY_POINT_CAP;
+};
+
+/**
+ * Check if monthly cap has been reached
+ */
+export const isMonthlyCapReached = (pointsEarnedThisMonth: number): boolean => {
+  return pointsEarnedThisMonth >= TOKENOMICS.MONTHLY_POINT_CAP;
 };
 
 /**

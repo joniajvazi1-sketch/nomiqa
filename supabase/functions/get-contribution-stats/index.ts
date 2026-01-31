@@ -56,6 +56,10 @@ serve(async (req) => {
       .eq('user_id', user.id)
       .maybeSingle();
 
+    // Get monthly status using the new RPC function
+    const { data: monthlyStatus } = await supabase
+      .rpc('get_user_monthly_status', { p_user_id: user.id });
+
     // Calculate streak
     let streakDays = 0;
     if (points?.last_contribution_date) {
@@ -135,7 +139,13 @@ serve(async (req) => {
           milestone_level: affiliate?.registration_milestone_level || 0
         },
         rank,
-        weekly_data: weeklyData
+        weekly_data: weeklyData,
+        monthly: {
+          points_this_month: monthlyStatus?.points_this_month || 0,
+          monthly_cap: monthlyStatus?.monthly_cap || 6000,
+          remaining_monthly: monthlyStatus?.remaining_monthly || 6000,
+          month_key: monthlyStatus?.month_key || ''
+        }
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
