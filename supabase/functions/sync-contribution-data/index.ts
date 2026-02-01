@@ -646,6 +646,10 @@ function isDuplicateLog(
   );
 }
 
+// Device fingerprint deduplication: max accounts per fingerprint
+const MAX_ACCOUNTS_PER_DEVICE = 2;
+const DEVICE_FINGERPRINT_ABUSE_THRESHOLD = 5; // Flag if >5 accounts
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -677,6 +681,83 @@ serve(async (req) => {
     }
 
     const { contributions, signalLogs }: SyncRequest = await req.json();
+
+    // ========================================================================
+    // P0.4: DEVICE FINGERPRINT ENFORCEMENT (1 device = 1 reward stream)
+    // Check if device fingerprint is being used by too many accounts
+    // ========================================================================
+    const deviceFingerprints = new Set<string>();
+    
+    // Collect fingerprints from contributions
+    contributions?.forEach(c => {
+      if (c.device_fingerprint) deviceFingerprints.add(c.device_fingerprint);
+    });
+    
+    // Check each unique fingerprint for abuse
+    for (const fingerprint of deviceFingerprints) {
+      // Query how many unique user_ids have used this fingerprint
+      const { data: fingerprintUsers, error: fpError } = await supabase
+        .from('offline_contribution_queue')
+        .select('user_id')
+        .eq('device_fingerprint', fingerprint)
+        .neq('user_id', user.id) // Exclude current user
+        .limit(DEVICE_FINGERPRINT_ABUSE_THRESHOLD + 1);
+      
+      if (!fpError && fingerprintUsers) {
+        // Get unique user count
+        const uniqueOtherUsers = new Set(fingerprintUsers.map(r => r.user_id));
+        const totalAccountsOnDevice = uniqueOtherUsers.size + 1; // +1 for current user
+        
+        if (totalAccountsOnDevice > DEVICE_FINGERPRINT_ABUSE_THRESHOLD) {
+          // Log security event for investigation
+          console.warn(`Device fingerprint abuse detected: ${totalAccountsOnDevice} accounts on device ${fingerprint.substring(0, 8)}...`);
+          
+          // Log to security audit
+          await supabase.from('security_audit_log').insert({
+            event_type: 'device_fingerprint_abuse',
+            severity: 'warn',
+            user_id: user.id,
+            details: {
+              fingerprint_prefix: fingerprint.substring(0, 16),
+              accounts_on_device: totalAccountsOnDevice,
+              threshold: DEVICE_FINGERPRINT_ABUSE_THRESHOLD
+            }
+          });
+          
+          // Freeze user's points to prevent further abuse
+          await supabase
+            .from('user_points')
+            .update({ 
+              is_frozen: true,
+              frozen_at: new Date().toISOString(),
+              frozen_reason: `Device shared with ${totalAccountsOnDevice} accounts (limit: ${DEVICE_FINGERPRINT_ABUSE_THRESHOLD})`
+            })
+            .eq('user_id', user.id);
+          
+          return new Response(
+            JSON.stringify({ 
+              error: 'device_abuse_detected',
+              message: 'This device has been used with too many accounts. Your rewards have been paused. Please contact support if you believe this is an error.',
+            }),
+            { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        } else if (totalAccountsOnDevice > MAX_ACCOUNTS_PER_DEVICE) {
+          // Warn but allow - log for manual review
+          console.warn(`Device fingerprint warning: ${totalAccountsOnDevice} accounts on device ${fingerprint.substring(0, 8)}... (user: ${user.id})`);
+          
+          await supabase.from('security_audit_log').insert({
+            event_type: 'device_fingerprint_warning',
+            severity: 'info',
+            user_id: user.id,
+            details: {
+              fingerprint_prefix: fingerprint.substring(0, 16),
+              accounts_on_device: totalAccountsOnDevice,
+              max_allowed: MAX_ACCOUNTS_PER_DEVICE
+            }
+          });
+        }
+      }
+    }
 
     // ========================================================================
     // P0.3: ENFORCE DAILY LIMITS (500 signal logs/day, 10 speed tests/day)

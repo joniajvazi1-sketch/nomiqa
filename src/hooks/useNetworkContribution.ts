@@ -778,31 +778,47 @@ export const useNetworkContribution = () => {
           })
           .eq('id', session.id);
         
-        // Update user points (incremental)
-        const { data: existingPoints } = await supabase
-          .from('user_points')
-          .select('*')
-          .eq('user_id', user.id)
-          .maybeSingle();
+        // CRITICAL FIX: Use add_points_with_cap RPC to enforce daily/monthly/lifetime caps
+        // This prevents client-side bypass of server-side cap enforcement
+        const sessionHours = currentStats.duration / 3600; // Convert seconds to hours
         
-        if (existingPoints) {
-          await supabase
-            .from('user_points')
-            .update({
-              total_points: (existingPoints.total_points || 0) + pointsDelta,
-              total_distance_meters: (existingPoints.total_distance_meters || 0) + (currentStats.distanceMeters - (existingPoints.total_distance_meters || 0)),
-              total_contribution_time_seconds: (existingPoints.total_contribution_time_seconds || 0) + Math.floor(AUTO_SAVE_INTERVAL_MS / 1000)
-            })
-            .eq('user_id', user.id);
-        } else {
-          await supabase
-            .from('user_points')
-            .insert({
-              user_id: user.id,
-              total_points: pointsDelta,
-              total_distance_meters: currentStats.distanceMeters,
-              total_contribution_time_seconds: currentStats.duration
-            });
+        const { data: pointsResult, error: pointsError } = await supabase
+          .rpc('add_points_with_cap', {
+            p_user_id: user.id,
+            p_base_points: pointsDelta,
+            p_source: 'contribution',
+            p_session_hours: sessionHours
+          });
+        
+        if (pointsError) {
+          console.error('[NetworkContribution] add_points_with_cap failed:', pointsError);
+          // Don't update lastAutoSavePointsRef so we retry next cycle
+          return;
+        }
+        
+        if (pointsResult && typeof pointsResult === 'object') {
+          const result = pointsResult as Record<string, unknown>;
+          const actualPointsAdded = (result.points_added as number) || 0;
+          const wasCapped = result.daily_capped || result.monthly_capped || result.lifetime_capped;
+          const reason = result.reason as string | undefined;
+          
+          if (reason === 'daily_cap_reached') {
+            console.log('[NetworkContribution] Daily cap reached - pausing point accrual');
+          } else if (reason === 'monthly_cap_reached') {
+            console.log('[NetworkContribution] Monthly cap reached - pausing point accrual');
+          } else if (reason === 'lifetime_cap_reached') {
+            console.log('[NetworkContribution] Lifetime cap reached - congrats!');
+          } else if (reason === 'account_frozen') {
+            console.warn('[NetworkContribution] Account frozen - points not added');
+          }
+          
+          if (wasCapped) {
+            console.log(`[NetworkContribution] Points capped: requested ${pointsDelta}, added ${actualPointsAdded}`);
+          } else {
+            const boostMultiplier = (result.boost_multiplier as number) || 1;
+            const streakDays = (result.streak_days as number) || 0;
+            console.log(`[NetworkContribution] Points added: ${actualPointsAdded} (boost: ${boostMultiplier}x, streak: ${streakDays}d)`);
+          }
         }
         
         lastAutoSavePointsRef.current = currentPoints;
