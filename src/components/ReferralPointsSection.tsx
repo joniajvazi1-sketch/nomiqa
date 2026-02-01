@@ -73,7 +73,7 @@ export const ReferralPointsSection = ({
             <p className="text-lg text-muted-foreground mt-2">{t("totalPoints")}</p>
             <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-neon-violet/10 rounded-full border border-neon-violet/20">
               <TrendingUp className="w-4 h-4 text-neon-violet" />
-              <span className="text-neon-violet font-medium">≈ ${estimatedValue} USD</span>
+              <span className="text-neon-violet font-medium">Convertible to $NOMIQA</span>
             </div>
           </div>
 
