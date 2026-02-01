@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -59,7 +60,10 @@ export default function AdminUsers() {
 
   const fetchData = async (isRefresh = false) => {
     try {
-      if (isRefresh) setRefreshing(true);
+      if (isRefresh) {
+        setRefreshing(true);
+        setVisibleCount(50); // Reset pagination on refresh
+      }
       
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
@@ -85,9 +89,16 @@ export default function AdminUsers() {
 
       setUsers(response.data.users || []);
       setStats(response.data.stats || null);
+      
+      if (isRefresh) {
+        toast.success(`Refreshed: ${response.data.users?.length || 0} users loaded`);
+      }
     } catch (err: any) {
       console.error("Error fetching admin data:", err);
       setError(err.message || "Failed to load data");
+      if (isRefresh) {
+        toast.error("Failed to refresh data");
+      }
     } finally {
       setLoading(false);
       setRefreshing(false);
