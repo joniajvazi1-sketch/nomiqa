@@ -113,8 +113,11 @@ export const Hero = () => {
       <div className="container relative z-10 px-6 md:px-8 pt-16 pb-24 md:py-32">
         <div className="max-w-4xl mx-auto">
           
-          {/* DePIN Trust Badge - removed animation delay for faster mobile LCP */}
-          <div className="flex justify-center mb-6 animate-fade-in">
+          {/* Coming Soon Badge - Prominent pre-launch indicator */}
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-2 sm:gap-3 mb-6 animate-fade-in">
+            <div className="inline-flex items-center justify-center gap-2 px-3 md:px-4 py-2 rounded-full bg-neon-coral/15 border border-neon-coral/40 text-neon-coral text-[10px] md:text-sm font-semibold text-center animate-pulse">
+              <span className="whitespace-nowrap">🚀 {t("heroAppComingSoon")}</span>
+            </div>
             <div className="inline-flex items-center justify-center gap-2 px-3 md:px-4 py-2 rounded-full bg-white/15 border border-neon-cyan/30 text-neon-cyan text-[10px] md:text-sm font-medium text-center">
               <Wifi className="w-3 h-3 md:w-3.5 md:h-3.5 flex-shrink-0" />
               <span className="whitespace-nowrap">{t("heroNetworkBadge")}</span>

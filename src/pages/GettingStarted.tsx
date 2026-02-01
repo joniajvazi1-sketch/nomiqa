@@ -72,7 +72,12 @@ export default function GettingStarted() {
       {/* Hero Section */}
       <section className="relative pt-8 pb-12 md:pt-16 md:pb-16 px-4">
         <div className="container max-w-5xl mx-auto relative z-10 text-center">
-          <span className="inline-block px-5 py-2 rounded-full bg-white/[0.03] backdrop-blur-xl text-primary text-sm font-medium mb-6 border border-white/10">
+          {/* Coming Soon Badge */}
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neon-coral/15 border border-neon-coral/40 mb-4 animate-pulse">
+            <span className="text-neon-coral text-sm font-semibold">🚀 {t("downloadComingSoon")}</span>
+          </div>
+          
+          <span className="inline-block px-5 py-2 rounded-full bg-white/[0.03] backdrop-blur-xl text-primary text-sm font-medium mb-6 border border-white/10 ml-2">
             {t("gsWelcomeBadge")}
           </span>
           
