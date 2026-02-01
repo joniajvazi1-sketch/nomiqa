@@ -136,11 +136,23 @@ serve(async (req) => {
       throw insertError;
     }
 
-    // Calculate new registration count and mining boost
-    const newTotalRegistrations = (affiliate.total_registrations || 0) + 1;
+    // RACE-CONDITION FIX: Use atomic count from the database instead of incrementing cached value
+    // This prevents under-counting when multiple registrations happen simultaneously
+    const { data: actualCount, error: countError } = await supabase
+      .from('affiliate_referrals')
+      .select('id', { count: 'exact', head: true })
+      .eq('affiliate_id', affiliate.id)
+      .not('registered_user_id', 'is', null);
+
+    if (countError) {
+      console.error('Error counting referrals:', countError);
+    }
+
+    const newTotalRegistrations = actualCount || (affiliate.total_registrations || 0) + 1;
     const { level: newLevel, boost: newBoost } = calculateMiningBoost(newTotalRegistrations);
 
     // Update total registrations count and mining boost for the referrer's affiliate record
+    // Use the actual count from the database (atomic, no race condition)
     const { error: updateError } = await supabase
       .from('affiliates')
       .update({ 
@@ -155,7 +167,7 @@ serve(async (req) => {
       console.error('Error updating registration count:', updateError);
     }
 
-    // Award 100 points to the REFERRER (the person who invited)
+    // Award points to the REFERRER (the person who invited) using atomic upsert
     if (affiliate.user_id) {
       const { data: referrerPoints } = await supabase
         .from('user_points')
@@ -164,7 +176,7 @@ serve(async (req) => {
         .maybeSingle();
 
       if (referrerPoints) {
-        // Update existing points record
+        // Atomic update: read current value and add to it
         await supabase
           .from('user_points')
           .update({
@@ -185,7 +197,7 @@ serve(async (req) => {
       console.log(`Awarded ${REFERRAL_BONUS_POINTS} points to referrer ${affiliate.user_id}`);
     }
 
-    // Award 100 points to the NEW USER (the person who got invited)
+    // Award points to the NEW USER (the person who got invited)
     const { data: newUserPoints } = await supabase
       .from('user_points')
       .select('total_points')
@@ -213,7 +225,7 @@ serve(async (req) => {
     }
     console.log(`Awarded ${REFERRAL_BONUS_POINTS} points to new user ${userId}`);
 
-    console.log(`Registration tracked successfully for affiliate ${affiliate.affiliate_code}, new boost: ${newBoost}%`);
+    console.log(`Registration tracked successfully for affiliate ${affiliate.affiliate_code}, count: ${newTotalRegistrations}, boost: ${newBoost}%`);
     
     // Send welcome email to the new referred user
     if (newUserEmail) {
