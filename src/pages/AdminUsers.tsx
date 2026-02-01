@@ -332,7 +332,7 @@ export default function AdminUsers() {
                 const topReferrers = [...users]
                   .filter(u => u.total_registrations > 0)
                   .sort((a, b) => b.total_registrations - a.total_registrations)
-                  .slice(0, 10);
+                  .slice(0, 25);
                 
                 if (topReferrers.length === 0) {
                   return <p className="text-sm text-muted-foreground">No referrals yet</p>;
