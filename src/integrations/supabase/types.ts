@@ -92,8 +92,10 @@ export type Database = {
           email: string
           email_verified: boolean | null
           id: string
+          max_referrals: number | null
           miner_boost_percentage: number | null
           parent_affiliate_id: string | null
+          referrals_capped_at: string | null
           registration_milestone_level: number | null
           status: string | null
           tier_level: number
@@ -114,8 +116,10 @@ export type Database = {
           email: string
           email_verified?: boolean | null
           id?: string
+          max_referrals?: number | null
           miner_boost_percentage?: number | null
           parent_affiliate_id?: string | null
+          referrals_capped_at?: string | null
           registration_milestone_level?: number | null
           status?: string | null
           tier_level?: number
@@ -136,8 +140,10 @@ export type Database = {
           email?: string
           email_verified?: boolean | null
           id?: string
+          max_referrals?: number | null
           miner_boost_percentage?: number | null
           parent_affiliate_id?: string | null
+          referrals_capped_at?: string | null
           registration_milestone_level?: number | null
           status?: string | null
           tier_level?: number
@@ -886,6 +892,42 @@ export type Database = {
           },
         ]
       }
+      pending_referral_bonuses: {
+        Row: {
+          bonus_points: number
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          referred_user_id: string
+          referrer_user_id: string
+          requirement_met: boolean | null
+          requirement_met_at: string | null
+          requirement_type: string
+        }
+        Insert: {
+          bonus_points?: number
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          referred_user_id: string
+          referrer_user_id: string
+          requirement_met?: boolean | null
+          requirement_met_at?: string | null
+          requirement_type?: string
+        }
+        Update: {
+          bonus_points?: number
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          referred_user_id?: string
+          referrer_user_id?: string
+          requirement_met?: boolean | null
+          requirement_met_at?: string | null
+          requirement_type?: string
+        }
+        Relationships: []
+      }
       processed_webhook_requests: {
         Row: {
           created_at: string
@@ -1095,6 +1137,45 @@ export type Database = {
           referrer_user_id?: string
         }
         Relationships: []
+      }
+      referral_velocity_tracking: {
+        Row: {
+          affiliate_id: string
+          created_at: string | null
+          id: string
+          referral_count: number | null
+          window_start: string
+        }
+        Insert: {
+          affiliate_id: string
+          created_at?: string | null
+          id?: string
+          referral_count?: number | null
+          window_start?: string
+        }
+        Update: {
+          affiliate_id?: string
+          created_at?: string | null
+          id?: string
+          referral_count?: number | null
+          window_start?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_velocity_tracking_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "affiliates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referral_velocity_tracking_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "affiliates_safe"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       security_audit_log: {
         Row: {
@@ -1619,11 +1700,15 @@ export type Database = {
           contribution_streak_days: number | null
           created_at: string | null
           daily_challenge_streak_days: number | null
+          frozen_at: string | null
+          frozen_reason: string | null
           id: string
+          is_frozen: boolean | null
           last_all_daily_completed_date: string | null
           last_background_date: string | null
           last_commission_points: number | null
           last_contribution_date: string | null
+          lifetime_cap_reached: boolean | null
           pending_points: number | null
           total_contribution_time_seconds: number | null
           total_distance_meters: number | null
@@ -1636,11 +1721,15 @@ export type Database = {
           contribution_streak_days?: number | null
           created_at?: string | null
           daily_challenge_streak_days?: number | null
+          frozen_at?: string | null
+          frozen_reason?: string | null
           id?: string
+          is_frozen?: boolean | null
           last_all_daily_completed_date?: string | null
           last_background_date?: string | null
           last_commission_points?: number | null
           last_contribution_date?: string | null
+          lifetime_cap_reached?: boolean | null
           pending_points?: number | null
           total_contribution_time_seconds?: number | null
           total_distance_meters?: number | null
@@ -1653,11 +1742,15 @@ export type Database = {
           contribution_streak_days?: number | null
           created_at?: string | null
           daily_challenge_streak_days?: number | null
+          frozen_at?: string | null
+          frozen_reason?: string | null
           id?: string
+          is_frozen?: boolean | null
           last_all_daily_completed_date?: string | null
           last_background_date?: string | null
           last_commission_points?: number | null
           last_contribution_date?: string | null
+          lifetime_cap_reached?: boolean | null
           pending_points?: number | null
           total_contribution_time_seconds?: number | null
           total_distance_meters?: number | null
@@ -1912,7 +2005,23 @@ export type Database = {
             }
             Returns: Json
           }
+      admin_freeze_user_points: {
+        Args: { p_reason?: string; p_target_user_id: string }
+        Returns: Json
+      }
+      admin_unfreeze_user_points: {
+        Args: { p_target_user_id: string }
+        Returns: Json
+      }
       admin_update_leaderboard_rankings: { Args: never; Returns: undefined }
+      check_and_award_pending_referral_bonus: {
+        Args: { p_user_id: string }
+        Returns: Json
+      }
+      check_referral_eligibility: {
+        Args: { p_affiliate_id: string }
+        Returns: Json
+      }
       cleanup_expired_order_pii: { Args: never; Returns: number }
       cleanup_old_email_rate_limits: { Args: never; Returns: undefined }
       cleanup_old_mining_logs: { Args: never; Returns: number }

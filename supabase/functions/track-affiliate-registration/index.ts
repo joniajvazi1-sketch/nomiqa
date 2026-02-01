@@ -13,8 +13,17 @@ const registrationSchema = z.object({
   referrer: z.string().optional(),
 });
 
-// Points awarded for referral signup
-const REFERRAL_BONUS_POINTS = 50;
+// Points awarded immediately on signup (reduced from 50)
+const IMMEDIATE_SIGNUP_BONUS = 20;
+// Points awarded after first contribution (activity-gated)
+const ACTIVITY_GATED_BONUS = 30;
+// Total still equals 50, but split between immediate and activity-gated
+const REFERRAL_BONUS_POINTS = IMMEDIATE_SIGNUP_BONUS + ACTIVITY_GATED_BONUS;
+
+// Max referrals per 24 hours (velocity limit)
+const VELOCITY_THRESHOLD_24H = 10;
+// Max referrals per affiliate (lifetime cap)
+const MAX_REFERRALS_DEFAULT = 100;
 
 // Detect traffic source from referrer
 function detectSource(referrerUrl: string | null): string {
@@ -54,7 +63,6 @@ serve(async (req) => {
 
   try {
     // SECURITY: Verify internal call - this endpoint should only be called by other edge functions
-    // Require service role key OR valid user JWT (for signup flow)
     const authHeader = req.headers.get('authorization');
     const apiKey = req.headers.get('apikey');
     const expectedServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
@@ -104,7 +112,7 @@ serve(async (req) => {
     // Find affiliate by code with username for the welcome email
     const { data: affiliate, error: affError } = await supabase
       .from('affiliates')
-      .select('id, affiliate_code, total_registrations, username, user_id, miner_boost_percentage, registration_milestone_level')
+      .select('id, affiliate_code, total_registrations, username, user_id, miner_boost_percentage, registration_milestone_level, max_referrals')
       .eq('affiliate_code', referralCode)
       .maybeSingle();
 
@@ -118,6 +126,58 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ error: 'Invalid referral code' }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // ==========================================================
+    // SAFEGUARD 1: Check referral cap (max referrals per affiliate)
+    // ==========================================================
+    const maxReferrals = affiliate.max_referrals || MAX_REFERRALS_DEFAULT;
+    if ((affiliate.total_registrations || 0) >= maxReferrals) {
+      console.log(`Affiliate ${affiliate.affiliate_code} has reached referral cap: ${affiliate.total_registrations}/${maxReferrals}`);
+      // Still allow registration but don't award points
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          message: 'Registration recorded but referral cap reached',
+          referralCapReached: true
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // ==========================================================
+    // SAFEGUARD 2: Check 24h velocity (rate limiting)
+    // ==========================================================
+    const { count: recentReferralsCount } = await supabase
+      .from('affiliate_referrals')
+      .select('id', { count: 'exact', head: true })
+      .eq('affiliate_id', affiliate.id)
+      .gte('registered_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString());
+
+    const velocity24h = recentReferralsCount || 0;
+    if (velocity24h >= VELOCITY_THRESHOLD_24H) {
+      console.warn(`Velocity limit exceeded for affiliate ${affiliate.affiliate_code}: ${velocity24h} referrals in 24h`);
+      // Log to security audit
+      await supabase.from('security_audit_log').insert({
+        user_id: affiliate.user_id,
+        event_type: 'referral_velocity_exceeded',
+        severity: 'warn',
+        details: {
+          affiliate_id: affiliate.id,
+          velocity_24h: velocity24h,
+          threshold: VELOCITY_THRESHOLD_24H,
+          attempted_user_id: userId
+        }
+      });
+      // Still allow registration but don't award points
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          message: 'Registration recorded but velocity limit reached',
+          velocityLimitReached: true
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
     
@@ -163,8 +223,7 @@ serve(async (req) => {
       throw insertError;
     }
 
-    // RACE-CONDITION FIX: Use atomic count from the database instead of incrementing cached value
-    // This prevents under-counting when multiple registrations happen simultaneously
+    // RACE-CONDITION FIX: Use atomic count from the database
     const { data: actualCount, error: countError } = await supabase
       .from('affiliate_referrals')
       .select('id', { count: 'exact', head: true })
@@ -179,22 +238,32 @@ serve(async (req) => {
     const { level: newLevel, boost: newBoost } = calculateMiningBoost(newTotalRegistrations);
 
     // Update total registrations count and mining boost for the referrer's affiliate record
-    // Use the actual count from the database (atomic, no race condition)
+    const updateData: Record<string, any> = { 
+      total_registrations: newTotalRegistrations,
+      registration_milestone_level: newLevel,
+      miner_boost_percentage: newBoost,
+      updated_at: new Date().toISOString()
+    };
+    
+    // Mark if referral cap is now reached
+    if (newTotalRegistrations >= maxReferrals) {
+      updateData.referrals_capped_at = new Date().toISOString();
+    }
+
     const { error: updateError } = await supabase
       .from('affiliates')
-      .update({ 
-        total_registrations: newTotalRegistrations,
-        registration_milestone_level: newLevel,
-        miner_boost_percentage: newBoost,
-        updated_at: new Date().toISOString()
-      })
+      .update(updateData)
       .eq('id', affiliate.id);
 
     if (updateError) {
       console.error('Error updating registration count:', updateError);
     }
 
-    // Award points to the REFERRER (the person who invited) using atomic upsert
+    // ==========================================================
+    // SAFEGUARD 3: Split referral bonus (immediate + activity-gated)
+    // ==========================================================
+    
+    // Award IMMEDIATE bonus to the REFERRER (only 20 pts now)
     if (affiliate.user_id) {
       const { data: referrerPoints } = await supabase
         .from('user_points')
@@ -203,28 +272,45 @@ serve(async (req) => {
         .maybeSingle();
 
       if (referrerPoints) {
-        // Atomic update: read current value and add to it
         await supabase
           .from('user_points')
           .update({
-            total_points: (referrerPoints.total_points || 0) + REFERRAL_BONUS_POINTS,
+            total_points: (referrerPoints.total_points || 0) + IMMEDIATE_SIGNUP_BONUS,
             updated_at: new Date().toISOString()
           })
           .eq('user_id', affiliate.user_id);
       } else {
-        // Create new points record for referrer
         await supabase
           .from('user_points')
           .insert({
             user_id: affiliate.user_id,
-            total_points: REFERRAL_BONUS_POINTS,
+            total_points: IMMEDIATE_SIGNUP_BONUS,
             pending_points: 0
           });
       }
-      console.log(`Awarded ${REFERRAL_BONUS_POINTS} points to referrer ${affiliate.user_id}`);
+      console.log(`Awarded ${IMMEDIATE_SIGNUP_BONUS} immediate points to referrer ${affiliate.user_id}`);
+      
+      // Create PENDING bonus record for the remaining 30 pts (requires first contribution)
+      // Use upsert with ignoreDuplicates
+      const { error: pendingError } = await supabase
+        .from('pending_referral_bonuses')
+        .upsert({
+          referrer_user_id: affiliate.user_id,
+          referred_user_id: userId,
+          bonus_points: ACTIVITY_GATED_BONUS,
+          requirement_type: 'first_contribution',
+          requirement_met: false,
+          expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 days
+        }, { onConflict: 'referred_user_id', ignoreDuplicates: true });
+      
+      if (pendingError) {
+        console.error('Error creating pending bonus (may already exist):', pendingError.message);
+      } else {
+        console.log(`Created pending bonus of ${ACTIVITY_GATED_BONUS} pts for referrer, awaiting invitee first contribution`);
+      }
     }
 
-    // Award points to the NEW USER (the person who got invited)
+    // Award FULL bonus to the NEW USER (invitee still gets 50 pts immediately as welcome)
     const { data: newUserPoints } = await supabase
       .from('user_points')
       .select('total_points')
@@ -232,7 +318,6 @@ serve(async (req) => {
       .maybeSingle();
 
     if (newUserPoints) {
-      // Update existing points record
       await supabase
         .from('user_points')
         .update({
@@ -241,7 +326,6 @@ serve(async (req) => {
         })
         .eq('user_id', userId);
     } else {
-      // Create new points record for new user
       await supabase
         .from('user_points')
         .insert({
@@ -257,14 +341,11 @@ serve(async (req) => {
     // Send welcome email to the new referred user
     if (newUserEmail) {
       try {
-        const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-        const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-        
         await fetch(`${supabaseUrl}/functions/v1/send-email`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${supabaseServiceKey}`,
+            'Authorization': `Bearer ${supabaseKey}`,
           },
           body: JSON.stringify({
             type: 'referral_welcome',
@@ -278,7 +359,6 @@ serve(async (req) => {
         console.log(`Referral welcome email sent to ${newUserEmail}`);
       } catch (emailError) {
         console.error('Error sending referral welcome email:', emailError);
-        // Don't fail the registration tracking if email fails
       }
     }
 
@@ -287,8 +367,14 @@ serve(async (req) => {
         success: true,
         message: 'Registration tracked successfully',
         affiliateCode: affiliate.affiliate_code,
-        pointsAwarded: REFERRAL_BONUS_POINTS,
-        newMiningBoost: newBoost
+        pointsAwarded: {
+          inviteeImmediate: REFERRAL_BONUS_POINTS,
+          referrerImmediate: IMMEDIATE_SIGNUP_BONUS,
+          referrerPending: ACTIVITY_GATED_BONUS
+        },
+        newMiningBoost: newBoost,
+        referralCount: newTotalRegistrations,
+        maxReferrals: maxReferrals
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );

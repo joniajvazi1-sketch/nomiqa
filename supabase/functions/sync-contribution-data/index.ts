@@ -1067,6 +1067,22 @@ serve(async (req) => {
       }
     }
 
+    // ==========================================
+    // Check and award pending referral bonus if this is user's first contribution
+    // This gates the referrer's remaining 30 pts on invitee activity
+    // ==========================================
+    try {
+      const { data: pendingBonusResult } = await supabase
+        .rpc('check_and_award_pending_referral_bonus', { p_user_id: user.id });
+      
+      if (pendingBonusResult?.success) {
+        console.log(`Awarded ${pendingBonusResult.points_awarded} activity-gated referral bonus to referrer ${pendingBonusResult.referrer_user_id}`);
+      }
+    } catch (pendingErr) {
+      // Non-critical - log and continue
+      console.error('Error checking pending referral bonus:', pendingErr);
+    }
+
     console.log(`Synced ${validContributions.length} contributions, earned ${actualPointsEarned} pts${wasCapped ? ' (capped)' : ''}${pointsResult?.streak_days > 0 ? ` (${pointsResult.streak_days}d streak)` : ''}`);
 
     return new Response(
