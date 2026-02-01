@@ -31,10 +31,10 @@ const Download = () => {
       <section className="pt-8 pb-16 md:pt-16 md:pb-24 px-4 relative z-10">
         <div className="container max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            {/* Coming Soon Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neon-coral/10 border border-neon-coral/30 mb-6">
-              <Clock className="w-4 h-4 text-neon-coral" />
-              <span className="text-sm font-medium text-neon-coral">{t("downloadComingSoon")}</span>
+            {/* Large Coming Soon Badge */}
+            <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-neon-coral/20 border-2 border-neon-coral/50 mb-8 animate-pulse">
+              <Clock className="w-5 h-5 text-neon-coral" />
+              <span className="text-lg font-semibold text-neon-coral">🚀 {t("downloadComingSoon")}</span>
             </div>
             
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-light mb-6">
@@ -42,53 +42,65 @@ const Download = () => {
                 {t("downloadPageTitle")}
               </span>
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
+            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-4">
               {t("downloadPageSubtitle")}
             </p>
+            
+            {/* Not Yet Available Notice */}
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 border border-white/10 mb-10">
+              <span className="text-sm text-white/70">{t("downloadNotYetAvailable")}</span>
+            </div>
 
-            {/* App Store Badges Placeholder */}
+            {/* App Store Badges - Greyed Out with Coming Soon Overlay */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
-              <div className="relative group">
-                <div className="absolute inset-0 bg-gradient-to-r from-neon-cyan/20 to-neon-violet/20 rounded-xl blur-xl opacity-50 group-hover:opacity-75 transition-opacity" />
+              <div className="relative group opacity-60 cursor-not-allowed">
+                <div className="absolute inset-0 bg-gradient-to-r from-neon-cyan/10 to-neon-violet/10 rounded-xl blur-xl opacity-30" />
                 <div className="relative flex items-center gap-3 px-6 py-4 bg-white/5 border border-white/10 rounded-xl backdrop-blur-sm">
                   <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center">
-                    <svg viewBox="0 0 24 24" className="w-6 h-6 text-white" fill="currentColor">
+                    <svg viewBox="0 0 24 24" className="w-6 h-6 text-white/50" fill="currentColor">
                       <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.53 4.08zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
                     </svg>
                   </div>
                   <div className="text-left">
-                    <div className="text-xs text-white/60">{t("downloadOnThe")}</div>
-                    <div className="text-lg font-medium text-white">App Store</div>
+                    <div className="text-xs text-neon-coral font-medium">{t("downloadComingSoon")}</div>
+                    <div className="text-lg font-medium text-white/50">App Store</div>
                   </div>
                 </div>
               </div>
               
-              <div className="relative group">
-                <div className="absolute inset-0 bg-gradient-to-r from-neon-violet/20 to-neon-cyan/20 rounded-xl blur-xl opacity-50 group-hover:opacity-75 transition-opacity" />
+              <div className="relative group opacity-60 cursor-not-allowed">
+                <div className="absolute inset-0 bg-gradient-to-r from-neon-violet/10 to-neon-cyan/10 rounded-xl blur-xl opacity-30" />
                 <div className="relative flex items-center gap-3 px-6 py-4 bg-white/5 border border-white/10 rounded-xl backdrop-blur-sm">
                   <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center">
-                    <svg viewBox="0 0 24 24" className="w-6 h-6 text-white" fill="currentColor">
+                    <svg viewBox="0 0 24 24" className="w-6 h-6 text-white/50" fill="currentColor">
                       <path d="m3 20.5 10.5-8.5L3 3.5v17zm11 0 7-8.5-7-8.5v17z"/>
                     </svg>
                   </div>
                   <div className="text-left">
-                    <div className="text-xs text-white/60">{t("downloadGetItOn")}</div>
-                    <div className="text-lg font-medium text-white">Google Play</div>
+                    <div className="text-xs text-neon-coral font-medium">{t("downloadComingSoon")}</div>
+                    <div className="text-lg font-medium text-white/50">Google Play</div>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* QR Code Placeholder */}
+            {/* Register Now CTA Instead of QR */}
             <div className="flex flex-col items-center gap-4 mb-12">
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-neon-cyan/30 to-neon-violet/30 rounded-2xl blur-2xl" />
-                <div className="relative w-48 h-48 bg-white/5 border-2 border-dashed border-white/20 rounded-2xl flex flex-col items-center justify-center backdrop-blur-sm">
-                  <Smartphone className="w-12 h-12 text-white/40 mb-3" />
-                  <span className="text-sm text-white/40">{t("downloadQRPlaceholder")}</span>
+                <div className="relative p-8 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-sm">
+                  <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-neon-cyan/20 to-neon-violet/20 flex items-center justify-center">
+                    <Clock className="w-8 h-8 text-neon-cyan" />
+                  </div>
+                  <h3 className="text-xl font-medium text-white mb-2">{t("downloadRegisterEarly")}</h3>
+                  <p className="text-sm text-white/60 mb-4 max-w-xs">{t("downloadEarlyAccessDesc")}</p>
+                  <Link to="/account">
+                    <Button className="bg-gradient-to-r from-neon-cyan to-neon-violet hover:opacity-90 text-white px-6 py-2 rounded-lg">
+                      {t("downloadRegisterNow")}
+                    </Button>
+                  </Link>
                 </div>
               </div>
-              <p className="text-sm text-muted-foreground">{t("downloadScanQR")}</p>
             </div>
           </div>
 
