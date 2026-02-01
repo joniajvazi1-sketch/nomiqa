@@ -55,6 +55,7 @@ export default function AdminUsers() {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
+  const [visibleCount, setVisibleCount] = useState(50);
 
   const fetchData = async (isRefresh = false) => {
     try {
@@ -107,6 +108,17 @@ export default function AdminUsers() {
       user.referred_by?.email?.toLowerCase().includes(search)
     );
   });
+
+  // Paginated users for display (only when not searching)
+  const displayedUsers = searchTerm 
+    ? filteredUsers 
+    : filteredUsers.slice(0, visibleCount);
+  
+  const hasMoreUsers = !searchTerm && visibleCount < filteredUsers.length;
+
+  const loadMoreUsers = () => {
+    setVisibleCount(prev => prev + 50);
+  };
 
   const formatDate = (date: string) => {
     return new Date(date).toLocaleDateString("en-US", {
@@ -406,59 +418,70 @@ export default function AdminUsers() {
 
         {/* Mobile User List */}
         <div className="md:hidden space-y-2">
-          {filteredUsers.length === 0 ? (
+          {displayedUsers.length === 0 ? (
             <Card className="bg-white/5 border-white/10">
               <CardContent className="py-8 text-center text-muted-foreground">
                 {searchTerm ? "No users match your search" : "No users found"}
               </CardContent>
             </Card>
           ) : (
-            filteredUsers.map((user) => (
-              <Card 
-                key={user.id} 
-                className="bg-white/5 border-white/10 active:scale-[0.98] transition-transform cursor-pointer"
-                onClick={() => setSelectedUser(user)}
-              >
-                <CardContent className="p-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
-                      <span className="text-sm font-bold text-primary">
-                        {user.username?.charAt(0).toUpperCase()}
-                      </span>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <p className="font-medium truncate">{user.username}</p>
-                        {user.email_verified ? (
-                          <CheckCircle className="w-3.5 h-3.5 text-green-500 shrink-0" />
-                        ) : (
-                          <XCircle className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-                        )}
+            <>
+              {displayedUsers.map((user) => (
+                <Card 
+                  key={user.id} 
+                  className="bg-white/5 border-white/10 active:scale-[0.98] transition-transform cursor-pointer"
+                  onClick={() => setSelectedUser(user)}
+                >
+                  <CardContent className="p-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+                        <span className="text-sm font-bold text-primary">
+                          {user.username?.charAt(0).toUpperCase()}
+                        </span>
                       </div>
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        {user.is_affiliate && user.total_registrations > 0 && (
-                          <span className="text-primary font-medium">{user.total_registrations} refs</span>
-                        )}
-                        {user.solana_wallet && (
-                          <Wallet className="w-3 h-3 text-purple-500" />
-                        )}
-                        {user.referred_by && (
-                          <span className="truncate">via {user.referred_by.username || 'referral'}</span>
-                        )}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <p className="font-medium truncate">{user.username}</p>
+                          {user.email_verified ? (
+                            <CheckCircle className="w-3.5 h-3.5 text-green-500 shrink-0" />
+                          ) : (
+                            <XCircle className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          {user.is_affiliate && user.total_registrations > 0 && (
+                            <span className="text-primary font-medium">{user.total_registrations} refs</span>
+                          )}
+                          {user.solana_wallet && (
+                            <Wallet className="w-3 h-3 text-purple-500" />
+                          )}
+                          {user.referred_by && (
+                            <span className="truncate">via {user.referred_by.username || 'referral'}</span>
+                          )}
+                        </div>
                       </div>
+                      <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
                     </div>
-                    <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
-                  </div>
-                </CardContent>
-              </Card>
-            ))
+                  </CardContent>
+                </Card>
+              ))}
+              {hasMoreUsers && (
+                <Button 
+                  onClick={loadMoreUsers} 
+                  variant="outline" 
+                  className="w-full mt-4"
+                >
+                  Load 50 more ({filteredUsers.length - visibleCount} remaining)
+                </Button>
+              )}
+            </>
           )}
         </div>
 
         {/* Desktop Table */}
         <Card className="hidden md:block bg-white/5 border-white/10">
           <CardHeader className="pb-3">
-            <CardTitle className="text-lg">All Users ({filteredUsers.length})</CardTitle>
+            <CardTitle className="text-lg">All Users ({filteredUsers.length}){!searchTerm && ` - Showing ${displayedUsers.length}`}</CardTitle>
           </CardHeader>
           <CardContent>
             <ScrollArea className="w-full">
@@ -475,14 +498,14 @@ export default function AdminUsers() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredUsers.length === 0 ? (
+                  {displayedUsers.length === 0 ? (
                     <tr>
                       <td colSpan={7} className="text-center py-8 text-muted-foreground">
                         {searchTerm ? "No users match your search" : "No users found"}
                       </td>
                     </tr>
                   ) : (
-                    filteredUsers.map((user) => (
+                    displayedUsers.map((user) => (
                       <tr key={user.id} className="border-b border-white/5 hover:bg-white/5">
                         <td className="py-3 px-2">
                           <div>
@@ -526,6 +549,17 @@ export default function AdminUsers() {
                 </tbody>
               </table>
             </ScrollArea>
+            {hasMoreUsers && (
+              <div className="mt-4 pt-4 border-t border-white/10">
+                <Button 
+                  onClick={loadMoreUsers} 
+                  variant="outline" 
+                  className="w-full"
+                >
+                  Load 50 more ({filteredUsers.length - visibleCount} remaining)
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
