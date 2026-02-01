@@ -1013,7 +1013,7 @@ export default function MyAccount() {
                           {(userPoints?.total_points || 0).toLocaleString()} pts
                         </p>
                         <p className="text-sm text-muted-foreground mt-1">
-                          ≈ ${((userPoints?.total_points || 0) * 0.01).toFixed(2)} USD
+                          Convertible to $NOMIQA
                         </p>
                       </CardContent>
                     </Card>
@@ -1042,9 +1042,6 @@ export default function MyAccount() {
                           <p className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
                             {(userPoints?.total_points || 0).toLocaleString()} pts
                           </p>
-                          <p className="text-sm text-muted-foreground mt-1">
-                            ≈ ${(((userPoints?.total_points || 0) * 0.01) + totalCashbackEarned).toFixed(2)} USD estimated
-                          </p>
                           <p className="text-xs text-muted-foreground mt-2">
                             Points claimable after token launch
                           </p>
@@ -1071,7 +1068,7 @@ export default function MyAccount() {
                               {/* Minimum Withdrawal Notice */}
                               <Alert className="border-primary/20 bg-primary/5">
                                 <AlertDescription className="text-sm font-medium">
-                                  💰 Minimum claim: 500 pts (≈ $5.00 USD estimated value)
+                                  💰 Minimum claim: 500 pts
                                 </AlertDescription>
                               </Alert>
 
