@@ -30,7 +30,7 @@ interface EmailRequest {
 }
 
 const generateEmailHTML = (type: string, data: any): { html: string; subject: string } => {
-  const logoUrl = "https://nomiqa-esim.com/nomiqa-logo.jpg";
+  const logoUrl = "https://nomiqa-depin.com/nomiqa-logo.jpg";
 
   switch (type) {
     case 'user_verification':
@@ -446,8 +446,8 @@ const generateEmailHTML = (type: string, data: any): { html: string; subject: st
                   👥 Grow Your Team, Grow Your Earnings
                 </p>
                 <p style="color: #cbd5e1; font-size: 14px; margin: 0; text-align: center; line-height: 1.6;">
-                  Invite friends and earn <strong style="color: #10b981;">10% of all points</strong> they earn — forever!<br/>
-                  The more people you bring, the more you earn together.
+449:                   Invite friends and earn <strong style="color: #10b981;">5% of all points</strong> they earn — forever!<br/>
+450:                   The more people you bring, the more you earn together.
                 </p>
               </div>
               
