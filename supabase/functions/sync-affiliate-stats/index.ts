@@ -11,6 +11,32 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // SECURITY: Verify internal call - this endpoint should only be called by cron jobs or admin
+  // Require service role key for authentication
+  const authHeader = req.headers.get('authorization');
+  const apiKey = req.headers.get('apikey');
+  const expectedServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+  
+  if (!expectedServiceKey) {
+    console.error('[sync-affiliate-stats] Missing SUPABASE_SERVICE_ROLE_KEY');
+    return new Response(
+      JSON.stringify({ error: 'Server configuration error' }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  }
+  
+  const isInternalCall = 
+    (authHeader && authHeader === `Bearer ${expectedServiceKey}`) ||
+    (apiKey && apiKey === expectedServiceKey);
+  
+  if (!isInternalCall) {
+    console.warn('[sync-affiliate-stats] Unauthorized access attempt');
+    return new Response(
+      JSON.stringify({ error: 'Unauthorized - internal endpoint only' }),
+      { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  }
+
   console.log('[sync-affiliate-stats] Starting daily affiliate stats sync...');
 
   try {

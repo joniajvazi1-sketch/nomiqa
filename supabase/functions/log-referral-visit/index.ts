@@ -68,6 +68,58 @@ serve(async (req) => {
   }
 
   try {
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // SECURITY: Rate limit by IP to prevent abuse
+    const forwarded = req.headers.get('x-forwarded-for');
+    const ip = forwarded ? forwarded.split(',')[0].trim() : 'unknown';
+    const ipHash = await hashString(ip);
+    const shortIpHash = ipHash.substring(0, 16);
+    
+    // Check rate limit (max 30 referral logs per hour per IP)
+    const { data: rateData } = await supabase
+      .from('api_rate_limits')
+      .select('request_count, window_start')
+      .eq('identifier', shortIpHash)
+      .eq('endpoint', 'log-referral-visit')
+      .single();
+    
+    const now = new Date();
+    const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
+    
+    if (rateData) {
+      const windowStart = new Date(rateData.window_start);
+      if (windowStart > oneHourAgo && rateData.request_count >= 30) {
+        // Silently succeed but don't log - prevents info leakage
+        return new Response(
+          JSON.stringify({ success: true }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      
+      // Update or reset counter
+      if (windowStart <= oneHourAgo) {
+        await supabase.from('api_rate_limits').update({
+          request_count: 1,
+          window_start: now.toISOString()
+        }).eq('identifier', shortIpHash).eq('endpoint', 'log-referral-visit');
+      } else {
+        await supabase.from('api_rate_limits').update({
+          request_count: rateData.request_count + 1
+        }).eq('identifier', shortIpHash).eq('endpoint', 'log-referral-visit');
+      }
+    } else {
+      // Create new rate limit entry
+      await supabase.from('api_rate_limits').insert({
+        identifier: shortIpHash,
+        endpoint: 'log-referral-visit',
+        request_count: 1,
+        window_start: now.toISOString()
+      });
+    }
+
     const body = await req.json();
     
     // Validate and sanitize all inputs
@@ -80,21 +132,11 @@ serve(async (req) => {
 
     // At least one identifier must be valid
     if (!affiliateCode && !affiliateUsername && !affiliateId) {
-      console.log('No valid affiliate identifier provided');
       return new Response(
         JSON.stringify({ success: true }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
-
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
-    // Hash the IP for privacy (we don't store raw IPs)
-    const forwarded = req.headers.get('x-forwarded-for');
-    const ip = forwarded ? forwarded.split(',')[0].trim() : 'unknown';
-    const ipHash = await hashString(ip);
 
     // Generate a fingerprint from user agent + IP hash
     const fingerprint = await hashString(`${userAgent || 'unknown'}-${ipHash}`);

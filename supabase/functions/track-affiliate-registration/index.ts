@@ -53,6 +53,33 @@ serve(async (req) => {
   }
 
   try {
+    // SECURITY: Verify internal call - this endpoint should only be called by other edge functions
+    // Require service role key OR valid user JWT (for signup flow)
+    const authHeader = req.headers.get('authorization');
+    const apiKey = req.headers.get('apikey');
+    const expectedServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    
+    if (!expectedServiceKey) {
+      console.error('[track-affiliate-registration] Missing SUPABASE_SERVICE_ROLE_KEY');
+      return new Response(
+        JSON.stringify({ error: 'Server configuration error' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    // Allow service role key (from other edge functions) 
+    const isServiceCall = 
+      (authHeader && authHeader === `Bearer ${expectedServiceKey}`) ||
+      (apiKey && apiKey === expectedServiceKey);
+    
+    if (!isServiceCall) {
+      console.warn('[track-affiliate-registration] Unauthorized access attempt');
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized - internal endpoint only' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     // Validate input
     const rawBody = await req.json();
     const validationResult = registrationSchema.safeParse(rawBody);
