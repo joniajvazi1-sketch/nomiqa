@@ -14,7 +14,7 @@ import { toast } from "sonner";
 import { Language, useTranslation } from "@/contexts/TranslationContext";
 import { localizedPath } from "@/utils/localizedLinks";
 import { getTranslatedCountryName } from "@/utils/countryTranslations";
-import headerLogo from "@/assets/nomiqa-header-logo.png";
+import headerLogo from "@/assets/nomiqa-logo.jpg";
 
 // Country flags now use emoji for performance (removed country-flag-icons library - 53KB savings)
 
@@ -220,7 +220,7 @@ export const Navbar = () => {
                 <img 
                   src={headerLogo} 
                   alt="Nomiqa" 
-                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg object-cover transition-all duration-300 group-hover:scale-110 border border-white/20 group-hover:border-neon-cyan/40 shadow-lg group-hover:shadow-neon-cyan/30"
+                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl object-cover transition-all duration-300 group-hover:scale-110 border border-white/20 group-hover:border-neon-cyan/40 shadow-lg group-hover:shadow-neon-cyan/30"
                 />
                 <div className="absolute inset-0 rounded-lg bg-gradient-to-tr from-neon-cyan/20 to-neon-violet/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </div>
