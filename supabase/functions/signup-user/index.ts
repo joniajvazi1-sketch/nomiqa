@@ -137,9 +137,21 @@ async function detectCountryFromIP(req: Request): Promise<string | null> {
     }
     
     // Use ip-api.com (free, no API key needed, 45 req/min limit)
-    const response = await fetch(`http://ip-api.com/json/${ip}?fields=countryCode,status`, {
-      signal: AbortSignal.timeout(3000), // 3 second timeout
-    });
+    // SECURITY: Using HTTPS endpoint (pro version) for secure transmission
+    // Note: ip-api.com free tier only supports HTTP, but we prefer security
+    // Fallback to HTTP if HTTPS fails (acceptable for non-sensitive geo data)
+    let response;
+    try {
+      // Try HTTPS first (more secure)
+      response = await fetch(`https://pro.ip-api.com/json/${ip}?fields=countryCode,status`, {
+        signal: AbortSignal.timeout(2000), // 2 second timeout for HTTPS
+      });
+    } catch {
+      // Fallback to HTTP if HTTPS unavailable (free tier limitation)
+      response = await fetch(`http://ip-api.com/json/${ip}?fields=countryCode,status`, {
+        signal: AbortSignal.timeout(3000),
+      });
+    }
     
     if (!response.ok) {
       return null;

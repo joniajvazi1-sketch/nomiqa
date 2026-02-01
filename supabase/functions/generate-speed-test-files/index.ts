@@ -27,14 +27,39 @@ function generateRandomBytes(size: number): Uint8Array {
 /**
  * Generate and upload speed test files to storage
  * Run once to populate the speed-test-files bucket
+ * SECURITY: Admin-only endpoint
  */
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
-  const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+  // SECURITY: Verify internal call - this endpoint should only be called by admin
+  const authHeader = req.headers.get('authorization');
+  const apiKey = req.headers.get('apikey');
   const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+  
+  if (!serviceRoleKey) {
+    console.error('[generate-speed-test-files] Missing SUPABASE_SERVICE_ROLE_KEY');
+    return new Response(
+      JSON.stringify({ error: 'Server configuration error' }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  }
+  
+  const isInternalCall = 
+    (authHeader && authHeader === `Bearer ${serviceRoleKey}`) ||
+    (apiKey && apiKey === serviceRoleKey);
+  
+  if (!isInternalCall) {
+    console.warn('[generate-speed-test-files] Unauthorized access attempt');
+    return new Response(
+      JSON.stringify({ error: 'Unauthorized - admin endpoint only' }),
+      { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  }
+
+  const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
   const supabase = createClient(supabaseUrl, serviceRoleKey);
 
   const files = [
