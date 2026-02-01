@@ -11,6 +11,7 @@ const createAffiliateSchema = z.object({
   email: z.string().email(),
   username: z.string().min(3).max(20).regex(/^[a-zA-Z0-9_]+$/).optional(),
   userId: z.string().uuid().optional(),
+  sendWelcomeOnly: z.boolean().optional(), // Flag to only send welcome email
 });
 
 // Cryptographically secure code generation
@@ -47,11 +48,46 @@ serve(async (req) => {
       );
     }
 
-    const { email, username, userId } = validationResult.data;
+    const { email, username, userId, sendWelcomeOnly } = validationResult.data;
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // If only sending welcome email (for OAuth registrations), do that and return
+    if (sendWelcomeOnly) {
+      try {
+        const sendEmailResponse = await fetch(`${supabaseUrl}/functions/v1/send-email`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${supabaseServiceKey}`,
+          },
+          body: JSON.stringify({
+            type: 'early_member_welcome',
+            to: email,
+            data: { username: email.split('@')[0] },
+          }),
+        });
+
+        if (!sendEmailResponse.ok) {
+          console.error('Failed to send welcome email for OAuth user');
+        } else {
+          console.log('Welcome email sent successfully for OAuth user:', email);
+        }
+
+        return new Response(
+          JSON.stringify({ success: true, message: 'Welcome email sent' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      } catch (emailError) {
+        console.error('Error sending welcome email:', emailError);
+        return new Response(
+          JSON.stringify({ success: false, error: 'Failed to send welcome email' }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+    }
 
     // Check if username already exists in affiliates (if provided)
     if (username) {
@@ -247,15 +283,24 @@ serve(async (req) => {
       );
     }
 
-    // Send verification email with OTP code
+    // Send verification email with OTP code using direct HTTP call
     try {
-      await supabase.functions.invoke('send-email', {
-        body: {
+      const sendEmailResponse = await fetch(`${supabaseUrl}/functions/v1/send-email`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${supabaseServiceKey}`,
+        },
+        body: JSON.stringify({
           type: 'affiliate_verification',
           to: email,
           data: { code: verificationCode },
-        },
+        }),
       });
+
+      if (!sendEmailResponse.ok) {
+        console.error('Failed to send affiliate verification email');
+      }
     } catch (emailError) {
       console.error('Error sending verification email:', emailError);
     }
