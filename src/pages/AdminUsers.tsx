@@ -324,7 +324,7 @@ export default function AdminUsers() {
             <CardHeader className="pb-2 pt-4">
               <CardTitle className="text-sm flex items-center gap-2">
                 <Trophy className="w-4 h-4 text-amber-500" />
-                Top Referrers
+                Top 25 Referrers Leaderboard
               </CardTitle>
             </CardHeader>
             <CardContent className="pb-4">
@@ -339,39 +339,53 @@ export default function AdminUsers() {
                 }
                 
                 return (
-                  <div className="space-y-2">
-                    {topReferrers.map((user, index) => (
-                      <div 
-                        key={user.id} 
-                        className="flex items-center gap-3 p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors cursor-pointer"
-                        onClick={() => setSelectedUser(user)}
-                      >
-                        <div className="w-6 h-6 flex items-center justify-center shrink-0">
-                          {index === 0 ? (
-                            <Medal className="w-5 h-5 text-amber-400" />
-                          ) : index === 1 ? (
-                            <Medal className="w-5 h-5 text-gray-400" />
-                          ) : index === 2 ? (
-                            <Medal className="w-5 h-5 text-orange-600" />
-                          ) : (
-                            <span className="text-xs text-muted-foreground font-medium">{index + 1}</span>
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium text-sm truncate">{user.username}</p>
-                          <p className="text-xs text-muted-foreground truncate">{user.email}</p>
-                        </div>
-                        <div className="text-right shrink-0">
-                          <p className="font-bold text-primary">{user.total_registrations}</p>
-                          <p className="text-xs text-muted-foreground">refs</p>
-                        </div>
-                        {user.miner_boost_percentage > 0 && (
-                          <Badge variant="secondary" className="shrink-0 text-xs">
-                            +{user.miner_boost_percentage}%
-                          </Badge>
-                        )}
-                      </div>
-                    ))}
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b border-white/10">
+                          <th className="text-left py-2 px-2 text-xs text-muted-foreground font-medium">Rank</th>
+                          <th className="text-left py-2 px-2 text-xs text-muted-foreground font-medium">Username</th>
+                          <th className="text-left py-2 px-2 text-xs text-muted-foreground font-medium hidden md:table-cell">Email</th>
+                          <th className="text-right py-2 px-2 text-xs text-muted-foreground font-medium">Referrals</th>
+                          <th className="text-right py-2 px-2 text-xs text-muted-foreground font-medium">Boost</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {topReferrers.map((user, index) => (
+                          <tr 
+                            key={user.id} 
+                            className="border-b border-white/5 hover:bg-white/5 cursor-pointer transition-colors"
+                            onClick={() => setSelectedUser(user)}
+                          >
+                            <td className="py-2 px-2">
+                              <div className="flex items-center justify-center w-6">
+                                {index === 0 ? (
+                                  <Medal className="w-5 h-5 text-amber-400" />
+                                ) : index === 1 ? (
+                                  <Medal className="w-5 h-5 text-gray-400" />
+                                ) : index === 2 ? (
+                                  <Medal className="w-5 h-5 text-orange-600" />
+                                ) : (
+                                  <span className="text-muted-foreground font-medium">{index + 1}</span>
+                                )}
+                              </div>
+                            </td>
+                            <td className="py-2 px-2 font-medium">{user.username}</td>
+                            <td className="py-2 px-2 text-muted-foreground hidden md:table-cell truncate max-w-[200px]">{user.email}</td>
+                            <td className="py-2 px-2 text-right font-bold text-primary">{user.total_registrations}</td>
+                            <td className="py-2 px-2 text-right">
+                              {user.miner_boost_percentage > 0 ? (
+                                <Badge variant="secondary" className="text-xs">
+                                  +{user.miner_boost_percentage}%
+                                </Badge>
+                              ) : (
+                                <span className="text-muted-foreground">—</span>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
                 );
               })()}
