@@ -315,8 +315,13 @@ export default function Affiliate() {
       {/* Hero Section */}
       <section className="pt-28 pb-12 md:pt-36 md:pb-16 px-4 relative z-10">
         <div className="container max-w-5xl mx-auto text-center">
+          {/* Coming Soon Badge */}
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neon-coral/15 border border-neon-coral/40 mb-4 animate-pulse">
+            <span className="text-neon-coral text-sm font-semibold">🚀 {t("downloadComingSoon")}</span>
+          </div>
+          
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neon-cyan/10 border border-neon-cyan/30 mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neon-cyan/10 border border-neon-cyan/30 mb-6 ml-2">
             <Users className="w-4 h-4 text-neon-cyan" strokeWidth={2.5} />
             <span className="text-sm font-medium text-neon-cyan">{t("affiliateHeroBadge")}</span>
           </div>

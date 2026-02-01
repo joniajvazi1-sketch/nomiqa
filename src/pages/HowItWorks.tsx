@@ -88,7 +88,12 @@ const HowItWorks = () => {
         className="pt-8 pb-16 md:pt-16 md:pb-24 px-4 relative z-10"
       >
         <div className={`container max-w-4xl mx-auto text-center transition-all duration-1000 ${visibleSections.has('hero') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-          <span className="inline-block px-5 py-2 rounded-full bg-white/[0.03] backdrop-blur-xl text-neon-cyan text-sm font-medium mb-6 border border-white/10">
+          {/* Coming Soon Badge */}
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neon-coral/15 border border-neon-coral/40 mb-4 animate-pulse">
+            <span className="text-neon-coral text-sm font-semibold">🚀 {t("downloadComingSoon")}</span>
+          </div>
+          
+          <span className="inline-block px-5 py-2 rounded-full bg-white/[0.03] backdrop-blur-xl text-neon-cyan text-sm font-medium mb-6 border border-white/10 ml-2">
             {t("howItWorksBadge")}
           </span>
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-light mb-6">

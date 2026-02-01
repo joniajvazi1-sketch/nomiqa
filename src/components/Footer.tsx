@@ -52,6 +52,13 @@ export const Footer = () => {
       </div>
       
       <div className="container px-4 sm:px-6 md:px-8 relative z-10 py-12 md:py-16">
+        {/* Coming Soon Banner */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-neon-coral/15 border border-neon-coral/40 animate-pulse">
+            <span className="text-neon-coral text-sm font-semibold">🚀 {t("heroAppComingSoon")} — {t("footerRegisterNowEarn")}</span>
+          </div>
+        </div>
+        
         {/* Logo */}
         <div className="text-center mb-10 md:mb-12">
           <h2 className="text-5xl md:text-7xl font-light bg-gradient-to-r from-neon-cyan via-white to-neon-violet bg-clip-text text-transparent">

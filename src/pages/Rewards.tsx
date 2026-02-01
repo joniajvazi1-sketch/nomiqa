@@ -77,7 +77,12 @@ export default function Rewards() {
         <div className="container mx-auto max-w-6xl">
           {/* Hero Section */}
           <div className={`text-center mb-16 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-            <div className="inline-flex items-center gap-2 mb-6 px-6 py-3 rounded-full bg-white/[0.03] backdrop-blur-xl border border-white/10">
+            {/* Coming Soon Badge */}
+            <div className="inline-flex items-center gap-2 mb-4 px-4 py-2 rounded-full bg-neon-coral/15 border border-neon-coral/40 animate-pulse">
+              <span className="text-neon-coral text-sm font-semibold">🚀 {t("downloadComingSoon")}</span>
+            </div>
+            
+            <div className="inline-flex items-center gap-2 mb-6 px-6 py-3 rounded-full bg-white/[0.03] backdrop-blur-xl border border-white/10 ml-2">
               <Sparkles className="w-6 h-6 text-neon-cyan animate-pulse" />
               <span className="text-neon-coral text-xs md:text-sm font-light tracking-[0.25em] uppercase">
                 {t("loyaltyBadge")}
