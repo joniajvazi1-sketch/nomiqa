@@ -14,7 +14,7 @@ import { toast } from "sonner";
 import { Language, useTranslation } from "@/contexts/TranslationContext";
 import { localizedPath } from "@/utils/localizedLinks";
 import { getTranslatedCountryName } from "@/utils/countryTranslations";
-import headerLogo from "@/assets/nomiqa-logo.jpg";
+import headerLogo from "@/assets/nomiqa-token-logo.png";
 
 // Country flags now use emoji for performance (removed country-flag-icons library - 53KB savings)
 
