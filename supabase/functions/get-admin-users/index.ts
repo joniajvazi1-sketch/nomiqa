@@ -105,13 +105,26 @@ serve(async (req) => {
     
     const profiles = allProfiles;
 
-    // Fetch all affiliates
-    const { data: affiliates, error: affiliatesError } = await adminClient
-      .from("affiliates")
-      .select("*")
-      .order("created_at", { ascending: false });
-
-    if (affiliatesError) throw affiliatesError;
+    // Fetch all affiliates (handle pagination for large datasets)
+    let allAffiliates: any[] = [];
+    let affiliatePage = 0;
+    
+    while (true) {
+      const { data: affiliatesBatch, error: affiliatesError } = await adminClient
+        .from("affiliates")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .range(affiliatePage * pageSize, (affiliatePage + 1) * pageSize - 1);
+      
+      if (affiliatesError) throw affiliatesError;
+      if (!affiliatesBatch || affiliatesBatch.length === 0) break;
+      
+      allAffiliates = [...allAffiliates, ...affiliatesBatch];
+      if (affiliatesBatch.length < pageSize) break;
+      affiliatePage++;
+    }
+    
+    const affiliates = allAffiliates;
 
     // Fetch all referrals with details
     const { data: referrals, error: referralsError } = await adminClient
