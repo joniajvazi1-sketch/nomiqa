@@ -165,18 +165,18 @@ export default function Auth() {
             }
           }
 
-          // Send welcome email for new Google OAuth registrations
+          // Send welcome email for new Google OAuth registrations via create-affiliate
+          // (which handles welcome emails server-side with proper auth)
           try {
-            await supabase.functions.invoke("send-email", {
+            await supabase.functions.invoke("create-affiliate", {
               body: {
-                type: "early_member_welcome",
                 email: email,
-                data: { email }
+                sendWelcomeOnly: true, // Flag to only send welcome email, not create affiliate
               }
             });
-            console.log("Welcome email sent to Google OAuth user:", email);
+            console.log("Welcome email triggered for Google OAuth user:", email);
           } catch (emailError) {
-            console.error("Error sending welcome email:", emailError);
+            console.error("Error triggering welcome email:", emailError);
             // Don't block registration if email fails
           }
 
