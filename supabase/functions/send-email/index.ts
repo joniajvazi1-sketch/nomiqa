@@ -30,7 +30,7 @@ interface EmailRequest {
 }
 
 const generateEmailHTML = (type: string, data: any): { html: string; subject: string } => {
-  const logoUrl = "https://nomiqa-depin.com/nomiqa-header-logo.png";
+  const logoUrl = "https://nomiqa-depin.com/nomiqa-logo.jpg";
 
   switch (type) {
     case 'user_verification':
