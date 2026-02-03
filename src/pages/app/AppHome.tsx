@@ -451,13 +451,11 @@ export const AppHome: React.FC = () => {
               />
             </Suspense>
 
-            {/* Live Badge - Top Center */}
-            <div className="absolute top-3 left-1/2 -translate-x-1/2 z-30">
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 backdrop-blur-md">
+            {/* Live Badge - Top Left */}
+            <div className="absolute top-3 left-3 z-30">
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 backdrop-blur-md">
                 <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
-                <span className="text-[11px] font-semibold text-emerald-400 uppercase tracking-wider">
-                  {isActive ? 'Contributing' : 'Live Network'}
-                </span>
+                <span className="text-[10px] font-semibold text-emerald-400 uppercase tracking-wider">Live</span>
               </div>
             </div>
 
@@ -565,22 +563,6 @@ export const AppHome: React.FC = () => {
 
           {/* Content below the map */}
           <div className="px-5 mt-4 space-y-4">
-
-            {/* Status Indicator - TOP */}
-            <motion.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex items-center gap-2"
-            >
-              <div className={cn(
-                "w-2.5 h-2.5 rounded-full",
-                isContributionEnabled ? "bg-green-500" : isOnline ? "bg-emerald-500" : "bg-muted-foreground"
-              )} />
-              <span className="text-sm text-muted-foreground">
-                {isContributionEnabled ? 'Contributing in background' : isOnline ? 'Online' : 'Offline'}
-              </span>
-              {isContributionEnabled && <CheckCircle2 className="w-4 h-4 text-green-500" />}
-            </motion.div>
 
             {/* Referral Section - Prominent & Clean */}
             <motion.div
