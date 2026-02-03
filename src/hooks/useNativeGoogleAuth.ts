@@ -1,22 +1,42 @@
 import { supabase } from "@/integrations/supabase/client";
 import { validateRedirectUrl } from "@/utils/secureRedirect";
+import { Capacitor } from "@capacitor/core";
+import { Browser } from "@capacitor/browser";
+
+// Use production domain for OAuth redirects on native platforms
+const getOAuthRedirectBase = () => {
+  if (Capacitor.isNativePlatform()) {
+    // Native apps must redirect to web domain, not capacitor://localhost
+    return "https://nomiqa.lovable.app";
+  }
+  return window.location.origin;
+};
 
 export function useNativeGoogleAuth() {
   const signIn = async (redirectParam?: string | null) => {
     const redirect = validateRedirectUrl(redirectParam || null);
+    const redirectBase = getOAuthRedirectBase();
 
-    // Works for Web + iOS/Android (opens system browser, returns via deep link)
-    const { error } = await supabase.auth.signInWithOAuth({
+    // Get the OAuth URL from Supabase
+    const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/oauth-redirect?redirect=${encodeURIComponent(
+        redirectTo: `${redirectBase}/app/oauth-redirect?redirect=${encodeURIComponent(
           redirect
         )}`,
         skipBrowserRedirect: true,
-      } as any,
+      },
     });
 
     if (error) throw error;
+
+    // On native platforms, open the OAuth URL in system browser
+    if (Capacitor.isNativePlatform() && data?.url) {
+      await Browser.open({ url: data.url });
+    } else if (data?.url) {
+      // Web fallback
+      window.location.href = data.url;
+    }
   };
 
   return { signIn };
