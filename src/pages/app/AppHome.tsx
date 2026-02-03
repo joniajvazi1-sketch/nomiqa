@@ -395,8 +395,8 @@ export const AppHome: React.FC = () => {
             </div>
           </div>
 
-          {/* Globe Viewing Area - Reduced space */}
-          <div className="h-[22vh] min-h-[140px] max-h-[200px]" />
+          {/* Globe Viewing Area */}
+          <div className="h-[42vh] min-h-[280px] max-h-[380px]" />
 
           {/* Warm Welcome Header - Transparent Glassmorphism */}
           <header className="px-4 mb-5">
