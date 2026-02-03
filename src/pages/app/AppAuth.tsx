@@ -267,23 +267,19 @@ export const AppAuth: React.FC = () => {
       setGoogleLoading(false);
     }, BOOT_TIMEOUT_MS);
 
-    const handleSession = async (session: any, isNewSignIn = false) => {
-      // Clear OAuth pending flag when handling session
-      window.clearTimeout(bootTimer);
-      safeSessionStorage.removeItem('nomiqa_oauth_pending');
-      
+    /**
+     * Handle session - checks profile and redirects appropriately
+     * Returns true if navigation occurred
+     */
+    const handleSession = async (session: any, isNewSignIn = false): Promise<boolean> => {
       if (!isMounted || !session) {
-        setCheckingSession(false);
-        setGoogleLoading(false);
-        return;
+        return false;
       }
 
       const userId = session.user?.id;
       const email = session.user?.email || '';
       if (!userId) {
-        setCheckingSession(false);
-        setGoogleLoading(false);
-        return;
+        return false;
       }
 
       try {
@@ -295,7 +291,7 @@ export const AppAuth: React.FC = () => {
           .maybeSingle();
 
         if (profileError) throw profileError;
-        if (!isMounted) return;
+        if (!isMounted) return false;
 
         if (!existingProfile) {
           // NEW OAuth user - create profile with temp username
@@ -365,13 +361,13 @@ export const AppAuth: React.FC = () => {
           toast({ title: 'Welcome! Choose a username to continue.' });
           setCurrentUser({ id: userId, email });
           setShowUsernameSelection(true);
-          setCheckingSession(false);
+          return true;
         } else if (existingProfile.username?.startsWith('temp_') || existingProfile.username?.startsWith('user_')) {
           // User has incomplete profile (temp_ from OAuth, user_ from email signup) - needs to choose username
           toast({ title: 'Welcome back! Please choose your username.' });
           setCurrentUser({ id: userId, email });
           setShowUsernameSelection(true);
-          setCheckingSession(false);
+          return true;
         } else {
           // Existing user with proper profile - just redirect
           if (isNewSignIn) {
@@ -379,27 +375,34 @@ export const AppAuth: React.FC = () => {
             toast({ title: 'Welcome back!' });
           }
           navigate('/app');
+          return true;
         }
       } catch (error) {
         console.error('Error handling session:', error);
-        safeSessionStorage.removeItem('nomiqa_oauth_pending');
-        if (isMounted) {
-          setCheckingSession(false);
-          setGoogleLoading(false);
-        }
+        return false;
       }
     };
 
+    // CRITICAL FIX: Set up auth listener BEFORE getSession to prevent race conditions
+    // The listener handles ONGOING auth changes (does NOT control isLoading directly)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (!isMounted) return;
-      if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session) {
-        handleSession(session, event === 'SIGNED_IN').catch((err) => {
-          console.error('[AppAuth] handleSession failed:', err);
-          safeSessionStorage.removeItem('nomiqa_oauth_pending');
-          setCheckingSession(false);
+      
+      console.log('[AppAuth] Auth state changed:', event);
+      
+      if (event === 'SIGNED_IN' && session) {
+        // User signed in - clear pending flag and handle session
+        safeSessionStorage.removeItem('nomiqa_oauth_pending');
+        
+        // Fire and forget - don't await, don't set loading
+        // This handles ONGOING sign-ins after initial load
+        handleSession(session, true).catch((err) => {
+          console.error('[AppAuth] handleSession failed on SIGNED_IN:', err);
+        }).finally(() => {
           setGoogleLoading(false);
         });
       }
+      
       if (event === 'SIGNED_OUT') {
         setLoading(false);
         setGoogleLoading(false);
@@ -407,19 +410,54 @@ export const AppAuth: React.FC = () => {
         setCurrentUser(null);
         setCheckingSession(false);
       }
+      
+      if (event === 'TOKEN_REFRESHED') {
+        console.log('[AppAuth] Token refreshed successfully');
+      }
     });
 
-    supabase.auth
-      .getSession()
-      .then(({ data: { session } }) => {
-        return handleSession(session, false);
-      })
-      .catch((err) => {
-        console.error('[AppAuth] getSession failed:', err);
+    // INITIAL session check (controls isLoading/checkingSession)
+    const initializeAuth = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('[AppAuth] getSession error:', error);
+          return;
+        }
+        
+        if (!isMounted) return;
+        
+        if (session) {
+          // Validate session has required claims before using
+          if (!session.user?.id) {
+            console.warn('[AppAuth] Session missing user ID, clearing');
+            await supabase.auth.signOut();
+            return;
+          }
+          
+          // Handle the existing session - await to ensure profile is fetched BEFORE setting loading false
+          const handled = await handleSession(session, false);
+          
+          if (!handled && isMounted) {
+            // Session exists but something went wrong - clear and let user sign in again
+            console.warn('[AppAuth] Session handling failed, may need fresh auth');
+          }
+        }
+      } catch (err) {
+        console.error('[AppAuth] initializeAuth failed:', err);
         safeSessionStorage.removeItem('nomiqa_oauth_pending');
-        setCheckingSession(false);
-        setGoogleLoading(false);
-      });
+      } finally {
+        // ONLY set loading false after ALL initial checks complete
+        if (isMounted) {
+          window.clearTimeout(bootTimer);
+          setCheckingSession(false);
+          setGoogleLoading(false);
+        }
+      }
+    };
+
+    initializeAuth();
 
     return () => {
       isMounted = false;
