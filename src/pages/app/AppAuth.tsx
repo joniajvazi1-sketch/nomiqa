@@ -738,48 +738,35 @@ export const AppAuth: React.FC = () => {
     }, 60000);
 
     try {
-      // NATIVE (iOS/Android): Use Supabase OAuth directly with the published site as redirect.
+      // NATIVE (iOS/Android): Use Lovable OAuth broker on the production domain.
       // The flow:
-      // 1. Open system browser to Google OAuth
-      // 2. Google redirects to Supabase callback
-      // 3. Supabase redirects to our /app/oauth-redirect page on the published site
-      // 4. That page extracts tokens and triggers deep link back to native app
-      // 5. useDeepLinkAuth receives the deep link and sets the session
+      // 1. Open system browser to Lovable OAuth broker on nomiqa-depin.com
+      // 2. Broker redirects to Google OAuth (with correct redirect URI already configured)
+      // 3. Google redirects back to Lovable callback
+      // 4. Lovable redirects to our /app/oauth-redirect page with tokens
+      // 5. That page triggers deep link back to native app
+      // 6. useDeepLinkAuth receives the deep link and sets the session
       if (Capacitor.isNativePlatform()) {
-        console.log('[AppAuth] Native platform - initiating OAuth via Supabase...');
+        console.log('[AppAuth] Native platform - initiating OAuth via Lovable broker...');
 
-        // Use the primary production domain for OAuth redirects.
-        // This must match the domain configured for Google OAuth redirect URIs.
+        // Use the primary production domain's OAuth broker
         const SITE_ORIGIN = 'https://nomiqa-depin.com';
         const redirectUrl = `${SITE_ORIGIN}/app/oauth-redirect`;
         
-        // Use Supabase auth directly (bypassing Lovable broker for native)
-        const { data, error } = await supabase.auth.signInWithOAuth({
+        // Build the OAuth broker URL (same endpoint the web SDK uses)
+        const params = new URLSearchParams({
           provider: 'google',
-          options: {
-            redirectTo: redirectUrl,
-            skipBrowserRedirect: true, // We'll handle the redirect ourselves
-          },
+          redirect_uri: redirectUrl,
         });
-
-        if (error) {
-          window.clearTimeout(oauthTimeout);
-          safeSessionStorage.removeItem('nomiqa_oauth_pending');
-          throw error;
-        }
-
-        if (data?.url) {
-          console.log('[AppAuth] Opening OAuth URL in system browser...');
-          await Browser.open({ url: data.url });
-          
-          // Clear timeout - deep link handler will take over
-          window.clearTimeout(oauthTimeout);
-          console.log('[AppAuth] System browser opened, waiting for OAuth callback...');
-        } else {
-          window.clearTimeout(oauthTimeout);
-          safeSessionStorage.removeItem('nomiqa_oauth_pending');
-          throw new Error('Failed to generate OAuth URL');
-        }
+        
+        const oauthBrokerUrl = `${SITE_ORIGIN}/~oauth/initiate?${params.toString()}`;
+        
+        console.log('[AppAuth] Opening OAuth broker in system browser...');
+        await Browser.open({ url: oauthBrokerUrl });
+        
+        // Clear timeout - deep link handler will take over
+        window.clearTimeout(oauthTimeout);
+        console.log('[AppAuth] System browser opened, waiting for OAuth callback...');
         return;
       }
 
