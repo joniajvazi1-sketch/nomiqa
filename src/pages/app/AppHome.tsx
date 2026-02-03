@@ -364,24 +364,8 @@ export const AppHome: React.FC = () => {
         className="min-h-screen relative bg-[hsl(222,30%,8%)]"
         {...handlers}
       >
-        {/* Globe Background - Full screen, centered */}
-        <div className="fixed inset-0 z-0 flex items-center justify-center">
-          <div className="w-full h-full opacity-70">
-            <Suspense fallback={null}>
-              <NetworkGlobe 
-                coverageData={globalCoverageData?.cells || []}
-                loading={globalCoverageLoading}
-                totalDataPoints={globalCoverageData?.totalDataPoints || 0}
-                uniqueLocations={globalCoverageData?.uniqueLocations || 0}
-                isPersonalView={false}
-                userPosition={userPosition}
-              />
-            </Suspense>
-          </div>
-        </div>
-
-        {/* Dark overlay for better text readability */}
-        <div className="fixed inset-0 z-[1] bg-gradient-to-b from-[hsl(222,30%,8%)/0.6] via-transparent to-[hsl(222,30%,8%)/0.8]" />
+        {/* Dark background */}
+        <div className="fixed inset-0 z-0 bg-[hsl(222,30%,8%)]" />
 
         <PullToRefreshIndicator 
           pullDistance={pullDistance}
@@ -541,8 +525,19 @@ export const AppHome: React.FC = () => {
             </motion.div>
           )}
 
-          {/* Globe Viewing Space */}
-          <div className="h-[25vh] min-h-[160px] max-h-[220px]" />
+          {/* Globe Section - Inline between buttons and cards */}
+          <div className="relative w-full h-[32vh] min-h-[200px] max-h-[280px] my-2">
+            <Suspense fallback={null}>
+              <NetworkGlobe 
+                coverageData={globalCoverageData?.cells || []}
+                loading={globalCoverageLoading}
+                totalDataPoints={globalCoverageData?.totalDataPoints || 0}
+                uniqueLocations={globalCoverageData?.uniqueLocations || 0}
+                isPersonalView={false}
+                userPosition={userPosition}
+              />
+            </Suspense>
+          </div>
 
           {/* Cards Section */}
           <div className="px-4 space-y-3">
