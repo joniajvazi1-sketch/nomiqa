@@ -7,7 +7,7 @@ import { Browser } from "@capacitor/browser";
 const getOAuthRedirectBase = () => {
   if (Capacitor.isNativePlatform()) {
     // Native apps must redirect to web domain, not capacitor://localhost
-    return "https://nomiqa.lovable.app";
+    return "https://nomiqa-depin.com";
   }
   return window.location.origin;
 };
