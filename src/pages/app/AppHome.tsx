@@ -614,37 +614,24 @@ export const AppHome: React.FC = () => {
               )}
             </motion.div>
 
-            {/* Quick Actions - Rewards & Leaderboard */}
+            {/* Quick Action - Leaderboard Only (Rewards in nav) */}
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.15 }}
-              className="grid grid-cols-2 gap-3"
             >
               <button
-                onClick={() => { lightTap(); navigate('/app/rewards'); }}
-                className="rounded-2xl bg-gradient-to-br from-emerald-500/10 to-teal-500/5 border border-emerald-500/20 p-4 flex flex-col items-center gap-2 active:scale-[0.98] transition-transform"
-              >
-                <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 flex items-center justify-center">
-                  <Gift className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
-                </div>
-                <div className="text-center">
-                  <p className="text-sm font-semibold text-foreground">Rewards</p>
-                  <p className="text-[11px] text-muted-foreground">Claim earnings</p>
-                </div>
-              </button>
-
-              <button
                 onClick={() => { lightTap(); navigate('/app/leaderboard'); }}
-                className="rounded-2xl bg-gradient-to-br from-violet-500/10 to-purple-500/5 border border-violet-500/20 p-4 flex flex-col items-center gap-2 active:scale-[0.98] transition-transform"
+                className="w-full rounded-2xl bg-gradient-to-br from-violet-500/10 to-purple-500/5 border border-violet-500/20 p-4 flex items-center gap-4 active:scale-[0.98] transition-transform"
               >
                 <div className="w-12 h-12 rounded-2xl bg-violet-500/15 flex items-center justify-center">
                   <TrendingUp className="w-6 h-6 text-violet-600 dark:text-violet-400" />
                 </div>
-                <div className="text-center">
+                <div className="flex-1 text-left">
                   <p className="text-sm font-semibold text-foreground">Leaderboard</p>
-                  <p className="text-[11px] text-muted-foreground">Top earners</p>
+                  <p className="text-xs text-muted-foreground">See top earners this week</p>
                 </div>
+                <ChevronRight className="w-5 h-5 text-muted-foreground" />
               </button>
             </motion.div>
 
