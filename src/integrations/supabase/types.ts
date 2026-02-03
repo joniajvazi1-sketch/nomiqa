@@ -2005,6 +2005,10 @@ export type Database = {
             }
             Returns: Json
           }
+      add_referral_points: {
+        Args: { p_points: number; p_source?: string; p_user_id: string }
+        Returns: Json
+      }
       admin_freeze_user_points: {
         Args: { p_reason?: string; p_target_user_id: string }
         Returns: Json
