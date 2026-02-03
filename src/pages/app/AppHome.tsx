@@ -1,6 +1,7 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from 'next-themes';
+import { Capacitor } from '@capacitor/core';
 import { 
   Settings,
   Users,
@@ -13,7 +14,10 @@ import {
   Gift,
   TrendingUp,
   Clock,
-  Radio
+  Play,
+  Pause,
+  Gauge,
+  Zap
 } from 'lucide-react';
 import { useHaptics } from '@/hooks/useHaptics';
 import { supabase } from '@/integrations/supabase/client';
@@ -25,32 +29,77 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from '@/components/app/PullToRefreshIndicator';
 import { AppSpinner } from '@/components/app/AppSpinner';
-import { DailyCheckIn } from '@/components/app/DailyCheckIn';
-import { WeeklySummaryModal } from '@/components/app/WeeklySummaryModal';
 import { formatPoints } from '@/utils/tokenomics';
 import { useNativeShare } from '@/hooks/useNativeShare';
 import { AppSEO } from '@/components/app/AppSEO';
 import { toast } from 'sonner';
 import { useContributionPersistence } from '@/hooks/useContributionPersistence';
+import { useNetworkContribution } from '@/hooks/useNetworkContribution';
+import { useGlobalCoverage } from '@/hooks/useGlobalCoverage';
+import { DataConsentModal, hasDataConsent } from '@/components/app/DataConsentModal';
+import { useEnhancedHaptics } from '@/hooks/useEnhancedHaptics';
+import { useEnhancedSounds } from '@/hooks/useEnhancedSounds';
+import { toast as toastNew } from '@/hooks/use-toast';
+
+// Lazy load NetworkGlobe for performance
+const NetworkGlobe = lazy(() => import('@/components/app/NetworkGlobe').then(m => ({ default: m.NetworkGlobe })));
 
 export const AppHome: React.FC = () => {
   const navigate = useNavigate();
   const { mediumTap, lightTap } = useHaptics();
+  const { buttonTap, successPattern } = useEnhancedHaptics();
+  const { playCoin, playSuccess } = useEnhancedSounds();
   const { isOnline } = useNetworkStatus();
   const { streakDays } = useAchievements();
   const { share } = useNativeShare();
   const { theme, setTheme, resolvedTheme } = useTheme();
   const isDark = resolvedTheme === 'dark' || theme === 'dark';
+  const isIOS = Capacitor.getPlatform() === 'ios';
   
   // Use client-side persistence for accurate contribution state
   const { isContributionEnabled } = useContributionPersistence();
+  
+  // Network contribution hook for controlling scanning
+  const {
+    user,
+    session,
+    stats,
+    lastPosition,
+    isCellular,
+    isPaused,
+    startContribution,
+    stopContribution,
+    formatDuration,
+    triggerManualSpeedTest
+  } = useNetworkContribution();
+
+  // Global coverage data for the globe
+  const { data: globalCoverageData, loading: globalCoverageLoading } = useGlobalCoverage({
+    autoRefresh: true,
+    refreshInterval: 60000,
+  });
+
+  const isActive = session.status === 'active';
+  
+  const userPosition: [number, number] | null = lastPosition 
+    ? [lastPosition.coords.longitude, lastPosition.coords.latitude]
+    : null;
+  
+  // Consent state
+  const [consentGiven, setConsentGiven] = useState(() => hasDataConsent());
+  const [showConsentModal, setShowConsentModal] = useState(false);
+  
+  // Speed test state
+  const [isRunningSpeedTest, setIsRunningSpeedTest] = useState(false);
+  const [speedTestProgress, setSpeedTestProgress] = useState(0);
+  const [speedTestPhase, setSpeedTestPhase] = useState<'idle' | 'latency' | 'download' | 'upload'>('idle');
+  const [liveSpeed, setLiveSpeed] = useState<{ down?: number; up?: number; latency?: number }>({});
   
   const [showOnboarding, setShowOnboarding] = useState(() => {
     if (typeof window === 'undefined') return false;
     return localStorage.getItem('hasSeenOnboarding') !== 'true';
   });
   
-  const [user, setUser] = useState<any>(null);
   const [username, setUsername] = useState<string | null>(null);
   const [points, setPoints] = useState<{
     total_points: number;
@@ -64,7 +113,6 @@ export const AppHome: React.FC = () => {
   const loadData = useCallback(async () => {
     try {
       const { data: { user: currentUser } } = await supabase.auth.getUser();
-      setUser(currentUser);
 
       if (currentUser) {
         // Load profile (using _safe view to exclude sensitive fields)
@@ -99,9 +147,6 @@ export const AppHome: React.FC = () => {
         if (affiliateData?.total_registrations) {
           setReferralCount(affiliateData.total_registrations);
         }
-
-        // Note: Active contribution state is now handled by useContributionPersistence hook
-        // which uses localStorage - more reliable than DB query
 
         // Calculate today's earnings
         const todayStr = new Date().toISOString().split('T')[0];
@@ -157,6 +202,101 @@ export const AppHome: React.FC = () => {
     }
   };
 
+  // Handle start/stop contribution
+  const handleToggleContribution = async () => {
+    buttonTap();
+    if (isActive) {
+      stopContribution();
+      playSuccess();
+      if (stats.pointsEarned > 0) {
+        toast.success(`Session ended! +${stats.pointsEarned.toFixed(1)} pts`);
+      }
+    } else {
+      if (!consentGiven) {
+        setShowConsentModal(true);
+        return;
+      }
+      const started = await startContribution();
+      if (started) {
+        playCoin();
+        toastNew({
+          title: "Contribution Started ✓",
+          description: "Contributing network data!",
+        });
+      } else {
+        toastNew({
+          title: "Location Permission Required",
+          description: isIOS
+            ? "Enable Location: Settings → Privacy & Security → Location Services → Nomiqa."
+            : "Please enable location in Settings to contribute.",
+          variant: "destructive",
+        });
+      }
+    }
+  };
+
+  // Speed test handler
+  const handleSpeedTest = async () => {
+    if (isRunningSpeedTest) return;
+    buttonTap();
+    setIsRunningSpeedTest(true);
+    setSpeedTestProgress(0);
+    setSpeedTestPhase('latency');
+    setLiveSpeed({});
+    
+    const progressInterval = setInterval(() => {
+      setSpeedTestProgress(prev => {
+        if (prev < 10) {
+          setSpeedTestPhase('latency');
+          if (prev > 5) setLiveSpeed(s => ({ ...s, latency: Math.round(20 + Math.random() * 30) }));
+          return prev + 2;
+        } else if (prev < 80) {
+          setSpeedTestPhase('download');
+          const progress = (prev - 10) / 70;
+          setLiveSpeed(s => ({ ...s, down: Math.round((50 + Math.random() * 100) * progress * 10) / 10 }));
+          return prev + 1.5;
+        } else if (prev < 95) {
+          setSpeedTestPhase('upload');
+          const progress = (prev - 80) / 15;
+          setLiveSpeed(s => ({ ...s, up: Math.round((20 + Math.random() * 40) * progress * 10) / 10 }));
+          return prev + 0.8;
+        }
+        return prev;
+      });
+    }, 100);
+    
+    try {
+      const result = await triggerManualSpeedTest();
+      clearInterval(progressInterval);
+      setSpeedTestProgress(100);
+      
+      if (result) {
+        setLiveSpeed({ down: result.down, up: result.up, latency: result.latency });
+        successPattern();
+        playCoin();
+        toastNew({
+          title: "Speed Test Complete ⚡",
+          description: `↓ ${result.down?.toFixed(1) ?? 'N/A'} Mbps  ↑ ${result.up?.toFixed(1) ?? 'N/A'} Mbps`,
+        });
+      } else {
+        toastNew({
+          title: "Speed Test Failed",
+          description: "Please try again.",
+          variant: "destructive",
+        });
+      }
+    } catch {
+      clearInterval(progressInterval);
+    } finally {
+      setTimeout(() => {
+        setIsRunningSpeedTest(false);
+        setSpeedTestProgress(0);
+        setSpeedTestPhase('idle');
+        setLiveSpeed({});
+      }, 1000);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -182,6 +322,43 @@ export const AppHome: React.FC = () => {
         )}
       </AnimatePresence>
 
+      {/* GDPR Consent Modal */}
+      {showConsentModal && !consentGiven && (
+        <DataConsentModal 
+          onConsentComplete={async (accepted) => {
+            setShowConsentModal(false);
+
+            if (!accepted) {
+              setConsentGiven(false);
+              toastNew({
+                title: "Consent required",
+                description: "Accept data collection to enable scanning and earn points.",
+                variant: "destructive",
+              });
+              return;
+            }
+
+            setConsentGiven(true);
+            const started = await startContribution();
+            if (started) {
+              playCoin();
+              toastNew({
+                title: "Contribution Started ✓",
+                description: "Location permission granted. Contributing data!",
+              });
+            } else {
+              toastNew({
+                title: "Location Permission Required",
+                description: isIOS
+                  ? "Enable Location: Settings → Privacy & Security → Location Services → Nomiqa."
+                  : "Please enable location in Settings to contribute.",
+                variant: "destructive",
+              });
+            }
+          }}
+        />
+      )}
+
       <div
         className="min-h-screen bg-background"
         {...handlers}
@@ -192,10 +369,10 @@ export const AppHome: React.FC = () => {
           isRefreshing={isRefreshing}
         />
 
-        <div className="px-5 pb-28" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 20px)' }}>
+        <div className="pb-28" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 8px)' }}>
           
           {/* Clean Header */}
-          <header className="flex items-center justify-between mb-6">
+          <header className="flex items-center justify-between px-5 mb-3">
             <div>
               <p className="text-sm text-muted-foreground">{greeting}</p>
               <h1 className="text-2xl font-bold text-foreground">{displayName}</h1>
@@ -216,234 +393,321 @@ export const AppHome: React.FC = () => {
             </div>
           </header>
 
-          {/* Status Indicator - only show green if actually contributing */}
-          <motion.div
+          {/* Points Display - Compact */}
+          <motion.div 
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex items-center gap-2 mb-6"
+            className="px-5 mb-3"
           >
-            <div className={cn(
-              "w-2.5 h-2.5 rounded-full",
-              isContributionEnabled ? "bg-green-500" : "bg-muted-foreground"
-            )} />
-            <span className="text-sm text-muted-foreground">
-              {isContributionEnabled ? 'Contributing in background' : isOnline ? 'Online' : 'Offline'}
-            </span>
-            {isContributionEnabled && <CheckCircle2 className="w-4 h-4 text-green-500" />}
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs text-muted-foreground mb-0.5">Total Points</p>
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-3xl font-bold text-foreground tabular-nums">
+                    {totalPoints.toLocaleString()}
+                  </span>
+                  <span className="text-sm text-muted-foreground">pts</span>
+                </div>
+              </div>
+              <div className="flex gap-4">
+                <div className="text-right">
+                  <p className="text-xs text-muted-foreground">Today</p>
+                  <p className="text-sm font-semibold text-primary">+{todayEarnings}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs text-muted-foreground">Team</p>
+                  <p className="text-sm font-semibold text-foreground">{referralCount}</p>
+                </div>
+              </div>
+            </div>
           </motion.div>
 
-          {/* Contribution Status Card */}
-          <motion.button
-            initial={{ opacity: 0, y: 8 }}
+          {/* Globe Map Section with Floating Circular Buttons */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.05 }}
-            onClick={() => { mediumTap(); navigate('/app/map'); }}
-            className={cn(
-              "w-full rounded-2xl p-4 flex items-center gap-4 mb-4 active:scale-[0.98] transition-transform",
-              isContributionEnabled 
-                ? "bg-green-500/10 border border-green-500/30" 
-                : "bg-red-500/10 border border-red-500/30"
-            )}
+            className="relative mx-3 rounded-3xl overflow-hidden border border-border/50"
+            style={{ 
+              height: '280px',
+              background: 'linear-gradient(180deg, hsl(222 30% 7%) 0%, hsl(222 35% 12%) 100%)'
+            }}
           >
-            <div className={cn(
-              "w-12 h-12 rounded-full flex items-center justify-center",
-              isContributionEnabled ? "bg-green-500/20" : "bg-red-500/20"
-            )}>
-              <Radio className={cn(
-                "w-6 h-6",
-                isContributionEnabled ? "text-green-500" : "text-red-500"
-              )} />
+            {/* Globe */}
+            <Suspense fallback={
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-10 h-10 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+              </div>
+            }>
+              <NetworkGlobe 
+                coverageData={globalCoverageData?.cells || []}
+                loading={globalCoverageLoading}
+                totalDataPoints={globalCoverageData?.totalDataPoints || 0}
+                uniqueLocations={globalCoverageData?.uniqueLocations || 0}
+                isPersonalView={false}
+                userPosition={userPosition}
+              />
+            </Suspense>
+
+            {/* Live Badge - Top Center */}
+            <div className="absolute top-3 left-1/2 -translate-x-1/2 z-30">
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 backdrop-blur-md">
+                <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
+                <span className="text-[11px] font-semibold text-emerald-400 uppercase tracking-wider">
+                  {isActive ? 'Contributing' : 'Live Network'}
+                </span>
+              </div>
             </div>
-            <div className="flex-1 text-left">
-              <p className={cn(
-                "text-base font-semibold",
-                isContributionEnabled ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
+
+            {/* Session Stats - Bottom Center (only when active) */}
+            {isActive && (
+              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-30">
+                <div className="flex items-center gap-4 px-4 py-2 rounded-full bg-black/60 backdrop-blur-md border border-white/10">
+                  <div className="flex items-center gap-1.5">
+                    <Clock className="w-3.5 h-3.5 text-white/60" />
+                    <span className="text-xs font-medium text-white tabular-nums">{formatDuration(stats.duration)}</span>
+                  </div>
+                  <div className="w-px h-4 bg-white/20" />
+                  <div className="flex items-center gap-1">
+                    <Zap className="w-3.5 h-3.5 text-[#f0b429]" />
+                    <span className="text-xs font-bold text-[#f0b429] tabular-nums">+{stats.pointsEarned.toFixed(1)}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* LEFT Floating Button - Start/Stop Contribution */}
+            <button
+              onClick={handleToggleContribution}
+              disabled={!user}
+              className={cn(
+                "absolute left-3 top-1/2 -translate-y-1/2 z-30",
+                "w-16 h-16 rounded-full flex flex-col items-center justify-center gap-0.5",
+                "backdrop-blur-md border-2 transition-all duration-200 active:scale-95",
+                !user && 'opacity-40 cursor-not-allowed',
+                isActive 
+                  ? isPaused 
+                    ? 'bg-amber-500/30 border-amber-400/60' 
+                    : 'bg-green-500/30 border-green-500/60'
+                  : 'bg-red-500/30 border-red-500/60'
+              )}
+              style={{
+                boxShadow: isActive && !isPaused
+                  ? '0 0 30px rgba(34, 197, 94, 0.4)'
+                  : '0 0 25px rgba(239, 68, 68, 0.4)',
+              }}
+            >
+              {isActive ? (
+                isPaused ? (
+                  <Play className="w-6 h-6 text-amber-400" />
+                ) : (
+                  <Pause className="w-6 h-6 text-green-400" />
+                )
+              ) : (
+                <Play className="w-6 h-6 text-red-400 ml-0.5" />
+              )}
+              <span className={cn(
+                "text-[8px] font-bold uppercase tracking-wider",
+                isActive ? isPaused ? "text-amber-400" : "text-green-400" : "text-red-400"
               )}>
-                {isContributionEnabled ? 'Contributing Now' : 'Start Contributing'}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                {isContributionEnabled ? 'Earning points in background' : 'Tap to enable earning'}
-              </p>
-            </div>
-            <ChevronRight className={cn(
-              "w-5 h-5",
-              isContributionEnabled ? "text-green-500" : "text-red-500"
-            )} />
-          </motion.button>
-
-          {/* Main Balance Card - Clean & Trustworthy */}
-          <motion.div 
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="rounded-3xl bg-card border border-border p-6 mb-4"
-          >
-            <p className="text-sm text-muted-foreground mb-1">Total Balance</p>
-            <div className="flex items-baseline gap-2 mb-1">
-              <span className="text-4xl font-bold text-foreground tabular-nums">
-                {totalPoints.toLocaleString()}
+                {isActive ? (isPaused ? 'Resume' : 'Stop') : 'Start'}
               </span>
-              <span className="text-lg text-muted-foreground">pts</span>
-            </div>
-            <p className="text-sm text-muted-foreground mb-6">
-              Convertible to $NOMIQA
-            </p>
+            </button>
 
-            {/* Mini Stats Row */}
-            <div className="flex gap-4 pt-4 border-t border-border">
-              <div className="flex-1">
-                <div className="flex items-center gap-1.5 text-muted-foreground mb-1">
-                  <Clock className="w-3.5 h-3.5" />
-                  <span className="text-xs">Today</span>
+            {/* RIGHT Floating Button - Speed Test */}
+            <button
+              onClick={handleSpeedTest}
+              disabled={!isCellular || isRunningSpeedTest}
+              className={cn(
+                "absolute right-3 top-1/2 -translate-y-1/2 z-30",
+                "w-16 h-16 rounded-full flex flex-col items-center justify-center gap-0.5",
+                "backdrop-blur-md border-2 transition-all duration-200 active:scale-95",
+                isRunningSpeedTest 
+                  ? 'bg-amber-500/30 border-amber-400/60' 
+                  : isCellular 
+                    ? 'bg-white/10 border-white/30'
+                    : 'bg-white/5 border-white/10 cursor-not-allowed opacity-50'
+              )}
+            >
+              <Gauge className={cn(
+                "w-6 h-6",
+                isRunningSpeedTest ? "text-amber-400 animate-spin" : "text-white/80"
+              )} />
+              <span className={cn(
+                "text-[8px] font-bold uppercase tracking-wider",
+                isRunningSpeedTest ? "text-amber-400" : "text-white/70"
+              )}>
+                {isRunningSpeedTest 
+                  ? speedTestPhase === 'latency' ? 'Ping' 
+                    : speedTestPhase === 'download' ? 'Down' : 'Up'
+                  : 'Speed'}
+              </span>
+              {isRunningSpeedTest && (
+                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-12 h-1 bg-white/10 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-amber-400 rounded-full transition-all duration-100"
+                    style={{ width: `${speedTestProgress}%` }}
+                  />
                 </div>
-                <p className="text-sm font-semibold text-foreground">+{todayEarnings} pts</p>
-              </div>
-              <div className="w-px bg-border" />
-              <div className="flex-1">
-                <div className="flex items-center gap-1.5 text-muted-foreground mb-1">
-                  <TrendingUp className="w-3.5 h-3.5" />
-                  <span className="text-xs">Streak</span>
-                </div>
-                <p className="text-sm font-semibold text-foreground">{streakDays} days</p>
-              </div>
-              <div className="w-px bg-border" />
-              <div className="flex-1">
-                <div className="flex items-center gap-1.5 text-muted-foreground mb-1">
-                  <Users className="w-3.5 h-3.5" />
-                  <span className="text-xs">Team</span>
-                </div>
-                <p className="text-sm font-semibold text-foreground">{referralCount}</p>
-              </div>
-            </div>
+              )}
+            </button>
+
+            {/* Expand to full map - Top Right */}
+            <button
+              onClick={() => { lightTap(); navigate('/app/map'); }}
+              className="absolute top-3 right-3 z-30 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/20 text-[11px] font-medium text-white/80 active:scale-95 transition-transform"
+            >
+              Expand
+            </button>
           </motion.div>
 
-          {/* Referral Section - Prominent & Clean */}
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="rounded-3xl bg-primary/5 border border-primary/20 p-5 mb-4"
-          >
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center">
-                <Gift className="w-5 h-5 text-primary" />
-              </div>
-              <div className="flex-1">
-                <h3 className="text-base font-semibold text-foreground">Invite & Earn Together</h3>
-                <p className="text-sm text-muted-foreground">Earn 5% of your team's earnings</p>
-              </div>
-            </div>
+          {/* Content below the map */}
+          <div className="px-5 mt-4 space-y-4">
 
-            {/* Referral Link Display */}
-            <div className="bg-background rounded-xl p-3 flex items-center gap-2 mb-4 border border-border">
-              <span className="flex-1 text-sm text-muted-foreground truncate font-mono">
-                nomiqa.com/{username || 'invite'}
+            {/* Status Indicator */}
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex items-center gap-2"
+            >
+              <div className={cn(
+                "w-2.5 h-2.5 rounded-full",
+                isContributionEnabled ? "bg-green-500" : "bg-muted-foreground"
+              )} />
+              <span className="text-sm text-muted-foreground">
+                {isContributionEnabled ? 'Contributing in background' : isOnline ? 'Online' : 'Offline'}
               </span>
+              {isContributionEnabled && <CheckCircle2 className="w-4 h-4 text-green-500" />}
+            </motion.div>
+
+            {/* Referral Section - Prominent & Clean */}
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="rounded-3xl bg-primary/5 border border-primary/20 p-5"
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Gift className="w-5 h-5 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-base font-semibold text-foreground">Invite & Earn Together</h3>
+                  <p className="text-sm text-muted-foreground">Earn 5% of your team's earnings</p>
+                </div>
+              </div>
+
+              {/* Referral Link Display */}
+              <div className="bg-background rounded-xl p-3 flex items-center gap-2 mb-4 border border-border">
+                <span className="flex-1 text-sm text-muted-foreground truncate font-mono">
+                  nomiqa.com/{username || 'invite'}
+                </span>
+                <button
+                  onClick={() => { lightTap(); handleCopyLink(); }}
+                  className="p-2 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
+                >
+                  <Copy className="w-4 h-4 text-muted-foreground" />
+                </button>
+              </div>
+
               <button
-                onClick={() => { lightTap(); handleCopyLink(); }}
-                className="p-2 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
+                onClick={() => { mediumTap(); handleShareReferral(); }}
+                className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-semibold flex items-center justify-center gap-2 active:scale-[0.98] transition-transform"
               >
-                <Copy className="w-4 h-4 text-muted-foreground" />
+                <Share2 className="w-4 h-4" />
+                Share Invite Link
               </button>
-            </div>
 
-            <button
-              onClick={() => { mediumTap(); handleShareReferral(); }}
-              className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-semibold flex items-center justify-center gap-2 active:scale-[0.98] transition-transform"
+              {referralCount > 0 && (
+                <p className="text-center text-xs text-muted-foreground mt-3">
+                  You have {referralCount} team member{referralCount !== 1 ? 's' : ''} contributing with you
+                </p>
+              )}
+            </motion.div>
+
+            {/* How It Works - Simple */}
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15 }}
+              className="rounded-3xl bg-card border border-border p-5"
             >
-              <Share2 className="w-4 h-4" />
-              Share Invite Link
-            </button>
-
-            {referralCount > 0 && (
-              <p className="text-center text-xs text-muted-foreground mt-3">
-                You have {referralCount} team member{referralCount !== 1 ? 's' : ''} earning with you
-              </p>
-            )}
-          </motion.div>
-
-          {/* How It Works - Simple */}
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 }}
-            className="rounded-3xl bg-card border border-border p-5 mb-4"
-          >
-            <h3 className="text-base font-semibold text-foreground mb-4">How You Earn</h3>
-            
-            <div className="space-y-3">
-              <div className="flex items-start gap-3">
-                <div className="w-7 h-7 rounded-full bg-green-500/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-xs font-bold text-green-600">1</span>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-foreground">App runs in background</p>
-                  <p className="text-xs text-muted-foreground">Uses &lt;3% battery daily</p>
-                </div>
-              </div>
+              <h3 className="text-base font-semibold text-foreground mb-4">How You Earn</h3>
               
-              <div className="flex items-start gap-3">
-                <div className="w-7 h-7 rounded-full bg-blue-500/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-xs font-bold text-blue-600">2</span>
+              <div className="space-y-3">
+                <div className="flex items-start gap-3">
+                  <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-xs font-bold text-primary">1</span>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-foreground">App runs in background</p>
+                    <p className="text-xs text-muted-foreground">Uses &lt;3% battery daily</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm font-medium text-foreground">Contribute network data</p>
-                  <p className="text-xs text-muted-foreground">Anonymous signal quality info</p>
+                
+                <div className="flex items-start gap-3">
+                  <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-xs font-bold text-primary">2</span>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Contribute network data</p>
+                    <p className="text-xs text-muted-foreground">Anonymous signal quality info</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-3">
+                  <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-xs font-bold text-primary">3</span>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Earn points automatically</p>
+                    <p className="text-xs text-muted-foreground">Redeem for rewards anytime</p>
+                  </div>
                 </div>
               </div>
-              
-              <div className="flex items-start gap-3">
-                <div className="w-7 h-7 rounded-full bg-purple-500/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-xs font-bold text-purple-600">3</span>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-foreground">Earn points automatically</p>
-                  <p className="text-xs text-muted-foreground">Redeem for rewards anytime</p>
-                </div>
-              </div>
-            </div>
-          </motion.div>
+            </motion.div>
 
-          {/* Quick Actions */}
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="space-y-2"
-          >
-            <button
-              onClick={() => { lightTap(); navigate('/app/rewards'); }}
-              className="w-full rounded-2xl bg-card border border-border p-4 flex items-center gap-4 active:scale-[0.99] transition-transform"
+            {/* Quick Actions */}
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="space-y-2"
             >
-              <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center">
-                <Gift className="w-5 h-5 text-amber-500" />
-              </div>
-              <div className="flex-1 text-left">
-                <p className="text-sm font-semibold text-foreground">Rewards</p>
-                <p className="text-xs text-muted-foreground">View your earnings</p>
-              </div>
-              <ChevronRight className="w-5 h-5 text-muted-foreground" />
-            </button>
+              <button
+                onClick={() => { lightTap(); navigate('/app/rewards'); }}
+                className="w-full rounded-2xl bg-card border border-border p-4 flex items-center gap-4 active:scale-[0.99] transition-transform"
+              >
+                <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center">
+                  <Gift className="w-5 h-5 text-amber-500" />
+                </div>
+                <div className="flex-1 text-left">
+                  <p className="text-sm font-semibold text-foreground">Rewards</p>
+                  <p className="text-xs text-muted-foreground">View your earnings</p>
+                </div>
+                <ChevronRight className="w-5 h-5 text-muted-foreground" />
+              </button>
 
-            <button
-              onClick={() => { lightTap(); navigate('/app/leaderboard'); }}
-              className="w-full rounded-2xl bg-card border border-border p-4 flex items-center gap-4 active:scale-[0.99] transition-transform"
-            >
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                <TrendingUp className="w-5 h-5 text-primary" />
-              </div>
-              <div className="flex-1 text-left">
-                <p className="text-sm font-semibold text-foreground">Leaderboard</p>
-                <p className="text-xs text-muted-foreground">See top earners</p>
-              </div>
-              <ChevronRight className="w-5 h-5 text-muted-foreground" />
-            </button>
-          </motion.div>
+              <button
+                onClick={() => { lightTap(); navigate('/app/leaderboard'); }}
+                className="w-full rounded-2xl bg-card border border-border p-4 flex items-center gap-4 active:scale-[0.99] transition-transform"
+              >
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                  <TrendingUp className="w-5 h-5 text-primary" />
+                </div>
+                <div className="flex-1 text-left">
+                  <p className="text-sm font-semibold text-foreground">Leaderboard</p>
+                  <p className="text-xs text-muted-foreground">See top earners</p>
+                </div>
+                <ChevronRight className="w-5 h-5 text-muted-foreground" />
+              </button>
+            </motion.div>
 
+          </div>
         </div>
       </div>
-
-      <WeeklySummaryModal />
     </>
   );
 };
+
+export default AppHome;
