@@ -359,315 +359,332 @@ export const AppHome: React.FC = () => {
         />
       )}
 
-      {/* Immersive Dark Background with Globe */}
       <div
-         className="min-h-screen relative bg-gradient-to-b from-background via-background to-background"
+        className="min-h-screen bg-background"
         {...handlers}
       >
-        {/* Globe Background - Fixed, positioned in upper-middle area */}
-        <div
-          className="fixed left-0 right-0 z-0 flex items-center justify-center pointer-events-none"
-          style={{ top: '18%', height: '55%' }}
-        >
-          <div className="w-full h-full opacity-80">
-            <Suspense fallback={null}>
-              <NetworkGlobe
-                coverageData={globalCoverageData?.cells || []}
-                loading={globalCoverageLoading}
-                totalDataPoints={globalCoverageData?.totalDataPoints || 0}
-                uniqueLocations={globalCoverageData?.uniqueLocations || 0}
-                isPersonalView={false}
-                userPosition={userPosition}
-                overlayPlacement="bottom"
-              />
-            </Suspense>
-          </div>
-        </div>
-
-        {/* Dark overlay for better text readability */}
-        <div className="fixed inset-0 z-[1] bg-gradient-to-b from-background/35 via-transparent to-background/90" />
-
         <PullToRefreshIndicator 
           pullDistance={pullDistance}
           pullProgress={pullProgress}
           isRefreshing={isRefreshing}
         />
 
-        {/* Content Layer */}
-        <div className="relative z-10 pb-28" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
+        <div className="pb-28" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 8px)' }}>
           
-          {/* Live Badge - Top Left */}
-          <div className="px-4 pt-3 mb-3">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-black/50 border border-emerald-500/40 backdrop-blur-xl">
-              <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
-              <span className="text-[11px] font-semibold text-emerald-400 uppercase tracking-wider">Live</span>
+          {/* Clean Header */}
+          <header className="flex items-center justify-between px-5 mb-3">
+            <div>
+              <p className="text-sm text-muted-foreground">{greeting}</p>
+              <h1 className="text-2xl font-bold text-foreground">{displayName}</h1>
             </div>
-          </div>
-
-          {/* Greeting Card */}
-          <header className="px-4 mb-4">
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="rounded-2xl bg-black/60 backdrop-blur-2xl border border-white/15 p-4 shadow-2xl"
-            >
-              <div className="flex items-center justify-between mb-3">
-                <div>
-                  <p className="text-sm text-white/70 font-medium">{greeting} 👋</p>
-                  <h1 className="text-xl font-bold text-white">{displayName}</h1>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button 
-                    onClick={() => { lightTap(); setTheme(isDark ? 'light' : 'dark'); }}
-                    className="w-9 h-9 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20 active:scale-95 transition-transform"
-                  >
-                    {isDark ? <Sun className="w-4 h-4 text-white/80" /> : <Moon className="w-4 h-4 text-white/80" />}
-                  </button>
-                  <button 
-                    onClick={() => { lightTap(); navigate('/app/profile'); }}
-                    className="w-9 h-9 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20 active:scale-95 transition-transform"
-                  >
-                    <Settings className="w-4 h-4 text-white/70" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Points Display - Clean white/emerald theme */}
-              <div className="rounded-xl bg-white/5 border border-white/10 p-3">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-[10px] text-white/50 font-medium mb-0.5 uppercase tracking-wider">Your Earnings</p>
-                    <div className="flex items-baseline gap-1.5">
-                      <span className="text-2xl font-bold text-white tabular-nums">
-                        {totalPoints.toLocaleString()}
-                      </span>
-                      <span className="text-xs text-white/50">points</span>
-                    </div>
-                  </div>
-                  <div className="flex gap-4">
-                    <div className="text-center">
-                      <p className="text-[9px] text-white/50 uppercase tracking-wider mb-0.5">Today</p>
-                      <p className="text-base font-bold text-emerald-400">+{todayEarnings}</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-[9px] text-white/50 uppercase tracking-wider mb-0.5">Team</p>
-                      <p className="text-base font-bold text-white">{referralCount}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={() => { lightTap(); setTheme(isDark ? 'light' : 'dark'); }}
+                className="w-10 h-10 rounded-full bg-muted/50 flex items-center justify-center"
+              >
+                {isDark ? <Sun className="w-5 h-5 text-muted-foreground" /> : <Moon className="w-5 h-5 text-muted-foreground" />}
+              </button>
+              <button 
+                onClick={() => { lightTap(); navigate('/app/profile'); }}
+                className="w-10 h-10 rounded-full bg-muted/50 flex items-center justify-center"
+              >
+                <Settings className="w-5 h-5 text-muted-foreground" />
+              </button>
+            </div>
           </header>
 
-          {/* Action Buttons - On top of globe */}
-          <div className="flex justify-center gap-5 px-4">
-            <motion.button
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.1 }}
+          {/* Points Display - Compact */}
+          <motion.div 
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="px-5 mb-3"
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs text-muted-foreground mb-0.5">Total Points</p>
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-3xl font-bold text-foreground tabular-nums">
+                    {totalPoints.toLocaleString()}
+                  </span>
+                  <span className="text-sm text-muted-foreground">pts</span>
+                </div>
+              </div>
+              <div className="flex gap-4">
+                <div className="text-right">
+                  <p className="text-xs text-muted-foreground">Today</p>
+                  <p className="text-sm font-semibold text-primary">+{todayEarnings}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs text-muted-foreground">Team</p>
+                  <p className="text-sm font-semibold text-foreground">{referralCount}</p>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Globe Map Section with Floating Circular Buttons - FULL EXPANDED */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.05 }}
+            className="relative mx-3 rounded-3xl overflow-hidden border border-border/50"
+            style={{ 
+              height: '52vh',
+              minHeight: '340px',
+              maxHeight: '480px',
+              background: 'linear-gradient(180deg, hsl(222 30% 7%) 0%, hsl(222 35% 12%) 100%)'
+            }}
+          >
+            {/* Globe */}
+            <Suspense fallback={
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-10 h-10 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+              </div>
+            }>
+              <NetworkGlobe 
+                coverageData={globalCoverageData?.cells || []}
+                loading={globalCoverageLoading}
+                totalDataPoints={globalCoverageData?.totalDataPoints || 0}
+                uniqueLocations={globalCoverageData?.uniqueLocations || 0}
+                isPersonalView={false}
+                userPosition={userPosition}
+              />
+            </Suspense>
+
+            {/* Live Badge - Top Left */}
+            <div className="absolute top-3 left-3 z-30">
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 backdrop-blur-md">
+                <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
+                <span className="text-[10px] font-semibold text-emerald-400 uppercase tracking-wider">Live</span>
+              </div>
+            </div>
+
+            {/* Session Stats - Bottom Center (only when active) */}
+            {isActive && (
+              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-30">
+                <div className="flex items-center gap-4 px-4 py-2 rounded-full bg-black/60 backdrop-blur-md border border-white/10">
+                  <div className="flex items-center gap-1.5">
+                    <Clock className="w-3.5 h-3.5 text-white/60" />
+                    <span className="text-xs font-medium text-white tabular-nums">{formatDuration(stats.duration)}</span>
+                  </div>
+                  <div className="w-px h-4 bg-white/20" />
+                  <div className="flex items-center gap-1">
+                    <Zap className="w-3.5 h-3.5 text-[#f0b429]" />
+                    <span className="text-xs font-bold text-[#f0b429] tabular-nums">+{stats.pointsEarned.toFixed(1)}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* LEFT Floating Button - Start/Stop Contribution */}
+            <button
               onClick={handleToggleContribution}
               disabled={!user}
               className={cn(
+                "absolute left-3 top-1/2 -translate-y-1/2 z-30",
                 "w-16 h-16 rounded-full flex flex-col items-center justify-center gap-0.5",
-                "backdrop-blur-xl border-2 transition-all duration-200 active:scale-95",
+                "backdrop-blur-md border-2 transition-all duration-200 active:scale-95",
                 !user && 'opacity-40 cursor-not-allowed',
                 isActive 
                   ? isPaused 
-                    ? 'bg-white/10 border-white/30' 
-                    : 'bg-emerald-500/20 border-emerald-500/60'
-                  : 'bg-white/10 border-white/30'
+                    ? 'bg-amber-500/30 border-amber-400/60' 
+                    : 'bg-green-500/30 border-green-500/60'
+                  : 'bg-red-500/30 border-red-500/60'
               )}
               style={{
                 boxShadow: isActive && !isPaused
-                  ? '0 0 30px rgba(16, 185, 129, 0.4)'
-                  : '0 0 20px rgba(255, 255, 255, 0.1)',
+                  ? '0 0 30px rgba(34, 197, 94, 0.4)'
+                  : '0 0 25px rgba(239, 68, 68, 0.4)',
               }}
             >
               {isActive ? (
-                isPaused ? <Play className="w-6 h-6 text-white/80" /> : <Pause className="w-6 h-6 text-emerald-400" />
+                isPaused ? (
+                  <Play className="w-6 h-6 text-amber-400" />
+                ) : (
+                  <Pause className="w-6 h-6 text-green-400" />
+                )
               ) : (
-                <Play className="w-6 h-6 text-white/80 ml-0.5" />
+                <Play className="w-6 h-6 text-red-400 ml-0.5" />
               )}
               <span className={cn(
                 "text-[8px] font-bold uppercase tracking-wider",
-                isActive ? isPaused ? "text-white/70" : "text-emerald-400" : "text-white/70"
+                isActive ? isPaused ? "text-amber-400" : "text-green-400" : "text-red-400"
               )}>
                 {isActive ? (isPaused ? 'Resume' : 'Stop') : 'Start'}
               </span>
-            </motion.button>
+            </button>
 
-            <motion.button
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.15 }}
+            {/* RIGHT Floating Button - Speed Test */}
+            <button
               onClick={handleSpeedTest}
               disabled={!isCellular || isRunningSpeedTest}
               className={cn(
-                "w-16 h-16 rounded-full flex flex-col items-center justify-center gap-0.5 relative",
-                "backdrop-blur-xl border-2 transition-all duration-200 active:scale-95",
+                "absolute right-3 top-1/2 -translate-y-1/2 z-30",
+                "w-16 h-16 rounded-full flex flex-col items-center justify-center gap-0.5",
+                "backdrop-blur-md border-2 transition-all duration-200 active:scale-95",
                 isRunningSpeedTest 
-                  ? 'bg-cyan-500/20 border-cyan-400/60' 
+                  ? 'bg-amber-500/30 border-amber-400/60' 
                   : isCellular 
                     ? 'bg-white/10 border-white/30'
                     : 'bg-white/5 border-white/10 cursor-not-allowed opacity-50'
               )}
             >
-              <Gauge className={cn("w-6 h-6", isRunningSpeedTest ? "text-cyan-400 animate-spin" : "text-white/80")} />
-              <span className={cn("text-[8px] font-bold uppercase tracking-wider", isRunningSpeedTest ? "text-cyan-400" : "text-white/70")}>
-                {isRunningSpeedTest ? speedTestPhase === 'latency' ? 'Ping' : speedTestPhase === 'download' ? 'Down' : 'Up' : 'Speed'}
+              <Gauge className={cn(
+                "w-6 h-6",
+                isRunningSpeedTest ? "text-amber-400 animate-spin" : "text-white/80"
+              )} />
+              <span className={cn(
+                "text-[8px] font-bold uppercase tracking-wider",
+                isRunningSpeedTest ? "text-amber-400" : "text-white/70"
+              )}>
+                {isRunningSpeedTest 
+                  ? speedTestPhase === 'latency' ? 'Ping' 
+                    : speedTestPhase === 'download' ? 'Down' : 'Up'
+                  : 'Speed'}
               </span>
               {isRunningSpeedTest && (
                 <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-12 h-1 bg-white/10 rounded-full overflow-hidden">
-                  <div className="h-full bg-cyan-400 rounded-full transition-all" style={{ width: `${speedTestProgress}%` }} />
+                  <div 
+                    className="h-full bg-amber-400 rounded-full transition-all duration-100"
+                    style={{ width: `${speedTestProgress}%` }}
+                  />
                 </div>
               )}
-            </motion.button>
-          </div>
+            </button>
 
-          {/* Session Stats (when active) */}
-          {isActive && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex justify-center mt-3"
+            {/* Expand to full map - Top Right */}
+            <button
+              onClick={() => { lightTap(); navigate('/app/map'); }}
+              className="absolute top-3 right-3 z-30 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/20 text-[11px] font-medium text-white/80 active:scale-95 transition-transform"
             >
-              <div className="flex items-center gap-3 px-4 py-2 rounded-full bg-black/50 backdrop-blur-xl border border-white/15">
-                <div className="flex items-center gap-1">
-                  <Clock className="w-3.5 h-3.5 text-white/60" />
-                  <span className="text-xs font-medium text-white tabular-nums">{formatDuration(stats.duration)}</span>
-                </div>
-                <div className="w-px h-4 bg-white/20" />
-                <div className="flex items-center gap-1">
-                  <Zap className="w-3.5 h-3.5 text-emerald-400" />
-                  <span className="text-xs font-bold text-emerald-400 tabular-nums">+{stats.pointsEarned.toFixed(1)}</span>
-                </div>
-              </div>
-            </motion.div>
-          )}
+              Expand
+            </button>
+          </motion.div>
 
-          {/* Globe Viewing Space - sized so cards start only after globe ends */}
-          <div className="h-[clamp(520px,72vh,760px)]" />
+          {/* Content below the map */}
+          <div className="px-5 mt-4 space-y-4">
 
-          {/* Cards Section - After the globe */}
-          <div className="px-4 space-y-3">
-
-            {/* Referral Section - Clean theme */}
+            {/* Referral Section - Prominent & Clean */}
             <motion.div
-              initial={{ opacity: 0, y: 16 }}
+              initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="rounded-2xl bg-black/60 backdrop-blur-xl border border-white/15 p-4 shadow-xl"
+              transition={{ delay: 0.1 }}
+              className="rounded-3xl bg-primary/5 border border-primary/20 p-5"
             >
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center border border-white/20">
-                  <Gift className="w-5 h-5 text-white/80" />
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Gift className="w-5 h-5 text-primary" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-sm font-semibold text-white">Grow Together 🌱</h3>
-                  <p className="text-xs text-white/60">Invite friends & earn 5% of their points</p>
+                  <h3 className="text-base font-semibold text-foreground">Invite & Earn Together</h3>
+                  <p className="text-sm text-muted-foreground">Earn 5% of your team's earnings</p>
                 </div>
               </div>
 
-              <div className="bg-black/40 rounded-lg p-2.5 flex items-center gap-2 mb-3 border border-white/10">
-                <span className="flex-1 text-xs text-white/60 truncate font-mono">
+              {/* Referral Link Display */}
+              <div className="bg-background rounded-xl p-3 flex items-center gap-2 mb-4 border border-border">
+                <span className="flex-1 text-sm text-muted-foreground truncate font-mono">
                   nomiqa.com/{username || 'invite'}
                 </span>
                 <button
                   onClick={() => { lightTap(); handleCopyLink(); }}
-                  className="p-2 rounded-lg bg-white/10 border border-white/20 active:scale-95"
+                  className="p-2 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
                 >
-                  <Copy className="w-3.5 h-3.5 text-white/70" />
+                  <Copy className="w-4 h-4 text-muted-foreground" />
                 </button>
               </div>
 
               <button
                 onClick={() => { mediumTap(); handleShareReferral(); }}
-                className="w-full h-10 rounded-lg bg-white/15 hover:bg-white/20 border border-white/20 text-white text-sm font-semibold flex items-center justify-center gap-2 active:scale-[0.98] transition-all"
+                className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-semibold flex items-center justify-center gap-2 active:scale-[0.98] transition-transform"
               >
-                <Share2 className="w-3.5 h-3.5" />
-                Share Your Link
+                <Share2 className="w-4 h-4" />
+                Share Invite Link
               </button>
 
               {referralCount > 0 && (
-                <p className="text-center text-[11px] text-emerald-400 mt-2">
-                  🎊 {referralCount} friend{referralCount !== 1 ? 's' : ''} earning with you!
+                <p className="text-center text-xs text-muted-foreground mt-3">
+                  You have {referralCount} team member{referralCount !== 1 ? 's' : ''} contributing with you
                 </p>
               )}
             </motion.div>
 
-            {/* Leaderboard Card */}
+            {/* Quick Actions - Rewards & Leaderboard */}
             <motion.div
-              initial={{ opacity: 0, y: 16 }}
+              initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.25 }}
+              transition={{ delay: 0.15 }}
+              className="space-y-2"
             >
               <button
-                onClick={() => { lightTap(); navigate('/app/leaderboard'); }}
-                className="w-full rounded-xl bg-black/60 backdrop-blur-xl border border-white/15 p-3 flex items-center gap-3 active:scale-[0.98] transition-transform"
+                onClick={() => { lightTap(); navigate('/app/rewards'); }}
+                className="w-full rounded-2xl bg-card border border-border p-4 flex items-center gap-4 active:scale-[0.99] transition-transform"
               >
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500/30 to-purple-500/20 flex items-center justify-center border border-violet-500/40">
-                  <TrendingUp className="w-5 h-5 text-violet-400" />
+                <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center">
+                  <Gift className="w-5 h-5 text-amber-500" />
                 </div>
                 <div className="flex-1 text-left">
-                  <p className="text-sm font-semibold text-white">Leaderboard</p>
-                  <p className="text-[11px] text-white/50">See top earners this week</p>
+                  <p className="text-sm font-semibold text-foreground">Rewards</p>
+                  <p className="text-xs text-muted-foreground">View your earnings</p>
                 </div>
-                <ChevronRight className="w-4 h-4 text-white/40" />
+                <ChevronRight className="w-5 h-5 text-muted-foreground" />
+              </button>
+
+              <button
+                onClick={() => { lightTap(); navigate('/app/leaderboard'); }}
+                className="w-full rounded-2xl bg-card border border-border p-4 flex items-center gap-4 active:scale-[0.99] transition-transform"
+              >
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                  <TrendingUp className="w-5 h-5 text-primary" />
+                </div>
+                <div className="flex-1 text-left">
+                  <p className="text-sm font-semibold text-foreground">Leaderboard</p>
+                  <p className="text-xs text-muted-foreground">See top earners</p>
+                </div>
+                <ChevronRight className="w-5 h-5 text-muted-foreground" />
               </button>
             </motion.div>
 
-            {/* How It Works */}
+            {/* How It Works - Under Rewards & Leaderboard */}
             <motion.div
-              initial={{ opacity: 0, y: 16 }}
+              initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="rounded-2xl bg-black/60 backdrop-blur-xl border border-white/15 p-4 shadow-xl"
+              transition={{ delay: 0.2 }}
+              className="rounded-3xl bg-card border border-border p-5"
             >
-              <h3 className="text-sm font-semibold text-white mb-0.5">How You Earn ✨</h3>
-              <p className="text-[11px] text-white/50 mb-3">It's simple, passive, and rewarding</p>
+              <h3 className="text-base font-semibold text-foreground mb-4">How You Earn</h3>
               
               <div className="space-y-3">
-                <div className="flex items-start gap-2.5">
-                  <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-sky-500/30 to-cyan-500/20 flex items-center justify-center flex-shrink-0 border border-sky-500/40">
-                    <span className="text-xs font-bold text-sky-400">1</span>
+                <div className="flex items-start gap-3">
+                  <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-xs font-bold text-primary">1</span>
                   </div>
-                  <div className="flex-1 pt-0.5">
-                    <p className="text-xs font-medium text-white">App runs quietly in background</p>
-                    <p className="text-[11px] text-white/50">Uses less than 3% battery daily</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start gap-2.5">
-                  <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-500/30 to-indigo-500/20 flex items-center justify-center flex-shrink-0 border border-blue-500/40">
-                    <span className="text-xs font-bold text-blue-400">2</span>
-                  </div>
-                  <div className="flex-1 pt-0.5">
-                    <p className="text-xs font-medium text-white">Share anonymous network data</p>
-                    <p className="text-[11px] text-white/50">Help improve coverage for everyone</p>
+                  <div>
+                    <p className="text-sm font-medium text-foreground">App runs in background</p>
+                    <p className="text-xs text-muted-foreground">Uses &lt;3% battery daily</p>
                   </div>
                 </div>
                 
-                <div className="flex items-start gap-2.5">
-                  <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500/30 to-violet-500/20 flex items-center justify-center flex-shrink-0 border border-indigo-500/40">
-                    <span className="text-xs font-bold text-indigo-400">3</span>
+                <div className="flex items-start gap-3">
+                  <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-xs font-bold text-primary">2</span>
                   </div>
-                  <div className="flex-1 pt-0.5">
-                    <p className="text-xs font-medium text-white">Watch your points grow</p>
-                    <p className="text-[11px] text-white/50">Redeem for real rewards</p>
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Contribute network data</p>
+                    <p className="text-xs text-muted-foreground">Anonymous signal quality info</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-3">
+                  <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-xs font-bold text-primary">3</span>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Earn points automatically</p>
+                    <p className="text-xs text-muted-foreground">Redeem for rewards anytime</p>
                   </div>
                 </div>
               </div>
-            </motion.div>
-
-            {/* Footer */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.35 }}
-              className="text-center py-4"
-            >
-              <p className="text-xs text-white/70">You're part of something big 🌍</p>
-              <p className="text-[11px] text-white/50 mt-0.5">Every contribution helps build a better network</p>
             </motion.div>
 
           </div>

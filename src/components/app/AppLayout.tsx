@@ -42,9 +42,6 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const prefersReducedMotion = typeof window !== 'undefined' 
     && window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
 
-  // Home page always stays dark
-  const isHomePage = location.pathname === '/app' || location.pathname === '/app/';
-  
   // WebGL/canvas safety: avoid parent transforms on map/network routes
   const isMapRoute = location.pathname === '/app/map' || location.pathname === '/app/network';
 
@@ -155,15 +152,12 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
     return <OfflineScreen />;
   }
 
-  // For home page, always use dark mode styling
-  const usesDarkStyle = isHomePage || isDark;
-
   return (
     <div 
       className={cn(
         "app-theme flex flex-col",
-        // Theme-specific gradients - home page is always dark
-        usesDarkStyle 
+        // Theme-specific gradients
+        isDark 
           ? "dark bg-gradient-to-b from-[hsl(220,40%,10%)] via-[hsl(220,40%,8%)] to-[hsl(220,45%,6%)]" 
           : "light bg-gradient-to-b from-[hsl(210,40%,98%)] via-[hsl(210,35%,96%)] to-[hsl(210,30%,94%)]",
         // Transition only if reduced motion not preferred

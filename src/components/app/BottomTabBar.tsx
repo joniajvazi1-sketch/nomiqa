@@ -2,7 +2,6 @@ import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Home, Gift, ShoppingBag, User } from 'lucide-react';
 import { useHaptics } from '@/hooks/useHaptics';
-import { useTheme } from 'next-themes';
 import { cn } from '@/lib/utils';
 
 interface TabItem {
@@ -20,17 +19,11 @@ interface TabItem {
  * - Classic docked bar on older devices
  * - 48pt minimum touch targets (WCAG AAA)
  * - Graceful degradation for backdrop-blur
- * - Home page always dark, other pages follow theme
  */
 export const BottomTabBar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { lightTap } = useHaptics();
-  const { theme, resolvedTheme } = useTheme();
-  
-  // Home page always uses dark styling
-  const isHomePage = location.pathname === '/app' || location.pathname === '/app/';
-  const isDark = isHomePage || resolvedTheme === 'dark' || theme === 'dark';
 
   const tabs: TabItem[] = [
     { path: '/app', icon: Home, label: 'Home' },
@@ -92,8 +85,9 @@ export const BottomTabBar: React.FC = () => {
           <div 
             className="absolute inset-0 pointer-events-none"
             style={{
-              // Use dark background for home, theme-aware for others
-              backgroundColor: isDark ? 'hsl(222, 30%, 12%)' : 'hsl(210, 40%, 98%)',
+              // Solid background fallback (always visible)
+              backgroundColor: 'var(--card)',
+              // Then apply backdrop-blur where supported
               zIndex: 0,
             }}
           />
@@ -102,9 +96,9 @@ export const BottomTabBar: React.FC = () => {
             className="absolute inset-0 backdrop-blur-xl pointer-events-none"
             style={{
               // Semi-transparent overlay
-              backgroundColor: isDark ? 'rgba(20, 25, 35, 0.85)' : 'rgba(255, 255, 255, 0.85)',
+              backgroundColor: 'rgba(var(--card-rgb, 255,255,255), 0.85)',
               // Subtle top highlight for depth
-              borderTop: isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(0,0,0,0.05)',
+              borderTop: '1px solid rgba(255,255,255,0.1)',
               zIndex: 1,
             }}
           />
@@ -113,7 +107,7 @@ export const BottomTabBar: React.FC = () => {
           <div 
             className="absolute inset-0 rounded-3xl pointer-events-none"
             style={{
-              border: isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(0,0,0,0.06)',
+              border: '1px solid rgba(255,255,255,0.08)',
               borderRadius: '24px',
               zIndex: 2,
             }}
@@ -190,9 +184,7 @@ export const BottomTabBar: React.FC = () => {
                       width: active ? '22px' : '20px',
                       height: active ? '22px' : '20px',
                       strokeWidth: active ? 2.4 : 1.8,
-                      color: active 
-                        ? 'hsl(var(--primary))' 
-                        : isDark ? 'rgba(255,255,255,0.6)' : 'hsl(var(--muted-foreground))',
+                      color: active ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))',
                       transition: 'all 0.15s ease'
                     }}
                   />
@@ -205,9 +197,7 @@ export const BottomTabBar: React.FC = () => {
                       fontSize: '10px',
                       lineHeight: '1.2',
                       fontWeight: active ? 600 : 500,
-                      color: active 
-                        ? 'hsl(var(--primary))' 
-                        : isDark ? 'rgba(255,255,255,0.6)' : 'hsl(var(--muted-foreground))',
+                      color: active ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))',
                       opacity: active ? 1 : 0.8,
                       transition: 'all 0.15s ease'
                     }}
