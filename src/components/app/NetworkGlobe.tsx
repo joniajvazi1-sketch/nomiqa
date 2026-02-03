@@ -849,9 +849,9 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
   const [selectedMarker, setSelectedMarker] = useState<DataPointMarker | null>(null);
   const [hasError, setHasError] = useState(false);
   
-  // Personal view starts very zoomed in (close to surface), global starts zoomed out
+  // Personal view starts zoomed in (close to surface), global starts zoomed OUT to see whole earth
   // Camera z: lower = closer/more zoomed in, higher = farther/zoomed out
-  const initialCameraZ = isPersonalView ? 1.7 : 3.2;
+  const initialCameraZ = isPersonalView ? 2.5 : 5;
   
   // Calculate real stats from data
   const realStats = useMemo(() => {
