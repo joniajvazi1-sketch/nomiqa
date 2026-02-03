@@ -261,34 +261,24 @@ serve(async (req) => {
 
     // ==========================================================
     // SAFEGUARD 3: Split referral bonus (immediate + activity-gated)
+    // Referral points BYPASS daily/monthly caps (only lifetime enforced)
     // ==========================================================
     
     // Award IMMEDIATE bonus to the REFERRER (only 20 pts now)
+    // Uses add_referral_points RPC to bypass daily/monthly caps
     if (affiliate.user_id) {
-      const { data: referrerPoints } = await supabase
-        .from('user_points')
-        .select('total_points')
-        .eq('user_id', affiliate.user_id)
-        .maybeSingle();
-
-      if (referrerPoints) {
-        await supabase
-          .from('user_points')
-          .update({
-            total_points: (referrerPoints.total_points || 0) + IMMEDIATE_SIGNUP_BONUS,
-            updated_at: new Date().toISOString()
-          })
-          .eq('user_id', affiliate.user_id);
+      const { data: referrerResult, error: referrerError } = await supabase
+        .rpc('add_referral_points', {
+          p_user_id: affiliate.user_id,
+          p_points: IMMEDIATE_SIGNUP_BONUS,
+          p_source: 'referral_immediate'
+        });
+      
+      if (referrerError) {
+        console.error('Error awarding referrer points:', referrerError);
       } else {
-        await supabase
-          .from('user_points')
-          .insert({
-            user_id: affiliate.user_id,
-            total_points: IMMEDIATE_SIGNUP_BONUS,
-            pending_points: 0
-          });
+        console.log(`Awarded ${IMMEDIATE_SIGNUP_BONUS} immediate points to referrer ${affiliate.user_id} (bypassed caps)`, referrerResult);
       }
-      console.log(`Awarded ${IMMEDIATE_SIGNUP_BONUS} immediate points to referrer ${affiliate.user_id}`);
       
       // Create PENDING bonus record for the remaining 30 pts (requires first contribution)
       // Use upsert with ignoreDuplicates
@@ -311,30 +301,19 @@ serve(async (req) => {
     }
 
     // Award FULL bonus to the NEW USER (invitee still gets 50 pts immediately as welcome)
-    const { data: newUserPoints } = await supabase
-      .from('user_points')
-      .select('total_points')
-      .eq('user_id', userId)
-      .maybeSingle();
-
-    if (newUserPoints) {
-      await supabase
-        .from('user_points')
-        .update({
-          total_points: (newUserPoints.total_points || 0) + REFERRAL_BONUS_POINTS,
-          updated_at: new Date().toISOString()
-        })
-        .eq('user_id', userId);
+    // Uses add_referral_points RPC to bypass daily/monthly caps
+    const { data: inviteeResult, error: inviteeError } = await supabase
+      .rpc('add_referral_points', {
+        p_user_id: userId,
+        p_points: REFERRAL_BONUS_POINTS,
+        p_source: 'referral_welcome'
+      });
+    
+    if (inviteeError) {
+      console.error('Error awarding invitee points:', inviteeError);
     } else {
-      await supabase
-        .from('user_points')
-        .insert({
-          user_id: userId,
-          total_points: REFERRAL_BONUS_POINTS,
-          pending_points: 0
-        });
+      console.log(`Awarded ${REFERRAL_BONUS_POINTS} points to new user ${userId} (bypassed caps)`, inviteeResult);
     }
-    console.log(`Awarded ${REFERRAL_BONUS_POINTS} points to new user ${userId}`);
 
     console.log(`Registration tracked successfully for affiliate ${affiliate.affiliate_code}, count: ${newTotalRegistrations}, boost: ${newBoost}%`);
     
@@ -372,6 +351,7 @@ serve(async (req) => {
           referrerImmediate: IMMEDIATE_SIGNUP_BONUS,
           referrerPending: ACTIVITY_GATED_BONUS
         },
+        bypassedCaps: true, // Referral points bypass daily/monthly caps
         newMiningBoost: newBoost,
         referralCount: newTotalRegistrations,
         maxReferrals: maxReferrals
