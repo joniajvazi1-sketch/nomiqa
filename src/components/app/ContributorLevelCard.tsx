@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronRight, Info, Star, Users } from 'lucide-react';
+import { ChevronRight, Info, Star, Users, Flame, MapPin, Zap } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -25,7 +25,9 @@ export const ContributorLevelCard: React.FC<ContributorLevelCardProps> = ({
 }) => {
   const [currentLevel, setCurrentLevel] = useState<ContributorLevel>(CONTRIBUTOR_LEVELS[0]);
   const [teamMembers, setTeamMembers] = useState(0);
-  const [activeMembers, setActiveMembers] = useState(0);
+  const [miningBoost, setMiningBoost] = useState(0);
+  const [totalKm, setTotalKm] = useState(0);
+  const [streakDays, setStreakDays] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -37,19 +39,28 @@ export const ContributorLevelCard: React.FC<ContributorLevelCardProps> = ({
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Get affiliate data for team members count
+      // Get affiliate data for team members count and mining boost
       const { data: affiliateData } = await supabase
         .from('affiliates')
-        .select('total_registrations')
+        .select('total_registrations, miner_boost_percentage')
         .eq('user_id', user.id)
         .maybeSingle();
 
       const members = affiliateData?.total_registrations || 0;
       setTeamMembers(members);
+      setMiningBoost(affiliateData?.miner_boost_percentage || 0);
       
-      // Estimate active members (those who contributed recently)
-      // For now, estimate as ~30% of total
-      setActiveMembers(Math.floor(members * 0.3));
+      // Get distance and streak from user_points
+      const { data: pointsData } = await supabase
+        .from('user_points')
+        .select('total_distance_meters, contribution_streak_days')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      
+      if (pointsData) {
+        setTotalKm((pointsData.total_distance_meters || 0) / 1000);
+        setStreakDays(pointsData.contribution_streak_days || 0);
+      }
       
       const level = getCurrentLevel(members);
       setCurrentLevel(level);
@@ -99,18 +110,18 @@ export const ContributorLevelCard: React.FC<ContributorLevelCardProps> = ({
   return (
     <Card className="bg-card border-border overflow-hidden">
       <CardContent className="p-4">
-        {/* Current Level Display */}
+        {/* Current Level Display - Website Style */}
         <div className="flex items-center gap-3 mb-4">
           <div className={cn(
-            "w-12 h-12 rounded-full flex items-center justify-center",
+            "w-14 h-14 rounded-2xl flex items-center justify-center",
             currentLevel.bgColor
           )}>
-            <LevelIcon className={cn("w-6 h-6", currentLevel.color)} />
+            <LevelIcon className={cn("w-7 h-7", currentLevel.color)} />
           </div>
           <div className="flex-1">
-            <div className="flex items-center gap-2">
-              <h3 className="text-base font-semibold text-foreground">{currentLevel.name}</h3>
-              <Badge variant="outline" className={cn("text-xs", currentLevel.color, "border-current/30")}>
+            <div className="flex items-center gap-2 mb-0.5">
+              <h3 className="text-lg font-bold text-foreground">{currentLevel.name}</h3>
+              <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
                 Tier {currentLevel.level}
               </Badge>
             </div>
@@ -118,88 +129,72 @@ export const ContributorLevelCard: React.FC<ContributorLevelCardProps> = ({
           </div>
         </div>
 
-        {/* Team Stats */}
-        <div className="grid grid-cols-2 gap-3 mb-4">
-          <div className="rounded-lg bg-muted/50 p-3 text-center">
-            <div className="flex items-center justify-center gap-1.5 mb-1">
-              <Users className="w-4 h-4 text-primary" />
-              <p className="text-lg font-bold text-foreground">{teamMembers}</p>
-            </div>
-            <p className="text-xs text-muted-foreground">Team Members</p>
+        {/* Stats Grid - 4 columns */}
+        <div className="grid grid-cols-4 gap-2 mb-4">
+          <div className="rounded-xl bg-muted/50 p-2.5 text-center">
+            <Users className="w-4 h-4 text-primary mx-auto mb-1" />
+            <p className="text-base font-bold text-foreground">{teamMembers}</p>
+            <p className="text-[10px] text-muted-foreground leading-tight">Team</p>
           </div>
-          <div className="rounded-lg bg-muted/50 p-3 text-center">
-            <div className="flex items-center justify-center gap-1.5 mb-1">
-              <div className="w-2 h-2 rounded-full bg-green-500" />
-              <p className="text-lg font-bold text-foreground">{activeMembers}</p>
-            </div>
-            <p className="text-xs text-muted-foreground">Active Contributors</p>
+          <div className="rounded-xl bg-muted/50 p-2.5 text-center">
+            <Zap className="w-4 h-4 text-amber-500 mx-auto mb-1" />
+            <p className="text-base font-bold text-foreground">{miningBoost.toFixed(1)}%</p>
+            <p className="text-[10px] text-muted-foreground leading-tight">Boost</p>
+          </div>
+          <div className="rounded-xl bg-muted/50 p-2.5 text-center">
+            <MapPin className="w-4 h-4 text-emerald-500 mx-auto mb-1" />
+            <p className="text-base font-bold text-foreground">{totalKm.toFixed(1)}</p>
+            <p className="text-[10px] text-muted-foreground leading-tight">km</p>
+          </div>
+          <div className="rounded-xl bg-muted/50 p-2.5 text-center">
+            <Flame className="w-4 h-4 text-orange-500 mx-auto mb-1" />
+            <p className="text-base font-bold text-foreground">{streakDays}</p>
+            <p className="text-[10px] text-muted-foreground leading-tight">Streak</p>
           </div>
         </div>
 
         {/* Progress to Next Level */}
         {nextLevel ? (
-          <div className="space-y-2">
+          <div className="space-y-2 mb-4">
             <div className="flex items-center justify-between text-xs">
               <span className="text-muted-foreground">Progress to {nextLevel.name}</span>
-              <span className="font-medium text-foreground">{Math.round(progress.progress)}%</span>
+              <span className="font-semibold text-foreground">{Math.round(progress.progress)}%</span>
             </div>
             <Progress value={progress.progress} className="h-2" />
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <p className="text-[11px] text-muted-foreground flex items-center gap-1">
               <Info className="w-3 h-3" />
-              <span>
-                {progress.membersNeeded} more team members to unlock +{nextLevel.bonus} bonus points
-              </span>
-            </div>
+              {progress.membersNeeded} more members → +{nextLevel.bonus} pts
+            </p>
           </div>
         ) : (
-          <div className="rounded-lg bg-primary/10 p-3 text-center">
+          <div className="rounded-xl bg-primary/10 p-3 text-center mb-4">
             <Star className="w-5 h-5 text-primary mx-auto mb-1" />
-            <p className="text-sm font-medium text-primary">Max Tier Achieved!</p>
-            <p className="text-xs text-muted-foreground">You're an elite pioneer</p>
+            <p className="text-sm font-semibold text-primary">Max Tier!</p>
           </div>
         )}
 
-        {/* Tier Roadmap */}
-        <div className="mt-4 pt-4 border-t border-border">
-          <p className="text-xs font-medium text-muted-foreground mb-2">Tier Roadmap</p>
-          <div className="space-y-1.5">
+        {/* Tier Roadmap - Compact */}
+        <div className="pt-3 border-t border-border">
+          <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Tier Roadmap</p>
+          <div className="flex flex-wrap gap-1.5">
             {CONTRIBUTOR_LEVELS.slice(1).map((level) => {
               const LIcon = level.icon;
               const isUnlocked = currentLevel.level >= level.level;
-              const isCurrent = currentLevel.level === level.level;
               
               return (
                 <div 
                   key={level.level}
                   className={cn(
-                    "flex items-center gap-2 p-2 rounded-lg transition-colors",
-                    isCurrent && "bg-primary/10",
-                    !isUnlocked && "opacity-50"
+                    "flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-medium transition-colors",
+                    isUnlocked 
+                      ? "bg-primary/15 text-primary" 
+                      : "bg-muted/50 text-muted-foreground"
                   )}
                 >
-                  <div className={cn(
-                    "w-6 h-6 rounded-full flex items-center justify-center",
-                    isUnlocked ? level.bgColor : "bg-muted"
-                  )}>
-                    <LIcon className={cn("w-3 h-3", isUnlocked ? level.color : "text-muted-foreground")} />
-                  </div>
-                  <div className="flex-1">
-                    <p className={cn(
-                      "text-xs font-medium",
-                      isUnlocked ? "text-foreground" : "text-muted-foreground"
-                    )}>
-                      {level.name}
-                    </p>
-                  </div>
-                  <Badge 
-                    variant="outline" 
-                    className={cn(
-                      "text-[10px]",
-                      isUnlocked ? "text-green-500 border-green-500/30" : "text-muted-foreground"
-                    )}
-                  >
-                    {isUnlocked ? '✓ Unlocked' : formatLevelRequirements(level)}
-                  </Badge>
+                  <LIcon className="w-3 h-3" />
+                  <span>{level.name}</span>
+                  {!isUnlocked && <span className="opacity-60">({level.requirements.teamMembers})</span>}
+                  {isUnlocked && <span>✓</span>}
                 </div>
               );
             })}
