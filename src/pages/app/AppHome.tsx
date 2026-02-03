@@ -361,31 +361,31 @@ export const AppHome: React.FC = () => {
 
       {/* Immersive Dark Background with Globe */}
       <div
-        className="min-h-screen relative bg-[hsl(222,30%,8%)]"
+         className="min-h-screen relative bg-gradient-to-b from-background via-background to-background"
         {...handlers}
       >
         {/* Globe Background - Fixed, positioned in upper-middle area */}
-        <div 
-          className="fixed left-0 right-0 z-0 flex items-center justify-center"
+        <div
+          className="fixed left-0 right-0 z-0 flex items-center justify-center pointer-events-none"
           style={{ top: '18%', height: '55%' }}
         >
           <div className="w-full h-full opacity-80">
             <Suspense fallback={null}>
-              <NetworkGlobe 
+              <NetworkGlobe
                 coverageData={globalCoverageData?.cells || []}
                 loading={globalCoverageLoading}
                 totalDataPoints={globalCoverageData?.totalDataPoints || 0}
                 uniqueLocations={globalCoverageData?.uniqueLocations || 0}
                 isPersonalView={false}
                 userPosition={userPosition}
-                hideOverlay={true}
+                overlayPlacement="bottom"
               />
             </Suspense>
           </div>
         </div>
 
         {/* Dark overlay for better text readability */}
-        <div className="fixed inset-0 z-[1] bg-gradient-to-b from-[hsl(222,30%,8%)/0.5] via-transparent to-[hsl(222,30%,8%)/0.85]" />
+        <div className="fixed inset-0 z-[1] bg-gradient-to-b from-background/35 via-transparent to-background/90" />
 
         <PullToRefreshIndicator 
           pullDistance={pullDistance}
@@ -523,35 +523,6 @@ export const AppHome: React.FC = () => {
               )}
             </motion.button>
           </div>
-
-          {/* Coverage Stats - Below buttons */}
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="px-4 mt-3"
-          >
-            <div className="flex justify-between gap-2">
-              <div className="flex-1 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl px-3 py-2 text-center">
-                <div className="text-white text-base font-bold tabular-nums">
-                  {(globalCoverageData?.totalDataPoints || 0).toLocaleString()}
-                </div>
-                <div className="text-white/50 text-[10px] font-medium">Samples</div>
-              </div>
-              <div className="flex-1 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl px-3 py-2 text-center">
-                <div className="text-white text-base font-bold tabular-nums">
-                  {(globalCoverageData?.uniqueLocations || 0).toLocaleString()}
-                </div>
-                <div className="text-white/50 text-[10px] font-medium">Cities</div>
-              </div>
-              <div className="flex-1 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl px-3 py-2 text-center">
-                <div className="text-white text-base font-bold tabular-nums">
-                  {globalCoverageData?.cells ? new Set(globalCoverageData.cells.map(c => `${Math.floor(c.lat / 10)}-${Math.floor(c.lng / 10)}`)).size : 0}
-                </div>
-                <div className="text-white/50 text-[10px] font-medium">Regions</div>
-              </div>
-            </div>
-          </motion.div>
 
           {/* Session Stats (when active) */}
           {isActive && (
