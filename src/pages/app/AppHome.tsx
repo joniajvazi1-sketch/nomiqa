@@ -384,7 +384,7 @@ export const AppHome: React.FC = () => {
           isRefreshing={isRefreshing}
         />
 
-        {/* Content Layer - Pushed down to show globe */}
+        {/* Content Layer */}
         <div className="relative z-10 pb-28" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 8px)' }}>
           
           {/* Live Badge - Top Left */}
@@ -395,11 +395,8 @@ export const AppHome: React.FC = () => {
             </div>
           </div>
 
-          {/* Globe Viewing Area */}
-          <div className="h-[42vh] min-h-[280px] max-h-[380px]" />
-
-          {/* Warm Welcome Header - Transparent Glassmorphism */}
-          <header className="px-4 mb-5">
+          {/* TOP SECTION: Greeting + Earnings + Buttons */}
+          <header className="px-4 pt-10 mb-4">
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
@@ -456,8 +453,8 @@ export const AppHome: React.FC = () => {
             </motion.div>
           </header>
 
-          {/* Floating Action Buttons - Centered */}
-          <div className="flex justify-center gap-6 mb-6 px-5">
+          {/* Floating Action Buttons - Start/Speed */}
+          <div className="flex justify-center gap-6 mb-4 px-5">
             {/* Start/Stop Contribution Button */}
             <motion.button
               initial={{ opacity: 0, scale: 0.9 }}
@@ -544,7 +541,7 @@ export const AppHome: React.FC = () => {
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="flex justify-center mb-5"
+              className="flex justify-center mb-4"
             >
               <div className="flex items-center gap-4 px-5 py-3 rounded-full bg-black/40 backdrop-blur-xl border border-white/20 shadow-xl">
                 <div className="flex items-center gap-1.5">
@@ -560,7 +557,10 @@ export const AppHome: React.FC = () => {
             </motion.div>
           )}
 
-          {/* Floating Cards Container */}
+          {/* GLOBE VIEWING AREA - Space for globe to be visible */}
+          <div className="h-[30vh] min-h-[180px] max-h-[260px]" />
+
+          {/* BOTTOM SECTION: Grow Together, Leaderboard, Challenges, How You Earn */}
           <div className="px-4 space-y-4">
 
             {/* Referral Section - Transparent Glassmorphism */}
