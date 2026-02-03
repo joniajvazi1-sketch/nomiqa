@@ -748,7 +748,9 @@ export const AppAuth: React.FC = () => {
       if (Capacitor.isNativePlatform()) {
         console.log('[AppAuth] Native platform - initiating OAuth via Supabase...');
 
-        const SITE_ORIGIN = 'https://nomiqa.lovable.app';
+        // Use the primary production domain for OAuth redirects.
+        // This must match the domain configured for Google OAuth redirect URIs.
+        const SITE_ORIGIN = 'https://nomiqa-depin.com';
         const redirectUrl = `${SITE_ORIGIN}/app/oauth-redirect`;
         
         // Use Supabase auth directly (bypassing Lovable broker for native)
