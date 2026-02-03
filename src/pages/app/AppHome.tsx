@@ -367,8 +367,8 @@ export const AppHome: React.FC = () => {
         }}
         {...handlers}
       >
-        {/* Full-Screen Globe Background */}
-        <div className="fixed inset-0 z-0">
+        {/* Full-Screen Globe Background - Dimmed for readability */}
+        <div className="fixed inset-0 z-0 opacity-40">
           <Suspense fallback={null}>
             <NetworkGlobe 
               coverageData={globalCoverageData?.cells || []}
@@ -379,9 +379,10 @@ export const AppHome: React.FC = () => {
               userPosition={userPosition}
             />
           </Suspense>
-          {/* Gradient overlay for readability */}
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[hsl(222_30%_7%/0.95)]" />
         </div>
+        
+        {/* Dark overlay gradient for content readability */}
+        <div className="fixed inset-0 z-[1] pointer-events-none bg-gradient-to-b from-[hsl(222_30%_7%/0.6)] via-[hsl(222_30%_7%/0.4)] to-[hsl(222_30%_7%/0.9)]" />
 
         <PullToRefreshIndicator 
           pullDistance={pullDistance}
@@ -394,18 +395,18 @@ export const AppHome: React.FC = () => {
           
           {/* Live Badge - Top Left */}
           <div className="absolute top-3 left-4 z-30" style={{ marginTop: 'env(safe-area-inset-top, 0px)' }}>
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 backdrop-blur-md">
-              <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
-              <span className="text-[10px] font-semibold text-emerald-400 uppercase tracking-wider">Live</span>
+            <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-[hsl(222_30%_12%/0.9)] border border-emerald-500/50 backdrop-blur-xl shadow-lg">
+              <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
+              <span className="text-[11px] font-semibold text-emerald-400 uppercase tracking-wider">Live</span>
             </div>
           </div>
 
-          {/* Warm Welcome Header - Glassmorphism */}
-          <header className="px-5 pt-12 mb-6">
+          {/* Warm Welcome Header - Strong Glassmorphism */}
+          <header className="px-4 pt-12 mb-5">
             <motion.div 
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              className="rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 p-5"
+              className="rounded-3xl bg-[hsl(222_30%_12%/0.85)] backdrop-blur-2xl border border-white/15 p-5 shadow-2xl shadow-black/40"
             >
               <div className="flex items-center justify-between mb-4">
                 <div>
@@ -415,24 +416,24 @@ export const AppHome: React.FC = () => {
                 <div className="flex items-center gap-2">
                   <button 
                     onClick={() => { lightTap(); setTheme(isDark ? 'light' : 'dark'); }}
-                    className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20"
+                    className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20 active:scale-95 transition-transform"
                   >
                     {isDark ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5 text-white/80" />}
                   </button>
                   <button 
                     onClick={() => { lightTap(); navigate('/app/profile'); }}
-                    className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20"
+                    className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20 active:scale-95 transition-transform"
                   >
                     <Settings className="w-5 h-5 text-white/70" />
                   </button>
                 </div>
               </div>
 
-              {/* Points Display */}
-              <div className="rounded-2xl bg-gradient-to-br from-amber-500/15 via-orange-500/10 to-transparent border border-amber-500/30 p-4">
+              {/* Points Display - Warm Gradient */}
+              <div className="rounded-2xl bg-gradient-to-br from-amber-500/20 via-orange-500/15 to-rose-500/10 border border-amber-500/40 p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-xs text-amber-400/80 font-medium mb-1">Your Earnings</p>
+                    <p className="text-xs text-amber-300 font-medium mb-1">Your Earnings</p>
                     <div className="flex items-baseline gap-2">
                       <span className="text-3xl font-bold text-white tabular-nums">
                         {totalPoints.toLocaleString()}
@@ -445,11 +446,11 @@ export const AppHome: React.FC = () => {
                   </div>
                   <div className="flex gap-5">
                     <div className="text-center">
-                      <p className="text-[10px] text-white/50 uppercase tracking-wider mb-0.5">Today</p>
+                      <p className="text-[10px] text-white/60 uppercase tracking-wider mb-0.5">Today</p>
                       <p className="text-lg font-bold text-emerald-400">+{todayEarnings}</p>
                     </div>
                     <div className="text-center">
-                      <p className="text-[10px] text-white/50 uppercase tracking-wider mb-0.5">Team</p>
+                      <p className="text-[10px] text-white/60 uppercase tracking-wider mb-0.5">Team</p>
                       <p className="text-lg font-bold text-white">{referralCount}</p>
                     </div>
                   </div>
@@ -546,50 +547,50 @@ export const AppHome: React.FC = () => {
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="flex justify-center mb-6"
+              className="flex justify-center mb-5"
             >
-              <div className="flex items-center gap-4 px-5 py-2.5 rounded-full bg-white/5 backdrop-blur-xl border border-white/10">
+              <div className="flex items-center gap-4 px-5 py-3 rounded-full bg-[hsl(222_30%_12%/0.9)] backdrop-blur-2xl border border-white/15 shadow-xl">
                 <div className="flex items-center gap-1.5">
-                  <Clock className="w-4 h-4 text-white/60" />
+                  <Clock className="w-4 h-4 text-white/70" />
                   <span className="text-sm font-medium text-white tabular-nums">{formatDuration(stats.duration)}</span>
                 </div>
                 <div className="w-px h-5 bg-white/20" />
                 <div className="flex items-center gap-1.5">
-                  <Zap className="w-4 h-4 text-[#f0b429]" />
-                  <span className="text-sm font-bold text-[#f0b429] tabular-nums">+{stats.pointsEarned.toFixed(1)}</span>
+                  <Zap className="w-4 h-4 text-amber-400" />
+                  <span className="text-sm font-bold text-amber-400 tabular-nums">+{stats.pointsEarned.toFixed(1)}</span>
                 </div>
               </div>
             </motion.div>
           )}
 
           {/* Floating Cards Container */}
-          <div className="px-5 space-y-4">
+          <div className="px-4 space-y-4">
 
-            {/* Referral Section - Glassmorphism */}
+            {/* Referral Section - Strong Glassmorphism */}
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 p-5"
+              className="rounded-3xl bg-[hsl(222_30%_12%/0.85)] backdrop-blur-2xl border border-white/15 p-5 shadow-2xl shadow-black/40"
             >
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-500/25 to-orange-500/20 flex items-center justify-center border border-amber-500/40">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-500/30 to-orange-500/25 flex items-center justify-center border border-amber-500/50 shadow-lg shadow-amber-500/20">
                   <Gift className="w-6 h-6 text-amber-400" />
                 </div>
                 <div className="flex-1">
                   <h3 className="text-base font-semibold text-white">Grow Together 🌱</h3>
-                  <p className="text-sm text-white/60">Invite friends & earn 5% of their points</p>
+                  <p className="text-sm text-white/70">Invite friends & earn 5% of their points</p>
                 </div>
               </div>
 
               {/* Referral Link Display */}
-              <div className="bg-white/5 rounded-xl p-3 flex items-center gap-2 mb-4 border border-white/10">
-                <span className="flex-1 text-sm text-white/60 truncate font-mono">
+              <div className="bg-white/8 rounded-xl p-3 flex items-center gap-2 mb-4 border border-white/15">
+                <span className="flex-1 text-sm text-white/70 truncate font-mono">
                   nomiqa.com/{username || 'invite'}
                 </span>
                 <button
                   onClick={() => { lightTap(); handleCopyLink(); }}
-                  className="p-2 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 transition-colors border border-amber-500/30"
+                  className="p-2.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 transition-colors border border-amber-500/40 active:scale-95"
                 >
                   <Copy className="w-4 h-4 text-amber-400" />
                 </button>
@@ -597,20 +598,20 @@ export const AppHome: React.FC = () => {
 
               <button
                 onClick={() => { mediumTap(); handleShareReferral(); }}
-                className="w-full h-12 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold flex items-center justify-center gap-2 active:scale-[0.98] transition-transform shadow-lg shadow-amber-500/25"
+                className="w-full h-12 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold flex items-center justify-center gap-2 active:scale-[0.98] transition-transform shadow-lg shadow-amber-500/30"
               >
                 <Share2 className="w-4 h-4" />
                 Share Your Link
               </button>
 
               {referralCount > 0 && (
-                <p className="text-center text-xs text-amber-400/80 mt-3">
+                <p className="text-center text-xs text-amber-400 mt-3">
                   🎊 {referralCount} friend{referralCount !== 1 ? 's' : ''} earning with you!
                 </p>
               )}
             </motion.div>
 
-            {/* Leaderboard Card - Glassmorphism */}
+            {/* Leaderboard Card - Strong Glassmorphism */}
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
@@ -618,57 +619,57 @@ export const AppHome: React.FC = () => {
             >
               <button
                 onClick={() => { lightTap(); navigate('/app/leaderboard'); }}
-                className="w-full rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 p-4 flex items-center gap-4 active:scale-[0.98] transition-transform"
+                className="w-full rounded-2xl bg-[hsl(222_30%_12%/0.85)] backdrop-blur-2xl border border-white/15 p-4 flex items-center gap-4 active:scale-[0.98] transition-transform shadow-2xl shadow-black/40"
               >
-                <div className="w-12 h-12 rounded-2xl bg-violet-500/20 flex items-center justify-center border border-violet-500/40">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-500/30 to-purple-500/25 flex items-center justify-center border border-violet-500/50 shadow-lg shadow-violet-500/20">
                   <TrendingUp className="w-6 h-6 text-violet-400" />
                 </div>
                 <div className="flex-1 text-left">
                   <p className="text-sm font-semibold text-white">Leaderboard</p>
                   <p className="text-xs text-white/60">See top earners this week</p>
                 </div>
-                <ChevronRight className="w-5 h-5 text-white/40" />
+                <ChevronRight className="w-5 h-5 text-white/50" />
               </button>
             </motion.div>
 
-            {/* How It Works - Glassmorphism */}
+            {/* How It Works - Strong Glassmorphism */}
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 p-5"
+              className="rounded-3xl bg-[hsl(222_30%_12%/0.85)] backdrop-blur-2xl border border-white/15 p-5 shadow-2xl shadow-black/40"
             >
               <h3 className="text-base font-semibold text-white mb-1">How You Earn ✨</h3>
-              <p className="text-xs text-white/50 mb-4">It's simple, passive, and rewarding</p>
+              <p className="text-xs text-white/60 mb-4">It's simple, passive, and rewarding</p>
               
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-xl bg-sky-500/20 flex items-center justify-center flex-shrink-0 border border-sky-500/30">
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-sky-500/30 to-cyan-500/20 flex items-center justify-center flex-shrink-0 border border-sky-500/40 shadow-lg shadow-sky-500/15">
                     <span className="text-sm font-bold text-sky-400">1</span>
                   </div>
                   <div className="flex-1 pt-0.5">
                     <p className="text-sm font-medium text-white">App runs quietly in background</p>
-                    <p className="text-xs text-white/50 mt-0.5">Uses less than 3% battery daily — you won't even notice</p>
+                    <p className="text-xs text-white/60 mt-0.5">Uses less than 3% battery daily — you won't even notice</p>
                   </div>
                 </div>
                 
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-xl bg-blue-500/20 flex items-center justify-center flex-shrink-0 border border-blue-500/30">
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500/30 to-indigo-500/20 flex items-center justify-center flex-shrink-0 border border-blue-500/40 shadow-lg shadow-blue-500/15">
                     <span className="text-sm font-bold text-blue-400">2</span>
                   </div>
                   <div className="flex-1 pt-0.5">
                     <p className="text-sm font-medium text-white">Share anonymous network data</p>
-                    <p className="text-xs text-white/50 mt-0.5">Help improve coverage for everyone, completely private</p>
+                    <p className="text-xs text-white/60 mt-0.5">Help improve coverage for everyone, completely private</p>
                   </div>
                 </div>
                 
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-xl bg-indigo-500/20 flex items-center justify-center flex-shrink-0 border border-indigo-500/30">
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500/30 to-violet-500/20 flex items-center justify-center flex-shrink-0 border border-indigo-500/40 shadow-lg shadow-indigo-500/15">
                     <span className="text-sm font-bold text-indigo-400">3</span>
                   </div>
                   <div className="flex-1 pt-0.5">
                     <p className="text-sm font-medium text-white">Watch your points grow</p>
-                    <p className="text-xs text-white/50 mt-0.5">Redeem for real rewards whenever you're ready</p>
+                    <p className="text-xs text-white/60 mt-0.5">Redeem for real rewards whenever you're ready</p>
                   </div>
                 </div>
               </div>
@@ -681,10 +682,10 @@ export const AppHome: React.FC = () => {
               transition={{ delay: 0.35 }}
               className="text-center py-6"
             >
-              <p className="text-sm text-white/60">
+              <p className="text-sm text-white/70">
                 You're part of something big 🌍
               </p>
-              <p className="text-xs text-white/40 mt-1">
+              <p className="text-xs text-white/50 mt-1">
                 Every contribution helps build a better network
               </p>
             </motion.div>
