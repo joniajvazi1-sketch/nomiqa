@@ -216,7 +216,7 @@ export const AppHome: React.FC = () => {
             </div>
           </header>
 
-          {/* Status Indicator */}
+          {/* Status Indicator - only show green if actually contributing */}
           <motion.div
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
@@ -224,12 +224,12 @@ export const AppHome: React.FC = () => {
           >
             <div className={cn(
               "w-2.5 h-2.5 rounded-full",
-              isOnline ? "bg-green-500" : "bg-muted-foreground"
+              isContributionEnabled ? "bg-green-500" : "bg-muted-foreground"
             )} />
             <span className="text-sm text-muted-foreground">
-              {isOnline ? 'Earning in background' : 'Offline'}
+              {isContributionEnabled ? 'Contributing in background' : isOnline ? 'Online' : 'Offline'}
             </span>
-            {isOnline && <CheckCircle2 className="w-4 h-4 text-green-500" />}
+            {isContributionEnabled && <CheckCircle2 className="w-4 h-4 text-green-500" />}
           </motion.div>
 
           {/* Contribution Status Card */}
@@ -330,7 +330,7 @@ export const AppHome: React.FC = () => {
               </div>
               <div className="flex-1">
                 <h3 className="text-base font-semibold text-foreground">Invite & Earn Together</h3>
-                <p className="text-sm text-muted-foreground">Earn 10% of your team's earnings</p>
+                <p className="text-sm text-muted-foreground">Earn 5% of your team's earnings</p>
               </div>
             </div>
 

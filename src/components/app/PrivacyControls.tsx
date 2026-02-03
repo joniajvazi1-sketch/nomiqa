@@ -220,21 +220,29 @@ export const PrivacyControls: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Privacy Policy Link */}
-      <Button 
-        variant="outline" 
-        className="w-full justify-between"
-        onClick={() => {
-          lightTap();
-          window.open('/privacy', '_blank');
-        }}
-      >
-        <span className="flex items-center gap-2">
-          <Eye className="w-4 h-4" />
-          View Privacy Policy
-        </span>
-        <ExternalLink className="w-4 h-4" />
-      </Button>
+      {/* Privacy Policy Link - styled like other cards */}
+      <Card className="bg-card border-border">
+        <CardContent className="p-0">
+          <button 
+            className="w-full flex items-center justify-between p-4 text-left hover:bg-muted/30 transition-colors rounded-xl"
+            onClick={() => {
+              lightTap();
+              window.open('/privacy', '_blank');
+            }}
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-muted/50 flex items-center justify-center">
+                <Eye className="w-5 h-5 text-muted-foreground" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-foreground">Privacy Policy</p>
+                <p className="text-xs text-muted-foreground">View our data practices</p>
+              </div>
+            </div>
+            <ExternalLink className="w-4 h-4 text-muted-foreground" />
+          </button>
+        </CardContent>
+      </Card>
 
       {/* Delete Data Section - De-emphasized, moved to bottom */}
       <Card className="bg-muted/30 border-border/50">

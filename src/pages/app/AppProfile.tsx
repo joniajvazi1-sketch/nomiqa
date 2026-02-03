@@ -13,10 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Switch } from '@/components/ui/switch';
-import { Volume2, VolumeX } from 'lucide-react';
 import { useEnhancedHaptics } from '@/hooks/useEnhancedHaptics';
-import { useEnhancedSounds } from '@/hooks/useEnhancedSounds';
 import { AppSpinner } from '@/components/app/AppSpinner';
 import { useNativeShare } from '@/hooks/useNativeShare';
 import { supabase } from '@/integrations/supabase/client';
@@ -87,7 +84,6 @@ export const AppProfile: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { buttonTap, successPattern, selectionTap } = useEnhancedHaptics();
-  const { soundEnabled, toggleSound, playSuccess } = useEnhancedSounds();
   const { share, copyToClipboard } = useNativeShare();
   const { toast } = useToast();
   const { theme, setTheme, resolvedTheme } = useTheme();
@@ -211,7 +207,6 @@ export const AppProfile: React.FC = () => {
     const copied = await copyToClipboard(link);
     if (copied) {
       successPattern();
-      playSuccess();
       toast({ title: 'Link copied!' });
     }
   };
@@ -253,7 +248,6 @@ export const AppProfile: React.FC = () => {
       setProfile(prev => prev ? { ...prev, username: editedUsername.trim() } : null);
       setIsEditingUsername(false);
       successPattern();
-      playSuccess();
       toast({ title: 'Username updated!' });
     } catch (error) {
       toast({ title: 'Failed to update username', variant: 'destructive' });
@@ -284,7 +278,6 @@ export const AppProfile: React.FC = () => {
       setProfile(prev => prev ? { ...prev, solana_wallet: trimmedWallet || null } : null);
       setIsEditingWallet(false);
       successPattern();
-      playSuccess();
       toast({ title: trimmedWallet ? 'Wallet saved!' : 'Wallet removed!' });
     } catch (error) {
       toast({ title: 'Failed to save wallet', variant: 'destructive' });
@@ -422,9 +415,9 @@ export const AppProfile: React.FC = () => {
         </div>
         <div className="rounded-xl bg-card/80 backdrop-blur-sm border border-border p-3 text-center relative overflow-hidden shadow-[var(--shadow-card)]">
           <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-transparent pointer-events-none" />
-          <Wallet className="w-4 h-4 text-amber-500 mx-auto mb-1 relative z-10" />
-          <p className="text-lg font-bold text-foreground relative z-10">${totalCashbackEarned.toFixed(2)}</p>
-          <p className="text-xs text-muted-foreground relative z-10">Earned</p>
+          <Users className="w-4 h-4 text-amber-500 mx-auto mb-1 relative z-10" />
+          <p className="text-lg font-bold text-foreground relative z-10">{affiliate?.total_registrations || 0}</p>
+          <p className="text-xs text-muted-foreground relative z-10">Team</p>
         </div>
       </div>
 
@@ -475,11 +468,11 @@ export const AppProfile: React.FC = () => {
                 <div className="grid grid-cols-2 gap-2 text-center text-xs">
                   <div className="rounded-lg bg-muted/50 p-2.5">
                     <p className="font-bold text-foreground text-lg">{affiliate.total_registrations}</p>
-                    <p className="text-muted-foreground">Friends joined</p>
+                    <p className="text-muted-foreground">Team Members</p>
                   </div>
                   <div className="rounded-lg bg-muted/50 p-2.5">
-                    <p className="font-bold text-green-600 text-lg">${(affiliate.total_earnings_usd || 0).toFixed(2)}</p>
-                    <p className="text-muted-foreground">Earned</p>
+                    <p className="font-bold text-primary text-lg">{Math.round((affiliate.total_earnings_usd || 0) * 100)}</p>
+                    <p className="text-muted-foreground">Team Points</p>
                   </div>
                 </div>
                 <div className="mt-3 pt-3 border-t border-border">
@@ -510,19 +503,6 @@ export const AppProfile: React.FC = () => {
                     <div className="text-left">
                       <p className="text-sm font-medium text-foreground">Challenges</p>
                       <p className="text-xs text-muted-foreground">Complete tasks, earn rewards</p>
-                    </div>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                </button>
-                <button
-                  onClick={() => { selectionTap(); navigate('/app/achievements'); }}
-                  className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 active:scale-[0.99] transition-all -mx-1"
-                >
-                  <div className="flex items-center gap-3">
-                    <Trophy className="w-5 h-5 text-amber-500" />
-                    <div className="text-left">
-                      <p className="text-sm font-medium text-foreground">Achievements</p>
-                      <p className="text-xs text-muted-foreground">Unlock badges as you progress</p>
                     </div>
                   </div>
                   <ChevronRight className="w-4 h-4 text-muted-foreground" />
@@ -577,7 +557,6 @@ export const AppProfile: React.FC = () => {
                 <div className="flex items-center gap-2">
                   <TierIcon className={cn("w-4 h-4", tierConfig.color)} />
                   <p className="text-base font-medium text-foreground">{tierConfig.name}</p>
-                  <span className="text-xs text-muted-foreground">({membership?.cashback_rate}% cashback)</span>
                 </div>
               </div>
             </CardContent>
@@ -637,22 +616,6 @@ export const AppProfile: React.FC = () => {
 
           {/* Notification Settings */}
           <NotificationSettings />
-
-          {/* Sound Toggle */}
-          <Card className="bg-card/80 backdrop-blur-sm border-border shadow-[var(--shadow-card)]">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  {soundEnabled ? <Volume2 className="w-5 h-5 text-primary" /> : <VolumeX className="w-5 h-5 text-muted-foreground" />}
-                  <div>
-                    <p className="text-sm font-medium text-foreground">Sound Effects</p>
-                    <p className="text-xs text-muted-foreground">Play sounds for rewards</p>
-                  </div>
-                </div>
-                <Switch checked={soundEnabled} onCheckedChange={() => { selectionTap(); toggleSound(); }} />
-              </div>
-            </CardContent>
-          </Card>
 
           {/* Wallet - Optional */}
           <Card className="bg-card/80 backdrop-blur-sm border-border shadow-[var(--shadow-card)]">
