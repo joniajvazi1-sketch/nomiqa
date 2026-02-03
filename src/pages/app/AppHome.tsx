@@ -364,8 +364,11 @@ export const AppHome: React.FC = () => {
         className="min-h-screen relative bg-[hsl(222,30%,8%)]"
         {...handlers}
       >
-        {/* Globe Background - Full screen */}
-        <div className="fixed inset-0 z-0 flex items-center justify-center">
+        {/* Globe Background - Fixed, positioned in upper-middle area */}
+        <div 
+          className="fixed left-0 right-0 z-0 flex items-center justify-center"
+          style={{ top: '20%', height: '50%' }}
+        >
           <div className="w-full h-full opacity-70">
             <Suspense fallback={null}>
               <NetworkGlobe 
@@ -381,7 +384,7 @@ export const AppHome: React.FC = () => {
         </div>
 
         {/* Dark overlay for better text readability */}
-        <div className="fixed inset-0 z-[1] bg-gradient-to-b from-[hsl(222,30%,8%)/0.6] via-transparent to-[hsl(222,30%,8%)/0.8]" />
+        <div className="fixed inset-0 z-[1] bg-gradient-to-b from-[hsl(222,30%,8%)/0.5] via-transparent to-[hsl(222,30%,8%)/0.85]" />
 
         <PullToRefreshIndicator 
           pullDistance={pullDistance}
