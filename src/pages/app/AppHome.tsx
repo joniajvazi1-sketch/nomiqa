@@ -396,7 +396,7 @@ export const AppHome: React.FC = () => {
           </div>
 
           {/* TOP SECTION: Greeting + Earnings + Buttons */}
-          <header className="px-4 pt-10 mb-4">
+          <header className="px-4 pt-14 mb-4">
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
@@ -558,7 +558,7 @@ export const AppHome: React.FC = () => {
           )}
 
           {/* GLOBE VIEWING AREA - Space for globe to be visible */}
-          <div className="h-[30vh] min-h-[180px] max-h-[260px]" />
+          <div className="h-[38vh] min-h-[240px] max-h-[320px]" />
 
           {/* BOTTOM SECTION: Grow Together, Leaderboard, Challenges, How You Earn */}
           <div className="px-4 space-y-4">
