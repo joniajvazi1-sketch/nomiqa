@@ -334,38 +334,42 @@ export const AppRewards: React.FC = () => {
             </Tabs>
           </div>
 
-          <div className="h-40">
+          <div className="h-48">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={earningsData} margin={{ left: -10, right: 5 }}>
+              <BarChart data={earningsData} margin={{ left: 0, right: 8, top: 8, bottom: 0 }}>
                 <XAxis 
                   dataKey="label" 
+                  tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))', fontWeight: 500 }}
+                  axisLine={{ stroke: 'hsl(var(--border))', strokeWidth: 1 }}
+                  tickLine={false}
+                  dy={8}
+                />
+                <YAxis 
                   tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
                   axisLine={false}
                   tickLine={false}
-                  label={{ value: timeRange === 'daily' ? 'Days' : timeRange === 'weekly' ? 'Weeks' : 'Months', position: 'insideBottom', offset: -5, fontSize: 9, fill: 'hsl(var(--muted-foreground))' }}
-                />
-                <YAxis 
-                  tick={{ fontSize: 9, fill: 'hsl(var(--muted-foreground))' }}
-                  axisLine={false}
-                  tickLine={false}
-                  width={30}
-                  tickFormatter={(value) => value >= 1000 ? `${(value/1000).toFixed(0)}k` : value}
-                  label={{ value: 'Points', angle: -90, position: 'insideLeft', fontSize: 9, fill: 'hsl(var(--muted-foreground))' }}
+                  width={35}
+                  tickFormatter={(value) => value >= 1000 ? `${(value/1000).toFixed(1)}k` : value.toString()}
+                  domain={[0, 'auto']}
                 />
                 <Tooltip
                   contentStyle={{
                     backgroundColor: 'hsl(var(--card))',
                     border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px',
-                    fontSize: '12px',
-                    color: 'hsl(var(--foreground))'
+                    borderRadius: '12px',
+                    fontSize: '13px',
+                    fontWeight: 500,
+                    color: 'hsl(var(--foreground))',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
                   }}
-                  formatter={(value: number) => [`${value} pts`, 'Contributed']}
+                  formatter={(value: number) => [`${value.toLocaleString()} pts`, 'Earned']}
+                  cursor={{ fill: 'hsl(var(--muted))', opacity: 0.3 }}
                 />
                 <Bar 
                   dataKey="points" 
                   fill="hsl(var(--primary))" 
-                  radius={[4, 4, 0, 0]}
+                  radius={[6, 6, 0, 0]}
+                  maxBarSize={40}
                 />
               </BarChart>
             </ResponsiveContainer>
@@ -522,14 +526,6 @@ export const AppRewards: React.FC = () => {
           </div>
         </div>
 
-        {/* Convert Points CTA */}
-        <button
-          onClick={handleRedeemPoints}
-          className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-semibold text-sm active:scale-[0.98] transition-transform flex items-center justify-center gap-2"
-        >
-          <ShoppingBag className="w-4 h-4" />
-          Shop with Points
-        </button>
         </div>
       </div>
     </>
