@@ -390,36 +390,10 @@ export const AppProfile: React.FC = () => {
         </div>
       </div>
 
-      {/* Contributor Level Card - PRIMARY identity indicator */}
+      {/* Contributor Level Card - PRIMARY identity indicator with all stats */}
       <ContributorLevelCard 
         onTap={() => { selectionTap(); navigate('/app/achievements'); }} 
       />
-
-      {/* Stats Summary - Glassmorphism */}
-      <div className="grid grid-cols-3 gap-2">
-        <div className="rounded-xl bg-card/80 backdrop-blur-sm border border-border p-3 text-center relative overflow-hidden shadow-[var(--shadow-card)]">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent pointer-events-none" />
-          <Activity className="w-4 h-4 text-primary mx-auto mb-1 relative z-10" />
-          <p className="text-lg font-bold text-foreground relative z-10">
-            {(userPoints?.total_points || 0) > 0 ? (userPoints?.total_points || 0).toLocaleString() : '0'}
-          </p>
-          <p className="text-xs text-muted-foreground relative z-10">
-            {(userPoints?.total_points || 0) === 0 ? 'Start earning!' : 'Points'}
-          </p>
-        </div>
-        <div className="rounded-xl bg-card/80 backdrop-blur-sm border border-border p-3 text-center relative overflow-hidden shadow-[var(--shadow-card)]">
-          <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 to-transparent pointer-events-none" />
-          <MapPin className="w-4 h-4 text-green-500 mx-auto mb-1 relative z-10" />
-          <p className="text-lg font-bold text-foreground relative z-10">{((userPoints?.total_distance_meters || 0) / 1000).toFixed(1)}</p>
-          <p className="text-xs text-muted-foreground relative z-10">km</p>
-        </div>
-        <div className="rounded-xl bg-card/80 backdrop-blur-sm border border-border p-3 text-center relative overflow-hidden shadow-[var(--shadow-card)]">
-          <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-transparent pointer-events-none" />
-          <Users className="w-4 h-4 text-amber-500 mx-auto mb-1 relative z-10" />
-          <p className="text-lg font-bold text-foreground relative z-10">{affiliate?.total_registrations || 0}</p>
-          <p className="text-xs text-muted-foreground relative z-10">Team</p>
-        </div>
-      </div>
 
 
       {/* Tabs - Glassmorphism */}
