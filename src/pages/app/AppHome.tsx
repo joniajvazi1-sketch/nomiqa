@@ -364,8 +364,8 @@ export const AppHome: React.FC = () => {
         className="min-h-screen relative"
         {...handlers}
       >
-        {/* Full-Screen Globe Background - Visible */}
-        <div className="fixed inset-0 z-0">
+        {/* Globe Background - Positioned below buttons */}
+        <div className="fixed inset-x-0 z-0" style={{ top: '45%', bottom: '15%' }}>
           <Suspense fallback={null}>
             <NetworkGlobe 
               coverageData={globalCoverageData?.cells || []}
@@ -396,7 +396,7 @@ export const AppHome: React.FC = () => {
           </div>
 
           {/* TOP SECTION: Greeting + Earnings + Buttons */}
-          <header className="px-4 pt-14 mb-4">
+          <header className="px-4 pt-16 mb-4">
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
