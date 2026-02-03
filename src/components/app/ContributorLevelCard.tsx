@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronRight, Info, Star } from 'lucide-react';
+import { ChevronRight, Info, Star, Users } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -24,8 +24,8 @@ export const ContributorLevelCard: React.FC<ContributorLevelCardProps> = ({
   compact = false 
 }) => {
   const [currentLevel, setCurrentLevel] = useState<ContributorLevel>(CONTRIBUTOR_LEVELS[0]);
-  const [activeDays, setActiveDays] = useState(0);
-  const [areasMapped, setAreasMapped] = useState(0);
+  const [teamMembers, setTeamMembers] = useState(0);
+  const [activeMembers, setActiveMembers] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -37,47 +37,22 @@ export const ContributorLevelCard: React.FC<ContributorLevelCardProps> = ({
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Check if user has level data
-      const { data: levelData } = await supabase
-        .from('user_contribution_levels')
-        .select('*')
+      // Get affiliate data for team members count
+      const { data: affiliateData } = await supabase
+        .from('affiliates')
+        .select('total_registrations')
         .eq('user_id', user.id)
         .maybeSingle();
 
-      if (levelData) {
-        setActiveDays(levelData.active_days || 0);
-        setAreasMapped(levelData.areas_mapped || 0);
-        const level = getCurrentLevel(levelData.active_days || 0, levelData.areas_mapped || 0);
-        setCurrentLevel(level);
-      } else {
-        // Calculate from contribution data
-        const { data: sessions } = await supabase
-          .from('contribution_sessions')
-          .select('started_at')
-          .eq('user_id', user.id);
-
-        if (sessions) {
-          // Count unique days
-          const uniqueDays = new Set(
-            sessions.map(s => new Date(s.started_at).toISOString().split('T')[0])
-          ).size;
-          setActiveDays(uniqueDays);
-          
-          // Estimate areas from distance (rough approximation)
-          const { data: points } = await supabase
-            .from('user_points')
-            .select('total_distance_meters')
-            .eq('user_id', user.id)
-            .maybeSingle();
-          
-          // Roughly 1 area per 5km
-          const estimatedAreas = Math.floor((points?.total_distance_meters || 0) / 5000);
-          setAreasMapped(estimatedAreas);
-          
-          const level = getCurrentLevel(uniqueDays, estimatedAreas);
-          setCurrentLevel(level);
-        }
-      }
+      const members = affiliateData?.total_registrations || 0;
+      setTeamMembers(members);
+      
+      // Estimate active members (those who contributed recently)
+      // For now, estimate as ~30% of total
+      setActiveMembers(Math.floor(members * 0.3));
+      
+      const level = getCurrentLevel(members);
+      setCurrentLevel(level);
     } catch (error) {
       console.error('Error loading level data:', error);
     } finally {
@@ -97,10 +72,7 @@ export const ContributorLevelCard: React.FC<ContributorLevelCardProps> = ({
 
   const LevelIcon = currentLevel.icon;
   const nextLevel = getNextLevel(currentLevel.level);
-  const progress = getProgressToNextLevel(activeDays, areasMapped, currentLevel);
-  const overallProgress = nextLevel 
-    ? Math.min(100, (progress.daysProgress + progress.areasProgress) / 2)
-    : 100;
+  const progress = getProgressToNextLevel(teamMembers, currentLevel);
 
   if (compact) {
     return (
@@ -115,7 +87,7 @@ export const ContributorLevelCard: React.FC<ContributorLevelCardProps> = ({
             </div>
             <div>
               <p className="text-sm font-medium text-foreground">{currentLevel.name}</p>
-              <p className="text-xs text-muted-foreground">Level {currentLevel.level}</p>
+              <p className="text-xs text-muted-foreground">Tier {currentLevel.level}</p>
             </div>
           </div>
           <ChevronRight className="w-4 h-4 text-muted-foreground" />
@@ -139,22 +111,28 @@ export const ContributorLevelCard: React.FC<ContributorLevelCardProps> = ({
             <div className="flex items-center gap-2">
               <h3 className="text-base font-semibold text-foreground">{currentLevel.name}</h3>
               <Badge variant="outline" className={cn("text-xs", currentLevel.color, "border-current/30")}>
-                Level {currentLevel.level}
+                Tier {currentLevel.level}
               </Badge>
             </div>
             <p className="text-xs text-muted-foreground">{currentLevel.description}</p>
           </div>
         </div>
 
-        {/* Stats */}
+        {/* Team Stats */}
         <div className="grid grid-cols-2 gap-3 mb-4">
           <div className="rounded-lg bg-muted/50 p-3 text-center">
-            <p className="text-lg font-bold text-foreground">{activeDays}</p>
-            <p className="text-xs text-muted-foreground">Days Active</p>
+            <div className="flex items-center justify-center gap-1.5 mb-1">
+              <Users className="w-4 h-4 text-primary" />
+              <p className="text-lg font-bold text-foreground">{teamMembers}</p>
+            </div>
+            <p className="text-xs text-muted-foreground">Team Members</p>
           </div>
           <div className="rounded-lg bg-muted/50 p-3 text-center">
-            <p className="text-lg font-bold text-foreground">{areasMapped}</p>
-            <p className="text-xs text-muted-foreground">Areas Mapped</p>
+            <div className="flex items-center justify-center gap-1.5 mb-1">
+              <div className="w-2 h-2 rounded-full bg-green-500" />
+              <p className="text-lg font-bold text-foreground">{activeMembers}</p>
+            </div>
+            <p className="text-xs text-muted-foreground">Active Contributors</p>
           </div>
         </div>
 
@@ -163,31 +141,27 @@ export const ContributorLevelCard: React.FC<ContributorLevelCardProps> = ({
           <div className="space-y-2">
             <div className="flex items-center justify-between text-xs">
               <span className="text-muted-foreground">Progress to {nextLevel.name}</span>
-              <span className="font-medium text-foreground">{Math.round(overallProgress)}%</span>
+              <span className="font-medium text-foreground">{Math.round(progress.progress)}%</span>
             </div>
-            <Progress value={overallProgress} className="h-2" />
+            <Progress value={progress.progress} className="h-2" />
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <Info className="w-3 h-3" />
               <span>
-                {progress.daysNeeded > 0 && `${progress.daysNeeded} more days`}
-                {progress.daysNeeded > 0 && progress.areasNeeded > 0 && ' + '}
-                {progress.areasNeeded > 0 && `${progress.areasNeeded} more areas`}
-                {' to unlock +'}
-                {nextLevel.bonus} bonus points
+                {progress.membersNeeded} more team members to unlock +{nextLevel.bonus} bonus points
               </span>
             </div>
           </div>
         ) : (
           <div className="rounded-lg bg-primary/10 p-3 text-center">
             <Star className="w-5 h-5 text-primary mx-auto mb-1" />
-            <p className="text-sm font-medium text-primary">Max Level Achieved!</p>
-            <p className="text-xs text-muted-foreground">You're an elite contributor</p>
+            <p className="text-sm font-medium text-primary">Max Tier Achieved!</p>
+            <p className="text-xs text-muted-foreground">You're an elite pioneer</p>
           </div>
         )}
 
-        {/* Level Roadmap */}
+        {/* Tier Roadmap */}
         <div className="mt-4 pt-4 border-t border-border">
-          <p className="text-xs font-medium text-muted-foreground mb-2">Level Roadmap</p>
+          <p className="text-xs font-medium text-muted-foreground mb-2">Tier Roadmap</p>
           <div className="space-y-1.5">
             {CONTRIBUTOR_LEVELS.slice(1).map((level) => {
               const LIcon = level.icon;

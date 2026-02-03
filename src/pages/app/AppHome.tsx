@@ -422,14 +422,14 @@ export const AppHome: React.FC = () => {
             </div>
           </motion.div>
 
-          {/* Globe Map Section with Floating Circular Buttons */}
+          {/* Globe Map Section with Floating Circular Buttons - EXPANDED */}
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.05 }}
             className="relative mx-3 rounded-3xl overflow-hidden border border-border/50"
             style={{ 
-              height: '280px',
+              height: '400px',
               background: 'linear-gradient(180deg, hsl(222 30% 7%) 0%, hsl(222 35% 12%) 100%)'
             }}
           >
