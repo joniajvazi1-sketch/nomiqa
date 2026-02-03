@@ -84,13 +84,14 @@ export const BackgroundLocationRationale: React.FC<BackgroundLocationRationalePr
             onClick={onClose}
           />
           
-          {/* Modal */}
+          {/* Modal - Scrollable */}
           <motion.div
             initial={{ y: 100, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 100, opacity: 0 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="relative w-full max-w-md mx-4 mb-0 sm:mb-0 bg-gradient-to-b from-[#1a1f2e] to-[#0f1419] rounded-t-3xl sm:rounded-3xl border border-white/10 overflow-hidden"
+            className="relative w-full max-w-md mx-4 mb-0 sm:mb-0 bg-gradient-to-b from-[#1a1f2e] to-[#0f1419] rounded-t-3xl sm:rounded-3xl border border-white/10 overflow-hidden max-h-[85vh] flex flex-col"
+            style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
           >
             {/* Close button */}
             <button
@@ -100,49 +101,52 @@ export const BackgroundLocationRationale: React.FC<BackgroundLocationRationalePr
               <X className="w-5 h-5 text-white/70" />
             </button>
 
-            {/* Header */}
-            <div className="pt-8 pb-4 px-6 text-center">
-              <div className="mx-auto mb-4 w-16 h-16 rounded-2xl bg-gradient-to-br from-[#00d4ff]/20 to-[#00d4ff]/5 flex items-center justify-center border border-[#00d4ff]/30">
-                <MapPin className="w-8 h-8 text-[#00d4ff]" />
+            {/* Scrollable Content */}
+            <div className="flex-1 overflow-y-auto overscroll-contain">
+              {/* Header */}
+              <div className="pt-8 pb-4 px-6 text-center">
+                <div className="mx-auto mb-4 w-16 h-16 rounded-2xl bg-gradient-to-br from-[#00d4ff]/20 to-[#00d4ff]/5 flex items-center justify-center border border-[#00d4ff]/30">
+                  <MapPin className="w-8 h-8 text-[#00d4ff]" />
+                </div>
+                <h2 className="text-xl font-bold text-white mb-2">
+                  Enable Background Location
+                </h2>
+                <p className="text-sm text-white/60">
+                  Earn points even when the app is closed
+                </p>
               </div>
-              <h2 className="text-xl font-bold text-white mb-2">
-                Enable Background Location
-              </h2>
-              <p className="text-sm text-white/60">
-                Earn points even when the app is closed
-              </p>
+
+              {/* Benefits */}
+              <div className="px-6 pb-4 space-y-3">
+                {benefits.map((benefit, index) => (
+                  <motion.div
+                    key={benefit.title}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.1 + index * 0.1 }}
+                    className="flex items-start gap-3 p-3 rounded-xl bg-white/5 border border-white/10"
+                  >
+                    <div className="shrink-0 w-10 h-10 rounded-lg bg-[#00d4ff]/10 flex items-center justify-center">
+                      <benefit.icon className="w-5 h-5 text-[#00d4ff]" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-white">{benefit.title}</p>
+                      <p className="text-xs text-white/50 leading-relaxed">{benefit.description}</p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* iOS Instruction */}
+              <div className="mx-6 mb-4 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30">
+                <p className="text-xs text-amber-300 text-center leading-relaxed">
+                  <strong>Next step:</strong> When prompted, select <span className="font-semibold">"Change to Always Allow"</span> to enable background collection
+                </p>
+              </div>
             </div>
 
-            {/* Benefits */}
-            <div className="px-6 pb-4 space-y-3">
-              {benefits.map((benefit, index) => (
-                <motion.div
-                  key={benefit.title}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.1 + index * 0.1 }}
-                  className="flex items-start gap-3 p-3 rounded-xl bg-white/5 border border-white/10"
-                >
-                  <div className="shrink-0 w-10 h-10 rounded-lg bg-[#00d4ff]/10 flex items-center justify-center">
-                    <benefit.icon className="w-5 h-5 text-[#00d4ff]" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-white">{benefit.title}</p>
-                    <p className="text-xs text-white/50 leading-relaxed">{benefit.description}</p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-
-            {/* iOS Instruction */}
-            <div className="mx-6 mb-4 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30">
-              <p className="text-xs text-amber-300 text-center leading-relaxed">
-                <strong>Next step:</strong> When prompted, select <span className="font-semibold">"Change to Always Allow"</span> to enable background collection
-              </p>
-            </div>
-
-            {/* Actions */}
-            <div className="px-6 pb-8 space-y-3">
+            {/* Fixed Actions - Always visible */}
+            <div className="shrink-0 px-6 pb-6 pt-4 bg-gradient-to-t from-[#0f1419] to-transparent">
               <Button
                 onClick={handleRequestAlways}
                 className="w-full h-12 rounded-xl bg-gradient-to-r from-[#00d4ff] to-[#00b4d8] hover:from-[#00b4d8] hover:to-[#00d4ff] text-[#0a0f1a] font-semibold transition-all"
