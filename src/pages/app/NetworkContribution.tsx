@@ -293,10 +293,10 @@ export const NetworkContribution: React.FC = () => {
           />
         </Suspense>
         
-        {/* Live Badge - Top Left - tight to safe area */}
+        {/* Live Badge - Top Left - with more spacing from top */}
         <div 
           className="absolute left-4 z-30"
-          style={{ top: 'calc(env(safe-area-inset-top, 0px) + 4px)' }}
+          style={{ top: 'calc(env(safe-area-inset-top, 0px) + 12px)' }}
         >
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 backdrop-blur-md">
             <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
@@ -304,110 +304,33 @@ export const NetworkContribution: React.FC = () => {
           </div>
         </div>
 
-        {/* Connection Type + iOS Permission Indicator - Top Right */}
+        {/* Connection Type - Top Right (iOS permission moved to bottom panel) */}
         <div 
-          className="absolute right-4 z-30 flex items-center gap-2"
-          style={{ top: 'calc(env(safe-area-inset-top, 0px) + 4px)' }}
+          className="absolute right-4 z-30"
+          style={{ top: 'calc(env(safe-area-inset-top, 0px) + 12px)' }}
         >
-          {/* iOS permission status indicator - always visible on iOS */}
-          {isIOS && (
-            <button
-              onClick={async () => {
-                if (iosPermissionLabel === 'While Using') {
-                  setShowBackgroundRationale(true);
-                  return;
-                }
-
-                try {
-                  const BackgroundLocation = (await import('@/plugins/BackgroundLocationPlugin')).default;
-
-                  // If never requested (or unknown), let user explicitly trigger the iOS popup.
-                  if (iosPermissionLabel === 'Not Determined' || iosPermissionLabel === 'Unknown') {
-                    const res = await BackgroundLocation.requestForegroundPermission();
-                    if (res.granted) {
-                      toast({
-                        title: 'Location Enabled ✓',
-                        description: 'You can now start scanning.',
-                      });
-                    } else {
-                      toast({
-                        title: 'Location Permission Required',
-                        description: "Enable Location: Settings → Privacy & Security → Location Services → Nomiqa.",
-                        variant: 'destructive',
-                      });
-                    }
-                    return;
-                  }
-
-                  // iOS will not re-prompt after denial; all we can do is open Settings.
-                  if (iosPermissionLabel === 'Denied') {
-                    await BackgroundLocation.openAppSettings();
-                    toast({
-                      title: 'Enable Location',
-                      description: "Settings → Privacy & Security → Location Services → Nomiqa.",
-                    });
-                  }
-                } catch {
-                  // ignore
-                }
-              }}
-              className={cn(
-                "flex items-center gap-1.5 px-2.5 py-1 rounded-full backdrop-blur-md border transition-colors",
-                iosPermissionLabel === 'Always' 
-                  ? "bg-emerald-500/20 border-emerald-500/40" 
-                  : iosPermissionLabel === 'While Using'
-                    ? "bg-amber-500/20 border-amber-500/40"
-                    : iosPermissionLabel === 'Denied'
-                      ? "bg-red-500/20 border-red-500/40"
-                      : "bg-white/10 border-white/20"
-              )}
-            >
-              <MapPin className={cn(
-                "w-3.5 h-3.5",
-                iosPermissionLabel === 'Always' 
-                  ? "text-emerald-400" 
-                  : iosPermissionLabel === 'While Using'
-                    ? "text-amber-400"
-                    : iosPermissionLabel === 'Denied'
-                      ? "text-red-400"
-                      : "text-white/60"
-              )} />
-              <span className={cn(
-                "text-[10px] font-semibold uppercase tracking-wider",
-                iosPermissionLabel === 'Always' 
-                  ? "text-emerald-400" 
-                  : iosPermissionLabel === 'While Using'
-                    ? "text-amber-400"
-                    : iosPermissionLabel === 'Denied'
-                      ? "text-red-400"
-                      : "text-white/60"
-              )}>
-                {iosPermissionLabel}
-              </span>
-            </button>
-          )}
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/40 backdrop-blur-md border border-white/10">
             <Signal className={cn("w-3.5 h-3.5", isCellular ? "text-[#00d4ff]" : "text-amber-400")} />
             <span className="text-[10px] font-medium text-white/90">{getConnectionLabel()}</span>
           </div>
         </div>
 
-        {/* Offline Banner - closer to badges */}
+        {/* Offline Banner - with more spacing */}
         {!isOnline && (
           <div 
             className="absolute left-4 right-4 flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-500/20 border border-amber-500/30 backdrop-blur-md z-30"
-            style={{ top: 'calc(env(safe-area-inset-top, 0px) + 36px)' }}
+            style={{ top: 'calc(env(safe-area-inset-top, 0px) + 48px)' }}
           >
             <CloudOff className="w-4 h-4 text-amber-400" />
             <span className="text-xs text-amber-300">{offlineQueueCount} points queued</span>
           </div>
         )}
 
-        {/* WiFi Warning - Below badges */}
+        {/* WiFi Warning - Below badges with more spacing */}
         {isActive && !isCellular && (
           <div 
             className="absolute left-4 right-4 flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-500/20 border border-amber-500/30 backdrop-blur-md z-30"
-            style={{ top: 'calc(env(safe-area-inset-top, 0px) + 36px)' }}
+            style={{ top: 'calc(env(safe-area-inset-top, 0px) + 48px)' }}
           >
             <Wifi className="w-4 h-4 text-amber-400" />
             <span className="text-xs text-amber-300">Switch to cellular to contribute network data</span>
@@ -575,6 +498,57 @@ export const NetworkContribution: React.FC = () => {
           </button>
         </div>
 
+        {/* iOS Permission Indicator - In Bottom Panel */}
+        {isIOS && iosPermissionLabel !== 'Always' && (
+          <button
+            onClick={async () => {
+              if (iosPermissionLabel === 'While Using') {
+                setShowBackgroundRationale(true);
+                return;
+              }
+              try {
+                const BackgroundLocation = (await import('@/plugins/BackgroundLocationPlugin')).default;
+                if (iosPermissionLabel === 'Not Determined' || iosPermissionLabel === 'Unknown') {
+                  const res = await BackgroundLocation.requestForegroundPermission();
+                  if (res.granted) {
+                    toast({ title: 'Location Enabled ✓', description: 'You can now start scanning.' });
+                  } else {
+                    toast({ title: 'Location Permission Required', description: "Enable in Settings → Privacy → Location Services → Nomiqa.", variant: 'destructive' });
+                  }
+                  return;
+                }
+                if (iosPermissionLabel === 'Denied') {
+                  await BackgroundLocation.openAppSettings();
+                  toast({ title: 'Enable Location', description: "Settings → Privacy → Location Services → Nomiqa." });
+                }
+              } catch { /* ignore */ }
+            }}
+            className={cn(
+              "w-full flex items-center justify-center gap-2 py-2.5 rounded-xl backdrop-blur-md border transition-colors mt-3",
+              iosPermissionLabel === 'While Using'
+                ? "bg-amber-500/20 border-amber-500/40"
+                : iosPermissionLabel === 'Denied'
+                  ? "bg-red-500/20 border-red-500/40"
+                  : "bg-white/10 border-white/20"
+            )}
+          >
+            <MapPin className={cn(
+              "w-4 h-4",
+              iosPermissionLabel === 'While Using' ? "text-amber-400" : iosPermissionLabel === 'Denied' ? "text-red-400" : "text-white/60"
+            )} />
+            <span className={cn(
+              "text-xs font-semibold",
+              iosPermissionLabel === 'While Using' ? "text-amber-400" : iosPermissionLabel === 'Denied' ? "text-red-400" : "text-white/60"
+            )}>
+              {iosPermissionLabel === 'While Using' 
+                ? 'Tap to enable background location' 
+                : iosPermissionLabel === 'Denied'
+                  ? 'Location denied - tap to fix in Settings'
+                  : 'Tap to enable location'}
+            </span>
+          </button>
+        )}
+
         {/* Status Text */}
         <div className="text-center mt-3">
           {!user ? (
@@ -592,7 +566,7 @@ export const NetworkContribution: React.FC = () => {
             </div>
           ) : !isActive && consentGiven ? (
             <p className="text-sm text-white/50">
-              {isCellular ? 'Tap START to earn points' : 'Connect to cellular to earn'}
+              {isCellular ? 'Tap CONTRIBUTE to earn points' : 'Connect to cellular to earn'}
             </p>
           ) : null}
         </div>

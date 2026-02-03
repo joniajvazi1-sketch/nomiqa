@@ -566,7 +566,7 @@ export const AppHome: React.FC = () => {
           {/* Content below the map */}
           <div className="px-5 mt-4 space-y-4">
 
-            {/* Status Indicator */}
+            {/* Status Indicator - TOP */}
             <motion.div
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
@@ -574,7 +574,7 @@ export const AppHome: React.FC = () => {
             >
               <div className={cn(
                 "w-2.5 h-2.5 rounded-full",
-                isContributionEnabled ? "bg-green-500" : "bg-muted-foreground"
+                isContributionEnabled ? "bg-green-500" : isOnline ? "bg-emerald-500" : "bg-muted-foreground"
               )} />
               <span className="text-sm text-muted-foreground">
                 {isContributionEnabled ? 'Contributing in background' : isOnline ? 'Online' : 'Offline'}
@@ -627,11 +627,47 @@ export const AppHome: React.FC = () => {
               )}
             </motion.div>
 
-            {/* How It Works - Simple */}
+            {/* Quick Actions - Rewards & Leaderboard */}
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.15 }}
+              className="space-y-2"
+            >
+              <button
+                onClick={() => { lightTap(); navigate('/app/rewards'); }}
+                className="w-full rounded-2xl bg-card border border-border p-4 flex items-center gap-4 active:scale-[0.99] transition-transform"
+              >
+                <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center">
+                  <Gift className="w-5 h-5 text-amber-500" />
+                </div>
+                <div className="flex-1 text-left">
+                  <p className="text-sm font-semibold text-foreground">Rewards</p>
+                  <p className="text-xs text-muted-foreground">View your earnings</p>
+                </div>
+                <ChevronRight className="w-5 h-5 text-muted-foreground" />
+              </button>
+
+              <button
+                onClick={() => { lightTap(); navigate('/app/leaderboard'); }}
+                className="w-full rounded-2xl bg-card border border-border p-4 flex items-center gap-4 active:scale-[0.99] transition-transform"
+              >
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                  <TrendingUp className="w-5 h-5 text-primary" />
+                </div>
+                <div className="flex-1 text-left">
+                  <p className="text-sm font-semibold text-foreground">Leaderboard</p>
+                  <p className="text-xs text-muted-foreground">See top earners</p>
+                </div>
+                <ChevronRight className="w-5 h-5 text-muted-foreground" />
+              </button>
+            </motion.div>
+
+            {/* How It Works - Under Rewards & Leaderboard */}
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
               className="rounded-3xl bg-card border border-border p-5"
             >
               <h3 className="text-base font-semibold text-foreground mb-4">How You Earn</h3>
@@ -667,42 +703,6 @@ export const AppHome: React.FC = () => {
                   </div>
                 </div>
               </div>
-            </motion.div>
-
-            {/* Quick Actions */}
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="space-y-2"
-            >
-              <button
-                onClick={() => { lightTap(); navigate('/app/rewards'); }}
-                className="w-full rounded-2xl bg-card border border-border p-4 flex items-center gap-4 active:scale-[0.99] transition-transform"
-              >
-                <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center">
-                  <Gift className="w-5 h-5 text-amber-500" />
-                </div>
-                <div className="flex-1 text-left">
-                  <p className="text-sm font-semibold text-foreground">Rewards</p>
-                  <p className="text-xs text-muted-foreground">View your earnings</p>
-                </div>
-                <ChevronRight className="w-5 h-5 text-muted-foreground" />
-              </button>
-
-              <button
-                onClick={() => { lightTap(); navigate('/app/leaderboard'); }}
-                className="w-full rounded-2xl bg-card border border-border p-4 flex items-center gap-4 active:scale-[0.99] transition-transform"
-              >
-                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                  <TrendingUp className="w-5 h-5 text-primary" />
-                </div>
-                <div className="flex-1 text-left">
-                  <p className="text-sm font-semibold text-foreground">Leaderboard</p>
-                  <p className="text-xs text-muted-foreground">See top earners</p>
-                </div>
-                <ChevronRight className="w-5 h-5 text-muted-foreground" />
-              </button>
             </motion.div>
 
           </div>
