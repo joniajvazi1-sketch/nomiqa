@@ -1,113 +1,164 @@
 
 
-# Implementation Plan: Fix 3 Post-Launch Gaps
+# Implementation Plan: Fix Data Pipeline Gaps + Additional Issues
 
-Based on your approval with modifications (no monthly cap UI, referral points bypass caps), here's the implementation plan:
+## Summary of Current State
 
----
-
-## Summary of Changes
-
-| Gap | Fix | Status |
-|-----|-----|--------|
-| 1. Solana wallet uniqueness | Add unique constraint | ✅ Will implement |
-| 2. Monthly cap UI tracker | Skip | ❌ Not needed per your request |
-| 3. Leaderboard O(n) scaling | Optimize to single-pass | ✅ Will implement |
-| 4. Referral points bypass caps | New RPC function | ✅ Will implement |
+| Component | Status | Issue |
+|-----------|--------|-------|
+| signal_logs retention | ❌ No cleanup | Unbounded growth (1,036 rows now, will explode at scale) |
+| mining_logs retention | ✅ Has cleanup | `cleanup_old_mining_logs()` (90 days) exists |
+| coverage_tiles refresh | ❌ Disabled | Materialized view exists but empty (no cron job) |
+| B2B export API | ❌ Missing | No edge function for CSV/JSON export |
+| speed_test_results | ⚠️ Empty (0 rows) | Will fill naturally post-launch |
+| safe_coverage_tiles (K-anon) | ✅ Exists | B2B schema with ≥5 users, ≥20 samples filter |
 
 ---
 
-## Database Migration
+## GAP 1: signal_logs Retention (CRITICAL)
 
-### Gap 1: Solana Wallet Unique Constraint
+### Problem
+- `signal_logs` table has no cleanup function
+- Currently 1,036 rows, oldest from Jan 18
+- At 100k users × 12 samples/hour = 1.2M rows/day → DB performance death
 
-**Problem:** 26 duplicate wallets found in production - this is a Sybil attack vector for token distribution.
+### Solution
+Create `cleanup_old_signal_logs(90 days)` function and schedule daily cron
 
-**Solution:**
-1. Clear duplicate wallets (keep only the earliest entry per address)
-2. Drop old non-unique index
-3. Create new unique partial index on `LOWER(solana_wallet)`
+### Database Changes
 
 ```sql
--- Clean duplicates (keep earliest)
-WITH duplicates AS (
-  SELECT id, ROW_NUMBER() OVER (
-    PARTITION BY LOWER(solana_wallet) 
-    ORDER BY created_at ASC
-  ) as rn
-  FROM public.profiles WHERE solana_wallet IS NOT NULL
-)
-UPDATE public.profiles p SET solana_wallet = NULL
-FROM duplicates d WHERE p.id = d.id AND d.rn > 1;
+-- Function to cleanup old signal logs (90-day retention)
+CREATE OR REPLACE FUNCTION public.cleanup_old_signal_logs()
+RETURNS integer
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  deleted_count integer;
+BEGIN
+  -- Delete signal logs older than 90 days
+  DELETE FROM public.signal_logs
+  WHERE recorded_at < now() - INTERVAL '90 days';
+  
+  GET DIAGNOSTICS deleted_count = ROW_COUNT;
+  
+  -- Log the cleanup for audit
+  INSERT INTO public.webhook_logs (event_type, payload, processed)
+  VALUES (
+    'signal_logs_cleanup_executed',
+    jsonb_build_object(
+      'deleted_logs', deleted_count,
+      'executed_at', now(),
+      'retention_days', 90
+    ),
+    true
+  );
+  
+  RETURN deleted_count;
+END;
+$$;
 
--- Create unique index
-CREATE UNIQUE INDEX idx_profiles_solana_wallet_unique
-ON public.profiles (LOWER(solana_wallet))
-WHERE solana_wallet IS NOT NULL;
+-- Schedule daily cleanup at 5 AM
+SELECT cron.schedule(
+  'cleanup-signal-logs-daily',
+  '0 5 * * *',
+  $$SELECT cleanup_old_signal_logs();$$
+);
 ```
-
-### Gap 3: Leaderboard Optimization
-
-**Problem:** Current function runs 3 separate full-table scans + updates.
-
-**Solution:** Single CTE computes all 3 ranks, updates only changed rows:
-
-```sql
-WITH ranked AS (
-  SELECT user_id,
-    ROW_NUMBER() OVER (ORDER BY total_points DESC NULLS LAST) as new_rank_all_time,
-    ROW_NUMBER() OVER (ORDER BY weekly_points DESC NULLS LAST) as new_rank_weekly,
-    ROW_NUMBER() OVER (ORDER BY monthly_points DESC NULLS LAST) as new_rank_monthly
-  FROM leaderboard_cache
-  WHERE total_points > 0 OR weekly_points > 0 OR monthly_points > 0
-)
-UPDATE leaderboard_cache lc SET 
-  rank_all_time = ranked.new_rank_all_time,
-  rank_weekly = ranked.new_rank_weekly,
-  rank_monthly = ranked.new_rank_monthly
-FROM ranked WHERE lc.user_id = ranked.user_id
-  AND (ranks changed...);
-```
-
-**Performance gain:** ~3x faster, only updates rows where ranks changed.
-
-### Gap 4: Referral Points Bypass Caps
-
-**Problem:** Referral points currently count against daily/monthly caps.
-
-**Solution:** New `add_referral_points` RPC function that:
-- Bypasses daily cap (200 pts)
-- Bypasses monthly cap (6,000 pts)
-- Still enforces lifetime cap (100,000 pts)
-- Still checks if account is frozen
-- Logs all referral points for audit
 
 ---
 
-## Edge Function Update
+## GAP 2: coverage_tiles Cron (Empty View)
 
-**File:** `supabase/functions/track-affiliate-registration/index.ts`
+### Problem
+- `coverage_tiles` materialized view exists but is empty (0 rows)
+- `refresh_coverage_tiles()` function exists but no cron job scheduled
+- Demo risk: B2B buyers see empty dashboard
 
-**Changes:**
-- Replace direct `user_points` table updates with `add_referral_points` RPC calls
-- Update response to include `bypassedCaps: true`
+### Solution
+Enable the cron job to refresh every 15 minutes
 
-**Before (lines 267-290):**
-```typescript
-// Direct table update - counts against caps
-await supabase.from('user_points').update({
-  total_points: points + IMMEDIATE_SIGNUP_BONUS
-}).eq('user_id', affiliate.user_id);
+### Database Changes
+
+```sql
+-- Schedule coverage tiles refresh every 15 minutes
+SELECT cron.schedule(
+  'refresh-coverage-tiles-15min',
+  '*/15 * * * *',
+  $$SELECT refresh_coverage_tiles();$$
+);
+
+-- Also do an immediate refresh to populate data
+SELECT refresh_coverage_tiles();
 ```
 
-**After:**
+---
+
+## GAP 3: B2B Export API Endpoint
+
+### Problem
+- No way to export `safe_coverage_tiles` for buyers
+- Buyers want CSV/JSON with date range filters
+- Must be API-key authenticated (not user auth)
+
+### Solution
+Create new edge function: `export-coverage-data`
+
+### New Edge Function: `supabase/functions/export-coverage-data/index.ts`
+
+Features:
+- API key authentication via `X-API-Key` header (checked against `app_remote_config`)
+- Format support: `json` (default) or `csv`
+- Date range filter: `?start_date=YYYY-MM-DD&end_date=YYYY-MM-DD`
+- Row limit: max 10,000 per request
+- Sources from `b2b.safe_coverage_tiles` (K-anonymity enforced)
+
 ```typescript
-// RPC call - bypasses daily/monthly caps
-await supabase.rpc('add_referral_points', {
-  p_user_id: affiliate.user_id,
-  p_points: IMMEDIATE_SIGNUP_BONUS,
-  p_source: 'referral_immediate'
-});
+// Endpoint: GET /export-coverage-data?format=csv&country=DE
+// Headers: X-API-Key: <b2b_api_key>
+// Response: CSV or JSON of aggregated coverage data
+```
+
+**Config update** (via insert tool):
+```sql
+INSERT INTO app_remote_config (config_key, config_value, is_sensitive, description)
+VALUES (
+  'b2b_api_keys',
+  '["demo-key-12345"]'::jsonb,
+  true,
+  'API keys for B2B export access'
+);
+```
+
+---
+
+## GAP 4: Speed Test Population (Non-Blocking)
+
+### Status
+- Table exists with correct schema
+- Currently 0 rows
+- Will populate naturally as users run speed tests
+
+### No Action Required
+The app already saves speed test results via `sync-contribution-data` when `speed_test_down` is present. Just needs users to run tests.
+
+---
+
+## Additional Gap Identified: mining_logs Cron Missing
+
+### Problem
+`cleanup_old_mining_logs()` function exists but has no cron job scheduled!
+
+### Solution
+```sql
+-- Schedule mining logs cleanup daily at 4 AM
+SELECT cron.schedule(
+  'cleanup-mining-logs-daily',
+  '0 4 * * *',
+  $$SELECT cleanup_old_mining_logs();$$
+);
 ```
 
 ---
@@ -116,24 +167,44 @@ await supabase.rpc('add_referral_points', {
 
 | File | Action | Description |
 |------|--------|-------------|
-| `supabase/migrations/20260203120000_fix_three_gaps.sql` | Create | Database migration with all fixes |
-| `supabase/functions/track-affiliate-registration/index.ts` | Modify | Use new `add_referral_points` RPC |
+| Migration | Create | Add cleanup function + cron jobs |
+| `supabase/functions/export-coverage-data/index.ts` | Create | B2B export endpoint |
+| `supabase/config.toml` | Update | Add export-coverage-data config |
 
 ---
 
-## Testing Checklist
+## Implementation Sequence
 
-After implementation:
-1. **Wallet uniqueness:** Try setting duplicate wallet → Should fail
-2. **Leaderboard:** Verify rankings still work correctly
-3. **Referral bypass:** Invite a user when at 199/200 daily cap → Referral points should still award
-4. **Frozen account:** Verify frozen accounts still can't receive referral points
+1. **Database migration**: 
+   - Create `cleanup_old_signal_logs()` function
+   - Schedule all 3 cron jobs (signal_logs, mining_logs, coverage_tiles)
+   - Immediate refresh of coverage_tiles
+
+2. **Edge function**: Create `export-coverage-data` with API key auth
+
+3. **Config**: Add B2B API key to remote config
 
 ---
 
-## Rollback Safety
+## Post-Implementation Verification
 
-- Wallet constraint can be dropped without data loss
-- Leaderboard function is idempotent
-- `add_referral_points` function can be dropped, edge function would need revert
+| Check | Command | Expected |
+|-------|---------|----------|
+| Signal logs cron exists | `SELECT * FROM cron.job WHERE jobname LIKE '%signal%'` | 1 row |
+| Mining logs cron exists | `SELECT * FROM cron.job WHERE jobname LIKE '%mining%'` | 1 row |
+| Coverage tiles cron exists | `SELECT * FROM cron.job WHERE jobname LIKE '%coverage%'` | 1 row |
+| Coverage tiles populated | `SELECT COUNT(*) FROM coverage_tiles` | >0 rows |
+| Export endpoint works | `curl .../export-coverage-data?format=json` with API key | JSON response |
+
+---
+
+## Buyer Demo Readiness After This
+
+| Deliverable | Status |
+|-------------|--------|
+| Coverage heatmap API | ✅ `get-global-coverage` exists |
+| Aggregated tiles (CSV/JSON) | ✅ NEW `export-coverage-data` |
+| K-anonymity guarantee | ✅ `b2b.safe_coverage_tiles` (≥5 users, ≥20 samples) |
+| Retention policy | ✅ 90 days raw, aggregates refreshed every 15min |
+| Data volume proof | ⚠️ Depends on user count (currently low) |
 
