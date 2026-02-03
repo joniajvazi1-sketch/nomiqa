@@ -395,12 +395,12 @@ export const AppHome: React.FC = () => {
             </div>
           </div>
 
-          {/* Globe Viewing Area - Empty space for globe */}
-          <div className="h-[35vh] min-h-[220px] max-h-[320px]" />
+          {/* Globe Viewing Area - Reduced space */}
+          <div className="h-[22vh] min-h-[140px] max-h-[200px]" />
 
           {/* Warm Welcome Header - Transparent Glassmorphism */}
           <header className="px-4 mb-5">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               className="rounded-3xl bg-black/50 backdrop-blur-2xl border border-white/20 p-5 shadow-2xl"
