@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Home, Gift, ShoppingBag, User } from 'lucide-react';
 import { useHaptics } from '@/hooks/useHaptics';
+import { useTheme } from 'next-themes';
 import { cn } from '@/lib/utils';
 
 interface TabItem {
@@ -24,6 +25,8 @@ export const BottomTabBar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { lightTap } = useHaptics();
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
 
   const tabs: TabItem[] = [
     { path: '/app', icon: Home, label: 'Home' },
@@ -75,10 +78,10 @@ export const BottomTabBar: React.FC = () => {
             "shadow-lg"
           )}
           style={{
-            // Border radius fallback for older WebViews
             borderRadius: '24px',
-            // Box shadow works universally
-            boxShadow: '0 4px 24px rgba(0,0,0,0.15), 0 1px 4px rgba(0,0,0,0.1)'
+            boxShadow: isDark 
+              ? '0 4px 24px rgba(0,0,0,0.4), 0 1px 4px rgba(0,0,0,0.3)'
+              : '0 4px 24px rgba(0,0,0,0.1), 0 1px 4px rgba(0,0,0,0.05)'
           }}
         >
           {/* Background layer - solid color fallback, then glass */}
@@ -91,23 +94,27 @@ export const BottomTabBar: React.FC = () => {
               zIndex: 0,
             }}
           />
-          {/* Glass overlay - only shows on supporting browsers */}
+          {/* Glass overlay - theme aware */}
           <div 
             className="absolute inset-0 backdrop-blur-xl pointer-events-none"
             style={{
-              // Semi-transparent overlay
-              backgroundColor: 'rgba(var(--card-rgb, 255,255,255), 0.85)',
-              // Subtle top highlight for depth
-              borderTop: '1px solid rgba(255,255,255,0.1)',
+              backgroundColor: isDark 
+                ? 'rgba(22, 30, 46, 0.9)' 
+                : 'rgba(255, 255, 255, 0.92)',
+              borderTop: isDark 
+                ? '1px solid rgba(255,255,255,0.08)' 
+                : '1px solid rgba(0,0,0,0.05)',
               zIndex: 1,
             }}
           />
           
-          {/* Subtle border ring */}
+          {/* Subtle border ring - theme aware */}
           <div 
             className="absolute inset-0 rounded-3xl pointer-events-none"
             style={{
-              border: '1px solid rgba(255,255,255,0.08)',
+              border: isDark 
+                ? '1px solid rgba(255,255,255,0.08)' 
+                : '1px solid rgba(0,0,0,0.06)',
               borderRadius: '24px',
               zIndex: 2,
             }}
