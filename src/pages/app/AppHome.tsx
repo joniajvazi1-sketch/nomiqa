@@ -541,8 +541,8 @@ export const AppHome: React.FC = () => {
             </motion.div>
           )}
 
-          {/* Globe Viewing Space */}
-          <div className="h-[28vh] min-h-[180px] max-h-[260px]" />
+          {/* Globe Viewing Space - larger gap for globe visibility */}
+          <div className="h-[38vh] min-h-[240px] max-h-[320px]" />
 
           {/* Cards Section */}
           <div className="px-4 space-y-3">
