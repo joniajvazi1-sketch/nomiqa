@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  Coins, TrendingUp, Clock, Zap, Gift, 
-  Info, ChevronRight, Wifi, Activity, Target, ShoppingBag,
-  Heart, CreditCard
+  Coins, TrendingUp, Clock, Zap, 
+  Info, ChevronRight, Activity, Target
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -201,25 +200,7 @@ export const AppRewards: React.FC = () => {
     navigate('/app/shop');
   };
 
-  const redemptionOptions: RedemptionOption[] = [
-    {
-      id: 'data',
-      icon: Wifi,
-      title: 'Mobile Data Pack',
-      description: '1GB eSIM connectivity',
-      pointsCost: 500,
-      available: true
-    },
-    {
-      id: 'gift',
-      icon: CreditCard,
-      title: 'Connectivity Rewards',
-      description: 'Gift cards and network credits',
-      pointsCost: 1000,
-      available: false,
-      badge: 'Coming Soon'
-    }
-  ];
+  // Redemption options removed - not ready yet
 
   const getFactorColor = (value: number) => {
     if (value >= 80) return 'text-green-600';
@@ -452,79 +433,6 @@ export const AppRewards: React.FC = () => {
           </div>
         </div>
 
-        {/* Redemption Options - Glassmorphism */}
-        <div>
-          <h2 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
-            <Gift className="w-4 h-4 text-primary" />
-            Use Your Points for Network Services
-          </h2>
-
-          <div className="space-y-2">
-            {redemptionOptions.map((option) => {
-              const Icon = option.icon;
-              const canRedeem = option.available && option.pointsCost && totalPoints >= option.pointsCost;
-
-              return (
-                <button
-                  key={option.id}
-                  onClick={() => {
-                    mediumTap();
-                    if (option.id === 'data' && canRedeem) {
-                      navigate('/app/shop');
-                    } else if (!option.available) {
-                      toast({ title: 'Coming soon!', description: 'This option will be available soon.' });
-                    }
-                  }}
-                  className={cn(
-                    "w-full flex items-center gap-3 p-4 rounded-xl border transition-colors text-left",
-                    option.available 
-                      ? "bg-card/60 backdrop-blur-sm border-border active:bg-card/80" 
-                      : "bg-muted/30 border-border/50"
-                  )}
-                >
-                  <div className={cn(
-                    "w-10 h-10 rounded-full flex items-center justify-center",
-                    option.available ? "bg-primary/20" : "bg-muted"
-                  )}>
-                    <Icon className={cn(
-                      "w-5 h-5",
-                      option.available ? "text-primary" : "text-muted-foreground"
-                    )} />
-                  </div>
-
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className={cn(
-                        "font-medium",
-                        option.available ? "text-foreground" : "text-muted-foreground"
-                      )}>
-                        {option.title}
-                      </span>
-                      {option.badge && (
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
-                          {option.badge}
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-xs text-muted-foreground">{option.description}</p>
-                  </div>
-
-                  <div className="text-right">
-                    {option.pointsCost && (
-                      <p className={cn(
-                        "text-sm font-semibold",
-                        canRedeem ? "text-primary" : "text-muted-foreground"
-                      )}>
-                        {option.pointsCost} pts
-                      </p>
-                    )}
-                    <ChevronRight className="w-4 h-4 text-muted-foreground mt-1" />
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        </div>
 
         </div>
       </div>
