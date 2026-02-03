@@ -458,8 +458,11 @@ export const AppHome: React.FC = () => {
             </motion.div>
           </header>
 
-          {/* Action Buttons */}
-          <div className="flex justify-center gap-5 mb-3 px-4">
+          {/* Globe Viewing Space - space for globe to be visible */}
+          <div className="h-[32vh] min-h-[200px] max-h-[280px]" />
+
+          {/* Action Buttons - Under the globe */}
+          <div className="flex justify-center gap-5 mb-4 px-4">
             <motion.button
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -528,7 +531,7 @@ export const AppHome: React.FC = () => {
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="flex justify-center mb-3"
+              className="flex justify-center mb-4"
             >
               <div className="flex items-center gap-3 px-4 py-2 rounded-full bg-black/50 backdrop-blur-xl border border-white/15">
                 <div className="flex items-center gap-1">
@@ -543,9 +546,6 @@ export const AppHome: React.FC = () => {
               </div>
             </motion.div>
           )}
-
-          {/* Globe Viewing Space - large gap for full globe visibility */}
-          <div className="h-[55vh] min-h-[380px] max-h-[480px]" />
 
           {/* Cards Section */}
           <div className="px-4 space-y-3">
