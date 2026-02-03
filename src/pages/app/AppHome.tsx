@@ -371,54 +371,66 @@ export const AppHome: React.FC = () => {
 
         <div className="pb-28" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 8px)' }}>
           
-          {/* Clean Header */}
-          <header className="flex items-center justify-between px-5 mb-3">
+          {/* Warm Header with personality */}
+          <header className="flex items-center justify-between px-5 mb-4">
             <div>
-              <p className="text-sm text-muted-foreground">{greeting}</p>
+              <p className="text-sm text-amber-600 dark:text-amber-400 font-medium">{greeting} ☀️</p>
               <h1 className="text-2xl font-bold text-foreground">{displayName}</h1>
             </div>
             <div className="flex items-center gap-2">
               <button 
                 onClick={() => { lightTap(); setTheme(isDark ? 'light' : 'dark'); }}
-                className="w-10 h-10 rounded-full bg-muted/50 flex items-center justify-center"
+                className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center border border-amber-500/20 transition-colors hover:bg-amber-500/15"
               >
-                {isDark ? <Sun className="w-5 h-5 text-muted-foreground" /> : <Moon className="w-5 h-5 text-muted-foreground" />}
+                {isDark ? <Sun className="w-5 h-5 text-amber-500" /> : <Moon className="w-5 h-5 text-amber-600" />}
               </button>
               <button 
                 onClick={() => { lightTap(); navigate('/app/profile'); }}
-                className="w-10 h-10 rounded-full bg-muted/50 flex items-center justify-center"
+                className="w-10 h-10 rounded-full bg-muted/50 flex items-center justify-center border border-border transition-colors hover:bg-muted"
               >
                 <Settings className="w-5 h-5 text-muted-foreground" />
               </button>
             </div>
           </header>
 
-          {/* Points Display - Compact */}
+          {/* Earnings Card - Warm & Encouraging */}
           <motion.div 
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="px-5 mb-3"
+            className="px-5 mb-5"
           >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs text-muted-foreground mb-0.5">Total Points</p>
-                <div className="flex items-baseline gap-1.5">
-                  <span className="text-3xl font-bold text-foreground tabular-nums">
-                    {totalPoints.toLocaleString()}
-                  </span>
-                  <span className="text-sm text-muted-foreground">pts</span>
+            <div className="rounded-2xl bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-rose-500/5 border border-amber-500/20 p-5">
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <p className="text-xs text-amber-700 dark:text-amber-400 font-medium uppercase tracking-wide mb-1">Your Earnings</p>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-4xl font-bold text-foreground tabular-nums">
+                      {totalPoints.toLocaleString()}
+                    </span>
+                    <span className="text-sm font-medium text-amber-600 dark:text-amber-400">points</span>
+                  </div>
+                </div>
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg">
+                  <Zap className="w-6 h-6 text-white" />
                 </div>
               </div>
-              <div className="flex gap-4">
-                <div className="text-right">
-                  <p className="text-xs text-muted-foreground">Today</p>
-                  <p className="text-sm font-semibold text-primary">+{todayEarnings}</p>
+              
+              <div className="flex items-center gap-6">
+                <div className="flex-1 rounded-xl bg-white/50 dark:bg-white/5 p-3">
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wide mb-0.5">Today</p>
+                  <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">+{todayEarnings}</p>
                 </div>
-                <div className="text-right">
-                  <p className="text-xs text-muted-foreground">Team</p>
-                  <p className="text-sm font-semibold text-foreground">{referralCount}</p>
+                <div className="flex-1 rounded-xl bg-white/50 dark:bg-white/5 p-3">
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wide mb-0.5">Team</p>
+                  <p className="text-lg font-bold text-foreground">{referralCount} <span className="text-xs font-normal text-muted-foreground">members</span></p>
                 </div>
               </div>
+              
+              {streakDays >= 2 && (
+                <p className="text-xs text-amber-700 dark:text-amber-400 text-center mt-3">
+                  🔥 {streakDays} day streak — you're on fire!
+                </p>
+              )}
             </div>
           </motion.div>
 
@@ -564,47 +576,47 @@ export const AppHome: React.FC = () => {
           {/* Content below the map */}
           <div className="px-5 mt-4 space-y-4">
 
-            {/* Referral Section - Prominent & Clean */}
+            {/* Grow Together Section - Warm & Inviting */}
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="rounded-3xl bg-primary/5 border border-primary/20 p-5"
+              className="rounded-3xl bg-gradient-to-br from-violet-500/10 via-purple-500/5 to-fuchsia-500/5 border border-violet-500/20 p-5"
             >
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center">
-                  <Gift className="w-5 h-5 text-primary" />
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg">
+                  <Users className="w-5 h-5 text-white" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-base font-semibold text-foreground">Invite & Earn Together</h3>
+                  <h3 className="text-lg font-bold text-foreground">Grow Together 🌱</h3>
                   <p className="text-sm text-muted-foreground">Earn 5% of your team's earnings</p>
                 </div>
               </div>
 
               {/* Referral Link Display */}
-              <div className="bg-background rounded-xl p-3 flex items-center gap-2 mb-4 border border-border">
-                <span className="flex-1 text-sm text-muted-foreground truncate font-mono">
+              <div className="bg-white/50 dark:bg-white/5 rounded-xl p-3 flex items-center gap-2 mb-4 border border-border">
+                <span className="flex-1 text-sm text-foreground truncate font-mono">
                   nomiqa.com/{username || 'invite'}
                 </span>
                 <button
                   onClick={() => { lightTap(); handleCopyLink(); }}
-                  className="p-2 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
+                  className="p-2 rounded-lg bg-violet-500/10 hover:bg-violet-500/20 transition-colors"
                 >
-                  <Copy className="w-4 h-4 text-muted-foreground" />
+                  <Copy className="w-4 h-4 text-violet-600 dark:text-violet-400" />
                 </button>
               </div>
 
               <button
                 onClick={() => { mediumTap(); handleShareReferral(); }}
-                className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-semibold flex items-center justify-center gap-2 active:scale-[0.98] transition-transform"
+                className="w-full h-12 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-semibold flex items-center justify-center gap-2 active:scale-[0.98] transition-transform shadow-lg"
               >
                 <Share2 className="w-4 h-4" />
-                Share Invite Link
+                Share & Grow Your Team
               </button>
 
               {referralCount > 0 && (
-                <p className="text-center text-xs text-muted-foreground mt-3">
-                  You have {referralCount} team member{referralCount !== 1 ? 's' : ''} contributing with you
+                <p className="text-center text-xs text-violet-700 dark:text-violet-300 mt-3">
+                  🎉 {referralCount} friend{referralCount !== 1 ? 's' : ''} earning with you!
                 </p>
               )}
             </motion.div>
@@ -614,74 +626,75 @@ export const AppHome: React.FC = () => {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.15 }}
-              className="space-y-2"
+              className="grid grid-cols-2 gap-3"
             >
               <button
                 onClick={() => { lightTap(); navigate('/app/rewards'); }}
-                className="w-full rounded-2xl bg-card border border-border p-4 flex items-center gap-4 active:scale-[0.99] transition-transform"
+                className="rounded-2xl bg-gradient-to-br from-amber-500/10 to-orange-500/5 border border-amber-500/20 p-4 flex flex-col items-center gap-2 active:scale-[0.98] transition-transform"
               >
-                <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center">
-                  <Gift className="w-5 h-5 text-amber-500" />
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg">
+                  <Gift className="w-5 h-5 text-white" />
                 </div>
-                <div className="flex-1 text-left">
-                  <p className="text-sm font-semibold text-foreground">Rewards</p>
-                  <p className="text-xs text-muted-foreground">View your earnings</p>
+                <div className="text-center">
+                  <p className="text-sm font-bold text-foreground">Rewards</p>
+                  <p className="text-[10px] text-amber-700 dark:text-amber-400">Claim gifts</p>
                 </div>
-                <ChevronRight className="w-5 h-5 text-muted-foreground" />
               </button>
 
               <button
                 onClick={() => { lightTap(); navigate('/app/leaderboard'); }}
-                className="w-full rounded-2xl bg-card border border-border p-4 flex items-center gap-4 active:scale-[0.99] transition-transform"
+                className="rounded-2xl bg-gradient-to-br from-blue-500/10 to-cyan-500/5 border border-blue-500/20 p-4 flex flex-col items-center gap-2 active:scale-[0.98] transition-transform"
               >
-                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                  <TrendingUp className="w-5 h-5 text-primary" />
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg">
+                  <TrendingUp className="w-5 h-5 text-white" />
                 </div>
-                <div className="flex-1 text-left">
-                  <p className="text-sm font-semibold text-foreground">Leaderboard</p>
-                  <p className="text-xs text-muted-foreground">See top earners</p>
+                <div className="text-center">
+                  <p className="text-sm font-bold text-foreground">Leaderboard</p>
+                  <p className="text-[10px] text-blue-700 dark:text-blue-400">Top earners</p>
                 </div>
-                <ChevronRight className="w-5 h-5 text-muted-foreground" />
               </button>
             </motion.div>
 
-            {/* How It Works - Under Rewards & Leaderboard */}
+            {/* How It Works - Warm & Friendly */}
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="rounded-3xl bg-card border border-border p-5"
+              className="rounded-3xl bg-gradient-to-br from-emerald-500/10 via-teal-500/5 to-cyan-500/5 border border-emerald-500/20 p-5"
             >
-              <h3 className="text-base font-semibold text-foreground mb-4">How You Earn</h3>
+              <div className="flex items-center gap-2 mb-5">
+                <h3 className="text-lg font-bold text-foreground">How You Earn</h3>
+                <span className="text-sm">✨</span>
+              </div>
               
-              <div className="space-y-3">
-                <div className="flex items-start gap-3">
-                  <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span className="text-xs font-bold text-primary">1</span>
+              <div className="space-y-4">
+                <div className="flex items-start gap-4">
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center flex-shrink-0 shadow-md">
+                    <span className="text-sm font-bold text-white">1</span>
                   </div>
-                  <div>
-                    <p className="text-sm font-medium text-foreground">App runs in background</p>
-                    <p className="text-xs text-muted-foreground">Uses &lt;3% battery daily</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start gap-3">
-                  <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span className="text-xs font-bold text-primary">2</span>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-foreground">Contribute network data</p>
-                    <p className="text-xs text-muted-foreground">Anonymous signal quality info</p>
+                  <div className="flex-1 pt-1">
+                    <p className="text-sm font-semibold text-foreground">App runs in background</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">Uses less than 3% battery — you won't even notice</p>
                   </div>
                 </div>
                 
-                <div className="flex items-start gap-3">
-                  <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span className="text-xs font-bold text-primary">3</span>
+                <div className="flex items-start gap-4">
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-teal-400 to-cyan-500 flex items-center justify-center flex-shrink-0 shadow-md">
+                    <span className="text-sm font-bold text-white">2</span>
                   </div>
-                  <div>
-                    <p className="text-sm font-medium text-foreground">Earn points automatically</p>
-                    <p className="text-xs text-muted-foreground">Redeem for rewards anytime</p>
+                  <div className="flex-1 pt-1">
+                    <p className="text-sm font-semibold text-foreground">Contribute network data</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">100% anonymous signal quality info</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-4">
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center flex-shrink-0 shadow-md">
+                    <span className="text-sm font-bold text-white">3</span>
+                  </div>
+                  <div className="flex-1 pt-1">
+                    <p className="text-sm font-semibold text-foreground">Earn points automatically</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">Redeem for real rewards anytime 🎁</p>
                   </div>
                 </div>
               </div>
