@@ -362,13 +362,10 @@ export const AppHome: React.FC = () => {
       {/* Immersive Dark Background with Globe */}
       <div
         className="min-h-screen relative"
-        style={{ 
-          background: 'linear-gradient(180deg, hsl(222 30% 7%) 0%, hsl(222 35% 10%) 50%, hsl(222 30% 7%) 100%)'
-        }}
         {...handlers}
       >
-        {/* Full-Screen Globe Background - Dimmed for readability */}
-        <div className="fixed inset-0 z-0 opacity-40">
+        {/* Full-Screen Globe Background - Visible */}
+        <div className="fixed inset-0 z-0">
           <Suspense fallback={null}>
             <NetworkGlobe 
               coverageData={globalCoverageData?.cells || []}
@@ -380,9 +377,6 @@ export const AppHome: React.FC = () => {
             />
           </Suspense>
         </div>
-        
-        {/* Dark overlay gradient for content readability */}
-        <div className="fixed inset-0 z-[1] pointer-events-none bg-gradient-to-b from-[hsl(222_30%_7%/0.6)] via-[hsl(222_30%_7%/0.4)] to-[hsl(222_30%_7%/0.9)]" />
 
         <PullToRefreshIndicator 
           pullDistance={pullDistance}
@@ -395,18 +389,18 @@ export const AppHome: React.FC = () => {
           
           {/* Live Badge - Top Left */}
           <div className="absolute top-3 left-4 z-30" style={{ marginTop: 'env(safe-area-inset-top, 0px)' }}>
-            <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-[hsl(222_30%_12%/0.9)] border border-emerald-500/50 backdrop-blur-xl shadow-lg">
+            <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-black/40 border border-emerald-500/50 backdrop-blur-xl shadow-lg">
               <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
               <span className="text-[11px] font-semibold text-emerald-400 uppercase tracking-wider">Live</span>
             </div>
           </div>
 
-          {/* Warm Welcome Header - Strong Glassmorphism */}
+          {/* Warm Welcome Header - Transparent Glassmorphism */}
           <header className="px-4 pt-12 mb-5">
             <motion.div 
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              className="rounded-3xl bg-[hsl(222_30%_12%/0.85)] backdrop-blur-2xl border border-white/15 p-5 shadow-2xl shadow-black/40"
+              className="rounded-3xl bg-black/50 backdrop-blur-2xl border border-white/20 p-5 shadow-2xl"
             >
               <div className="flex items-center justify-between mb-4">
                 <div>
@@ -430,7 +424,7 @@ export const AppHome: React.FC = () => {
               </div>
 
               {/* Points Display - Warm Gradient */}
-              <div className="rounded-2xl bg-gradient-to-br from-amber-500/20 via-orange-500/15 to-rose-500/10 border border-amber-500/40 p-4">
+              <div className="rounded-2xl bg-gradient-to-br from-amber-500/25 via-orange-500/20 to-rose-500/15 border border-amber-500/50 p-4">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-xs text-amber-300 font-medium mb-1">Your Earnings</p>
@@ -549,7 +543,7 @@ export const AppHome: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               className="flex justify-center mb-5"
             >
-              <div className="flex items-center gap-4 px-5 py-3 rounded-full bg-[hsl(222_30%_12%/0.9)] backdrop-blur-2xl border border-white/15 shadow-xl">
+              <div className="flex items-center gap-4 px-5 py-3 rounded-full bg-black/40 backdrop-blur-xl border border-white/20 shadow-xl">
                 <div className="flex items-center gap-1.5">
                   <Clock className="w-4 h-4 text-white/70" />
                   <span className="text-sm font-medium text-white tabular-nums">{formatDuration(stats.duration)}</span>
@@ -566,15 +560,15 @@ export const AppHome: React.FC = () => {
           {/* Floating Cards Container */}
           <div className="px-4 space-y-4">
 
-            {/* Referral Section - Strong Glassmorphism */}
+            {/* Referral Section - Transparent Glassmorphism */}
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="rounded-3xl bg-[hsl(222_30%_12%/0.85)] backdrop-blur-2xl border border-white/15 p-5 shadow-2xl shadow-black/40"
+              className="rounded-3xl bg-black/40 backdrop-blur-xl border border-white/20 p-5 shadow-2xl"
             >
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-500/30 to-orange-500/25 flex items-center justify-center border border-amber-500/50 shadow-lg shadow-amber-500/20">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-500/40 to-orange-500/30 flex items-center justify-center border border-amber-500/50 shadow-lg shadow-amber-500/20">
                   <Gift className="w-6 h-6 text-amber-400" />
                 </div>
                 <div className="flex-1">
@@ -584,13 +578,13 @@ export const AppHome: React.FC = () => {
               </div>
 
               {/* Referral Link Display */}
-              <div className="bg-white/8 rounded-xl p-3 flex items-center gap-2 mb-4 border border-white/15">
+              <div className="bg-black/30 rounded-xl p-3 flex items-center gap-2 mb-4 border border-white/15">
                 <span className="flex-1 text-sm text-white/70 truncate font-mono">
                   nomiqa.com/{username || 'invite'}
                 </span>
                 <button
                   onClick={() => { lightTap(); handleCopyLink(); }}
-                  className="p-2.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 transition-colors border border-amber-500/40 active:scale-95"
+                  className="p-2.5 rounded-lg bg-amber-500/25 hover:bg-amber-500/35 transition-colors border border-amber-500/50 active:scale-95"
                 >
                   <Copy className="w-4 h-4 text-amber-400" />
                 </button>
@@ -611,7 +605,7 @@ export const AppHome: React.FC = () => {
               )}
             </motion.div>
 
-            {/* Leaderboard Card - Strong Glassmorphism */}
+            {/* Leaderboard Card - Transparent Glassmorphism */}
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
@@ -619,9 +613,9 @@ export const AppHome: React.FC = () => {
             >
               <button
                 onClick={() => { lightTap(); navigate('/app/leaderboard'); }}
-                className="w-full rounded-2xl bg-[hsl(222_30%_12%/0.85)] backdrop-blur-2xl border border-white/15 p-4 flex items-center gap-4 active:scale-[0.98] transition-transform shadow-2xl shadow-black/40"
+                className="w-full rounded-2xl bg-black/40 backdrop-blur-xl border border-white/20 p-4 flex items-center gap-4 active:scale-[0.98] transition-transform shadow-2xl"
               >
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-500/30 to-purple-500/25 flex items-center justify-center border border-violet-500/50 shadow-lg shadow-violet-500/20">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-500/40 to-purple-500/30 flex items-center justify-center border border-violet-500/50 shadow-lg shadow-violet-500/20">
                   <TrendingUp className="w-6 h-6 text-violet-400" />
                 </div>
                 <div className="flex-1 text-left">
@@ -632,19 +626,19 @@ export const AppHome: React.FC = () => {
               </button>
             </motion.div>
 
-            {/* How It Works - Strong Glassmorphism */}
+            {/* How It Works - Transparent Glassmorphism */}
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="rounded-3xl bg-[hsl(222_30%_12%/0.85)] backdrop-blur-2xl border border-white/15 p-5 shadow-2xl shadow-black/40"
+              className="rounded-3xl bg-black/40 backdrop-blur-xl border border-white/20 p-5 shadow-2xl"
             >
               <h3 className="text-base font-semibold text-white mb-1">How You Earn ✨</h3>
               <p className="text-xs text-white/60 mb-4">It's simple, passive, and rewarding</p>
               
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-sky-500/30 to-cyan-500/20 flex items-center justify-center flex-shrink-0 border border-sky-500/40 shadow-lg shadow-sky-500/15">
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-sky-500/40 to-cyan-500/30 flex items-center justify-center flex-shrink-0 border border-sky-500/50 shadow-lg shadow-sky-500/20">
                     <span className="text-sm font-bold text-sky-400">1</span>
                   </div>
                   <div className="flex-1 pt-0.5">
@@ -654,7 +648,7 @@ export const AppHome: React.FC = () => {
                 </div>
                 
                 <div className="flex items-start gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500/30 to-indigo-500/20 flex items-center justify-center flex-shrink-0 border border-blue-500/40 shadow-lg shadow-blue-500/15">
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500/40 to-indigo-500/30 flex items-center justify-center flex-shrink-0 border border-blue-500/50 shadow-lg shadow-blue-500/20">
                     <span className="text-sm font-bold text-blue-400">2</span>
                   </div>
                   <div className="flex-1 pt-0.5">
@@ -664,7 +658,7 @@ export const AppHome: React.FC = () => {
                 </div>
                 
                 <div className="flex items-start gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500/30 to-violet-500/20 flex items-center justify-center flex-shrink-0 border border-indigo-500/40 shadow-lg shadow-indigo-500/15">
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500/40 to-violet-500/30 flex items-center justify-center flex-shrink-0 border border-indigo-500/50 shadow-lg shadow-indigo-500/20">
                     <span className="text-sm font-bold text-indigo-400">3</span>
                   </div>
                   <div className="flex-1 pt-0.5">
@@ -682,10 +676,10 @@ export const AppHome: React.FC = () => {
               transition={{ delay: 0.35 }}
               className="text-center py-6"
             >
-              <p className="text-sm text-white/70">
+              <p className="text-sm text-white/80">
                 You're part of something big 🌍
               </p>
-              <p className="text-xs text-white/50 mt-1">
+              <p className="text-xs text-white/60 mt-1">
                 Every contribution helps build a better network
               </p>
             </motion.div>
