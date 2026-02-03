@@ -307,7 +307,8 @@ export const AppAuth: React.FC = () => {
 
           if (insertError) throw insertError;
 
-          // Track affiliate if applicable
+          // Track affiliate and send welcome email via create-affiliate
+          // (handles referral tracking server-side with proper auth)
           let { referralCode, clearReferralCode } = useAffiliateTracking.getState();
           
           if (!referralCode) {
@@ -322,11 +323,20 @@ export const AppAuth: React.FC = () => {
             }
           }
           
-          if (referralCode) {
-            try {
-              await supabase.functions.invoke('track-affiliate-registration', {
-                body: { referralCode, userId, referrer: document.referrer }
-              });
+          try {
+            await supabase.functions.invoke('create-affiliate', {
+              body: {
+                email: email,
+                userId: userId, // Pass userId for referral tracking
+                sendWelcomeOnly: true,
+                referralCode: referralCode || undefined, // Pass referral code if present
+                referrer: document.referrer || undefined,
+              }
+            });
+            console.log('OAuth registration processed:', email, referralCode ? `with referral: ${referralCode}` : 'no referral');
+            
+            // Clear referral code after successful tracking
+            if (referralCode) {
               clearReferralCode();
               try {
                 const storedData = localStorage.getItem('affiliate-tracking');
@@ -337,23 +347,9 @@ export const AppAuth: React.FC = () => {
                   localStorage.setItem('affiliate-tracking', JSON.stringify(parsed));
                 }
               } catch (e) {}
-            } catch (trackError) {
-              console.error('Error tracking affiliate:', trackError);
             }
-          }
-
-          // Send welcome email for new Google OAuth registrations via create-affiliate
-          // (which handles welcome emails server-side with proper auth)
-          try {
-            await supabase.functions.invoke('create-affiliate', {
-              body: {
-                email: email,
-                sendWelcomeOnly: true, // Flag to only send welcome email, not create affiliate
-              }
-            });
-            console.log('Welcome email triggered for Google OAuth user:', email);
           } catch (emailError) {
-            console.error('Error triggering welcome email:', emailError);
+            console.error('Error processing OAuth registration:', emailError);
           }
 
           console.log('New OAuth user registered:', email);

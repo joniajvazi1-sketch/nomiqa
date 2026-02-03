@@ -12,6 +12,8 @@ const createAffiliateSchema = z.object({
   username: z.string().min(3).max(20).regex(/^[a-zA-Z0-9_]+$/).optional(),
   userId: z.string().uuid().optional(),
   sendWelcomeOnly: z.boolean().optional(), // Flag to only send welcome email
+  referralCode: z.string().max(50).optional(), // Referral code for OAuth registrations
+  referrer: z.string().optional(), // Referrer URL
 });
 
 // Cryptographically secure code generation
@@ -48,14 +50,44 @@ serve(async (req) => {
       );
     }
 
-    const { email, username, userId, sendWelcomeOnly } = validationResult.data;
+    const { email, username, userId, sendWelcomeOnly, referralCode, referrer } = validationResult.data;
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // If only sending welcome email (for OAuth registrations), do that and return
+    // If only sending welcome email (for OAuth registrations), do that and track referral
     if (sendWelcomeOnly) {
+      // Track affiliate referral if code provided (for OAuth registrations)
+      if (referralCode && userId) {
+        try {
+          console.log(`Tracking OAuth referral: code=${referralCode}, userId=${userId}`);
+          const trackResponse = await fetch(`${supabaseUrl}/functions/v1/track-affiliate-registration`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${supabaseServiceKey}`,
+            },
+            body: JSON.stringify({
+              referralCode,
+              userId,
+              referrer: referrer || '',
+            }),
+          });
+          
+          if (trackResponse.ok) {
+            const trackResult = await trackResponse.json();
+            console.log('OAuth referral tracking success:', trackResult);
+          } else {
+            const errorText = await trackResponse.text();
+            console.error('OAuth referral tracking failed:', trackResponse.status, errorText);
+          }
+        } catch (trackError) {
+          console.error('Error tracking OAuth referral:', trackError);
+          // Don't fail the main flow if tracking fails
+        }
+      }
+
       try {
         const sendEmailResponse = await fetch(`${supabaseUrl}/functions/v1/send-email`, {
           method: 'POST',
@@ -77,7 +109,7 @@ serve(async (req) => {
         }
 
         return new Response(
-          JSON.stringify({ success: true, message: 'Welcome email sent' }),
+          JSON.stringify({ success: true, message: 'Welcome email sent', referralTracked: !!referralCode }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       } catch (emailError) {

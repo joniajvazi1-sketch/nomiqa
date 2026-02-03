@@ -112,7 +112,8 @@ export default function Auth() {
 
           if (insertError) throw insertError;
 
-          // Track affiliate if applicable - get from: 1) URL params, 2) zustand, 3) localStorage
+          // Track affiliate and send welcome email via create-affiliate
+          // (handles referral tracking server-side with proper auth)
           let { referralCode, clearReferralCode, setReferralCode } = useAffiliateTracking.getState();
           
           // Priority 1: Check URL params (most reliable - survives cross-device/browser)
@@ -137,18 +138,21 @@ export default function Auth() {
             }
           }
           
-          if (referralCode) {
-            console.log('OAuth: Tracking referral with code:', referralCode);
-            try {
-              await supabase.functions.invoke("track-affiliate-registration", {
-                body: {
-                  referralCode,
-                  userId,
-                  referrer: document.referrer,
-                },
-              });
+          try {
+            await supabase.functions.invoke("create-affiliate", {
+              body: {
+                email: email,
+                userId: userId, // Pass userId for referral tracking
+                sendWelcomeOnly: true,
+                referralCode: referralCode || undefined, // Pass referral code if present
+                referrer: document.referrer || undefined,
+              }
+            });
+            console.log("OAuth registration processed:", email, referralCode ? `with referral: ${referralCode}` : 'no referral');
+            
+            // Clear referral code after successful tracking
+            if (referralCode) {
               clearReferralCode();
-              // Also clear localStorage
               try {
                 const storedData = localStorage.getItem('affiliate-tracking');
                 if (storedData) {
@@ -160,24 +164,10 @@ export default function Auth() {
               } catch (e) {
                 console.error('Error clearing referral code from localStorage:', e);
               }
-            } catch (trackError) {
-              console.error("Error tracking affiliate:", trackError);
             }
-          }
-
-          // Send welcome email for new Google OAuth registrations via create-affiliate
-          // (which handles welcome emails server-side with proper auth)
-          try {
-            await supabase.functions.invoke("create-affiliate", {
-              body: {
-                email: email,
-                sendWelcomeOnly: true, // Flag to only send welcome email, not create affiliate
-              }
-            });
-            console.log("Welcome email triggered for Google OAuth user:", email);
           } catch (emailError) {
-            console.error("Error triggering welcome email:", emailError);
-            // Don't block registration if email fails
+            console.error("Error processing OAuth registration:", emailError);
+            // Don't block registration if this fails
           }
 
           console.log("New OAuth user registered:", email);
