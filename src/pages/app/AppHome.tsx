@@ -409,7 +409,7 @@ export const AppHome: React.FC = () => {
             >
               <div className="flex items-center justify-between mb-3">
                 <div>
-                  <p className="text-sm text-amber-400 font-medium">{greeting} 👋</p>
+                  <p className="text-sm text-white/70 font-medium">{greeting} 👋</p>
                   <h1 className="text-xl font-bold text-white">{displayName}</h1>
                 </div>
                 <div className="flex items-center gap-2">
@@ -417,7 +417,7 @@ export const AppHome: React.FC = () => {
                     onClick={() => { lightTap(); setTheme(isDark ? 'light' : 'dark'); }}
                     className="w-9 h-9 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20 active:scale-95 transition-transform"
                   >
-                    {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-white/80" />}
+                    {isDark ? <Sun className="w-4 h-4 text-white/80" /> : <Moon className="w-4 h-4 text-white/80" />}
                   </button>
                   <button 
                     onClick={() => { lightTap(); navigate('/app/profile'); }}
@@ -428,11 +428,11 @@ export const AppHome: React.FC = () => {
                 </div>
               </div>
 
-              {/* Points Display */}
-              <div className="rounded-xl bg-gradient-to-br from-amber-500/20 via-orange-500/15 to-rose-500/10 border border-amber-500/40 p-3">
+              {/* Points Display - Clean white/emerald theme */}
+              <div className="rounded-xl bg-white/5 border border-white/10 p-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-[10px] text-amber-300/80 font-medium mb-0.5 uppercase tracking-wider">Your Earnings</p>
+                    <p className="text-[10px] text-white/50 font-medium mb-0.5 uppercase tracking-wider">Your Earnings</p>
                     <div className="flex items-baseline gap-1.5">
                       <span className="text-2xl font-bold text-white tabular-nums">
                         {totalPoints.toLocaleString()}
@@ -469,24 +469,24 @@ export const AppHome: React.FC = () => {
                 !user && 'opacity-40 cursor-not-allowed',
                 isActive 
                   ? isPaused 
-                    ? 'bg-amber-500/20 border-amber-400/60' 
-                    : 'bg-green-500/20 border-green-500/60'
-                  : 'bg-red-500/20 border-red-500/60'
+                    ? 'bg-white/10 border-white/30' 
+                    : 'bg-emerald-500/20 border-emerald-500/60'
+                  : 'bg-white/10 border-white/30'
               )}
               style={{
                 boxShadow: isActive && !isPaused
-                  ? '0 0 30px rgba(34, 197, 94, 0.4)'
-                  : '0 0 25px rgba(239, 68, 68, 0.4)',
+                  ? '0 0 30px rgba(16, 185, 129, 0.4)'
+                  : '0 0 20px rgba(255, 255, 255, 0.1)',
               }}
             >
               {isActive ? (
-                isPaused ? <Play className="w-6 h-6 text-amber-400" /> : <Pause className="w-6 h-6 text-green-400" />
+                isPaused ? <Play className="w-6 h-6 text-white/80" /> : <Pause className="w-6 h-6 text-emerald-400" />
               ) : (
-                <Play className="w-6 h-6 text-red-400 ml-0.5" />
+                <Play className="w-6 h-6 text-white/80 ml-0.5" />
               )}
               <span className={cn(
                 "text-[8px] font-bold uppercase tracking-wider",
-                isActive ? isPaused ? "text-amber-400" : "text-green-400" : "text-red-400"
+                isActive ? isPaused ? "text-white/70" : "text-emerald-400" : "text-white/70"
               )}>
                 {isActive ? (isPaused ? 'Resume' : 'Stop') : 'Start'}
               </span>
@@ -502,19 +502,19 @@ export const AppHome: React.FC = () => {
                 "w-16 h-16 rounded-full flex flex-col items-center justify-center gap-0.5 relative",
                 "backdrop-blur-xl border-2 transition-all duration-200 active:scale-95",
                 isRunningSpeedTest 
-                  ? 'bg-amber-500/20 border-amber-400/60' 
+                  ? 'bg-cyan-500/20 border-cyan-400/60' 
                   : isCellular 
                     ? 'bg-white/10 border-white/30'
                     : 'bg-white/5 border-white/10 cursor-not-allowed opacity-50'
               )}
             >
-              <Gauge className={cn("w-6 h-6", isRunningSpeedTest ? "text-amber-400 animate-spin" : "text-white/80")} />
-              <span className={cn("text-[8px] font-bold uppercase tracking-wider", isRunningSpeedTest ? "text-amber-400" : "text-white/70")}>
+              <Gauge className={cn("w-6 h-6", isRunningSpeedTest ? "text-cyan-400 animate-spin" : "text-white/80")} />
+              <span className={cn("text-[8px] font-bold uppercase tracking-wider", isRunningSpeedTest ? "text-cyan-400" : "text-white/70")}>
                 {isRunningSpeedTest ? speedTestPhase === 'latency' ? 'Ping' : speedTestPhase === 'download' ? 'Down' : 'Up' : 'Speed'}
               </span>
               {isRunningSpeedTest && (
                 <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-12 h-1 bg-white/10 rounded-full overflow-hidden">
-                  <div className="h-full bg-amber-400 rounded-full transition-all" style={{ width: `${speedTestProgress}%` }} />
+                  <div className="h-full bg-cyan-400 rounded-full transition-all" style={{ width: `${speedTestProgress}%` }} />
                 </div>
               )}
             </motion.button>
@@ -534,8 +534,8 @@ export const AppHome: React.FC = () => {
                 </div>
                 <div className="w-px h-4 bg-white/20" />
                 <div className="flex items-center gap-1">
-                  <Zap className="w-3.5 h-3.5 text-amber-400" />
-                  <span className="text-xs font-bold text-amber-400 tabular-nums">+{stats.pointsEarned.toFixed(1)}</span>
+                  <Zap className="w-3.5 h-3.5 text-emerald-400" />
+                  <span className="text-xs font-bold text-emerald-400 tabular-nums">+{stats.pointsEarned.toFixed(1)}</span>
                 </div>
               </div>
             </motion.div>
@@ -547,7 +547,7 @@ export const AppHome: React.FC = () => {
           {/* Cards Section */}
           <div className="px-4 space-y-3">
 
-            {/* Referral Section */}
+            {/* Referral Section - Clean theme */}
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
@@ -555,8 +555,8 @@ export const AppHome: React.FC = () => {
               className="rounded-2xl bg-black/60 backdrop-blur-xl border border-white/15 p-4 shadow-xl"
             >
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/30 to-orange-500/20 flex items-center justify-center border border-amber-500/40">
-                  <Gift className="w-5 h-5 text-amber-400" />
+                <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center border border-white/20">
+                  <Gift className="w-5 h-5 text-white/80" />
                 </div>
                 <div className="flex-1">
                   <h3 className="text-sm font-semibold text-white">Grow Together 🌱</h3>
@@ -570,22 +570,22 @@ export const AppHome: React.FC = () => {
                 </span>
                 <button
                   onClick={() => { lightTap(); handleCopyLink(); }}
-                  className="p-2 rounded-lg bg-amber-500/20 border border-amber-500/40 active:scale-95"
+                  className="p-2 rounded-lg bg-white/10 border border-white/20 active:scale-95"
                 >
-                  <Copy className="w-3.5 h-3.5 text-amber-400" />
+                  <Copy className="w-3.5 h-3.5 text-white/70" />
                 </button>
               </div>
 
               <button
                 onClick={() => { mediumTap(); handleShareReferral(); }}
-                className="w-full h-10 rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 text-white text-sm font-semibold flex items-center justify-center gap-2 active:scale-[0.98] transition-transform"
+                className="w-full h-10 rounded-lg bg-white/15 hover:bg-white/20 border border-white/20 text-white text-sm font-semibold flex items-center justify-center gap-2 active:scale-[0.98] transition-all"
               >
                 <Share2 className="w-3.5 h-3.5" />
                 Share Your Link
               </button>
 
               {referralCount > 0 && (
-                <p className="text-center text-[11px] text-amber-400 mt-2">
+                <p className="text-center text-[11px] text-emerald-400 mt-2">
                   🎊 {referralCount} friend{referralCount !== 1 ? 's' : ''} earning with you!
                 </p>
               )}
