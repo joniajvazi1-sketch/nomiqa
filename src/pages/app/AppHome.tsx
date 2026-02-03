@@ -545,8 +545,8 @@ export const AppHome: React.FC = () => {
             </motion.div>
           )}
 
-          {/* Globe Viewing Space - taller so cards appear after globe ends */}
-          <div className="h-[55vh] min-h-[380px] max-h-[480px]" />
+          {/* Globe Viewing Space - sized so cards start only after globe ends */}
+          <div className="h-[clamp(520px,72vh,760px)]" />
 
           {/* Cards Section - After the globe */}
           <div className="px-4 space-y-3">
