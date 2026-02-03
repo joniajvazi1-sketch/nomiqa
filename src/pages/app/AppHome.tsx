@@ -629,15 +629,15 @@ export const AppHome: React.FC = () => {
               className="grid grid-cols-2 gap-3"
             >
               <button
-                onClick={() => { lightTap(); navigate('/app/rewards'); }}
+                onClick={() => { lightTap(); navigate('/app/challenges'); }}
                 className="rounded-2xl bg-gradient-to-br from-amber-500/10 to-orange-500/5 border border-amber-500/20 p-4 flex flex-col items-center gap-2 active:scale-[0.98] transition-transform"
               >
                 <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg">
-                  <Gift className="w-5 h-5 text-white" />
+                  <Zap className="w-5 h-5 text-white" />
                 </div>
                 <div className="text-center">
-                  <p className="text-sm font-bold text-foreground">Rewards</p>
-                  <p className="text-[10px] text-amber-700 dark:text-amber-400">Claim gifts</p>
+                  <p className="text-sm font-bold text-foreground">Challenges</p>
+                  <p className="text-[10px] text-amber-700 dark:text-amber-400">Earn bonus</p>
                 </div>
               </button>
 
