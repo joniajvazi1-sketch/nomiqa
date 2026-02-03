@@ -458,11 +458,8 @@ export const AppHome: React.FC = () => {
             </motion.div>
           </header>
 
-          {/* Globe Viewing Space - space for globe to be visible */}
-          <div className="h-[32vh] min-h-[200px] max-h-[280px]" />
-
-          {/* Action Buttons - Under the globe */}
-          <div className="flex justify-center gap-5 mb-4 px-4">
+          {/* Action Buttons - On top of globe */}
+          <div className="flex justify-center gap-5 px-4">
             <motion.button
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -531,7 +528,7 @@ export const AppHome: React.FC = () => {
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="flex justify-center mb-4"
+              className="flex justify-center mt-3"
             >
               <div className="flex items-center gap-3 px-4 py-2 rounded-full bg-black/50 backdrop-blur-xl border border-white/15">
                 <div className="flex items-center gap-1">
@@ -547,7 +544,10 @@ export const AppHome: React.FC = () => {
             </motion.div>
           )}
 
-          {/* Cards Section */}
+          {/* Globe Viewing Space - empty space where globe shows through */}
+          <div className="h-[45vh] min-h-[300px] max-h-[400px]" />
+
+          {/* Cards Section - After the globe */}
           <div className="px-4 space-y-3">
 
             {/* Referral Section - Clean theme */}
