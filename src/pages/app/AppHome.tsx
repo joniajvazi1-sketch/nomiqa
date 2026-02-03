@@ -384,7 +384,7 @@ export const AppHome: React.FC = () => {
           isRefreshing={isRefreshing}
         />
 
-        {/* Content Layer */}
+        {/* Content Layer - Pushed down to show globe */}
         <div className="relative z-10 pb-28" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 8px)' }}>
           
           {/* Live Badge - Top Left */}
@@ -395,8 +395,11 @@ export const AppHome: React.FC = () => {
             </div>
           </div>
 
+          {/* Globe Viewing Area - Empty space for globe */}
+          <div className="h-[35vh] min-h-[220px] max-h-[320px]" />
+
           {/* Warm Welcome Header - Transparent Glassmorphism */}
-          <header className="px-4 pt-12 mb-5">
+          <header className="px-4 mb-5">
             <motion.div 
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
