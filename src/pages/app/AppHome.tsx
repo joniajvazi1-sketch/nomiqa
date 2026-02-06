@@ -475,7 +475,7 @@ export const AppHome: React.FC = () => {
         {/* Safe area top padding */}
         <div style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }} />
 
-        {/* Header with Greeting, Theme Toggle, Settings - overlays globe */}
+        {/* 1. Header with Greeting, Theme Toggle, Settings */}
         <header className="relative z-20 flex items-center justify-between px-4 pt-3 pb-2">
           <div className="flex items-center gap-2.5 px-3 py-2 rounded-2xl bg-black/40 backdrop-blur-md border border-white/10">
             <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
@@ -500,10 +500,51 @@ export const AppHome: React.FC = () => {
           </div>
         </header>
 
-        {/* Globe Section - Inline in scroll */}
+        {/* 2. Earnings Card */}
+        <motion.div 
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="px-4 mb-3"
+        >
+          <div className="rounded-2xl bg-black/50 backdrop-blur-xl border border-white/10 p-4">
+            <div className="flex items-start justify-between mb-3">
+              <div>
+                <p className="text-[10px] text-amber-400 font-medium uppercase tracking-wide mb-1">Your Earnings</p>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl font-bold text-white tabular-nums">
+                    {totalPoints.toLocaleString()}
+                  </span>
+                  <span className="text-sm font-medium text-amber-400">pts</span>
+                </div>
+              </div>
+              <div className="w-11 h-11 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg">
+                <Zap className="w-5 h-5 text-white" />
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-3">
+              <div className="flex-1 rounded-xl bg-white/5 p-2.5 border border-white/5">
+                <p className="text-[9px] text-white/50 uppercase tracking-wide mb-0.5">Today</p>
+                <p className="text-base font-bold text-emerald-400">+{todayEarnings}</p>
+              </div>
+              <div className="flex-1 rounded-xl bg-white/5 p-2.5 border border-white/5">
+                <p className="text-[9px] text-white/50 uppercase tracking-wide mb-0.5">Team</p>
+                <p className="text-base font-bold text-white">{referralCount}</p>
+              </div>
+              {streakDays >= 2 && (
+                <div className="flex-1 rounded-xl bg-white/5 p-2.5 border border-white/5">
+                  <p className="text-[9px] text-white/50 uppercase tracking-wide mb-0.5">Streak</p>
+                  <p className="text-base font-bold text-orange-400">🔥 {streakDays}d</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </motion.div>
+
+        {/* 3. Globe Section - Fullscreen style */}
         <div 
           className="relative w-full"
-          style={{ height: '300px' }}
+          style={{ height: '45vh', minHeight: '300px', maxHeight: '400px' }}
         >
           <Suspense fallback={
             <div className="absolute inset-0 flex items-center justify-center">
@@ -521,98 +562,30 @@ export const AppHome: React.FC = () => {
           </Suspense>
         </div>
 
-        {/* Content Below Globe */}
-        <div className="relative z-10 px-4 -mt-4">
-          
-          {/* Connection & Status Badges Row */}
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/40 backdrop-blur-md border border-white/10">
-              <Signal className={cn("w-3.5 h-3.5", isCellular ? "text-[#00d4ff]" : "text-amber-400")} />
-              <span className="text-[10px] font-medium text-white/90">{getConnectionLabel()}</span>
-            </div>
-            
-            {/* Offline Banner */}
-            {!isOnline && (
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-amber-500/20 border border-amber-500/30 backdrop-blur-md">
-                <CloudOff className="w-4 h-4 text-amber-400" />
-                <span className="text-xs text-amber-300">{offlineQueueCount} queued</span>
-              </div>
-            )}
-              
-            {/* WiFi Warning */}
-            {isActive && !isCellular && isOnline && (
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-amber-500/20 border border-amber-500/30 backdrop-blur-md">
-                <Wifi className="w-4 h-4 text-amber-400" />
-                <span className="text-xs text-amber-300">Use cellular</span>
-              </div>
-            )}
-          </div>
-
-          {/* Earnings Card */}
+        {/* 4. Session Stats - Only when active */}
+        {isActive && (
           <motion.div 
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-4"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="mx-4 mb-4 grid grid-cols-3 gap-3 p-3 rounded-2xl bg-black/50 backdrop-blur-xl border border-white/10"
           >
-              <div className="rounded-2xl bg-black/50 backdrop-blur-xl border border-white/10 p-4">
-                <div className="flex items-start justify-between mb-3">
-                  <div>
-                    <p className="text-[10px] text-amber-400 font-medium uppercase tracking-wide mb-1">Your Earnings</p>
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-3xl font-bold text-white tabular-nums">
-                        {totalPoints.toLocaleString()}
-                      </span>
-                      <span className="text-sm font-medium text-amber-400">pts</span>
-                    </div>
-                  </div>
-                  <div className="w-11 h-11 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg">
-                    <Zap className="w-5 h-5 text-white" />
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-3">
-                  <div className="flex-1 rounded-xl bg-white/5 p-2.5 border border-white/5">
-                    <p className="text-[9px] text-white/50 uppercase tracking-wide mb-0.5">Today</p>
-                    <p className="text-base font-bold text-emerald-400">+{todayEarnings}</p>
-                  </div>
-                  <div className="flex-1 rounded-xl bg-white/5 p-2.5 border border-white/5">
-                    <p className="text-[9px] text-white/50 uppercase tracking-wide mb-0.5">Team</p>
-                    <p className="text-base font-bold text-white">{referralCount}</p>
-                  </div>
-                  {streakDays >= 2 && (
-                    <div className="flex-1 rounded-xl bg-white/5 p-2.5 border border-white/5">
-                      <p className="text-[9px] text-white/50 uppercase tracking-wide mb-0.5">Streak</p>
-                      <p className="text-base font-bold text-orange-400">🔥 {streakDays}d</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </motion.div>
+            <div className="text-center">
+              <p className="text-lg font-bold text-white tabular-nums">{formatDuration(stats.duration)}</p>
+              <p className="text-[10px] text-[#00d4ff]/70 uppercase tracking-wider">Duration</p>
+            </div>
+            <div className="text-center border-x border-white/10">
+              <p className="text-lg font-bold text-white tabular-nums">{stats.dataPointsCount}</p>
+              <p className="text-[10px] text-[#00d4ff]/70 uppercase tracking-wider">Data Points</p>
+            </div>
+            <div className="text-center">
+              <p className="text-lg font-bold text-[#00d4ff] tabular-nums">+{stats.pointsEarned.toFixed(1)}</p>
+              <p className="text-[10px] text-[#00d4ff]/70 uppercase tracking-wider">Points</p>
+            </div>
+          </motion.div>
+        )}
 
-            {/* Session Stats - Only when active */}
-            {isActive && (
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="mx-4 mb-4 grid grid-cols-3 gap-3 p-3 rounded-2xl bg-black/50 backdrop-blur-xl border border-white/10"
-              >
-                <div className="text-center">
-                  <p className="text-lg font-bold text-white tabular-nums">{formatDuration(stats.duration)}</p>
-                  <p className="text-[10px] text-[#00d4ff]/70 uppercase tracking-wider">Duration</p>
-                </div>
-                <div className="text-center border-x border-white/10">
-                  <p className="text-lg font-bold text-white tabular-nums">{stats.dataPointsCount}</p>
-                  <p className="text-[10px] text-[#00d4ff]/70 uppercase tracking-wider">Data Points</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-lg font-bold text-[#00d4ff] tabular-nums">+{stats.pointsEarned.toFixed(1)}</p>
-                  <p className="text-[10px] text-[#00d4ff]/70 uppercase tracking-wider">Points</p>
-                </div>
-              </motion.div>
-            )}
-
-            {/* Control Buttons Row */}
-            <div className="flex items-center justify-center gap-4 px-4 mb-4">
+        {/* 5. Control Buttons Row */}
+        <div className="flex items-center justify-center gap-4 px-4 mb-4">
               {/* Start/Stop Button */}
               <button
                 ref={startButtonRef}
@@ -792,8 +765,8 @@ export const AppHome: React.FC = () => {
               </div>
             )}
 
-          {/* Content Cards Below */}
-          <div className="space-y-4 pb-8 mt-4">
+        {/* 7. Content Cards Below */}
+        <div className="px-4 space-y-4 pb-8 mt-4">
 
               {/* Grow Together Section */}
               <motion.div
@@ -918,7 +891,6 @@ export const AppHome: React.FC = () => {
                 </div>
               </motion.div>
 
-          </div>
         </div>
       </div>
     </>
