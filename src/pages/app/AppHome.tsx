@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, lazy, Suspense } from 'react';
+import React, { useEffect, useState, useCallback, lazy, Suspense, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from 'next-themes';
 import { Capacitor } from '@capacitor/core';
@@ -8,16 +8,17 @@ import {
   Share2,
   Sun,
   Moon,
-  ChevronRight,
-  CheckCircle2,
   Copy,
-  Gift,
   TrendingUp,
   Clock,
   Play,
   Pause,
   Gauge,
-  Zap
+  Zap,
+  Signal,
+  Wifi,
+  CloudOff,
+  MapPin
 } from 'lucide-react';
 import { useHaptics } from '@/hooks/useHaptics';
 import { supabase } from '@/integrations/supabase/client';
@@ -29,20 +30,23 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from '@/components/app/PullToRefreshIndicator';
 import { AppSpinner } from '@/components/app/AppSpinner';
-import { formatPoints } from '@/utils/tokenomics';
 import { useNativeShare } from '@/hooks/useNativeShare';
 import { AppSEO } from '@/components/app/AppSEO';
 import { toast } from 'sonner';
-import { useContributionPersistence } from '@/hooks/useContributionPersistence';
-import { useNetworkContribution } from '@/hooks/useNetworkContribution';
+import { useNetworkContribution, requestIOSAlwaysPermission, getIOSPermissionStatus } from '@/hooks/useNetworkContribution';
 import { useGlobalCoverage } from '@/hooks/useGlobalCoverage';
 import { DataConsentModal, hasDataConsent } from '@/components/app/DataConsentModal';
+import { BackgroundLocationRationale } from '@/components/app/BackgroundLocationRationale';
+import { RewardCelebration } from '@/components/app/RewardCelebration';
 import { useEnhancedHaptics } from '@/hooks/useEnhancedHaptics';
 import { useEnhancedSounds } from '@/hooks/useEnhancedSounds';
 import { toast as toastNew } from '@/hooks/use-toast';
 
 // Lazy load NetworkGlobe for performance
 const NetworkGlobe = lazy(() => import('@/components/app/NetworkGlobe').then(m => ({ default: m.NetworkGlobe })));
+
+// Permission status type for iOS display
+type IOSPermissionStatusLabel = 'Not Determined' | 'While Using' | 'Always' | 'Denied' | 'Unknown';
 
 export const AppHome: React.FC = () => {
   const navigate = useNavigate();
@@ -56,9 +60,6 @@ export const AppHome: React.FC = () => {
   const isDark = resolvedTheme === 'dark' || theme === 'dark';
   const isIOS = Capacitor.getPlatform() === 'ios';
   
-  // Use client-side persistence for accurate contribution state
-  const { isContributionEnabled } = useContributionPersistence();
-  
   // Network contribution hook for controlling scanning
   const {
     user,
@@ -67,6 +68,8 @@ export const AppHome: React.FC = () => {
     lastPosition,
     isCellular,
     isPaused,
+    connectionType,
+    offlineQueueCount,
     startContribution,
     stopContribution,
     formatDuration,
@@ -88,6 +91,14 @@ export const AppHome: React.FC = () => {
   // Consent state
   const [consentGiven, setConsentGiven] = useState(() => hasDataConsent());
   const [showConsentModal, setShowConsentModal] = useState(false);
+  const [showBackgroundRationale, setShowBackgroundRationale] = useState(false);
+  
+  // Celebration state
+  const [showCelebration, setShowCelebration] = useState(false);
+  const [celebrationPoints, setCelebrationPoints] = useState(0);
+  
+  // iOS permission status for visibility
+  const [iosPermissionLabel, setIosPermissionLabel] = useState<IOSPermissionStatusLabel>('Unknown');
   
   // Speed test state
   const [isRunningSpeedTest, setIsRunningSpeedTest] = useState(false);
@@ -109,13 +120,55 @@ export const AppHome: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [referralCount, setReferralCount] = useState(0);
   const [todayEarnings, setTodayEarnings] = useState(0);
+  
+  const startButtonRef = useRef<HTMLButtonElement>(null);
+
+  // Track iOS permission status for display
+  useEffect(() => {
+    if (!isIOS) return;
+    
+    const checkPermissionStatus = async () => {
+      try {
+        const status = await getIOSPermissionStatus();
+        if (status.backgroundGranted) {
+          setIosPermissionLabel('Always');
+        } else if (status.foregroundGranted) {
+          setIosPermissionLabel('While Using');
+        } else {
+          const BackgroundLocation = (await import('@/plugins/BackgroundLocationPlugin')).default;
+          const nativeStatus = await BackgroundLocation.getPermissionStatus();
+          if (nativeStatus.foregroundStatus === 'not_determined') {
+            setIosPermissionLabel('Not Determined');
+          } else if (nativeStatus.foregroundStatus === 'denied') {
+            setIosPermissionLabel('Denied');
+          } else {
+            setIosPermissionLabel('Unknown');
+          }
+        }
+      } catch (e) {
+        console.error('[AppHome] Failed to check iOS permission:', e);
+        setIosPermissionLabel('Unknown');
+      }
+    };
+    
+    checkPermissionStatus();
+    
+    const handleResume = () => {
+      checkPermissionStatus();
+    };
+    
+    import('@capacitor/app').then(({ App }) => {
+      App.addListener('appStateChange', ({ isActive: isAppActive }) => {
+        if (isAppActive) handleResume();
+      });
+    }).catch(() => {});
+  }, [isIOS, isActive]);
 
   const loadData = useCallback(async () => {
     try {
       const { data: { user: currentUser } } = await supabase.auth.getUser();
 
       if (currentUser) {
-        // Load profile (using _safe view to exclude sensitive fields)
         const { data: profileData } = await supabase
           .from('profiles_safe')
           .select('username')
@@ -126,7 +179,6 @@ export const AppHome: React.FC = () => {
           setUsername(profileData.username);
         }
 
-        // Load points
         const { data: pointsData } = await supabase
           .from('user_points')
           .select('*')
@@ -137,7 +189,6 @@ export const AppHome: React.FC = () => {
           setPoints(pointsData);
         }
 
-        // Load referral count from affiliate data (using _safe view)
         const { data: affiliateData } = await supabase
           .from('affiliates_safe')
           .select('total_registrations')
@@ -148,7 +199,6 @@ export const AppHome: React.FC = () => {
           setReferralCount(affiliateData.total_registrations);
         }
 
-        // Calculate today's earnings
         const todayStr = new Date().toISOString().split('T')[0];
         const { data: sessionsData } = await supabase
           .from('contribution_sessions')
@@ -202,15 +252,21 @@ export const AppHome: React.FC = () => {
     }
   };
 
+  // Handle stop contribution with celebration
+  const handleStopContribution = useCallback(() => {
+    if (stats.pointsEarned > 0) {
+      setCelebrationPoints(stats.pointsEarned);
+      setShowCelebration(true);
+    }
+    stopContribution();
+  }, [stats.pointsEarned, stopContribution]);
+
   // Handle start/stop contribution
   const handleToggleContribution = async () => {
     buttonTap();
     if (isActive) {
-      stopContribution();
+      handleStopContribution();
       playSuccess();
-      if (stats.pointsEarned > 0) {
-        toast.success(`Session ended! +${stats.pointsEarned.toFixed(1)} pts`);
-      }
     } else {
       if (!consentGiven) {
         setShowConsentModal(true);
@@ -232,6 +288,24 @@ export const AppHome: React.FC = () => {
           variant: "destructive",
         });
       }
+    }
+  };
+
+  // Handle iOS "Always" permission request
+  const handleRequestAlwaysPermission = async () => {
+    setShowBackgroundRationale(false);
+    const granted = await requestIOSAlwaysPermission();
+    if (granted) {
+      toastNew({
+        title: "Background Location Enabled ✓",
+        description: "You can now contribute with your screen locked!",
+      });
+    } else {
+      toastNew({
+        title: "Background Location Not Enabled",
+        description: "You can still contribute while the app is open.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -297,6 +371,16 @@ export const AppHome: React.FC = () => {
     }
   };
 
+  const getConnectionLabel = () => {
+    if (!isOnline) return 'Offline';
+    const connStr = String(connectionType).toLowerCase();
+    if (connStr.includes('5g')) return '5G';
+    if (connStr.includes('4g') || connStr.includes('lte')) return 'LTE';
+    if (connStr.includes('3g')) return '3G';
+    if (connStr.includes('wifi')) return 'WiFi';
+    return 'Cellular';
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -308,7 +392,6 @@ export const AppHome: React.FC = () => {
   const displayName = username || 'there';
   const totalPoints = points?.total_points || 0;
 
-  // Get greeting based on time
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
 
@@ -359,9 +442,28 @@ export const AppHome: React.FC = () => {
         />
       )}
 
+      {/* iOS Background Location Rationale */}
+      <BackgroundLocationRationale
+        isOpen={showBackgroundRationale}
+        onRequestAlways={handleRequestAlwaysPermission}
+        onSkip={() => setShowBackgroundRationale(false)}
+        onClose={() => setShowBackgroundRationale(false)}
+      />
+
+      {/* Celebration */}
+      <RewardCelebration 
+        trigger={showCelebration} 
+        points={celebrationPoints}
+        type="session-end"
+        onComplete={() => setShowCelebration(false)}
+      />
+
       <div
-        className="min-h-screen bg-background"
-        {...handlers}
+        className="fixed inset-0 flex flex-col overflow-hidden"
+        style={{ 
+          background: 'linear-gradient(180deg, hsl(222 30% 7%) 0%, hsl(222 35% 12%) 100%)',
+          paddingBottom: 'calc(72px + env(safe-area-inset-bottom))'
+        }}
       >
         <PullToRefreshIndicator 
           pullDistance={pullDistance}
@@ -369,337 +471,451 @@ export const AppHome: React.FC = () => {
           isRefreshing={isRefreshing}
         />
 
-        <div className="pb-28" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 8px)' }}>
-          
-          {/* Warm Header with personality */}
-          <header className="flex items-center justify-between px-5 mb-4">
-            <div>
-              <p className="text-sm text-amber-600 dark:text-amber-400 font-medium">{greeting} ☀️</p>
-              <h1 className="text-2xl font-bold text-foreground">{displayName}</h1>
+        {/* Globe Background - Full Screen */}
+        <div className="absolute inset-0 z-0">
+          <Suspense fallback={
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-12 h-12 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
             </div>
-            <div className="flex items-center gap-2">
-              <button 
-                onClick={() => { lightTap(); setTheme(isDark ? 'light' : 'dark'); }}
-                className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center border border-amber-500/20 transition-colors hover:bg-amber-500/15"
-              >
-                {isDark ? <Sun className="w-5 h-5 text-amber-500" /> : <Moon className="w-5 h-5 text-amber-600" />}
-              </button>
-              <button 
-                onClick={() => { lightTap(); navigate('/app/profile'); }}
-                className="w-10 h-10 rounded-full bg-muted/50 flex items-center justify-center border border-border transition-colors hover:bg-muted"
-              >
-                <Settings className="w-5 h-5 text-muted-foreground" />
-              </button>
-            </div>
-          </header>
+          }>
+            <NetworkGlobe 
+              coverageData={globalCoverageData?.cells || []}
+              loading={globalCoverageLoading}
+              totalDataPoints={globalCoverageData?.totalDataPoints || 0}
+              uniqueLocations={globalCoverageData?.uniqueLocations || 0}
+              isPersonalView={false}
+              userPosition={userPosition}
+            />
+          </Suspense>
+        </div>
 
-          {/* Earnings Card - Warm & Encouraging */}
-          <motion.div 
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="px-5 mb-5"
-          >
-            <div className="rounded-2xl bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-rose-500/5 border border-amber-500/20 p-5">
-              <div className="flex items-start justify-between mb-4">
+        {/* Scrollable Content Over Globe */}
+        <div 
+          className="relative z-10 flex-1 overflow-y-auto"
+          {...handlers}
+        >
+          <div style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 12px)' }}>
+            
+            {/* Header with Greeting, Theme Toggle, Settings */}
+            <header className="flex items-center justify-between px-4 mb-4">
+              <div className="flex items-center gap-2.5 px-3 py-2 rounded-2xl bg-black/40 backdrop-blur-md border border-white/10">
+                <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
                 <div>
-                  <p className="text-xs text-amber-700 dark:text-amber-400 font-medium uppercase tracking-wide mb-1">Your Earnings</p>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-4xl font-bold text-foreground tabular-nums">
-                      {totalPoints.toLocaleString()}
-                    </span>
-                    <span className="text-sm font-medium text-amber-600 dark:text-amber-400">points</span>
-                  </div>
-                </div>
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg">
-                  <Zap className="w-6 h-6 text-white" />
+                  <p className="text-[10px] text-amber-400 font-medium uppercase tracking-wide">{greeting}</p>
+                  <h1 className="text-base font-bold text-white">{displayName}</h1>
                 </div>
               </div>
-              
-              <div className="flex items-center gap-6">
-                <div className="flex-1 rounded-xl bg-white/50 dark:bg-white/5 p-3">
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wide mb-0.5">Today</p>
-                  <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">+{todayEarnings}</p>
-                </div>
-                <div className="flex-1 rounded-xl bg-white/50 dark:bg-white/5 p-3">
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wide mb-0.5">Team</p>
-                  <p className="text-lg font-bold text-foreground">{referralCount} <span className="text-xs font-normal text-muted-foreground">members</span></p>
-                </div>
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={() => { lightTap(); setTheme(isDark ? 'light' : 'dark'); }}
+                  className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center border border-white/10 transition-colors hover:bg-white/10"
+                >
+                  {isDark ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5 text-white/80" />}
+                </button>
+                <button 
+                  onClick={() => { lightTap(); navigate('/app/profile'); }}
+                  className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center border border-white/10 transition-colors hover:bg-white/10"
+                >
+                  <Settings className="w-5 h-5 text-white/80" />
+                </button>
+              </div>
+            </header>
+
+            {/* Connection & Status Badges Row */}
+            <div className="flex items-center justify-between px-4 mb-4">
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/40 backdrop-blur-md border border-white/10">
+                <Signal className={cn("w-3.5 h-3.5", isCellular ? "text-[#00d4ff]" : "text-amber-400")} />
+                <span className="text-[10px] font-medium text-white/90">{getConnectionLabel()}</span>
               </div>
               
-              {streakDays >= 2 && (
-                <p className="text-xs text-amber-700 dark:text-amber-400 text-center mt-3">
-                  🔥 {streakDays} day streak — you're on fire!
-                </p>
+              {/* Offline Banner */}
+              {!isOnline && (
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-amber-500/20 border border-amber-500/30 backdrop-blur-md">
+                  <CloudOff className="w-4 h-4 text-amber-400" />
+                  <span className="text-xs text-amber-300">{offlineQueueCount} queued</span>
+                </div>
+              )}
+              
+              {/* WiFi Warning */}
+              {isActive && !isCellular && isOnline && (
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-amber-500/20 border border-amber-500/30 backdrop-blur-md">
+                  <Wifi className="w-4 h-4 text-amber-400" />
+                  <span className="text-xs text-amber-300">Use cellular</span>
+                </div>
               )}
             </div>
-          </motion.div>
 
-          {/* Globe Map Section with Floating Circular Buttons - FULL EXPANDED */}
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.05 }}
-            className="relative mx-3 rounded-3xl overflow-hidden border border-border/50"
-            style={{ 
-              height: '52vh',
-              minHeight: '340px',
-              maxHeight: '480px',
-              background: 'linear-gradient(180deg, hsl(222 30% 7%) 0%, hsl(222 35% 12%) 100%)'
-            }}
-          >
-            {/* Globe */}
-            <Suspense fallback={
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-10 h-10 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+            {/* Earnings Card - Floating over globe */}
+            <motion.div 
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="px-4 mb-4"
+            >
+              <div className="rounded-2xl bg-black/50 backdrop-blur-xl border border-white/10 p-4">
+                <div className="flex items-start justify-between mb-3">
+                  <div>
+                    <p className="text-[10px] text-amber-400 font-medium uppercase tracking-wide mb-1">Your Earnings</p>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-3xl font-bold text-white tabular-nums">
+                        {totalPoints.toLocaleString()}
+                      </span>
+                      <span className="text-sm font-medium text-amber-400">pts</span>
+                    </div>
+                  </div>
+                  <div className="w-11 h-11 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg">
+                    <Zap className="w-5 h-5 text-white" />
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 rounded-xl bg-white/5 p-2.5 border border-white/5">
+                    <p className="text-[9px] text-white/50 uppercase tracking-wide mb-0.5">Today</p>
+                    <p className="text-base font-bold text-emerald-400">+{todayEarnings}</p>
+                  </div>
+                  <div className="flex-1 rounded-xl bg-white/5 p-2.5 border border-white/5">
+                    <p className="text-[9px] text-white/50 uppercase tracking-wide mb-0.5">Team</p>
+                    <p className="text-base font-bold text-white">{referralCount}</p>
+                  </div>
+                  {streakDays >= 2 && (
+                    <div className="flex-1 rounded-xl bg-white/5 p-2.5 border border-white/5">
+                      <p className="text-[9px] text-white/50 uppercase tracking-wide mb-0.5">Streak</p>
+                      <p className="text-base font-bold text-orange-400">🔥 {streakDays}d</p>
+                    </div>
+                  )}
+                </div>
               </div>
-            }>
-              <NetworkGlobe 
-                coverageData={globalCoverageData?.cells || []}
-                loading={globalCoverageLoading}
-                totalDataPoints={globalCoverageData?.totalDataPoints || 0}
-                uniqueLocations={globalCoverageData?.uniqueLocations || 0}
-                isPersonalView={false}
-                userPosition={userPosition}
-              />
-            </Suspense>
+            </motion.div>
 
-            {/* Live Badge - Top Left */}
-            <div className="absolute top-3 left-3 z-30">
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 backdrop-blur-md">
-                <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
-                <span className="text-[10px] font-semibold text-emerald-400 uppercase tracking-wider">Live</span>
-              </div>
+            {/* Session Stats - Only when active */}
+            {isActive && (
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="mx-4 mb-4 grid grid-cols-3 gap-3 p-3 rounded-2xl bg-black/50 backdrop-blur-xl border border-white/10"
+              >
+                <div className="text-center">
+                  <p className="text-lg font-bold text-white tabular-nums">{formatDuration(stats.duration)}</p>
+                  <p className="text-[10px] text-[#00d4ff]/70 uppercase tracking-wider">Duration</p>
+                </div>
+                <div className="text-center border-x border-white/10">
+                  <p className="text-lg font-bold text-white tabular-nums">{stats.dataPointsCount}</p>
+                  <p className="text-[10px] text-[#00d4ff]/70 uppercase tracking-wider">Data Points</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-lg font-bold text-[#00d4ff] tabular-nums">+{stats.pointsEarned.toFixed(1)}</p>
+                  <p className="text-[10px] text-[#00d4ff]/70 uppercase tracking-wider">Points</p>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Control Buttons Row */}
+            <div className="flex items-center justify-center gap-4 px-4 mb-4">
+              {/* Start/Stop Button */}
+              <button
+                ref={startButtonRef}
+                onClick={handleToggleContribution}
+                disabled={!user}
+                className={cn(
+                  'relative flex flex-col items-center justify-center gap-1 px-8 rounded-2xl min-w-[140px] h-[72px]',
+                  'backdrop-blur-md border-2 transition-all duration-200 active:scale-95',
+                  !user && 'opacity-40 cursor-not-allowed',
+                  isActive 
+                    ? isPaused 
+                      ? 'bg-amber-500/20 border-amber-400/50' 
+                      : 'bg-green-500/20 border-green-500/50'
+                    : 'bg-red-500/20 border-red-500/50 hover:bg-red-500/30'
+                )}
+                style={{
+                  boxShadow: isActive && !isPaused
+                    ? '0 0 40px rgba(34, 197, 94, 0.3), inset 0 1px 0 rgba(255,255,255,0.1)'
+                    : '0 0 30px rgba(239, 68, 68, 0.3), inset 0 1px 0 rgba(255,255,255,0.1)',
+                }}
+              >
+                <div className="flex items-center gap-2">
+                  {isActive ? (
+                    isPaused ? (
+                      <Wifi className="w-5 h-5 text-amber-400" />
+                    ) : (
+                      <Pause className="w-5 h-5 text-green-400" />
+                    )
+                  ) : (
+                    <Play className="w-5 h-5 text-red-400 ml-0.5" />
+                  )}
+                  <span className={cn(
+                    "text-sm font-bold uppercase tracking-wider",
+                    isActive ? isPaused ? "text-amber-400" : "text-green-400" : "text-red-400"
+                  )}>
+                    {isActive ? (isPaused ? 'Paused' : 'Contributing') : 'Contribute'}
+                  </span>
+                </div>
+                
+                {isActive && isCellular ? (
+                  <div className="flex items-center gap-1">
+                    <Zap className="w-3 h-3 text-[#f0b429]" />
+                    <span className="text-[11px] font-bold text-[#f0b429] tabular-nums">
+                      +{stats.pointsEarned.toFixed(1)} pts
+                    </span>
+                  </div>
+                ) : (
+                  <span className="text-[10px] text-white/50">{isActive ? '' : 'Tap to start'}</span>
+                )}
+              </button>
+
+              {/* Speed Test Button */}
+              <button
+                onClick={handleSpeedTest}
+                disabled={!isCellular || isRunningSpeedTest}
+                className={cn(
+                  'relative flex flex-col items-center justify-center gap-1 px-6 rounded-2xl min-w-[120px] h-[72px]',
+                  'backdrop-blur-md border-2 transition-all duration-200 active:scale-95',
+                  isRunningSpeedTest 
+                    ? 'bg-amber-500/20 border-amber-400/50' 
+                    : isCellular 
+                      ? 'bg-white/5 border-white/20 hover:bg-white/10'
+                      : 'bg-white/5 border-white/10 cursor-not-allowed opacity-50'
+                )}
+              >
+                <div className="flex items-center gap-2">
+                  <Gauge className={cn(
+                    "w-5 h-5",
+                    isRunningSpeedTest ? "text-amber-400 animate-spin" : "text-white/80"
+                  )} />
+                  <span className={cn(
+                    "text-sm font-bold uppercase tracking-wider",
+                    isRunningSpeedTest ? "text-amber-400" : "text-white/80"
+                  )}>
+                    {isRunningSpeedTest 
+                      ? speedTestPhase === 'latency' ? 'Ping' 
+                        : speedTestPhase === 'download' ? 'Down' : 'Up'
+                      : 'Speed'}
+                  </span>
+                </div>
+                
+                {isRunningSpeedTest ? (
+                  <div className="w-full space-y-0.5 px-2">
+                    <div className="text-center">
+                      <span className="text-[11px] font-bold text-amber-400 tabular-nums">
+                        {speedTestPhase === 'latency' && liveSpeed.latency 
+                          ? `${liveSpeed.latency}ms`
+                          : speedTestPhase === 'download' && liveSpeed.down
+                            ? `${liveSpeed.down} Mbps`
+                            : speedTestPhase === 'upload' && liveSpeed.up
+                              ? `${liveSpeed.up} Mbps`
+                              : '...'
+                        }
+                      </span>
+                    </div>
+                    <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-gradient-to-r from-amber-400 to-amber-500 rounded-full transition-all duration-100"
+                        style={{ width: `${speedTestProgress}%` }}
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <span className="text-[10px] text-white/50">Test Network</span>
+                )}
+              </button>
             </div>
 
-            {/* Session Stats - Bottom Center (only when active) */}
-            {isActive && (
-              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-30">
-                <div className="flex items-center gap-4 px-4 py-2 rounded-full bg-black/60 backdrop-blur-md border border-white/10">
-                  <div className="flex items-center gap-1.5">
-                    <Clock className="w-3.5 h-3.5 text-white/60" />
-                    <span className="text-xs font-medium text-white tabular-nums">{formatDuration(stats.duration)}</span>
-                  </div>
-                  <div className="w-px h-4 bg-white/20" />
-                  <div className="flex items-center gap-1">
-                    <Zap className="w-3.5 h-3.5 text-[#f0b429]" />
-                    <span className="text-xs font-bold text-[#f0b429] tabular-nums">+{stats.pointsEarned.toFixed(1)}</span>
-                  </div>
+            {/* iOS Permission Indicator */}
+            {isIOS && iosPermissionLabel !== 'Always' && (
+              <div className="px-4 mb-4">
+                <button
+                  onClick={async () => {
+                    if (iosPermissionLabel === 'While Using') {
+                      setShowBackgroundRationale(true);
+                      return;
+                    }
+                    try {
+                      const BackgroundLocation = (await import('@/plugins/BackgroundLocationPlugin')).default;
+                      if (iosPermissionLabel === 'Not Determined' || iosPermissionLabel === 'Unknown') {
+                        const res = await BackgroundLocation.requestForegroundPermission();
+                        if (res.granted) {
+                          toastNew({ title: 'Location Enabled ✓', description: 'You can now start scanning.' });
+                        } else {
+                          toastNew({ title: 'Location Permission Required', description: "Enable in Settings → Privacy → Location Services → Nomiqa.", variant: 'destructive' });
+                        }
+                        return;
+                      }
+                      if (iosPermissionLabel === 'Denied') {
+                        await BackgroundLocation.openAppSettings();
+                        toastNew({ title: 'Enable Location', description: "Settings → Privacy → Location Services → Nomiqa." });
+                      }
+                    } catch { /* ignore */ }
+                  }}
+                  className={cn(
+                    "w-full flex items-center justify-center gap-2 py-2.5 rounded-xl backdrop-blur-md border transition-colors",
+                    iosPermissionLabel === 'While Using'
+                      ? "bg-amber-500/20 border-amber-500/40"
+                      : iosPermissionLabel === 'Denied'
+                        ? "bg-red-500/20 border-red-500/40"
+                        : "bg-white/10 border-white/20"
+                  )}
+                >
+                  <MapPin className={cn(
+                    "w-4 h-4",
+                    iosPermissionLabel === 'While Using' ? "text-amber-400" : iosPermissionLabel === 'Denied' ? "text-red-400" : "text-white/60"
+                  )} />
+                  <span className={cn(
+                    "text-xs font-semibold",
+                    iosPermissionLabel === 'While Using' ? "text-amber-400" : iosPermissionLabel === 'Denied' ? "text-red-400" : "text-white/60"
+                  )}>
+                    {iosPermissionLabel === 'While Using' 
+                      ? 'Tap to enable background location' 
+                      : iosPermissionLabel === 'Denied'
+                        ? 'Location denied - tap to fix in Settings'
+                        : 'Tap to enable location'}
+                  </span>
+                </button>
+              </div>
+            )}
+
+            {/* Sign in prompt for logged out users */}
+            {!user && (
+              <div className="px-4 mb-4">
+                <div className="flex items-center justify-center gap-3 p-3 rounded-xl bg-black/40 backdrop-blur-md border border-white/10">
+                  <span className="text-sm text-white/60">Sign in to start earning</span>
+                  <button
+                    onClick={() => {
+                      buttonTap();
+                      navigate('/app/auth?mode=login');
+                    }}
+                    className="px-4 py-1.5 rounded-lg text-sm font-semibold bg-[#00d4ff] text-[#0a0f1a]"
+                  >
+                    Sign in
+                  </button>
                 </div>
               </div>
             )}
 
-            {/* LEFT Floating Button - Start/Stop Contribution */}
-            <button
-              onClick={handleToggleContribution}
-              disabled={!user}
-              className={cn(
-                "absolute left-3 top-1/2 -translate-y-1/2 z-30",
-                "w-16 h-16 rounded-full flex flex-col items-center justify-center gap-0.5",
-                "backdrop-blur-md border-2 transition-all duration-200 active:scale-95",
-                !user && 'opacity-40 cursor-not-allowed',
-                isActive 
-                  ? isPaused 
-                    ? 'bg-amber-500/30 border-amber-400/60' 
-                    : 'bg-green-500/30 border-green-500/60'
-                  : 'bg-red-500/30 border-red-500/60'
-              )}
-              style={{
-                boxShadow: isActive && !isPaused
-                  ? '0 0 30px rgba(34, 197, 94, 0.4)'
-                  : '0 0 25px rgba(239, 68, 68, 0.4)',
-              }}
-            >
-              {isActive ? (
-                isPaused ? (
-                  <Play className="w-6 h-6 text-amber-400" />
-                ) : (
-                  <Pause className="w-6 h-6 text-green-400" />
-                )
-              ) : (
-                <Play className="w-6 h-6 text-red-400 ml-0.5" />
-              )}
-              <span className={cn(
-                "text-[8px] font-bold uppercase tracking-wider",
-                isActive ? isPaused ? "text-amber-400" : "text-green-400" : "text-red-400"
-              )}>
-                {isActive ? (isPaused ? 'Resume' : 'Stop') : 'Start'}
-              </span>
-            </button>
+            {/* Content Cards Below */}
+            <div className="px-4 space-y-4 pb-8">
 
-            {/* RIGHT Floating Button - Speed Test */}
-            <button
-              onClick={handleSpeedTest}
-              disabled={!isCellular || isRunningSpeedTest}
-              className={cn(
-                "absolute right-3 top-1/2 -translate-y-1/2 z-30",
-                "w-16 h-16 rounded-full flex flex-col items-center justify-center gap-0.5",
-                "backdrop-blur-md border-2 transition-all duration-200 active:scale-95",
-                isRunningSpeedTest 
-                  ? 'bg-amber-500/30 border-amber-400/60' 
-                  : isCellular 
-                    ? 'bg-white/10 border-white/30'
-                    : 'bg-white/5 border-white/10 cursor-not-allowed opacity-50'
-              )}
-            >
-              <Gauge className={cn(
-                "w-6 h-6",
-                isRunningSpeedTest ? "text-amber-400 animate-spin" : "text-white/80"
-              )} />
-              <span className={cn(
-                "text-[8px] font-bold uppercase tracking-wider",
-                isRunningSpeedTest ? "text-amber-400" : "text-white/70"
-              )}>
-                {isRunningSpeedTest 
-                  ? speedTestPhase === 'latency' ? 'Ping' 
-                    : speedTestPhase === 'download' ? 'Down' : 'Up'
-                  : 'Speed'}
-              </span>
-              {isRunningSpeedTest && (
-                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-12 h-1 bg-white/10 rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-amber-400 rounded-full transition-all duration-100"
-                    style={{ width: `${speedTestProgress}%` }}
-                  />
+              {/* Grow Together Section */}
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="rounded-2xl bg-black/50 backdrop-blur-xl border border-white/10 p-4"
+              >
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-11 h-11 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg">
+                    <Users className="w-5 h-5 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-base font-bold text-white">Grow Together 🌱</h3>
+                    <p className="text-xs text-white/60">Earn 5% of your team's earnings</p>
+                  </div>
                 </div>
-              )}
-            </button>
 
-            {/* Expand to full map - Top Right */}
-            <button
-              onClick={() => { lightTap(); navigate('/app/map'); }}
-              className="absolute top-3 right-3 z-30 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/20 text-[11px] font-medium text-white/80 active:scale-95 transition-transform"
-            >
-              Expand
-            </button>
-          </motion.div>
-
-          {/* Content below the map */}
-          <div className="px-5 mt-4 space-y-4">
-
-            {/* Grow Together Section - Warm & Inviting */}
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="rounded-3xl bg-gradient-to-br from-violet-500/10 via-purple-500/5 to-fuchsia-500/5 border border-violet-500/20 p-5"
-            >
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg">
-                  <Users className="w-5 h-5 text-white" />
+                <div className="bg-white/5 rounded-xl p-3 flex items-center gap-2 mb-4 border border-white/5">
+                  <span className="flex-1 text-sm text-white truncate font-mono">
+                    nomiqa.com/{username || 'invite'}
+                  </span>
+                  <button
+                    onClick={() => { lightTap(); handleCopyLink(); }}
+                    className="p-2 rounded-lg bg-violet-500/20 hover:bg-violet-500/30 transition-colors"
+                  >
+                    <Copy className="w-4 h-4 text-violet-400" />
+                  </button>
                 </div>
-                <div className="flex-1">
-                  <h3 className="text-lg font-bold text-foreground">Grow Together 🌱</h3>
-                  <p className="text-sm text-muted-foreground">Earn 5% of your team's earnings</p>
-                </div>
-              </div>
 
-              {/* Referral Link Display */}
-              <div className="bg-white/50 dark:bg-white/5 rounded-xl p-3 flex items-center gap-2 mb-4 border border-border">
-                <span className="flex-1 text-sm text-foreground truncate font-mono">
-                  nomiqa.com/{username || 'invite'}
-                </span>
                 <button
-                  onClick={() => { lightTap(); handleCopyLink(); }}
-                  className="p-2 rounded-lg bg-violet-500/10 hover:bg-violet-500/20 transition-colors"
+                  onClick={() => { mediumTap(); handleShareReferral(); }}
+                  className="w-full h-11 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-semibold flex items-center justify-center gap-2 active:scale-[0.98] transition-transform shadow-lg"
                 >
-                  <Copy className="w-4 h-4 text-violet-600 dark:text-violet-400" />
+                  <Share2 className="w-4 h-4" />
+                  Share & Grow Your Team
                 </button>
-              </div>
 
-              <button
-                onClick={() => { mediumTap(); handleShareReferral(); }}
-                className="w-full h-12 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-semibold flex items-center justify-center gap-2 active:scale-[0.98] transition-transform shadow-lg"
+                {referralCount > 0 && (
+                  <p className="text-center text-xs text-violet-300 mt-3">
+                    🎉 {referralCount} friend{referralCount !== 1 ? 's' : ''} earning with you!
+                  </p>
+                )}
+              </motion.div>
+
+              {/* Quick Actions - Challenges & Leaderboard */}
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 }}
+                className="grid grid-cols-2 gap-3"
               >
-                <Share2 className="w-4 h-4" />
-                Share & Grow Your Team
-              </button>
-
-              {referralCount > 0 && (
-                <p className="text-center text-xs text-violet-700 dark:text-violet-300 mt-3">
-                  🎉 {referralCount} friend{referralCount !== 1 ? 's' : ''} earning with you!
-                </p>
-              )}
-            </motion.div>
-
-            {/* Quick Actions - Rewards & Leaderboard */}
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.15 }}
-              className="grid grid-cols-2 gap-3"
-            >
-              <button
-                onClick={() => { lightTap(); navigate('/app/challenges'); }}
-                className="rounded-2xl bg-gradient-to-br from-amber-500/10 to-orange-500/5 border border-amber-500/20 p-4 flex flex-col items-center gap-2 active:scale-[0.98] transition-transform"
-              >
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg">
-                  <Zap className="w-5 h-5 text-white" />
-                </div>
-                <div className="text-center">
-                  <p className="text-sm font-bold text-foreground">Challenges</p>
-                  <p className="text-[10px] text-amber-700 dark:text-amber-400">Earn bonus</p>
-                </div>
-              </button>
-
-              <button
-                onClick={() => { lightTap(); navigate('/app/leaderboard'); }}
-                className="rounded-2xl bg-gradient-to-br from-blue-500/10 to-cyan-500/5 border border-blue-500/20 p-4 flex flex-col items-center gap-2 active:scale-[0.98] transition-transform"
-              >
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg">
-                  <TrendingUp className="w-5 h-5 text-white" />
-                </div>
-                <div className="text-center">
-                  <p className="text-sm font-bold text-foreground">Leaderboard</p>
-                  <p className="text-[10px] text-blue-700 dark:text-blue-400">Top earners</p>
-                </div>
-              </button>
-            </motion.div>
-
-            {/* How It Works - Warm & Friendly */}
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="rounded-3xl bg-gradient-to-br from-emerald-500/10 via-teal-500/5 to-cyan-500/5 border border-emerald-500/20 p-5"
-            >
-              <div className="flex items-center gap-2 mb-5">
-                <h3 className="text-lg font-bold text-foreground">How You Earn</h3>
-                <span className="text-sm">✨</span>
-              </div>
-              
-              <div className="space-y-4">
-                <div className="flex items-start gap-4">
-                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center flex-shrink-0 shadow-md">
-                    <span className="text-sm font-bold text-white">1</span>
+                <button
+                  onClick={() => { lightTap(); navigate('/app/challenges'); }}
+                  className="rounded-2xl bg-black/50 backdrop-blur-xl border border-white/10 p-4 flex flex-col items-center gap-2 active:scale-[0.98] transition-transform"
+                >
+                  <div className="w-11 h-11 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg">
+                    <Zap className="w-5 h-5 text-white" />
                   </div>
-                  <div className="flex-1 pt-1">
-                    <p className="text-sm font-semibold text-foreground">App runs in background</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">Uses less than 3% battery — you won't even notice</p>
+                  <div className="text-center">
+                    <p className="text-sm font-bold text-white">Challenges</p>
+                    <p className="text-[10px] text-amber-400">Earn bonus</p>
                   </div>
+                </button>
+
+                <button
+                  onClick={() => { lightTap(); navigate('/app/leaderboard'); }}
+                  className="rounded-2xl bg-black/50 backdrop-blur-xl border border-white/10 p-4 flex flex-col items-center gap-2 active:scale-[0.98] transition-transform"
+                >
+                  <div className="w-11 h-11 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg">
+                    <TrendingUp className="w-5 h-5 text-white" />
+                  </div>
+                  <div className="text-center">
+                    <p className="text-sm font-bold text-white">Leaderboard</p>
+                    <p className="text-[10px] text-blue-400">Top earners</p>
+                  </div>
+                </button>
+              </motion.div>
+
+              {/* How It Works */}
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="rounded-2xl bg-black/50 backdrop-blur-xl border border-white/10 p-4"
+              >
+                <div className="flex items-center gap-2 mb-4">
+                  <h3 className="text-base font-bold text-white">How You Earn</h3>
+                  <span className="text-sm">✨</span>
                 </div>
                 
-                <div className="flex items-start gap-4">
-                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-teal-400 to-cyan-500 flex items-center justify-center flex-shrink-0 shadow-md">
-                    <span className="text-sm font-bold text-white">2</span>
+                <div className="space-y-3">
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center flex-shrink-0 shadow-md">
+                      <span className="text-xs font-bold text-white">1</span>
+                    </div>
+                    <div className="flex-1 pt-0.5">
+                      <p className="text-sm font-semibold text-white">App runs in background</p>
+                      <p className="text-xs text-white/50 mt-0.5">Uses less than 3% battery</p>
+                    </div>
                   </div>
-                  <div className="flex-1 pt-1">
-                    <p className="text-sm font-semibold text-foreground">Contribute network data</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">100% anonymous signal quality info</p>
+                  
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-teal-400 to-cyan-500 flex items-center justify-center flex-shrink-0 shadow-md">
+                      <span className="text-xs font-bold text-white">2</span>
+                    </div>
+                    <div className="flex-1 pt-0.5">
+                      <p className="text-sm font-semibold text-white">Contribute network data</p>
+                      <p className="text-xs text-white/50 mt-0.5">100% anonymous signal quality info</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center flex-shrink-0 shadow-md">
+                      <span className="text-xs font-bold text-white">3</span>
+                    </div>
+                    <div className="flex-1 pt-0.5">
+                      <p className="text-sm font-semibold text-white">Earn points automatically</p>
+                      <p className="text-xs text-white/50 mt-0.5">Redeem for real rewards 🎁</p>
+                    </div>
                   </div>
                 </div>
-                
-                <div className="flex items-start gap-4">
-                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center flex-shrink-0 shadow-md">
-                    <span className="text-sm font-bold text-white">3</span>
-                  </div>
-                  <div className="flex-1 pt-1">
-                    <p className="text-sm font-semibold text-foreground">Earn points automatically</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">Redeem for real rewards anytime 🎁</p>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
+              </motion.div>
 
+            </div>
           </div>
         </div>
       </div>
