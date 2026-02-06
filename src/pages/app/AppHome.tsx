@@ -459,7 +459,7 @@ export const AppHome: React.FC = () => {
       />
 
       <div
-        className="fixed inset-0 flex flex-col overflow-hidden"
+        className="relative min-h-screen flex flex-col"
         style={{ 
           background: 'linear-gradient(180deg, hsl(222 30% 7%) 0%, hsl(222 35% 12%) 100%)',
           paddingBottom: 'calc(72px + env(safe-area-inset-bottom))'
@@ -471,8 +471,11 @@ export const AppHome: React.FC = () => {
           isRefreshing={isRefreshing}
         />
 
-        {/* Globe Background - Full Screen */}
-        <div className="absolute inset-0 z-0">
+        {/* Globe Background - Fixed behind content, limited height */}
+        <div 
+          className="absolute top-0 left-0 right-0 z-0 pointer-events-none"
+          style={{ height: '40vh', minHeight: '280px', maxHeight: '360px' }}
+        >
           <Suspense fallback={
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="w-12 h-12 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
@@ -489,9 +492,19 @@ export const AppHome: React.FC = () => {
           </Suspense>
         </div>
 
-        {/* Scrollable Content Over Globe */}
+        {/* Gradient fade from globe to content */}
         <div 
-          className="relative z-10 flex-1 overflow-y-auto"
+          className="absolute left-0 right-0 z-[1] pointer-events-none"
+          style={{ 
+            top: 'min(38vh, 340px)', 
+            height: '60px',
+            background: 'linear-gradient(180deg, transparent 0%, hsl(222 30% 7%) 100%)'
+          }}
+        />
+
+        {/* Scrollable Content */}
+        <div 
+          className="relative z-10 flex-1 overflow-y-auto -webkit-overflow-scrolling-touch"
           {...handlers}
         >
           <div style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 12px)' }}>
