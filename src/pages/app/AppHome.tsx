@@ -459,9 +459,8 @@ export const AppHome: React.FC = () => {
       />
 
       <div
-        className="min-h-screen"
+        className="min-h-screen bg-gradient-to-b from-[#0a0f1a] via-[#050a12] to-[#020408]"
         style={{ 
-          background: 'linear-gradient(180deg, hsl(222 30% 7%) 0%, hsl(222 35% 12%) 100%)',
           paddingBottom: 'calc(72px + env(safe-area-inset-bottom))'
         }}
         {...handlers}
