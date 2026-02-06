@@ -461,7 +461,8 @@ export const AppHome: React.FC = () => {
       <div
         className="min-h-screen bg-gradient-to-b from-[#0a0f1a] via-[#050a12] to-[#020408]"
         style={{ 
-          paddingBottom: 'calc(72px + env(safe-area-inset-bottom))'
+          paddingBottom: 'calc(72px + env(safe-area-inset-bottom))',
+          minHeight: 'calc(var(--vh, 1vh) * 100)'
         }}
         {...handlers}
       >
