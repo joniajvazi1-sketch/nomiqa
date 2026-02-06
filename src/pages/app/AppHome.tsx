@@ -459,13 +459,21 @@ export const AppHome: React.FC = () => {
       />
 
       <div
-        className="min-h-screen bg-gradient-to-b from-[#0a0f1a] via-[#050a12] to-[#020408]"
+        className="relative bg-[#050a12]"
         style={{ 
-          paddingBottom: 'calc(72px + env(safe-area-inset-bottom))',
-          minHeight: 'calc(var(--vh, 1vh) * 100)'
+          paddingBottom: 'calc(100px + env(safe-area-inset-bottom))',
+          minHeight: 'calc(var(--vh, 1vh) * 100 + 200px)'
         }}
         {...handlers}
       >
+        {/* Seamless gradient background - extends full height */}
+        <div 
+          className="fixed inset-0 pointer-events-none"
+          style={{
+            background: 'linear-gradient(180deg, #0a0f1a 0%, #050a12 30%, #030608 60%, #020406 100%)',
+            zIndex: 0
+          }}
+        />
         <PullToRefreshIndicator 
           pullDistance={pullDistance}
           pullProgress={pullProgress}
@@ -473,10 +481,10 @@ export const AppHome: React.FC = () => {
         />
 
         {/* Safe area top padding */}
-        <div style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }} />
+        <div className="relative z-10" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }} />
 
         {/* 1. Header with Greeting, Theme Toggle, Settings */}
-        <header className="relative z-20 flex items-center justify-between px-4 pt-3 pb-2">
+        <header className="relative z-20 flex items-center justify-between px-4 pt-3 pb-2 bg-transparent">
           <div className="flex items-center gap-2.5 px-3 py-2 rounded-2xl bg-black/40 backdrop-blur-md border border-white/10">
             <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
             <div>
@@ -504,9 +512,9 @@ export const AppHome: React.FC = () => {
         <motion.div 
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="px-4 mb-3"
+          className="relative z-10 px-4 mb-3"
         >
-          <div className="rounded-2xl bg-black/50 backdrop-blur-xl border border-white/10 p-4">
+          <div className="rounded-2xl bg-black/40 backdrop-blur-xl border border-white/10 p-4">
             <div className="flex items-start justify-between mb-3">
               <div>
                 <p className="text-[10px] text-amber-400 font-medium uppercase tracking-wide mb-1">Your Earnings</p>
@@ -543,7 +551,7 @@ export const AppHome: React.FC = () => {
 
         {/* 3. Globe Section - Fullscreen style */}
         <div 
-          className="relative w-full"
+          className="relative z-10 w-full"
           style={{ height: '45vh', minHeight: '300px', maxHeight: '400px' }}
         >
           <Suspense fallback={
@@ -567,7 +575,7 @@ export const AppHome: React.FC = () => {
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="mx-4 mb-4 grid grid-cols-3 gap-3 p-3 rounded-2xl bg-black/50 backdrop-blur-xl border border-white/10"
+            className="relative z-10 mx-4 mb-4 grid grid-cols-3 gap-3 p-3 rounded-2xl bg-black/40 backdrop-blur-xl border border-white/10"
           >
             <div className="text-center">
               <p className="text-lg font-bold text-white tabular-nums">{formatDuration(stats.duration)}</p>
@@ -585,7 +593,7 @@ export const AppHome: React.FC = () => {
         )}
 
         {/* 5. Control Buttons Row */}
-        <div className="flex items-center justify-center gap-4 px-4 mb-4">
+        <div className="relative z-10 flex items-center justify-center gap-4 px-4 mb-4">
               {/* Start/Stop Button */}
               <button
                 ref={startButtonRef}
@@ -766,14 +774,14 @@ export const AppHome: React.FC = () => {
             )}
 
         {/* 7. Content Cards Below */}
-        <div className="px-4 space-y-4 pb-8 mt-4">
+        <div className="relative z-10 px-4 space-y-4 pb-8 mt-4">
 
               {/* Grow Together Section */}
               <motion.div
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="rounded-2xl bg-black/50 backdrop-blur-xl border border-white/10 p-4"
+                className="rounded-2xl bg-black/40 backdrop-blur-xl border border-white/8 p-4"
               >
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-11 h-11 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg">
@@ -821,7 +829,7 @@ export const AppHome: React.FC = () => {
               >
                 <button
                   onClick={() => { lightTap(); navigate('/app/challenges'); }}
-                  className="rounded-2xl bg-black/50 backdrop-blur-xl border border-white/10 p-4 flex flex-col items-center gap-2 active:scale-[0.98] transition-transform"
+                  className="rounded-2xl bg-black/40 backdrop-blur-xl border border-white/8 p-4 flex flex-col items-center gap-2 active:scale-[0.98] transition-transform"
                 >
                   <div className="w-11 h-11 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg">
                     <Zap className="w-5 h-5 text-white" />
@@ -834,7 +842,7 @@ export const AppHome: React.FC = () => {
 
                 <button
                   onClick={() => { lightTap(); navigate('/app/leaderboard'); }}
-                  className="rounded-2xl bg-black/50 backdrop-blur-xl border border-white/10 p-4 flex flex-col items-center gap-2 active:scale-[0.98] transition-transform"
+                  className="rounded-2xl bg-black/40 backdrop-blur-xl border border-white/8 p-4 flex flex-col items-center gap-2 active:scale-[0.98] transition-transform"
                 >
                   <div className="w-11 h-11 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg">
                     <TrendingUp className="w-5 h-5 text-white" />
@@ -851,7 +859,7 @@ export const AppHome: React.FC = () => {
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="rounded-2xl bg-black/50 backdrop-blur-xl border border-white/10 p-4"
+                className="rounded-2xl bg-black/40 backdrop-blur-xl border border-white/8 p-4"
               >
                 <div className="flex items-center gap-2 mb-4">
                   <h3 className="text-base font-bold text-white">How You Earn</h3>
