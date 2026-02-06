@@ -914,9 +914,9 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
         </div>
       </div>
 
-      {/* 3D Globe Canvas */}
-      <div className="absolute inset-0 flex items-center justify-center">
-        <div className="w-full h-[65vh] max-h-[550px]">
+      {/* 3D Globe Canvas - positioned below the stats header */}
+      <div className="absolute left-0 right-0 bottom-0 top-[140px] flex items-center justify-center">
+        <div className="w-full h-full max-h-[450px]">
           <Suspense fallback={<GlobeLoading />}>
             <Canvas
               camera={{ position: [0, 0.2, initialCameraZ], fov: 45 }}
