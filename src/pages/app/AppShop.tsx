@@ -272,20 +272,14 @@ export const AppShop: React.FC = () => {
   return (
     <>
       <AppSEO />
+      {/* 
+        IMPORTANT: Do NOT add overflow styles here.
+        AppLayout's <main> is the scroll container. Adding overflow here creates
+        nested scroll containers that break Android WebView scrolling.
+      */}
       <div 
-        className="min-h-screen relative app-container"
-        style={{
-          // Critical: enable proper scrolling on Android
-          overflow: 'auto',
-          overflowX: 'hidden',
-          overflowY: 'auto',
-          // Android WebView scroll fix
-          WebkitOverflowScrolling: 'touch',
-          touchAction: 'pan-y',
-          // Ensure full height
-          minHeight: '100%',
-        }}
         ref={containerRef}
+        className="min-h-full relative"
       >
         {/* Pull to refresh indicator */}
         <PullToRefreshIndicator 
@@ -294,13 +288,12 @@ export const AppShop: React.FC = () => {
           isRefreshing={isRefreshing}
         />
 
-      <div 
-        className="relative z-10 px-5 py-6 space-y-4"
-        style={{
-          // Android: extra bottom padding for nav bar
-          paddingBottom: isAndroid ? '140px' : '112px',
-        }}
-      >
+        <div 
+          className="relative z-10 px-5 py-6 space-y-4"
+          style={{
+            paddingBottom: isAndroid ? '140px' : '112px',
+          }}
+        >
         {/* Header - Glassmorphism */}
         <header className="flex items-center justify-between">
           <div>
