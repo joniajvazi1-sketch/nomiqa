@@ -118,15 +118,19 @@ export const SwipeablePages: React.FC<SwipeablePagesProps> = ({ children }) => {
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
-      className="h-full w-full"
+      // IMPORTANT: do NOT force a fixed height here.
+      // `h-full` prevents the parent (<main>) scroll container from growing,
+      // which breaks vertical scrolling on long pages (Shop/Challenges/etc.).
+      className="w-full min-h-full"
+      style={{ touchAction: 'pan-y' }}
     >
-      <div 
+      <div
         className={cn(
-          "h-full w-full",
+          "w-full min-h-full",
           isAnimating && "transition-transform duration-300 ease-out"
         )}
-        style={{ 
-          transform: swipeOffset !== 0 ? `translateX(${swipeOffset}px)` : undefined 
+        style={{
+          transform: swipeOffset !== 0 ? `translateX(${swipeOffset}px)` : undefined,
         }}
       >
         {children}
@@ -134,3 +138,4 @@ export const SwipeablePages: React.FC<SwipeablePagesProps> = ({ children }) => {
     </div>
   );
 };
+
