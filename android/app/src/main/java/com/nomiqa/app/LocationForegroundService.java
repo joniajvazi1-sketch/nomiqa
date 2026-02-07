@@ -16,7 +16,6 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 
@@ -91,7 +90,7 @@ public class LocationForegroundService extends Service {
         // Create location callback
         locationCallback = new LocationCallback() {
             @Override
-            public void onLocationResult(@NonNull LocationResult locationResult) {
+            public void onLocationResult(LocationResult locationResult) {
                 Location location = locationResult.getLastLocation();
                 if (location != null) {
                     Log.d(TAG, String.format("Background location: %.6f, %.6f (accuracy: %.1fm)",
@@ -215,7 +214,7 @@ public class LocationForegroundService extends Service {
         }
     }
 
-    private void recordBackgroundStats(@NonNull Location location) {
+    private void recordBackgroundStats(Location location) {
         try {
             if (prefs == null) return;
 
