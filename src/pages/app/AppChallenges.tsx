@@ -125,7 +125,16 @@ export const AppChallenges: React.FC = () => {
 
   return (
     <div 
-      className="min-h-screen bg-background pb-28 overflow-y-auto app-container momentum-scroll"
+      className="min-h-screen bg-background app-container momentum-scroll"
+      style={{
+        overflow: 'auto',
+        overflowX: 'hidden',
+        overflowY: 'auto',
+        WebkitOverflowScrolling: 'touch',
+        touchAction: 'pan-y',
+        minHeight: '100%',
+        paddingBottom: '140px',
+      }}
       {...handlers}
     >
       <PullToRefreshIndicator 

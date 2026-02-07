@@ -25,7 +25,15 @@ export const AppLeaderboard: React.FC = () => {
 
   return (
     <div 
-      className="min-h-screen bg-background overflow-y-auto app-container momentum-scroll"
+      className="min-h-screen bg-background app-container momentum-scroll"
+      style={{
+        overflow: 'auto',
+        overflowX: 'hidden',
+        overflowY: 'auto',
+        WebkitOverflowScrolling: 'touch',
+        touchAction: 'pan-y',
+        minHeight: '100%',
+      }}
       {...handlers}
     >
       <PullToRefreshIndicator 
@@ -48,7 +56,7 @@ export const AppLeaderboard: React.FC = () => {
       </header>
 
       {/* Content */}
-      <div className="px-4 py-6 pb-24">
+      <div className="px-4 py-6" style={{ paddingBottom: '140px' }}>
         <LeaderboardSection compact={false} />
       </div>
     </div>

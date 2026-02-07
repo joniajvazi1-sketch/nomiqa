@@ -56,13 +56,15 @@ export const NetworkContribution: React.FC = () => {
     startContribution,
     stopContribution,
     formatDuration,
-    triggerManualSpeedTest
+    triggerManualSpeedTest,
+    getSpeedTestDataEstimate
   } = useNetworkContribution();
 
   const [isRunningSpeedTest, setIsRunningSpeedTest] = useState(false);
   const [speedTestProgress, setSpeedTestProgress] = useState(0);
   const [speedTestPhase, setSpeedTestPhase] = useState<'idle' | 'latency' | 'download' | 'upload'>('idle');
   const [liveSpeed, setLiveSpeed] = useState<{ down?: number; up?: number; latency?: number }>({});
+  const [showCellularDataWarning, setShowCellularDataWarning] = useState(false);
 
   const { data: globalCoverageData, loading: globalCoverageLoading } = useGlobalCoverage({
     autoRefresh: true,
@@ -136,8 +138,16 @@ export const NetworkContribution: React.FC = () => {
     return 'Cellular';
   };
 
-  const handleSpeedTest = async () => {
+  const handleSpeedTest = async (confirmed = false) => {
     if (isRunningSpeedTest) return;
+    
+    // Check if on cellular and show warning if not confirmed
+    const dataEstimate = getSpeedTestDataEstimate();
+    if (dataEstimate.isCellular && !confirmed) {
+      setShowCellularDataWarning(true);
+      return;
+    }
+    
     buttonTap();
     setIsRunningSpeedTest(true);
     setSpeedTestProgress(0);
@@ -166,7 +176,7 @@ export const NetworkContribution: React.FC = () => {
     }, 100);
     
     try {
-      const result = await triggerManualSpeedTest();
+      const result = await triggerManualSpeedTest(true); // Skip warning since we already showed it
       clearInterval(progressInterval);
       setSpeedTestProgress(100);
       
@@ -195,6 +205,12 @@ export const NetworkContribution: React.FC = () => {
         setLiveSpeed({});
       }, 1000);
     }
+  };
+  
+  // Confirm cellular data usage for speed test
+  const confirmCellularSpeedTest = () => {
+    setShowCellularDataWarning(false);
+    handleSpeedTest(true);
   };
 
   // Handle iOS "Always" permission request
@@ -275,6 +291,53 @@ export const NetworkContribution: React.FC = () => {
         type="session-end"
         onComplete={() => setShowCelebration(false)}
       />
+
+      {/* Cellular Data Warning for Speed Test */}
+      {showCellularDataWarning && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+          onClick={() => setShowCellularDataWarning(false)}
+        >
+          <div
+            className="bg-card border border-border rounded-2xl p-6 max-w-sm w-full"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center">
+                <Signal className="w-6 h-6 text-amber-500" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-foreground">Cellular Data Warning</h3>
+                <p className="text-sm text-muted-foreground">Speed test uses data</p>
+              </div>
+            </div>
+            
+            <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 mb-4">
+              <p className="text-sm text-foreground">
+                This speed test will use approximately <span className="font-bold text-amber-500">3-25 MB</span> of your cellular data.
+              </p>
+              <p className="text-xs text-muted-foreground mt-2">
+                💡 Tip: Run speed tests on WiFi for free!
+              </p>
+            </div>
+            
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowCellularDataWarning(false)}
+                className="flex-1 px-4 py-3 rounded-xl bg-muted text-foreground font-medium active:scale-95 transition-transform"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmCellularSpeedTest}
+                className="flex-1 px-4 py-3 rounded-xl bg-primary text-primary-foreground font-medium active:scale-95 transition-transform"
+              >
+                Run Test
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Globe Section - Takes remaining space */}
       <div className="flex-1 relative min-h-0">
@@ -443,8 +506,8 @@ export const NetworkContribution: React.FC = () => {
 
           {/* Speed Test Button */}
           <button
-            onClick={handleSpeedTest}
-            disabled={!isCellular || isRunningSpeedTest}
+            onClick={() => handleSpeedTest()}
+            disabled={isRunningSpeedTest}
             className={cn(
               'relative flex flex-col items-center justify-center gap-1 px-6 rounded-2xl min-w-[120px] h-[72px]',
               'backdrop-blur-md border-2 transition-all duration-200 active:scale-95',
