@@ -243,6 +243,11 @@ public class BackgroundLocationPlugin extends Plugin implements LocationForegrou
             Intent serviceIntent = new Intent(context, LocationForegroundService.class);
             serviceIntent.setAction(LocationForegroundService.ACTION_START);
 
+            Boolean resetStats = call.getBoolean("resetStats");
+            if (resetStats != null) {
+                serviceIntent.putExtra(LocationForegroundService.EXTRA_RESET_STATS, resetStats);
+            }
+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 context.startForegroundService(serviceIntent);
             } else {
