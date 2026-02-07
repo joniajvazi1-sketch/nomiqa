@@ -31,6 +31,7 @@ interface AppLayoutProps {
 export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const isNative = Capacitor.isNativePlatform();
   const isAndroid = Capacitor.getPlatform() === 'android';
+  const isIOS = Capacitor.getPlatform() === 'ios';
   const location = useLocation();
   const statusBarRef = useRef<StatusBarModule | null>(null);
   const { isOffline } = useNetworkStatus();
@@ -45,8 +46,12 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   // WebGL/canvas safety: avoid parent transforms on map/network routes
   const isMapRoute = location.pathname === '/app/map' || location.pathname === '/app/network';
 
-  // Bottom navigation height (56px bar + 8px margin + safe area buffer)
-  const BOTTOM_NAV_HEIGHT = 72;
+  // Bottom navigation height (56px bar + 16px margin + safe area buffer)
+  // Android needs extra padding since env() may not work consistently
+  const BOTTOM_NAV_HEIGHT = isAndroid ? 88 : 72;
+  
+  // Android status bar height fallback (typically 24-32dp)
+  const ANDROID_STATUS_BAR_HEIGHT = 32;
 
   // Universal viewport height fix
   // Works on: iOS Safari 12+, Chrome, Firefox, Samsung Internet, WebViews
@@ -169,10 +174,14 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         minHeight: 'calc(var(--vh, 1vh) * 100)',
         height: 'var(--app-height, 100vh)',
         
-        // Safe areas with fallbacks (env for iOS 11.2+, constant for iOS 11.0-11.1)
-        paddingTop: 'env(safe-area-inset-top, 0px)',
-        paddingLeft: 'env(safe-area-inset-left, 0px)',
-        paddingRight: 'env(safe-area-inset-right, 0px)',
+        // Safe areas with fallbacks
+        // Android: use fixed fallback since env() is inconsistent on older WebViews
+        // iOS: use env() with constant() fallback for older versions
+        paddingTop: isAndroid 
+          ? `${ANDROID_STATUS_BAR_HEIGHT}px` 
+          : 'max(env(safe-area-inset-top, 0px), constant(safe-area-inset-top, 0px))',
+        paddingLeft: 'max(env(safe-area-inset-left, 0px), constant(safe-area-inset-left, 0px))',
+        paddingRight: 'max(env(safe-area-inset-right, 0px), constant(safe-area-inset-right, 0px))',
       }}
     >
       {/* Main content area */}
@@ -184,13 +193,18 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         )}
         style={{ 
           // Bottom padding for floating nav
-          paddingBottom: `calc(${BOTTOM_NAV_HEIGHT}px + max(env(safe-area-inset-bottom, 0px), constant(safe-area-inset-bottom, 0px)))`,
+          // Android: use fixed padding since env() doesn't work reliably
+          paddingBottom: isAndroid 
+            ? `${BOTTOM_NAV_HEIGHT + 24}px`  // Extra 24px for Android nav bar
+            : `calc(${BOTTOM_NAV_HEIGHT}px + max(env(safe-area-inset-bottom, 0px), constant(safe-area-inset-bottom, 0px)))`,
           // iOS momentum scrolling
           WebkitOverflowScrolling: isMapRoute ? undefined : 'touch',
-          // Contain overscroll
+          // Contain overscroll - important for Android scroll behavior
           overscrollBehavior: 'contain',
           // Smooth scrolling where supported
           scrollBehavior: prefersReducedMotion ? 'auto' : 'smooth',
+          // Android: ensure touch scrolling works properly
+          touchAction: 'pan-y',
         }}
       >
         <SwipeablePages>
