@@ -71,12 +71,24 @@ export function NetworkStatsCard({ className, compact = false }: NetworkStatsCar
       const weekAgo = new Date();
       weekAgo.setDate(weekAgo.getDate() - 7);
 
-      const { data: signalLogs, error } = await supabase
-        .from('signal_logs')
-        .select('rsrp, rsrq, network_type, carrier_name, latitude, longitude, latency_ms, recorded_at')
-        .eq('user_id', user.id)
-        .gte('recorded_at', weekAgo.toISOString())
-        .order('recorded_at', { ascending: false });
+      const [{ count: totalCount, error: countError }, { data: signalLogs, error }] = await Promise.all([
+        supabase
+          .from('signal_logs')
+          .select('id', { count: 'exact', head: true })
+          .eq('user_id', user.id)
+          .gte('recorded_at', weekAgo.toISOString()),
+        supabase
+          .from('signal_logs')
+          .select('rsrp, rsrq, network_type, carrier_name, latitude, longitude, latency_ms, recorded_at')
+          .eq('user_id', user.id)
+          .gte('recorded_at', weekAgo.toISOString())
+          .order('recorded_at', { ascending: false })
+          .limit(1000),
+      ]);
+
+      if (countError) {
+        console.warn('[NetworkStatsCard] Count query failed:', countError);
+      }
 
       if (error) {
         console.error('[NetworkStatsCard] Error fetching signal logs:', error);
@@ -158,7 +170,7 @@ export function NetworkStatsCard({ className, compact = false }: NetworkStatsCar
         averageNetworkQuality,
         dominantNetworkType,
         locationsMapped: uniqueLocations.size,
-        totalDataPoints: signalLogs.length,
+        totalDataPoints: totalCount ?? signalLogs.length,
         uniqueCarriers: uniqueCarriers.size,
         avgLatency
       });

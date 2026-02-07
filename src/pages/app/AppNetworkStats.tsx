@@ -80,12 +80,24 @@ export function AppNetworkStats() {
       const monthAgo = new Date();
       monthAgo.setDate(monthAgo.getDate() - 30);
 
-      const { data: signalLogs, error } = await supabase
-        .from('signal_logs')
-        .select('rsrp, rsrq, network_type, carrier_name, latitude, longitude, latency_ms, speed_test_down, speed_test_up, recorded_at')
-        .eq('user_id', user.id)
-        .gte('recorded_at', monthAgo.toISOString())
-        .order('recorded_at', { ascending: false });
+      const [{ count: totalCount, error: countError }, { data: signalLogs, error }] = await Promise.all([
+        supabase
+          .from('signal_logs')
+          .select('id', { count: 'exact', head: true })
+          .eq('user_id', user.id)
+          .gte('recorded_at', monthAgo.toISOString()),
+        supabase
+          .from('signal_logs')
+          .select('rsrp, rsrq, network_type, carrier_name, latitude, longitude, latency_ms, speed_test_down, speed_test_up, recorded_at')
+          .eq('user_id', user.id)
+          .gte('recorded_at', monthAgo.toISOString())
+          .order('recorded_at', { ascending: false })
+          .limit(1000),
+      ]);
+
+      if (countError) {
+        console.warn('[AppNetworkStats] Count query failed:', countError);
+      }
 
       if (error) {
         console.error('[AppNetworkStats] Error fetching signal logs:', error);
@@ -184,7 +196,7 @@ export function AppNetworkStats() {
         averageNetworkQuality,
         dominantNetworkType,
         locationsMapped: uniqueLocations.size,
-        totalDataPoints: signalLogs.length,
+        totalDataPoints: totalCount ?? signalLogs.length,
         uniqueCarriers: uniqueCarriers.size,
         avgLatency,
         avgDownload,

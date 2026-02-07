@@ -70,21 +70,34 @@ serve(async (req) => {
 
     console.log('[get-global-coverage] Fetching fresh data from database');
 
-    // Query signal logs - PRIVACY: we only aggregate, never return individual coords
+    // Get an accurate-ish total count (the API layer can cap returned rows at 1000)
+    // PRIVACY: still only counts anonymized signal logs, no individual coordinates returned
+    const { count: totalDataPointsCount, error: countError } = await supabase
+      .from('signal_logs')
+      .select('id', { count: 'estimated', head: true })
+      .not('latitude', 'eq', 0)
+      .not('longitude', 'eq', 0);
+
+    if (countError) {
+      console.warn('[get-global-coverage] Count query warning:', countError);
+    }
+
+    // Query recent signal logs for aggregation
+    // PRIVACY: we only aggregate, never return individual coords
     const { data: signalLogs, error } = await supabase
       .from('signal_logs')
       .select('latitude, longitude, rsrp, rssi, network_generation, network_type')
       .not('latitude', 'eq', 0)
       .not('longitude', 'eq', 0)
       .order('recorded_at', { ascending: false })
-      .limit(50000);
+      .limit(1000);
 
     if (error) {
       console.error('[get-global-coverage] Database error:', error);
       throw error;
     }
 
-    const totalDataPoints = signalLogs?.length || 0;
+    const totalDataPoints = totalDataPointsCount ?? (signalLogs?.length || 0);
 
     if (!signalLogs || signalLogs.length === 0) {
       const emptyResponse = {

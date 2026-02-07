@@ -37,6 +37,16 @@ export interface LocationUpdate {
   timestamp: number;
 }
 
+export interface BackgroundTrackingStats {
+  distanceMeters: number;
+  samples: number;
+  lastLatitude?: number;
+  lastLongitude?: number;
+  lastAccuracy?: number;
+  lastSpeed?: number;
+  lastTimestamp?: number;
+}
+
 export interface NativeDeviceInfo {
   manufacturer: string;  // "Samsung", "Apple"
   model: string;         // "SM-S918B" (Android) or "iPhone17,2" (iOS)
@@ -68,27 +78,18 @@ export interface BackgroundLocationPlugin {
   /**
    * Request background location permission (Step 2)
    * Must be called AFTER foreground permission is granted
-   * - Android 10+: Shows a separate dialog for "Allow all the time"
-   * - iOS: Requests upgrade from "When In Use" to "Always" authorization
-   * 
-   * IMPORTANT for iOS: Apple requires showing a rationale screen before
-   * calling this to explain why background location is needed.
    */
   requestBackgroundPermission(): Promise<PermissionResult>;
 
   /**
    * Request notification permission (Android 13+)
-   * Required to show the foreground service notification
-   * On iOS, this is a no-op as notifications aren't required for location
    */
   requestNotificationPermission(): Promise<PermissionResult>;
 
   /**
    * Start the foreground service for background location tracking
-   * - Android: Shows a persistent notification while tracking
-   * - iOS: Starts location updates with allowsBackgroundLocationUpdates
    */
-  startForegroundService(): Promise<ServiceResult>;
+  startForegroundService(options?: { resetStats?: boolean }): Promise<ServiceResult>;
 
   /**
    * Stop the foreground service
@@ -96,20 +97,28 @@ export interface BackgroundLocationPlugin {
   stopForegroundService(): Promise<ServiceResult>;
 
   /**
+   * Android-only: drain and reset background distance/sample deltas.
+   * Returns deltas since the last drain.
+   */
+  drainBackgroundStats(): Promise<BackgroundTrackingStats>;
+
+  /**
+   * Android-only: reset all background tracking stats (distance/samples + last location).
+   */
+  resetBackgroundStats(): Promise<ServiceResult>;
+
+  /**
    * Open the app settings page
-   * Use when permissions are permanently denied
    */
   openAppSettings(): Promise<ServiceResult>;
 
   /**
    * Get accurate device info from native APIs
-   * Android: Uses Build.MANUFACTURER, Build.MODEL
-   * iOS: Uses raw model identifier (e.g., "iPhone17,2")
    */
   getDeviceInfo(): Promise<NativeDeviceInfo>;
 
   /**
-   * Add a listener for location updates (iOS only currently)
+   * Add a listener for location updates
    */
   addListener(
     eventName: 'locationUpdate',
