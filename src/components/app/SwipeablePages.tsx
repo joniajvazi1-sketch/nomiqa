@@ -31,6 +31,7 @@ export const SwipeablePages: React.FC<SwipeablePagesProps> = ({ children }) => {
   const touchStartY = useRef<number>(0);
   const touchEndX = useRef<number>(0);
   const isSwiping = useRef<boolean>(false);
+  const isVerticalScroll = useRef<boolean>(false);
 
   const [swipeOffset, setSwipeOffset] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -56,6 +57,7 @@ export const SwipeablePages: React.FC<SwipeablePagesProps> = ({ children }) => {
       touchStartY.current = e.touches[0].clientY;
       touchEndX.current = e.touches[0].clientX;
       isSwiping.current = false;
+      isVerticalScroll.current = false;
     },
     [isAnimating, isSwipeDisabled]
   );
@@ -70,33 +72,47 @@ export const SwipeablePages: React.FC<SwipeablePagesProps> = ({ children }) => {
       const diffX = currentX - touchStartX.current;
       const diffY = currentY - touchStartY.current;
 
-      // Only track horizontal swipes (much more horizontal than vertical)
-      // More strict ratio to avoid interfering with normal vertical scroll.
-      if (!isSwiping.current && Math.abs(diffX) > 12) {
-        if (Math.abs(diffX) > Math.abs(diffY) * 2) {
+      // If the user has clearly started a vertical scroll, never treat this gesture as a swipe.
+      // This is especially important on Android where non-perfectly-vertical drags are common.
+      if (!isSwiping.current && !isVerticalScroll.current) {
+        const isClearlyVertical = Math.abs(diffY) > 12 && Math.abs(diffY) > Math.abs(diffX) * 1.5;
+        if (isClearlyVertical) {
+          isVerticalScroll.current = true;
+          setSwipeOffset(0);
+          return;
+        }
+
+        // Only start swiping if the gesture is strongly horizontal.
+        const isClearlyHorizontal = Math.abs(diffX) > 18 && Math.abs(diffX) > Math.abs(diffY) * 2.5;
+        if (isClearlyHorizontal) {
           isSwiping.current = true;
         }
       }
 
-      if (isSwiping.current) {
-        touchEndX.current = currentX;
+      if (isVerticalScroll.current || !isSwiping.current) return;
 
-        const currentIndex = getCurrentIndex();
-        const isAtStart = currentIndex === 0 && diffX > 0;
-        const isAtEnd = currentIndex === TAB_ROUTES.length - 1 && diffX < 0;
+      touchEndX.current = currentX;
 
-        if (isAtStart || isAtEnd) {
-          setSwipeOffset(diffX * 0.3);
-        } else {
-          setSwipeOffset(diffX * 0.5);
-        }
+      const currentIndex = getCurrentIndex();
+      const isAtStart = currentIndex === 0 && diffX > 0;
+      const isAtEnd = currentIndex === TAB_ROUTES.length - 1 && diffX < 0;
+
+      if (isAtStart || isAtEnd) {
+        setSwipeOffset(diffX * 0.3);
+      } else {
+        setSwipeOffset(diffX * 0.5);
       }
     },
     [isAnimating, isSwipeDisabled, getCurrentIndex]
   );
 
   const handleTouchEnd = useCallback(() => {
-    if (!isSwiping.current || isAnimating || isSwipeDisabled) {
+    // Always reset direction locks
+    const wasSwiping = isSwiping.current;
+    isSwiping.current = false;
+    isVerticalScroll.current = false;
+
+    if (!wasSwiping || isAnimating || isSwipeDisabled) {
       setSwipeOffset(0);
       return;
     }
@@ -120,8 +136,7 @@ export const SwipeablePages: React.FC<SwipeablePagesProps> = ({ children }) => {
     }
 
     setSwipeOffset(0);
-    isSwiping.current = false;
-  }, [isAnimating, isSwipeDisabled, getCurrentIndex, lightTap, navigate]);
+  }, [getCurrentIndex, isAnimating, isSwipeDisabled, lightTap, navigate]);
 
   useEffect(() => {
     const el = containerRef.current;

@@ -30,7 +30,7 @@ export const AppAchievements: React.FC = () => {
     await refreshAchievements();
   }, [refreshAchievements]);
 
-  const { isRefreshing, pullDistance, pullProgress, handlers } = usePullToRefresh({
+  const { isRefreshing, pullDistance, pullProgress, containerRef } = usePullToRefresh({
     onRefresh: handleRefresh,
   });
 
@@ -53,7 +53,7 @@ export const AppAchievements: React.FC = () => {
   return (
     <div 
       className="min-h-screen bg-background pb-28 overflow-y-auto app-container momentum-scroll"
-      {...handlers}
+      ref={containerRef}
     >
       <PullToRefreshIndicator 
         isRefreshing={isRefreshing} 

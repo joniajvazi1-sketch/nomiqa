@@ -19,7 +19,7 @@ export const AppLeaderboard: React.FC = () => {
     await refresh();
   }, [refresh]);
 
-  const { isRefreshing, pullDistance, pullProgress, handlers } = usePullToRefresh({
+  const { isRefreshing, pullDistance, pullProgress, containerRef } = usePullToRefresh({
     onRefresh: handleRefresh,
   });
 
@@ -34,7 +34,7 @@ export const AppLeaderboard: React.FC = () => {
         touchAction: 'pan-y',
         minHeight: '100%',
       }}
-      {...handlers}
+      ref={containerRef}
     >
       <PullToRefreshIndicator 
         isRefreshing={isRefreshing} 

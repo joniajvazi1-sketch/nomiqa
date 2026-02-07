@@ -94,7 +94,7 @@ export const AppShop: React.FC = () => {
     await refetch();
   }, [refetch]);
 
-  const { isRefreshing, pullDistance, pullProgress, handlers } = usePullToRefresh({
+  const { isRefreshing, pullDistance, pullProgress, containerRef } = usePullToRefresh({
     onRefresh: handleRefresh
   });
 
@@ -285,7 +285,7 @@ export const AppShop: React.FC = () => {
           // Ensure full height
           minHeight: '100%',
         }}
-        {...handlers}
+        ref={containerRef}
       >
         {/* Pull to refresh indicator */}
         <PullToRefreshIndicator 
