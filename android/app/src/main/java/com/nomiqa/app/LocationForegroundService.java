@@ -8,6 +8,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.pm.ServiceInfo;
 import android.location.Location;
 import android.os.Build;
 import android.os.Handler;
@@ -191,6 +192,8 @@ public class LocationForegroundService extends Service {
             fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, mainHandler.getLooper());
             isTracking = true;
             Log.d(TAG, "Location updates started (interval: " + LOCATION_INTERVAL_MS/1000 + "s, displacement: " + LOCATION_MIN_DISPLACEMENT_M + "m)");
+        } catch (SecurityException e) {
+            Log.e(TAG, "Security exception requesting location updates", e);
         }
     }
 
