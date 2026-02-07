@@ -287,6 +287,80 @@ public class BackgroundLocationPlugin extends Plugin implements LocationForegrou
     }
 
     /**
+     * Drain and reset background tracking stats (distance/samples).
+     * Returns accumulated values since last drain.
+     */
+    @PluginMethod
+    public void drainBackgroundStats(PluginCall call) {
+        try {
+            Context context = getContext();
+            android.content.SharedPreferences prefs = context.getSharedPreferences(
+                "nomiqa_bg_tracking", Context.MODE_PRIVATE);
+
+            float distanceM = prefs.getFloat("distance_m", 0f);
+            int samples = prefs.getInt("samples", 0);
+            long lastLatBits = prefs.getLong("last_lat_bits", Double.doubleToLongBits(Double.NaN));
+            long lastLngBits = prefs.getLong("last_lng_bits", Double.doubleToLongBits(Double.NaN));
+            float lastAcc = prefs.getFloat("last_acc", 0f);
+            float lastSpeed = prefs.getFloat("last_speed", 0f);
+            long lastTs = prefs.getLong("last_ts", 0L);
+
+            // Reset distance and samples (keep last position for continuity)
+            prefs.edit()
+                .putFloat("distance_m", 0f)
+                .putInt("samples", 0)
+                .apply();
+
+            JSObject result = new JSObject();
+            result.put("distanceMeters", distanceM);
+            result.put("samples", samples);
+            double lastLat = Double.longBitsToDouble(lastLatBits);
+            double lastLng = Double.longBitsToDouble(lastLngBits);
+            if (!Double.isNaN(lastLat)) result.put("lastLatitude", lastLat);
+            if (!Double.isNaN(lastLng)) result.put("lastLongitude", lastLng);
+            if (lastAcc > 0) result.put("lastAccuracy", lastAcc);
+            if (lastSpeed > 0) result.put("lastSpeed", lastSpeed);
+            if (lastTs > 0) result.put("lastTimestamp", lastTs);
+
+            Log.d(TAG, "Drained background stats: " + result.toString());
+            call.resolve(result);
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to drain background stats", e);
+            call.reject("Failed to drain background stats: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Reset all background tracking stats (including last position).
+     */
+    @PluginMethod
+    public void resetBackgroundStats(PluginCall call) {
+        try {
+            Context context = getContext();
+            android.content.SharedPreferences prefs = context.getSharedPreferences(
+                "nomiqa_bg_tracking", Context.MODE_PRIVATE);
+
+            prefs.edit()
+                .putFloat("distance_m", 0f)
+                .putInt("samples", 0)
+                .putLong("last_lat_bits", Double.doubleToLongBits(Double.NaN))
+                .putLong("last_lng_bits", Double.doubleToLongBits(Double.NaN))
+                .putFloat("last_acc", 0f)
+                .putFloat("last_speed", 0f)
+                .putLong("last_ts", 0L)
+                .apply();
+
+            Log.d(TAG, "Reset all background stats");
+            JSObject result = new JSObject();
+            result.put("success", true);
+            call.resolve(result);
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to reset background stats", e);
+            call.reject("Failed to reset background stats: " + e.getMessage());
+        }
+    }
+
+    /**
      * Open app settings (for when permissions are permanently denied)
      */
     @PluginMethod

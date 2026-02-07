@@ -428,13 +428,56 @@ export const useNetworkContribution = () => {
         }, 1000);
       }
       
-      // AUTO-RESUME: Restart background location service and listener
-      // This is critical for iOS significantLocationChange relaunches
+      // AUTO-RESUME: Restart background location service, drain native stats, and sync with server
       const restartBackgroundTracking = async () => {
         if (!isNative) return;
         
         try {
           const BackgroundLocation = (await import('@/plugins/BackgroundLocationPlugin')).default;
+          
+          // ANDROID: Drain background stats accumulated while JS was paused
+          if (isAndroid) {
+            try {
+              const bgStats = await BackgroundLocation.drainBackgroundStats();
+              if (bgStats.distanceMeters > 0 || bgStats.samples > 0) {
+                const bgDistancePoints = bgStats.distanceMeters * 0.01;
+                console.log(`[NetworkContribution] Drained Android background: ${bgStats.distanceMeters.toFixed(1)}m (+${bgDistancePoints.toFixed(2)} pts), ${bgStats.samples} samples`);
+                
+                // Merge background distance into current stats
+                setStats(prev => ({
+                  ...prev,
+                  distanceMeters: prev.distanceMeters + bgStats.distanceMeters,
+                  distancePoints: prev.distancePoints + bgDistancePoints,
+                  pointsEarned: prev.pointsEarned + bgDistancePoints,
+                  dataPointsCount: prev.dataPointsCount + bgStats.samples
+                }));
+              }
+            } catch (drainErr) {
+              console.warn('[NetworkContribution] Failed to drain Android background stats:', drainErr);
+            }
+          }
+          
+          // SYNC WITH SERVER: Fetch the actual capped total from server to sync UI
+          try {
+            const { data, error } = await supabase.functions.invoke('get-contribution-stats');
+            if (!error && data?.points?.total !== undefined) {
+              const serverTotal = data.points.total;
+              console.log(`[NetworkContribution] Server total points: ${serverTotal}`);
+              
+              // If server total is LESS than our local count, we've been capped
+              // Update local UI to reflect the actual server-verified total
+              setStats(prev => {
+                if (serverTotal < prev.pointsEarned) {
+                  console.log(`[NetworkContribution] Capping UI points from ${prev.pointsEarned} to ${serverTotal}`);
+                  lastAutoSavePointsRef.current = serverTotal; // Reset auto-save baseline
+                  return { ...prev, pointsEarned: serverTotal };
+                }
+                return prev;
+              });
+            }
+          } catch (syncErr) {
+            console.warn('[NetworkContribution] Failed to sync with server:', syncErr);
+          }
           
           // Check if we already have a listener
           if ((window as any).__nomiqaBackgroundLocationListener) {
@@ -476,7 +519,7 @@ export const useNetworkContribution = () => {
       
       restartBackgroundTracking();
     }
-  }, [isContributionEnabled, persistedSessionId, user, session.status, resumeTrigger, cumulativePoints, cumulativeDurationSeconds, sessionStartedAt, isNative]);
+  }, [isContributionEnabled, persistedSessionId, user, session.status, resumeTrigger, cumulativePoints, cumulativeDurationSeconds, sessionStartedAt, isNative, isAndroid]);
 
   // Position update handler
   const handlePositionUpdate = useCallback(async (position: Position) => {
@@ -1113,6 +1156,17 @@ export const useNetworkContribution = () => {
       // PERSIST the contribution state - survives app backgrounding and tab switches
       enableContribution(newSession.id);
       console.log('[NetworkContribution] Session persisted:', newSession.id);
+      
+      // ANDROID: Reset background stats when starting fresh session
+      if (isAndroid && isNative) {
+        try {
+          const BackgroundLocation = (await import('@/plugins/BackgroundLocationPlugin')).default;
+          await BackgroundLocation.resetBackgroundStats();
+          console.log('[NetworkContribution] Android background stats reset for new session');
+        } catch (e) {
+          console.warn('[NetworkContribution] Failed to reset Android background stats:', e);
+        }
+      }
 
       setSession({
         id: newSession.id,
