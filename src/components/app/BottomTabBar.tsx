@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Home, Gift, ShoppingBag, User } from 'lucide-react';
+import { Capacitor } from '@capacitor/core';
 import { useHaptics } from '@/hooks/useHaptics';
 import { useTheme } from 'next-themes';
 import { cn } from '@/lib/utils';
@@ -27,6 +28,10 @@ export const BottomTabBar: React.FC = () => {
   const { lightTap } = useHaptics();
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === 'dark';
+  const isAndroid = Capacitor.getPlatform() === 'android';
+  
+  // Android navigation bar height fallback (typically 48dp)
+  const ANDROID_NAV_BAR_HEIGHT = 24;
 
   const tabs: TabItem[] = [
     { path: '/app', icon: Home, label: 'Home' },
@@ -54,9 +59,10 @@ export const BottomTabBar: React.FC = () => {
       aria-label="Main navigation"
       style={{
         // Safe area with fallbacks for older iOS/Android
-        // NOTE: keep this FLUSH to the bottom; the safe-area inset is enough.
-        // Extra fixed gaps can look like the bar is “floating” on real devices.
-        paddingBottom: 'max(env(safe-area-inset-bottom, 0px), constant(safe-area-inset-bottom, 0px))',
+        // Android: use fixed padding since env() doesn't work reliably on all devices
+        paddingBottom: isAndroid 
+          ? `${ANDROID_NAV_BAR_HEIGHT}px`
+          : 'max(env(safe-area-inset-bottom, 0px), constant(safe-area-inset-bottom, 0px))',
         paddingLeft: 'max(env(safe-area-inset-left, 0px), 8px)',
         paddingRight: 'max(env(safe-area-inset-right, 0px), 8px)',
       }}

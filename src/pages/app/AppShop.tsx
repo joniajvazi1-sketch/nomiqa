@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useRef, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Capacitor } from '@capacitor/core';
 import { 
   Search, 
   MapPin, 
@@ -70,6 +71,7 @@ const REGION_IMAGE_MAP: Record<string, string> = {
  */
 export const AppShop: React.FC = () => {
   const navigate = useNavigate();
+  const isAndroid = Capacitor.getPlatform() === 'android';
   const { data: products, isLoading, isError, refetch } = useProducts();
   const { items, addItem } = useCart();
   const { buttonTap, addToCartPattern, errorPattern, navigationTap, selectionTap } = useEnhancedHaptics();
@@ -271,7 +273,18 @@ export const AppShop: React.FC = () => {
     <>
       <AppSEO />
       <div 
-        className="min-h-screen relative overflow-hidden overflow-y-auto app-container momentum-scroll"
+        className="min-h-screen relative app-container"
+        style={{
+          // Critical: enable proper scrolling on Android
+          overflow: 'auto',
+          overflowX: 'hidden',
+          overflowY: 'auto',
+          // Android WebView scroll fix
+          WebkitOverflowScrolling: 'touch',
+          touchAction: 'pan-y',
+          // Ensure full height
+          minHeight: '100%',
+        }}
         {...handlers}
       >
         {/* Pull to refresh indicator */}
@@ -281,7 +294,13 @@ export const AppShop: React.FC = () => {
           isRefreshing={isRefreshing}
         />
 
-      <div className="relative z-10 px-5 py-6 pb-28 space-y-4">
+      <div 
+        className="relative z-10 px-5 py-6 space-y-4"
+        style={{
+          // Android: extra bottom padding for nav bar
+          paddingBottom: isAndroid ? '140px' : '112px',
+        }}
+      >
         {/* Header - Glassmorphism */}
         <header className="flex items-center justify-between">
           <div>
