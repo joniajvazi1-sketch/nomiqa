@@ -123,8 +123,8 @@ export const TeamActivityCard: React.FC<TeamActivityCardProps> = ({ userId }) =>
 
   if (loading) {
     return (
-      <div className="rounded-2xl bg-black/40 backdrop-blur-xl border border-white/8 p-4 flex items-center justify-center min-h-[120px]">
-        <Loader2 className="w-5 h-5 text-white/40 animate-spin" />
+      <div className="rounded-2xl bg-card/80 backdrop-blur-xl border border-border p-4 flex items-center justify-center min-h-[120px]">
+        <Loader2 className="w-5 h-5 text-muted-foreground animate-spin" />
       </div>
     );
   }
@@ -132,26 +132,26 @@ export const TeamActivityCard: React.FC<TeamActivityCardProps> = ({ userId }) =>
   return (
     <button
       onClick={() => { lightTap(); navigate('/app/invite'); }}
-      className="w-full rounded-2xl bg-black/40 backdrop-blur-xl border border-white/8 p-4 flex flex-col gap-3 active:scale-[0.98] transition-transform text-left"
+      className="w-full rounded-2xl bg-card/80 backdrop-blur-xl border border-border p-4 flex flex-col gap-3 active:scale-[0.98] transition-transform text-left"
     >
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg">
-            <Users className="w-5 h-5 text-white" />
+          <div className="w-11 h-11 rounded-xl bg-primary/15 border border-primary/20 flex items-center justify-center">
+            <Users className="w-5 h-5 text-primary" />
           </div>
           <div>
-            <p className="text-sm font-bold text-white">My Team</p>
-            <p className="text-[10px] text-cyan-400">
-              {activeCount > 0 
-                ? `${activeCount} active now` 
-                : teamMembers.length > 0 
-                  ? 'No one active' 
+            <p className="text-sm font-semibold text-foreground">My Team</p>
+            <p className="text-xs text-muted-foreground">
+              {activeCount > 0
+                ? `${activeCount} active now`
+                : teamMembers.length > 0
+                  ? 'No one active'
                   : 'Invite friends'}
             </p>
           </div>
         </div>
-        <ChevronRight className="w-4 h-4 text-white/40" />
+        <ChevronRight className="w-4 h-4 text-muted-foreground" />
       </div>
 
       {/* Team Members List */}
@@ -161,43 +161,47 @@ export const TeamActivityCard: React.FC<TeamActivityCardProps> = ({ userId }) =>
             <div
               key={member.user_id}
               className={cn(
-                "flex items-center gap-3 p-2 rounded-xl transition-colors",
-                member.isActive 
-                  ? "bg-green-500/10 border border-green-500/20" 
-                  : "bg-white/5 border border-white/5"
+                "flex items-center gap-3 p-2 rounded-xl border transition-colors",
+                member.isActive
+                  ? "bg-primary/10 border-primary/20"
+                  : "bg-muted/30 border-border"
               )}
             >
               {/* Status Icon */}
-              <div className={cn(
-                "w-8 h-8 rounded-full flex items-center justify-center",
-                member.isActive 
-                  ? "bg-green-500/20" 
-                  : "bg-white/10"
-              )}>
+              <div
+                className={cn(
+                  "w-8 h-8 rounded-full flex items-center justify-center",
+                  member.isActive ? "bg-primary/15" : "bg-muted"
+                )}
+              >
                 {member.isActive ? (
-                  <Wifi className="w-4 h-4 text-green-400" />
+                  <Wifi className="w-4 h-4 text-primary" />
                 ) : (
-                  <WifiOff className="w-4 h-4 text-white/40" />
+                  <WifiOff className="w-4 h-4 text-muted-foreground" />
                 )}
               </div>
 
               {/* Name */}
               <div className="flex-1 min-w-0">
-                <p className={cn(
-                  "text-sm font-semibold truncate",
-                  member.isActive ? "text-white" : "text-white/60"
-                )}>
+                <p
+                  className={cn(
+                    "text-sm font-medium truncate",
+                    member.isActive ? "text-foreground" : "text-muted-foreground"
+                  )}
+                >
                   {member.username}
                 </p>
               </div>
 
               {/* Status Badge */}
-              <div className={cn(
-                "px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider",
-                member.isActive 
-                  ? "bg-green-500/20 text-green-400" 
-                  : "bg-white/10 text-white/40"
-              )}>
+              <div
+                className={cn(
+                  "px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider",
+                  member.isActive
+                    ? "bg-primary/15 text-primary"
+                    : "bg-muted text-muted-foreground"
+                )}
+              >
                 {member.isActive ? 'Live' : 'Offline'}
               </div>
             </div>
@@ -205,9 +209,7 @@ export const TeamActivityCard: React.FC<TeamActivityCardProps> = ({ userId }) =>
         </div>
       ) : (
         <div className="flex items-center justify-center py-4 text-center">
-          <p className="text-xs text-white/50">
-            Invite friends to see their activity here
-          </p>
+          <p className="text-sm text-muted-foreground">Invite friends to see their activity here</p>
         </div>
       )}
     </button>

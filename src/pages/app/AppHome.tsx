@@ -224,7 +224,7 @@ export const AppHome: React.FC = () => {
     loadData();
   }, [loadData]);
 
-  const { isRefreshing, pullDistance, pullProgress, handlers } = usePullToRefresh({
+  const { isRefreshing, pullDistance, pullProgress, containerRef } = usePullToRefresh({
     onRefresh: loadData
   });
 
@@ -535,7 +535,7 @@ export const AppHome: React.FC = () => {
           paddingBottom: 'calc(100px + env(safe-area-inset-bottom))',
           minHeight: 'calc(var(--vh, 1vh) * 100 + 200px)'
         }}
-        {...handlers}
+        ref={containerRef}
       >
         {/* Seamless gradient background - extends full height */}
         <div 

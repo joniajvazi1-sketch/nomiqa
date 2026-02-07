@@ -119,7 +119,7 @@ export const AppChallenges: React.FC = () => {
     await refreshProgress();
   }, [refreshProgress]);
 
-  const { isRefreshing, pullDistance, pullProgress, handlers } = usePullToRefresh({
+  const { isRefreshing, pullDistance, pullProgress, containerRef } = usePullToRefresh({
     onRefresh: handleRefresh,
   });
 
@@ -135,7 +135,7 @@ export const AppChallenges: React.FC = () => {
         minHeight: '100%',
         paddingBottom: '140px',
       }}
-      {...handlers}
+      ref={containerRef}
     >
       <PullToRefreshIndicator 
         isRefreshing={isRefreshing} 

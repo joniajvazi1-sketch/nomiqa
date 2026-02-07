@@ -162,7 +162,7 @@ export const AppInvite: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <Card className="card-reward overflow-hidden">
+          <Card className="card-premium overflow-hidden">
             <CardContent className="p-4 relative">
               {/* Subtle shimmer effect */}
               <div className="absolute inset-0 shimmer opacity-30 pointer-events-none" />
@@ -180,13 +180,13 @@ export const AppInvite: React.FC = () => {
                 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="card-premium rounded-lg p-3">
-                    <div className="text-2xl font-bold text-gradient-primary">
+                    <div className="text-2xl font-bold text-primary">
                       {TOKENOMICS.REFERRAL_BONUS_POINTS}
                     </div>
                     <div className="text-xs text-muted-foreground">pts when they join</div>
                   </div>
                   <div className="card-premium rounded-lg p-3">
-                    <div className="text-2xl font-bold text-gradient-reward">
+                    <div className="text-2xl font-bold text-primary">
                       {(TOKENOMICS.REFERRAL_COMMISSION_RATE * 100).toFixed(0)}%
                     </div>
                     <div className="text-xs text-muted-foreground">value share</div>
