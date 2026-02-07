@@ -43,10 +43,11 @@ public class LocationForegroundService extends Service {
     public static final String ACTION_START = "com.nomiqa.app.ACTION_START_LOCATION_SERVICE";
     public static final String ACTION_STOP = "com.nomiqa.app.ACTION_STOP_LOCATION_SERVICE";
 
-    // Location update interval (5 minutes for battery efficiency)
-    private static final long LOCATION_INTERVAL_MS = 5 * 60 * 1000;
-    private static final long LOCATION_FASTEST_INTERVAL_MS = 2 * 60 * 1000;
-    private static final float LOCATION_MIN_DISPLACEMENT_M = 100f; // Only update if moved 100m
+    // Location update interval - balanced for battery vs responsiveness
+    // More frequent updates for better distance tracking while walking
+    private static final long LOCATION_INTERVAL_MS = 60 * 1000; // 1 minute for walking detection
+    private static final long LOCATION_FASTEST_INTERVAL_MS = 30 * 1000; // 30 seconds when moving
+    private static final float LOCATION_MIN_DISPLACEMENT_M = 20f; // Update after 20m movement (walking = ~25m/30s)
 
     private FusedLocationProviderClient fusedLocationClient;
     private LocationCallback locationCallback;

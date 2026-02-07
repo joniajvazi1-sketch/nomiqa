@@ -814,6 +814,13 @@ export const useNetworkContribution = () => {
           
           if (wasCapped) {
             console.log(`[NetworkContribution] Points capped: requested ${pointsDelta}, added ${actualPointsAdded}`);
+            // CRITICAL: Update the local UI to reflect the ACTUAL capped points
+            // This prevents the UI from showing more points than the user actually earned
+            const cappedTotal = lastAutoSavePointsRef.current + actualPointsAdded;
+            setStats(prev => ({
+              ...prev,
+              pointsEarned: cappedTotal // Override with server-verified capped total
+            }));
           } else {
             const boostMultiplier = (result.boost_multiplier as number) || 1;
             const streakDays = (result.streak_days as number) || 0;
