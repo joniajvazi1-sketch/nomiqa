@@ -891,7 +891,7 @@ export const AppHome: React.FC = () => {
                 )}
               </motion.div>
 
-              {/* Quick Actions - Challenges & Leaderboard */}
+              {/* Quick Actions - Challenges & Team */}
               <motion.div
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -912,15 +912,15 @@ export const AppHome: React.FC = () => {
                 </button>
 
                 <button
-                  onClick={() => { lightTap(); navigate('/app/leaderboard'); }}
+                  onClick={() => { lightTap(); navigate('/app/invite'); }}
                   className="rounded-2xl bg-black/40 backdrop-blur-xl border border-white/8 p-4 flex flex-col items-center gap-2 active:scale-[0.98] transition-transform"
                 >
                   <div className="w-11 h-11 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg">
-                    <TrendingUp className="w-5 h-5 text-white" />
+                    <Users className="w-5 h-5 text-white" />
                   </div>
                   <div className="text-center">
-                    <p className="text-sm font-bold text-white">Leaderboard</p>
-                    <p className="text-[10px] text-blue-400">Top earners</p>
+                    <p className="text-sm font-bold text-white">My Team</p>
+                    <p className="text-[10px] text-cyan-400">See activity</p>
                   </div>
                 </button>
               </motion.div>
