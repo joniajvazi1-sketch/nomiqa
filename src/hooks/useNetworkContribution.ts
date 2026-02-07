@@ -73,9 +73,21 @@ const LAST_AUTO_SAVE_KEY = 'nomiqa_last_auto_save';
 /**
  * Check if connection type is cellular (earns points)
  */
+/**
+ * Check if connection type is cellular
+ */
 const isCellularConnection = (type: string): boolean => {
   const cellularTypes = ['cellular', '4g', '5g', 'lte', '3g', '2g'];
   return cellularTypes.includes(type.toLowerCase());
+};
+
+/**
+ * Check if connection type is any valid network (cellular or WiFi)
+ * WiFi contribution is allowed now (no pause), but telco data from WiFi is less valuable
+ */
+const isValidConnection = (type: string): boolean => {
+  const validTypes = ['cellular', '4g', '5g', 'lte', '3g', '2g', 'wifi'];
+  return validTypes.includes(type.toLowerCase());
 };
 
 /**
@@ -369,7 +381,9 @@ export const useNetworkContribution = () => {
   const [lastPosition, setLastPosition] = useState<Position | null>(null);
   
   const isCellular = isCellularConnection(connectionType);
-  const isPaused = session.status === 'active' && !isCellular;
+  const isWifi = connectionType.toLowerCase() === 'wifi';
+  // WiFi no longer pauses - only "no network" pauses contribution
+  const isPaused = session.status === 'active' && !isValidConnection(connectionType);
   
   const lastPositionRef = useRef<Position | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -528,7 +542,9 @@ export const useNetworkContribution = () => {
     // Always update position for map display
     setLastPosition(position);
     
-    if (!isCellularConnection(connectionType)) {
+    // Allow both cellular and WiFi for distance tracking
+    // WiFi data is less valuable for telco but still earns points
+    if (!isValidConnection(connectionType)) {
       lastPositionRef.current = position;
       return;
     }
@@ -747,22 +763,22 @@ export const useNetworkContribution = () => {
       prevConnectionTypeRef.current = connectionType;
     }
     
-    // Haptic feedback on cellular/WiFi change
+    // Haptic feedback on cellular/WiFi change (but no longer pauses earning)
     if (prevIsCellularRef.current !== isCellular) {
       if (isCellular) {
         success();
-        console.log('Cellular connection restored - earning resumed');
-      } else {
-        warning();
-        console.log('WiFi detected - earning paused');
+        console.log('Cellular connection detected - telco data more valuable');
+      } else if (connectionType.toLowerCase() === 'wifi') {
+        // Gentle notification for WiFi - still earning, just different
+        console.log('WiFi detected - still earning points');
       }
       prevIsCellularRef.current = isCellular;
     }
-  }, [connectionType, isCellular, session.status, lastPosition, success, warning, telcoMetrics]);
+  }, [connectionType, isCellular, session.status, lastPosition, success, telcoMetrics]);
 
-  // Time-based earnings
+  // Time-based earnings - now works on both cellular and WiFi
   useEffect(() => {
-    if (session.status !== 'active' || !isCellular) return;
+    if (session.status !== 'active' || !isValidConnection(connectionType)) return;
     
     const currentMinute = Math.floor(stats.duration / 60);
     const lastAwardedMinute = lastTimePointsRef.current;
@@ -1487,15 +1503,35 @@ export const useNetworkContribution = () => {
 
   /**
    * Manually trigger a speed test (user initiated)
+   * Works on both cellular and WiFi
+   * Returns estimated data usage info for cellular warning
    */
-  const triggerManualSpeedTest = async (): Promise<SpeedTestResult | null> => {
-    if (!isCellular) {
-      warning();
+  const triggerManualSpeedTest = async (skipCellularWarning = false): Promise<SpeedTestResult | null> => {
+    // On WiFi, just run it
+    if (connectionType.toLowerCase() === 'wifi') {
+      heavyTap();
+      return runSpeedTestWithBonus();
+    }
+    
+    // On cellular, warn about data usage (~3-25MB per test)
+    if (!skipCellularWarning) {
+      // Return null to let UI show warning first
+      // UI should call again with skipCellularWarning=true after user confirms
       return null;
     }
+    
     heavyTap();
     return runSpeedTestWithBonus();
   };
+
+  /**
+   * Get estimated data usage for speed test
+   */
+  const getSpeedTestDataEstimate = (): { minMB: number; maxMB: number; isCellular: boolean } => ({
+    minMB: 3,
+    maxMB: 25,
+    isCellular
+  });
 
   const formatDuration = (seconds: number): string => {
     const hrs = Math.floor(seconds / 3600);
@@ -1524,6 +1560,7 @@ export const useNetworkContribution = () => {
     offlineQueueCount,
     lastPosition,
     isCellular,
+    isWifi,
     isPaused,
     isRunningSpeedTest,
     isContributionEnabled, // Persisted state - survives app backgrounding
@@ -1533,6 +1570,7 @@ export const useNetworkContribution = () => {
     syncOfflineQueue,
     formatDuration,
     formatDistance,
-    triggerManualSpeedTest
+    triggerManualSpeedTest,
+    getSpeedTestDataEstimate
   };
 };
