@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Users, Gift, Copy, Share2, Check, 
-  TrendingUp, Award, ChevronRight, Sparkles,
-  MessageCircle, Mail, Link2
+  Award, Sparkles, MessageCircle, Mail, Link2
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -16,6 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { TOKENOMICS } from '@/utils/tokenomics';
 import { AppSpinner } from '@/components/app/AppSpinner';
+import { TeamActivityCard } from '@/components/app/TeamActivityCard';
 
 interface AffiliateData {
   id: string;
@@ -294,56 +294,13 @@ export const AppInvite: React.FC = () => {
           </Card>
         </motion.div>
 
-        {/* Stats Dashboard - Premium */}
+        {/* My Team Activity */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
         >
-          <Card className="card-premium">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-4">
-                <TrendingUp className="w-5 h-5 text-primary" />
-                <h3 className="font-semibold text-foreground">Your Stats</h3>
-              </div>
-
-              <div className="grid grid-cols-3 gap-3">
-                <motion.div 
-                  initial={{ scale: 0.9, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ delay: 0.35 }}
-                  className="text-center p-2 rounded-lg bg-muted/30"
-                >
-                  <div className="text-2xl font-bold text-foreground">
-                    {affiliate?.total_registrations || 0}
-                  </div>
-                  <div className="text-xs text-muted-foreground">Contributors</div>
-                </motion.div>
-                <motion.div 
-                  initial={{ scale: 0.9, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ delay: 0.4 }}
-                  className="text-center p-2 rounded-lg bg-muted/30"
-                >
-                  <div className="text-2xl font-bold text-foreground">
-                    {affiliate?.total_conversions || 0}
-                  </div>
-                  <div className="text-xs text-muted-foreground">Purchases</div>
-                </motion.div>
-                <motion.div 
-                  initial={{ scale: 0.9, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ delay: 0.45 }}
-                  className="text-center p-2 rounded-lg bg-muted/30"
-                >
-                  <div className="text-2xl font-bold text-gradient-reward">
-                    ${(affiliate?.total_earnings_usd || 0).toFixed(2)}
-                  </div>
-                  <div className="text-xs text-muted-foreground">Value Shared</div>
-                </motion.div>
-              </div>
-            </CardContent>
-          </Card>
+          <TeamActivityCard userId={user?.id || null} />
         </motion.div>
 
         {/* Reward Boost Tier */}
