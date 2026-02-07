@@ -169,10 +169,13 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         !prefersReducedMotion && "transition-colors duration-300"
       )}
       style={{
-        // Height with multiple fallbacks for all browsers
-        // Calculated --app-height is set in JS, fallback to CSS units
+        // CRITICAL: Use min-height only, NOT fixed height.
+        // Fixed height prevents the scroll container from working on some devices.
         minHeight: 'calc(var(--vh, 1vh) * 100)',
-        height: 'var(--app-height, 100vh)',
+        // Use 100% height to fill viewport but allow growth
+        height: '100%',
+        // Prevent body scroll - main handles scrolling
+        overflow: 'hidden',
         
         // Safe areas with fallbacks
         // Android: use fixed fallback since env() is inconsistent on older WebViews
