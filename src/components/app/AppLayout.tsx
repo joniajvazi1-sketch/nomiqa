@@ -192,9 +192,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         ref={mainRef}
         className={cn(
           "flex-1 min-h-0",
-          isMapRoute ? "overflow-hidden" : "overflow-y-auto overflow-x-hidden",
-          // Force hardware-accelerated scrolling layer
-          !isMapRoute && "will-change-scroll"
+          isMapRoute ? "overflow-hidden" : "overflow-y-auto overflow-x-hidden"
         )}
         style={{ 
           // Bottom padding for floating nav
@@ -204,12 +202,8 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
             : `calc(${BOTTOM_NAV_HEIGHT}px + max(env(safe-area-inset-bottom, 0px), constant(safe-area-inset-bottom, 0px)))`,
           // iOS momentum scrolling
           WebkitOverflowScrolling: isMapRoute ? undefined : 'touch',
-          // Contain overscroll - important for Android scroll behavior
           overscrollBehavior: 'contain',
-          // IMPORTANT: Do NOT use smooth scrolling - it causes jank and scroll lag
-          // on Android devices, especially with heavy content like the home screen
           scrollBehavior: 'auto',
-          // Android: ensure touch scrolling works properly
           touchAction: 'pan-y',
         }}
       >
