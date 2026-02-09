@@ -364,9 +364,8 @@ export const AppHome: React.FC = () => {
         });
       } else {
         toastNew({
-          title: "Speed Test Failed",
-          description: "Please try again.",
-          variant: "destructive",
+          title: "Speed Test Unavailable",
+          description: "Couldn't connect. Don't worry — background earning continues normally!",
         });
       }
     } catch {
@@ -400,7 +399,7 @@ export const AppHome: React.FC = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <AppSpinner size="lg" />
+        <AppSpinner size="lg" rotatingLabel />
       </div>
     );
   }
@@ -530,7 +529,7 @@ export const AppHome: React.FC = () => {
       </AnimatePresence>
 
       <div
-        className="relative bg-[#050a12]"
+        className={cn("relative", isDark ? "bg-[#050a12]" : "bg-background")}
         style={{ 
           paddingBottom: 'calc(100px + env(safe-area-inset-bottom))',
           minHeight: 'calc(var(--vh, 1vh) * 100 + 200px)'
@@ -538,13 +537,15 @@ export const AppHome: React.FC = () => {
         ref={containerRef}
       >
         {/* Seamless gradient background - extends full height */}
-        <div 
-          className="fixed inset-0 pointer-events-none"
-          style={{
-            background: 'linear-gradient(180deg, #0a0f1a 0%, #050a12 30%, #030608 60%, #020406 100%)',
-            zIndex: 0
-          }}
-        />
+        {isDark && (
+          <div 
+            className="fixed inset-0 pointer-events-none"
+            style={{
+              background: 'linear-gradient(180deg, #0a0f1a 0%, #050a12 30%, #030608 60%, #020406 100%)',
+              zIndex: 0
+            }}
+          />
+        )}
         <PullToRefreshIndicator 
           pullDistance={pullDistance}
           pullProgress={pullProgress}
@@ -556,25 +557,25 @@ export const AppHome: React.FC = () => {
 
         {/* 1. Header with Greeting, Theme Toggle, Settings */}
         <header className="relative z-20 flex items-center justify-between px-4 pt-3 pb-2 bg-transparent">
-          <div className="flex items-center gap-2.5 px-3 py-2 rounded-2xl bg-black/40 backdrop-blur-md border border-white/10">
+          <div className={cn("flex items-center gap-2.5 px-3 py-2 rounded-2xl backdrop-blur-md border", isDark ? "bg-black/40 border-white/10" : "bg-card/80 border-border")}>
             <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
             <div>
-              <p className="text-[10px] text-amber-400 font-medium uppercase tracking-wide">{greeting}</p>
-              <h1 className="text-base font-bold text-white">{displayName}</h1>
+              <p className={cn("text-[10px] font-medium uppercase tracking-wide", isDark ? "text-amber-400" : "text-primary")}>{greeting}</p>
+              <h1 className="text-base font-bold text-foreground">{displayName}</h1>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <button 
-              onClick={() => { lightTap(); setTheme(isDark ? 'light' : 'dark'); }}
-              className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center border border-white/10 transition-colors hover:bg-white/10"
+              onClick={() => { lightTap(); setTheme(isDark ? 'light' : 'dark'); toast.success(`Theme set to ${isDark ? 'light' : 'dark'} mode`); }}
+              className={cn("w-10 h-10 rounded-full backdrop-blur-md flex items-center justify-center border transition-colors", isDark ? "bg-black/40 border-white/10 hover:bg-white/10" : "bg-card/80 border-border hover:bg-muted")}
             >
-              {isDark ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5 text-white/80" />}
+              {isDark ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5 text-muted-foreground" />}
             </button>
             <button 
-              onClick={() => { lightTap(); navigate('/app/profile'); }}
-              className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center border border-white/10 transition-colors hover:bg-white/10"
+              onClick={() => { lightTap(); navigate('/app/profile?tab=settings'); }}
+              className={cn("w-10 h-10 rounded-full backdrop-blur-md flex items-center justify-center border transition-colors", isDark ? "bg-black/40 border-white/10 hover:bg-white/10" : "bg-card/80 border-border hover:bg-muted")}
             >
-              <Settings className="w-5 h-5 text-white/80" />
+              <Settings className={cn("w-5 h-5", isDark ? "text-white/80" : "text-muted-foreground")} />
             </button>
           </div>
         </header>
@@ -585,15 +586,15 @@ export const AppHome: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           className="relative z-10 px-4 mb-3"
         >
-          <div className="rounded-2xl bg-black/40 backdrop-blur-xl border border-white/10 p-4">
+          <div className={cn("rounded-2xl backdrop-blur-xl border p-4", isDark ? "bg-black/40 border-white/10" : "bg-card/80 border-border")}>
             <div className="flex items-start justify-between mb-3">
               <div>
-                <p className="text-[10px] text-amber-400 font-medium uppercase tracking-wide mb-1">Your Earnings</p>
+                <p className={cn("text-[10px] font-medium uppercase tracking-wide mb-1", isDark ? "text-amber-400" : "text-primary")}>Your Earnings</p>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-3xl font-bold text-white tabular-nums">
+                  <span className="text-3xl font-bold text-foreground tabular-nums">
                     {totalPoints.toLocaleString()}
                   </span>
-                  <span className="text-sm font-medium text-amber-400">pts</span>
+                  <span className={cn("text-sm font-medium", isDark ? "text-amber-400" : "text-primary")}>pts</span>
                 </div>
               </div>
               <div className="w-11 h-11 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg">
@@ -601,18 +602,37 @@ export const AppHome: React.FC = () => {
               </div>
             </div>
             
+            {/* Micro-feedback: active session earning indicator */}
+            {isActive && (
+              <motion.div
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                className={cn("flex items-center gap-2 mb-3 px-3 py-1.5 rounded-lg", isDark ? "bg-emerald-500/10 border border-emerald-500/20" : "bg-emerald-50 border border-emerald-200")}
+              >
+                <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
+                <span className="text-xs font-medium text-emerald-500">Background still earning</span>
+                <motion.span
+                  animate={{ opacity: [0.4, 1, 0.4] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                  className="text-xs font-bold text-emerald-400 ml-auto"
+                >
+                  +{stats.pointsEarned.toFixed(1)} pts
+                </motion.span>
+              </motion.div>
+            )}
+            
             <div className="flex items-center gap-3">
-              <div className="flex-1 rounded-xl bg-white/5 p-2.5 border border-white/5">
-                <p className="text-[9px] text-white/50 uppercase tracking-wide mb-0.5">Today</p>
+              <div className={cn("flex-1 rounded-xl p-2.5 border", isDark ? "bg-white/5 border-white/5" : "bg-muted/50 border-border")}>
+                <p className={cn("text-[9px] uppercase tracking-wide mb-0.5", isDark ? "text-white/50" : "text-muted-foreground")}>Today</p>
                 <p className="text-base font-bold text-emerald-400">+{todayEarnings}</p>
               </div>
-              <div className="flex-1 rounded-xl bg-white/5 p-2.5 border border-white/5">
-                <p className="text-[9px] text-white/50 uppercase tracking-wide mb-0.5">Team</p>
-                <p className="text-base font-bold text-white">{referralCount}</p>
+              <div className={cn("flex-1 rounded-xl p-2.5 border", isDark ? "bg-white/5 border-white/5" : "bg-muted/50 border-border")}>
+                <p className={cn("text-[9px] uppercase tracking-wide mb-0.5", isDark ? "text-white/50" : "text-muted-foreground")}>Team</p>
+                <p className="text-base font-bold text-foreground">{referralCount}</p>
               </div>
               {streakDays >= 2 && (
-                <div className="flex-1 rounded-xl bg-white/5 p-2.5 border border-white/5">
-                  <p className="text-[9px] text-white/50 uppercase tracking-wide mb-0.5">Streak</p>
+                <div className={cn("flex-1 rounded-xl p-2.5 border", isDark ? "bg-white/5 border-white/5" : "bg-muted/50 border-border")}>
+                  <p className={cn("text-[9px] uppercase tracking-wide mb-0.5", isDark ? "text-white/50" : "text-muted-foreground")}>Streak</p>
                   <p className="text-base font-bold text-orange-400">🔥 {streakDays}d</p>
                 </div>
               )}
@@ -646,19 +666,19 @@ export const AppHome: React.FC = () => {
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="relative z-10 mx-4 mb-4 grid grid-cols-3 gap-3 p-3 rounded-2xl bg-black/40 backdrop-blur-xl border border-white/10"
+            className={cn("relative z-10 mx-4 mb-4 grid grid-cols-3 gap-3 p-3 rounded-2xl backdrop-blur-xl border", isDark ? "bg-black/40 border-white/10" : "bg-card/80 border-border")}
           >
             <div className="text-center">
-              <p className="text-lg font-bold text-white tabular-nums">{formatDuration(stats.duration)}</p>
-              <p className="text-[10px] text-[#00d4ff]/70 uppercase tracking-wider">Duration</p>
+              <p className="text-lg font-bold text-foreground tabular-nums">{formatDuration(stats.duration)}</p>
+              <p className={cn("text-[10px] uppercase tracking-wider", isDark ? "text-[#00d4ff]/70" : "text-primary/70")}>Duration</p>
             </div>
-            <div className="text-center border-x border-white/10">
-              <p className="text-lg font-bold text-white tabular-nums">{stats.dataPointsCount}</p>
-              <p className="text-[10px] text-[#00d4ff]/70 uppercase tracking-wider">Data Points</p>
+            <div className={cn("text-center border-x", isDark ? "border-white/10" : "border-border")}>
+              <p className="text-lg font-bold text-foreground tabular-nums">{stats.dataPointsCount}</p>
+              <p className={cn("text-[10px] uppercase tracking-wider", isDark ? "text-[#00d4ff]/70" : "text-primary/70")}>Data Points</p>
             </div>
             <div className="text-center">
-              <p className="text-lg font-bold text-[#00d4ff] tabular-nums">+{stats.pointsEarned.toFixed(1)}</p>
-              <p className="text-[10px] text-[#00d4ff]/70 uppercase tracking-wider">Points</p>
+              <p className={cn("text-lg font-bold tabular-nums", isDark ? "text-[#00d4ff]" : "text-primary")}>+{stats.pointsEarned.toFixed(1)}</p>
+              <p className={cn("text-[10px] uppercase tracking-wider", isDark ? "text-[#00d4ff]/70" : "text-primary/70")}>Points</p>
             </div>
           </motion.div>
         )}
@@ -829,8 +849,8 @@ export const AppHome: React.FC = () => {
             {/* Sign in prompt for logged out users */}
             {!user && (
               <div className="px-4 mb-4">
-                <div className="flex items-center justify-center gap-3 p-3 rounded-xl bg-black/40 backdrop-blur-md border border-white/10">
-                  <span className="text-sm text-white/60">Sign in to start earning</span>
+                <div className={cn("flex items-center justify-center gap-3 p-3 rounded-xl backdrop-blur-md border", isDark ? "bg-black/40 border-white/10" : "bg-card/80 border-border")}>
+                  <span className={cn("text-sm", isDark ? "text-white/60" : "text-muted-foreground")}>Sign in to start earning</span>
                   <button
                     onClick={() => {
                       buttonTap();
@@ -852,20 +872,20 @@ export const AppHome: React.FC = () => {
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="rounded-2xl bg-black/40 backdrop-blur-xl border border-white/8 p-4"
+                className={cn("rounded-2xl backdrop-blur-xl border p-4", isDark ? "bg-black/40 border-white/8" : "bg-card/80 border-border")}
               >
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-11 h-11 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg">
                     <Users className="w-5 h-5 text-white" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-base font-bold text-white">Grow Together 🌱</h3>
-                    <p className="text-xs text-white/60">Earn 5% of your team's earnings</p>
+                    <h3 className="text-base font-bold text-foreground">Grow Together 🌱</h3>
+                    <p className={cn("text-xs", isDark ? "text-white/60" : "text-muted-foreground")}>Earn 5% of your team's earnings</p>
                   </div>
                 </div>
 
-                <div className="bg-white/5 rounded-xl p-3 flex items-center gap-2 mb-4 border border-white/5">
-                  <span className="flex-1 text-sm text-white truncate font-mono">
+                <div className={cn("rounded-xl p-3 flex items-center gap-2 mb-4 border", isDark ? "bg-white/5 border-white/5" : "bg-muted/50 border-border")}>
+                  <span className="flex-1 text-sm text-foreground truncate font-mono">
                     nomiqa.com/{username || 'invite'}
                   </span>
                   <button
@@ -900,27 +920,27 @@ export const AppHome: React.FC = () => {
               >
                 <button
                   onClick={() => { lightTap(); navigate('/app/challenges'); }}
-                  className="rounded-2xl bg-black/40 backdrop-blur-xl border border-white/8 p-4 flex flex-col items-center gap-2 active:scale-[0.98] transition-transform"
+                  className={cn("rounded-2xl backdrop-blur-xl border p-4 flex flex-col items-center gap-2 active:scale-[0.98] transition-transform", isDark ? "bg-black/40 border-white/8" : "bg-card/80 border-border")}
                 >
                   <div className="w-11 h-11 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg">
                     <Zap className="w-5 h-5 text-white" />
                   </div>
                   <div className="text-center">
-                    <p className="text-sm font-bold text-white">Challenges</p>
-                    <p className="text-[10px] text-amber-400">Earn bonus</p>
+                    <p className="text-sm font-bold text-foreground">Challenges</p>
+                    <p className={cn("text-[10px]", isDark ? "text-amber-400" : "text-primary")}>Earn bonus</p>
                   </div>
                 </button>
 
                 <button
                   onClick={() => { lightTap(); navigate('/app/invite'); }}
-                  className="rounded-2xl bg-black/40 backdrop-blur-xl border border-white/8 p-4 flex flex-col items-center gap-2 active:scale-[0.98] transition-transform"
+                  className={cn("rounded-2xl backdrop-blur-xl border p-4 flex flex-col items-center gap-2 active:scale-[0.98] transition-transform", isDark ? "bg-black/40 border-white/8" : "bg-card/80 border-border")}
                 >
                   <div className="w-11 h-11 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg">
                     <Users className="w-5 h-5 text-white" />
                   </div>
                   <div className="text-center">
-                    <p className="text-sm font-bold text-white">My Team</p>
-                    <p className="text-[10px] text-cyan-400">See activity</p>
+                    <p className="text-sm font-bold text-foreground">My Team</p>
+                    <p className={cn("text-[10px]", isDark ? "text-cyan-400" : "text-primary")}>See activity</p>
                   </div>
                 </button>
               </motion.div>
@@ -930,10 +950,10 @@ export const AppHome: React.FC = () => {
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="rounded-2xl bg-black/40 backdrop-blur-xl border border-white/8 p-4"
+                className={cn("rounded-2xl backdrop-blur-xl border p-4", isDark ? "bg-black/40 border-white/8" : "bg-card/80 border-border")}
               >
                 <div className="flex items-center gap-2 mb-4">
-                  <h3 className="text-base font-bold text-white">How You Earn</h3>
+                  <h3 className="text-base font-bold text-foreground">How You Earn</h3>
                   <span className="text-sm">✨</span>
                 </div>
                 
@@ -943,8 +963,8 @@ export const AppHome: React.FC = () => {
                       <span className="text-xs font-bold text-white">1</span>
                     </div>
                     <div className="flex-1 pt-0.5">
-                      <p className="text-sm font-semibold text-white">App runs in background</p>
-                      <p className="text-xs text-white/50 mt-0.5">Uses less than 3% battery</p>
+                      <p className="text-sm font-semibold text-foreground">App runs in background</p>
+                      <p className={cn("text-xs mt-0.5", isDark ? "text-white/50" : "text-muted-foreground")}>Uses less than 3% battery</p>
                     </div>
                   </div>
                   
@@ -953,8 +973,8 @@ export const AppHome: React.FC = () => {
                       <span className="text-xs font-bold text-white">2</span>
                     </div>
                     <div className="flex-1 pt-0.5">
-                      <p className="text-sm font-semibold text-white">Contribute network data</p>
-                      <p className="text-xs text-white/50 mt-0.5">100% anonymous signal quality info</p>
+                      <p className="text-sm font-semibold text-foreground">Contribute network data</p>
+                      <p className={cn("text-xs mt-0.5", isDark ? "text-white/50" : "text-muted-foreground")}>100% anonymous signal quality info</p>
                     </div>
                   </div>
                   
@@ -963,8 +983,8 @@ export const AppHome: React.FC = () => {
                       <span className="text-xs font-bold text-white">3</span>
                     </div>
                     <div className="flex-1 pt-0.5">
-                      <p className="text-sm font-semibold text-white">Earn points automatically</p>
-                      <p className="text-xs text-white/50 mt-0.5">Redeem for real rewards 🎁</p>
+                      <p className="text-sm font-semibold text-foreground">Earn points automatically</p>
+                      <p className={cn("text-xs mt-0.5", isDark ? "text-white/50" : "text-muted-foreground")}>Redeem for real rewards 🎁</p>
                     </div>
                   </div>
                 </div>

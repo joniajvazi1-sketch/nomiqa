@@ -2,10 +2,19 @@ import React from 'react';
 import { cn } from '@/lib/utils';
 import { Loader2 } from 'lucide-react';
 
+const LOADING_TIPS = [
+  'Mapping your signal...',
+  'Connecting to the network...',
+  'Preparing your dashboard...',
+  'Almost ready...',
+];
+
 interface AppSpinnerProps {
   size?: 'sm' | 'md' | 'lg';
   className?: string;
   label?: string;
+  /** Show rotating tips instead of a static label */
+  rotatingLabel?: boolean;
 }
 
 /**
@@ -15,8 +24,18 @@ interface AppSpinnerProps {
 export const AppSpinner: React.FC<AppSpinnerProps> = ({ 
   size = 'md', 
   className,
-  label 
+  label,
+  rotatingLabel = false,
 }) => {
+  const [tipIndex, setTipIndex] = React.useState(0);
+
+  React.useEffect(() => {
+    if (!rotatingLabel) return;
+    const interval = setInterval(() => {
+      setTipIndex((prev) => (prev + 1) % LOADING_TIPS.length);
+    }, 2000);
+    return () => clearInterval(interval);
+  }, [rotatingLabel]);
   const sizeClasses = {
     sm: 'w-5 h-5',
     md: 'w-8 h-8',
@@ -56,8 +75,10 @@ export const AppSpinner: React.FC<AppSpinnerProps> = ({
         </div>
       </div>
       
-      {label && (
-        <p className="text-sm text-muted-foreground animate-pulse">{label}</p>
+      {(label || rotatingLabel) && (
+        <p className="text-sm text-muted-foreground animate-pulse">
+          {rotatingLabel ? LOADING_TIPS[tipIndex] : label}
+        </p>
       )}
     </div>
   );
