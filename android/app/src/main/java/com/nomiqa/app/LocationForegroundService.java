@@ -284,16 +284,32 @@ public class LocationForegroundService extends Service {
                 PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT
             );
 
-            String contentText = String.format("Mapping coverage (accuracy: %.0fm)", location.getAccuracy());
+            // Show points and distance in notification bar
+            float totalDistance = prefs.getFloat(KEY_DISTANCE_M, 0f);
+            int totalSamples = prefs.getInt(KEY_SAMPLES, 0);
+            int estimatedPoints = (int)(totalDistance * 0.01f) + (totalSamples / 2);
+            
+            String distanceText;
+            if (totalDistance >= 1000f) {
+                distanceText = String.format("%.1f km", totalDistance / 1000f);
+            } else {
+                distanceText = String.format("%.0f m", totalDistance);
+            }
+
+            String contentTitle = String.format("⚡ %d pts earned", estimatedPoints);
+            String contentText = String.format("📍 %s mapped • %d data points", distanceText, totalSamples);
 
             Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setContentTitle("Nomiqa Active")
+                .setContentTitle(contentTitle)
                 .setContentText(contentText)
                 .setSmallIcon(android.R.drawable.ic_menu_mylocation)
                 .setContentIntent(pendingIntent)
                 .setOngoing(true)
                 .setPriority(NotificationCompat.PRIORITY_LOW)
                 .setCategory(NotificationCompat.CATEGORY_SERVICE)
+                .setStyle(new NotificationCompat.BigTextStyle()
+                    .setBigContentTitle(contentTitle)
+                    .bigText(contentText + "\nAccuracy: " + String.format("%.0fm", location.getAccuracy())))
                 .build();
 
             notificationManager.notify(NOTIFICATION_ID, notification);
@@ -330,5 +346,21 @@ public class LocationForegroundService extends Service {
         super.onDestroy();
         stopLocationUpdates();
         Log.d(TAG, "LocationForegroundService destroyed");
+    }
+
+    @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        // Re-schedule the service when the app is swiped away
+        // This prevents Android from killing the background tracking
+        Log.d(TAG, "Task removed - restarting service to maintain tracking");
+        Intent restartIntent = new Intent(this, LocationForegroundService.class);
+        restartIntent.setAction(ACTION_START);
+        
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(restartIntent);
+        } else {
+            startService(restartIntent);
+        }
+        super.onTaskRemoved(rootIntent);
     }
 }

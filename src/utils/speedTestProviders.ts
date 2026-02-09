@@ -124,10 +124,14 @@ async function isEndpointReachable(url: string, timeout = 5000): Promise<boolean
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeout);
     
+    // Use GET instead of HEAD - many Wi-Fi captive portals and corporate firewalls
+    // block HEAD requests or return misleading responses
     const response = await fetch(addCacheBuster(url), {
-      method: 'HEAD',
+      method: 'GET',
       cache: 'no-store',
-      signal: controller.signal
+      signal: controller.signal,
+      // Explicitly set mode to cors to detect captive portal redirects
+      mode: 'cors',
     });
     
     clearTimeout(timeoutId);
@@ -380,10 +384,10 @@ export async function runSpeedTest(
     latencyError: latencyResult.error
   };
   
-  // If primary provider failed completely, try Cloudflare
+  // If primary provider failed completely (or partially), try Cloudflare
+  // This catches Wi-Fi networks where Supabase storage may be blocked
   if (endpoints.provider !== 'cloudflare' && 
-      result.latency === null && 
-      result.down === null) {
+      (result.latency === null || result.down === null)) {
     console.log('[SpeedTest] Primary tests failed, trying Cloudflare fallback');
     
     const fallbackEndpoints = CLOUDFLARE_ENDPOINTS;

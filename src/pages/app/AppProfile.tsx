@@ -203,7 +203,7 @@ export const AppProfile: React.FC = () => {
   const handleCopyLink = async () => {
     if (!affiliate) return;
     buttonTap();
-    const link = affiliate.username ? `https://nomiqa.com/${affiliate.username}` : `https://nomiqa.com/r/${affiliate.affiliate_code}`;
+    const link = affiliate.username ? `https://nomiqa-depin.com/${affiliate.username}` : `https://nomiqa-depin.com/r/${affiliate.affiliate_code}`;
     const copied = await copyToClipboard(link);
     if (copied) {
       successPattern();
@@ -214,7 +214,7 @@ export const AppProfile: React.FC = () => {
   const handleShare = async () => {
     if (!affiliate) return;
     buttonTap();
-    const link = affiliate.username ? `https://nomiqa.com/${affiliate.username}` : `https://nomiqa.com/r/${affiliate.affiliate_code}`;
+    const link = affiliate.username ? `https://nomiqa-depin.com/${affiliate.username}` : `https://nomiqa-depin.com/r/${affiliate.affiliate_code}`;
     await share({ title: 'Join Nomiqa', text: 'Get travel eSIMs and earn rewards!', url: link });
   };
 
