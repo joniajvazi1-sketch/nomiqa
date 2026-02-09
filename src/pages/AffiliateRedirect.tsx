@@ -108,10 +108,11 @@ export default function AffiliateRedirect() {
       await new Promise(resolve => setTimeout(resolve, 100));
       
       // Preserve any destination parameter and add referral code to URL as backup
-      const destination = searchParams.get('dest') || '/';
+      // Default destination: download page (not homepage, which looks like a "reload")
+      const destination = searchParams.get('dest') || '/download';
       
       // If destination is auth page, append referral code to URL as backup
-      if (affiliateCode && (destination.includes('/auth') || destination === '/')) {
+      if (affiliateCode && (destination.includes('/auth') || destination === '/download')) {
         const destUrl = new URL(destination, window.location.origin);
         destUrl.searchParams.set('ref', affiliateCode);
         navigate(destUrl.pathname + destUrl.search, { replace: true });

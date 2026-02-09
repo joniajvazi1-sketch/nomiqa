@@ -643,11 +643,11 @@ export const AppHome: React.FC = () => {
         {/* 3. Globe Section - Fullscreen style */}
         <div 
           className="relative z-10 w-full"
-          style={{ height: '45vh', minHeight: '300px', maxHeight: '400px' }}
+          style={{ height: '35vh', minHeight: '240px', maxHeight: '320px', contain: 'strict' }}
         >
           <Suspense fallback={
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-12 h-12 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+              <div className="w-10 h-10 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
             </div>
           }>
             <NetworkGlobe 
@@ -745,9 +745,7 @@ export const AppHome: React.FC = () => {
                   'backdrop-blur-md border-2 transition-all duration-200 active:scale-95',
                   isRunningSpeedTest 
                     ? 'bg-amber-500/20 border-amber-400/50' 
-                    : isCellular 
-                      ? isDark ? 'bg-white/5 border-white/20 hover:bg-white/10' : 'bg-muted/50 border-border hover:bg-muted'
-                      : isDark ? 'bg-white/5 border-white/10 cursor-not-allowed opacity-50' : 'bg-muted/30 border-border/50 cursor-not-allowed opacity-50'
+                : isDark ? 'bg-white/5 border-white/20 hover:bg-white/10' : 'bg-muted/50 border-border hover:bg-muted'
                 )}
               >
                 <div className="flex items-center gap-2">

@@ -921,13 +921,13 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
             <Canvas
               camera={{ position: [0, 0.2, initialCameraZ], fov: 45 }}
               gl={{ 
-                antialias: true, 
+                antialias: false, 
                 alpha: true, 
-                powerPreference: 'high-performance',
+                powerPreference: 'low-power',
                 toneMapping: THREE.ACESFilmicToneMapping,
                 toneMappingExposure: 1.2,
               }}
-              dpr={[1, 2]}
+              dpr={[1, 1.5]}
               onPointerMissed={() => setSelectedMarker(null)}
               onError={() => setHasError(true)}
             >
