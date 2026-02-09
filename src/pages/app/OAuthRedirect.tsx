@@ -70,9 +70,7 @@ const OAuthRedirect = () => {
             // If on mobile, show prompt to return to app
             if (isMobileDevice) {
               setTokens({ access: accessToken, refresh: refreshToken });
-              setShowNativePrompt(true);
-              
-              // Auto-trigger deep link
+              // Don't show prompt immediately - triggerDeepLink handles the delay
               triggerDeepLink(accessToken, refreshToken);
               return;
             }
@@ -107,9 +105,7 @@ const OAuthRedirect = () => {
           // If on mobile, show prompt to return to app
           if (isMobileDevice) {
             setTokens({ access: accessToken, refresh: refreshToken });
-            setShowNativePrompt(true);
-            
-            // Auto-trigger deep link
+            // Don't show prompt immediately - triggerDeepLink handles the delay
             triggerDeepLink(accessToken, refreshToken);
             return;
           }
@@ -154,6 +150,12 @@ const OAuthRedirect = () => {
     
     // Try to open the app
     window.location.href = deepLinkUrl;
+    
+    // Show the native prompt after a delay to give the deep link time to process
+    // On Android, deep links can take 1-2 seconds to resolve
+    setTimeout(() => {
+      setShowNativePrompt(true);
+    }, 1500);
   };
 
   const handleOpenApp = () => {
@@ -207,14 +209,14 @@ const OAuthRedirect = () => {
             <Smartphone className="w-8 h-8 text-primary" />
           </div>
           <div>
-            <h2 className="text-lg font-semibold mb-2">Sign in complete!</h2>
+            <h2 className="text-xl font-bold mb-2">Sign in complete! ✅</h2>
             <p className="text-sm text-muted-foreground">
-              Tap below to return to the Nomiqa app.
+              Tap the button below to return to the Nomiqa app. If nothing happens, tap it again.
             </p>
           </div>
           <div className="flex flex-col gap-3 w-full">
-            <Button onClick={handleOpenApp} className="w-full gap-2">
-              <ExternalLink className="w-4 h-4" />
+            <Button onClick={handleOpenApp} size="lg" className="w-full gap-2 text-base py-6">
+              <Smartphone className="w-5 h-5" />
               Open Nomiqa App
             </Button>
             <Button variant="outline" onClick={handleContinueOnWeb} className="w-full text-sm">
@@ -222,7 +224,7 @@ const OAuthRedirect = () => {
             </Button>
           </div>
           <p className="text-xs text-muted-foreground">
-            If the app doesn't open, make sure Nomiqa is installed.
+            If the app doesn't open automatically, make sure Nomiqa is installed on your device.
           </p>
         </div>
       </div>

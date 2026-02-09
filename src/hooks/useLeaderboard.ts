@@ -56,23 +56,17 @@ export const useLeaderboard = (): UseLeaderboardReturn => {
       const { data: { user } } = await supabase.auth.getUser();
       setCurrentUserId(user?.id || null);
 
-      // Always fetch fresh data from user_points to ensure accuracy
+      // Use SECURITY DEFINER function to get top users (bypasses restrictive RLS on user_points)
       const { data: pointsData, error: pointsError } = await supabase
-        .from('user_points')
-        .select('user_id, total_points, total_distance_meters')
-        .order('total_points', { ascending: false })
-        .limit(100);
+        .rpc('get_leaderboard_top', { p_limit: 100 });
 
       if (pointsError) throw pointsError;
 
-      // Get usernames for all users (using _safe view)
-      const userIds = pointsData?.map(p => p.user_id) || [];
-      const { data: profilesData } = await supabase
-        .from('profiles_safe')
-        .select('user_id, username')
-        .in('user_id', userIds);
-
-      const profileMap = new Map(profilesData?.map(p => [p.user_id, p.username]) || []);
+      // Build profile map from the RPC result (already includes usernames)
+      const profileMap = new Map(
+        (pointsData || []).map((p: any) => [p.user_id, p.username])
+      );
+      const userIds = (pointsData || []).map((p: any) => p.user_id);
 
       // Calculate time boundaries
       const now = new Date();
