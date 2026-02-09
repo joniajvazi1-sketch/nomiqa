@@ -25,7 +25,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import { useAchievements } from '@/hooks/useAchievements';
-import { OnboardingFlow } from '@/components/app/OnboardingFlow';
 import { AnimatePresence, motion } from 'framer-motion';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from '@/components/app/PullToRefreshIndicator';
@@ -35,15 +34,19 @@ import { AppSEO } from '@/components/app/AppSEO';
 import { toast } from 'sonner';
 import { useNetworkContribution, requestIOSAlwaysPermission, getIOSPermissionStatus } from '@/hooks/useNetworkContribution';
 import { useGlobalCoverage } from '@/hooks/useGlobalCoverage';
-import { DataConsentModal, hasDataConsent } from '@/components/app/DataConsentModal';
-import { BackgroundLocationRationale } from '@/components/app/BackgroundLocationRationale';
-import { RewardCelebration } from '@/components/app/RewardCelebration';
+import { hasDataConsent } from '@/components/app/DataConsentModal';
 import { useEnhancedHaptics } from '@/hooks/useEnhancedHaptics';
 import { useEnhancedSounds } from '@/hooks/useEnhancedSounds';
 import { toast as toastNew } from '@/hooks/use-toast';
 
 // Lazy load NetworkGlobe for performance
 const NetworkGlobe = lazy(() => import('@/components/app/NetworkGlobe').then(m => ({ default: m.NetworkGlobe })));
+
+// Lazy load conditional modals/overlays — they're heavy and rarely shown together
+const OnboardingFlow = lazy(() => import('@/components/app/OnboardingFlow').then(m => ({ default: m.OnboardingFlow })));
+const DataConsentModal = lazy(() => import('@/components/app/DataConsentModal').then(m => ({ default: m.DataConsentModal })));
+const BackgroundLocationRationale = lazy(() => import('@/components/app/BackgroundLocationRationale').then(m => ({ default: m.BackgroundLocationRationale })));
+const RewardCelebration = lazy(() => import('@/components/app/RewardCelebration').then(m => ({ default: m.RewardCelebration })));
 
 // Permission status type for iOS display
 type IOSPermissionStatusLabel = 'Not Determined' | 'While Using' | 'Always' | 'Denied' | 'Unknown';
@@ -414,64 +417,66 @@ export const AppHome: React.FC = () => {
     <>
       <AppSEO />
       
-      <AnimatePresence>
-        {showOnboarding && (
-          <OnboardingFlow onComplete={() => setShowOnboarding(false)} />
+      <Suspense fallback={null}>
+        <AnimatePresence>
+          {showOnboarding && (
+            <OnboardingFlow onComplete={() => setShowOnboarding(false)} />
+          )}
+        </AnimatePresence>
+
+        {/* GDPR Consent Modal */}
+        {showConsentModal && !consentGiven && (
+          <DataConsentModal 
+            onConsentComplete={async (accepted) => {
+              setShowConsentModal(false);
+
+              if (!accepted) {
+                setConsentGiven(false);
+                toastNew({
+                  title: "Consent required",
+                  description: "Accept data collection to enable scanning and earn points.",
+                  variant: "destructive",
+                });
+                return;
+              }
+
+              setConsentGiven(true);
+              const started = await startContribution();
+              if (started) {
+                playCoin();
+                toastNew({
+                  title: "Contribution Started ✓",
+                  description: "Location permission granted. Contributing data!",
+                });
+              } else {
+                toastNew({
+                  title: "Location Permission Required",
+                  description: isIOS
+                    ? "Enable Location: Settings → Privacy & Security → Location Services → Nomiqa."
+                    : "Please enable location in Settings to contribute.",
+                  variant: "destructive",
+                });
+              }
+            }}
+          />
         )}
-      </AnimatePresence>
 
-      {/* GDPR Consent Modal */}
-      {showConsentModal && !consentGiven && (
-        <DataConsentModal 
-          onConsentComplete={async (accepted) => {
-            setShowConsentModal(false);
-
-            if (!accepted) {
-              setConsentGiven(false);
-              toastNew({
-                title: "Consent required",
-                description: "Accept data collection to enable scanning and earn points.",
-                variant: "destructive",
-              });
-              return;
-            }
-
-            setConsentGiven(true);
-            const started = await startContribution();
-            if (started) {
-              playCoin();
-              toastNew({
-                title: "Contribution Started ✓",
-                description: "Location permission granted. Contributing data!",
-              });
-            } else {
-              toastNew({
-                title: "Location Permission Required",
-                description: isIOS
-                  ? "Enable Location: Settings → Privacy & Security → Location Services → Nomiqa."
-                  : "Please enable location in Settings to contribute.",
-                variant: "destructive",
-              });
-            }
-          }}
+        {/* iOS Background Location Rationale */}
+        <BackgroundLocationRationale
+          isOpen={showBackgroundRationale}
+          onRequestAlways={handleRequestAlwaysPermission}
+          onSkip={() => setShowBackgroundRationale(false)}
+          onClose={() => setShowBackgroundRationale(false)}
         />
-      )}
 
-      {/* iOS Background Location Rationale */}
-      <BackgroundLocationRationale
-        isOpen={showBackgroundRationale}
-        onRequestAlways={handleRequestAlwaysPermission}
-        onSkip={() => setShowBackgroundRationale(false)}
-        onClose={() => setShowBackgroundRationale(false)}
-      />
-
-      {/* Celebration */}
-      <RewardCelebration 
-        trigger={showCelebration} 
-        points={celebrationPoints}
-        type="session-end"
-        onComplete={() => setShowCelebration(false)}
-      />
+        {/* Celebration */}
+        <RewardCelebration 
+          trigger={showCelebration} 
+          points={celebrationPoints}
+          type="session-end"
+          onComplete={() => setShowCelebration(false)}
+        />
+      </Suspense>
 
       {/* Cellular Data Warning for Speed Test */}
       <AnimatePresence>

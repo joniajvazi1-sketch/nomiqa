@@ -4,15 +4,16 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
-import { useAffiliateTracking } from "@/hooks/useAffiliateTracking";
 import { useScrollToTop } from "@/hooks/useScrollToTop";
 import { supabase } from "@/integrations/supabase/client";
 import { TranslationProvider } from "@/contexts/TranslationContext";
 import { usePlatform } from "@/hooks/usePlatform";
-import { AppLayout } from "@/components/app/AppLayout";
-import { WebLayout } from "@/components/app/WebLayout";
 import { AppErrorBoundary } from "@/components/app/AppErrorBoundary";
 import { useDeepLinkAuth } from "@/hooks/useDeepLinkAuth";
+
+// Lazy load layout shells — they're heavy (status bar, haptics, framer-motion)
+const AppLayout = lazy(() => import("@/components/app/AppLayout").then(m => ({ default: m.AppLayout })));
+const WebLayout = lazy(() => import("@/components/app/WebLayout").then(m => ({ default: m.WebLayout })));
 
 // Lazy load WEB pages
 const Index = lazy(() => import("./pages/Index"));
@@ -130,7 +131,6 @@ const queryClient = new QueryClient();
 
 function AffiliateTracker() {
   const location = useLocation();
-  const { setReferralCode } = useAffiliateTracking();
   useScrollToTop();
 
   useEffect(() => {
@@ -138,7 +138,13 @@ function AffiliateTracker() {
     const ref = params.get('ref');
     
     if (ref) {
-      setReferralCode(ref);
+      // Dynamically import affiliate tracking only when a referral code is present
+      import("@/hooks/useAffiliateTracking").then(({ useAffiliateTracking: _unused }) => {
+        // Store referral code in localStorage directly to avoid hook rules
+        try {
+          localStorage.setItem('referralCode', ref);
+        } catch {}
+      });
       
       // Defer referral tracking to not block initial render
       const trackClick = () => {
@@ -154,14 +160,13 @@ function AffiliateTracker() {
         });
       };
 
-      // Use requestIdleCallback for non-blocking tracking, fallback to setTimeout
       if (typeof requestIdleCallback !== 'undefined') {
         requestIdleCallback(trackClick, { timeout: 5000 });
       } else {
         setTimeout(trackClick, 100);
       }
     }
-  }, [location, setReferralCode]);
+  }, [location]);
 
   return null;
 }
@@ -495,79 +500,16 @@ const AppRouter = () => {
   return isNative ? <NativeAppRoutes /> : <WebRoutes />;
 };
 
-/**
- * Lightweight Boot Screen for iOS
- * Shows immediately while heavy modules load in background
- * 
- * CRITICAL: Uses inline styles as fallback because CSS variables may not be
- * loaded yet on iOS WebView cold start (file:// protocol race condition).
- * This prevents the "black screen" issue on native iOS.
- */
-const BootScreen = () => (
-  <div 
-    className="min-h-screen bg-background flex items-center justify-center"
-    style={{ 
-      // Inline fallback for iOS WebView - CSS vars may not be ready yet
-      minHeight: '100vh',
-      backgroundColor: '#0a0a0a', // matches capacitor.config.ts & index.html
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-    }}
-  >
-    <div className="flex flex-col items-center gap-4" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
-      <div className="relative" style={{ position: 'relative' }}>
-        <div 
-          className="w-14 h-14 border-3 border-neon-cyan/20 border-t-neon-cyan rounded-full animate-spin" 
-          style={{
-            width: '56px',
-            height: '56px',
-            border: '3px solid rgba(0, 200, 255, 0.2)',
-            borderTopColor: '#00c8ff',
-            borderRadius: '50%',
-            animation: 'spin 1s linear infinite',
-          }}
-        />
-      </div>
-      <p 
-        className="text-sm text-muted-foreground"
-        style={{ fontSize: '14px', color: 'rgba(255, 255, 255, 0.6)' }}
-      >
-        Loading...
-      </p>
-    </div>
-  </div>
-);
+
 
 /**
- * App with deferred heavy module loading for iOS performance
+ * App - Optimized for instant cold-start
  * 
- * On iOS WebView, loading too many heavy modules at once can cause:
- * - Black screen / glitchy UI
- * - WebView crashes
- * - Slow initial render
- * 
- * Solution: Show a lightweight boot screen first, then mount the full app
- * after a short delay to let the JS runtime stabilize.
+ * Heavy modules (AppLayout, WebLayout, all page screens) are lazy-loaded.
+ * The initial JS parse only includes React, Router, QueryClient, and the
+ * lightweight PageLoader spinner — everything else streams in on demand.
  */
 const App = () => {
-  const [isBooted, setIsBooted] = useState(false);
-
-  useEffect(() => {
-    // Give iOS WebView time to stabilize before mounting heavy components
-    // This prevents the black screen / crash on cold start
-    const bootTimer = setTimeout(() => {
-      setIsBooted(true);
-    }, 100); // 100ms is enough for WebView to stabilize
-
-    return () => clearTimeout(bootTimer);
-  }, []);
-
-  // Show lightweight boot screen until WebView is stable
-  if (!isBooted) {
-    return <BootScreen />;
-  }
-
   return (
     <QueryClientProvider client={queryClient}>
       <TranslationProvider>

@@ -46,7 +46,7 @@ export default defineConfig(({ mode }) => {
             if (id.includes("@tanstack/react-query")) return "query";
             // Radix UI - split into smaller chunks
             if (id.includes("@radix-ui")) return "radix";
-            // Framer Motion - only load when needed
+            // Framer Motion - only load when needed (lazy via AppLayout)
             if (id.includes("framer-motion")) return "framer";
             // Supabase - defer until auth/data needed
             if (id.includes("@supabase")) return "supabase";
@@ -54,6 +54,12 @@ export default defineConfig(({ mode }) => {
             if (id.includes("@sentry")) return "sentry";
             // Lucide icons
             if (id.includes("lucide-react")) return "icons";
+            // Three.js / R3F - MASSIVE, only for globe (lazy loaded)
+            if (id.includes("three") || id.includes("@react-three")) return "three-globe";
+            // Recharts - only for stats pages
+            if (id.includes("recharts")) return "recharts";
+            // Leaflet - only for map page
+            if (id.includes("leaflet")) return "leaflet";
           },
         },
       },
