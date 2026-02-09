@@ -146,12 +146,14 @@ async function isEndpointReachable(url: string, timeout = 5000): Promise<boolean
  */
 async function areStaticFilesAvailable(): Promise<boolean> {
   try {
-    // Test with a HEAD request to the 1MB file
+    // Use GET with Range header instead of HEAD - many Wi-Fi gateways block HEAD requests
     const response = await fetch(addCacheBuster(NOMIQA_ENDPOINTS.downloadUrls[0].url), {
-      method: 'HEAD',
+      method: 'GET',
       cache: 'no-store',
+      headers: { 'Range': 'bytes=0-0' },
     });
-    return response.ok;
+    // 200 or 206 (partial content) both mean the file is available
+    return response.ok || response.status === 206;
   } catch {
     return false;
   }
@@ -193,9 +195,10 @@ async function measureLatency(url: string, attempts = 3): Promise<{ latency: num
     try {
       const testUrl = addCacheBuster(url);
       const start = performance.now();
+      // Use GET directly - HEAD is blocked by many Wi-Fi gateways/captive portals
       const response = await fetch(testUrl, {
-        method: 'HEAD',
-        cache: 'no-store'
+        method: 'GET',
+        cache: 'no-store',
       });
       
       if (!response.ok && response.status !== 405) {
@@ -206,29 +209,18 @@ async function measureLatency(url: string, attempts = 3): Promise<{ latency: num
       latencies.push(latency);
     } catch (error) {
       lastError = error instanceof Error ? error.message : 'Unknown error';
-      
-      // Try GET as fallback for HEAD-restricted endpoints
-      try {
-        const testUrl = addCacheBuster(url);
-        const start = performance.now();
-        await fetch(testUrl, { method: 'GET', cache: 'no-store' });
-        const latency = Math.round(performance.now() - start);
-        latencies.push(latency);
-      } catch (getError) {
-        lastError = getError instanceof Error ? getError.message : 'Unknown error';
-      }
     }
   }
   
   if (latencies.length === 0) {
-    return { latency: null, method: 'HEAD', error: lastError };
+    return { latency: null, method: 'GET', error: lastError };
   }
   
   // Return median latency
   latencies.sort((a, b) => a - b);
   const median = latencies[Math.floor(latencies.length / 2)];
   
-  return { latency: median, method: 'HEAD' };
+  return { latency: median, method: 'GET' };
 }
 
 /**

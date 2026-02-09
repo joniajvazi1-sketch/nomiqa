@@ -67,42 +67,29 @@ export const useGlobalCoverage = (
       if (forceRefresh) params.set('refresh', 'true');
 
       const queryString = params.toString();
-      const functionPath = `get-global-coverage${queryString ? `?${queryString}` : ''}`;
 
-      const { data: responseData, error: fetchError } = await supabase.functions.invoke(
-        'get-global-coverage',
+      // Use direct fetch with query params - the supabase.functions.invoke pattern
+      // with x-query-params header was causing silent failures
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+      
+      const response = await fetch(
+        `${supabaseUrl}/functions/v1/get-global-coverage${queryString ? `?${queryString}` : ''}`,
         {
-          body: null,
-          headers: queryString ? { 'x-query-params': queryString } : undefined,
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': anonKey,
+          },
         }
       );
 
-      // If supabase.functions.invoke doesn't support query params well, use fetch directly
-      if (fetchError) {
-        // Fallback to direct fetch
-        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-        const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-        
-        const response = await fetch(
-          `${supabaseUrl}/functions/v1/get-global-coverage${queryString ? `?${queryString}` : ''}`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'apikey': anonKey,
-            },
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-
-        const json = await response.json();
-        setData(json);
-      } else {
-        setData(responseData);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
+
+      const json = await response.json();
+      setData(json);
 
     } catch (err) {
       console.error('[useGlobalCoverage] Error:', err);

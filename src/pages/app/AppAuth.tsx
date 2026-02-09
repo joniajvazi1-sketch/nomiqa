@@ -564,14 +564,35 @@ export const AppAuth: React.FC = () => {
           }
         }
 
-        const { data, error } = await supabase.functions.invoke('signup-user', {
-          body: {
-            email: email.toLowerCase().trim(),
-            password,
-            username: username.toLowerCase().trim(),
-            referralCode: referralCode || undefined,
+        // Use AbortController for a 15-second timeout to prevent infinite spinner
+        const controller = new AbortController();
+        const timeoutId = window.setTimeout(() => controller.abort(), 15000);
+
+        let data: any;
+        let error: any;
+
+        try {
+          const result = await supabase.functions.invoke('signup-user', {
+            body: {
+              email: email.toLowerCase().trim(),
+              password,
+              username: username.toLowerCase().trim(),
+              referralCode: referralCode || undefined,
+            },
+          });
+          data = result.data;
+          error = result.error;
+        } catch (invokeErr: any) {
+          if (invokeErr?.name === 'AbortError' || controller.signal.aborted) {
+            setFormError('Signup is taking too long. Please check your connection and try again.');
+            errorPattern();
+            setLoading(false);
+            return;
           }
-        });
+          throw invokeErr;
+        } finally {
+          window.clearTimeout(timeoutId);
+        }
 
         if (error) {
           let errorMessage = 'Signup failed. Please try again.';
