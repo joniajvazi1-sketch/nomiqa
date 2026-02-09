@@ -529,7 +529,7 @@ export const AppHome: React.FC = () => {
       </AnimatePresence>
 
       <div
-        className={cn("relative", isDark ? "bg-[#050a12]" : "bg-background")}
+        className={cn("relative", isDark ? "bg-[hsl(220,60%,4%)]" : "bg-background")}
         style={{ 
           paddingBottom: 'calc(100px + env(safe-area-inset-bottom))',
           minHeight: 'calc(var(--vh, 1vh) * 100 + 200px)'
@@ -541,7 +541,7 @@ export const AppHome: React.FC = () => {
           <div 
             className="fixed inset-0 pointer-events-none"
             style={{
-              background: 'linear-gradient(180deg, #0a0f1a 0%, #050a12 30%, #030608 60%, #020406 100%)',
+              background: 'linear-gradient(180deg, hsl(220,40%,8%) 0%, hsl(220,60%,4%) 30%, hsl(220,50%,3%) 60%, hsl(220,50%,2%) 100%)',
               zIndex: 0
             }}
           />
@@ -557,7 +557,7 @@ export const AppHome: React.FC = () => {
 
         {/* 1. Header with Greeting, Theme Toggle, Settings */}
         <header className="relative z-20 flex items-center justify-between px-4 pt-3 pb-2 bg-transparent">
-          <div className={cn("flex items-center gap-2.5 px-3 py-2 rounded-2xl backdrop-blur-md border", isDark ? "bg-black/40 border-white/10" : "bg-card/80 border-border")}>
+          <div className={cn("flex items-center gap-2.5 px-3 py-2 rounded-2xl backdrop-blur-md border", isDark ? "bg-background/40 border-border/30" : "bg-card/80 border-border")}>
             <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
             <div>
               <p className={cn("text-[10px] font-medium uppercase tracking-wide", isDark ? "text-amber-400" : "text-primary")}>{greeting}</p>
@@ -567,13 +567,13 @@ export const AppHome: React.FC = () => {
           <div className="flex items-center gap-2">
             <button 
               onClick={() => { lightTap(); setTheme(isDark ? 'light' : 'dark'); toast.success(`Theme set to ${isDark ? 'light' : 'dark'} mode`); }}
-              className={cn("w-10 h-10 rounded-full backdrop-blur-md flex items-center justify-center border transition-colors", isDark ? "bg-black/40 border-white/10 hover:bg-white/10" : "bg-card/80 border-border hover:bg-muted")}
+              className={cn("w-10 h-10 rounded-full backdrop-blur-md flex items-center justify-center border transition-colors", isDark ? "bg-background/40 border-border/30 hover:bg-muted/20" : "bg-card/80 border-border hover:bg-muted")}
             >
               {isDark ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5 text-muted-foreground" />}
             </button>
             <button 
               onClick={() => { lightTap(); navigate('/app/profile?tab=settings'); }}
-              className={cn("w-10 h-10 rounded-full backdrop-blur-md flex items-center justify-center border transition-colors", isDark ? "bg-black/40 border-white/10 hover:bg-white/10" : "bg-card/80 border-border hover:bg-muted")}
+              className={cn("w-10 h-10 rounded-full backdrop-blur-md flex items-center justify-center border transition-colors", isDark ? "bg-background/40 border-border/30 hover:bg-muted/20" : "bg-card/80 border-border hover:bg-muted")}
             >
               <Settings className={cn("w-5 h-5", isDark ? "text-white/80" : "text-muted-foreground")} />
             </button>
@@ -586,7 +586,7 @@ export const AppHome: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           className="relative z-10 px-4 mb-3"
         >
-          <div className={cn("rounded-2xl backdrop-blur-xl border p-4", isDark ? "bg-black/40 border-white/10" : "bg-card/80 border-border")}>
+          <div className={cn("rounded-2xl backdrop-blur-xl border p-4", isDark ? "bg-background/40 border-border/30" : "bg-card/80 border-border")}>
             <div className="flex items-start justify-between mb-3">
               <div>
                 <p className={cn("text-[10px] font-medium uppercase tracking-wide mb-1", isDark ? "text-amber-400" : "text-primary")}>Your Earnings</p>
@@ -666,7 +666,7 @@ export const AppHome: React.FC = () => {
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className={cn("relative z-10 mx-4 mb-4 grid grid-cols-3 gap-3 p-3 rounded-2xl backdrop-blur-xl border", isDark ? "bg-black/40 border-white/10" : "bg-card/80 border-border")}
+            className={cn("relative z-10 mx-4 mb-4 grid grid-cols-3 gap-3 p-3 rounded-2xl backdrop-blur-xl border", isDark ? "bg-background/40 border-border/30" : "bg-card/80 border-border")}
           >
             <div className="text-center">
               <p className="text-lg font-bold text-foreground tabular-nums">{formatDuration(stats.duration)}</p>
@@ -847,7 +847,7 @@ export const AppHome: React.FC = () => {
             {/* Sign in prompt for logged out users */}
             {!user && (
               <div className="px-4 mb-4">
-                <div className={cn("flex items-center justify-center gap-3 p-3 rounded-xl backdrop-blur-md border", isDark ? "bg-black/40 border-white/10" : "bg-card/80 border-border")}>
+                <div className={cn("flex items-center justify-center gap-3 p-3 rounded-xl backdrop-blur-md border", isDark ? "bg-background/40 border-border/30" : "bg-card/80 border-border")}>
                   <span className={cn("text-sm", isDark ? "text-white/60" : "text-muted-foreground")}>Sign in to start earning</span>
                   <button
                     onClick={() => {
@@ -870,7 +870,7 @@ export const AppHome: React.FC = () => {
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className={cn("rounded-2xl backdrop-blur-xl border p-4", isDark ? "bg-black/40 border-white/8" : "bg-card/80 border-border")}
+                className={cn("rounded-2xl backdrop-blur-xl border p-4", isDark ? "bg-background/40 border-border/30" : "bg-card/80 border-border")}
               >
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-11 h-11 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg">
@@ -918,7 +918,7 @@ export const AppHome: React.FC = () => {
               >
                 <button
                   onClick={() => { lightTap(); navigate('/app/challenges'); }}
-                  className={cn("rounded-2xl backdrop-blur-xl border p-4 flex flex-col items-center gap-2 active:scale-[0.98] transition-transform", isDark ? "bg-black/40 border-white/8" : "bg-card/80 border-border")}
+                  className={cn("rounded-2xl backdrop-blur-xl border p-4 flex flex-col items-center gap-2 active:scale-[0.98] transition-transform", isDark ? "bg-background/40 border-border/30" : "bg-card/80 border-border")}
                 >
                   <div className="w-11 h-11 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg">
                     <Zap className="w-5 h-5 text-white" />
@@ -931,7 +931,7 @@ export const AppHome: React.FC = () => {
 
                 <button
                   onClick={() => { lightTap(); navigate('/app/invite'); }}
-                  className={cn("rounded-2xl backdrop-blur-xl border p-4 flex flex-col items-center gap-2 active:scale-[0.98] transition-transform", isDark ? "bg-black/40 border-white/8" : "bg-card/80 border-border")}
+                  className={cn("rounded-2xl backdrop-blur-xl border p-4 flex flex-col items-center gap-2 active:scale-[0.98] transition-transform", isDark ? "bg-background/40 border-border/30" : "bg-card/80 border-border")}
                 >
                   <div className="w-11 h-11 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg">
                     <Users className="w-5 h-5 text-white" />
@@ -948,7 +948,7 @@ export const AppHome: React.FC = () => {
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className={cn("rounded-2xl backdrop-blur-xl border p-4", isDark ? "bg-black/40 border-white/8" : "bg-card/80 border-border")}
+                className={cn("rounded-2xl backdrop-blur-xl border p-4", isDark ? "bg-background/40 border-border/30" : "bg-card/80 border-border")}
               >
                 <div className="flex items-center gap-2 mb-4">
                   <h3 className="text-base font-bold text-foreground">How You Earn</h3>
