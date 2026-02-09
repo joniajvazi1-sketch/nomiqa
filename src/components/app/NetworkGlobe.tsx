@@ -1,4 +1,4 @@
-import React, { useRef, useMemo, Suspense, useState } from 'react';
+import React, { useRef, useMemo, Suspense, useState, useEffect, useCallback } from 'react';
 import { Canvas, useFrame, useLoader, ThreeEvent } from '@react-three/fiber';
 import { OrbitControls, Sphere, Stars, Html } from '@react-three/drei';
 import * as THREE from 'three';
@@ -848,6 +848,21 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
 }) => {
   const [selectedMarker, setSelectedMarker] = useState<DataPointMarker | null>(null);
   const [hasError, setHasError] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+  const containerRef = useRef<HTMLDivElement>(null);
+  
+  // IntersectionObserver: pause Three.js rendering when globe is scrolled off-screen
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsVisible(entry.isIntersecting),
+      { threshold: 0.05 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
   
   // Personal view starts zoomed in (close to surface), global starts max zoomed OUT
   // Camera z: lower = closer/more zoomed in, higher = farther/zoomed out
@@ -868,7 +883,7 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
   }
 
   return (
-    <div className="relative w-full h-full overflow-hidden bg-transparent">
+    <div ref={containerRef} className="relative w-full h-full overflow-hidden bg-transparent">
       {/* Top stats bar - aligned with parent badges */}
       <div className="absolute top-0 left-0 right-0 z-20 p-4" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 12px)' }}>
         <div className="flex items-center justify-center mb-2">
@@ -920,6 +935,7 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
           <Suspense fallback={<GlobeLoading />}>
             <Canvas
               camera={{ position: [0, 0.2, initialCameraZ], fov: 45 }}
+              frameloop={isVisible ? 'always' : 'never'}
               gl={{ 
                 antialias: false, 
                 alpha: true, 
