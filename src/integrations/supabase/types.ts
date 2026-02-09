@@ -2040,6 +2040,18 @@ export type Database = {
           username: string
         }[]
       }
+      get_leaderboard_with_periods: {
+        Args: { p_limit?: number }
+        Returns: {
+          daily_points: number
+          monthly_points: number
+          total_distance_meters: number
+          total_points: number
+          user_id: string
+          username: string
+          weekly_points: number
+        }[]
+      }
       get_streak_multiplier: { Args: { streak_days: number }; Returns: number }
       get_time_multiplier: { Args: { hours: number }; Returns: number }
       get_user_daily_speed_tests: {
