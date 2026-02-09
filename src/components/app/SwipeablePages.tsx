@@ -10,7 +10,7 @@ interface SwipeablePagesProps {
 const TAB_ROUTES = ['/app', '/app/rewards', '/app/shop', '/app/profile'];
 
 // Routes where swipe navigation should be DISABLED (map/globe interactions conflict)
-const SWIPE_DISABLED_ROUTES = ['/app/map', '/app/network'];
+const SWIPE_DISABLED_ROUTES = ['/app/map', '/app/network', '/app/challenges', '/app/leaderboard', '/app/achievements'];
 
 /**
  * Swipeable wrapper for main app pages

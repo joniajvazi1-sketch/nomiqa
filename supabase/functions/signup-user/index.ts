@@ -273,25 +273,9 @@ const handler = async (req: Request): Promise<Response> => {
       }
     }
 
-    // Check if user already exists in auth.users (primary check)
-    // Use listUsers since getUserByEmail doesn't exist in this SDK version
-    const { data: userList, error: listError } = await supabase.auth.admin.listUsers({
-      page: 1,
-      perPage: 1000, // Check a reasonable batch
-    });
-    
-    const existingAuthUser = userList?.users?.find(
-      (u) => u.email?.toLowerCase() === normalizedEmail
-    );
-    
-    if (existingAuthUser) {
-      return new Response(
-        JSON.stringify({ error: "An account with this email already exists" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    // Secondary check: also check profiles table (for edge cases)
+    // Check if user already exists via profiles table (fast, indexed query)
+    // NOTE: Removed listUsers() call - it was scanning 13K+ users and causing timeouts.
+    // The createUser() call below will catch auth-level duplicates via error handler.
     const { data: existingProfile } = await supabase
       .from('profiles')
       .select('id, email_verified')

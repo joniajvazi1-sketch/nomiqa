@@ -2031,6 +2031,15 @@ export type Database = {
       cleanup_old_mining_logs: { Args: never; Returns: number }
       cleanup_old_rate_limits: { Args: never; Returns: undefined }
       cleanup_old_webhook_requests: { Args: never; Returns: undefined }
+      get_leaderboard_top: {
+        Args: { p_limit?: number }
+        Returns: {
+          total_distance_meters: number
+          total_points: number
+          user_id: string
+          username: string
+        }[]
+      }
       get_streak_multiplier: { Args: { streak_days: number }; Returns: number }
       get_time_multiplier: { Args: { hours: number }; Returns: number }
       get_user_daily_speed_tests: {
