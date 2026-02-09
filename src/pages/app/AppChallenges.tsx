@@ -125,7 +125,7 @@ export const AppChallenges: React.FC = () => {
 
   return (
     <div 
-      className="min-h-screen bg-background app-container momentum-scroll"
+      className="bg-background app-container"
       style={{ paddingBottom: '140px' }}
       ref={containerRef}
     >
