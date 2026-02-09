@@ -56,65 +56,14 @@ export const useLeaderboard = (): UseLeaderboardReturn => {
       const { data: { user } } = await supabase.auth.getUser();
       setCurrentUserId(user?.id || null);
 
-      // Use SECURITY DEFINER function to get top users (bypasses restrictive RLS on user_points)
+      // Use SECURITY DEFINER function that calculates daily/weekly/monthly points server-side
+      // This bypasses RLS on contribution_sessions and user_daily_limits
       const { data: pointsData, error: pointsError } = await supabase
-        .rpc('get_leaderboard_top', { p_limit: 100 });
+        .rpc('get_leaderboard_with_periods', { p_limit: 100 });
 
       if (pointsError) throw pointsError;
 
-      // Build profile map from the RPC result (already includes usernames)
-      const profileMap = new Map(
-        (pointsData || []).map((p: any) => [p.user_id, p.username])
-      );
       const userIds = (pointsData || []).map((p: any) => p.user_id);
-
-      // Calculate time boundaries
-      const now = new Date();
-      const todayStart = new Date(now);
-      todayStart.setHours(0, 0, 0, 0);
-      const weekAgo = new Date(now);
-      weekAgo.setDate(weekAgo.getDate() - 7);
-      const monthAgo = new Date(now);
-      monthAgo.setDate(monthAgo.getDate() - 30);
-
-      // Get daily points per user
-      const { data: dailySessions } = await supabase
-        .from('contribution_sessions')
-        .select('user_id, total_points_earned')
-        .gte('started_at', todayStart.toISOString())
-        .in('user_id', userIds);
-
-      const dailyPointsMap = new Map<string, number>();
-      dailySessions?.forEach(s => {
-        const current = dailyPointsMap.get(s.user_id) || 0;
-        dailyPointsMap.set(s.user_id, current + (s.total_points_earned || 0));
-      });
-
-      // Get weekly points per user
-      const { data: weeklySessions } = await supabase
-        .from('contribution_sessions')
-        .select('user_id, total_points_earned')
-        .gte('started_at', weekAgo.toISOString())
-        .in('user_id', userIds);
-
-      const weeklyPointsMap = new Map<string, number>();
-      weeklySessions?.forEach(s => {
-        const current = weeklyPointsMap.get(s.user_id) || 0;
-        weeklyPointsMap.set(s.user_id, current + (s.total_points_earned || 0));
-      });
-
-      // Get monthly points per user
-      const { data: monthlySessions } = await supabase
-        .from('contribution_sessions')
-        .select('user_id, total_points_earned')
-        .gte('started_at', monthAgo.toISOString())
-        .in('user_id', userIds);
-
-      const monthlyPointsMap = new Map<string, number>();
-      monthlySessions?.forEach(s => {
-        const current = monthlyPointsMap.get(s.user_id) || 0;
-        monthlyPointsMap.set(s.user_id, current + (s.total_points_earned || 0));
-      });
 
       // Get cached ranks for comparison (to calculate rank changes)
       const { data: cachedData } = await supabase
@@ -128,14 +77,14 @@ export const useLeaderboard = (): UseLeaderboardReturn => {
         rank_monthly: c.rank_monthly
       }]) || []);
 
-      // Build entries with accurate data
-      const entriesData: LeaderboardEntry[] = (pointsData || []).map((entry, index) => ({
+      // Build entries with server-calculated period points
+      const entriesData: LeaderboardEntry[] = (pointsData || []).map((entry: any, index: number) => ({
         user_id: entry.user_id,
-        username: profileMap.get(entry.user_id) || null,
+        username: entry.username || null,
         total_points: entry.total_points || 0,
-        daily_points: dailyPointsMap.get(entry.user_id) || 0,
-        weekly_points: weeklyPointsMap.get(entry.user_id) || 0,
-        monthly_points: monthlyPointsMap.get(entry.user_id) || 0,
+        daily_points: Number(entry.daily_points) || 0,
+        weekly_points: Number(entry.weekly_points) || 0,
+        monthly_points: Number(entry.monthly_points) || 0,
         total_distance_meters: entry.total_distance_meters || 0,
         rank_all_time: index + 1,
         rank_daily: null,
