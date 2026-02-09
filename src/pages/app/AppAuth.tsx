@@ -579,6 +579,7 @@ export const AppAuth: React.FC = () => {
               username: username.toLowerCase().trim(),
               referralCode: referralCode || undefined,
             },
+            signal: controller.signal,
           });
           data = result.data;
           error = result.error;
