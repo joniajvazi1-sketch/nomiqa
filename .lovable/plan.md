@@ -1,106 +1,112 @@
 
 
-# Critical Bug Fix Plan: Beta Tester Report
+# Comprehensive Fix Plan: All Remaining Beta Issues
 
-This plan addresses the most impactful bugs reported by beta testers across 3+ Android devices. I've verified each issue by reading the code, querying the database, and testing the backend function directly.
+## Problem Summary
 
----
+After thorough code analysis, I found that while many fixes were applied in previous rounds, several have **remaining bugs** that prevent them from working correctly, and the **account creation issue** has not been addressed at all. Here is the true status:
 
-## Bug 1: Account Creation Broken (CRITICAL)
+## Issue-by-Issue Analysis
 
-**Root Cause:** The `signup-user` edge function calls `listUsers({ page: 1, perPage: 1000 })` to check if an email already exists. With **13,782 users** in the database, this only checks the first 1,000 -- missing 92% of users. More importantly, this call is extremely slow with 13K+ users, causing the function to **timeout** before responding. Users see "Creating account..." loading forever.
-
-**Evidence:** Zero edge function logs for `signup-user` in recent days. The last signup attempt via the function was Feb 5. Every single new user in the last week signed up via Google OAuth only. When I called the function directly from the server, it worked -- confirming the function code is fine but the `listUsers` bottleneck causes timeouts on real devices.
-
-**Fix:**
-- Remove the `listUsers` call entirely (lines 276-291 in `signup-user/index.ts`)
-- Replace with a targeted email lookup: query the `profiles` table by email (already done on line 295) and rely on the `createUser` error handler for the auth duplicate check (already on line 318)
-- This eliminates the slow full-user-list scan and makes signup near-instant
-
----
-
-## Bug 2: Leaderboard Shows Only Your Own Account (CRITICAL)
-
-**Root Cause:** The `user_points` table has an RLS policy: `Users can view own points` with condition `auth.uid() = user_id`. The leaderboard hook queries `user_points` directly, so each user can **only see themselves**. The `leaderboard_cache` table has the correct policy (top 100 visible), but the code queries the wrong table.
-
-**Evidence:** Confirmed via RLS policy query. The `leaderboard_cache` policy correctly allows: `rank_all_time <= 100 OR rank_weekly <= 100 OR rank_monthly <= 100 OR user_id = auth.uid()`.
+### 1. Account Creation Broken (CRITICAL)
+**Root Cause:** The `signup-user` edge function shows zero logs -- it is either not deployed, timing out silently, or being blocked. The function itself looks correct, but users on 3 different devices report "always loading" when trying to create accounts.
 
 **Fix:**
-- Add a new RLS SELECT policy on `user_points` that allows authenticated users to read the `user_id` and `total_points` columns of any row (needed for ranking)
-- OR (more secure): Create a `SECURITY DEFINER` database function `get_leaderboard_data()` that returns the top 100 users with their points and usernames, bypassing RLS safely
-- Update `useLeaderboard.ts` to use this function instead of direct table queries
+- Redeploy the `signup-user` edge function
+- Add a client-side timeout (15 seconds) with a clear error message in `AppAuth.tsx` so users are not stuck on an infinite spinner
+- Add better error handling for network failures during signup
 
----
-
-## Bug 3: Streak Always Shows Zero
-
-**Root Cause:** The streak (`background_streak_days`) is only updated inside `add_points_with_cap()` when the source is `contribution` or `background`. Looking at the database, only 4 out of the top 20 users have any streak data. The `last_background_date` is `null` for 80% of active users. This means points are being added but the streak-tracking code path isn't being triggered consistently (likely because the auto-save uses a different source label or the streak update runs before the day boundary).
+### 2. Wi-Fi Speed Test Fails (BUG IN FIX)
+**Root Cause:** The `isEndpointReachable()` was changed to GET (correct), but `areStaticFilesAvailable()` on line 150 STILL uses `method: 'HEAD'`. On Wi-Fi networks with captive portals or corporate firewalls, HEAD is blocked, so this check fails. Then `measureLatency()` also starts with HEAD before falling back to GET, adding unnecessary delay.
 
 **Fix:**
-- Audit the auto-save and contribution sync paths to ensure they pass `source = 'contribution'` consistently
-- Add streak initialization for users who have been active but have null streak data
-- The `add_points_with_cap` function's streak logic at lines comparing `last_background_date` with `CURRENT_DATE` should also handle the case where `last_background_date = CURRENT_DATE` (same day activity shouldn't reset the streak)
+- Change `areStaticFilesAvailable()` from HEAD to GET with a range header (to avoid downloading the full file)
+- Change `measureLatency()` to use GET first instead of HEAD-then-fallback
 
----
-
-## Bug 4: Challenges Tab Cannot Scroll (Weekly Tasks Hidden)
-
-**Root Cause:** The `SwipeablePages` wrapper intercepts horizontal touch gestures for tab navigation. On some Android devices, diagonal finger movements are misinterpreted as horizontal swipes rather than vertical scrolls, blocking the scroll. The Challenges page is rendered inside `AppLayout > SwipeablePages`, and the direction-lock threshold (`Math.abs(diffY) > 12 && Math.abs(diffY) > Math.abs(diffX) * 1.5`) is too strict for Android touch behavior.
+### 3. Reward Delays (PARTIALLY FIXED)
+**Status:** Auto-save interval was reduced from 5 minutes to 2 minutes. This helps but the core issue is that points are calculated server-side via `add_points_with_cap()` and only reflected when the sync function runs.
 
 **Fix:**
-- Add `/app/challenges` to the `SWIPE_DISABLED_ROUTES` array in `SwipeablePages.tsx` (line 13), since the Challenges page is a detail page (not a main tab) and doesn't need swipe navigation
-- This immediately fixes scrolling for Challenges, Leaderboard, and similar sub-pages
+- Show optimistic point updates in the UI immediately when a data point is collected (client-side counter)
+- This is already partially working -- the `stats.pointsEarned` updates locally. The real issue is the server sync. The 2-minute auto-save should help significantly.
 
----
-
-## Bug 5: Google Login Redirects to Waitlist Website (Native)
-
-**Root Cause:** The OAuthRedirect page triggers a deep link (`com.nomiqa.app://oauth-callback#tokens`) to return to the native app. If the deep link fails (common on Android with certain intent filter configurations), the user stays on the web page. Since `nomiqa-depin.com` is a waitlist/marketing site, users see the waitlist instead of being redirected back to the app.
-
-**Current State:** The OAuth redirect page already shows a "Open Nomiqa App" button as fallback. The issue is the auto-trigger deep link may silently fail on some Android devices.
+### 4. Map Not Reflecting Coverage
+**Root Cause:** The `useGlobalCoverage` hook calls `get-global-coverage` edge function with a non-standard pattern (body: null + x-query-params header). This may be silently failing.
 
 **Fix:**
-- Add a short delay (1-2 seconds) before showing the native prompt fallback to give the deep link time to process
-- Make the "Open Nomiqa App" button more prominent with clearer instructions
-- Consider using Android App Links (verified deep links) instead of custom scheme for more reliable behavior
+- Switch to using query params via direct fetch URL instead of the unusual header-based approach
+- Ensure the materialized view `coverage_tiles` is being refreshed (check if the cron job is running)
+
+### 5. App Speed / Tab Lag (PARTIALLY FIXED)
+**Status:** PageTransition durations reduced to 80-120ms, Globe optimized. These changes ARE deployed.
+
+**Additional Fix:**
+- The 3D globe lazy loads correctly but is a heavy component. Add `loading="lazy"` behavior and ensure Suspense fallback is lightweight
+- No further code changes needed beyond what was done -- remaining lag is device-specific (mid-range Android with slow WebView)
+
+### 6. Homepage Scroll Jank (PARTIALLY FIXED)
+**Status:** Globe container reduced to 35vh with `contain: strict`, antialias disabled, low-power mode enabled.
+
+**Additional Fix:**
+- The globe renders continuously even when scrolled off-screen. Add an IntersectionObserver to pause rendering when not visible
+- This will significantly reduce GPU load during scrolling
+
+### 7. Points in Notification Bar (NATIVE ONLY)
+**Status:** Java code changes are already in `LocationForegroundService.java`. These require `npx cap sync android` and a native rebuild.
+
+**No additional code changes needed** -- just a rebuild.
+
+### 8. App Closes in Background (NATIVE ONLY)
+**Status:** `onTaskRemoved()` handler is already implemented in Java. Requires native rebuild.
+
+**No additional code changes needed** -- just a rebuild.
+
+### 9. Referral Links Reload Page (FIXED)
+**Status:** AffiliateRedirect.tsx correctly redirects to `/download`. This is deployed.
+
+**Verification:** Test the referral link flow end-to-end after deployment.
 
 ---
 
-## Implementation Priority
+## Technical Implementation Plan
 
-| Priority | Bug | Impact | Effort |
-|----------|-----|--------|--------|
-| P0 | #1 Signup broken | Blocks all new email signups | Low - remove ~15 lines |
-| P0 | #2 Leaderboard empty | Core engagement feature broken | Medium - new DB function + hook update |
-| P1 | #3 Streak zero | Demotivates active users | Medium - audit source labels |
-| P1 | #4 Challenges scroll | Hides weekly tasks entirely | Low - add one route to disabled list |
-| P2 | #5 Google login redirect | Affects some Android devices | Low - improve fallback UX |
+### Step 1: Fix Account Creation (signup-user edge function)
+- Redeploy the edge function to ensure it's active
+- Add a 15-second client-side timeout in `AppAuth.tsx` handleEmailAuth
+- Add network error detection and retry logic
+
+### Step 2: Fix Wi-Fi Speed Test (speedTestProviders.ts)
+- `areStaticFilesAvailable()`: Change HEAD to GET with `Range: bytes=0-0` header
+- `measureLatency()`: Use GET as primary method instead of HEAD-then-fallback
+
+### Step 3: Fix Map Coverage (useGlobalCoverage.ts)
+- Use direct fetch with query params instead of the x-query-params header pattern
+- Add error handling and fallback display
+
+### Step 4: Globe Performance (NetworkGlobe.tsx)
+- Add IntersectionObserver to pause Three.js rendering when globe is scrolled off-screen
+- This eliminates GPU work during scrolling, fixing remaining homepage jank
+
+### Step 5: Verify All Fixes
+- Test signup flow
+- Test speed test on Wi-Fi
+- Test referral link flow
+- Test map coverage display
+- Confirm scroll performance
 
 ---
 
-## Technical Details
+## Files to Modify
 
-### Bug 1 - Signup Fix (signup-user/index.ts)
+| File | Change |
+|------|--------|
+| `src/pages/app/AppAuth.tsx` | Add 15s timeout + retry for signup |
+| `src/utils/speedTestProviders.ts` | HEAD to GET in 2 remaining functions |
+| `src/hooks/useGlobalCoverage.ts` | Fix edge function invocation pattern |
+| `src/components/app/NetworkGlobe.tsx` | Add IntersectionObserver pause |
+| `supabase/functions/signup-user/index.ts` | Redeploy (no code change) |
 
-Remove lines 276-291 (the entire `listUsers` block). The existing flow already handles duplicates:
-1. Line 295-306: Profile table check catches most cases
-2. Line 309-325: `createUser` returns "already been registered" error which is properly caught
-
-### Bug 2 - Leaderboard Fix
-
-Create a new database function:
-```sql
-CREATE OR REPLACE FUNCTION get_leaderboard_top(p_limit integer DEFAULT 100)
-RETURNS TABLE(user_id uuid, username text, total_points numeric, total_distance_meters numeric)
-LANGUAGE plpgsql SECURITY DEFINER
-```
-
-This function joins `user_points` with `profiles` and returns the top N users, bypassing the restrictive RLS on `user_points`.
-
-### Bug 4 - Challenges Scroll Fix (SwipeablePages.tsx)
-
-Change line 13:
-```typescript
-const SWIPE_DISABLED_ROUTES = ['/app/map', '/app/network', '/app/challenges', '/app/leaderboard', '/app/achievements'];
-```
+## Native Changes (Already Done -- Need Rebuild)
+- `LocationForegroundService.java`: Notification bar points + onTaskRemoved
+- User must run: `npx cap sync android && npx cap sync ios` then rebuild
 
