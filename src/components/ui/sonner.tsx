@@ -14,10 +14,10 @@ const Toaster = ({ ...props }: ToasterProps) => {
       toastOptions={{
         classNames: {
           toast:
-            "group toast group-[.toaster]:bg-white/[0.05] group-[.toaster]:backdrop-blur-2xl group-[.toaster]:text-foreground group-[.toaster]:border group-[.toaster]:border-white/[0.08] group-[.toaster]:shadow-[0_8px_32px_rgba(0,0,0,0.4)] group-[.toaster]:rounded-2xl group-[.toaster]:px-4 group-[.toaster]:py-3",
-          description: "group-[.toast]:text-foreground/70",
+            "group toast group-[.toaster]:bg-card group-[.toaster]:backdrop-blur-2xl group-[.toaster]:text-foreground group-[.toaster]:border group-[.toaster]:border-border group-[.toaster]:shadow-[0_8px_32px_rgba(0,0,0,0.2)] group-[.toaster]:rounded-2xl group-[.toaster]:px-4 group-[.toaster]:py-3",
+          description: "group-[.toast]:text-muted-foreground",
           actionButton: "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground group-[.toast]:rounded-xl",
-          cancelButton: "group-[.toast]:bg-white/10 group-[.toast]:text-foreground group-[.toast]:rounded-xl",
+          cancelButton: "group-[.toast]:bg-muted group-[.toast]:text-foreground group-[.toast]:rounded-xl",
           success: "group-[.toaster]:border-primary/30 group-[.toaster]:bg-primary/10",
           error: "group-[.toaster]:border-destructive/30 group-[.toaster]:bg-destructive/10",
           icon: "group-[.toast]:text-primary",
