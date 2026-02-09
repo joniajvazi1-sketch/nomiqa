@@ -117,6 +117,15 @@ export const DataConsentModal: React.FC<DataConsentModalProps> = ({ onConsentCom
                   Before you start contributing, please review what data we collect and how it's used.
                 </p>
 
+                <a 
+                  href="https://nomiqa.com/privacy" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-sm font-medium text-primary underline underline-offset-2"
+                >
+                  Read Full Privacy Policy →
+                </a>
+
                 <section className="space-y-4">
                   <h2 className="text-base font-semibold text-foreground">What We Collect</h2>
 

@@ -279,7 +279,7 @@ export const AppShop: React.FC = () => {
       */}
       <div 
         ref={containerRef}
-        className="min-h-full relative"
+        className="relative"
       >
         {/* Pull to refresh indicator */}
         <PullToRefreshIndicator 

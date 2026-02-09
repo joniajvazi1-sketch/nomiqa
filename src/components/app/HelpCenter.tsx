@@ -45,6 +45,14 @@ interface HelpCenterProps {
 }
 
 export const HelpCenter: React.FC<HelpCenterProps> = ({ onClose }) => {
+  const scrollRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (onClose) {
+      scrollRef.current?.scrollTo(0, 0);
+    }
+  }, [onClose]);
+
   const handleContactSupport = () => {
     window.open('mailto:support@nomiqa.com', '_blank');
   };
@@ -117,6 +125,7 @@ export const HelpCenter: React.FC<HelpCenterProps> = ({ onClose }) => {
   }
 
   // Render as modal
+
   return (
     <AnimatePresence>
       <motion.div
@@ -125,7 +134,7 @@ export const HelpCenter: React.FC<HelpCenterProps> = ({ onClose }) => {
         exit={{ opacity: 0 }}
         className="fixed inset-0 z-50 bg-background/95 backdrop-blur-sm"
       >
-        <div className="h-full overflow-y-auto pb-safe">
+        <div ref={scrollRef} className="h-full overflow-y-auto pb-safe">
           <div className="px-4 py-6">
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
