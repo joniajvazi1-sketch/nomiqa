@@ -230,8 +230,8 @@ export const AppHome: React.FC = () => {
 
   const handleShareReferral = async () => {
     const referralLink = username 
-      ? `https://nomiqa.com/${username}` 
-      : 'https://nomiqa.com/download';
+      ? `https://nomiqa-depin.com/${username}` 
+      : 'https://nomiqa-depin.com/download';
     
     await share({
       title: 'Join Nomiqa',
@@ -242,8 +242,8 @@ export const AppHome: React.FC = () => {
 
   const handleCopyLink = async () => {
     const referralLink = username 
-      ? `https://nomiqa.com/${username}` 
-      : 'https://nomiqa.com/download';
+      ? `https://nomiqa-depin.com/${username}` 
+      : 'https://nomiqa-depin.com/download';
     
     try {
       await navigator.clipboard.writeText(referralLink);

@@ -13,19 +13,18 @@ interface PageTransitionProps {
   disableTransform?: boolean;
 }
 
-// GPU-optimized spring config (compositor-only properties)
+// Fast spring config - optimized for perceived speed on mobile
 const springConfig = {
-  type: 'spring' as const,
-  stiffness: 400, // Higher stiffness = faster response
-  damping: 35,    // Higher damping = less oscillation
-  mass: 0.8,      // Lower mass = snappier
+  type: 'tween' as const,
+  duration: 0.12,
+  ease: [0.25, 0.1, 0.25, 1] as [number, number, number, number],
 };
 
-// Ultra-fast tween for instant feel
+// Ultra-fast for instant transitions
 const instantTween = {
   type: 'tween' as const,
-  duration: 0.15,
-  ease: [0.32, 0.72, 0, 1] as [number, number, number, number], // Custom easing for perceived speed
+  duration: 0.08,
+  ease: 'easeOut' as const,
 };
 
 const variants = {
@@ -33,24 +32,24 @@ const variants = {
     initial: { opacity: 0 },
     animate: { opacity: 1 },
     exit: { opacity: 0 },
-    transition: { duration: 0.15, ease: 'easeOut' as const },
+    transition: { duration: 0.1, ease: 'easeOut' as const },
   },
   slide: {
-    initial: { opacity: 0, y: 12 },
+    initial: { opacity: 0, y: 6 },
     animate: { opacity: 1, y: 0 },
-    exit: { opacity: 0, y: -6 },
-    transition: { duration: 0.2, ease: [0.32, 0.72, 0, 1] as const },
+    exit: { opacity: 0 },
+    transition: { duration: 0.12, ease: [0.25, 0.1, 0.25, 1] as const },
   },
   scale: {
-    initial: { opacity: 0, scale: 0.97 },
-    animate: { opacity: 1, scale: 1 },
-    exit: { opacity: 0, scale: 0.99 },
-    transition: { duration: 0.15, ease: 'easeOut' as const },
+    initial: { opacity: 0 },
+    animate: { opacity: 1 },
+    exit: { opacity: 0 },
+    transition: { duration: 0.1, ease: 'easeOut' as const },
   },
   spring: {
-    initial: { opacity: 0, y: 10, scale: 0.99 },
-    animate: { opacity: 1, y: 0, scale: 1 },
-    exit: { opacity: 0, y: -4, scale: 1 },
+    initial: { opacity: 0, y: 6 },
+    animate: { opacity: 1, y: 0 },
+    exit: { opacity: 0 },
     transition: springConfig,
   },
   instant: {
