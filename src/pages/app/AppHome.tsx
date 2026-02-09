@@ -732,7 +732,7 @@ export const AppHome: React.FC = () => {
                     </span>
                   </div>
                 ) : (
-                  <span className="text-[10px] text-white/50">{isActive ? '' : 'Tap to start'}</span>
+                  <span className={cn("text-[10px]", isDark ? "text-white/50" : "text-muted-foreground")}>{isActive ? '' : 'Tap to start'}</span>
                 )}
               </button>
 
@@ -746,18 +746,18 @@ export const AppHome: React.FC = () => {
                   isRunningSpeedTest 
                     ? 'bg-amber-500/20 border-amber-400/50' 
                     : isCellular 
-                      ? 'bg-white/5 border-white/20 hover:bg-white/10'
-                      : 'bg-white/5 border-white/10 cursor-not-allowed opacity-50'
+                      ? isDark ? 'bg-white/5 border-white/20 hover:bg-white/10' : 'bg-muted/50 border-border hover:bg-muted'
+                      : isDark ? 'bg-white/5 border-white/10 cursor-not-allowed opacity-50' : 'bg-muted/30 border-border/50 cursor-not-allowed opacity-50'
                 )}
               >
                 <div className="flex items-center gap-2">
                   <Gauge className={cn(
                     "w-5 h-5",
-                    isRunningSpeedTest ? "text-amber-400 animate-spin" : "text-white/80"
+                    isRunningSpeedTest ? "text-amber-400 animate-spin" : isDark ? "text-white/80" : "text-foreground"
                   )} />
                   <span className={cn(
                     "text-sm font-bold uppercase tracking-wider",
-                    isRunningSpeedTest ? "text-amber-400" : "text-white/80"
+                    isRunningSpeedTest ? "text-amber-400" : isDark ? "text-white/80" : "text-foreground"
                   )}>
                     {isRunningSpeedTest 
                       ? speedTestPhase === 'latency' ? 'Ping' 
@@ -780,7 +780,7 @@ export const AppHome: React.FC = () => {
                         }
                       </span>
                     </div>
-                    <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden">
+                    <div className={cn("w-full h-1 rounded-full overflow-hidden", isDark ? "bg-white/10" : "bg-muted")}>
                       <div 
                         className="h-full bg-gradient-to-r from-amber-400 to-amber-500 rounded-full transition-all duration-100"
                         style={{ width: `${speedTestProgress}%` }}
@@ -788,7 +788,7 @@ export const AppHome: React.FC = () => {
                     </div>
                   </div>
                 ) : (
-                  <span className="text-[10px] text-white/50">Test Network</span>
+                  <span className={cn("text-[10px]", isDark ? "text-white/50" : "text-muted-foreground")}>Test Network</span>
                 )}
               </button>
             </div>
@@ -825,16 +825,16 @@ export const AppHome: React.FC = () => {
                       ? "bg-amber-500/20 border-amber-500/40"
                       : iosPermissionLabel === 'Denied'
                         ? "bg-red-500/20 border-red-500/40"
-                        : "bg-white/10 border-white/20"
+                        : isDark ? "bg-white/10 border-white/20" : "bg-muted/50 border-border"
                   )}
                 >
                   <MapPin className={cn(
                     "w-4 h-4",
-                    iosPermissionLabel === 'While Using' ? "text-amber-400" : iosPermissionLabel === 'Denied' ? "text-red-400" : "text-white/60"
+                    iosPermissionLabel === 'While Using' ? "text-amber-400" : iosPermissionLabel === 'Denied' ? "text-red-400" : isDark ? "text-white/60" : "text-muted-foreground"
                   )} />
                   <span className={cn(
                     "text-xs font-semibold",
-                    iosPermissionLabel === 'While Using' ? "text-amber-400" : iosPermissionLabel === 'Denied' ? "text-red-400" : "text-white/60"
+                    iosPermissionLabel === 'While Using' ? "text-amber-400" : iosPermissionLabel === 'Denied' ? "text-red-400" : isDark ? "text-white/60" : "text-muted-foreground"
                   )}>
                     {iosPermissionLabel === 'While Using' 
                       ? 'Tap to enable background location' 
