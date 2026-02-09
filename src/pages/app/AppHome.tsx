@@ -643,7 +643,7 @@ export const AppHome: React.FC = () => {
         {/* 3. Globe Section - Fullscreen style */}
         <div 
           className="relative z-10 w-full"
-          style={{ height: '35vh', minHeight: '240px', maxHeight: '320px', contain: 'strict' }}
+          style={{ height: '45vh', minHeight: '300px', maxHeight: '420px', contain: 'strict' }}
         >
           <Suspense fallback={
             <div className="absolute inset-0 flex items-center justify-center">
