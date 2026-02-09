@@ -26,14 +26,7 @@ export const AppLeaderboard: React.FC = () => {
   return (
     <div 
       className="min-h-screen bg-background app-container momentum-scroll"
-      style={{
-        overflow: 'auto',
-        overflowX: 'hidden',
-        overflowY: 'auto',
-        WebkitOverflowScrolling: 'touch',
-        touchAction: 'pan-y',
-        minHeight: '100%',
-      }}
+      style={{ paddingBottom: '140px' }}
       ref={containerRef}
     >
       <PullToRefreshIndicator 
