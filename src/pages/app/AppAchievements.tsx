@@ -52,7 +52,8 @@ export const AppAchievements: React.FC = () => {
 
   return (
     <div 
-      className="min-h-screen bg-background pb-28 overflow-y-auto app-container momentum-scroll"
+      className="min-h-screen bg-background app-container momentum-scroll"
+      style={{ paddingBottom: '140px' }}
       ref={containerRef}
     >
       <PullToRefreshIndicator 

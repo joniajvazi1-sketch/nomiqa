@@ -887,44 +887,44 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
       {/* Top stats bar - aligned with parent badges */}
       <div className="absolute top-0 left-0 right-0 z-20 p-4" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 12px)' }}>
         <div className="flex items-center justify-center mb-2">
-          <span className="text-white/50 text-xs font-medium">Community Coverage Map</span>
+          <span className="text-muted-foreground text-xs font-medium">Community Coverage Map</span>
         </div>
         
         {/* Legend - moved here */}
         <div className="flex items-center justify-center gap-3 mb-2">
           <div className="flex items-center gap-1.5">
             <div className="w-2 h-2 rounded-full bg-green-500" />
-            <span className="text-white/60 text-[10px] font-medium">High</span>
+            <span className="text-muted-foreground text-[10px] font-medium">High</span>
           </div>
           <div className="flex items-center gap-1.5">
             <div className="w-2 h-2 rounded-full bg-cyan-500" />
-            <span className="text-white/60 text-[10px] font-medium">Medium</span>
+            <span className="text-muted-foreground text-[10px] font-medium">Medium</span>
           </div>
           <div className="flex items-center gap-1.5">
             <div className="w-2 h-2 rounded-full bg-purple-500" />
-            <span className="text-white/60 text-[10px] font-medium">New</span>
+            <span className="text-muted-foreground text-[10px] font-medium">New</span>
           </div>
         </div>
         
         {/* Stats row - shows REAL data from database */}
         <div className="flex justify-between gap-2">
-          <div className="flex-1 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl px-3 py-2 text-center">
-            <div className="text-white text-base font-bold tabular-nums">
+          <div className="flex-1 bg-black/5 dark:bg-white/5 backdrop-blur-sm border border-black/10 dark:border-white/10 rounded-xl px-3 py-2 text-center">
+            <div className="text-foreground text-base font-bold tabular-nums">
               {realStats.dataPoints.toLocaleString()}
             </div>
-            <div className="text-white/50 text-[10px] font-medium">Samples</div>
+            <div className="text-muted-foreground text-[10px] font-medium">Samples</div>
           </div>
-          <div className="flex-1 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl px-3 py-2 text-center">
-            <div className="text-white text-base font-bold tabular-nums">
+          <div className="flex-1 bg-black/5 dark:bg-white/5 backdrop-blur-sm border border-black/10 dark:border-white/10 rounded-xl px-3 py-2 text-center">
+            <div className="text-foreground text-base font-bold tabular-nums">
               {realStats.locations.toLocaleString()}
             </div>
-            <div className="text-white/50 text-[10px] font-medium">Cities</div>
+            <div className="text-muted-foreground text-[10px] font-medium">Cities</div>
           </div>
-          <div className="flex-1 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl px-3 py-2 text-center">
-            <div className="text-white text-base font-bold tabular-nums">
+          <div className="flex-1 bg-black/5 dark:bg-white/5 backdrop-blur-sm border border-black/10 dark:border-white/10 rounded-xl px-3 py-2 text-center">
+            <div className="text-foreground text-base font-bold tabular-nums">
               {realStats.regions}
             </div>
-            <div className="text-white/50 text-[10px] font-medium">Regions</div>
+            <div className="text-muted-foreground text-[10px] font-medium">Regions</div>
           </div>
         </div>
       </div>
