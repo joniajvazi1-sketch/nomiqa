@@ -780,16 +780,7 @@ const GlobeScene: React.FC<{
         color="#87ceeb" 
       />
       
-      {/* Deep space stars */}
-      <Stars
-        radius={300}
-        depth={100}
-        count={3000}
-        factor={3}
-        saturation={0.1}
-        fade
-        speed={0.05}
-      />
+      {/* Stars removed for cleaner look */}
       
       <Earth />
       <DataMarkers 
@@ -930,8 +921,8 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
       </div>
 
       {/* 3D Globe Canvas - positioned below the stats header */}
-      <div className="absolute left-0 right-0 bottom-0 top-[140px] flex items-center justify-center">
-        <div className="w-full h-full max-h-[450px]">
+      <div className="absolute left-0 right-0 bottom-0 top-[100px] flex items-center justify-center">
+        <div className="w-full h-full">
           <Suspense fallback={<GlobeLoading />}>
             <Canvas
               camera={{ position: [0, 0.2, initialCameraZ], fov: 45 }}
@@ -960,7 +951,7 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
 
       {/* Loading overlay */}
       {loading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-[#020408]/90 z-30">
+        <div className="absolute inset-0 flex items-center justify-center bg-background/90 z-30">
           <div className="flex flex-col items-center gap-3">
             <div className="w-10 h-10 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
             <span className="text-primary text-sm font-medium">Loading network data...</span>
@@ -969,7 +960,7 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
       )}
 
       {/* Bottom gradient fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[#020408] to-transparent z-10 pointer-events-none" />
+      <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-background to-transparent z-10 pointer-events-none" />
     </div>
   );
 };
