@@ -82,9 +82,9 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       vv.addEventListener('scroll', setViewportHeight);
     }
     
-    // Fallback: periodic check for edge cases
-    const intervalId = setInterval(setViewportHeight, 1000);
-    
+    // Fallback: periodic check for edge cases (every 3s to reduce JS work on slow devices)
+    const intervalId = setInterval(setViewportHeight, 3000);
+
     return () => {
       window.removeEventListener('resize', setViewportHeight);
       window.removeEventListener('orientationchange', setViewportHeight);

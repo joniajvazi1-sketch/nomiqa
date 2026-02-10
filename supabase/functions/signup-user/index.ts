@@ -28,10 +28,8 @@ function isDisposableEmail(email: string): boolean {
   const domain = email.split('@')[1]?.toLowerCase();
   if (!domain) return true;
   
-  // Direct match
   if (BLOCKED_DOMAINS.has(domain)) return true;
   
-  // Pattern matching for common disposable indicators
   const suspiciousPatterns = [
     /^temp/i, /temp$/i, /^fake/i, /fake$/i, /^trash/i, /trash$/i,
     /^throw/i, /^disposable/i, /^mailinator/i, /^guerrilla/i,
@@ -67,105 +65,80 @@ async function hashCode(code: string): Promise<string> {
 function isValidPublicIP(ip: string): boolean {
   if (!ip) return false;
   
-  // Check for IPv6 first
   if (ip.includes(':')) {
-    // Block IPv6 loopback and private/reserved ranges
     const ipLower = ip.toLowerCase();
-    if (ipLower === '::1') return false;                     // IPv6 loopback
-    if (ipLower.startsWith('::ffff:')) {                      // IPv4-mapped IPv6
-      // Extract the IPv4 portion and validate it
+    if (ipLower === '::1') return false;
+    if (ipLower.startsWith('::ffff:')) {
       const ipv4Part = ipLower.replace('::ffff:', '');
       return isValidPublicIPv4(ipv4Part);
     }
-    if (ipLower.startsWith('fc') || ipLower.startsWith('fd')) return false;  // fc00::/7 (unique local)
-    if (ipLower.startsWith('fe80')) return false;            // fe80::/10 (link-local)
-    if (ipLower.startsWith('fec0')) return false;            // fec0::/10 (deprecated site-local)
-    if (ipLower.startsWith('ff')) return false;              // ff00::/8 (multicast)
-    if (ipLower === '::') return false;                      // Unspecified address
-    if (ipLower.startsWith('2001:db8')) return false;        // 2001:db8::/32 (documentation/examples)
-    if (ipLower.startsWith('2001:') && ipLower.charAt(5) === '0') return false; // 2001::/32 (Teredo tunneling)
-    if (ipLower.startsWith('2002:')) return false;           // 2002::/16 (6to4)
-    if (ipLower.startsWith('64:ff9b')) return false;         // 64:ff9b::/96 (IPv4/IPv6 translation)
-    if (ipLower.startsWith('100::')) return false;           // 100::/64 (discard prefix)
-    // Allow public IPv6 addresses
+    if (ipLower.startsWith('fc') || ipLower.startsWith('fd')) return false;
+    if (ipLower.startsWith('fe80')) return false;
+    if (ipLower.startsWith('fec0')) return false;
+    if (ipLower.startsWith('ff')) return false;
+    if (ipLower === '::') return false;
+    if (ipLower.startsWith('2001:db8')) return false;
+    if (ipLower.startsWith('2001:') && ipLower.charAt(5) === '0') return false;
+    if (ipLower.startsWith('2002:')) return false;
+    if (ipLower.startsWith('64:ff9b')) return false;
+    if (ipLower.startsWith('100::')) return false;
     return true;
   }
   
-  // Validate IPv4
   return isValidPublicIPv4(ip);
 }
 
-// Validate IPv4 addresses
 function isValidPublicIPv4(ip: string): boolean {
-  // Basic IPv4 format check
   const ipv4Regex = /^(\d{1,3}\.){3}\d{1,3}$/;
   if (!ipv4Regex.test(ip)) return false;
   
   const parts = ip.split('.').map(Number);
-  
-  // Check each octet is valid
   if (parts.some(p => p < 0 || p > 255)) return false;
   
-  // Block private/reserved ranges (RFC 1918, loopback, link-local, multicast)
   const [a, b] = parts;
-  if (a === 10) return false;                          // 10.0.0.0/8
-  if (a === 172 && b >= 16 && b <= 31) return false;   // 172.16.0.0/12
-  if (a === 192 && b === 168) return false;            // 192.168.0.0/16
-  if (a === 127) return false;                         // 127.0.0.0/8
-  if (a === 169 && b === 254) return false;            // 169.254.0.0/16
-  if (a === 0) return false;                           // 0.0.0.0/8
-  if (a >= 224) return false;                          // 224.0.0.0+ (multicast/reserved)
-  if (a === 100 && b >= 64 && b <= 127) return false;  // 100.64.0.0/10 (CGN)
+  if (a === 10) return false;
+  if (a === 172 && b >= 16 && b <= 31) return false;
+  if (a === 192 && b === 168) return false;
+  if (a === 127) return false;
+  if (a === 169 && b === 254) return false;
+  if (a === 0) return false;
+  if (a >= 224) return false;
+  if (a === 100 && b >= 64 && b <= 127) return false;
   
   return true;
 }
 
-// Detect country from IP using free ip-api.com service
-// SECURITY: Non-blocking, doesn't affect signup success, fails safely
+// Detect country from IP — NON-BLOCKING with 1.5s timeout via Promise.race
+// If detection fails or times out, returns null without delaying signup
 async function detectCountryFromIP(req: Request): Promise<string | null> {
   try {
-    // Get IP from headers (edge function receives forwarded IP)
     const forwardedFor = req.headers.get('x-forwarded-for');
     const realIp = req.headers.get('x-real-ip');
     let ip = forwardedFor?.split(',')[0]?.trim() || realIp || null;
     
-    // SECURITY: Validate IP format and block private ranges
     if (!ip || !isValidPublicIP(ip)) {
-      // Don't log specific blocked IP to avoid info leakage
-      // SECURITY: Don't log IP-related info
       return null;
     }
     
-    // Use ip-api.com (free, no API key needed, 45 req/min limit)
-    // SECURITY: Using HTTPS endpoint (pro version) for secure transmission
-    // Note: ip-api.com free tier only supports HTTP, but we prefer security
-    // Fallback to HTTP if HTTPS fails (acceptable for non-sensitive geo data)
-    let response;
-    try {
-      // Try HTTPS first (more secure)
-      response = await fetch(`https://pro.ip-api.com/json/${ip}?fields=countryCode,status`, {
-        signal: AbortSignal.timeout(2000), // 2 second timeout for HTTPS
-      });
-    } catch {
-      // Fallback to HTTP if HTTPS unavailable (free tier limitation)
-      response = await fetch(`http://ip-api.com/json/${ip}?fields=countryCode,status`, {
-        signal: AbortSignal.timeout(3000),
-      });
-    }
+    // Race the IP lookup against a 1.5s timeout — never block signup
+    const result = await Promise.race([
+      (async () => {
+        try {
+          const response = await fetch(`http://ip-api.com/json/${ip}?fields=countryCode,status`, {
+            signal: AbortSignal.timeout(1500),
+          });
+          if (!response.ok) return null;
+          const data = await response.json();
+          return data.status === 'success' && data.countryCode ? data.countryCode : null;
+        } catch {
+          return null;
+        }
+      })(),
+      new Promise<null>((resolve) => setTimeout(() => resolve(null), 1500)),
+    ]);
     
-    if (!response.ok) {
-      return null;
-    }
-    
-    const data = await response.json();
-    
-    if (data.status === 'success' && data.countryCode) {
-      return data.countryCode;
-    }
-    
-    return null;
-  } catch (error) {
-    // Fail silently - don't log errors that might reveal internal info
+    return result;
+  } catch {
     return null;
   }
 }
@@ -178,10 +151,8 @@ const handler = async (req: Request): Promise<Response> => {
   try {
     const rawBody = await req.json();
     
-    // Validate input
     const validationResult = signupSchema.safeParse(rawBody);
     if (!validationResult.success) {
-      // SECURITY: Log validation details server-side only, return generic error to client
       console.error("Signup validation failed");
       return new Response(
         JSON.stringify({ error: "Invalid input. Please check your email, password, and username format." }),
@@ -202,7 +173,7 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // SECURITY: Block suspicious username patterns (hex-like, bot-generated)
+    // SECURITY: Block suspicious username patterns
     if (username) {
       const hexPattern = /^[a-f0-9]{6,}$/i;
       if (hexPattern.test(username)) {
@@ -224,13 +195,11 @@ const handler = async (req: Request): Promise<Response> => {
     const clientIP = forwardedFor?.split(',')[0]?.trim() || realIp || 'unknown';
     
     if (clientIP !== 'unknown') {
-      // Hash IP for privacy
       const encoder = new TextEncoder();
       const ipData = encoder.encode(clientIP);
       const ipHashBuffer = await crypto.subtle.digest('SHA-256', ipData);
       const ipHash = Array.from(new Uint8Array(ipHashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('').substring(0, 16);
       
-      // Check rate limit
       const { data: rateData } = await supabase
         .from('api_rate_limits')
         .select('request_count, window_start')
@@ -251,7 +220,6 @@ const handler = async (req: Request): Promise<Response> => {
           );
         }
         
-        // Update or reset counter
         if (windowStart <= oneHourAgo) {
           await supabase.from('api_rate_limits').update({
             request_count: 1,
@@ -263,7 +231,6 @@ const handler = async (req: Request): Promise<Response> => {
           }).eq('identifier', ipHash).eq('endpoint', 'signup');
         }
       } else {
-        // Create new rate limit entry
         await supabase.from('api_rate_limits').insert({
           identifier: ipHash,
           endpoint: 'signup',
@@ -274,8 +241,6 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     // Check if user already exists via profiles table (fast, indexed query)
-    // NOTE: Removed listUsers() call - it was scanning 13K+ users and causing timeouts.
-    // The createUser() call below will catch auth-level duplicates via error handler.
     const { data: existingProfile } = await supabase
       .from('profiles')
       .select('id, email_verified')
@@ -293,11 +258,10 @@ const handler = async (req: Request): Promise<Response> => {
     const { data: authData, error: authError } = await supabase.auth.admin.createUser({
       email: normalizedEmail,
       password,
-      email_confirm: false, // We use our own verification
+      email_confirm: false,
     });
 
     if (authError) {
-      // SECURITY: Log error type only, not details
       console.error("Auth error occurred during signup");
       if (authError.message.includes("already been registered")) {
         return new Response(
@@ -319,13 +283,15 @@ const handler = async (req: Request): Promise<Response> => {
     const hashedCode = await hashCode(code);
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
 
-    // Use provided username or generate a temporary one
     const finalUsername = username?.toLowerCase().trim() || `user_${userId.replace(/-/g, '').substring(0, 12)}`;
 
-    // Detect country from IP (non-blocking, don't fail signup if this fails)
-    const countryCode = await detectCountryFromIP(req);
+    // Start country detection in parallel — non-blocking, capped at 1.5s
+    const countryPromise = detectCountryFromIP(req);
 
-    // Create profile with verification code (using service role)
+    // Wait for country detection (max 1.5s due to Promise.race inside)
+    const countryCode = await countryPromise;
+
+    // Create profile with verification code
     const { error: profileError } = await supabase
       .from('profiles')
       .upsert({
@@ -340,42 +306,31 @@ const handler = async (req: Request): Promise<Response> => {
       }, { onConflict: 'user_id' });
 
     if (profileError) {
-      // SECURITY: Log error type only, not full error details
       console.error("Profile creation error occurred");
-      // Try to clean up the auth user if profile creation fails
       await supabase.auth.admin.deleteUser(userId);
       throw profileError;
     }
 
-    // Track affiliate referral if code provided
+    // FIRE-AND-FORGET: Track affiliate referral (don't await)
     if (referralCode) {
-      try {
-        const trackResponse = await fetch(`${supabaseUrl}/functions/v1/track-affiliate-registration`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${supabaseServiceKey}`,
-          },
-          body: JSON.stringify({
-            referralCode,
-            userId,
-            referrer: '',
-          }),
-        });
-        
-        if (!trackResponse.ok) {
-          // SECURITY: Log failure without exposing response details
-          console.error("Affiliate tracking failed");
-        }
-      } catch (trackError) {
-        // SECURITY: Don't log error details
-        console.error("Affiliate tracking error");
-        // Don't fail signup if tracking fails
-      }
+      fetch(`${supabaseUrl}/functions/v1/track-affiliate-registration`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${supabaseServiceKey}`,
+        },
+        body: JSON.stringify({
+          referralCode,
+          userId,
+          referrer: '',
+        }),
+      }).catch(() => {
+        console.error("Affiliate tracking error (fire-and-forget)");
+      });
     }
 
-    // Send verification email
-    const sendEmailResponse = await fetch(`${supabaseUrl}/functions/v1/send-email`, {
+    // FIRE-AND-FORGET: Send verification email (don't await — shaves 1-2s)
+    fetch(`${supabaseUrl}/functions/v1/send-email`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -386,13 +341,9 @@ const handler = async (req: Request): Promise<Response> => {
         to: normalizedEmail,
         data: { code },
       }),
+    }).catch(() => {
+      console.error("Failed to send verification email (fire-and-forget)");
     });
-
-    if (!sendEmailResponse.ok) {
-      // SECURITY: Log failure without exposing email or response details
-      console.error("Failed to send verification email");
-      // Don't fail signup if email fails - user can resend
-    }
 
     return new Response(
       JSON.stringify({ 
@@ -404,7 +355,6 @@ const handler = async (req: Request): Promise<Response> => {
     );
 
   } catch (error: any) {
-    // SECURITY: Log error occurrence only, not details that could aid attackers
     console.error("Signup function error occurred");
     return new Response(
       JSON.stringify({ error: "Signup failed. Please try again or contact support." }),

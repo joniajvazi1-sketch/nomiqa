@@ -564,9 +564,10 @@ export const AppAuth: React.FC = () => {
           }
         }
 
-        // Use AbortController for a 15-second timeout to prevent infinite spinner
+        // Use AbortController for a 25-second timeout to prevent infinite spinner
+        // (increased from 15s — mid-range Android devices on Wi-Fi need more time)
         const controller = new AbortController();
-        const timeoutId = window.setTimeout(() => controller.abort(), 15000);
+        const timeoutId = window.setTimeout(() => controller.abort(), 25000);
 
         let data: any;
         let error: any;
@@ -585,7 +586,7 @@ export const AppAuth: React.FC = () => {
           error = result.error;
         } catch (invokeErr: any) {
           if (invokeErr?.name === 'AbortError' || controller.signal.aborted) {
-            setFormError('Signup is taking too long. Please check your connection and try again.');
+            setFormError('Signup is taking longer than expected. Please try again — your account may already have been created.');
             errorPattern();
             setLoading(false);
             return;

@@ -75,7 +75,7 @@ export const SwipeablePages: React.FC<SwipeablePagesProps> = ({ children }) => {
       // If the user has clearly started a vertical scroll, never treat this gesture as a swipe.
       // This is especially important on Android where non-perfectly-vertical drags are common.
       if (!isSwiping.current && !isVerticalScroll.current) {
-        const isClearlyVertical = Math.abs(diffY) > 12 && Math.abs(diffY) > Math.abs(diffX) * 1.5;
+        const isClearlyVertical = Math.abs(diffY) > 8 && Math.abs(diffY) > Math.abs(diffX) * 1.2;
         if (isClearlyVertical) {
           isVerticalScroll.current = true;
           setSwipeOffset(0);
@@ -83,7 +83,7 @@ export const SwipeablePages: React.FC<SwipeablePagesProps> = ({ children }) => {
         }
 
         // Only start swiping if the gesture is strongly horizontal.
-        const isClearlyHorizontal = Math.abs(diffX) > 18 && Math.abs(diffX) > Math.abs(diffY) * 2.5;
+        const isClearlyHorizontal = Math.abs(diffX) > 25 && Math.abs(diffX) > Math.abs(diffY) * 3.0;
         if (isClearlyHorizontal) {
           isSwiping.current = true;
         }

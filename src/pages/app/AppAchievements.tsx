@@ -53,7 +53,7 @@ export const AppAchievements: React.FC = () => {
   return (
     <div 
       className="bg-background app-container"
-      style={{ paddingBottom: '140px' }}
+      style={{ paddingBottom: '140px', touchAction: 'pan-y' }}
       ref={containerRef}
     >
       <PullToRefreshIndicator 
