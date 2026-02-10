@@ -1,6 +1,9 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+
+// Skip entrance animation on the very first render (cold start optimization)
+let isFirstRender = true;
 
 interface PageTransitionProps {
   children: React.ReactNode;
@@ -72,24 +75,41 @@ export const PageTransition: React.FC<PageTransitionProps> = ({
   disableTransform = false,
 }) => {
   const prefersReducedMotion = useReducedMotion();
+  const [animationDone, setAnimationDone] = useState(false);
+  
+  // Skip entrance animation on cold start
+  const skipAnimation = useRef(isFirstRender);
+  useEffect(() => {
+    if (isFirstRender) isFirstRender = false;
+  }, []);
   
   // Avoid transforms entirely when requested (WebGL/canvas safety)
-  const activeVariant = disableTransform
+  const activeVariant = disableTransform || skipAnimation.current
     ? 'instant'
     : (prefersReducedMotion ? 'instant' : variant);
 
   const config = variants[activeVariant];
 
+  // Remove GPU hints after animation completes to avoid scroll interference on Android
+  useEffect(() => {
+    const timer = setTimeout(() => setAnimationDone(true), 200);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <motion.div
       key={transitionKey}
-      initial={config.initial}
+      initial={skipAnimation.current ? false : config.initial}
       animate={config.animate}
       exit={config.exit}
       transition={config.transition}
-      className={cn(disableTransform ? undefined : 'transform-gpu', className)}
+      className={cn(
+        // Remove transform-gpu after animation to avoid Android scroll issues
+        !disableTransform && !animationDone ? 'transform-gpu' : undefined,
+        className
+      )}
       style={
-        disableTransform
+        disableTransform || animationDone
           ? undefined
           : {
               willChange: 'transform, opacity',

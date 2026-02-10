@@ -49,10 +49,6 @@ export const AppChallenges: React.FC = () => {
       midnight.setHours(24, 0, 0, 0);
       const hoursUntilMidnight = (midnight.getTime() - now.getTime()) / (1000 * 60 * 60);
       
-      // Show warning if:
-      // - User has an active streak
-      // - Not all daily challenges are completed
-      // - Within 2 hours of midnight
       const shouldWarn = dailyChallengeStreak > 0 && 
                          !allDailyCompleted && 
                          hoursUntilMidnight <= 2 &&
@@ -72,7 +68,7 @@ export const AppChallenges: React.FC = () => {
     };
 
     checkStreakWarning();
-    const interval = setInterval(checkStreakWarning, 60000); // Check every minute
+    const interval = setInterval(checkStreakWarning, 60000);
     return () => clearInterval(interval);
   }, [dailyChallengeStreak, allDailyCompleted, dailyChallenges.length]);
 
@@ -108,7 +104,6 @@ export const AppChallenges: React.FC = () => {
       setShowCelebration(true);
       heavyTap();
       
-      // Auto-hide after 3 seconds
       const timer = setTimeout(() => setShowCelebration(false), 3000);
       return () => clearTimeout(timer);
     }
@@ -126,7 +121,7 @@ export const AppChallenges: React.FC = () => {
   return (
     <div 
       className="bg-background app-container"
-      style={{ paddingBottom: '140px' }}
+      style={{ paddingBottom: '140px', touchAction: 'pan-y' }}
       ref={containerRef}
     >
       <PullToRefreshIndicator 
@@ -428,7 +423,7 @@ export const AppChallenges: React.FC = () => {
               <div className="text-center py-12">
                 <Target className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                 <h3 className="text-lg font-semibold text-foreground mb-2">{t('app.challenges.noChallenges')}</h3>
-                <p className="text-sm text-muted-foreground">{t('app.challenges.checkBackLater')}</p>
+                <p className="text-muted-foreground text-sm">{t('app.challenges.checkBackSoon')}</p>
               </div>
             )}
           </>
