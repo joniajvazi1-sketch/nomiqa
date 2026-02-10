@@ -219,12 +219,25 @@ export const AppAuth: React.FC = () => {
     setUsernameError('');
 
     try {
-      // Using _safe view for username check
-      const { data, error } = await supabase
+      // Using _safe view for username check with 3s timeout
+      const timeoutPromise = new Promise<'timeout'>((resolve) => setTimeout(() => resolve('timeout'), 3000));
+      
+      const queryPromise = supabase
         .from('profiles_safe')
         .select('id')
         .eq('username', sanitized)
         .maybeSingle();
+      
+      const result = await Promise.race([queryPromise, timeoutPromise]);
+      
+      if (result === 'timeout') {
+        console.warn('[AppAuth] Username check timed out, allowing signup');
+        setUsernameAvailable(true);
+        setCheckingUsername(false);
+        return true;
+      }
+
+      const { data, error } = result;
 
       if (error) throw error;
 
@@ -258,7 +271,7 @@ export const AppAuth: React.FC = () => {
 
     // Safety net: never let the auth screen sit in "checking session" forever.
     // On iOS, storage/network edge cases can stall session initialization.
-    const BOOT_TIMEOUT_MS = 8000;
+    const BOOT_TIMEOUT_MS = 5000;
     const bootTimer = window.setTimeout(() => {
       if (!isMounted) return;
       console.warn('[AppAuth] Session check timed out - continuing without blocking UI');
