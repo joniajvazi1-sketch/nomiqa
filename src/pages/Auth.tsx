@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
@@ -225,23 +225,31 @@ export default function Auth() {
 
     // THEN check for any already-persisted session with timeout
     // This prevents infinite loading if session refresh hangs (e.g., expired refresh token)
+    const sessionResolved = { current: false };
+
     const sessionCheckTimeout = setTimeout(() => {
-      if (isMounted) {
-        console.warn('Session check timeout - clearing stale session');
+      if (isMounted && !sessionResolved.current) {
+        console.warn('[Auth] Session check timed out - showing form');
+        sessionResolved.current = true;
         setCheckingSession(false);
-        // Clear potentially corrupted session data
-        supabase.auth.signOut().catch(() => {});
+        // Do NOT call signOut here - it causes cascading auth events on slow networks
       }
-    }, 8000); // 8 second timeout
+    }, 5000); // 5 second timeout (reduced from 8s)
 
     supabase.auth.getSession().then(({ data: { session }, error }) => {
       clearTimeout(sessionCheckTimeout);
       if (!isMounted) return;
       
+      // If timeout already fired, skip processing to avoid race condition
+      if (sessionResolved.current) {
+        console.log('[Auth] Session resolved after timeout, skipping');
+        return;
+      }
+      sessionResolved.current = true;
+      
       if (error) {
         console.error("Session error:", error);
-        // If there's an error (like expired token), sign out and show login
-        supabase.auth.signOut().catch(() => {});
+        // Just show the form - don't signOut which causes cascading events
         setCheckingSession(false);
         return;
       }
@@ -249,6 +257,8 @@ export default function Auth() {
     }).catch((err) => {
       clearTimeout(sessionCheckTimeout);
       if (!isMounted) return;
+      if (sessionResolved.current) return;
+      sessionResolved.current = true;
       console.error("Session fetch failed:", err);
       setCheckingSession(false);
     });
@@ -293,12 +303,25 @@ export default function Auth() {
     setUsernameError("");
 
     try {
-      // Using _safe view for username check
-      const { data, error } = await supabase
+      // Using _safe view for username check with 3s timeout
+      const timeoutPromise = new Promise<'timeout'>((resolve) => setTimeout(() => resolve('timeout'), 3000));
+      
+      const queryPromise = supabase
         .from('profiles_safe')
         .select('id')
         .eq('username', sanitized)
         .maybeSingle();
+      
+      const result = await Promise.race([queryPromise, timeoutPromise]);
+      
+      if (result === 'timeout') {
+        console.warn('[Auth] Username check timed out, allowing signup');
+        setUsernameAvailable(true);
+        setCheckingUsername(false);
+        return true;
+      }
+
+      const { data, error } = result;
 
       if (error) throw error;
 
@@ -312,7 +335,7 @@ export default function Auth() {
       setUsernameAvailable(true);
       setCheckingUsername(false);
       return true;
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error checking username:', err);
       setUsernameAvailable(null);
       setCheckingUsername(false);
