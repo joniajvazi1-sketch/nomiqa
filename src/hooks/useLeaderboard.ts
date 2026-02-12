@@ -208,7 +208,7 @@ export const useLeaderboard = (): UseLeaderboardReturn => {
           setUserRank({
             rank: rank || 1,
             totalPoints: points,
-            percentile: Math.round((1 - ((rank || 1) / Math.max(sortedEntries.length, 1))) * 100),
+            percentile: Math.max(1, Math.ceil(((rank || 1) / Math.max(sortedEntries.length, 1)) * 100)),
             rankChange: userEntryData.rank_change,
             pointsToNextRank
           });
@@ -233,7 +233,7 @@ export const useLeaderboard = (): UseLeaderboardReturn => {
             setUserRank({
               rank: (count || 0) + 1,
               totalPoints: userPoints.total_points || 0,
-              percentile: Math.round((1 - (((count || 0) + 1) / Math.max(totalCount || 1, 1))) * 100),
+              percentile: Math.max(1, Math.ceil((((count || 0) + 1) / Math.max(totalCount || 1, 1)) * 100)),
               rankChange: 0,
               pointsToNextRank: null
             });
