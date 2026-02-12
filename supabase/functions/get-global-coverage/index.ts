@@ -90,7 +90,7 @@ serve(async (req) => {
       .not('latitude', 'eq', 0)
       .not('longitude', 'eq', 0)
       .order('recorded_at', { ascending: false })
-      .limit(1000);
+      .limit(5000);
 
     if (error) {
       console.error('[get-global-coverage] Database error:', error);
