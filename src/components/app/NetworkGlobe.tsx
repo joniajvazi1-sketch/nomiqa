@@ -1,6 +1,7 @@
 import React, { useRef, useMemo, Suspense, useState, useEffect, useCallback } from 'react';
 import { Canvas, useFrame, useLoader, ThreeEvent } from '@react-three/fiber';
 import { OrbitControls, Sphere, Stars, Html } from '@react-three/drei';
+import { useTheme } from 'next-themes';
 import * as THREE from 'three';
 import { GlobalCoverageCell } from '@/hooks/useGlobalCoverage';
 
@@ -25,7 +26,7 @@ const latLngToVector3 = (lat: number, lng: number, radius: number): THREE.Vector
 };
 
 // Ultra-realistic Earth with NASA textures
-const Earth: React.FC = () => {
+const Earth: React.FC<{ isDark?: boolean }> = ({ isDark = true }) => {
   const groupRef = useRef<THREE.Group>(null);
   const earthRef = useRef<THREE.Mesh>(null);
   const cloudsRef = useRef<THREE.Mesh>(null);
@@ -63,30 +64,32 @@ const Earth: React.FC = () => {
           bumpMap={bumpTexture}
           bumpScale={0.015}
           specularMap={specularTexture}
-          specular={new THREE.Color(0x333333)}
-          shininess={25}
+          specular={new THREE.Color(isDark ? 0x333333 : 0x666666)}
+          shininess={isDark ? 25 : 40}
         />
       </mesh>
       
-      {/* Night side with city lights - blended additively */}
-      <mesh ref={nightRef}>
-        <sphereGeometry args={[1.501, 128, 128]} />
-        <meshBasicMaterial
-          map={nightTexture}
-          transparent
-          opacity={0.6}
-          blending={THREE.AdditiveBlending}
-          depthWrite={false}
-        />
-      </mesh>
+      {/* Night side with city lights - only in dark mode */}
+      {isDark && (
+        <mesh ref={nightRef}>
+          <sphereGeometry args={[1.501, 128, 128]} />
+          <meshBasicMaterial
+            map={nightTexture}
+            transparent
+            opacity={0.6}
+            blending={THREE.AdditiveBlending}
+            depthWrite={false}
+          />
+        </mesh>
+      )}
       
-      {/* Simulated cloud layer - no external texture needed */}
+      {/* Cloud layer - more visible in light mode */}
       <mesh ref={cloudsRef}>
         <sphereGeometry args={[1.52, 64, 64]} />
         <meshPhongMaterial
           color="#ffffff"
           transparent
-          opacity={0.08}
+          opacity={isDark ? 0.08 : 0.18}
           depthWrite={false}
         />
       </mesh>
@@ -94,19 +97,19 @@ const Earth: React.FC = () => {
       {/* Inner atmosphere - Rayleigh scattering */}
       <Sphere args={[1.55, 64, 64]}>
         <meshBasicMaterial
-          color="#6ab7ff"
+          color={isDark ? "#6ab7ff" : "#87ceeb"}
           transparent
-          opacity={0.06}
+          opacity={isDark ? 0.06 : 0.12}
           side={THREE.BackSide}
         />
       </Sphere>
       
-      {/* Outer atmosphere glow - Fresnel effect */}
+      {/* Outer atmosphere glow */}
       <Sphere args={[1.65, 64, 64]}>
         <meshBasicMaterial
-          color="#4d9fff"
+          color={isDark ? "#4d9fff" : "#a0d8ef"}
           transparent
-          opacity={0.04}
+          opacity={isDark ? 0.04 : 0.1}
           side={THREE.BackSide}
         />
       </Sphere>
@@ -116,7 +119,7 @@ const Earth: React.FC = () => {
         <meshBasicMaterial
           color="#87ceeb"
           transparent
-          opacity={0.02}
+          opacity={isDark ? 0.02 : 0.06}
           side={THREE.BackSide}
         />
       </Sphere>
@@ -747,43 +750,46 @@ const DataMarkers: React.FC<{
   );
 };
 
-// Scene with enhanced lighting
+// Scene with enhanced lighting - theme-aware
 const GlobeScene: React.FC<{
   cells: GlobalCoverageCell[];
   selectedMarker: DataPointMarker | null;
   onSelectMarker: (marker: DataPointMarker | null) => void;
   isPersonalView?: boolean;
-}> = ({ cells, selectedMarker, onSelectMarker, isPersonalView }) => {
+  isDark?: boolean;
+}> = ({ cells, selectedMarker, onSelectMarker, isPersonalView, isDark = true }) => {
   return (
     <>
-      {/* Photorealistic lighting setup - brighter ambient for light mode visibility */}
-      <ambientLight intensity={0.4} color="#b8d4ff" />
+      {/* Ambient: brighter in light mode for daytime feel */}
+      <ambientLight intensity={isDark ? 0.4 : 0.8} color={isDark ? "#b8d4ff" : "#ffffff"} />
       
-      {/* Sun - main light source */}
+      {/* Sun - main light source, stronger in light mode */}
       <directionalLight 
         position={[5, 2, 5]} 
-        intensity={1.8} 
-        color="#fff5e6"
+        intensity={isDark ? 1.8 : 2.8} 
+        color={isDark ? "#fff5e6" : "#fffdf5"}
       />
       
       {/* Soft fill from opposite side */}
       <directionalLight 
         position={[-5, -2, -5]} 
-        intensity={0.15} 
-        color="#4da6ff" 
+        intensity={isDark ? 0.15 : 0.5} 
+        color={isDark ? "#4da6ff" : "#87ceeb"} 
       />
       
       {/* Rim light for atmosphere edge */}
       <directionalLight 
         position={[0, 5, -3]} 
-        intensity={0.3} 
+        intensity={isDark ? 0.3 : 0.6} 
         color="#87ceeb" 
       />
       
-      {/* Stars for dark mode depth */}
-      <Stars radius={100} depth={50} count={1500} factor={3} saturation={0} fade speed={0.5} />
+      {/* Stars only in dark mode */}
+      {isDark && (
+        <Stars radius={100} depth={50} count={1500} factor={3} saturation={0} fade speed={0.5} />
+      )}
       
-      <Earth />
+      <Earth isDark={isDark} />
       <DataMarkers 
         cells={cells} 
         selectedMarker={selectedMarker}
@@ -842,6 +848,8 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
   const [hasError, setHasError] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
+  const { resolvedTheme, theme } = useTheme();
+  const isDark = resolvedTheme === 'dark' || theme === 'dark';
   
   // IntersectionObserver: pause Three.js rendering when globe is scrolled off-screen
   useEffect(() => {
@@ -944,6 +952,7 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
                 selectedMarker={selectedMarker}
                 onSelectMarker={setSelectedMarker}
                 isPersonalView={isPersonalView}
+                isDark={isDark}
               />
             </Canvas>
           </Suspense>
