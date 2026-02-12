@@ -873,13 +873,23 @@ export const useNetworkContribution = () => {
           
           if (wasCapped) {
             console.log(`[NetworkContribution] Points capped: requested ${pointsDelta}, added ${actualPointsAdded}`);
-            // CRITICAL: Update the local UI to reflect the ACTUAL capped points
-            // This prevents the UI from showing more points than the user actually earned
-            const cappedTotal = lastAutoSavePointsRef.current + actualPointsAdded;
-            setStats(prev => ({
-              ...prev,
-              pointsEarned: cappedTotal // Override with server-verified capped total
-            }));
+            // Don't abruptly reset the UI value — keep displayed value stable
+            // The server already enforced the cap, so the DB is correct
+            // Just stop incrementing locally until the cap resets
+            const capMessage = reason === 'daily_cap_reached'
+              ? 'Daily earning limit reached. Points will resume tomorrow!'
+              : reason === 'monthly_cap_reached'
+              ? 'Monthly earning limit reached. Resets next month!'
+              : reason === 'lifetime_cap_reached'
+              ? 'Lifetime cap reached — congratulations on your contribution!'
+              : reason === 'account_frozen'
+              ? 'Account temporarily frozen. Contact support.'
+              : 'Earning limit reached. Points will resume soon!';
+            
+            // Import toast dynamically to avoid circular deps
+            import('sonner').then(({ toast }) => {
+              toast.info(capMessage, { id: 'points-cap', duration: 6000 });
+            });
           } else {
             const boostMultiplier = (result.boost_multiplier as number) || 1;
             const streakDays = (result.streak_days as number) || 0;

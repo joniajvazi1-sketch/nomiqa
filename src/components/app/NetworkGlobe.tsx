@@ -756,8 +756,8 @@ const GlobeScene: React.FC<{
 }> = ({ cells, selectedMarker, onSelectMarker, isPersonalView }) => {
   return (
     <>
-      {/* Photorealistic lighting setup */}
-      <ambientLight intensity={0.25} color="#b8d4ff" />
+      {/* Photorealistic lighting setup - brighter ambient for light mode visibility */}
+      <ambientLight intensity={0.4} color="#b8d4ff" />
       
       {/* Sun - main light source */}
       <directionalLight 
@@ -780,7 +780,8 @@ const GlobeScene: React.FC<{
         color="#87ceeb" 
       />
       
-      {/* Stars removed for cleaner look */}
+      {/* Stars for dark mode depth */}
+      <Stars radius={100} depth={50} count={1500} factor={3} saturation={0} fade speed={0.5} />
       
       <Earth />
       <DataMarkers 
@@ -817,13 +818,13 @@ const GlobeLoading: React.FC = () => (
 
 // Error boundary for 3D canvas
 const GlobeErrorFallback: React.FC = () => (
-  <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-b from-[#0a0f1a] to-[#020408]">
+  <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-b from-muted to-background">
     <div className="text-center p-6">
       <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
         <span className="text-3xl">🌍</span>
       </div>
-      <p className="text-white/70 text-sm">Globe temporarily unavailable</p>
-      <p className="text-white/40 text-xs mt-1">Pull down to refresh</p>
+      <p className="text-muted-foreground text-sm">Globe temporarily unavailable</p>
+      <p className="text-muted-foreground/60 text-xs mt-1">Pull down to refresh</p>
     </div>
   </div>
 );
@@ -876,7 +877,7 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
   return (
     <div ref={containerRef} className="relative w-full h-full overflow-hidden bg-transparent">
       {/* Top stats bar - aligned with parent badges */}
-      <div className="absolute top-0 left-0 right-0 z-20 p-4" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 12px)' }}>
+      <div className="absolute top-0 left-0 right-0 z-20 p-4" style={{ pointerEvents: 'auto' }}>
         <div className="flex items-center justify-center mb-2">
           <span className="text-muted-foreground text-xs font-medium">Community Coverage Map</span>
         </div>
@@ -921,7 +922,7 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
       </div>
 
       {/* 3D Globe Canvas - positioned below the stats header */}
-      <div className="absolute left-0 right-0 bottom-0 top-[80px] flex items-center justify-center">
+      <div className="absolute left-0 right-0 bottom-0 top-[80px] flex items-center justify-center" style={{ pointerEvents: 'auto', touchAction: 'none' }}>
         <div className="w-full h-full">
           <Suspense fallback={<GlobeLoading />}>
             <Canvas

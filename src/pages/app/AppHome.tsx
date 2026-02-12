@@ -227,6 +227,21 @@ export const AppHome: React.FC = () => {
     loadData();
   }, [loadData]);
 
+  // Refetch when user returns to the app/tab (e.g. after claiming points)
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        loadData();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    window.addEventListener('focus', handleVisibility);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibility);
+      window.removeEventListener('focus', handleVisibility);
+    };
+  }, [loadData]);
+
   const { isRefreshing, pullDistance, pullProgress, containerRef } = usePullToRefresh({
     onRefresh: loadData
   });
@@ -648,7 +663,7 @@ export const AppHome: React.FC = () => {
         {/* 3. Globe Section - Fullscreen style */}
         <div 
           className="relative z-10 w-full"
-          style={{ height: '45vh', minHeight: '300px', maxHeight: '420px', contain: 'strict' }}
+          style={{ height: '45vh', minHeight: '300px', maxHeight: '420px', contain: 'strict', pointerEvents: 'none', touchAction: 'none' }}
         >
           <Suspense fallback={
             <div className="absolute inset-0 flex items-center justify-center">
