@@ -59,7 +59,7 @@ export const useLeaderboard = (): UseLeaderboardReturn => {
       // Use SECURITY DEFINER function that calculates daily/weekly/monthly points server-side
       // This bypasses RLS on contribution_sessions and user_daily_limits
       const { data: pointsData, error: pointsError } = await supabase
-        .rpc('get_leaderboard_with_periods', { p_limit: 100 });
+        .rpc('get_leaderboard_with_periods', { p_limit: 15 });
 
       if (pointsError) throw pointsError;
 
