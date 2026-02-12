@@ -238,7 +238,7 @@ export const LeaderboardSection: React.FC<LeaderboardSectionProps> = ({
                 </div>
                 <div className="flex items-center gap-2 mt-1">
                   <span className="text-xs px-2 py-0.5 rounded-full bg-primary/30 text-primary font-medium">
-                    Top {Math.max(1, 100 - userRank.percentile)}%
+                    Top {userRank.percentile}%
                   </span>
                 </div>
               </div>
