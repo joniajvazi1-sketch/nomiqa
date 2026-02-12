@@ -2053,6 +2053,14 @@ export type Database = {
         }[]
       }
       get_streak_multiplier: { Args: { streak_days: number }; Returns: number }
+      get_team_activity_status: {
+        Args: { p_team_user_ids: string[] }
+        Returns: {
+          is_active: boolean
+          last_session_start: string
+          team_user_id: string
+        }[]
+      }
       get_time_multiplier: { Args: { hours: number }; Returns: number }
       get_user_daily_speed_tests: {
         Args: { p_user_id: string }

@@ -73,27 +73,20 @@ export const TeamActivityCard: React.FC<TeamActivityCardProps> = ({ userId }) =>
           .select('user_id, username')
           .in('user_id', registeredUserIds);
 
-        // Check active contribution sessions (active in last 10 minutes)
-        const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000).toISOString();
-        const { data: activeSessions } = await supabase
-          .from('contribution_sessions')
-          .select('user_id, started_at, ended_at, status')
-          .in('user_id', registeredUserIds)
-          .or(`status.eq.active,ended_at.gte.${tenMinutesAgo}`)
-          .order('started_at', { ascending: false });
+        // Check active contribution sessions via secure RPC (bypasses RLS)
+        const { data: activityStatus } = await supabase
+          .rpc('get_team_activity_status', { p_team_user_ids: registeredUserIds });
 
         // Build team member list
         const members: TeamMember[] = registeredUserIds.map(uid => {
           const profile = profiles?.find(p => p.user_id === uid);
-          const session = activeSessions?.find(s => s.user_id === uid);
-          const isActive = session?.status === 'active' || 
-            (session?.ended_at && new Date(session.ended_at) > new Date(tenMinutesAgo));
+          const status = activityStatus?.find((s: any) => s.team_user_id === uid);
 
           return {
             user_id: uid,
             username: profile?.username || 'User',
-            isActive: !!isActive,
-            lastActiveAt: session?.started_at || null,
+            isActive: !!status?.is_active,
+            lastActiveAt: status?.last_session_start || null,
           };
         });
 
