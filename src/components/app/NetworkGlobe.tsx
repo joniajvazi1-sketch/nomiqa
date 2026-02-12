@@ -929,12 +929,12 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
         </div>
       </div>
 
-      {/* 3D Globe Canvas - positioned below the stats header */}
+      {/* 3D Globe Canvas - centered between stats header and bottom */}
       <div className="absolute left-0 right-0 bottom-0 top-[60px] flex items-center justify-center" style={{ pointerEvents: 'auto', touchAction: 'none' }}>
         <div className="w-full h-full">
           <Suspense fallback={<GlobeLoading />}>
             <Canvas
-              camera={{ position: [0, 0.6, initialCameraZ], fov: 45 }}
+              camera={{ position: [0, 0.3, initialCameraZ], fov: 45 }}
               frameloop={isVisible ? 'always' : 'never'}
               gl={{ 
                 antialias: false, 
