@@ -663,7 +663,7 @@ export const AppHome: React.FC = () => {
         {/* 3. Globe Section - Fullscreen style */}
         <div 
           className="relative z-10 w-full"
-          style={{ height: '50vh', minHeight: '320px', maxHeight: '480px', contain: 'strict', pointerEvents: 'none', touchAction: 'none' }}
+          style={{ height: '55vh', minHeight: '340px', maxHeight: '520px', contain: 'strict', pointerEvents: 'none', touchAction: 'none' }}
         >
           <Suspense fallback={
             <div className="absolute inset-0 flex items-center justify-center">
@@ -704,7 +704,7 @@ export const AppHome: React.FC = () => {
         )}
 
         {/* 5. Control Buttons Row */}
-        <div className="relative z-10 flex items-center justify-center gap-4 px-4 mb-4 mt-2">
+        <div className="relative z-10 flex items-center justify-center gap-4 px-4 mb-4 mt-4">
               {/* Start/Stop Button */}
               <button
                 ref={startButtonRef}
