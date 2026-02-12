@@ -54,6 +54,21 @@ export const AppRewards: React.FC = () => {
     loadRewardsData();
   }, [timeRange]);
 
+  // Refetch when user returns to the app/tab (e.g. after claiming points externally)
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        loadRewardsData();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    window.addEventListener('focus', handleVisibility);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibility);
+      window.removeEventListener('focus', handleVisibility);
+    };
+  }, [timeRange]);
+
   const loadRewardsData = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();

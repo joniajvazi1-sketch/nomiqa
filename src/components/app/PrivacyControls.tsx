@@ -225,9 +225,20 @@ export const PrivacyControls: React.FC = () => {
         <CardContent className="p-0">
           <button 
             className="w-full flex items-center justify-between p-4 text-left hover:bg-muted/30 transition-colors rounded-xl"
-            onClick={() => {
+            onClick={async () => {
               lightTap();
-              window.open('/privacy', '_blank');
+              const url = 'https://nomiqa-depin.com/privacy';
+              try {
+                const { Capacitor } = await import('@capacitor/core');
+                if (Capacitor.isNativePlatform()) {
+                  const { Browser } = await import('@capacitor/browser');
+                  await Browser.open({ url });
+                } else {
+                  window.open(url, '_blank');
+                }
+              } catch {
+                window.open(url, '_blank');
+              }
             }}
           >
             <div className="flex items-center gap-3">
