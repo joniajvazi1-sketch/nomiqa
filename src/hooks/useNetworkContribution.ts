@@ -1351,12 +1351,6 @@ export const useNetworkContribution = () => {
           })
           .eq('id', session.id);
 
-        const { data: existingPoints } = await supabase
-          .from('user_points')
-          .select('*')
-          .eq('user_id', user.id)
-          .maybeSingle();
-
         // Only save the REMAINING points not yet auto-saved
         const remainingPoints = Math.floor(stats.pointsEarned) - lastAutoSavePointsRef.current;
         const pointsToSave = Math.max(0, remainingPoints);
@@ -1364,25 +1358,49 @@ export const useNetworkContribution = () => {
         console.log(`[NetworkContribution] Final save: ${pointsToSave} remaining points (${lastAutoSavePointsRef.current} already auto-saved)`);
 
         if (pointsToSave > 0) {
-          if (existingPoints) {
-            await supabase
-              .from('user_points')
-              .update({
-                total_points: (existingPoints.total_points || 0) + pointsToSave,
-                total_distance_meters: (existingPoints.total_distance_meters || 0) + stats.distanceMeters,
-                total_contribution_time_seconds: (existingPoints.total_contribution_time_seconds || 0) + stats.duration
-              })
-              .eq('user_id', user.id);
+          // CRITICAL FIX: Use add_points_with_cap RPC instead of direct update
+          // This ensures daily/monthly/lifetime caps are enforced on final save too
+          const sessionHours = stats.duration / 3600;
+          const { data: pointsResult, error: pointsError } = await supabase
+            .rpc('add_points_with_cap', {
+              p_user_id: user.id,
+              p_base_points: pointsToSave,
+              p_source: 'contribution',
+              p_session_hours: sessionHours
+            });
+          
+          if (pointsError) {
+            console.error('[NetworkContribution] Final add_points_with_cap failed:', pointsError);
           } else {
-            await supabase
-              .from('user_points')
-              .insert({
-                user_id: user.id,
-                total_points: pointsToSave,
-                total_distance_meters: stats.distanceMeters,
-                total_contribution_time_seconds: stats.duration
-              });
+            const result = pointsResult as Record<string, unknown> | null;
+            console.log(`[NetworkContribution] Final save result: added ${result?.points_added || 0} points`);
           }
+        }
+
+        // Update distance and contribution time (these aren't capped)
+        await supabase
+          .from('user_points')
+          .update({
+            total_distance_meters: supabase.rpc ? undefined : stats.distanceMeters,
+            total_contribution_time_seconds: stats.duration
+          })
+          .eq('user_id', user.id);
+        
+        // Use a separate upsert for distance/time tracking
+        const { data: existingPoints } = await supabase
+          .from('user_points')
+          .select('total_distance_meters, total_contribution_time_seconds')
+          .eq('user_id', user.id)
+          .maybeSingle();
+        
+        if (existingPoints) {
+          await supabase
+            .from('user_points')
+            .update({
+              total_distance_meters: (existingPoints.total_distance_meters || 0) + stats.distanceMeters,
+              total_contribution_time_seconds: (existingPoints.total_contribution_time_seconds || 0) + stats.duration
+            })
+            .eq('user_id', user.id);
         }
 
         success();
