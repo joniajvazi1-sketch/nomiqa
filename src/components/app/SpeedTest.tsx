@@ -54,8 +54,8 @@ export function SpeedTest({
     fetchUserData();
   }, []);
 
-  const testsRemaining = DAILY_TEST_LIMIT - dailyTestCount;
-  const canRunTest = testsRemaining > 0;
+  const rewardedTestsRemaining = Math.max(0, DAILY_TEST_LIMIT - dailyTestCount);
+  const canEarnPoints = rewardedTestsRemaining > 0;
 
   const saveResult = useCallback(async (testResult: SpeedTestResult) => {
     if (!userId) return;
@@ -82,8 +82,8 @@ export function SpeedTest({
         return;
       }
 
-      // Award bonus points if test completed successfully
-      if (testResult.down !== null || testResult.latency !== null) {
+      // Award bonus points only if under daily limit
+      if (dailyTestCount < DAILY_TEST_LIMIT && (testResult.down !== null || testResult.latency !== null)) {
         const { data: existingPoints, error: fetchError } = await supabase
           .from('user_points')
           .select('total_points, pending_points')
@@ -123,7 +123,7 @@ export function SpeedTest({
   }, [userId, latitude, longitude, networkType, carrier, onPointsEarned, triggerSuccess]);
 
   const runTest = async () => {
-    if (!canRunTest || isRunning) return;
+    if (isRunning) return;
 
     setIsRunning(true);
     setResult(null);
@@ -179,7 +179,7 @@ export function SpeedTest({
             Speed Test
           </span>
           <span className="text-sm font-normal text-muted-foreground">
-            {testsRemaining}/{DAILY_TEST_LIMIT} tests today
+            {Math.min(dailyTestCount, DAILY_TEST_LIMIT)}/{DAILY_TEST_LIMIT} rewarded today
           </span>
         </CardTitle>
       </CardHeader>
@@ -225,10 +225,16 @@ export function SpeedTest({
                 <span className="text-muted-foreground">
                   via {result.provider}
                 </span>
-                <span className="flex items-center gap-1 text-primary font-medium">
-                  <Award className="h-4 w-4" />
-                  +{POINTS_PER_TEST} pts earned
-                </span>
+                {canEarnPoints ? (
+                  <span className="flex items-center gap-1 text-primary font-medium">
+                    <Award className="h-4 w-4" />
+                    +{POINTS_PER_TEST} pts earned
+                  </span>
+                ) : (
+                  <span className="text-muted-foreground text-xs">
+                    No reward (daily limit reached)
+                  </span>
+                )}
               </div>
 
               {/* Error message if any */}
@@ -244,9 +250,8 @@ export function SpeedTest({
                 onClick={resetTest}
                 variant="outline"
                 className="w-full"
-                disabled={!canRunTest}
               >
-                {canRunTest ? 'Test Again' : 'Daily Limit Reached'}
+                {canEarnPoints ? 'Test Again' : 'Test Again (No Reward)'}
               </Button>
             </motion.div>
           ) : (
@@ -306,30 +311,33 @@ export function SpeedTest({
                       <Wifi className="h-12 w-12 text-primary" />
                     </motion.div>
                     <p className="text-muted-foreground text-sm">
-                      Test your network speed and earn <span className="text-primary font-semibold">{POINTS_PER_TEST} points</span>
+                      {canEarnPoints 
+                        ? <>Test your network speed and earn <span className="text-primary font-semibold">{POINTS_PER_TEST} points</span></>
+                        : 'Test your network speed (no reward available)'
+                      }
                     </p>
                   </div>
 
                   {/* Start Button */}
                   <Button
                     onClick={runTest}
-                    disabled={!canRunTest}
+                    disabled={isRunning}
                     className="w-full bg-primary hover:bg-primary/90"
                     size="lg"
                   >
-                    {canRunTest ? (
+                    {canEarnPoints ? (
                       <>
                         <Zap className="h-5 w-5 mr-2" />
                         Start Speed Test
                       </>
                     ) : (
-                      'Daily Limit Reached'
+                      'Run Speed Test (No Reward)'
                     )}
                   </Button>
 
-                  {!canRunTest && (
+                  {!canEarnPoints && (
                     <p className="text-center text-xs text-muted-foreground">
-                      Come back tomorrow for more tests!
+                      Daily reward limit reached. Tests still contribute network data!
                     </p>
                   )}
                 </>
