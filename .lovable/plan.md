@@ -1,77 +1,99 @@
 
+# Comprehensive Fix: Checkout Overlap, Points Dropping, Globe Theme, Privacy Link, and Globe Swipe
 
-# Fix: Account Creation "Always Loading" on Android + Website Reliability
+This plan addresses all remaining beta tester issues in one release.
 
-## Root Cause Analysis
+---
 
-After deep investigation, I found that **the signup edge function works perfectly** (754ms, 200 status) and **many users are creating accounts successfully** (20+ in the last 24 hours). The beta testers reporting "always loading" are hitting a **client-side race condition**, not a backend failure.
+## Issue 1: Bottom Navigation Overlaps Checkout Screen
 
-### The Actual Bug (Auth.tsx lines 228-234)
+**Root cause:** `AppCheckout.tsx` uses `pb-8` (32px) bottom padding, but the floating bottom nav bar is 56px + safe area (~88-112px total). The payment method section and submit button get hidden behind the nav.
 
-When the `/auth?mode=signup` page loads, it enters a `checkingSession` state (shows spinner). The session check has an 8-second timeout that:
-1. Calls `supabase.auth.signOut()` -- this clears any stale session
-2. Sets `checkingSession = false` -- should show the form
+**Fix:** In `AppCheckout.tsx`, increase the bottom padding from `pb-8` to `pb-40` (160px) to clear the bottom navigation on all devices. This matches the pattern used in other pages like `AppRewards` which uses `pb-24`.
 
-**BUT** -- the `onAuthStateChange` listener (line 210-216) catches the `SIGNED_OUT` event from step 1 and does NOT set `checkingSession = false` on its own. Meanwhile, if the network is slow (common on mid-range Android with Wi-Fi), the `getSession()` call on line 237 may resolve AFTER the timeout fired. This creates a race where:
-- Timeout fires, signs out, sets checkingSession = false
-- But then getSession() resolves with a session error (because we just signed out)
-- This triggers the error handler on line 242 which calls signOut AGAIN
-- The onAuthStateChange fires SIGNED_OUT again...
+---
 
-On fast networks this resolves quickly. On slow Wi-Fi (like the Huawei modems the tester uses), this race window is wide enough to cause a visible "stuck spinner" for several seconds or even appear infinite.
+## Issue 2: Points Reducing On Their Own
 
-### Secondary Issue: Website Auth page (Auth.tsx)
+**Root cause:** Found it in `useNetworkContribution.ts` lines 874-882. When the server-side `add_points_with_cap` RPC returns a capped result (daily/monthly/lifetime cap hit), the code resets the local `pointsEarned` to `lastAutoSavePointsRef.current + actualPointsAdded`. If the cap allows fewer points than the client accumulated, the UI drops from e.g. 200 to 80 points. This is **correct server-side behavior** (anti-abuse), but the sudden drop confuses users.
 
-The same race condition exists in `Auth.tsx` with the same pattern. Additionally, the session check timeout on line 233 calls `signOut()` which is aggressive -- a user who just signed up and got redirected back to the auth page could have their fresh session destroyed.
+**Fix:**
+- When points are capped, show a toast notification explaining: "Daily earning limit reached. Points will resume tomorrow."
+- Smoothly transition the displayed value instead of abruptly resetting it
+- Add a small info indicator on the home screen showing when a cap is active
 
-## Fix Plan
+---
 
-### 1. Fix the session check race condition (Auth.tsx + AppAuth.tsx)
+## Issue 3: Claimed Points Don't Reflect Immediately
 
-**Both files:**
-- Remove the `supabase.auth.signOut()` from the session check timeout -- it's too aggressive and causes cascading events
-- Instead, just set `checkingSession = false` to show the form immediately after timeout
-- Add a `sessionResolved` ref flag to prevent the `getSession()` callback from running if the timeout already fired
-- Reduce timeout from 8s to 5s -- users should see the form faster
+**Root cause:** In `AppRewards.tsx`, `handleClaimPoints` opens a web URL (`nomiqa-depin.com/account?tab=earnings`) but doesn't refetch the points data when the user returns. The `loadRewardsData` function only runs on mount and when `timeRange` changes.
 
-### 2. Add error feedback during signup (Auth.tsx)
+**Fix:** Add a `visibilitychange` listener and `focus` event to trigger `loadRewardsData()` when the user returns to the app/tab after claiming. Also on `AppHome.tsx`, add the same refresh-on-return pattern for the points display.
 
-- Add a visible error state when the signup call fails (currently errors may only show as toast which can be missed on some devices)
-- Add a "Retry" button if signup fails, instead of just clearing the loading state
+---
 
-### 3. Harden username validation (Auth.tsx + AppAuth.tsx)
+## Issue 4: Earth Globe Stays Dark in Light Mode
 
-- Add a 3-second timeout to the username availability check (`profiles_safe` query) so it doesn't hang indefinitely on slow connections
-- If the check times out, allow signup to proceed anyway (the edge function handles duplicates server-side)
+**Root cause:** The `NetworkGlobe.tsx` Canvas uses hardcoded dark colors:
+- `GlobeErrorFallback` uses `bg-gradient-to-b from-[#0a0f1a] to-[#020408]` (hardcoded dark)
+- The Canvas itself uses `alpha: true` with no background, but the parent container doesn't adapt to theme
+- Stars were removed (`{/* Stars removed for cleaner look */}`) which is fine for light mode but leaves dark mode empty
+
+**Fix:**
+- Make the globe container background theme-aware (transparent in dark mode shows the app dark gradient; light mode gets a light sky-blue gradient)
+- Add subtle starfield back for dark mode only using a conditional render
+- Pass theme info to the Canvas so lighting can adapt (brighter ambient light in light mode)
+
+---
+
+## Issue 5: "View our data practices" Navigates to Home
+
+**Root cause:** In `PrivacyControls.tsx` line 230, the privacy policy button calls `window.open('/privacy', '_blank')`. On native Android WebViews, `window.open` with `_blank` can fail silently or redirect to the app's root URL. The `/privacy` route loads the website's privacy page which is outside the `/app` route tree.
+
+**Fix:** Use Capacitor's Browser plugin to open the privacy policy URL in an in-app browser on native, and `window.open` on web. Change the URL to the full absolute URL: `https://nomiqa-depin.com/privacy`.
+
+---
+
+## Issue 6: Globe Swipe Switches Tabs
+
+**Root cause:** The globe Canvas captures touch events for OrbitControls rotation, but the parent `SwipeablePages` also listens to the same touch events. While `/app/map` and `/app/network` are in `SWIPE_DISABLED_ROUTES`, the globe on `/app` (home screen) is NOT excluded.
+
+**Fix:** Add `pointer-events: none` to the globe's outer container so touches pass through to the scroll layer. Then add `pointer-events: auto` specifically to the Canvas element so globe rotation still works but prevents the touch from propagating to `SwipeablePages`. Additionally, add `touch-action: none` to the Canvas container to tell the browser this area handles its own gestures.
+
+---
 
 ## Files to Modify
 
-- `src/pages/Auth.tsx` -- Fix session check race, add error states
-- `src/pages/app/AppAuth.tsx` -- Fix session check race (same pattern)
+1. **`src/pages/app/AppCheckout.tsx`** -- Increase bottom padding to clear nav bar
+2. **`src/hooks/useNetworkContribution.ts`** -- Add toast when points are capped instead of silent reduction
+3. **`src/pages/app/AppRewards.tsx`** -- Add visibility-change refetch for claimed points
+4. **`src/pages/app/AppHome.tsx`** -- Add visibility-change refetch + globe container touch isolation
+5. **`src/components/app/NetworkGlobe.tsx`** -- Theme-aware background, restore dark-mode stars, adjust lighting
+6. **`src/components/app/PrivacyControls.tsx`** -- Use Capacitor Browser for native, absolute URL
+
+---
 
 ## Technical Details
 
-### Before (race-prone)
+### Points Cap Notification Logic
 ```text
-Page Load --> checkingSession = true (spinner)
-  |
-  +-- setTimeout(8s) --> signOut() --> triggers SIGNED_OUT event
-  |                                     |
-  +-- getSession() ----[slow network]---+--> resolves after timeout
-                                             |
-                                             +-- error path --> signOut() AGAIN
-                                                                (cascading events)
+Server returns: { points_added: 5, daily_capped: true, reason: "daily_cap_reached" }
+Current behavior: silently resets pointsEarned from 200 to 85
+New behavior: shows toast "Daily limit reached (500 pts/day). Earning resumes tomorrow!"
+             + keeps displayed value stable (no visual drop)
 ```
 
-### After (deterministic)
+### Globe Touch Isolation
 ```text
-Page Load --> checkingSession = true (spinner)
-  |
-  +-- setTimeout(5s) --> sessionResolved = true
-  |                      checkingSession = false (show form)
-  |
-  +-- getSession() --> if sessionResolved, skip
-                       else process normally
+AppHome
+  +-- Globe container (pointer-events: none, touch-action: none)
+       +-- Canvas (pointer-events: auto) -- captures rotation gestures
+       +-- Stats overlay (pointer-events: auto) -- captures taps on stats
+  +-- Rest of home content -- normal scroll + swipe behavior
 ```
 
-This ensures the form ALWAYS appears within 5 seconds maximum, regardless of network conditions.
+### Checkout Bottom Padding
+```text
+BEFORE: pb-8 (32px) -- payment button hidden behind 88px nav bar
+AFTER:  pb-40 (160px) -- clears nav bar on all Android devices including gesture nav
+```
