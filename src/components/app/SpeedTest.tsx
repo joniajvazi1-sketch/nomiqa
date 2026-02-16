@@ -327,7 +327,7 @@ export function SpeedTest({
                   >
                     <Zap className="h-5 w-5 mr-2" />
                     Start Speed Test
-                    <span className="ml-2 px-2 py-0.5 rounded-full bg-background/20 text-xs font-medium">
+                    <span className="ml-2 px-2 py-0.5 rounded-full bg-black/20 text-[11px] font-bold text-amber-400 tabular-nums border border-amber-400/30">
                       {Math.min(dailyTestCount, DAILY_TEST_LIMIT)}/{DAILY_TEST_LIMIT}
                     </span>
                   </Button>
