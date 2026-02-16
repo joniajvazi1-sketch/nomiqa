@@ -18,6 +18,7 @@ const HowItWorksSteps = lazy(() => import("@/components/HowItWorksSteps").then(m
 const ScrollableFeatures = lazy(() => import("@/components/ScrollableFeatures").then(m => ({ default: m.ScrollableFeatures })));
 const CoverageSection = lazy(() => import("@/components/CoverageSection").then(m => ({ default: m.CoverageSection })));
 const FAQ = lazy(() => import("@/components/FAQ").then(m => ({ default: m.FAQ })));
+const SocialTasks = lazy(() => import("@/components/SocialTasks").then(m => ({ default: m.SocialTasks })));
 const SiteNavigation = lazy(() => import("@/components/SiteNavigation").then(m => ({ default: m.SiteNavigation })));
 
 // Section-specific skeleton loaders to prevent CLS
@@ -133,6 +134,7 @@ const Index = () => {
       </Suspense>
       <Suspense fallback={<SectionSkeleton />}>
         <CoverageSection />
+        <SocialTasks />
         <FAQ />
         <SiteNavigation />
       </Suspense>

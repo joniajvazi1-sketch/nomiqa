@@ -1374,6 +1374,30 @@ export type Database = {
           },
         ]
       }
+      social_task_claims: {
+        Row: {
+          claimed_at: string
+          id: string
+          platform: string
+          points_awarded: number
+          user_id: string
+        }
+        Insert: {
+          claimed_at?: string
+          id?: string
+          platform: string
+          points_awarded?: number
+          user_id: string
+        }
+        Update: {
+          claimed_at?: string
+          id?: string
+          platform?: string
+          points_awarded?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       speed_test_results: {
         Row: {
           carrier: string | null
