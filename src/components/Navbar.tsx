@@ -353,45 +353,57 @@ export const Navbar = () => {
                     <SheetTitle className="text-white font-light text-lg tracking-wider uppercase">{t("menu")}</SheetTitle>
                   </SheetHeader>
                   <div className="flex flex-col gap-0.5 mt-6 relative z-10">
-                    {/* Featured: Download App - Subtle highlight */}
-                    <button onClick={() => handleNavClick('/download')} className="group text-left text-white hover:text-white bg-white/[0.06] hover:bg-white/[0.1] transition-all duration-300 py-4 px-5 rounded-lg font-normal text-base tracking-wide backdrop-blur-sm border border-white/15 hover:border-white/30 mb-2">
+                    {/* Tier 1: Download App - Can't miss, cyan glow */}
+                    <button onClick={() => handleNavClick('/download')} className="group text-left text-neon-cyan hover:text-white bg-neon-cyan/10 hover:bg-neon-cyan/20 transition-all duration-300 py-4 px-5 rounded-lg font-medium text-base tracking-wide backdrop-blur-sm border border-neon-cyan/25 hover:border-neon-cyan/50 mb-1 hover:shadow-lg hover:shadow-neon-cyan/10">
                       <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">
-                        {t("navDownloadApp")}
+                        📲 {t("navDownloadApp")}
                       </span>
                     </button>
                     
-                    {/* Getting Started - Subtle highlight */}
-                    <button onClick={() => handleNavClick('/getting-started')} className="group text-left text-white/90 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-normal text-base tracking-wide backdrop-blur-sm border border-white/10 hover:border-white/25 mb-2">
+                    {/* Tier 1: Earn & Refer - Can't miss, violet glow */}
+                    <button onClick={() => handleNavClick('/affiliate')} className="group text-left text-violet-400 hover:text-violet-300 bg-violet-500/10 hover:bg-violet-500/20 transition-all duration-300 py-4 px-5 rounded-lg font-medium text-base tracking-wide backdrop-blur-sm border border-violet-500/25 hover:border-violet-400/50 mb-1 hover:shadow-lg hover:shadow-violet-500/10">
                       <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">
-                        {t("navGettingStarted")}
+                        💰 {t("navEarnRefer")}
                       </span>
                     </button>
-                    
-                    <button onClick={() => handleNavClick('/how-it-works')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-base tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
-                      <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("navHowDePINWorks")}</span>
-                    </button>
-                    <button onClick={() => handleNavClick('/shop')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-base tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
-                      <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("navEsimPlans")}</span>
-                    </button>
-                    {/* Earn & Refer - Highlighted */}
-                    <button onClick={() => handleNavClick('/affiliate')} className="group text-left text-white hover:text-white bg-neon-cyan/10 hover:bg-neon-cyan/20 transition-all duration-300 py-4 px-5 rounded-lg font-normal text-base tracking-wide backdrop-blur-sm border border-neon-cyan/30 hover:border-neon-cyan/50">
-                      <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">
-                        {t("navEarnRefer")}
-                      </span>
-                    </button>
-                    <button onClick={() => handleNavClick('/social-rewards')} className="group text-left text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 transition-all duration-300 py-4 px-5 rounded-lg font-medium text-base tracking-wide backdrop-blur-sm border border-emerald-500/20 hover:border-emerald-400/40 hover:shadow-lg hover:shadow-emerald-500/10">
+
+                    {/* Tier 1: Extra Tasks - Can't miss, emerald */}
+                    <button onClick={() => handleNavClick('/social-rewards')} className="group text-left text-emerald-400 hover:text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/20 transition-all duration-300 py-4 px-5 rounded-lg font-medium text-base tracking-wide backdrop-blur-sm border border-emerald-500/20 hover:border-emerald-400/40 mb-1 hover:shadow-lg hover:shadow-emerald-500/10">
                       <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">🎁 Extra Tasks</span>
                     </button>
-                    <button onClick={() => handleNavClick('/token')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-base tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
+
+                    <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent my-2" />
+                    
+                    {/* Tier 2: Getting Started - Subtle accent */}
+                    <button onClick={() => handleNavClick('/getting-started')} className="group text-left text-amber-300/80 hover:text-amber-200 bg-amber-500/[0.06] hover:bg-amber-500/[0.12] transition-all duration-300 py-3.5 px-5 rounded-lg font-normal text-base tracking-wide backdrop-blur-sm border border-amber-500/15 hover:border-amber-400/30">
+                      <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">
+                        ✨ {t("navGettingStarted")}
+                      </span>
+                    </button>
+                    
+                    {/* Tier 2: eSIM Plans - Subtle accent */}
+                    <button onClick={() => handleNavClick('/shop')} className="group text-left text-sky-300/80 hover:text-sky-200 bg-sky-500/[0.06] hover:bg-sky-500/[0.12] transition-all duration-300 py-3.5 px-5 rounded-lg font-normal text-base tracking-wide backdrop-blur-sm border border-sky-500/15 hover:border-sky-400/30">
+                      <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">🌍 {t("navEsimPlans")}</span>
+                    </button>
+
+                    {/* Tier 2: How DePIN Works */}
+                    <button onClick={() => handleNavClick('/how-it-works')} className="group text-left text-rose-300/70 hover:text-rose-200 bg-rose-500/[0.05] hover:bg-rose-500/[0.1] transition-all duration-300 py-3.5 px-5 rounded-lg font-normal text-base tracking-wide backdrop-blur-sm border border-rose-500/10 hover:border-rose-400/25">
+                      <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">⚡ {t("navHowDePINWorks")}</span>
+                    </button>
+
+                    <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent my-2" />
+
+                    {/* Tier 3: Standard items - clean & minimal */}
+                    <button onClick={() => handleNavClick('/token')} className="group text-left text-white/70 hover:text-white/95 hover:bg-white/[0.06] transition-all duration-300 py-3 px-5 rounded-lg font-light text-base tracking-wide border border-transparent hover:border-white/15">
                       <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">$NOMIQA</span>
                     </button>
-                    <button onClick={() => handleNavClick('/about')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-base tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
+                    <button onClick={() => handleNavClick('/about')} className="group text-left text-white/70 hover:text-white/95 hover:bg-white/[0.06] transition-all duration-300 py-3 px-5 rounded-lg font-light text-base tracking-wide border border-transparent hover:border-white/15">
                       <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("aboutUs")}</span>
                     </button>
-                    <button onClick={() => handleNavClick('/privacy')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-base tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
+                    <button onClick={() => handleNavClick('/privacy')} className="group text-left text-white/60 hover:text-white/90 hover:bg-white/[0.05] transition-all duration-300 py-3 px-5 rounded-lg font-light text-sm tracking-wide border border-transparent hover:border-white/10">
                       <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("navPrivacy")}</span>
                     </button>
-                    <button onClick={() => handleNavClick('/help')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-base tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
+                    <button onClick={() => handleNavClick('/help')} className="group text-left text-white/60 hover:text-white/90 hover:bg-white/[0.05] transition-all duration-300 py-3 px-5 rounded-lg font-light text-sm tracking-wide border border-transparent hover:border-white/10">
                       <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("help")}</span>
                     </button>
                     {user && (
@@ -446,46 +458,57 @@ export const Navbar = () => {
                     <SheetTitle className="text-white font-light text-base tracking-wider uppercase">{t("menu")}</SheetTitle>
                   </SheetHeader>
                   <div className="flex flex-col gap-0.5 mt-6 relative z-10">
-                    {/* Featured: Download App - Subtle highlight */}
-                    <button onClick={() => handleNavClick('/download')} className="group text-left text-white hover:text-white bg-white/[0.06] hover:bg-white/[0.1] transition-all duration-300 py-4 px-5 rounded-lg font-normal text-[15px] tracking-wide backdrop-blur-sm border border-white/15 hover:border-white/30 mb-2">
+                    {/* Tier 1: Download App - Can't miss, cyan glow */}
+                    <button onClick={() => handleNavClick('/download')} className="group text-left text-neon-cyan hover:text-white bg-neon-cyan/10 hover:bg-neon-cyan/20 transition-all duration-300 py-4 px-5 rounded-lg font-medium text-[15px] tracking-wide backdrop-blur-sm border border-neon-cyan/25 hover:border-neon-cyan/50 mb-1 hover:shadow-lg hover:shadow-neon-cyan/10">
                       <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">
-                        {t("navDownloadApp")}
+                        📲 {t("navDownloadApp")}
                       </span>
                     </button>
                     
-                    {/* Getting Started - Subtle highlight */}
-                    <button onClick={() => handleNavClick('/getting-started')} className="group text-left text-white/90 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-normal text-[15px] tracking-wide backdrop-blur-sm border border-white/10 hover:border-white/25 mb-2">
+                    {/* Tier 1: Earn & Refer - Can't miss, violet glow */}
+                    <button onClick={() => handleNavClick('/affiliate')} className="group text-left text-violet-400 hover:text-violet-300 bg-violet-500/10 hover:bg-violet-500/20 transition-all duration-300 py-4 px-5 rounded-lg font-medium text-[15px] tracking-wide backdrop-blur-sm border border-violet-500/25 hover:border-violet-400/50 mb-1 hover:shadow-lg hover:shadow-violet-500/10">
                       <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">
-                        {t("navGettingStarted")}
+                        💰 {t("navEarnRefer")}
                       </span>
                     </button>
-                    
-                    
-                    <button onClick={() => handleNavClick('/how-it-works')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-[15px] tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
-                      <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("navHowDePINWorks")}</span>
-                    </button>
-                    <button onClick={() => handleNavClick('/shop')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-[15px] tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
-                      <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("navEsimPlans")}</span>
-                    </button>
-                    {/* Earn & Refer - Highlighted */}
-                    <button onClick={() => handleNavClick('/affiliate')} className="group text-left text-white hover:text-white bg-neon-cyan/10 hover:bg-neon-cyan/20 transition-all duration-300 py-4 px-5 rounded-lg font-normal text-[15px] tracking-wide backdrop-blur-sm border border-neon-cyan/30 hover:border-neon-cyan/50">
-                      <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">
-                        {t("navEarnRefer")}
-                      </span>
-                    </button>
-                    <button onClick={() => handleNavClick('/social-rewards')} className="group text-left text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 transition-all duration-300 py-4 px-5 rounded-lg font-medium text-[15px] tracking-wide backdrop-blur-sm border border-emerald-500/20 hover:border-emerald-400/40 hover:shadow-lg hover:shadow-emerald-500/10">
+
+                    {/* Tier 1: Extra Tasks - Can't miss, emerald */}
+                    <button onClick={() => handleNavClick('/social-rewards')} className="group text-left text-emerald-400 hover:text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/20 transition-all duration-300 py-4 px-5 rounded-lg font-medium text-[15px] tracking-wide backdrop-blur-sm border border-emerald-500/20 hover:border-emerald-400/40 mb-1 hover:shadow-lg hover:shadow-emerald-500/10">
                       <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">🎁 Extra Tasks</span>
                     </button>
-                    <button onClick={() => handleNavClick('/token')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-[15px] tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
+
+                    <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent my-2" />
+                    
+                    {/* Tier 2: Getting Started - Subtle accent */}
+                    <button onClick={() => handleNavClick('/getting-started')} className="group text-left text-amber-300/80 hover:text-amber-200 bg-amber-500/[0.06] hover:bg-amber-500/[0.12] transition-all duration-300 py-3.5 px-5 rounded-lg font-normal text-[15px] tracking-wide backdrop-blur-sm border border-amber-500/15 hover:border-amber-400/30">
+                      <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">
+                        ✨ {t("navGettingStarted")}
+                      </span>
+                    </button>
+                    
+                    {/* Tier 2: eSIM Plans - Subtle accent */}
+                    <button onClick={() => handleNavClick('/shop')} className="group text-left text-sky-300/80 hover:text-sky-200 bg-sky-500/[0.06] hover:bg-sky-500/[0.12] transition-all duration-300 py-3.5 px-5 rounded-lg font-normal text-[15px] tracking-wide backdrop-blur-sm border border-sky-500/15 hover:border-sky-400/30">
+                      <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">🌍 {t("navEsimPlans")}</span>
+                    </button>
+
+                    {/* Tier 2: How DePIN Works */}
+                    <button onClick={() => handleNavClick('/how-it-works')} className="group text-left text-rose-300/70 hover:text-rose-200 bg-rose-500/[0.05] hover:bg-rose-500/[0.1] transition-all duration-300 py-3.5 px-5 rounded-lg font-normal text-[15px] tracking-wide backdrop-blur-sm border border-rose-500/10 hover:border-rose-400/25">
+                      <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">⚡ {t("navHowDePINWorks")}</span>
+                    </button>
+
+                    <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent my-2" />
+
+                    {/* Tier 3: Standard items - clean & minimal */}
+                    <button onClick={() => handleNavClick('/token')} className="group text-left text-white/70 hover:text-white/95 hover:bg-white/[0.06] transition-all duration-300 py-3 px-5 rounded-lg font-light text-[15px] tracking-wide border border-transparent hover:border-white/15">
                       <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">$NOMIQA</span>
                     </button>
-                    <button onClick={() => handleNavClick('/about')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-[15px] tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
+                    <button onClick={() => handleNavClick('/about')} className="group text-left text-white/70 hover:text-white/95 hover:bg-white/[0.06] transition-all duration-300 py-3 px-5 rounded-lg font-light text-[15px] tracking-wide border border-transparent hover:border-white/15">
                       <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("aboutUs")}</span>
                     </button>
-                    <button onClick={() => handleNavClick('/privacy')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-[15px] tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
+                    <button onClick={() => handleNavClick('/privacy')} className="group text-left text-white/60 hover:text-white/90 hover:bg-white/[0.05] transition-all duration-300 py-3 px-5 rounded-lg font-light text-sm tracking-wide border border-transparent hover:border-white/10">
                       <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("navPrivacy")}</span>
                     </button>
-                    <button onClick={() => handleNavClick('/help')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-[15px] tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
+                    <button onClick={() => handleNavClick('/help')} className="group text-left text-white/60 hover:text-white/90 hover:bg-white/[0.05] transition-all duration-300 py-3 px-5 rounded-lg font-light text-sm tracking-wide border border-transparent hover:border-white/10">
                       <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">{t("help")}</span>
                     </button>
                     {user && (
