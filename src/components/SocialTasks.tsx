@@ -21,7 +21,7 @@ const TikTokLogo = forwardRef<SVGSVGElement>((_, ref) => (
   </svg>
 ));
 
-const POINTS_PER_FOLLOW = 50;
+const POINTS_PER_FOLLOW = 100;
 
 interface SocialTask {
   platform: string;
@@ -257,7 +257,7 @@ export const SocialTasks = () => {
                       onClick={() => handleClaim(task)}
                       disabled={isClaiming}
                     >
-                      {isClaiming ? 'Claiming...' : 'Claim 50 pts'}
+                      {isClaiming ? 'Claiming...' : `Claim ${POINTS_PER_FOLLOW} pts`}
                     </Button>
                   )}
                 </CardContent>
