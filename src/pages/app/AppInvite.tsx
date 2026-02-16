@@ -148,7 +148,7 @@ export const AppInvite: React.FC = () => {
   return (
     <div className="flex-1 overflow-y-auto pb-24">
       {/* Header */}
-      <div className="px-4 pt-4 pb-2">
+      <div className="px-4 pt-4 pb-2 text-center">
         <h1 className="text-2xl font-bold text-foreground">Invite Contributors</h1>
         <p className="text-sm text-muted-foreground mt-1">
           Share in the value your network helps create

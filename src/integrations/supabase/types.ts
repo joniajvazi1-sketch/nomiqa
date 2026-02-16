@@ -2083,6 +2083,7 @@ export type Database = {
           is_active: boolean
           last_session_start: string
           team_user_id: string
+          username: string
         }[]
       }
       get_time_multiplier: { Args: { hours: number }; Returns: number }

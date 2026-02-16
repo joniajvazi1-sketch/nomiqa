@@ -47,7 +47,7 @@ const AppShop = lazy(() => import("./pages/app/AppShop").then(m => ({ default: m
 const AppProfile = lazy(() => import("./pages/app/AppProfile").then(m => ({ default: m.AppProfile })));
 const AppAchievements = lazy(() => import("./pages/app/AppAchievements").then(m => ({ default: m.AppAchievements })));
 const AppChallenges = lazy(() => import("./pages/app/AppChallenges").then(m => ({ default: m.AppChallenges })));
-const AppLeaderboard = lazy(() => import("./pages/app/AppLeaderboard").then(m => ({ default: m.AppLeaderboard })));
+
 const AppCheckout = lazy(() => import("./pages/app/AppCheckout").then(m => ({ default: m.AppCheckout })));
 const AppInvite = lazy(() => import("./pages/app/AppInvite").then(m => ({ default: m.AppInvite })));
 const AppRewards = lazy(() => import("./pages/app/AppRewards").then(m => ({ default: m.AppRewards })));
@@ -195,7 +195,7 @@ const NativeAppRoutes = () => (
       <Route path="/app/profile" element={<AppProfile />} />
       <Route path="/app/achievements" element={<AppAchievements />} />
       <Route path="/app/challenges" element={<AppChallenges />} />
-      <Route path="/app/leaderboard" element={<AppLeaderboard />} />
+      
       <Route path="/app/network-stats" element={<AppNetworkStats />} />
       <Route path="/app/auth" element={<AppAuth />} />
       <Route path="/app/oauth-redirect" element={<OAuthRedirect />} />
