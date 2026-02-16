@@ -481,19 +481,6 @@ export const AppProfile: React.FC = () => {
                   </div>
                   <ChevronRight className="w-4 h-4 text-muted-foreground" />
                 </button>
-                <button
-                  onClick={() => { selectionTap(); navigate('/app/leaderboard'); }}
-                  className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 active:scale-[0.99] transition-all -mx-1"
-                >
-                  <div className="flex items-center gap-3">
-                    <Crown className="w-5 h-5 text-violet-500" />
-                    <div className="text-left">
-                      <p className="text-sm font-medium text-foreground">Leaderboard</p>
-                      <p className="text-xs text-muted-foreground">See where you rank</p>
-                    </div>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                </button>
               </div>
             </CardContent>
           </Card>

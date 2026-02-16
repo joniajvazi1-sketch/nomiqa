@@ -68,12 +68,8 @@ export const TeamActivityCard: React.FC<TeamActivityCardProps> = ({ userId }) =>
           return;
         }
 
-        // Fetch profiles, activity status, and commission data in parallel
-        const [profilesResult, activityResult, commissionsResult] = await Promise.all([
-          supabase
-            .from('profiles_safe')
-            .select('user_id, username')
-            .in('user_id', registeredUserIds),
+        // Fetch activity status (now includes usernames) and commission data in parallel
+        const [activityResult, commissionsResult] = await Promise.all([
           supabase
             .rpc('get_team_activity_status', { p_team_user_ids: registeredUserIds }),
           supabase
@@ -83,7 +79,6 @@ export const TeamActivityCard: React.FC<TeamActivityCardProps> = ({ userId }) =>
             .in('referred_user_id', registeredUserIds)
         ]);
 
-        const profiles = profilesResult.data;
         const activityStatus = activityResult.data;
         const commissions = commissionsResult.data;
 
@@ -97,14 +92,13 @@ export const TeamActivityCard: React.FC<TeamActivityCardProps> = ({ userId }) =>
         });
         setTotalCommission(totalComm);
 
-        // Build team member list
+        // Build team member list using usernames from RPC (bypasses profiles RLS)
         const members: TeamMember[] = registeredUserIds.map(uid => {
-          const profile = profiles?.find(p => p.user_id === uid);
           const status = activityStatus?.find((s: any) => s.team_user_id === uid);
 
           return {
             user_id: uid,
-            username: profile?.username || 'User',
+            username: status?.username || 'User',
             isActive: !!status?.is_active,
             lastActiveAt: status?.last_session_start || null,
             commissionPoints: commissionByUser[uid] || 0,
