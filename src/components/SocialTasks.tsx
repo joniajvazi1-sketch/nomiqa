@@ -57,6 +57,7 @@ export const SocialTasks = () => {
   const [claimedPlatforms, setClaimedPlatforms] = useState<Set<string>>(new Set());
   const [openedPlatforms, setOpenedPlatforms] = useState<Set<string>>(new Set());
   const [claiming, setClaiming] = useState<string | null>(null);
+  const [countdowns, setCountdowns] = useState<Record<string, number>>({});
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -82,10 +83,30 @@ export const SocialTasks = () => {
     loadClaims();
   }, []);
 
+  const COUNTDOWN_SECONDS = 20;
+
   const handleFollow = (task: SocialTask) => {
     window.open(task.url, '_blank', 'noopener,noreferrer');
     setOpenedPlatforms(prev => new Set(prev).add(task.platform));
+    setCountdowns(prev => ({ ...prev, [task.platform]: COUNTDOWN_SECONDS }));
   };
+
+  // Countdown timer effect
+  useEffect(() => {
+    const activeCountdowns = Object.entries(countdowns).filter(([, v]) => v > 0);
+    if (activeCountdowns.length === 0) return;
+
+    const interval = setInterval(() => {
+      setCountdowns(prev => {
+        const next = { ...prev };
+        for (const key of Object.keys(next)) {
+          if (next[key] > 0) next[key] -= 1;
+        }
+        return next;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [countdowns]);
 
   const handleClaim = async (task: SocialTask) => {
     if (!userId) {
@@ -210,6 +231,15 @@ export const SocialTasks = () => {
                     >
                       <ExternalLink className="w-3 h-3 mr-1" />
                       Follow
+                    </Button>
+                  ) : (countdowns[task.platform] ?? 0) > 0 ? (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="w-full text-xs"
+                      disabled
+                    >
+                      Wait {countdowns[task.platform]}s...
                     </Button>
                   ) : (
                     <Button
