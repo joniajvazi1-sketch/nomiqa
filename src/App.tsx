@@ -38,7 +38,7 @@ const AdminUsers = lazy(() => import("./pages/AdminUsers"));
 const Download = lazy(() => import("./pages/Download"));
 const HowItWorks = lazy(() => import("./pages/HowItWorks"));
 const MobileOnly = lazy(() => import("./pages/MobileOnly"));
-// ReferralLeaderboard removed from website for performance
+const SocialRewards = lazy(() => import("./pages/SocialRewards"));
 
 // Lazy load APP pages (native only)
 const AppHome = lazy(() => import("./pages/app/AppHome").then(m => ({ default: m.AppHome })));
@@ -240,6 +240,7 @@ const WebRoutes = () => (
       <Route path="/token" element={<Token />} />
       <Route path="/help" element={<Help />} />
       <Route path="/rewards" element={<Rewards />} />
+      <Route path="/social-rewards" element={<SocialRewards />} />
       
       <Route path="/payment-success" element={<PaymentSuccess />} />
       <Route path="/admin/users" element={<AdminUsers />} />
@@ -264,6 +265,7 @@ const WebRoutes = () => (
         <Route path="token" element={<Token />} />
         <Route path="help" element={<Help />} />
         <Route path="rewards" element={<Rewards />} />
+        <Route path="social-rewards" element={<SocialRewards />} />
         <Route path="download" element={<Download />} />
         <Route path="how-it-works" element={<HowItWorks />} />
       </Route>
@@ -284,6 +286,7 @@ const WebRoutes = () => (
         <Route path="token" element={<Token />} />
         <Route path="help" element={<Help />} />
         <Route path="rewards" element={<Rewards />} />
+        <Route path="social-rewards" element={<SocialRewards />} />
         <Route path="download" element={<Download />} />
         <Route path="how-it-works" element={<HowItWorks />} />
       </Route>
@@ -304,6 +307,7 @@ const WebRoutes = () => (
         <Route path="token" element={<Token />} />
         <Route path="help" element={<Help />} />
         <Route path="rewards" element={<Rewards />} />
+        <Route path="social-rewards" element={<SocialRewards />} />
         <Route path="download" element={<Download />} />
         <Route path="how-it-works" element={<HowItWorks />} />
       </Route>
@@ -324,6 +328,7 @@ const WebRoutes = () => (
         <Route path="token" element={<Token />} />
         <Route path="help" element={<Help />} />
         <Route path="rewards" element={<Rewards />} />
+        <Route path="social-rewards" element={<SocialRewards />} />
         <Route path="download" element={<Download />} />
         <Route path="how-it-works" element={<HowItWorks />} />
       </Route>
@@ -344,6 +349,7 @@ const WebRoutes = () => (
         <Route path="token" element={<Token />} />
         <Route path="help" element={<Help />} />
         <Route path="rewards" element={<Rewards />} />
+        <Route path="social-rewards" element={<SocialRewards />} />
         <Route path="download" element={<Download />} />
         <Route path="how-it-works" element={<HowItWorks />} />
       </Route>
@@ -364,6 +370,7 @@ const WebRoutes = () => (
         <Route path="token" element={<Token />} />
         <Route path="help" element={<Help />} />
         <Route path="rewards" element={<Rewards />} />
+        <Route path="social-rewards" element={<SocialRewards />} />
         <Route path="download" element={<Download />} />
         <Route path="how-it-works" element={<HowItWorks />} />
       </Route>
@@ -384,6 +391,7 @@ const WebRoutes = () => (
         <Route path="token" element={<Token />} />
         <Route path="help" element={<Help />} />
         <Route path="rewards" element={<Rewards />} />
+        <Route path="social-rewards" element={<SocialRewards />} />
         <Route path="download" element={<Download />} />
         <Route path="how-it-works" element={<HowItWorks />} />
       </Route>
@@ -404,6 +412,7 @@ const WebRoutes = () => (
         <Route path="token" element={<Token />} />
         <Route path="help" element={<Help />} />
         <Route path="rewards" element={<Rewards />} />
+        <Route path="social-rewards" element={<SocialRewards />} />
         <Route path="download" element={<Download />} />
         <Route path="how-it-works" element={<HowItWorks />} />
       </Route>
@@ -424,6 +433,7 @@ const WebRoutes = () => (
         <Route path="token" element={<Token />} />
         <Route path="help" element={<Help />} />
         <Route path="rewards" element={<Rewards />} />
+        <Route path="social-rewards" element={<SocialRewards />} />
         <Route path="download" element={<Download />} />
         <Route path="how-it-works" element={<HowItWorks />} />
       </Route>
@@ -444,6 +454,7 @@ const WebRoutes = () => (
         <Route path="token" element={<Token />} />
         <Route path="help" element={<Help />} />
         <Route path="rewards" element={<Rewards />} />
+        <Route path="social-rewards" element={<SocialRewards />} />
         
         <Route path="download" element={<Download />} />
         <Route path="how-it-works" element={<HowItWorks />} />
