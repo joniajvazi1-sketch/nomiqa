@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, forwardRef } from 'react';
 import { ExternalLink, Check, Gift } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -6,49 +6,55 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 
-import socialX from '@/assets/social-x-new.png';
-import socialInstagram from '@/assets/social-instagram.png';
-import socialFacebook from '@/assets/social-facebook.png';
-import socialTiktok from '@/assets/social-tiktok.png';
+import socialInstagram from '@/assets/social-instagram.webp';
+import socialFacebook from '@/assets/social-facebook.webp';
+
+const XLogo = forwardRef<SVGSVGElement>((_, ref) => (
+  <svg ref={ref} viewBox="0 0 24 24" className="w-7 h-7 fill-foreground" aria-hidden="true">
+    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+  </svg>
+));
+
+const TikTokLogo = forwardRef<SVGSVGElement>((_, ref) => (
+  <svg ref={ref} viewBox="0 0 24 24" className="w-7 h-7 fill-foreground" aria-hidden="true">
+    <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 15.2a6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.34-6.34V8.73a8.19 8.19 0 004.76 1.52v-3.4a4.85 4.85 0 01-1-.16z" />
+  </svg>
+));
 
 const POINTS_PER_FOLLOW = 50;
 
 interface SocialTask {
   platform: string;
   label: string;
-  icon: string;
+  icon?: string;
+  svgComponent?: 'x' | 'tiktok';
   url: string;
-  color: string;
 }
 
 const SOCIAL_TASKS: SocialTask[] = [
   {
     platform: 'x',
     label: 'X (Twitter)',
-    icon: socialX,
+    svgComponent: 'x',
     url: 'https://x.com/nomiqadepin?s=21',
-    color: 'from-zinc-800 to-zinc-900',
   },
   {
     platform: 'instagram',
     label: 'Instagram',
     icon: socialInstagram,
     url: 'https://www.instagram.com/nomiqadepin',
-    color: 'from-pink-600 to-purple-600',
   },
   {
     platform: 'facebook',
     label: 'Facebook',
     icon: socialFacebook,
     url: 'https://www.facebook.com/profile.php?id=61584420749164',
-    color: 'from-blue-600 to-blue-700',
   },
   {
     platform: 'tiktok',
     label: 'TikTok',
-    icon: socialTiktok,
+    svgComponent: 'tiktok',
     url: 'https://www.tiktok.com/@nomiqadepin',
-    color: 'from-zinc-900 to-zinc-800',
   },
 ];
 
@@ -196,16 +202,19 @@ export const SocialTasks = () => {
                 )}
               >
                 <CardContent className="p-4 flex flex-col items-center text-center gap-3">
-                  <div className={cn(
-                    "w-14 h-14 rounded-xl flex items-center justify-center bg-gradient-to-br",
-                    task.color
-                  )}>
-                    <img
-                      src={task.icon}
-                      alt={task.label}
-                      className="w-7 h-7 object-contain"
-                      loading="lazy"
-                    />
+                  <div className="w-14 h-14 rounded-full flex items-center justify-center overflow-hidden bg-muted/30">
+                    {task.svgComponent === 'x' ? (
+                      <XLogo />
+                    ) : task.svgComponent === 'tiktok' ? (
+                      <TikTokLogo />
+                    ) : (
+                      <img
+                        src={task.icon}
+                        alt={task.label}
+                        className="w-14 h-14 object-cover"
+                        loading="lazy"
+                      />
+                    )}
                   </div>
 
                   <div>
