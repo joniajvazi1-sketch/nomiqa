@@ -319,16 +319,18 @@ export function SpeedTest({
                   </div>
 
                   {/* Start Button */}
-                  <Button
+                   <Button
                     onClick={runTest}
                     disabled={isRunning}
-                    className="w-full bg-primary hover:bg-primary/90"
+                    className="w-full bg-primary hover:bg-primary/90 flex-col h-auto py-3"
                     size="lg"
                   >
-                    <Zap className="h-5 w-5 mr-2" />
-                    Start Speed Test
-                    <span className="ml-2 px-2 py-0.5 rounded-full bg-black/20 text-[11px] font-bold text-amber-400 tabular-nums border border-amber-400/30">
-                      {Math.min(dailyTestCount, DAILY_TEST_LIMIT)}/{DAILY_TEST_LIMIT}
+                    <span className="flex items-center">
+                      <Zap className="h-5 w-5 mr-2" />
+                      Start Speed Test
+                    </span>
+                    <span className="text-[11px] font-medium opacity-80 mt-0.5">
+                      {Math.min(dailyTestCount, DAILY_TEST_LIMIT)}/{DAILY_TEST_LIMIT} rewarded tests used today
                     </span>
                   </Button>
 
