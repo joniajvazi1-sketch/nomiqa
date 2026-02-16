@@ -31,7 +31,7 @@ export const BottomTabBar: React.FC = () => {
   const isAndroid = Capacitor.getPlatform() === 'android';
   
   // Android navigation bar height fallback (typically 48dp)
-  const ANDROID_NAV_BAR_HEIGHT = 24;
+  const ANDROID_NAV_BAR_HEIGHT = 48;
 
   const tabs: TabItem[] = [
     { path: '/app', icon: Home, label: 'Home' },
