@@ -379,8 +379,8 @@ export const Navbar = () => {
                         {t("navEarnRefer")}
                       </span>
                     </button>
-                    <button onClick={() => handleNavClick('/social-rewards')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-base tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
-                      <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">Follow & Earn</span>
+                    <button onClick={() => handleNavClick('/social-rewards')} className="group text-left text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 transition-all duration-300 py-4 px-5 rounded-lg font-medium text-base tracking-wide backdrop-blur-sm border border-emerald-500/20 hover:border-emerald-400/40 hover:shadow-lg hover:shadow-emerald-500/10">
+                      <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">🎁 Extra Tasks</span>
                     </button>
                     <button onClick={() => handleNavClick('/token')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-base tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
                       <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">$NOMIQA</span>
@@ -473,8 +473,8 @@ export const Navbar = () => {
                         {t("navEarnRefer")}
                       </span>
                     </button>
-                    <button onClick={() => handleNavClick('/social-rewards')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-[15px] tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
-                      <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">Follow & Earn</span>
+                    <button onClick={() => handleNavClick('/social-rewards')} className="group text-left text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 transition-all duration-300 py-4 px-5 rounded-lg font-medium text-[15px] tracking-wide backdrop-blur-sm border border-emerald-500/20 hover:border-emerald-400/40 hover:shadow-lg hover:shadow-emerald-500/10">
+                      <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">🎁 Extra Tasks</span>
                     </button>
                     <button onClick={() => handleNavClick('/token')} className="group text-left text-white/90 hover:text-white hover:bg-white/[0.08] transition-all duration-300 py-4 px-5 rounded-lg font-light text-[15px] tracking-wide backdrop-blur-sm border border-transparent hover:border-white/20 hover:shadow-lg hover:shadow-white/5">
                       <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">$NOMIQA</span>
