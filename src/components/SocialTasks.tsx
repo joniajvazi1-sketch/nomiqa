@@ -175,10 +175,10 @@ export const SocialTasks = () => {
             Earn {totalPossible} pts
           </div>
           <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">
-            Follow Us & Earn Points
+            Extra Tasks to Earn Points
           </h2>
           <p className="text-muted-foreground max-w-md mx-auto">
-            Follow our social media accounts and earn {POINTS_PER_FOLLOW} points per follow. One-time reward per platform.
+            Complete simple tasks and earn {POINTS_PER_FOLLOW} points each. One-time reward per task.
           </p>
           {totalEarned > 0 && (
             <p className="text-primary font-semibold mt-2">
