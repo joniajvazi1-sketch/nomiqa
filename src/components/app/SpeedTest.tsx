@@ -325,14 +325,11 @@ export function SpeedTest({
                     className="w-full bg-primary hover:bg-primary/90"
                     size="lg"
                   >
-                    {canEarnPoints ? (
-                      <>
-                        <Zap className="h-5 w-5 mr-2" />
-                        Start Speed Test
-                      </>
-                    ) : (
-                      'Run Speed Test (No Reward)'
-                    )}
+                    <Zap className="h-5 w-5 mr-2" />
+                    Start Speed Test
+                    <span className="ml-2 px-2 py-0.5 rounded-full bg-background/20 text-xs font-medium">
+                      {Math.min(dailyTestCount, DAILY_TEST_LIMIT)}/{DAILY_TEST_LIMIT}
+                    </span>
                   </Button>
 
                   {!canEarnPoints && (
