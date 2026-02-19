@@ -1,5 +1,5 @@
-import React, { useMemo, useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
+import React, { useEffect, useRef } from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 // Skip entrance animation on the very first render (cold start optimization)
@@ -75,7 +75,6 @@ export const PageTransition: React.FC<PageTransitionProps> = ({
   disableTransform = false,
 }) => {
   const prefersReducedMotion = useReducedMotion();
-  const [animationDone, setAnimationDone] = useState(false);
   
   // Skip entrance animation on cold start
   const skipAnimation = useRef(isFirstRender);
@@ -90,12 +89,6 @@ export const PageTransition: React.FC<PageTransitionProps> = ({
 
   const config = variants[activeVariant];
 
-  // Remove GPU hints after animation completes to avoid scroll interference on Android
-  useEffect(() => {
-    const timer = setTimeout(() => setAnimationDone(true), 200);
-    return () => clearTimeout(timer);
-  }, []);
-
   return (
     <motion.div
       key={transitionKey}
@@ -103,20 +96,7 @@ export const PageTransition: React.FC<PageTransitionProps> = ({
       animate={config.animate}
       exit={config.exit}
       transition={config.transition}
-      className={cn(
-        // Remove transform-gpu after animation to avoid Android scroll issues
-        !disableTransform && !animationDone ? 'transform-gpu' : undefined,
-        className
-      )}
-      style={
-        disableTransform || animationDone
-          ? undefined
-          : {
-              willChange: 'transform, opacity',
-              backfaceVisibility: 'hidden',
-              WebkitBackfaceVisibility: 'hidden',
-            }
-      }
+      className={className}
     >
       {children}
     </motion.div>
@@ -157,10 +137,6 @@ export const StaggeredList: React.FC<StaggeredListProps> = ({
             duration: 0.2,
             ease: [0.32, 0.72, 0, 1],
             delay: index * staggerDelay,
-          }}
-          style={{ 
-            willChange: 'transform, opacity',
-            backfaceVisibility: 'hidden',
           }}
         >
           {child}
@@ -203,11 +179,7 @@ export const AnimatedCard: React.FC<AnimatedCardProps> = ({
         delay,
       }}
       whileTap={{ scale: 0.98, transition: { duration: 0.1 } }}
-      className={cn('transform-gpu', className)}
-      style={{ 
-        willChange: 'transform, opacity',
-        backfaceVisibility: 'hidden',
-      }}
+      className={className}
     >
       {children}
     </motion.div>

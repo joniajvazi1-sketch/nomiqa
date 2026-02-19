@@ -521,6 +521,16 @@ const AppRouter = () => {
  * lightweight PageLoader spinner — everything else streams in on demand.
  */
 const App = () => {
+  // Global safety net: catch unhandled promise rejections to prevent app crashes
+  useEffect(() => {
+    const handleRejection = (event: PromiseRejectionEvent) => {
+      console.error('[App] Unhandled promise rejection:', event.reason);
+      event.preventDefault(); // Prevent default error logging that can crash WebView
+    };
+    window.addEventListener('unhandledrejection', handleRejection);
+    return () => window.removeEventListener('unhandledrejection', handleRejection);
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <TranslationProvider>
