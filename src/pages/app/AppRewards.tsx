@@ -256,16 +256,16 @@ export const AppRewards: React.FC = () => {
           </Button>
         </div>
 
-        {/* Claim Points CTA - Glassmorphism */}
+        {/* Claim Points CTA */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-2xl bg-gradient-to-r from-primary to-primary/80 p-4 shadow-lg"
+          className="rounded-2xl bg-gradient-to-r from-primary to-primary/80 p-5 shadow-lg space-y-3"
         >
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-lg font-bold text-primary-foreground">Ready to Claim?</h2>
-              <p className="text-sm text-primary-foreground/80 font-medium">Convert your points to tokens</p>
+              <p className="text-sm text-primary-foreground/80 font-medium">Convert your points to $NOMIQA tokens</p>
             </div>
             <Button
               onClick={handleClaimPoints}
@@ -274,6 +274,23 @@ export const AppRewards: React.FC = () => {
               Claim Points
               <ChevronRight className="w-4 h-4 ml-1" />
             </Button>
+          </div>
+
+          {/* How to claim instructions */}
+          <div className="bg-black/15 rounded-xl p-3 space-y-2">
+            <p className="text-xs font-bold text-primary-foreground flex items-center gap-1.5">
+              <Info className="w-3.5 h-3.5 shrink-0" />
+              How to claim your tokens
+            </p>
+            <ol className="text-xs text-primary-foreground/85 space-y-1.5 pl-5 list-decimal">
+              <li>Tap <span className="font-semibold">"Claim Points"</span> — you'll be redirected to the Nomiqa website</li>
+              <li>Go to your <span className="font-semibold">Account → Earnings</span> tab</li>
+              <li>Enter your <span className="font-semibold">Solana wallet address</span> in Profile settings</li>
+              <li>Submit your claim — tokens will be sent to your Solana address</li>
+            </ol>
+            <p className="text-[11px] text-primary-foreground/70 font-semibold mt-1">
+              ⚠️ No Solana address = no tokens! Make sure it's saved in your profile before claiming.
+            </p>
           </div>
         </motion.div>
 
