@@ -54,14 +54,17 @@ export const BottomTabBar: React.FC = () => {
 
   return (
     <nav 
-      className="fixed bottom-0 left-0 right-0 z-50"
+      className="fixed left-0 right-0 z-50"
       role="navigation"
       aria-label="Main navigation"
       style={{
-        // Safe area with fallbacks for older iOS/Android
-        // Android: use fixed padding since env() doesn't work reliably on all devices
-        paddingBottom: isAndroid 
+        // CRITICAL: On Android, offset the entire nav ABOVE the system 3-button/gesture bar
+        // env(safe-area-inset-bottom) is unreliable on Android WebViews, so use fixed fallback
+        bottom: isAndroid 
           ? `max(env(safe-area-inset-bottom, ${ANDROID_NAV_FALLBACK}px), ${ANDROID_NAV_FALLBACK}px)`
+          : '0px',
+        paddingBottom: isAndroid 
+          ? '8px'
           : 'max(env(safe-area-inset-bottom, 0px), constant(safe-area-inset-bottom, 0px))',
         paddingLeft: 'max(env(safe-area-inset-left, 0px), 8px)',
         paddingRight: 'max(env(safe-area-inset-right, 0px), 8px)',
