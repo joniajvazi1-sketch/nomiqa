@@ -9,7 +9,7 @@ import { useHaptics } from '@/hooks/useHaptics';
 import { toast } from 'sonner';
 
 const DAILY_TEST_LIMIT = 3;
-const POINTS_PER_TEST = 5;
+const POINTS_PER_TEST = 25;
 
 interface SpeedTestProps {
   onPointsEarned?: (points: number) => void;
