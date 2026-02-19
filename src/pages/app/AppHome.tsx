@@ -281,33 +281,42 @@ export const AppHome: React.FC = () => {
     stopContribution();
   }, [stats.pointsEarned, stopContribution]);
 
-  // Handle start/stop contribution
+  // Handle start/stop contribution - wrapped in try/catch to prevent app crash
   const handleToggleContribution = async () => {
-    buttonTap();
-    if (isActive) {
-      handleStopContribution();
-      playSuccess();
-    } else {
-      if (!consentGiven) {
-        setShowConsentModal(true);
-        return;
-      }
-      const started = await startContribution();
-      if (started) {
-        playCoin();
-        toastNew({
-          title: "Contribution Started ✓",
-          description: "Contributing network data!",
-        });
+    try {
+      buttonTap();
+      if (isActive) {
+        handleStopContribution();
+        playSuccess();
       } else {
-        toastNew({
-          title: "Location Permission Required",
-          description: isIOS
-            ? "Enable Location: Settings → Privacy & Security → Location Services → Nomiqa."
-            : "Please enable location in Settings to contribute.",
-          variant: "destructive",
-        });
+        if (!consentGiven) {
+          setShowConsentModal(true);
+          return;
+        }
+        const started = await startContribution();
+        if (started) {
+          playCoin();
+          toastNew({
+            title: "Contribution Started ✓",
+            description: "Contributing network data!",
+          });
+        } else {
+          toastNew({
+            title: "Location Permission Required",
+            description: isIOS
+              ? "Enable Location: Settings → Privacy & Security → Location Services → Nomiqa."
+              : "Please enable location in Settings to contribute.",
+            variant: "destructive",
+          });
+        }
       }
+    } catch (error) {
+      console.error('[AppHome] Contribution toggle error:', error);
+      toastNew({
+        title: "Something went wrong",
+        description: "Please try again. If the issue persists, restart the app.",
+        variant: "destructive",
+      });
     }
   };
 

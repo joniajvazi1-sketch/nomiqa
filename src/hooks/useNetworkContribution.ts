@@ -1135,7 +1135,7 @@ export const useNetworkContribution = () => {
     }
   };
 
-  // Start contribution session
+  // Start contribution session - fully guarded against uncaught exceptions
   const startContribution = async (): Promise<boolean> => {
     if (!user) {
       warning();
@@ -1143,7 +1143,14 @@ export const useNetworkContribution = () => {
     }
 
     // Request location permission explicitly (user-initiated per Apple guidelines)
-    const permissionResult = await ensureLocationPermission();
+    let permissionResult: { granted: boolean; status: string };
+    try {
+      permissionResult = await ensureLocationPermission();
+    } catch (permErr) {
+      console.error('[NetworkContribution] Permission check crashed:', permErr);
+      warning();
+      return false;
+    }
     console.log('[NetworkContribution] Permission result:', permissionResult);
     
     if (!permissionResult.granted) {
