@@ -309,84 +309,26 @@ export const useChallenges = (): UseChallengesReturn => {
 
       const periodStart = getPeriodStart(challenge.type);
 
-      // Upsert progress with claimed timestamp
-      const { error: progressError } = await supabase
-        .from('user_challenge_progress')
-        .upsert({
-          user_id: user.id,
-          challenge_id: challengeId,
-          current_value: challenge.target_value,
-          period_start: periodStart,
-          completed_at: new Date().toISOString(),
-          claimed_at: new Date().toISOString()
-        }, {
-          onConflict: 'user_id,challenge_id,period_start'
-        });
+      // Use atomic server-side function to prevent race conditions
+      const { data, error: rpcError } = await supabase.rpc('claim_challenge_reward', {
+        p_user_id: user.id,
+        p_challenge_id: challengeId,
+        p_reward_points: Math.round(challenge.reward_points),
+        p_bonus_points: Math.round(challenge.bonusPoints || 0),
+        p_period_start: periodStart,
+        p_is_daily: challenge.type === 'daily'
+      });
 
-      if (progressError) throw progressError;
-
-      // Get current points data
-      const { data: currentPoints } = await supabase
-        .from('user_points')
-        .select('total_points, daily_challenge_streak_days, last_all_daily_completed_date')
-        .eq('user_id', user.id)
-        .single();
-
-      // Calculate total reward including bonus
-      const totalReward = challenge.reward_points + (challenge.bonusPoints || 0);
-      const newTotal = (currentPoints?.total_points || 0) + totalReward;
-
-      // Check if this completes all daily challenges for today
-      const dailyChalls = challenges.filter(c => c.type === 'daily');
-      const today = new Date().toISOString().split('T')[0];
-      
-      const allDailyWillBeClaimed = dailyChalls.every(c => 
-        c.id === challengeId ? true : c.isClaimed
-      );
-
-      let updateData: Record<string, unknown> = {
-        user_id: user.id,
-        total_points: newTotal,
-        updated_at: new Date().toISOString()
-      };
-
-      // If all daily challenges completed, update streak
-      if (allDailyWillBeClaimed && dailyChalls.length > 0) {
-        const lastCompletedDate = (currentPoints as any)?.last_all_daily_completed_date;
-        const currentStreak = (currentPoints as any)?.daily_challenge_streak_days || 0;
-        
-        if (lastCompletedDate !== today) {
-          const yesterday = new Date();
-          yesterday.setDate(yesterday.getDate() - 1);
-          const yesterdayStr = yesterday.toISOString().split('T')[0];
-          
-          if (lastCompletedDate === yesterdayStr) {
-            updateData.daily_challenge_streak_days = currentStreak + 1;
-          } else {
-            updateData.daily_challenge_streak_days = 1;
-          }
-          updateData.last_all_daily_completed_date = today;
-        }
+      if (rpcError) {
+        console.error('Error claiming reward via RPC:', rpcError);
+        throw rpcError;
       }
 
-      // Build the update data properly for the upsert
-      const upsertData = {
-        user_id: user.id,
-        total_points: updateData.total_points as number,
-        updated_at: updateData.updated_at as string,
-        ...(updateData.daily_challenge_streak_days !== undefined && {
-          daily_challenge_streak_days: updateData.daily_challenge_streak_days as number
-        }),
-        ...(updateData.last_all_daily_completed_date !== undefined && {
-          last_all_daily_completed_date: updateData.last_all_daily_completed_date as string
-        })
-      };
-
-      await supabase
-        .from('user_points')
-        .upsert(upsertData, {
-          onConflict: 'user_id'
-        });
+      const result = data as any;
+      if (!result?.success) {
+        console.warn('Claim rejected:', result?.reason);
+        return false;
+      }
 
       await fetchChallenges();
       return true;
