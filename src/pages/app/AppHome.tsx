@@ -672,7 +672,7 @@ export const AppHome: React.FC = () => {
         {/* 3. Globe Section - centered between stats bar and buttons */}
         <div 
           className="relative z-10 w-full -mb-2 mt-4"
-          style={{ height: '42vh', minHeight: '260px', maxHeight: '400px', contain: 'strict', pointerEvents: 'none', touchAction: 'none' }}
+          style={{ height: '42vh', minHeight: '260px', maxHeight: '400px', contain: 'strict', pointerEvents: 'none', touchAction: 'pan-y' }}
         >
           <Suspense fallback={
             <div className="absolute inset-0 flex items-center justify-center">

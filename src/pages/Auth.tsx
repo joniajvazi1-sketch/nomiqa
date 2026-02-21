@@ -443,7 +443,8 @@ export default function Auth() {
         
         console.log('Signup with referral code:', referralCode);
         
-        const { data, error } = await supabase.functions.invoke('signup-user', {
+        // Timeout protection: if signup takes longer than 15s, show error instead of infinite loading
+        const signupPromise = supabase.functions.invoke('signup-user', {
           body: {
             email: email.toLowerCase(),
             password,
@@ -451,6 +452,12 @@ export default function Auth() {
             referralCode: referralCode || undefined,
           }
         });
+        
+        const timeoutPromise = new Promise<{ data: null; error: Error }>((resolve) => 
+          setTimeout(() => resolve({ data: null, error: new Error('Signup timed out. Please check your connection and try again.') }), 15000)
+        );
+        
+        const { data, error } = await Promise.race([signupPromise, timeoutPromise]);
 
         if (error) {
           console.error("Signup error:", error);
