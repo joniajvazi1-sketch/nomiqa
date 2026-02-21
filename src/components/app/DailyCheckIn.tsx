@@ -119,6 +119,9 @@ export const DailyCheckIn = ({ userId, onClose }: DailyCheckInProps) => {
         description: `Day ${newStreakDay} streak bonus claimed!`,
       });
 
+      // Notify other screens to refresh points immediately
+      window.dispatchEvent(new CustomEvent('points-updated'));
+
       setTimeout(() => {
         setIsOpen(false);
         onClose?.();
