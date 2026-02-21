@@ -204,17 +204,16 @@ export const AppHome: React.FC = () => {
           setReferralCount(affiliateData.total_registrations);
         }
 
+        // Fetch today's earnings from user_daily_limits (includes contribution + challenge rewards)
         const todayStr = new Date().toISOString().split('T')[0];
-        const { data: sessionsData } = await supabase
-          .from('contribution_sessions')
-          .select('total_points_earned, started_at')
+        const { data: dailyLimitData } = await supabase
+          .from('user_daily_limits')
+          .select('points_earned')
           .eq('user_id', currentUser.id)
-          .gte('started_at', todayStr);
+          .eq('limit_date', todayStr)
+          .maybeSingle();
 
-        if (sessionsData) {
-          const todayTotal = sessionsData.reduce((sum, s) => sum + (s.total_points_earned || 0), 0);
-          setTodayEarnings(todayTotal);
-        }
+        setTodayEarnings(dailyLimitData?.points_earned || 0);
       }
     } catch (error) {
       console.error('Error loading data:', error);
@@ -234,11 +233,15 @@ export const AppHome: React.FC = () => {
         loadData();
       }
     };
+    const handlePointsUpdated = () => loadData();
+    
     document.addEventListener('visibilitychange', handleVisibility);
     window.addEventListener('focus', handleVisibility);
+    window.addEventListener('points-updated', handlePointsUpdated);
     return () => {
       document.removeEventListener('visibilitychange', handleVisibility);
       window.removeEventListener('focus', handleVisibility);
+      window.removeEventListener('points-updated', handlePointsUpdated);
     };
   }, [loadData]);
 

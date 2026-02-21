@@ -331,6 +331,10 @@ export const useChallenges = (): UseChallengesReturn => {
       }
 
       await fetchChallenges();
+      
+      // Dispatch event so other screens (e.g. AppHome) can refresh points immediately
+      window.dispatchEvent(new CustomEvent('points-updated'));
+      
       return true;
     } catch (err) {
       console.error('Error claiming reward:', err);

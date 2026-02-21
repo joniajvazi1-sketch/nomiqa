@@ -946,6 +946,7 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
               dpr={[1, 1.5]}
               onPointerMissed={() => setSelectedMarker(null)}
               onError={() => setHasError(true)}
+              style={{ touchAction: 'pan-y' }}
             >
               <GlobeScene 
                 cells={coverageData}
