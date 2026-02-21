@@ -337,9 +337,10 @@ export default function Auth() {
       return true;
     } catch (err: any) {
       console.error('Error checking username:', err);
-      setUsernameAvailable(null);
+      // Don't block signup on username check failure — the edge function validates too
+      setUsernameAvailable(true);
       setCheckingUsername(false);
-      return false;
+      return true;
     }
   };
 
