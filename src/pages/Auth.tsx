@@ -465,11 +465,19 @@ export default function Auth() {
           // Extract error message from edge function response
           let errorMessage = "Signup failed. Please try again.";
           try {
-            if (error.context?.body) {
-              const bodyData = typeof error.context.body === 'string' 
-                ? JSON.parse(error.context.body) 
-                : error.context.body;
-              errorMessage = bodyData.error || errorMessage;
+            // The edge function returns JSON with an { error: "..." } field
+            // supabase.functions.invoke puts non-2xx response body in error.context
+            if (error.context) {
+              // Try reading the response body as JSON
+              if (typeof error.context.json === 'function') {
+                const bodyData = await error.context.json();
+                errorMessage = bodyData.error || errorMessage;
+              } else if (error.context.body) {
+                const bodyData = typeof error.context.body === 'string' 
+                  ? JSON.parse(error.context.body) 
+                  : error.context.body;
+                errorMessage = bodyData.error || errorMessage;
+              }
             } else if (error.message) {
               errorMessage = error.message;
             }
@@ -477,10 +485,15 @@ export default function Auth() {
             // Use default error message
           }
           
-          if (errorMessage.includes("already exists")) {
-            toast.error("An account with this email already exists. Switching to login...");
-            // Switch to login mode
+          if (errorMessage.toLowerCase().includes("already exists")) {
+            toast.error("An account with this email already exists. Please log in instead.");
             navigate('/auth?mode=login');
+          } else if (errorMessage.toLowerCase().includes("disposable")) {
+            toast.error("Please use a real email address, not a disposable one.");
+          } else if (errorMessage.toLowerCase().includes("rate") || errorMessage.toLowerCase().includes("too many")) {
+            toast.error("Too many signup attempts. Please wait a few minutes and try again.");
+          } else if (errorMessage.toLowerCase().includes("username")) {
+            toast.error(errorMessage);
           } else {
             toast.error(errorMessage);
           }
@@ -489,11 +502,16 @@ export default function Auth() {
         }
 
         if (data?.error) {
-          if (data.error.includes("already exists")) {
-            toast.error("An account with this email already exists. Switching to login...");
+          const errMsg = data.error;
+          if (errMsg.toLowerCase().includes("already exists")) {
+            toast.error("An account with this email already exists. Please log in instead.");
             navigate('/auth?mode=login');
+          } else if (errMsg.toLowerCase().includes("disposable")) {
+            toast.error("Please use a real email address, not a disposable one.");
+          } else if (errMsg.toLowerCase().includes("rate") || errMsg.toLowerCase().includes("too many")) {
+            toast.error("Too many signup attempts. Please wait a few minutes and try again.");
           } else {
-            toast.error(data.error);
+            toast.error(errMsg);
           }
           setLoading(false);
           return;
