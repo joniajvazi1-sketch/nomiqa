@@ -612,23 +612,32 @@ export const AppAuth: React.FC = () => {
         if (error) {
           let errorMessage = 'Signup failed. Please try again.';
           try {
-            if (error.context?.body) {
-              const bodyData = typeof error.context.body === 'string' 
-                ? JSON.parse(error.context.body) 
-                : error.context.body;
-              errorMessage = bodyData.error || errorMessage;
+            if (error.context) {
+              if (typeof error.context.json === 'function') {
+                const bodyData = await error.context.json();
+                errorMessage = bodyData.error || errorMessage;
+              } else if (error.context.body) {
+                const bodyData = typeof error.context.body === 'string' 
+                  ? JSON.parse(error.context.body) 
+                  : error.context.body;
+                errorMessage = bodyData.error || errorMessage;
+              }
             }
           } catch (e) {}
           
           errorMessage = getReadableError(errorMessage);
           
-          if (errorMessage.includes('already exists')) {
-            setFormError('An account with this email already exists.');
+          if (errorMessage.toLowerCase().includes('already exists')) {
+            setFormError('An account with this email already exists. Try signing in instead.');
             toast({ 
               title: 'Account exists', 
               description: 'Try signing in instead.',
               variant: 'destructive' 
             });
+          } else if (errorMessage.toLowerCase().includes('disposable')) {
+            setFormError('Please use a real email address, not a disposable one.');
+          } else if (errorMessage.toLowerCase().includes('rate') || errorMessage.toLowerCase().includes('too many')) {
+            setFormError('Too many signup attempts. Please wait a few minutes and try again.');
           } else {
             setFormError(errorMessage);
           }
@@ -638,7 +647,16 @@ export const AppAuth: React.FC = () => {
         }
 
         if (data?.error) {
-          setFormError(getReadableError(data.error));
+          const errMsg = data.error;
+          if (errMsg.toLowerCase().includes('already exists')) {
+            setFormError('An account with this email already exists. Try signing in instead.');
+          } else if (errMsg.toLowerCase().includes('disposable')) {
+            setFormError('Please use a real email address, not a disposable one.');
+          } else if (errMsg.toLowerCase().includes('rate') || errMsg.toLowerCase().includes('too many')) {
+            setFormError('Too many signup attempts. Please wait a few minutes.');
+          } else {
+            setFormError(getReadableError(errMsg));
+          }
           errorPattern();
           setLoading(false);
           return;
