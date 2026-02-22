@@ -931,7 +931,7 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
 
       {/* 3D Globe Canvas - centered between stats header and bottom */}
       <div className="absolute left-0 right-0 bottom-0 top-[90px] flex items-center justify-center pointer-events-none" style={{ touchAction: 'none' }}>
-        <div className="w-[260px] h-[260px] md:w-[320px] md:h-[320px] pointer-events-auto" style={{ touchAction: 'manipulation' }}>
+        <div className="w-[260px] h-[260px] md:w-[320px] md:h-[320px]" style={{ pointerEvents: 'none', touchAction: 'none' }}>
           <Suspense fallback={<GlobeLoading />}>
             <Canvas
               camera={{ position: [0, 0.3, initialCameraZ], fov: 45 }}
@@ -946,7 +946,7 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
               dpr={[1, 1.5]}
               onPointerMissed={() => setSelectedMarker(null)}
               onError={() => setHasError(true)}
-              style={{ touchAction: 'pan-y' }}
+              style={{ touchAction: 'pan-y', pointerEvents: 'auto' }}
             >
               <GlobeScene 
                 cells={coverageData}
