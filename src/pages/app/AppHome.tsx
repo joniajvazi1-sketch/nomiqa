@@ -125,6 +125,7 @@ export const AppHome: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [referralCount, setReferralCount] = useState(0);
   const [todayEarnings, setTodayEarnings] = useState(0);
+  const [todayBreakdown, setTodayBreakdown] = useState<{ contribution: number; speedTest: number; rewards: number }>({ contribution: 0, speedTest: 0, rewards: 0 });
   
   const startButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -174,46 +175,42 @@ export const AppHome: React.FC = () => {
       const { data: { user: currentUser } } = await supabase.auth.getUser();
 
       if (currentUser) {
-        const { data: profileData } = await supabase
-          .from('profiles_safe')
-          .select('username')
-          .eq('user_id', currentUser.id)
-          .maybeSingle();
-        
-        if (profileData?.username) {
-          setUsername(profileData.username);
-        }
-
-        const { data: pointsData } = await supabase
-          .from('user_points')
-          .select('*')
-          .eq('user_id', currentUser.id)
-          .maybeSingle();
-        
-        if (pointsData) {
-          setPoints(pointsData);
-        }
-
-        const { data: affiliateData } = await supabase
-          .from('affiliates_safe')
-          .select('total_registrations')
-          .eq('user_id', currentUser.id)
-          .maybeSingle();
-        
-        if (affiliateData?.total_registrations) {
-          setReferralCount(affiliateData.total_registrations);
-        }
-
-        // Fetch today's earnings from user_daily_limits (includes contribution + challenge rewards)
         const todayStr = new Date().toISOString().split('T')[0];
-        const { data: dailyLimitData } = await supabase
-          .from('user_daily_limits')
-          .select('points_earned')
-          .eq('user_id', currentUser.id)
-          .eq('limit_date', todayStr)
-          .maybeSingle();
+        
+        // Parallelize ALL queries for speed
+        const [profileRes, pointsRes, affiliateRes, dailyLimitRes, checkinRes, socialRes, challengeRes, speedTestRes] = await Promise.all([
+          supabase.from('profiles_safe').select('username').eq('user_id', currentUser.id).maybeSingle(),
+          supabase.from('user_points').select('*').eq('user_id', currentUser.id).maybeSingle(),
+          supabase.from('affiliates_safe').select('total_registrations').eq('user_id', currentUser.id).maybeSingle(),
+          supabase.from('user_daily_limits').select('points_earned').eq('user_id', currentUser.id).eq('limit_date', todayStr).maybeSingle(),
+          supabase.from('daily_checkins').select('bonus_points').eq('user_id', currentUser.id).eq('check_in_date', todayStr),
+          supabase.from('social_task_claims').select('points_awarded').eq('user_id', currentUser.id).gte('claimed_at', todayStr),
+          supabase.from('user_challenge_progress').select('challenge_id').eq('user_id', currentUser.id).not('claimed_at', 'is', null).gte('period_start', todayStr),
+          supabase.from('speed_test_results').select('id').eq('user_id', currentUser.id).gte('recorded_at', todayStr),
+        ]);
 
-        setTodayEarnings(dailyLimitData?.points_earned || 0);
+        if (profileRes.data?.username) setUsername(profileRes.data.username);
+        if (pointsRes.data) setPoints(pointsRes.data);
+        if (affiliateRes.data?.total_registrations) setReferralCount(affiliateRes.data.total_registrations);
+
+        // Calculate today's breakdown
+        const contributionPts = dailyLimitRes.data?.points_earned || 0;
+        const checkinPts = (checkinRes.data || []).reduce((sum, r) => sum + (r.bonus_points || 0), 0);
+        const socialPts = (socialRes.data || []).reduce((sum, r) => sum + (r.points_awarded || 0), 0);
+        const speedTestCount = (speedTestRes.data || []).length;
+        const speedTestPts = Math.min(speedTestCount, 3) * 25; // 25 pts per rewarded test, max 3
+        const challengeCount = (challengeRes.data || []).length;
+        
+        // Contribution points from daily_limits already includes speed test points added via add_points_with_cap
+        // Rewards (checkins, social, challenges) bypass daily limits and go directly to total
+        const rewardPts = checkinPts + socialPts;
+        
+        setTodayBreakdown({
+          contribution: Math.max(0, contributionPts - speedTestPts), // subtract speed test pts from contribution total
+          speedTest: speedTestPts,
+          rewards: rewardPts,
+        });
+        setTodayEarnings(contributionPts + rewardPts);
       }
     } catch (error) {
       console.error('Error loading data:', error);
@@ -282,6 +279,8 @@ export const AppHome: React.FC = () => {
       setShowCelebration(true);
     }
     stopContribution();
+    // Instantly refresh earnings after stopping
+    setTimeout(() => window.dispatchEvent(new Event('points-updated')), 500);
   }, [stats.pointsEarned, stopContribution]);
 
   // Handle start/stop contribution - wrapped in try/catch to prevent app crash
@@ -388,6 +387,8 @@ export const AppHome: React.FC = () => {
         setLiveSpeed({ down: result.down, up: result.up, latency: result.latency });
         successPattern();
         playCoin();
+        // Instantly refresh earnings after speed test
+        window.dispatchEvent(new Event('points-updated'));
         toastNew({
           title: "Speed Test Complete ⚡",
           description: `↓ ${result.down?.toFixed(1) ?? 'N/A'} Mbps  ↑ ${result.up?.toFixed(1) ?? 'N/A'} Mbps`,
@@ -656,7 +657,26 @@ export const AppHome: React.FC = () => {
             <div className="flex items-center gap-3">
               <div className={cn("flex-1 rounded-xl p-2.5 border", isDark ? "bg-white/5 border-white/5" : "bg-muted/50 border-border")}>
                 <p className={cn("text-[9px] uppercase tracking-wide mb-0.5", isDark ? "text-white/50" : "text-muted-foreground")}>Today</p>
-                <p className="text-base font-bold text-emerald-400">+{todayEarnings}</p>
+                <p className="text-base font-bold text-emerald-400 tabular-nums">+{todayEarnings}</p>
+                {todayEarnings > 0 && (
+                  <div className="flex flex-wrap gap-x-2 mt-1">
+                    {todayBreakdown.contribution > 0 && (
+                      <span className={cn("text-[8px] tabular-nums", isDark ? "text-white/40" : "text-muted-foreground")}>
+                        📡 {todayBreakdown.contribution}
+                      </span>
+                    )}
+                    {todayBreakdown.speedTest > 0 && (
+                      <span className={cn("text-[8px] tabular-nums", isDark ? "text-white/40" : "text-muted-foreground")}>
+                        ⚡ {todayBreakdown.speedTest}
+                      </span>
+                    )}
+                    {todayBreakdown.rewards > 0 && (
+                      <span className={cn("text-[8px] tabular-nums", isDark ? "text-white/40" : "text-muted-foreground")}>
+                        🎁 {todayBreakdown.rewards}
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
               <div className={cn("flex-1 rounded-xl p-2.5 border", isDark ? "bg-white/5 border-white/5" : "bg-muted/50 border-border")}>
                 <p className={cn("text-[9px] uppercase tracking-wide mb-0.5", isDark ? "text-white/50" : "text-muted-foreground")}>Team</p>
