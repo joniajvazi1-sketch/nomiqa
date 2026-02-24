@@ -656,9 +656,19 @@ export const AppHome: React.FC = () => {
             
             <div className="flex items-center gap-3">
               <div className={cn("flex-1 rounded-xl p-2.5 border", isDark ? "bg-white/5 border-white/5" : "bg-muted/50 border-border")}>
-                <p className={cn("text-[9px] uppercase tracking-wide mb-0.5", isDark ? "text-white/50" : "text-muted-foreground")}>Today</p>
-                <p className="text-base font-bold text-emerald-400 tabular-nums">+{todayEarnings}</p>
-                {todayEarnings > 0 && (
+                <p className={cn("text-[9px] uppercase tracking-wide mb-0.5", isDark ? "text-white/50" : "text-muted-foreground")}>Contributing</p>
+                <p className="text-base font-bold text-emerald-400 tabular-nums">
+                  {todayBreakdown.contribution + todayBreakdown.speedTest}
+                  <span className={cn("text-[10px] font-normal ml-0.5", isDark ? "text-white/30" : "text-muted-foreground")}>/200</span>
+                </p>
+                {/* Mini progress bar */}
+                <div className={cn("w-full h-1 rounded-full mt-1.5", isDark ? "bg-white/10" : "bg-muted")}>
+                  <div 
+                    className="h-full rounded-full bg-emerald-400 transition-all duration-500"
+                    style={{ width: `${Math.min(100, ((todayBreakdown.contribution + todayBreakdown.speedTest) / 200) * 100)}%` }}
+                  />
+                </div>
+                {(todayBreakdown.contribution > 0 || todayBreakdown.speedTest > 0) && (
                   <div className="flex flex-wrap gap-x-2 mt-1">
                     {todayBreakdown.contribution > 0 && (
                       <span className={cn("text-[8px] tabular-nums", isDark ? "text-white/40" : "text-muted-foreground")}>
@@ -670,17 +680,15 @@ export const AppHome: React.FC = () => {
                         ⚡ {todayBreakdown.speedTest}
                       </span>
                     )}
-                    {todayBreakdown.rewards > 0 && (
-                      <span className={cn("text-[8px] tabular-nums", isDark ? "text-white/40" : "text-muted-foreground")}>
-                        🎁 {todayBreakdown.rewards}
-                      </span>
-                    )}
                   </div>
                 )}
               </div>
               <div className={cn("flex-1 rounded-xl p-2.5 border", isDark ? "bg-white/5 border-white/5" : "bg-muted/50 border-border")}>
-                <p className={cn("text-[9px] uppercase tracking-wide mb-0.5", isDark ? "text-white/50" : "text-muted-foreground")}>Team</p>
-                <p className="text-base font-bold text-foreground">{referralCount}</p>
+                <p className={cn("text-[9px] uppercase tracking-wide mb-0.5", isDark ? "text-white/50" : "text-muted-foreground")}>Bonuses</p>
+                <p className="text-base font-bold text-amber-400 tabular-nums">+{todayBreakdown.rewards}</p>
+                {todayBreakdown.rewards > 0 && (
+                  <span className={cn("text-[8px]", isDark ? "text-white/30" : "text-muted-foreground")}>🎁 No cap</span>
+                )}
               </div>
               {streakDays >= 2 && (
                 <div className={cn("flex-1 rounded-xl p-2.5 border", isDark ? "bg-white/5 border-white/5" : "bg-muted/50 border-border")}>
