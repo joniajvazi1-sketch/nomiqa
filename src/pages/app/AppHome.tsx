@@ -654,14 +654,21 @@ export const AppHome: React.FC = () => {
               </motion.div>
             )}
             
-            <div className="flex items-center gap-3">
+            {/* Today total */}
+            <div className={cn("flex items-center justify-between px-3 py-2 rounded-xl mb-2", isDark ? "bg-white/5" : "bg-muted/40")}>
+              <span className={cn("text-xs font-medium", isDark ? "text-white/60" : "text-muted-foreground")}>Today</span>
+              <span className="text-sm font-bold text-foreground tabular-nums">
+                +{todayBreakdown.contribution + todayBreakdown.speedTest + todayBreakdown.rewards} pts
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2">
               <div className={cn("flex-1 rounded-xl p-2.5 border", isDark ? "bg-white/5 border-white/5" : "bg-muted/50 border-border")}>
                 <p className={cn("text-[9px] uppercase tracking-wide mb-0.5", isDark ? "text-white/50" : "text-muted-foreground")}>Contributing</p>
                 <p className="text-base font-bold text-emerald-400 tabular-nums">
                   {todayBreakdown.contribution + todayBreakdown.speedTest}
                   <span className={cn("text-[10px] font-normal ml-0.5", isDark ? "text-white/30" : "text-muted-foreground")}>/200</span>
                 </p>
-                {/* Mini progress bar */}
                 <div className={cn("w-full h-1 rounded-full mt-1.5", isDark ? "bg-white/10" : "bg-muted")}>
                   <div 
                     className="h-full rounded-full bg-emerald-400 transition-all duration-500"
@@ -690,12 +697,13 @@ export const AppHome: React.FC = () => {
                   <span className={cn("text-[8px]", isDark ? "text-white/30" : "text-muted-foreground")}>🎁 No cap</span>
                 )}
               </div>
-              {streakDays >= 2 && (
-                <div className={cn("flex-1 rounded-xl p-2.5 border", isDark ? "bg-white/5 border-white/5" : "bg-muted/50 border-border")}>
-                  <p className={cn("text-[9px] uppercase tracking-wide mb-0.5", isDark ? "text-white/50" : "text-muted-foreground")}>Streak</p>
-                  <p className="text-base font-bold text-orange-400">🔥 {streakDays}d</p>
-                </div>
-              )}
+              <div className={cn("flex-1 rounded-xl p-2.5 border", isDark ? "bg-white/5 border-white/5" : "bg-muted/50 border-border")}>
+                <p className={cn("text-[9px] uppercase tracking-wide mb-0.5", isDark ? "text-white/50" : "text-muted-foreground")}>Team</p>
+                <p className="text-base font-bold text-foreground tabular-nums">{referralCount}</p>
+                {streakDays >= 2 && (
+                  <span className={cn("text-[8px]", isDark ? "text-white/30" : "text-muted-foreground")}>🔥 {streakDays}d streak</span>
+                )}
+              </div>
             </div>
           </div>
         </motion.div>
