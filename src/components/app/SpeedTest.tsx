@@ -82,34 +82,30 @@ export function SpeedTest({
         return;
       }
 
-      // Award bonus points only if under daily limit
+      // Award bonus points only if under daily limit — use server-side cap enforcement
       if (dailyTestCount < DAILY_TEST_LIMIT && (testResult.down !== null || testResult.latency !== null)) {
-        const { data: existingPoints, error: fetchError } = await supabase
-          .from('user_points')
-          .select('total_points, pending_points')
-          .eq('user_id', userId)
-          .single();
+        const { data: pointsResult, error: rpcError } = await supabase.rpc('add_points_with_cap', {
+          p_user_id: userId,
+          p_base_points: POINTS_PER_TEST,
+          p_source: 'speed_test'
+        });
 
-        if (fetchError && fetchError.code !== 'PGRST116') {
-          console.error('[SpeedTest] Failed to fetch points:', fetchError);
+        if (rpcError) {
+          console.error('[SpeedTest] Failed to award points via RPC:', rpcError);
         } else {
-          const currentPoints = existingPoints?.total_points || 0;
-          const pendingPoints = existingPoints?.pending_points || 0;
+          const result = pointsResult as Record<string, unknown>;
+          const actualPointsAdded = (result.points_added as number) || 0;
+          const reason = result.reason as string | undefined;
 
-          const { error: upsertError } = await supabase
-            .from('user_points')
-            .upsert({
-              user_id: userId,
-              total_points: currentPoints + POINTS_PER_TEST,
-              pending_points: pendingPoints,
-              updated_at: new Date().toISOString()
-            }, { onConflict: 'user_id' });
-
-          if (!upsertError) {
+          if (actualPointsAdded > 0) {
             triggerSuccess();
-            onPointsEarned?.(POINTS_PER_TEST);
-            toast.success(`+${POINTS_PER_TEST} points earned!`, {
+            onPointsEarned?.(actualPointsAdded);
+            toast.success(`+${actualPointsAdded} points earned!`, {
               description: 'Thanks for testing network speed'
+            });
+          } else if (reason === 'daily_cap_reached') {
+            toast.info('Daily earning limit reached', {
+              description: 'Your speed test was saved but no points added today'
             });
           }
         }

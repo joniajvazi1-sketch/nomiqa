@@ -166,20 +166,15 @@ export const SpinWheel = ({ userId, onClose, onPrizeWon }: SpinWheelProps) => {
             claimed: true,
           });
 
-        const { data: userPoints } = await supabase
-          .from('user_points')
-          .select('total_points, pending_points')
-          .eq('user_id', userId)
-          .maybeSingle();
+        // Use add_referral_points RPC to bypass daily cap but enforce lifetime cap
+        const { data: pointsResult, error: rpcError } = await supabase.rpc('add_referral_points', {
+          p_user_id: userId,
+          p_points: prize.value,
+          p_source: 'spin_wheel'
+        });
 
-        if (userPoints) {
-          await supabase
-            .from('user_points')
-            .update({
-              total_points: (userPoints.total_points || 0) + prize.value,
-              pending_points: (userPoints.pending_points || 0) + prize.value,
-            })
-            .eq('user_id', userId);
+        if (rpcError) {
+          console.error('[SpinWheel] Failed to award points via RPC:', rpcError);
         }
 
         onPrizeWon?.({ type: prize.type, value: prize.value });
