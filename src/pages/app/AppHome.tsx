@@ -181,7 +181,7 @@ export const AppHome: React.FC = () => {
         const [profileRes, pointsRes, affiliateRes, dailyLimitRes, checkinRes, socialRes, challengeRes, speedTestRes] = await Promise.all([
           supabase.from('profiles_safe').select('username').eq('user_id', currentUser.id).maybeSingle(),
           supabase.from('user_points').select('*').eq('user_id', currentUser.id).maybeSingle(),
-          supabase.from('affiliates_safe').select('total_registrations').eq('user_id', currentUser.id).maybeSingle(),
+          supabase.from('affiliates_safe').select('id, total_registrations').eq('user_id', currentUser.id).maybeSingle(),
           supabase.from('user_daily_limits').select('points_earned').eq('user_id', currentUser.id).eq('limit_date', todayStr).maybeSingle(),
           supabase.from('daily_checkins').select('bonus_points').eq('user_id', currentUser.id).eq('check_in_date', todayStr),
           supabase.from('social_task_claims').select('points_awarded').eq('user_id', currentUser.id).gte('claimed_at', todayStr),
@@ -191,7 +191,16 @@ export const AppHome: React.FC = () => {
 
         if (profileRes.data?.username) setUsername(profileRes.data.username);
         if (pointsRes.data) setPoints(pointsRes.data);
-        if (affiliateRes.data?.total_registrations) setReferralCount(affiliateRes.data.total_registrations);
+        
+        // Real referral count from affiliate_referrals (safety net against cached total_registrations drift)
+        if (affiliateRes.data?.id) {
+          const { count } = await supabase
+            .from('affiliate_referrals')
+            .select('id', { count: 'exact', head: true })
+            .eq('affiliate_id', affiliateRes.data.id)
+            .not('registered_user_id', 'is', null);
+          setReferralCount(count ?? affiliateRes.data.total_registrations ?? 0);
+        }
 
         // Calculate today's breakdown
         const contributionPts = dailyLimitRes.data?.points_earned || 0;
