@@ -151,6 +151,8 @@ export const SocialTasks = () => {
       }
 
       setClaimedPlatforms(prev => new Set(prev).add(task.platform));
+      // Instantly refresh dashboard points
+      window.dispatchEvent(new Event('points-updated'));
       toast({
         title: `+${POINTS_PER_FOLLOW} pts earned!`,
         description: `Thanks for following us on ${task.label}`,
