@@ -178,6 +178,8 @@ export const SpinWheel = ({ userId, onClose, onPrizeWon }: SpinWheelProps) => {
         }
 
         onPrizeWon?.({ type: prize.type, value: prize.value });
+        // Instantly refresh dashboard points
+        window.dispatchEvent(new Event('points-updated'));
       } catch (error) {
         console.error('Error saving spin result:', error);
       }

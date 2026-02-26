@@ -95,6 +95,8 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({
       playCelebration();
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 3000);
+      // Instantly refresh dashboard points
+      window.dispatchEvent(new Event('points-updated'));
     }
     
     setClaiming(false);
