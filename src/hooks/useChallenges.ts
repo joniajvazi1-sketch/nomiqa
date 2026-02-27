@@ -330,10 +330,20 @@ export const useChallenges = (): UseChallengesReturn => {
         return false;
       }
 
-      await fetchChallenges();
-      
-      // Dispatch event so other screens (e.g. AppHome) can refresh points immediately
-      window.dispatchEvent(new CustomEvent('points-updated'));
+      // Optimistic: update local state immediately with new_total from RPC
+      if (result.new_total != null) {
+        setChallenges(prev => prev.map(c => 
+          c.id === challengeId ? { ...c, isClaimed: true } : c
+        ));
+      }
+
+      // Dispatch with detail so AppHome can use new_total instantly
+      window.dispatchEvent(new CustomEvent('points-updated', { 
+        detail: { newTotal: result.new_total } 
+      }));
+
+      // Background refetch for full consistency
+      fetchChallenges();
       
       return true;
     } catch (err) {
