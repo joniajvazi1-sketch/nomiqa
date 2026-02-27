@@ -1,121 +1,92 @@
 
 
-# P0 Blocker Fix Plan — Submission Ready
+# Full Audit Report — Ship / Don't Ship
 
-## Issues Found + Fixes
+## 🚨 ANSWER TO THE CRITICAL QUESTION
 
-### 1. Auth — Already Canonical-Domain Enforced (Minor Gap)
+**"Is there ANY direct database write to user_points anywhere left in the codebase?"**
 
-**Current state:** `AppAuth.tsx` lines 833-842 already force canonical domain `https://nomiqa-depin.com` for OAuth redirects. Native uses the Lovable broker at `nomiqa-depin.com/~oauth/initiate`. This is correct.
+**YES. Do not ship yet.** Here are ALL direct writes:
 
-**Gap:** When a user starts OAuth from `nomiqa.lovable.app`, the redirect lands on `nomiqa-depin.com/app/auth` — but the user's browser session is on `nomiqa.lovable.app`. The Lovable SDK handles token exchange internally (not via cookies), so this actually works. However, `useNativeGoogleAuth.ts` is orphaned dead code that could confuse future devs.
+### Client-side (TypeScript)
 
-**Fix:**
-- Delete `src/hooks/useNativeGoogleAuth.ts` (orphaned, never imported).
-- No auth code changes needed — the flow is already deterministic.
+| File | Line | Type | Risk |
+|------|------|------|------|
+| `src/hooks/useNetworkContribution.ts` | 1388-1410 | `.update()` distance/time fields only | ⚠️ LOW — no points modified, only `total_distance_meters` and `total_contribution_time_seconds` |
+| `src/pages/app/AppProfile.tsx` | 160-162 | `.insert()` with `total_points: 0` | ✅ SAFE — creates empty row, no points |
+| `supabase/functions/sync-contribution-data/index.ts` | 1131-1148 | `.update()` / `.insert()` with `pending_points` | 🚨 **BUG** — fallback path bypasses caps entirely. If `add_points_with_cap` RPC fails, raw points are written to `pending_points` uncapped |
+| `supabase/functions/sync-contribution-data/index.ts` | 729 | `.update()` to freeze user | ✅ SAFE — sets `is_frozen: true`, no points |
 
-**Test matrix (verifiable in code):**
-- iOS Safari on nomiqa-depin.com → canonical origin used ✅
-- iOS Safari on nomiqa.lovable.app → forces canonical `nomiqa-depin.com` redirect ✅ (line 837-839)
-- Native Capacitor → uses broker at `nomiqa-depin.com/~oauth/initiate` ✅ (line 816)
+### Server-side (SQL functions)
 
----
+| Function | Write type | Risk |
+|----------|-----------|------|
+| `claim_challenge_reward` | Direct `INSERT ON CONFLICT ... total_points + reward` | 🚨 **NO CAP** — challenge rewards bypass daily/monthly/lifetime caps entirely |
+| `process_referral_commission` (trigger) | Direct `INSERT ON CONFLICT ... total_points + commission` | 🚨 **NO CAP** — referral commissions bypass all caps |
+| `check_and_award_pending_referral_bonus` | Direct `UPDATE total_points + bonus` | 🚨 **NO CAP** — pending referral bonuses bypass all caps |
+| `add_points_with_cap` | Cap-enforced write | ✅ CORRECT |
+| `add_referral_points` | Lifetime-only cap | ⚠️ By design |
 
-### 2. Points Caps — CRITICAL BUG: DailyCheckIn Bypasses All Caps
+### Remaining `window.location.origin` issues (referral links)
 
-**Award path audit:**
-
-| Path | Uses `add_points_with_cap`? | Status |
-|------|---------------------------|--------|
-| Network contribution (autosave) | Yes (useNetworkContribution.ts:845) | ✅ |
-| Network contribution (final save) | Yes (useNetworkContribution.ts:1372) | ✅ |
-| Speed test | Yes (SpeedTest.tsx:87) | ✅ |
-| Challenge claim | Uses `claim_challenge_reward` RPC (atomic, no daily cap) | ⚠️ By design |
-| Social follow | Uses `add_referral_points` RPC (bypasses daily/monthly, lifetime only) | ⚠️ By design |
-| **Daily check-in** | **NO — writes directly to `user_points` table** | **🚨 BUG** |
-
-**DailyCheckIn.tsx lines 97-110** does a raw `select` then `update` on `user_points`, bypassing all cap logic. This is a race-condition-prone, cap-bypassing direct write.
-
-**Fix:** Replace the raw select+update in `DailyCheckIn.tsx` with `add_referral_points` RPC (same pattern as social tasks — bypasses daily/monthly but respects lifetime cap and frozen status). This is appropriate because check-in bonuses are reward-type points, not contribution-type.
+| File | Line | Status |
+|------|------|--------|
+| `src/components/ShareModal.tsx` | 95 | ✅ FIXED — uses `https://nomiqa-depin.com` |
+| `src/components/ReferEarnModal.tsx` | 70 | 🚨 **NOT FIXED** — still uses `window.location.origin` |
+| `src/pages/Affiliate.tsx` | 131, 134, 162, 165, 197, 265, 266 | 🚨 **NOT FIXED** — 7 occurrences of `window.location.origin` |
+| `src/pages/Auth.tsx` | 366 | ⚠️ Acceptable — OAuth redirect, not affiliate link |
 
 ---
 
-### 3. Rewards/Challenges — Instant Update (No Delay Hack)
+## Required Fixes Before Shipping
 
-**Current state:** `claim_challenge_reward` RPC already returns `{ success, points_added, new_total, all_daily_done }`. But `useChallenges.ts` line 327-331 only checks `result.success` and ignores `new_total`. It then calls `fetchChallenges()` (a full refetch) and dispatches `points-updated` (which triggers `loadData()` in AppHome — another full refetch).
+### Fix 1: `ReferEarnModal.tsx` — Canonical domain for referral links
+Replace `window.location.origin` with `https://nomiqa-depin.com` on line 70.
 
-**Fix:** After claim succeeds in `useChallenges.ts`, use the `new_total` from the RPC response to optimistically update local state before the refetch completes. Dispatch `points-updated` with the new total as detail so AppHome can use it immediately without waiting for the DB round-trip.
+### Fix 2: `Affiliate.tsx` — Canonical domain for all affiliate links
+Replace all 7 `window.location.origin` occurrences with `https://nomiqa-depin.com` (lines 131, 134, 162, 165, 197, 265, 266).
 
-Also in `ChallengeCard.tsx`, the `points-updated` event is dispatched redundantly (both ChallengeCard and useChallenges dispatch it). Remove the duplicate from `ChallengeCard.tsx` since `useChallenges.claimReward` already dispatches it.
+### Fix 3: `sync-contribution-data/index.ts` — Remove fallback direct write
+The fallback on lines 1123-1148 writes `pending_points` directly when `add_points_with_cap` fails. This bypasses all caps. Change to: log the error and skip awarding (or retry), rather than raw-writing points.
 
----
-
-### 4. Referral Links — ShareModal Uses Wrong Domain
-
-**Current state:** `ShareModal.tsx` line ~79 uses `window.location.origin` for affiliate links. `AppHome.tsx` lines 259-272 correctly hardcodes `https://nomiqa-depin.com`.
-
-**Fix:** In `ShareModal.tsx`, replace `window.location.origin` with `https://nomiqa-depin.com` for the affiliate link base URL.
+### Fix 4 (Recommended but by-design): `claim_challenge_reward` SQL
+Currently writes points directly without any cap check. If you want ALL paths gated, this RPC should call `add_points_with_cap` internally instead of raw incrementing `total_points`. Same for `process_referral_commission` trigger and `check_and_award_pending_referral_bonus`.
 
 ---
 
-### 5. Routing Clarity — Documentation
+## Items That ARE Ship-Safe (Confirmed ✅)
 
-**Route map (already implemented correctly in code):**
-
-```text
-NATIVE (Capacitor / ?appPreview=true on localhost):
-  / → redirects to /app
-  /app → AppHome
-  /app/map → NetworkContribution
-  /app/shop → AppShop
-  /app/profile → AppProfile
-  /app/auth → AppAuth
-  /app/oauth-redirect → OAuthRedirect (standalone, no layout)
-  * → redirects to /app
-
-WEB (browser on nomiqa-depin.com):
-  / → Index (landing page)
-  /shop → ShopPage
-  /app/* → redirects to /mobile-only
-  /r/:code → AffiliateRedirect
-  /:username → AffiliateRedirect
-  * → NotFound
-
-DEV TOGGLES:
-  ?appPreview=true → simulates native on localhost/*.lovableproject.com ONLY
-  BLOCKED on production domains (usePlatform.ts lines 18-21)
-```
-
-No code changes needed.
-
----
-
-### 6. Data Retention Proof
-
-The cron jobs exist as `pg_cron` entries (confirmed via memories). The functions called are:
-- `cleanup_old_mining_logs()` — deletes rows > 90 days
-- Signal logs cleanup — same pattern
-- `refresh_coverage_tiles()` — refreshes materialized view every 15 min
-
-**Action:** Query `cron.job` to verify schedules are active. This requires a read query.
-
----
-
-## Summary of Code Changes
-
-| # | File | Change |
+| # | Item | Status |
 |---|------|--------|
-| 1 | `src/components/app/DailyCheckIn.tsx` | Replace raw user_points update with `add_referral_points` RPC |
-| 2 | `src/components/ShareModal.tsx` | Hardcode `https://nomiqa-depin.com` as affiliate link base |
-| 3 | `src/components/app/ChallengeCard.tsx` | Remove duplicate `points-updated` dispatch (useChallenges already does it) |
-| 4 | `src/hooks/useChallenges.ts` | Use `new_total` from RPC response for optimistic update; dispatch with detail |
-| 5 | `src/pages/app/AppHome.tsx` | Listen for `points-updated` CustomEvent with `detail.newTotal` for instant display |
-| 6 | `src/hooks/useNativeGoogleAuth.ts` | Delete orphaned file |
+| 1 | **Auth** — Google OAuth uses canonical domain, session persistence correct, no competing flows | ✅ |
+| 2 | **DailyCheckIn** — Now uses `add_points_with_cap` RPC | ✅ |
+| 3 | **ShareModal** — Uses canonical domain | ✅ |
+| 4 | **ChallengeCard** — No duplicate event dispatch | ✅ |
+| 5 | **useChallenges** — Optimistic update with `new_total` | ✅ |
+| 6 | **Data collection** — No IMEI/MAC/contacts/SMS/clipboard/camera. Location rounded. Fingerprint hashed | ✅ |
+| 7 | **Retention crons** — signal_logs (90d, 5AM UTC), mining_logs (90d, 4AM UTC), order PII (120d, 2AM UTC), coverage refresh (15min) | ✅ |
+| 8 | **RLS** — All sensitive tables locked. Anonymous access denied. Service role not in client | ✅ |
+| 9 | **Routing** — Native → `/app`, Web → `/`, `?appPreview` blocked on production | ✅ |
+| 10 | **Account deletion** — `request_data_deletion` + `delete-user` edge function wipe all data | ✅ |
+| 11 | **Frozen users** — `add_points_with_cap` checks `is_frozen` and rejects | ✅ |
+| 12 | **Self-referral** — Blocked in `process_referral_commission` trigger | ✅ |
+| 13 | **Referral velocity** — `check_referral_eligibility` enforces 10/24h limit | ✅ |
+| 14 | **Idempotent challenge claims** — `claim_challenge_reward` checks `claimed_at IS NOT NULL` | ✅ |
+| 15 | **useNativeGoogleAuth.ts** — Deleted (orphaned) | ✅ |
 
-## Build Commands (unchanged)
-```
-CAPACITOR=true npm run build
-npx cap sync ios
-npx cap sync android
-```
+---
+
+## Implementation Plan
+
+### Step 1: Fix `ReferEarnModal.tsx` canonical domain
+Replace `${window.location.origin}` with `https://nomiqa-depin.com` on line 70.
+
+### Step 2: Fix `Affiliate.tsx` canonical domain (7 locations)
+Replace all `${window.location.origin}` with `https://nomiqa-depin.com` on lines 131, 134, 162, 165, 197, 265, 266.
+
+### Step 3: Remove unsafe fallback in `sync-contribution-data`
+In lines 1122-1148, instead of writing `pending_points` directly, log the error and return without awarding points. The data is not lost — the session is already saved. Points can be reconciled later.
+
+### Step 4 (Optional, recommended): Gate `claim_challenge_reward` through caps
+Modify the SQL function to use `add_points_with_cap` internally instead of raw `total_points` increment. This prevents challenge reward spam from exceeding caps.
 
