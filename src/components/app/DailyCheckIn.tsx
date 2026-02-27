@@ -93,17 +93,25 @@ export const DailyCheckIn = ({ userId, onClose }: DailyCheckInProps) => {
 
       if (error) throw error;
 
-      // Award points via RPC (respects lifetime cap + frozen status)
-      const { data: pointsResult, error: pointsError } = await supabase.rpc('add_referral_points', {
+      // Award points via cap-enforced RPC (respects daily/monthly/lifetime caps + frozen status)
+      const { data: pointsResult, error: pointsError } = await supabase.rpc('add_points_with_cap', {
         p_user_id: userId,
-        p_points: bonusPoints,
+        p_base_points: bonusPoints,
         p_source: 'daily_checkin',
       });
 
       if (pointsError) {
         console.error('Error awarding check-in points:', pointsError);
-      } else if (!(pointsResult as any)?.success) {
-        console.warn('Check-in points rejected:', (pointsResult as any)?.reason);
+      } else {
+        const result = pointsResult as any;
+        if (!result?.success) {
+          console.warn('Check-in points capped:', result?.reason);
+          if (result?.reason === 'daily_cap_reached') {
+            toast.info('Daily earning limit reached', {
+              description: 'Your check-in was recorded but no additional points were awarded today.',
+            });
+          }
+        }
       }
 
       successPattern();
