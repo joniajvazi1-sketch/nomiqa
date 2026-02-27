@@ -93,21 +93,17 @@ export const DailyCheckIn = ({ userId, onClose }: DailyCheckInProps) => {
 
       if (error) throw error;
 
-      // Update user points
-      const { data: userPoints } = await supabase
-        .from('user_points')
-        .select('total_points, pending_points')
-        .eq('user_id', userId)
-        .maybeSingle();
+      // Award points via RPC (respects lifetime cap + frozen status)
+      const { data: pointsResult, error: pointsError } = await supabase.rpc('add_referral_points', {
+        p_user_id: userId,
+        p_points: bonusPoints,
+        p_source: 'daily_checkin',
+      });
 
-      if (userPoints) {
-        await supabase
-          .from('user_points')
-          .update({
-            total_points: (userPoints.total_points || 0) + bonusPoints,
-            pending_points: (userPoints.pending_points || 0) + bonusPoints,
-          })
-          .eq('user_id', userId);
+      if (pointsError) {
+        console.error('Error awarding check-in points:', pointsError);
+      } else if (!(pointsResult as any)?.success) {
+        console.warn('Check-in points rejected:', (pointsResult as any)?.reason);
       }
 
       successPattern();

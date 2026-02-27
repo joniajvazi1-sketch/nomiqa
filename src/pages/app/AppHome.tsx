@@ -239,7 +239,15 @@ export const AppHome: React.FC = () => {
         loadData();
       }
     };
-    const handlePointsUpdated = () => loadData();
+    const handlePointsUpdated = (e: Event) => {
+      const detail = (e as CustomEvent)?.detail;
+      if (detail?.newTotal != null && points) {
+        // Instant optimistic update from RPC response
+        setPoints(prev => prev ? { ...prev, total_points: detail.newTotal } : prev);
+      }
+      // Always do a full refresh in background for consistency
+      loadData();
+    };
     
     document.addEventListener('visibilitychange', handleVisibility);
     window.addEventListener('focus', handleVisibility);
