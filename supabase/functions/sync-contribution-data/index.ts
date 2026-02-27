@@ -1120,32 +1120,10 @@ serve(async (req) => {
       actualPointsEarned = pointsResult.points_added || 0;
       wasCapped = pointsResult.capped || false;
     } else {
-      // Fallback: direct insert if RPC fails (shouldn't happen)
-      console.error('add_points_with_cap failed, using fallback:', pointsError);
-      const { data: existingPoints } = await supabase
-        .from('user_points')
-        .select('*')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      if (existingPoints) {
-        await supabase
-          .from('user_points')
-          .update({
-            pending_points: (existingPoints.pending_points || 0) + basePointsEarned,
-            updated_at: new Date().toISOString()
-          })
-          .eq('user_id', user.id);
-      } else {
-        await supabase
-          .from('user_points')
-          .insert({
-            user_id: user.id,
-            total_points: 0,
-            pending_points: basePointsEarned,
-            total_distance_meters: 0
-          });
-      }
+      // RPC failed — log error but do NOT write points directly (bypasses caps).
+      // The contribution data is already saved in signal_logs. Points can be reconciled later.
+      console.error('add_points_with_cap RPC failed — points NOT awarded for this sync. Data is safe in signal_logs.', pointsError);
+      actualPointsEarned = 0;
     }
 
     // ==========================================

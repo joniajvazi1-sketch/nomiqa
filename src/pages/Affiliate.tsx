@@ -128,10 +128,10 @@ export default function Affiliate() {
       );
       setAffiliate(highestTierAffiliate);
       setSelectedAffiliateId(highestTierAffiliate.id);
-      setAffiliateLink(`${window.location.origin}/r/${highestTierAffiliate.affiliate_code}`);
+      setAffiliateLink(`https://nomiqa-depin.com/r/${highestTierAffiliate.affiliate_code}`);
       setUsername(highestTierAffiliate.username || '');
       if (highestTierAffiliate.username) {
-        setCustomLink(`${window.location.origin}/${highestTierAffiliate.username}`);
+        setCustomLink(`https://nomiqa-depin.com/${highestTierAffiliate.username}`);
       }
     }
   };
@@ -159,10 +159,10 @@ export default function Affiliate() {
     if (selected) {
       setSelectedAffiliateId(affiliateId);
       setAffiliate(selected);
-      setAffiliateLink(`${window.location.origin}/r/${selected.affiliate_code}`);
+      setAffiliateLink(`https://nomiqa-depin.com/r/${selected.affiliate_code}`);
       setUsername(selected.username || '');
       if (selected.username) {
-        setCustomLink(`${window.location.origin}/${selected.username}`);
+        setCustomLink(`https://nomiqa-depin.com/${selected.username}`);
       }
     }
   }, [allAffiliates]);
@@ -194,7 +194,7 @@ export default function Affiliate() {
         return;
       }
       setAffiliate({ ...affiliate, username: username.toLowerCase() });
-      setCustomLink(`${window.location.origin}/${username.toLowerCase()}`);
+      setCustomLink(`https://nomiqa-depin.com/${username.toLowerCase()}`);
       toast.success("Custom link updated!");
     } catch (error: any) {
       toast.error(error.message || "Failed to update username");
@@ -262,8 +262,8 @@ export default function Affiliate() {
       }
       setAffiliate(affiliateData);
       setUsername(affiliateData.username || '');
-      setCustomLink(`${window.location.origin}/${affiliateData.username}`);
-      setAffiliateLink(`${window.location.origin}/r/${affiliateData.affiliate_code}`);
+      setCustomLink(`https://nomiqa-depin.com/${affiliateData.username}`);
+      setAffiliateLink(`https://nomiqa-depin.com/r/${affiliateData.affiliate_code}`);
       setShowNewLinkInput(false);
       setNewLinkUsername('');
       setUsernameAvailability('idle');

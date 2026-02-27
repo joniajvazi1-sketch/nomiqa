@@ -67,7 +67,7 @@ export const ReferEarnModal = ({ open, onOpenChange, product }: ReferEarnModalPr
 
   const getReferralLink = (affiliate: AffiliateData) => {
     const username = affiliate.username || affiliate.affiliate_code;
-    return `${window.location.origin}/${username}?product=${product?.id}`;
+    return `https://nomiqa-depin.com/${username}?product=${product?.id}`;
   };
 
   const copyLink = (link: string) => {
