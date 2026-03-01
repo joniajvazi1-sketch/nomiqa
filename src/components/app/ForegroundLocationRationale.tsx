@@ -3,58 +3,57 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   MapPin, 
   Signal, 
-  Bell, 
+  Coins, 
   Shield, 
   ChevronRight,
-  X,
-  MonitorOff
+  X 
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useHaptics } from '@/hooks/useHaptics';
 
-interface BackgroundLocationRationaleProps {
+interface ForegroundLocationRationaleProps {
   isOpen: boolean;
-  onRequestAlways: () => void;
+  onAllow: () => void;
   onSkip: () => void;
   onClose: () => void;
 }
 
 /**
- * Apple-compliant rationale screen for requesting "Always" location permission
- * Must be shown AFTER foreground location is already granted (Step 2)
+ * Pre-permission explanation screen for foreground location (Step 1)
+ * Must be shown BEFORE requesting "When In Use" / foreground location permission
  */
-export const BackgroundLocationRationale: React.FC<BackgroundLocationRationaleProps> = ({
+export const ForegroundLocationRationale: React.FC<ForegroundLocationRationaleProps> = ({
   isOpen,
-  onRequestAlways,
+  onAllow,
   onSkip,
   onClose
 }) => {
   const { mediumTap } = useHaptics();
 
-  const capabilities = [
+  const useCases = [
     {
       icon: Signal,
-      title: 'Record signal performance during travel',
+      title: 'Measure signal strength in your area',
     },
     {
       icon: MapPin,
-      title: 'Detect coverage gaps',
+      title: 'Map coverage quality',
     },
     {
-      icon: MonitorOff,
-      title: 'Continue contribution when your screen is off',
+      icon: Coins,
+      title: 'Calculate contribution points',
     },
   ];
 
-  const safetyPoints = [
-    'A persistent notification will always be visible',
-    'You can stop contribution anytime',
-    'Background tracking only runs while contribution is enabled',
+  const privacyPoints = [
+    'Location is rounded before storage',
+    'No phone numbers or contacts are collected',
+    'Data is used only for network analysis',
   ];
 
-  const handleRequestAlways = () => {
+  const handleAllow = () => {
     mediumTap();
-    onRequestAlways();
+    onAllow();
   };
 
   const handleSkip = () => {
@@ -71,13 +70,11 @@ export const BackgroundLocationRationale: React.FC<BackgroundLocationRationalePr
           exit={{ opacity: 0 }}
           className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center"
         >
-          {/* Backdrop */}
           <motion.div 
             className="absolute inset-0 bg-black/70 backdrop-blur-sm"
             onClick={onClose}
           />
           
-          {/* Modal - Scrollable */}
           <motion.div
             initial={{ y: 100, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -86,7 +83,6 @@ export const BackgroundLocationRationale: React.FC<BackgroundLocationRationalePr
             className="relative w-full max-w-md mx-4 mb-0 sm:mb-0 bg-gradient-to-b from-[#1a1f2e] to-[#0f1419] rounded-t-3xl sm:rounded-3xl border border-white/10 overflow-hidden max-h-[85vh] flex flex-col"
             style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
           >
-            {/* Close button */}
             <button
               onClick={onClose}
               className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors z-10"
@@ -94,7 +90,6 @@ export const BackgroundLocationRationale: React.FC<BackgroundLocationRationalePr
               <X className="w-5 h-5 text-white/70" />
             </button>
 
-            {/* Scrollable Content */}
             <div className="flex-1 overflow-y-auto overscroll-contain">
               {/* Header */}
               <div className="pt-8 pb-4 px-6 text-center">
@@ -102,18 +97,21 @@ export const BackgroundLocationRationale: React.FC<BackgroundLocationRationalePr
                   <MapPin className="w-8 h-8 text-[#00d4ff]" />
                 </div>
                 <h2 className="text-xl font-bold text-white mb-2">
-                  Continue Measuring in the Background
+                  Improve Mobile Network Coverage Together
                 </h2>
                 <p className="text-sm text-white/60 leading-relaxed">
-                  To accurately measure mobile network quality while you move, Nomiqa needs background location access.
+                  Nomiqa measures real-world mobile network performance to identify coverage gaps and signal quality issues.
+                </p>
+                <p className="text-sm text-white/50 mt-2">
+                  To contribute, we need access to your location while the app is in use.
                 </p>
               </div>
 
-              {/* Capabilities */}
+              {/* Use cases */}
               <div className="px-6 pb-3">
-                <p className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-2">This allows the app to</p>
+                <p className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-2">Your location is used to</p>
                 <div className="space-y-2">
-                  {capabilities.map((item, index) => (
+                  {useCases.map((item, index) => (
                     <motion.div
                       key={item.title}
                       initial={{ opacity: 0, x: -20 }}
@@ -130,31 +128,22 @@ export const BackgroundLocationRationale: React.FC<BackgroundLocationRationalePr
                 </div>
               </div>
 
-              {/* Safety info */}
-              <div className="px-6 pb-3">
+              {/* Privacy */}
+              <div className="px-6 pb-4">
                 <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
                   <div className="flex items-center gap-2 mb-2">
-                    <Bell className="w-4 h-4 text-emerald-400" />
-                    <p className="text-xs font-semibold text-emerald-400 uppercase tracking-wider">When active</p>
+                    <Shield className="w-4 h-4 text-emerald-400" />
+                    <p className="text-xs font-semibold text-emerald-400 uppercase tracking-wider">Your privacy matters</p>
                   </div>
                   <ul className="space-y-1.5">
-                    {safetyPoints.map((point) => (
+                    {privacyPoints.map((point) => (
                       <li key={point} className="text-xs text-white/50 flex items-start gap-2">
                         <span className="text-emerald-400 mt-0.5">•</span>
                         <span>{point}</span>
                       </li>
                     ))}
                   </ul>
-                </div>
-              </div>
-
-              {/* Privacy note */}
-              <div className="mx-6 mb-4 p-3 rounded-xl bg-white/5 border border-white/10">
-                <div className="flex items-center gap-2">
-                  <Shield className="w-4 h-4 text-white/40" />
-                  <p className="text-xs text-white/50">
-                    Your data is rounded and securely stored.
-                  </p>
+                  <p className="text-xs text-white/40 mt-2">You can stop contributing anytime.</p>
                 </div>
               </div>
             </div>
@@ -162,10 +151,10 @@ export const BackgroundLocationRationale: React.FC<BackgroundLocationRationalePr
             {/* Fixed Actions */}
             <div className="shrink-0 px-6 pb-6 pt-4 bg-gradient-to-t from-[#0f1419] to-transparent">
               <Button
-                onClick={handleRequestAlways}
+                onClick={handleAllow}
                 className="w-full h-12 rounded-xl bg-gradient-to-r from-[#00d4ff] to-[#00b4d8] hover:from-[#00b4d8] hover:to-[#00d4ff] text-[#0a0f1a] font-semibold transition-all"
               >
-                <span>Enable Background Contribution</span>
+                <span>Allow Location Access</span>
                 <ChevronRight className="w-5 h-5 ml-2" />
               </Button>
               
@@ -173,7 +162,7 @@ export const BackgroundLocationRationale: React.FC<BackgroundLocationRationalePr
                 onClick={handleSkip}
                 className="w-full py-3 text-sm text-white/50 hover:text-white/70 transition-colors"
               >
-                Keep Foreground Only
+                Not Now
               </button>
             </div>
           </motion.div>
@@ -183,4 +172,4 @@ export const BackgroundLocationRationale: React.FC<BackgroundLocationRationalePr
   );
 };
 
-export default BackgroundLocationRationale;
+export default ForegroundLocationRationale;

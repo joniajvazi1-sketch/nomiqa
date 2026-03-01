@@ -1,60 +1,53 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  MapPin, 
   Signal, 
-  Bell, 
-  Shield, 
+  Radio, 
+  ShieldCheck,
   ChevronRight,
   X,
-  MonitorOff
+  ShieldOff
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useHaptics } from '@/hooks/useHaptics';
 
-interface BackgroundLocationRationaleProps {
+interface PhoneStateRationaleProps {
   isOpen: boolean;
-  onRequestAlways: () => void;
+  onAllow: () => void;
   onSkip: () => void;
   onClose: () => void;
 }
 
 /**
- * Apple-compliant rationale screen for requesting "Always" location permission
- * Must be shown AFTER foreground location is already granted (Step 2)
+ * Pre-permission explanation screen for READ_PHONE_STATE (Step 3)
+ * Addresses Play Store reviewer concerns about phone state access
  */
-export const BackgroundLocationRationale: React.FC<BackgroundLocationRationaleProps> = ({
+export const PhoneStateRationale: React.FC<PhoneStateRationaleProps> = ({
   isOpen,
-  onRequestAlways,
+  onAllow,
   onSkip,
   onClose
 }) => {
   const { mediumTap } = useHaptics();
 
-  const capabilities = [
-    {
-      icon: Signal,
-      title: 'Record signal performance during travel',
-    },
-    {
-      icon: MapPin,
-      title: 'Detect coverage gaps',
-    },
-    {
-      icon: MonitorOff,
-      title: 'Continue contribution when your screen is off',
-    },
+  const collectedMetrics = [
+    'Signal strength (RSRP, RSRQ, RSSI, SINR)',
+    'Network generation (5G, 4G, etc.)',
+    'Carrier information',
+    'Cell tower identifiers',
   ];
 
-  const safetyPoints = [
-    'A persistent notification will always be visible',
-    'You can stop contribution anytime',
-    'Background tracking only runs while contribution is enabled',
+  const notCollected = [
+    'Phone numbers',
+    'IMEI',
+    'Call logs',
+    'SMS messages',
+    'Contacts',
   ];
 
-  const handleRequestAlways = () => {
+  const handleAllow = () => {
     mediumTap();
-    onRequestAlways();
+    onAllow();
   };
 
   const handleSkip = () => {
@@ -71,13 +64,11 @@ export const BackgroundLocationRationale: React.FC<BackgroundLocationRationalePr
           exit={{ opacity: 0 }}
           className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center"
         >
-          {/* Backdrop */}
           <motion.div 
             className="absolute inset-0 bg-black/70 backdrop-blur-sm"
             onClick={onClose}
           />
           
-          {/* Modal - Scrollable */}
           <motion.div
             initial={{ y: 100, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -86,7 +77,6 @@ export const BackgroundLocationRationale: React.FC<BackgroundLocationRationalePr
             className="relative w-full max-w-md mx-4 mb-0 sm:mb-0 bg-gradient-to-b from-[#1a1f2e] to-[#0f1419] rounded-t-3xl sm:rounded-3xl border border-white/10 overflow-hidden max-h-[85vh] flex flex-col"
             style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
           >
-            {/* Close button */}
             <button
               onClick={onClose}
               className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors z-10"
@@ -94,66 +84,62 @@ export const BackgroundLocationRationale: React.FC<BackgroundLocationRationalePr
               <X className="w-5 h-5 text-white/70" />
             </button>
 
-            {/* Scrollable Content */}
             <div className="flex-1 overflow-y-auto overscroll-contain">
               {/* Header */}
               <div className="pt-8 pb-4 px-6 text-center">
                 <div className="mx-auto mb-4 w-16 h-16 rounded-2xl bg-gradient-to-br from-[#00d4ff]/20 to-[#00d4ff]/5 flex items-center justify-center border border-[#00d4ff]/30">
-                  <MapPin className="w-8 h-8 text-[#00d4ff]" />
+                  <Radio className="w-8 h-8 text-[#00d4ff]" />
                 </div>
                 <h2 className="text-xl font-bold text-white mb-2">
-                  Continue Measuring in the Background
+                  Access Network Signal Metrics
                 </h2>
                 <p className="text-sm text-white/60 leading-relaxed">
-                  To accurately measure mobile network quality while you move, Nomiqa needs background location access.
+                  To measure mobile network quality, Nomiqa reads signal and radio parameters from your device.
                 </p>
               </div>
 
-              {/* Capabilities */}
+              {/* What we collect */}
               <div className="px-6 pb-3">
-                <p className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-2">This allows the app to</p>
-                <div className="space-y-2">
-                  {capabilities.map((item, index) => (
-                    <motion.div
-                      key={item.title}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.1 + index * 0.08 }}
-                      className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10"
-                    >
-                      <div className="shrink-0 w-9 h-9 rounded-lg bg-[#00d4ff]/10 flex items-center justify-center">
-                        <item.icon className="w-4.5 h-4.5 text-[#00d4ff]" />
-                      </div>
-                      <p className="text-sm text-white">{item.title}</p>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Safety info */}
-              <div className="px-6 pb-3">
-                <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+                <div className="p-3 rounded-xl bg-white/5 border border-white/10">
                   <div className="flex items-center gap-2 mb-2">
-                    <Bell className="w-4 h-4 text-emerald-400" />
-                    <p className="text-xs font-semibold text-emerald-400 uppercase tracking-wider">When active</p>
+                    <Signal className="w-4 h-4 text-[#00d4ff]" />
+                    <p className="text-xs font-semibold text-white/60 uppercase tracking-wider">This includes</p>
                   </div>
                   <ul className="space-y-1.5">
-                    {safetyPoints.map((point) => (
-                      <li key={point} className="text-xs text-white/50 flex items-start gap-2">
-                        <span className="text-emerald-400 mt-0.5">•</span>
-                        <span>{point}</span>
+                    {collectedMetrics.map((metric) => (
+                      <li key={metric} className="text-xs text-white/70 flex items-start gap-2">
+                        <span className="text-[#00d4ff] mt-0.5">•</span>
+                        <span>{metric}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
               </div>
 
-              {/* Privacy note */}
-              <div className="mx-6 mb-4 p-3 rounded-xl bg-white/5 border border-white/10">
+              {/* What we do NOT collect */}
+              <div className="px-6 pb-4">
+                <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20">
+                  <div className="flex items-center gap-2 mb-2">
+                    <ShieldOff className="w-4 h-4 text-red-400" />
+                    <p className="text-xs font-semibold text-red-400 uppercase tracking-wider">We do NOT access</p>
+                  </div>
+                  <ul className="space-y-1.5">
+                    {notCollected.map((item) => (
+                      <li key={item} className="text-xs text-white/50 flex items-start gap-2">
+                        <span className="text-red-400 mt-0.5">✕</span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              {/* Purpose note */}
+              <div className="mx-6 mb-4 p-3 rounded-xl bg-[#00d4ff]/10 border border-[#00d4ff]/20">
                 <div className="flex items-center gap-2">
-                  <Shield className="w-4 h-4 text-white/40" />
-                  <p className="text-xs text-white/50">
-                    Your data is rounded and securely stored.
+                  <ShieldCheck className="w-4 h-4 text-[#00d4ff]" />
+                  <p className="text-xs text-white/60 leading-relaxed">
+                    This data is required for accurate coverage mapping.
                   </p>
                 </div>
               </div>
@@ -162,10 +148,10 @@ export const BackgroundLocationRationale: React.FC<BackgroundLocationRationalePr
             {/* Fixed Actions */}
             <div className="shrink-0 px-6 pb-6 pt-4 bg-gradient-to-t from-[#0f1419] to-transparent">
               <Button
-                onClick={handleRequestAlways}
+                onClick={handleAllow}
                 className="w-full h-12 rounded-xl bg-gradient-to-r from-[#00d4ff] to-[#00b4d8] hover:from-[#00b4d8] hover:to-[#00d4ff] text-[#0a0f1a] font-semibold transition-all"
               >
-                <span>Enable Background Contribution</span>
+                <span>Allow Signal Access</span>
                 <ChevronRight className="w-5 h-5 ml-2" />
               </Button>
               
@@ -173,7 +159,7 @@ export const BackgroundLocationRationale: React.FC<BackgroundLocationRationalePr
                 onClick={handleSkip}
                 className="w-full py-3 text-sm text-white/50 hover:text-white/70 transition-colors"
               >
-                Keep Foreground Only
+                Not Now
               </button>
             </div>
           </motion.div>
@@ -183,4 +169,4 @@ export const BackgroundLocationRationale: React.FC<BackgroundLocationRationalePr
   );
 };
 
-export default BackgroundLocationRationale;
+export default PhoneStateRationale;
