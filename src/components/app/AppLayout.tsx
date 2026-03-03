@@ -163,7 +163,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         "app-theme flex flex-col",
         // Theme-specific gradients
         isDark 
-          ? "dark bg-[hsl(220,45%,7%)]" 
+          ? "dark bg-background" 
           : "light bg-gradient-to-b from-[hsl(210,40%,98%)] via-[hsl(210,35%,96%)] to-[hsl(210,30%,94%)]",
         // Transition only if reduced motion not preferred
         !prefersReducedMotion && "transition-colors duration-300"
