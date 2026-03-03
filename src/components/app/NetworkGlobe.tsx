@@ -671,17 +671,29 @@ const DataHotspot: React.FC<{
       
       {/* Popup when selected - shows city/region name */}
       {isSelected && (
-        <Html center distanceFactor={4}>
+        <Html center distanceFactor={2.5} zIndexRange={[50, 0]}>
           <div 
-            className="bg-white/95 backdrop-blur-sm border border-gray-200 rounded-xl px-3 py-2 min-w-[120px] shadow-xl pointer-events-auto"
+            className="relative bg-white/95 backdrop-blur-sm border border-gray-200 rounded-lg px-2.5 py-1.5 min-w-[90px] max-w-[140px] shadow-lg pointer-events-auto"
+            style={{ transform: 'scale(var(--popup-scale, 1))' }}
             onClick={(e) => e.stopPropagation()}
           >
-            <p className="text-gray-900 font-bold text-xs">
+            {/* Close button */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onSelect(null);
+              }}
+              className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-gray-700 hover:bg-gray-900 text-white rounded-full flex items-center justify-center text-[8px] font-bold leading-none shadow-md transition-colors"
+              aria-label="Close"
+            >
+              ✕
+            </button>
+            <p className="text-gray-900 font-bold text-[10px] pr-2 leading-tight">
               {marker.cityName}
             </p>
-            <div className="flex items-center gap-2 mt-1">
-              <span className="text-cyan-600 text-sm font-bold">{marker.count}</span>
-              <span className="text-gray-500 text-[10px]">data points</span>
+            <div className="flex items-center gap-1.5 mt-0.5">
+              <span className="text-cyan-600 text-xs font-bold">{marker.count}</span>
+              <span className="text-gray-500 text-[9px]">data points</span>
             </div>
           </div>
         </Html>
