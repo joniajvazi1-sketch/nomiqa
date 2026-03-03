@@ -93,10 +93,12 @@ serve(async (req) => {
       .from('coverage_tiles')
       .select('location_geohash', { count: 'exact', head: true });
 
-    // Get contributor count
-    const { data: contributorData } = await supabase
-      .rpc('get_leaderboard_top', { p_limit: 10000 });
-    const totalContributors = contributorData?.length || 0;
+    // Get contributor count (exact count, not limited by RPC)
+    const { count: totalContributors } = await supabase
+      .from('user_points')
+      .select('user_id', { count: 'exact', head: true })
+      .gt('total_points', 0)
+      .eq('is_frozen', false);
 
     // Query recent signal logs for aggregation
     // PRIVACY: we only aggregate, never return individual coords
@@ -229,7 +231,7 @@ serve(async (req) => {
       allTimeCities: allTimeCityCount,
       coverageAreaKm2,
       countriesCount: uniqueRegions,
-      totalContributors,
+      totalContributors: totalContributors || 0,
       gridSizeKm: Math.round(CITY_GRID_SIZE * 111),
       lastUpdated: new Date().toISOString(),
     };
