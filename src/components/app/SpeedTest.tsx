@@ -9,7 +9,8 @@ import { useHaptics } from '@/hooks/useHaptics';
 import { toast } from 'sonner';
 
 const DAILY_TEST_LIMIT = 3;
-const POINTS_PER_TEST = 25;
+const POINTS_CELLULAR = 25;
+const POINTS_WIFI = 10;
 
 interface SpeedTestProps {
   onPointsEarned?: (points: number) => void;
@@ -83,10 +84,14 @@ export function SpeedTest({
       }
 
       // Award bonus points only if under daily limit — use server-side cap enforcement
+      // Cellular tests earn 25 pts (2.5x) to incentivize real-world network data
+      const isCellularTest = networkType && !['wifi', 'unknown', 'none'].includes(networkType.toLowerCase());
+      const pointsForTest = isCellularTest ? POINTS_CELLULAR : POINTS_WIFI;
+      
       if (dailyTestCount < DAILY_TEST_LIMIT && (testResult.down !== null || testResult.latency !== null)) {
         const { data: pointsResult, error: rpcError } = await supabase.rpc('add_points_with_cap', {
           p_user_id: userId,
-          p_base_points: POINTS_PER_TEST,
+          p_base_points: pointsForTest,
           p_source: 'speed_test'
         });
 
@@ -175,7 +180,7 @@ export function SpeedTest({
             Speed Test
           </span>
           <span className="text-sm font-normal text-muted-foreground">
-            {Math.min(dailyTestCount, DAILY_TEST_LIMIT)}/{DAILY_TEST_LIMIT} rewarded today
+            {Math.min(dailyTestCount, DAILY_TEST_LIMIT)}/{DAILY_TEST_LIMIT} rewarded • {networkType && !['wifi', 'unknown', 'none'].includes(networkType.toLowerCase()) ? '📶 25' : '📡 10'} pts
           </span>
         </CardTitle>
       </CardHeader>
@@ -224,7 +229,7 @@ export function SpeedTest({
                 {canEarnPoints ? (
                   <span className="flex items-center gap-1 text-primary font-medium">
                     <Award className="h-4 w-4" />
-                    +{POINTS_PER_TEST} pts earned
+                    +{networkType && !['wifi', 'unknown', 'none'].includes(networkType.toLowerCase()) ? POINTS_CELLULAR : POINTS_WIFI} pts earned
                   </span>
                 ) : (
                   <span className="text-muted-foreground text-xs">
@@ -308,7 +313,7 @@ export function SpeedTest({
                     </motion.div>
                     <p className="text-muted-foreground text-sm">
                       {canEarnPoints 
-                        ? <>Test your network speed and earn <span className="text-primary font-semibold">{POINTS_PER_TEST} points</span></>
+                        ? <>Test your network speed and earn <span className="text-primary font-semibold">{networkType && !['wifi', 'unknown', 'none'].includes(networkType.toLowerCase()) ? `${POINTS_CELLULAR} points (cellular bonus!)` : `${POINTS_WIFI} points (${POINTS_CELLULAR} on cellular!)`}</span></>
                         : 'Test your network speed (no reward available)'
                       }
                     </p>

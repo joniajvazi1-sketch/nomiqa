@@ -61,7 +61,7 @@ interface OfflineQueueItem {
 
 const OFFLINE_QUEUE_KEY = 'nomiqa_offline_contribution_queue';
 const SPEED_TEST_INTERVAL = 30 * 60 * 1000; // Run speed test every 30 minutes (Wi-Fi only to save data)
-const SPEED_TEST_BONUS_POINTS = 2; // Bonus points per speed test
+const SPEED_TEST_BONUS_POINTS = 2; // Base bonus points per speed test (hook-internal auto-tests, not the standalone SpeedTest component)
 const PREMIUM_SPEED_THRESHOLD = 50; // Mbps - extra bonus for fast connections
 const DAILY_SPEED_TEST_LIMIT = 3; // Max rewarded speed tests per day (25 pts each)
 const SPEED_TEST_DAILY_KEY = 'nomiqa_speed_tests_today';
