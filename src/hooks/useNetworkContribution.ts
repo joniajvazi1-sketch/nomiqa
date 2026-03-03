@@ -395,6 +395,7 @@ export const useNetworkContribution = () => {
   const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
   const lastTimePointsRef = useRef<number>(0);
   const lastAutoSavePointsRef = useRef<number>(0);
+  const accessTokenRef = useRef<string | null>(null);
 
   // Refs for callbacks to avoid dependency array issues
   const disableContributionRef = useRef(disableContribution);
@@ -743,6 +744,9 @@ export const useNetworkContribution = () => {
     const loadUser = async () => {
       const { data: { user: currentUser } } = await supabase.auth.getUser();
       setUser(currentUser);
+      // Cache access token for synchronous use in visibilitychange handler
+      const { data: { session: sess } } = await supabase.auth.getSession();
+      accessTokenRef.current = sess?.access_token || null;
     };
     loadUser();
     
@@ -943,11 +947,56 @@ export const useNetworkContribution = () => {
     // Start auto-save timer
     autoSaveTimerRef.current = setInterval(autoSavePoints, AUTO_SAVE_INTERVAL_MS);
     
+    // IMMEDIATE SAVE on visibility change / app pause
+    // This ensures points are persisted the instant the user switches away or the OS suspends
+    const immediateSave = () => {
+      if (document.visibilityState !== 'visible') {
+        const currentStats = statsRef.current;
+        const currentPoints = Math.floor(currentStats.pointsEarned);
+        const pointsDelta = currentPoints - lastAutoSavePointsRef.current;
+        if (pointsDelta >= 1 && user) {
+          console.log(`[NetworkContribution] Immediate save on hide: ${pointsDelta} points`);
+          // Use sendBeacon-style fire-and-forget via fetch keepalive for reliability
+          const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+          const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+          if (supabaseUrl && supabaseKey) {
+            const body = JSON.stringify({
+              p_user_id: user.id,
+              p_base_points: pointsDelta,
+              p_source: 'contribution',
+              p_session_hours: currentStats.duration / 3600
+            });
+            try {
+              fetch(`${supabaseUrl}/rest/v1/rpc/add_points_with_cap`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'apikey': supabaseKey,
+                  'Authorization': `Bearer ${accessTokenRef.current || supabaseKey}`,
+                },
+                body,
+                keepalive: true, // Survives page unload
+              }).catch(() => {}); // Best effort
+              lastAutoSavePointsRef.current = currentPoints;
+              localStorage.setItem(LAST_AUTO_SAVE_KEY, Date.now().toString());
+            } catch {
+              // Best effort - don't block
+            }
+          }
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', immediateSave);
+    window.addEventListener('pagehide', immediateSave);
+
     return () => {
       if (autoSaveTimerRef.current) {
         clearInterval(autoSaveTimerRef.current);
         autoSaveTimerRef.current = null;
       }
+      document.removeEventListener('visibilitychange', immediateSave);
+      window.removeEventListener('pagehide', immediateSave);
     };
   }, [session.status, session.id, user?.id]); // Only depend on session state and user, not stats
 
