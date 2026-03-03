@@ -695,37 +695,25 @@ export const AppHome: React.FC = () => {
             </div>
 
             <div className="grid grid-cols-3 gap-2">
-              {/* Contributing - CAPPED at 200/day */}
+              {/* Contributing */}
               <div className={cn("rounded-xl p-2.5 border", isDark ? "bg-white/5 border-white/5" : "bg-muted/50 border-border")}>
                 <p className={cn("text-[9px] uppercase tracking-wide mb-0.5", isDark ? "text-white/50" : "text-muted-foreground")}>📡 Contributing</p>
-                <p className="text-base font-bold text-emerald-400 tabular-nums">
-                  {todayBreakdown.contribution}
-                  <span className={cn("text-[10px] font-normal ml-0.5", isDark ? "text-white/30" : "text-muted-foreground")}>/200</span>
-                </p>
-                <div className={cn("w-full h-1 rounded-full mt-1.5", isDark ? "bg-white/10" : "bg-muted")}>
-                  <div 
-                    className="h-full rounded-full bg-emerald-400 transition-all duration-500"
-                    style={{ width: `${Math.min(100, (todayBreakdown.contribution / 200) * 100)}%` }}
-                  />
-                </div>
+                <p className="text-base font-bold text-emerald-400 tabular-nums">+{todayBreakdown.contribution}</p>
                 <span className={cn("text-[8px] block mt-1", isDark ? "text-white/30" : "text-muted-foreground/70")}>Scanning + Speed Tests</span>
-                <span className={cn("text-[8px] block", isDark ? "text-amber-300/60" : "text-amber-600/70")}>⚠️ Capped at 200/day</span>
               </div>
 
-              {/* Friends - UNCAPPED */}
+              {/* Friends */}
               <div className={cn("rounded-xl p-2.5 border", isDark ? "bg-white/5 border-white/5" : "bg-muted/50 border-border")}>
                 <p className={cn("text-[9px] uppercase tracking-wide mb-0.5", isDark ? "text-white/50" : "text-muted-foreground")}>👥 Friends</p>
                 <p className="text-base font-bold text-sky-400 tabular-nums">+{todayBreakdown.friends}</p>
                 <span className={cn("text-[8px] block mt-1", isDark ? "text-white/30" : "text-muted-foreground/70")}>{referralCount} team members</span>
-                <span className={cn("text-[8px] block", isDark ? "text-emerald-300/60" : "text-emerald-600/70")}>✅ No cap</span>
               </div>
 
-              {/* Bonuses - UNCAPPED */}
+              {/* Bonuses */}
               <div className={cn("rounded-xl p-2.5 border", isDark ? "bg-white/5 border-white/5" : "bg-muted/50 border-border")}>
                 <p className={cn("text-[9px] uppercase tracking-wide mb-0.5", isDark ? "text-white/50" : "text-muted-foreground")}>🎁 Bonuses</p>
                 <p className="text-base font-bold text-amber-400 tabular-nums">+{todayBreakdown.rewards}</p>
                 <span className={cn("text-[8px] block mt-1", isDark ? "text-white/30" : "text-muted-foreground/70")}>Check-ins, tasks</span>
-                <span className={cn("text-[8px] block", isDark ? "text-emerald-300/60" : "text-emerald-600/70")}>✅ No cap</span>
               </div>
             </div>
 
