@@ -975,7 +975,7 @@ export const AppHome: React.FC = () => {
 
                 <div className={cn("rounded-xl p-3 flex items-center gap-2 mb-4 border", isDark ? "bg-white/5 border-white/5" : "bg-muted/50 border-border")}>
                   <span className="flex-1 text-sm text-foreground truncate font-mono">
-                    nomiqa.com/{username || 'invite'}
+                    nomiqa-depin.com/{username || 'invite'}
                   </span>
                   <button
                     onClick={() => { lightTap(); handleCopyLink(); }}
