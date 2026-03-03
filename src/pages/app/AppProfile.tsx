@@ -478,7 +478,7 @@ export const AppProfile: React.FC = () => {
 
             {/* Contributor Level */}
             <ContributorLevelCard 
-              onTap={() => { selectionTap(); navigate('/app/achievements'); }} 
+              onTap={() => { selectionTap(); navigate('/app/rewards'); }} 
             />
 
             {/* Invite Friends — clean & actionable */}
