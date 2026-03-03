@@ -4,9 +4,9 @@ import { useTheme } from 'next-themes';
 import { 
   User, Package, LogOut, Crown, Star, Sparkles,
   Share2, Pencil, Check, X, RefreshCw, Users,
-  Wallet, MapPin, Activity, Shield, Loader2, Gift,
+  Wallet, Shield, Loader2, Gift,
   Target, Trophy, ChevronRight, Trash2, AlertTriangle, HelpCircle,
-  Sun, Moon
+  Sun, Moon, Copy, ExternalLink, Zap, TrendingUp
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -74,10 +74,10 @@ interface Order {
 }
 
 const TIER_CONFIG = {
-  beginner: { icon: Star, color: 'text-amber-400', bg: 'bg-amber-400/20', name: 'Starter' },
-  traveler: { icon: Crown, color: 'text-sky-400', bg: 'bg-sky-400/20', name: 'Traveler' },
-  adventurer: { icon: Crown, color: 'text-amber-500', bg: 'bg-amber-500/20', name: 'Adventurer' },
-  explorer: { icon: Sparkles, color: 'text-violet-400', bg: 'bg-violet-400/20', name: 'Explorer' }
+  beginner: { icon: Star, color: 'text-amber-400', bg: 'bg-amber-400/20', name: 'Starter', gradient: 'from-amber-400/20 to-orange-400/10' },
+  traveler: { icon: Crown, color: 'text-sky-400', bg: 'bg-sky-400/20', name: 'Traveler', gradient: 'from-sky-400/20 to-blue-400/10' },
+  adventurer: { icon: Crown, color: 'text-amber-500', bg: 'bg-amber-500/20', name: 'Adventurer', gradient: 'from-amber-500/20 to-orange-500/10' },
+  explorer: { icon: Sparkles, color: 'text-violet-400', bg: 'bg-violet-400/20', name: 'Explorer', gradient: 'from-violet-400/20 to-purple-400/10' }
 };
 
 export const AppProfile: React.FC = () => {
@@ -120,7 +120,6 @@ export const AppProfile: React.FC = () => {
       setUser(currentUser);
 
       if (currentUser) {
-        // Using _safe views to exclude sensitive verification/reset fields
         const [profileResult, membershipResult, affiliateResult, ordersResult, statsResult] = await Promise.all([
           supabase.from('profiles_safe').select('username, solana_wallet').eq('user_id', currentUser.id).maybeSingle(),
           supabase.from('user_spending').select('*').eq('user_id', currentUser.id).maybeSingle(),
@@ -148,7 +147,6 @@ export const AppProfile: React.FC = () => {
             total_distance_meters: statsResult.data.points?.total_distance_meters || 0
           });
         } else {
-          // If stats fetch failed or returned empty, ensure user_points record exists
           const { data: existingPoints } = await supabase
             .from('user_points')
             .select('total_points, total_distance_meters')
@@ -156,7 +154,6 @@ export const AppProfile: React.FC = () => {
             .maybeSingle();
           
           if (!existingPoints) {
-            // Create initial user_points record
             await supabase
               .from('user_points')
               .insert({ user_id: currentUser.id, total_points: 0, pending_points: 0 });
@@ -168,10 +165,8 @@ export const AppProfile: React.FC = () => {
           });
         }
 
-        // Auto-create affiliate account if doesn't exist
         let affiliateData = affiliateResult.data;
         if (!affiliateData) {
-          // Generate a unique affiliate code
           const affiliateCode = Math.random().toString(36).substring(2, 10).toUpperCase();
           const { data: newAffiliate, error: affiliateError } = await supabase
             .from('affiliates')
@@ -234,7 +229,6 @@ export const AppProfile: React.FC = () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
 
-      // Using _safe view for username availability check
       const { data: existingUser } = await supabase.from('profiles_safe').select('id').eq('username', editedUsername.trim()).neq('user_id', session.user.id).maybeSingle();
       if (existingUser) {
         toast({ title: 'Username is already taken', variant: 'destructive' });
@@ -289,19 +283,16 @@ export const AppProfile: React.FC = () => {
   const handleDeleteAccount = async () => {
     setDeletingAccount(true);
     try {
-      // Call the deletion RPC function
       const { error: rpcError } = await supabase.rpc('request_data_deletion', {
         requesting_user_id: user.id
       });
       
       if (rpcError) throw rpcError;
 
-      // Delete the user from auth
       const { error: deleteError } = await supabase.functions.invoke('delete-user');
       
       if (deleteError) throw deleteError;
 
-      // Sign out and redirect
       await supabase.auth.signOut();
       toast({ title: 'Account deleted', description: 'Your account and data have been removed.' });
       navigate('/');
@@ -320,16 +311,6 @@ export const AppProfile: React.FC = () => {
   const getTierConfig = (tier: string) => TIER_CONFIG[tier as keyof typeof TIER_CONFIG] || TIER_CONFIG.beginner;
   const tierConfig = membership ? getTierConfig(membership.membership_tier) : getTierConfig('beginner');
   const TierIcon = tierConfig.icon;
-  const totalCashbackEarned = membership ? (membership.total_spent_usd * membership.cashback_rate) / 100 : 0;
-
-  const getNextTierThreshold = (currentTier: string): number => {
-    switch (currentTier) {
-      case 'beginner': return 50;
-      case 'traveler': return 150;
-      case 'adventurer': return 500;
-      default: return 500;
-    }
-  };
 
   if (!user && !loading) {
     return (
@@ -357,384 +338,452 @@ export const AppProfile: React.FC = () => {
     );
   }
 
+  const referralLink = affiliate?.username 
+    ? `nomiqa-depin.com/${affiliate.username}` 
+    : affiliate?.affiliate_code 
+      ? `nomiqa-depin.com/r/${affiliate.affiliate_code}` 
+      : '';
+
   return (
     <>
       <AppSEO />
-      <div className="px-4 py-6 space-y-5 pb-24 min-h-screen overflow-y-auto">
-        {/* Header with glassmorphism */}
-      <div className="relative rounded-2xl bg-card/80 backdrop-blur-xl border border-border p-4 overflow-hidden shadow-[var(--shadow-card)]">
+      <div className="px-4 pt-6 pb-24 min-h-screen overflow-y-auto">
         
-        <div className="relative z-10 flex items-center gap-4">
-          <div className={cn("w-16 h-16 rounded-full flex items-center justify-center ring-2 ring-offset-2 ring-offset-transparent bg-primary/10 ring-primary")}>
-            <span className="text-2xl font-bold text-primary">
-              {profile?.username?.charAt(0).toUpperCase() || 'U'}
-            </span>
-          </div>
-          <div className="flex-1">
-            <h1 className="text-xl font-bold text-foreground">{profile?.username}</h1>
-            <p className="text-sm text-muted-foreground">{profile?.email}</p>
-          </div>
-          <div className="flex items-center gap-1">
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={() => { selectionTap(); setTheme(isDark ? 'light' : 'dark'); }} 
-              className="active:scale-95 text-muted-foreground hover:text-foreground hover:bg-white/10"
-            >
-              {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-            </Button>
-            <Button variant="ghost" size="icon" onClick={handleLogout} className="active:scale-95 text-muted-foreground hover:text-foreground hover:bg-white/10">
-              <LogOut className="w-5 h-5" />
-            </Button>
-          </div>
-        </div>
-      </div>
+        {/* ── Profile Header ── */}
+        <div className="relative rounded-2xl overflow-hidden mb-5">
+          {/* Gradient background */}
+          <div className={cn(
+            "absolute inset-0 bg-gradient-to-br opacity-60",
+            tierConfig.gradient
+          )} />
+          <div className="absolute inset-0 bg-card/70 backdrop-blur-xl" />
+          
+          <div className="relative p-5">
+            {/* Top actions row */}
+            <div className="flex justify-end gap-1 mb-4">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => { selectionTap(); setTheme(isDark ? 'light' : 'dark'); }} 
+                className="w-8 h-8 rounded-full bg-white/5 text-muted-foreground hover:text-foreground hover:bg-white/10"
+              >
+                {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={handleLogout} 
+                className="w-8 h-8 rounded-full bg-white/5 text-muted-foreground hover:text-foreground hover:bg-white/10"
+              >
+                <LogOut className="w-4 h-4" />
+              </Button>
+            </div>
 
-      {/* Contributor Level Card - PRIMARY identity indicator with all stats */}
-      <ContributorLevelCard 
-        onTap={() => { selectionTap(); navigate('/app/achievements'); }} 
-      />
-
-
-      {/* Tabs - Glassmorphism */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3 h-auto p-1 bg-card/80 backdrop-blur-sm border border-border rounded-xl shadow-[var(--shadow-card)]">
-          <TabsTrigger value="account" className="py-2.5 text-xs rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground" onClick={() => selectionTap()}>
-            <User className="w-4 h-4 mr-1" />
-            Account
-          </TabsTrigger>
-          <TabsTrigger value="orders" className="py-2.5 text-xs rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground" onClick={() => selectionTap()}>
-            <Package className="w-4 h-4 mr-1" />
-            eSIMs
-          </TabsTrigger>
-          <TabsTrigger value="settings" className="py-2.5 text-xs rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground" onClick={() => selectionTap()}>
-            <Shield className="w-4 h-4 mr-1" />
-            Settings
-          </TabsTrigger>
-        </TabsList>
-
-        {/* Account Tab */}
-        <TabsContent value="account" className="mt-4 space-y-4">
-
-          {/* Invite Friends Section - Clean banking style */}
-          {affiliate && (
-            <Card className="bg-card border-border">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Users className="w-5 h-5 text-primary" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-semibold text-foreground">Invite Friends</p>
-                    <p className="text-xs text-muted-foreground">Earn when they join & earn</p>
-                  </div>
-                  <Button size="sm" onClick={handleShare} className="active:scale-95">
-                    <Share2 className="w-4 h-4 mr-1" />
-                    Share
+            {/* Avatar + Identity */}
+            <div className="flex flex-col items-center text-center">
+              <div className={cn(
+                "w-20 h-20 rounded-2xl flex items-center justify-center mb-3",
+                "bg-gradient-to-br from-primary/20 to-primary/5 border-2 border-primary/30",
+                "shadow-[0_0_30px_-5px_hsl(var(--primary)/0.3)]"
+              )}>
+                <span className="text-3xl font-bold text-primary">
+                  {profile?.username?.charAt(0).toUpperCase() || 'U'}
+                </span>
+              </div>
+              
+              {/* Username with inline edit */}
+              {isEditingUsername ? (
+                <div className="flex items-center gap-2 mb-1">
+                  <Input 
+                    value={editedUsername} 
+                    onChange={(e) => setEditedUsername(e.target.value)} 
+                    className="bg-muted/50 h-8 text-center text-sm w-40" 
+                    autoFocus 
+                  />
+                  <Button size="icon" variant="ghost" onClick={handleSaveUsername} disabled={savingUsername} className="w-7 h-7">
+                    {savingUsername ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5 text-green-500" />}
+                  </Button>
+                  <Button size="icon" variant="ghost" onClick={() => { setIsEditingUsername(false); setEditedUsername(profile?.username || ''); }} className="w-7 h-7">
+                    <X className="w-3.5 h-3.5 text-red-500" />
                   </Button>
                 </div>
-                
-                {/* Key motivator - Contribution value sharing */}
-                <p className="text-xs text-primary font-semibold mb-3 pl-[52px]">
-                  Share in the value they help create
-                </p>
-                
-                <div className="grid grid-cols-2 gap-2 text-center text-xs">
-                  <div className="rounded-lg bg-muted/50 p-2.5">
-                    <p className="font-bold text-foreground text-lg">{affiliate.total_registrations}</p>
-                    <p className="text-muted-foreground">Team Members</p>
+              ) : (
+                <button 
+                  onClick={() => setIsEditingUsername(true)}
+                  className="flex items-center gap-1.5 mb-1 group"
+                >
+                  <h1 className="text-xl font-bold text-foreground">{profile?.username}</h1>
+                  <Pencil className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-opacity" />
+                </button>
+              )}
+              
+              <p className="text-xs text-muted-foreground mb-3">{profile?.email}</p>
+              
+              {/* Tier badge */}
+              <div className={cn(
+                "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold",
+                tierConfig.bg, tierConfig.color
+              )}>
+                <TierIcon className="w-3.5 h-3.5" />
+                {tierConfig.name}
+              </div>
+            </div>
+
+            {/* Quick stats row */}
+            <div className="grid grid-cols-3 gap-3 mt-5">
+              <div className="text-center rounded-xl bg-white/5 backdrop-blur-sm py-2.5 px-2">
+                <p className="text-lg font-bold text-foreground">{(userPoints?.total_points || 0).toLocaleString()}</p>
+                <p className="text-[10px] text-muted-foreground">Points</p>
+              </div>
+              <div className="text-center rounded-xl bg-white/5 backdrop-blur-sm py-2.5 px-2">
+                <p className="text-lg font-bold text-foreground">{affiliate?.total_registrations || 0}</p>
+                <p className="text-[10px] text-muted-foreground">Team</p>
+              </div>
+              <div className="text-center rounded-xl bg-white/5 backdrop-blur-sm py-2.5 px-2">
+                <p className="text-lg font-bold text-foreground">{((userPoints?.total_distance_meters || 0) / 1000).toFixed(1)}</p>
+                <p className="text-[10px] text-muted-foreground">km</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Tabs ── */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-3 h-11 p-1 bg-muted/50 backdrop-blur-sm rounded-xl mb-4">
+            <TabsTrigger 
+              value="account" 
+              className="rounded-lg text-xs font-medium data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm text-muted-foreground"
+              onClick={() => selectionTap()}
+            >
+              Account
+            </TabsTrigger>
+            <TabsTrigger 
+              value="orders" 
+              className="rounded-lg text-xs font-medium data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm text-muted-foreground"
+              onClick={() => selectionTap()}
+            >
+              eSIMs
+            </TabsTrigger>
+            <TabsTrigger 
+              value="settings" 
+              className="rounded-lg text-xs font-medium data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm text-muted-foreground"
+              onClick={() => selectionTap()}
+            >
+              Settings
+            </TabsTrigger>
+          </TabsList>
+
+          {/* ═══ Account Tab ═══ */}
+          <TabsContent value="account" className="mt-0 space-y-4">
+
+            {/* Contributor Level */}
+            <ContributorLevelCard 
+              onTap={() => { selectionTap(); navigate('/app/achievements'); }} 
+            />
+
+            {/* Invite Friends — clean & actionable */}
+            {affiliate && (
+              <div className="rounded-2xl bg-card border border-border overflow-hidden">
+                <div className="p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
+                        <Users className="w-4.5 h-4.5 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-foreground">Invite & Earn</p>
+                        <p className="text-[11px] text-muted-foreground">5% of your team's earnings</p>
+                      </div>
+                    </div>
+                    <Button size="sm" variant="default" onClick={handleShare} className="h-8 text-xs px-3 active:scale-95">
+                      <Share2 className="w-3.5 h-3.5 mr-1.5" />
+                      Share
+                    </Button>
                   </div>
-                  <div className="rounded-lg bg-muted/50 p-2.5">
-                    <p className="font-bold text-primary text-lg">{Math.round((affiliate.total_earnings_usd || 0) * 100)}</p>
-                    <p className="text-muted-foreground">Team Points</p>
-                  </div>
-                </div>
-                <div className="mt-3 pt-3 border-t border-border">
-                  <p className="text-xs text-muted-foreground mb-1.5">Your referral link</p>
+                  
+                  {/* Referral link */}
                   <button
-                    onClick={() => copyToClipboard(`https://nomiqa-depin.com/${affiliate.username || affiliate.affiliate_code}`)}
-                    className="w-full p-2.5 rounded-lg bg-muted/50 text-sm font-medium text-foreground flex items-center justify-between active:scale-[0.99] transition-transform"
+                    onClick={handleCopyLink}
+                    className="w-full flex items-center justify-between gap-2 p-2.5 rounded-xl bg-muted/40 border border-border/50 active:scale-[0.99] transition-transform group"
                   >
-                    <span className="truncate">nomiqa-depin.com/{affiliate.username || affiliate.affiliate_code}</span>
-                    <span className="text-xs text-primary ml-2">Copy</span>
+                    <span className="text-xs font-mono text-muted-foreground truncate">{referralLink}</span>
+                    <span className="flex items-center gap-1 text-[11px] text-primary font-medium whitespace-nowrap">
+                      <Copy className="w-3 h-3" />
+                      Copy
+                    </span>
                   </button>
                 </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Your Progress Section */}
-          <Card className="bg-card border-border">
-            <CardContent className="p-4">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Your Progress</p>
-              <div className="space-y-1">
-                <button
-                  onClick={() => { selectionTap(); navigate('/app/challenges'); }}
-                  className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 active:scale-[0.99] transition-all -mx-1"
-                >
-                  <div className="flex items-center gap-3">
-                    <Target className="w-5 h-5 text-blue-500" />
-                    <div className="text-left">
-                      <p className="text-sm font-medium text-foreground">Challenges</p>
-                      <p className="text-xs text-muted-foreground">Complete tasks, earn rewards</p>
-                    </div>
+                
+                {/* Stats bar */}
+                <div className="grid grid-cols-2 divide-x divide-border border-t border-border">
+                  <div className="py-2.5 text-center">
+                    <p className="text-sm font-bold text-foreground">{affiliate.total_registrations}</p>
+                    <p className="text-[10px] text-muted-foreground">Team Members</p>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                </button>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Account Details */}
-          <Card className="bg-card border-border">
-            <CardContent className="p-4 space-y-4">
-              <div>
-                <p className="text-xs text-muted-foreground mb-1">Username</p>
-                {isEditingUsername ? (
-                  <div className="flex items-center gap-2">
-                    <Input value={editedUsername} onChange={(e) => setEditedUsername(e.target.value)} className="bg-muted/50" autoFocus />
-                    <Button size="icon" variant="ghost" onClick={handleSaveUsername} disabled={savingUsername}>
-                      {savingUsername ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4 text-green-500" />}
-                    </Button>
-                    <Button size="icon" variant="ghost" onClick={() => { setIsEditingUsername(false); setEditedUsername(profile?.username || ''); }}>
-                      <X className="w-4 h-4 text-red-500" />
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2">
-                    <p className="text-base font-medium text-foreground">{profile?.username}</p>
-                    <Button size="icon" variant="ghost" onClick={() => setIsEditingUsername(true)} className="w-6 h-6">
-                      <Pencil className="w-3 h-3 text-muted-foreground" />
-                    </Button>
-                  </div>
-                )}
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground mb-1">Email</p>
-                <p className="text-base text-foreground">{profile?.email}</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground mb-1">Tier</p>
-                <div className="flex items-center gap-2">
-                  <TierIcon className={cn("w-4 h-4", tierConfig.color)} />
-                  <p className="text-base font-medium text-foreground">{tierConfig.name}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Orders Tab */}
-        <TabsContent value="orders" className="mt-4 space-y-3">
-          {orders.length === 0 ? (
-            <Card className="bg-card border-border border-dashed">
-              <CardContent className="p-6 text-center">
-                <EmptyStateIllustration type="orders" className="mb-2" />
-                <p className="text-muted-foreground text-sm mb-1">No eSIMs yet</p>
-                <p className="text-xs text-muted-foreground/60 mb-4">Your travel plans will appear here</p>
-                <Button onClick={() => navigate('/app/shop')}>Browse Plans</Button>
-              </CardContent>
-            </Card>
-          ) : (
-            orders.map((order) => {
-              const getStatusDisplay = (status: string) => {
-                switch (status) {
-                  case 'completed': case 'active': return { label: 'Active', color: 'bg-green-500/20 text-green-400' };
-                  case 'failed': case 'cancelled': return { label: 'Failed', color: 'bg-red-500/20 text-red-400' };
-                  case 'expired': return { label: 'Expired', color: 'bg-muted text-muted-foreground' };
-                  default: return { label: 'Processing', color: 'bg-amber-500/20 text-amber-400' };
-                }
-              };
-              const statusDisplay = getStatusDisplay(order.status);
-              return (
-                <Card key={order.id} className="bg-card border-border">
-                  <CardContent className="p-3">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium text-foreground text-sm">{order.package_name || 'eSIM Plan'}</p>
-                        <p className="text-xs text-muted-foreground">{order.data_amount}</p>
-                      </div>
-                      <Badge variant="outline" className={cn('text-xs', statusDisplay.color)}>{statusDisplay.label}</Badge>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })
-          )}
-        </TabsContent>
-
-        {/* Settings Tab */}
-        <TabsContent value="settings" className="mt-4 space-y-4">
-          {/* Speed Test History */}
-          <Card className="bg-card/80 backdrop-blur-sm border-border shadow-[var(--shadow-card)]">
-            <CardContent className="p-4">
-              <SpeedTestHistory limit={5} compact />
-            </CardContent>
-          </Card>
-
-          {/* Data Collection Controls */}
-          <DataCollectionControls />
-
-          {/* Notification Settings */}
-          <NotificationSettings />
-
-          {/* Wallet - Optional */}
-          <Card className="bg-card/80 backdrop-blur-sm border-border shadow-[var(--shadow-card)]">
-            <CardContent className="p-4 space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Wallet className="w-5 h-5 text-violet-500" />
-                  <div>
-                    <p className="text-sm font-medium text-foreground">Rewards Wallet</p>
-                    <p className="text-xs text-muted-foreground">Optional - for token claims</p>
+                  <div className="py-2.5 text-center">
+                    <p className="text-sm font-bold text-primary">{Math.round((affiliate.total_earnings_usd || 0) * 100)}</p>
+                    <p className="text-[10px] text-muted-foreground">Team Points</p>
                   </div>
                 </div>
-                <Button variant="ghost" size="sm" onClick={() => setIsEditingWallet(!isEditingWallet)} className="text-xs">
-                  {profile?.solana_wallet ? 'Edit' : 'Add'}
-                </Button>
               </div>
-              {isEditingWallet && (
-                <div className="space-y-3 pt-2 border-t border-border">
-                  <Input value={solanaWallet} onChange={(e) => { setSolanaWallet(e.target.value); setWalletError(null); }} placeholder="Solana address" className="font-mono text-sm bg-muted/50" />
-                  {walletError && <p className="text-xs text-red-500">{walletError}</p>}
-                  <div className="flex gap-2">
-                    <Button onClick={handleSaveWallet} disabled={savingWallet} size="sm" className="flex-1">
-                      {savingWallet ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save'}
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={() => { setIsEditingWallet(false); setSolanaWallet(profile?.solana_wallet || ''); }}>Cancel</Button>
-                  </div>
-                </div>
-              )}
-              {!isEditingWallet && profile?.solana_wallet && (
-                <p className="text-xs font-mono text-muted-foreground truncate bg-muted/50 rounded-lg px-3 py-2">
-                  {profile.solana_wallet.slice(0, 8)}...{profile.solana_wallet.slice(-8)}
-                </p>
-              )}
-            </CardContent>
-          </Card>
+            )}
 
-          {/* Privacy Controls */}
-          <PrivacyControls />
-
-          {/* Help Center */}
-          <Card className="bg-card/80 backdrop-blur-sm border-border shadow-[var(--shadow-card)]">
-            <CardContent className="p-4">
+            {/* Quick Links */}
+            <div className="rounded-2xl bg-card border border-border divide-y divide-border overflow-hidden">
               <button
-                onClick={() => { selectionTap(); setShowHelpCenter(true); }}
-                className="w-full flex items-center justify-between"
+                onClick={() => { selectionTap(); navigate('/app/challenges'); }}
+                className="w-full flex items-center justify-between p-3.5 hover:bg-muted/30 active:bg-muted/50 transition-colors"
               >
                 <div className="flex items-center gap-3">
-                  <HelpCircle className="w-5 h-5 text-blue-500" />
+                  <div className="w-9 h-9 rounded-xl bg-blue-500/10 flex items-center justify-center">
+                    <Target className="w-4.5 h-4.5 text-blue-500" />
+                  </div>
                   <div className="text-left">
-                    <p className="text-sm font-medium text-foreground">Help & FAQ</p>
-                    <p className="text-xs text-muted-foreground">Get answers to common questions</p>
+                    <p className="text-sm font-medium text-foreground">Challenges</p>
+                    <p className="text-[11px] text-muted-foreground">Complete tasks, earn rewards</p>
                   </div>
                 </div>
                 <ChevronRight className="w-4 h-4 text-muted-foreground" />
               </button>
-            </CardContent>
-          </Card>
 
-          {/* Account Management - Delete Account */}
-          <Card className="bg-card/80 backdrop-blur-sm border-border border-destructive/30 shadow-[var(--shadow-card)]">
-            <CardContent className="p-4">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Account Management</p>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <button className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-destructive/10 text-left transition-colors -mx-1">
-                    <Trash2 className="w-5 h-5 text-destructive" />
-                    <div>
-                      <p className="text-sm font-medium text-destructive">Delete Account</p>
-                      <p className="text-xs text-muted-foreground">Permanently remove your data</p>
-                    </div>
-                  </button>
-                </AlertDialogTrigger>
-                <AlertDialogContent className="mx-4">
-                  <AlertDialogHeader>
-                    <div className="w-12 h-12 rounded-full bg-destructive/20 flex items-center justify-center mx-auto mb-2">
-                      <AlertTriangle className="w-6 h-6 text-destructive" />
-                    </div>
-                    <AlertDialogTitle className="text-center">Delete Your Account?</AlertDialogTitle>
-                    <AlertDialogDescription className="text-center space-y-2">
-                      <p>This action cannot be undone. This will permanently delete your account and remove all associated data.</p>
-                      <div className="bg-destructive/10 rounded-lg p-3 mt-3 text-destructive text-sm font-medium">
-                        ⚠️ You will lose {(userPoints?.total_points || 0).toLocaleString()} points (worth ~${((userPoints?.total_points || 0) * 0.01).toFixed(2)})
-                      </div>
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter className="flex-col sm:flex-row gap-2">
-                    <AlertDialogCancel className="w-full sm:w-auto">Keep Account</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={handleDeleteAccount}
-                      disabled={deletingAccount}
-                      className="w-full sm:w-auto bg-destructive hover:bg-destructive/90 text-destructive-foreground"
-                    >
-                      {deletingAccount ? (
-                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                      ) : (
-                        <Trash2 className="w-4 h-4 mr-2" />
-                      )}
-                      Delete Forever
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </CardContent>
-          </Card>
-
-          {/* DEV ONLY - Permission Debug & Sentry Testing */}
-          {import.meta.env.DEV && (
-            <>
-              {/* Permission Debug Panel */}
-              <PermissionDebugPanel />
-
-              {/* Sentry Testing */}
-              <Card className="border-destructive/30 bg-destructive/5">
-                <CardContent className="p-4">
-                  <p className="text-xs text-destructive mb-3 font-medium">🧪 DEV ONLY - Sentry Testing</p>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      className="flex-1 text-xs"
-                      onClick={() => {
-                        throw new Error('Test Sentry Crash - React Error');
-                      }}
-                    >
-                      Test Crash
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="flex-1 text-xs border-destructive/30 text-destructive"
-                      onClick={() => {
-                        captureError(new Error('Test Sentry - Handled Error'), { 
-                          test: true, 
-                          timestamp: new Date().toISOString() 
-                        });
-                        toast({ title: '✅ Handled error sent to Sentry' });
-                      }}
-                    >
-                      Handled Error
-                    </Button>
+              <button
+                onClick={() => { selectionTap(); navigate('/app/achievements'); }}
+                className="w-full flex items-center justify-between p-3.5 hover:bg-muted/30 active:bg-muted/50 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-amber-500/10 flex items-center justify-center">
+                    <Trophy className="w-4.5 h-4.5 text-amber-500" />
                   </div>
-                </CardContent>
-              </Card>
-            </>
-          )}
+                  <div className="text-left">
+                    <p className="text-sm font-medium text-foreground">Achievements</p>
+                    <p className="text-[11px] text-muted-foreground">Badges & milestones</p>
+                  </div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              </button>
 
-          {/* Refresh */}
-          <Button variant="ghost" size="sm" onClick={loadData} className="w-full text-xs text-muted-foreground">
-            <RefreshCw className="w-3 h-3 mr-1" />
-            Refresh
-          </Button>
-        </TabsContent>
-      </Tabs>
+              <button
+                onClick={() => { selectionTap(); navigate('/app/leaderboard'); }}
+                className="w-full flex items-center justify-between p-3.5 hover:bg-muted/30 active:bg-muted/50 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-emerald-500/10 flex items-center justify-center">
+                    <TrendingUp className="w-4.5 h-4.5 text-emerald-500" />
+                  </div>
+                  <div className="text-left">
+                    <p className="text-sm font-medium text-foreground">Leaderboard</p>
+                    <p className="text-[11px] text-muted-foreground">See your rank</p>
+                  </div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              </button>
+            </div>
 
-      {/* Help Center Modal */}
-      {showHelpCenter && (
-        <HelpCenter onClose={() => setShowHelpCenter(false)} />
-      )}
+          </TabsContent>
+
+          {/* ═══ eSIMs Tab ═══ */}
+          <TabsContent value="orders" className="mt-0 space-y-3">
+            {orders.length === 0 ? (
+              <div className="rounded-2xl bg-card border border-dashed border-border p-8 text-center">
+                <EmptyStateIllustration type="orders" className="mb-3" />
+                <p className="text-sm font-medium text-foreground mb-1">No eSIMs yet</p>
+                <p className="text-xs text-muted-foreground mb-4">Your travel plans will appear here</p>
+                <Button onClick={() => navigate('/app/shop')} size="sm">Browse Plans</Button>
+              </div>
+            ) : (
+              orders.map((order) => {
+                const getStatusDisplay = (status: string) => {
+                  switch (status) {
+                    case 'completed': case 'active': return { label: 'Active', color: 'bg-green-500/15 text-green-400 border-green-500/20' };
+                    case 'failed': case 'cancelled': return { label: 'Failed', color: 'bg-red-500/15 text-red-400 border-red-500/20' };
+                    case 'expired': return { label: 'Expired', color: 'bg-muted text-muted-foreground border-border' };
+                    default: return { label: 'Processing', color: 'bg-amber-500/15 text-amber-400 border-amber-500/20' };
+                  }
+                };
+                const statusDisplay = getStatusDisplay(order.status);
+                return (
+                  <div key={order.id} className="rounded-xl bg-card border border-border p-3.5">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-foreground">{order.package_name || 'eSIM Plan'}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">{order.data_amount}</p>
+                      </div>
+                      <Badge variant="outline" className={cn('text-[10px] font-medium border', statusDisplay.color)}>
+                        {statusDisplay.label}
+                      </Badge>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </TabsContent>
+
+          {/* ═══ Settings Tab ═══ */}
+          <TabsContent value="settings" className="mt-0 space-y-4">
+            {/* Speed Test History */}
+            <div className="rounded-2xl bg-card border border-border overflow-hidden">
+              <div className="p-4">
+                <SpeedTestHistory limit={5} compact />
+              </div>
+            </div>
+
+            {/* Data Collection Controls */}
+            <DataCollectionControls />
+
+            {/* Notification Settings */}
+            <NotificationSettings />
+
+            {/* Wallet */}
+            <div className="rounded-2xl bg-card border border-border overflow-hidden">
+              <div className="p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-violet-500/10 flex items-center justify-center">
+                      <Wallet className="w-4.5 h-4.5 text-violet-500" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-foreground">Rewards Wallet</p>
+                      <p className="text-[11px] text-muted-foreground">Optional — for token claims</p>
+                    </div>
+                  </div>
+                  <Button variant="ghost" size="sm" onClick={() => setIsEditingWallet(!isEditingWallet)} className="text-xs h-7 px-2">
+                    {profile?.solana_wallet ? 'Edit' : 'Add'}
+                  </Button>
+                </div>
+                {isEditingWallet && (
+                  <div className="space-y-3 pt-2 border-t border-border">
+                    <Input value={solanaWallet} onChange={(e) => { setSolanaWallet(e.target.value); setWalletError(null); }} placeholder="Solana address" className="font-mono text-sm bg-muted/50" />
+                    {walletError && <p className="text-xs text-red-500">{walletError}</p>}
+                    <div className="flex gap-2">
+                      <Button onClick={handleSaveWallet} disabled={savingWallet} size="sm" className="flex-1">
+                        {savingWallet ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save'}
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => { setIsEditingWallet(false); setSolanaWallet(profile?.solana_wallet || ''); }}>Cancel</Button>
+                    </div>
+                  </div>
+                )}
+                {!isEditingWallet && profile?.solana_wallet && (
+                  <p className="text-xs font-mono text-muted-foreground truncate bg-muted/30 rounded-lg px-3 py-2">
+                    {profile.solana_wallet.slice(0, 8)}...{profile.solana_wallet.slice(-8)}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Privacy Controls */}
+            <PrivacyControls />
+
+            {/* Help & FAQ */}
+            <div className="rounded-2xl bg-card border border-border overflow-hidden">
+              <button
+                onClick={() => { selectionTap(); setShowHelpCenter(true); }}
+                className="w-full flex items-center justify-between p-3.5 hover:bg-muted/30 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-blue-500/10 flex items-center justify-center">
+                    <HelpCircle className="w-4.5 h-4.5 text-blue-500" />
+                  </div>
+                  <div className="text-left">
+                    <p className="text-sm font-medium text-foreground">Help & FAQ</p>
+                    <p className="text-[11px] text-muted-foreground">Get answers to common questions</p>
+                  </div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              </button>
+            </div>
+
+            {/* Danger zone */}
+            <div className="rounded-2xl border border-destructive/20 overflow-hidden">
+              <div className="p-4">
+                <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-3">Account</p>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <button className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-destructive/5 text-left transition-colors">
+                      <Trash2 className="w-4.5 h-4.5 text-destructive/70" />
+                      <div>
+                        <p className="text-sm font-medium text-destructive/80">Delete Account</p>
+                        <p className="text-[11px] text-muted-foreground">Permanently remove your data</p>
+                      </div>
+                    </button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent className="mx-4">
+                    <AlertDialogHeader>
+                      <div className="w-12 h-12 rounded-full bg-destructive/20 flex items-center justify-center mx-auto mb-2">
+                        <AlertTriangle className="w-6 h-6 text-destructive" />
+                      </div>
+                      <AlertDialogTitle className="text-center">Delete Your Account?</AlertDialogTitle>
+                      <AlertDialogDescription className="text-center space-y-2">
+                        <p>This action cannot be undone. This will permanently delete your account and remove all associated data.</p>
+                        <div className="bg-destructive/10 rounded-lg p-3 mt-3 text-destructive text-sm font-medium">
+                          ⚠️ You will lose {(userPoints?.total_points || 0).toLocaleString()} points (worth ~${((userPoints?.total_points || 0) * 0.01).toFixed(2)})
+                        </div>
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+                      <AlertDialogCancel className="w-full sm:w-auto">Keep Account</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={handleDeleteAccount}
+                        disabled={deletingAccount}
+                        className="w-full sm:w-auto bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+                      >
+                        {deletingAccount ? (
+                          <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                        ) : (
+                          <Trash2 className="w-4 h-4 mr-2" />
+                        )}
+                        Delete Forever
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
+            </div>
+
+            {/* Dev only */}
+            {import.meta.env.DEV && (
+              <>
+                <PermissionDebugPanel />
+                <Card className="border-destructive/30 bg-destructive/5">
+                  <CardContent className="p-4">
+                    <p className="text-xs text-destructive mb-3 font-medium">🧪 DEV ONLY - Sentry Testing</p>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        className="flex-1 text-xs"
+                        onClick={() => { throw new Error('Test Sentry Crash - React Error'); }}
+                      >
+                        Test Crash
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1 text-xs border-destructive/30 text-destructive"
+                        onClick={() => {
+                          captureError(new Error('Test Sentry - Handled Error'), { test: true, timestamp: new Date().toISOString() });
+                          toast({ title: '✅ Handled error sent to Sentry' });
+                        }}
+                      >
+                        Handled Error
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </>
+            )}
+
+            {/* Refresh */}
+            <Button variant="ghost" size="sm" onClick={loadData} className="w-full text-xs text-muted-foreground">
+              <RefreshCw className="w-3 h-3 mr-1" />
+              Refresh
+            </Button>
+          </TabsContent>
+        </Tabs>
+
+        {/* Help Center Modal */}
+        {showHelpCenter && (
+          <HelpCenter onClose={() => setShowHelpCenter(false)} />
+        )}
       </div>
     </>
   );
