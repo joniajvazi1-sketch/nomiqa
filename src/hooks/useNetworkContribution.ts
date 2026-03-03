@@ -339,6 +339,14 @@ export const useNetworkContribution = () => {
   const { heavyTap, success, warning } = useHaptics();
   const telcoMetrics = useTelcoMetrics();
   
+  // Collection preferences from DB - controls battery saver & low power behavior
+  const [collectionPrefs, setCollectionPrefs] = useState<{
+    battery_saver_mode: boolean;
+    low_power_collection: boolean;
+    collection_enabled: boolean;
+  }>({ battery_saver_mode: false, low_power_collection: false, collection_enabled: true });
+  const [isCharging, setIsCharging] = useState(true); // Default true so battery saver doesn't block on web
+  
   // Persistent contribution state - survives tab switches and app backgrounding
   const {
     isContributionEnabled,
@@ -387,7 +395,9 @@ export const useNetworkContribution = () => {
   const isCellular = isCellularConnection(connectionType);
   const isWifi = connectionType.toLowerCase() === 'wifi';
   // WiFi no longer pauses - only "no network" pauses contribution
-  const isPaused = session.status === 'active' && !isValidConnection(connectionType);
+  // Battery saver mode: pause if not charging
+  const isBatterySaverBlocking = collectionPrefs.battery_saver_mode && !isCharging;
+  const isPaused = session.status === 'active' && (!isValidConnection(connectionType) || isBatterySaverBlocking);
   
   const lastPositionRef = useRef<Position | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -404,6 +414,48 @@ export const useNetworkContribution = () => {
   disableContributionRef.current = disableContribution;
   clearCumulativeStatsRef.current = clearCumulativeStats;
   getTimeSinceLastEventRef.current = getTimeSinceLastEvent;
+
+  // Fetch collection preferences from DB
+  useEffect(() => {
+    const fetchPrefs = async () => {
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      if (!authUser) return;
+      const { data } = await supabase
+        .from('user_collection_preferences')
+        .select('battery_saver_mode, low_power_collection, collection_enabled')
+        .eq('user_id', authUser.id)
+        .maybeSingle();
+      if (data) {
+        setCollectionPrefs({
+          battery_saver_mode: data.battery_saver_mode ?? false,
+          low_power_collection: data.low_power_collection ?? false,
+          collection_enabled: data.collection_enabled ?? true,
+        });
+      }
+    };
+    fetchPrefs();
+    // Re-fetch when app resumes
+    const interval = setInterval(fetchPrefs, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Monitor charging state for battery saver mode
+  useEffect(() => {
+    if (!collectionPrefs.battery_saver_mode) return;
+    
+    // Use Battery API if available (web/Android WebView)
+    if ('getBattery' in navigator) {
+      (navigator as any).getBattery().then((battery: any) => {
+        setIsCharging(battery.charging);
+        const handler = () => setIsCharging(battery.charging);
+        battery.addEventListener('chargingchange', handler);
+        return () => battery.removeEventListener('chargingchange', handler);
+      }).catch(() => {
+        // Battery API not available, default to allowing collection
+        setIsCharging(true);
+      });
+    }
+  }, [collectionPrefs.battery_saver_mode]);
 
   // Restore session from persistence on mount or app resume
   // This enables AUTO-RESUME when iOS relaunches app from significantLocationChange
@@ -547,6 +599,12 @@ export const useNetworkContribution = () => {
     // Always update position for map display
     setLastPosition(position);
     
+    // Battery saver: skip data collection when not charging
+    if (isBatterySaverBlocking) {
+      lastPositionRef.current = position;
+      return;
+    }
+    
     // Allow both cellular and WiFi for distance tracking
     // WiFi data is less valuable for telco but still earns points
     if (!isValidConnection(connectionType)) {
@@ -593,13 +651,17 @@ export const useNetworkContribution = () => {
     lastPositionRef.current = position;
     
     // Check if we should log a telco-grade data point (100m or 5min)
-    if (telcoMetrics.shouldLogDataPoint(position)) {
+    // Low power mode: skip every other log to reduce frequency
+    const shouldSkipForLowPower = collectionPrefs.low_power_collection && stats.dataPointsCount % 2 === 1;
+    if (telcoMetrics.shouldLogDataPoint(position) && !shouldSkipForLowPower) {
       await logTelcoDataPoint(position);
     }
     
-    // Queue basic data for coverage mapping
-    queueContributionData(position);
-  }, [session.status, connectionType, telcoMetrics]);
+    // Queue basic data for coverage mapping (low power skips every other)
+    if (!shouldSkipForLowPower) {
+      queueContributionData(position);
+    }
+  }, [session.status, connectionType, telcoMetrics, isBatterySaverBlocking, collectionPrefs.low_power_collection]);
 
   // Process lastPosition changes when session is active (for auto-resumed background updates)
   // Use a ref for handlePositionUpdate to avoid re-triggering on every dependency change
@@ -799,17 +861,19 @@ export const useNetworkContribution = () => {
     }
   }, [connectionType, isCellular, session.status, lastPosition, success, telcoMetrics]);
 
-  // Time-based earnings - now works on both cellular and WiFi
+  // Time-based earnings - works on both cellular and WiFi
   // Stops accumulating locally once daily cap is reached
+  // Battery saver: no points when not charging; Low power: half rate (0.25/min instead of 0.5/min)
   useEffect(() => {
-    if (session.status !== 'active' || !isValidConnection(connectionType) || dailyCapReached) return;
+    if (session.status !== 'active' || !isValidConnection(connectionType) || dailyCapReached || isBatterySaverBlocking) return;
     
     const currentMinute = Math.floor(stats.duration / 60);
     const lastAwardedMinute = lastTimePointsRef.current;
     
     if (currentMinute > lastAwardedMinute) {
       const minutesElapsed = currentMinute - lastAwardedMinute;
-      const timePointsEarned = minutesElapsed * 0.5;
+      const ratePerMinute = collectionPrefs.low_power_collection ? 0.25 : 0.5;
+      const timePointsEarned = minutesElapsed * ratePerMinute;
       
       setStats(prev => {
         const newPoints = prev.pointsEarned + timePointsEarned;
@@ -830,7 +894,7 @@ export const useNetworkContribution = () => {
       
       lastTimePointsRef.current = currentMinute;
     }
-  }, [stats.duration, session.status, isCellular, dailyCapReached]);
+  }, [stats.duration, session.status, isCellular, dailyCapReached, isBatterySaverBlocking, collectionPrefs.low_power_collection]);
 
   // AUTO-SAVE: Periodically save points to database (every 5 minutes)
   // This ensures users don't lose points even if they forget to stop or app crashes
@@ -1360,16 +1424,17 @@ export const useNetworkContribution = () => {
         });
       }, 1000);
 
-      // Start periodic speed tests (Wi-Fi only to save cellular data - was consuming ~300MB/30hr)
+      // Start periodic speed tests (Wi-Fi only to save cellular data)
+      // Low power mode: double the interval to reduce activity
+      const speedTestInterval = collectionPrefs.low_power_collection ? SPEED_TEST_INTERVAL * 2 : SPEED_TEST_INTERVAL;
       speedTestTimerRef.current = setInterval(async () => {
         // CRITICAL: Only run speed tests on Wi-Fi to prevent massive cellular data usage
-        // Speed tests download 3-25MB each, running every 10min on cellular = ~240MB/day
-        if (connectionType.toLowerCase() === 'wifi') {
+        if (connectionType.toLowerCase() === 'wifi' && !isBatterySaverBlocking) {
           await runSpeedTestWithBonus();
         } else {
-          console.log('[NetworkContribution] Skipping speed test on cellular (data saver mode)');
+          console.log('[NetworkContribution] Skipping speed test (cellular/battery saver)');
         }
-      }, SPEED_TEST_INTERVAL);
+      }, speedTestInterval);
 
       // Run initial speed test after a short delay (Wi-Fi only)
       setTimeout(() => {
@@ -1681,6 +1746,7 @@ export const useNetworkContribution = () => {
     isCellular,
     isWifi,
     isPaused,
+    isBatterySaverBlocking,
     isRunningSpeedTest,
     isContributionEnabled, // Persisted state - survives app backgrounding
     startContribution,
