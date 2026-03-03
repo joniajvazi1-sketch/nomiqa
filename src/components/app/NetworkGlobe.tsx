@@ -10,10 +10,11 @@ interface NetworkGlobeProps {
   loading?: boolean;
   totalDataPoints?: number;
   uniqueLocations?: number;
+  allTimeCities?: number;
   coverageAreaKm2?: number;
   totalContributors?: number;
-  isPersonalView?: boolean; // Start zoomed in for personal view
-  userPosition?: [number, number] | null; // User's current position
+  isPersonalView?: boolean;
+  userPosition?: [number, number] | null;
 }
 
 // Convert lat/lng to 3D sphere coordinates
@@ -854,6 +855,7 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
   loading = false,
   totalDataPoints = 0,
   uniqueLocations = 0,
+  allTimeCities = 0,
   totalContributors = 0,
   isPersonalView = false,
   userPosition = null,
@@ -886,10 +888,10 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
   const realStats = useMemo(() => {
     return {
       dataPoints: totalDataPoints || coverageData.reduce((sum, c) => sum + c.count, 0),
-      locations: uniqueLocations || coverageData.length,
+      cities: allTimeCities || uniqueLocations || coverageData.length,
       contributors: totalContributors,
     };
-  }, [coverageData, totalDataPoints, uniqueLocations, totalContributors]);
+  }, [coverageData, totalDataPoints, uniqueLocations, allTimeCities, totalContributors]);
 
   if (hasError) {
     return <GlobeErrorFallback />;
@@ -929,9 +931,9 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
           </div>
           <div className="flex-1 bg-black/10 dark:bg-white/5 backdrop-blur-md border border-black/15 dark:border-white/10 rounded-xl px-3 py-2 text-center">
             <div className="text-foreground text-base font-bold tabular-nums">
-              {realStats.locations.toLocaleString()}
+              {realStats.cities.toLocaleString()}
             </div>
-            <div className="text-muted-foreground text-[10px] font-medium">Zones</div>
+            <div className="text-muted-foreground text-[10px] font-medium">Cities</div>
           </div>
           <div className="flex-1 bg-black/10 dark:bg-white/5 backdrop-blur-md border border-black/15 dark:border-white/10 rounded-xl px-3 py-2 text-center">
             <div className="text-foreground text-base font-bold tabular-nums">
