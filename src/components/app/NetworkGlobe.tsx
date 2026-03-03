@@ -616,9 +616,9 @@ const DataHotspot: React.FC<{
         <meshBasicMaterial color={baseColor} transparent opacity={0.06} />
       </mesh>
       
-      {/* Popup when selected */}
+      {/* Popup when selected — always visible regardless of zoom */}
       {isSelected && (
-        <Html center distanceFactor={2.5} zIndexRange={[50, 0]}>
+        <Html center distanceFactor={0} zIndexRange={[50, 0]} style={{ pointerEvents: 'auto' }}>
           <div 
             className="relative bg-white/95 backdrop-blur-sm border border-gray-200 rounded-lg px-2.5 py-1.5 min-w-[90px] max-w-[140px] shadow-lg pointer-events-auto"
             onClick={(e) => e.stopPropagation()}
@@ -657,24 +657,9 @@ const DataMarkers: React.FC<{
     if (!cells || cells.length === 0) return [];
     
     const maxCount = Math.max(...cells.map(c => c.count), 1);
-    const minDistance = 0.08; // Minimum distance between pins to prevent overlap
     
-    const filteredCells: typeof cells = [];
-    
-    // Filter out cells that are too close to each other
-    for (const cell of cells.slice(0, 500)) {
-      const isTooClose = filteredCells.some(existing => {
-        const latDiff = Math.abs(existing.lat - cell.lat);
-        const lngDiff = Math.abs(existing.lng - cell.lng);
-        return latDiff < 1.0 && lngDiff < 1.0; // ~1.0 degrees apart minimum (shows more pins)
-      });
-      
-      if (!isTooClose) {
-        filteredCells.push(cell);
-      }
-    }
-    
-    return filteredCells.slice(0, 200).map(cell => ({
+    // Show ALL cities — no overlap filtering, each city deserves a dot
+    return cells.slice(0, 500).map(cell => ({
       lat: cell.lat,
       lng: cell.lng,
       count: cell.count,
@@ -867,7 +852,7 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
             <div className="text-foreground text-base font-bold tabular-nums">
               {realStats.dataPoints.toLocaleString()}
             </div>
-            <div className="text-muted-foreground text-[10px] font-medium">Scans</div>
+            <div className="text-muted-foreground text-[10px] font-medium">Data Points</div>
           </div>
           <div className="flex-1 bg-black/10 dark:bg-white/5 backdrop-blur-md border border-black/15 dark:border-white/10 rounded-xl px-3 py-2 text-center">
             <div className="text-foreground text-base font-bold tabular-nums">
@@ -879,7 +864,7 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
             <div className="text-foreground text-base font-bold tabular-nums">
               {realStats.contributors > 0 ? realStats.contributors : '—'}
             </div>
-            <div className="text-muted-foreground text-[10px] font-medium">Mappers</div>
+            <div className="text-muted-foreground text-[10px] font-medium">Users</div>
           </div>
         </div>
       </div>
