@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronRight, Info, Star, Users, Flame, MapPin, Zap } from 'lucide-react';
+import { ChevronRight, Info, Star, Users, Flame, MapPin, Zap, Calendar, TrendingUp, Clock } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -10,7 +10,6 @@ import {
   getCurrentLevel, 
   getNextLevel, 
   getProgressToNextLevel,
-  formatLevelRequirements,
   type ContributorLevel 
 } from '@/utils/contributorLevels';
 
@@ -28,6 +27,8 @@ export const ContributorLevelCard: React.FC<ContributorLevelCardProps> = ({
   const [miningBoost, setMiningBoost] = useState(0);
   const [totalKm, setTotalKm] = useState(0);
   const [streakDays, setStreakDays] = useState(0);
+  const [todayPoints, setTodayPoints] = useState(0);
+  const [lastContributionDate, setLastContributionDate] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -39,28 +40,36 @@ export const ContributorLevelCard: React.FC<ContributorLevelCardProps> = ({
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Get affiliate data for team members count and mining boost
-      const { data: affiliateData } = await supabase
-        .from('affiliates')
-        .select('total_registrations, miner_boost_percentage')
-        .eq('user_id', user.id)
-        .maybeSingle();
+      const [affiliateResult, pointsResult, dailyResult] = await Promise.all([
+        supabase
+          .from('affiliates')
+          .select('total_registrations, miner_boost_percentage')
+          .eq('user_id', user.id)
+          .maybeSingle(),
+        supabase
+          .from('user_points')
+          .select('total_distance_meters, contribution_streak_days, last_contribution_date')
+          .eq('user_id', user.id)
+          .maybeSingle(),
+        supabase
+          .from('user_daily_limits')
+          .select('points_earned')
+          .eq('user_id', user.id)
+          .eq('limit_date', new Date().toISOString().split('T')[0])
+          .maybeSingle()
+      ]);
 
-      const members = affiliateData?.total_registrations || 0;
+      const members = affiliateResult.data?.total_registrations || 0;
       setTeamMembers(members);
-      setMiningBoost(affiliateData?.miner_boost_percentage || 0);
+      setMiningBoost(affiliateResult.data?.miner_boost_percentage || 0);
       
-      // Get distance and streak from user_points
-      const { data: pointsData } = await supabase
-        .from('user_points')
-        .select('total_distance_meters, contribution_streak_days')
-        .eq('user_id', user.id)
-        .maybeSingle();
-      
-      if (pointsData) {
-        setTotalKm((pointsData.total_distance_meters || 0) / 1000);
-        setStreakDays(pointsData.contribution_streak_days || 0);
+      if (pointsResult.data) {
+        setTotalKm((pointsResult.data.total_distance_meters || 0) / 1000);
+        setStreakDays(pointsResult.data.contribution_streak_days || 0);
+        setLastContributionDate(pointsResult.data.last_contribution_date);
       }
+
+      setTodayPoints(dailyResult.data?.points_earned || 0);
       
       const level = getCurrentLevel(members);
       setCurrentLevel(level);
@@ -84,6 +93,13 @@ export const ContributorLevelCard: React.FC<ContributorLevelCardProps> = ({
   const LevelIcon = currentLevel.icon;
   const nextLevel = getNextLevel(currentLevel.level);
   const progress = getProgressToNextLevel(teamMembers, currentLevel);
+
+  // Determine streak status
+  const today = new Date().toISOString().split('T')[0];
+  const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+  const isStreakActiveToday = lastContributionDate === today;
+  const isStreakAtRisk = !isStreakActiveToday && lastContributionDate === yesterday && streakDays > 0;
+  const isStreakBroken = !isStreakActiveToday && lastContributionDate !== yesterday && streakDays === 0;
 
   if (compact) {
     return (
@@ -109,53 +125,110 @@ export const ContributorLevelCard: React.FC<ContributorLevelCardProps> = ({
 
   return (
     <Card className="bg-card border-border overflow-hidden">
-      <CardContent className="p-4">
-        {/* Current Level Display - Website Style */}
-        <div className="flex items-center gap-3 mb-4">
-          <div className={cn(
-            "w-14 h-14 rounded-2xl flex items-center justify-center",
-            currentLevel.bgColor
-          )}>
-            <LevelIcon className={cn("w-7 h-7", currentLevel.color)} />
-          </div>
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-0.5">
-              <h3 className="text-lg font-bold text-foreground">{currentLevel.name}</h3>
-              <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
-                Tier {currentLevel.level}
-              </Badge>
+      <CardContent className="p-4 space-y-4">
+        {/* Header: Level + Today's Earnings */}
+        <div className="flex items-start justify-between">
+          <div className="flex items-center gap-3">
+            <div className={cn(
+              "w-12 h-12 rounded-2xl flex items-center justify-center",
+              currentLevel.bgColor
+            )}>
+              <LevelIcon className={cn("w-6 h-6", currentLevel.color)} />
             </div>
-            <p className="text-xs text-muted-foreground">{currentLevel.description}</p>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-base font-bold text-foreground">{currentLevel.name}</h3>
+                <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+                  Tier {currentLevel.level}
+                </Badge>
+              </div>
+              <p className="text-[11px] text-muted-foreground">{currentLevel.description}</p>
+            </div>
+          </div>
+          <div className="text-right">
+            <p className="text-lg font-bold text-primary">{todayPoints}</p>
+            <p className="text-[10px] text-muted-foreground">pts today</p>
           </div>
         </div>
 
-        {/* Stats Grid - 4 columns */}
-        <div className="grid grid-cols-4 gap-2 mb-4">
-          <div className="rounded-xl bg-muted/50 p-2.5 text-center">
-            <Users className="w-4 h-4 text-primary mx-auto mb-1" />
-            <p className="text-base font-bold text-foreground">{teamMembers}</p>
-            <p className="text-[10px] text-muted-foreground leading-tight">Team</p>
+        {/* Streak Banner */}
+        <div className={cn(
+          "flex items-center gap-3 p-3 rounded-xl",
+          isStreakActiveToday && "bg-emerald-500/10 border border-emerald-500/20",
+          isStreakAtRisk && "bg-amber-500/10 border border-amber-500/20",
+          (!isStreakActiveToday && !isStreakAtRisk) && "bg-muted/50 border border-border"
+        )}>
+          <div className={cn(
+            "w-10 h-10 rounded-xl flex items-center justify-center",
+            isStreakActiveToday && "bg-emerald-500/20",
+            isStreakAtRisk && "bg-amber-500/20",
+            (!isStreakActiveToday && !isStreakAtRisk) && "bg-muted"
+          )}>
+            <Flame className={cn(
+              "w-5 h-5",
+              isStreakActiveToday && "text-emerald-500",
+              isStreakAtRisk && "text-amber-500",
+              (!isStreakActiveToday && !isStreakAtRisk) && "text-muted-foreground"
+            )} />
           </div>
-          <div className="rounded-xl bg-muted/50 p-2.5 text-center">
-            <Zap className="w-4 h-4 text-amber-500 mx-auto mb-1" />
-            <p className="text-base font-bold text-foreground">{miningBoost.toFixed(1)}%</p>
-            <p className="text-[10px] text-muted-foreground leading-tight">Boost</p>
+          <div className="flex-1">
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-semibold text-foreground">
+                {streakDays} day{streakDays !== 1 ? 's' : ''} streak
+              </p>
+              {isStreakActiveToday && (
+                <span className="text-[10px] font-medium text-emerald-500 bg-emerald-500/10 px-1.5 py-0.5 rounded-full">Active ✓</span>
+              )}
+              {isStreakAtRisk && (
+                <span className="text-[10px] font-medium text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded-full">At risk!</span>
+              )}
+            </div>
+            <p className="text-[11px] text-muted-foreground">
+              {isStreakActiveToday 
+                ? `Keep it up! Mining today extends your streak`
+                : isStreakAtRisk 
+                  ? `Start mining today to keep your ${streakDays}-day streak`
+                  : 'Start mining to begin a new streak'
+              }
+            </p>
           </div>
-          <div className="rounded-xl bg-muted/50 p-2.5 text-center">
-            <MapPin className="w-4 h-4 text-emerald-500 mx-auto mb-1" />
-            <p className="text-base font-bold text-foreground">{totalKm.toFixed(1)}</p>
-            <p className="text-[10px] text-muted-foreground leading-tight">km</p>
+        </div>
+
+        {/* Stats Grid - 2x2 */}
+        <div className="grid grid-cols-2 gap-2">
+          <div className="rounded-xl bg-muted/40 p-3 flex items-center gap-3">
+            <Users className="w-4.5 h-4.5 text-primary shrink-0" />
+            <div>
+              <p className="text-base font-bold text-foreground">{teamMembers}</p>
+              <p className="text-[10px] text-muted-foreground">Team Members</p>
+            </div>
           </div>
-          <div className="rounded-xl bg-muted/50 p-2.5 text-center">
-            <Flame className="w-4 h-4 text-orange-500 mx-auto mb-1" />
-            <p className="text-base font-bold text-foreground">{streakDays}</p>
-            <p className="text-[10px] text-muted-foreground leading-tight">Streak</p>
+          <div className="rounded-xl bg-muted/40 p-3 flex items-center gap-3">
+            <Zap className="w-4.5 h-4.5 text-amber-500 shrink-0" />
+            <div>
+              <p className="text-base font-bold text-foreground">{miningBoost.toFixed(1)}%</p>
+              <p className="text-[10px] text-muted-foreground">Mining Boost</p>
+            </div>
+          </div>
+          <div className="rounded-xl bg-muted/40 p-3 flex items-center gap-3">
+            <MapPin className="w-4.5 h-4.5 text-emerald-500 shrink-0" />
+            <div>
+              <p className="text-base font-bold text-foreground">{totalKm.toFixed(1)}</p>
+              <p className="text-[10px] text-muted-foreground">km Mapped</p>
+            </div>
+          </div>
+          <div className="rounded-xl bg-muted/40 p-3 flex items-center gap-3">
+            <Calendar className="w-4.5 h-4.5 text-sky-500 shrink-0" />
+            <div>
+              <p className="text-base font-bold text-foreground">{streakDays}</p>
+              <p className="text-[10px] text-muted-foreground">Streak Days</p>
+            </div>
           </div>
         </div>
 
         {/* Progress to Next Level */}
         {nextLevel ? (
-          <div className="space-y-2 mb-4">
+          <div className="space-y-2">
             <div className="flex items-center justify-between text-xs">
               <span className="text-muted-foreground">Progress to {nextLevel.name}</span>
               <span className="font-semibold text-foreground">{Math.round(progress.progress)}%</span>
@@ -163,43 +236,15 @@ export const ContributorLevelCard: React.FC<ContributorLevelCardProps> = ({
             <Progress value={progress.progress} className="h-2" />
             <p className="text-[11px] text-muted-foreground flex items-center gap-1">
               <Info className="w-3 h-3" />
-              {progress.membersNeeded} more members → +{nextLevel.bonus} pts
+              {progress.membersNeeded} more member{progress.membersNeeded !== 1 ? 's' : ''} → +{nextLevel.bonus} pts bonus
             </p>
           </div>
         ) : (
-          <div className="rounded-xl bg-primary/10 p-3 text-center mb-4">
+          <div className="rounded-xl bg-primary/10 p-3 text-center">
             <Star className="w-5 h-5 text-primary mx-auto mb-1" />
-            <p className="text-sm font-semibold text-primary">Max Tier!</p>
+            <p className="text-sm font-semibold text-primary">Max Tier Reached!</p>
           </div>
         )}
-
-        {/* Tier Roadmap - Compact */}
-        <div className="pt-3 border-t border-border">
-          <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Tier Roadmap</p>
-          <div className="flex flex-wrap gap-1.5">
-            {CONTRIBUTOR_LEVELS.slice(1).map((level) => {
-              const LIcon = level.icon;
-              const isUnlocked = currentLevel.level >= level.level;
-              
-              return (
-                <div 
-                  key={level.level}
-                  className={cn(
-                    "flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-medium transition-colors",
-                    isUnlocked 
-                      ? "bg-primary/15 text-primary" 
-                      : "bg-muted/50 text-muted-foreground"
-                  )}
-                >
-                  <LIcon className="w-3 h-3" />
-                  <span>{level.name}</span>
-                  {!isUnlocked && <span className="opacity-60">({level.requirements.teamMembers})</span>}
-                  {isUnlocked && <span>✓</span>}
-                </div>
-              );
-            })}
-          </div>
-        </div>
       </CardContent>
     </Card>
   );

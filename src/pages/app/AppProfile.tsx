@@ -5,8 +5,8 @@ import {
   User, Package, LogOut, Crown, Star, Sparkles,
   Share2, Pencil, Check, X, RefreshCw, Users,
   Wallet, Shield, Loader2, Gift,
-  Target, Trophy, ChevronRight, Trash2, AlertTriangle, HelpCircle,
-  Sun, Moon, Copy, ExternalLink, Zap, TrendingUp
+  Target, ChevronRight, Trash2, AlertTriangle, HelpCircle,
+  Sun, Moon, Copy, ExternalLink, Zap
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -541,38 +541,6 @@ export const AppProfile: React.FC = () => {
                   <div className="text-left">
                     <p className="text-sm font-medium text-foreground">Challenges</p>
                     <p className="text-[11px] text-muted-foreground">Complete tasks, earn rewards</p>
-                  </div>
-                </div>
-                <ChevronRight className="w-4 h-4 text-muted-foreground" />
-              </button>
-
-              <button
-                onClick={() => { selectionTap(); navigate('/app/achievements'); }}
-                className="w-full flex items-center justify-between p-3.5 hover:bg-muted/30 active:bg-muted/50 transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-amber-500/10 flex items-center justify-center">
-                    <Trophy className="w-4.5 h-4.5 text-amber-500" />
-                  </div>
-                  <div className="text-left">
-                    <p className="text-sm font-medium text-foreground">Achievements</p>
-                    <p className="text-[11px] text-muted-foreground">Badges & milestones</p>
-                  </div>
-                </div>
-                <ChevronRight className="w-4 h-4 text-muted-foreground" />
-              </button>
-
-              <button
-                onClick={() => { selectionTap(); navigate('/app/leaderboard'); }}
-                className="w-full flex items-center justify-between p-3.5 hover:bg-muted/30 active:bg-muted/50 transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-emerald-500/10 flex items-center justify-center">
-                    <TrendingUp className="w-4.5 h-4.5 text-emerald-500" />
-                  </div>
-                  <div className="text-left">
-                    <p className="text-sm font-medium text-foreground">Leaderboard</p>
-                    <p className="text-[11px] text-muted-foreground">See your rank</p>
                   </div>
                 </div>
                 <ChevronRight className="w-4 h-4 text-muted-foreground" />
