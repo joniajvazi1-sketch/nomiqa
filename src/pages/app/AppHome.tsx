@@ -24,7 +24,7 @@ import { useHaptics } from '@/hooks/useHaptics';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
-import { useAchievements } from '@/hooks/useAchievements';
+
 import { AnimatePresence, motion } from 'framer-motion';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from '@/components/app/PullToRefreshIndicator';
@@ -57,7 +57,7 @@ export const AppHome: React.FC = () => {
   const { buttonTap, successPattern } = useEnhancedHaptics();
   const { playCoin, playSuccess } = useEnhancedSounds();
   const { isOnline } = useNetworkStatus();
-  const { streakDays } = useAchievements();
+  const streakDays = 0; // Achievements removed
   const { share } = useNativeShare();
   const { theme, setTheme, resolvedTheme } = useTheme();
   const isDark = resolvedTheme === 'dark' || theme === 'dark';
@@ -1012,14 +1012,14 @@ export const AppHome: React.FC = () => {
                 className="grid grid-cols-2 gap-3"
               >
                 <button
-                  onClick={() => { lightTap(); navigate('/app/challenges'); }}
+                  onClick={() => { lightTap(); navigate('/app/rewards'); }}
                   className={cn("rounded-2xl backdrop-blur-xl border p-4 flex items-center gap-3 active:scale-[0.98] transition-transform", isDark ? "bg-background/40 border-border/30" : "bg-card/80 border-border")}
                 >
                   <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg flex-shrink-0">
                     <Zap className="w-5 h-5 text-white" />
                   </div>
                   <div className="text-left">
-                    <p className="text-sm font-bold text-foreground">Challenges</p>
+                    <p className="text-sm font-bold text-foreground">Daily Rewards</p>
                     <p className={cn("text-[10px]", isDark ? "text-amber-400" : "text-primary")}>Bonus points</p>
                   </div>
                 </button>

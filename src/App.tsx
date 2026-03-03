@@ -45,8 +45,6 @@ const AppHome = lazy(() => import("./pages/app/AppHome").then(m => ({ default: m
 const NetworkContribution = lazy(() => import("./pages/app/NetworkContribution").then(m => ({ default: m.NetworkContribution })));
 const AppShop = lazy(() => import("./pages/app/AppShop").then(m => ({ default: m.AppShop })));
 const AppProfile = lazy(() => import("./pages/app/AppProfile").then(m => ({ default: m.AppProfile })));
-const AppAchievements = lazy(() => import("./pages/app/AppAchievements").then(m => ({ default: m.AppAchievements })));
-const AppChallenges = lazy(() => import("./pages/app/AppChallenges").then(m => ({ default: m.AppChallenges })));
 
 const AppCheckout = lazy(() => import("./pages/app/AppCheckout").then(m => ({ default: m.AppCheckout })));
 const AppInvite = lazy(() => import("./pages/app/AppInvite").then(m => ({ default: m.AppInvite })));
@@ -193,8 +191,7 @@ const NativeAppRoutes = () => (
       <Route path="/app/rewards" element={<AppRewards />} />
       <Route path="/app/shop" element={<AppShop />} />
       <Route path="/app/profile" element={<AppProfile />} />
-      <Route path="/app/achievements" element={<AppAchievements />} />
-      <Route path="/app/challenges" element={<AppChallenges />} />
+      {/* Removed: achievements and challenges routes */}
       
       <Route path="/app/network-stats" element={<AppNetworkStats />} />
       <Route path="/app/auth" element={<AppAuth />} />

@@ -538,153 +538,93 @@ const getApproximateLocation = (lat: number, lng: number): string => {
   return 'International Waters';
 };
 
-// City-level data marker (smaller for cleaner look, scales properly when zoomed)
+// Clean glowing dot marker — replaces pin-style markers
 const DataHotspot: React.FC<{
   marker: DataPointMarker;
   onSelect: (marker: DataPointMarker | null) => void;
   isSelected: boolean;
 }> = ({ marker, onSelect, isSelected }) => {
-  const groupRef = useRef<THREE.Group>(null);
-  const pinRef = useRef<THREE.Group>(null);
-  const headRef = useRef<THREE.Mesh>(null);
+  const dotRef = useRef<THREE.Mesh>(null);
   const glowRef = useRef<THREE.Mesh>(null);
-  const rippleRef = useRef<THREE.Mesh>(null);
-  const pulseSpeed = useRef(Math.random() * 2 + 1.5);
-  const flashOffset = useRef(Math.random() * Math.PI * 2);
-  const [rippleActive, setRippleActive] = useState(false);
-  const rippleStartTime = useRef(0);
+  const outerRef = useRef<THREE.Mesh>(null);
+  const pulseSpeed = useRef(Math.random() * 1.5 + 0.8);
+  const phaseOffset = useRef(Math.random() * Math.PI * 2);
   
-  // Pin size based on data count
-  const pinHeadSize = Math.min(0.012 + (marker.count / 100) * 0.008, 0.028);
-  const pinHeight = pinHeadSize * 2.5;
+  // Dot size — subtle variation based on data density
+  const dotSize = Math.min(0.01 + (marker.count / 80) * 0.005, 0.022);
   
-  // Color based on intensity - green=high, cyan=medium, purple=new
-  const baseColor = marker.intensity > 0.7 ? new THREE.Color('#22c55e') : marker.intensity > 0.4 ? new THREE.Color('#06b6d4') : new THREE.Color('#a855f7');
-  const brightColor = marker.intensity > 0.7 ? new THREE.Color('#4ade80') : marker.intensity > 0.4 ? new THREE.Color('#22d3ee') : new THREE.Color('#c084fc');
-  const darkColor = marker.intensity > 0.7 ? '#16a34a' : marker.intensity > 0.4 ? '#0891b2' : '#9333ea';
+  // Color based on intensity
+  const baseColor = useMemo(() => {
+    if (marker.intensity > 0.7) return new THREE.Color('#22c55e');
+    if (marker.intensity > 0.4) return new THREE.Color('#06b6d4');
+    return new THREE.Color('#a855f7');
+  }, [marker.intensity]);
+  
+  const brightColor = useMemo(() => {
+    if (marker.intensity > 0.7) return new THREE.Color('#86efac');
+    if (marker.intensity > 0.4) return new THREE.Color('#67e8f9');
+    return new THREE.Color('#d8b4fe');
+  }, [marker.intensity]);
   
   useFrame((state) => {
     const time = state.clock.elapsedTime;
+    const pulse = (Math.sin(time * pulseSpeed.current + phaseOffset.current) + 1) / 2;
     
-    // Flash effect on head only - oscillates between base and bright color
-    const flash = (Math.sin(time * pulseSpeed.current + flashOffset.current) + 1) / 2;
-    
-    if (headRef.current && headRef.current.material) {
-      const mat = headRef.current.material as THREE.MeshBasicMaterial;
-      mat.color.lerpColors(baseColor, brightColor, flash * 0.7);
+    if (dotRef.current?.material) {
+      const mat = dotRef.current.material as THREE.MeshBasicMaterial;
+      mat.color.lerpColors(baseColor, brightColor, pulse * 0.4);
     }
     
-    // Glow pulse
-    if (glowRef.current && glowRef.current.material) {
+    if (glowRef.current?.material) {
       const mat = glowRef.current.material as THREE.MeshBasicMaterial;
-      mat.opacity = 0.1 + flash * 0.2;
+      mat.opacity = 0.15 + pulse * 0.15;
     }
     
-    // Ripple animation
-    if (rippleActive && rippleRef.current) {
-      const elapsed = time - rippleStartTime.current;
-      const duration = 0.6;
-      const progress = Math.min(elapsed / duration, 1);
-      
-      // Expand and fade out
-      const scale = 1 + progress * 4;
-      const opacity = 0.5 * (1 - progress);
-      
-      rippleRef.current.scale.setScalar(scale);
-      (rippleRef.current.material as THREE.MeshBasicMaterial).opacity = opacity;
-      
-      if (progress >= 1) {
-        setRippleActive(false);
-      }
+    if (outerRef.current?.material) {
+      const mat = outerRef.current.material as THREE.MeshBasicMaterial;
+      mat.opacity = 0.04 + pulse * 0.06;
     }
     
-    // Scale up when selected (no bounce/movement)
-    if (pinRef.current) {
-      pinRef.current.scale.setScalar(isSelected ? 1.2 : 1);
-    }
-    
-    // Billboard effect - pin always faces camera
-    if (groupRef.current) {
-      groupRef.current.quaternion.copy(state.camera.quaternion);
+    if (dotRef.current) {
+      const s = isSelected ? 1.5 : 1;
+      dotRef.current.scale.lerp(new THREE.Vector3(s, s, s), 0.1);
     }
   });
 
   const handleClick = (e: ThreeEvent<MouseEvent>) => {
     e.stopPropagation();
-    setRippleActive(true);
-    rippleStartTime.current = e.eventObject.parent?.parent?.parent ? 
-      (performance.now() / 1000) : 0;
     onSelect(isSelected ? null : marker);
   };
 
   return (
-    <group 
-      position={marker.position}
-      onClick={handleClick}
-    >
-      {/* Billboard group - faces camera */}
-      <group ref={groupRef}>
-        <group ref={pinRef}>
-          {/* Pin needle/stem - thin cylinder pointing down */}
-          <mesh position={[0, -pinHeight * 0.4, 0]}>
-            <cylinderGeometry args={[pinHeadSize * 0.15, pinHeadSize * 0.08, pinHeight * 0.8, 8]} />
-            <meshBasicMaterial color={darkColor} />
-          </mesh>
-          
-          {/* Pin head - larger sphere at top with flash effect */}
-          <mesh ref={headRef} position={[0, pinHeight * 0.1, 0]}>
-            <sphereGeometry args={[pinHeadSize, 16, 12]} />
-            <meshBasicMaterial color={baseColor} />
-          </mesh>
-          
-          {/* Pin head highlight - inner shine */}
-          <mesh position={[0, pinHeight * 0.1 + pinHeadSize * 0.3, pinHeadSize * 0.2]}>
-            <sphereGeometry args={[pinHeadSize * 0.3, 8, 6]} />
-            <meshBasicMaterial color="#ffffff" transparent opacity={0.6} />
-          </mesh>
-          
-          {/* Pulsing glow ring around pin */}
-          <mesh ref={glowRef} position={[0, pinHeight * 0.1, 0]}>
-            <sphereGeometry args={[pinHeadSize * 1.6, 16, 12]} />
-            <meshBasicMaterial color={baseColor} transparent opacity={0.2} />
-          </mesh>
-          
-          {/* Drop shadow - offset below pin for depth */}
-          <mesh position={[0.006, -pinHeight * 1.1, -0.003]} rotation={[-Math.PI / 2, 0, 0]} scale={[1, 0.6, 1]}>
-            <circleGeometry args={[pinHeadSize * 0.8, 16]} />
-            <meshBasicMaterial color="#000000" transparent opacity={0.25} side={THREE.DoubleSide} />
-          </mesh>
-          
-          {/* Glow at base */}
-          <mesh position={[0, -pinHeight * 0.8, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-            <circleGeometry args={[pinHeadSize * 1.2, 16]} />
-            <meshBasicMaterial color={baseColor} transparent opacity={0.15} side={THREE.DoubleSide} />
-          </mesh>
-          
-          {/* Click ripple effect */}
-          {rippleActive && (
-            <mesh ref={rippleRef} position={[0, pinHeight * 0.1, 0]}>
-              <ringGeometry args={[pinHeadSize * 0.8, pinHeadSize * 1.2, 32]} />
-              <meshBasicMaterial color={brightColor} transparent opacity={0.5} side={THREE.DoubleSide} />
-            </mesh>
-          )}
-        </group>
-      </group>
+    <group position={marker.position} onClick={handleClick}>
+      {/* Core dot */}
+      <mesh ref={dotRef}>
+        <sphereGeometry args={[dotSize, 12, 8]} />
+        <meshBasicMaterial color={baseColor} />
+      </mesh>
       
-      {/* Popup when selected - shows city/region name */}
+      {/* Inner glow */}
+      <mesh ref={glowRef}>
+        <sphereGeometry args={[dotSize * 2.2, 12, 8]} />
+        <meshBasicMaterial color={baseColor} transparent opacity={0.2} />
+      </mesh>
+      
+      {/* Soft outer halo */}
+      <mesh ref={outerRef}>
+        <sphereGeometry args={[dotSize * 3.5, 10, 6]} />
+        <meshBasicMaterial color={baseColor} transparent opacity={0.06} />
+      </mesh>
+      
+      {/* Popup when selected */}
       {isSelected && (
         <Html center distanceFactor={2.5} zIndexRange={[50, 0]}>
           <div 
             className="relative bg-white/95 backdrop-blur-sm border border-gray-200 rounded-lg px-2.5 py-1.5 min-w-[90px] max-w-[140px] shadow-lg pointer-events-auto"
-            style={{ transform: 'scale(var(--popup-scale, 1))' }}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Close button */}
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onSelect(null);
-              }}
+              onClick={(e) => { e.stopPropagation(); onSelect(null); }}
               className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-gray-700 hover:bg-gray-900 text-white rounded-full flex items-center justify-center text-[8px] font-bold leading-none shadow-md transition-colors"
               aria-label="Close"
             >
