@@ -11,6 +11,7 @@ interface NetworkGlobeProps {
   totalDataPoints?: number;
   uniqueLocations?: number;
   coverageAreaKm2?: number;
+  totalContributors?: number;
   isPersonalView?: boolean; // Start zoomed in for personal view
   userPosition?: [number, number] | null; // User's current position
 }
@@ -853,6 +854,7 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
   loading = false,
   totalDataPoints = 0,
   uniqueLocations = 0,
+  totalContributors = 0,
   isPersonalView = false,
   userPosition = null,
 }) => {
@@ -882,13 +884,12 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
   
   // Calculate real stats from data
   const realStats = useMemo(() => {
-    const uniqueCountries = new Set(coverageData.map(c => `${Math.floor(c.lat / 10)}-${Math.floor(c.lng / 10)}`)).size;
     return {
       dataPoints: totalDataPoints || coverageData.reduce((sum, c) => sum + c.count, 0),
       locations: uniqueLocations || coverageData.length,
-      regions: uniqueCountries || Math.min(coverageData.length, 30),
+      contributors: totalContributors,
     };
-  }, [coverageData, totalDataPoints, uniqueLocations]);
+  }, [coverageData, totalDataPoints, uniqueLocations, totalContributors]);
 
   if (hasError) {
     return <GlobeErrorFallback />;
@@ -902,19 +903,19 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
           <span className="text-muted-foreground text-xs font-medium">Community Coverage Map</span>
         </div>
         
-        {/* Legend - moved here */}
+        {/* Legend - signal quality indicators */}
         <div className="flex items-center justify-center gap-3 mb-2">
           <div className="flex items-center gap-1.5">
-            <div className="w-2 h-2 rounded-full bg-green-500" />
-            <span className="text-muted-foreground text-[10px] font-medium">High</span>
+            <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_4px_rgba(34,197,94,0.5)]" />
+            <span className="text-muted-foreground text-[10px] font-medium">Strong 5G/LTE</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="w-2 h-2 rounded-full bg-cyan-500" />
-            <span className="text-muted-foreground text-[10px] font-medium">Medium</span>
+            <div className="w-2 h-2 rounded-full bg-cyan-500 shadow-[0_0_4px_rgba(6,182,212,0.5)]" />
+            <span className="text-muted-foreground text-[10px] font-medium">Good Signal</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="w-2 h-2 rounded-full bg-purple-500" />
-            <span className="text-muted-foreground text-[10px] font-medium">New</span>
+            <div className="w-2 h-2 rounded-full bg-purple-500 shadow-[0_0_4px_rgba(168,85,247,0.5)]" />
+            <span className="text-muted-foreground text-[10px] font-medium">Exploring</span>
           </div>
         </div>
         
@@ -924,19 +925,19 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
             <div className="text-foreground text-base font-bold tabular-nums">
               {realStats.dataPoints.toLocaleString()}
             </div>
-            <div className="text-muted-foreground text-[10px] font-medium">Samples</div>
+            <div className="text-muted-foreground text-[10px] font-medium">Scans</div>
           </div>
           <div className="flex-1 bg-black/10 dark:bg-white/5 backdrop-blur-md border border-black/15 dark:border-white/10 rounded-xl px-3 py-2 text-center">
             <div className="text-foreground text-base font-bold tabular-nums">
               {realStats.locations.toLocaleString()}
             </div>
-            <div className="text-muted-foreground text-[10px] font-medium">Cities</div>
+            <div className="text-muted-foreground text-[10px] font-medium">Zones</div>
           </div>
           <div className="flex-1 bg-black/10 dark:bg-white/5 backdrop-blur-md border border-black/15 dark:border-white/10 rounded-xl px-3 py-2 text-center">
             <div className="text-foreground text-base font-bold tabular-nums">
-              {realStats.regions}
+              {realStats.contributors > 0 ? realStats.contributors : '—'}
             </div>
-            <div className="text-muted-foreground text-[10px] font-medium">Regions</div>
+            <div className="text-muted-foreground text-[10px] font-medium">Mappers</div>
           </div>
         </div>
       </div>

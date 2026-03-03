@@ -14,6 +14,7 @@ export interface GlobalCoverageData {
   totalDataPoints: number;
   uniqueLocations: number;
   coverageAreaKm2: number;
+  totalContributors: number;
   lastUpdated: string;
 }
 
