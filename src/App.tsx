@@ -497,6 +497,7 @@ const StandaloneRoutes = () => {
  */
 const AppRouter = () => {
   const { isNative } = usePlatform();
+  const location = useLocation();
   
   // Handle OAuth deep link callbacks on native platforms
   useDeepLinkAuth();
@@ -507,8 +508,12 @@ const AppRouter = () => {
     return standaloneRoute;
   }
   
-  // Only native platform (or localhost preview via ?appPreview=true) sees app UI
-  return isNative ? <NativeAppRoutes /> : <WebRoutes />;
+  // Show app UI for /app/* routes even on web (public access)
+  const isAppRoute = location.pathname.startsWith('/app');
+  
+  // Native platform OR /app/* routes on web → show app UI
+  // All other web routes → show standard website
+  return (isNative || isAppRoute) ? <NativeAppRoutes /> : <WebRoutes />;
 };
 
 

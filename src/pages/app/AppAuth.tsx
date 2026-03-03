@@ -829,14 +829,8 @@ export const AppAuth: React.FC = () => {
       // when accessing from different domains (staging, custom domains, etc.)
       console.log('[AppAuth] Web platform - using standard Lovable OAuth...');
       
-      // Use the canonical production domain to avoid redirect URI mismatch
-      const canonicalOrigin = 'https://nomiqa-depin.com';
-      const currentOrigin = window.location.origin;
-      
-      // If on the canonical domain, use current origin; otherwise use canonical
-      const redirectOrigin = currentOrigin.includes('nomiqa-depin.com') 
-        ? currentOrigin 
-        : canonicalOrigin;
+      // Use the current origin for redirect - the Lovable OAuth broker handles this correctly
+      const redirectOrigin = window.location.origin;
       
       const result = await lovable.auth.signInWithOAuth('google', {
         redirect_uri: `${redirectOrigin}/app/auth`,
