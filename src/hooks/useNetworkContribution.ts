@@ -63,7 +63,7 @@ const OFFLINE_QUEUE_KEY = 'nomiqa_offline_contribution_queue';
 const SPEED_TEST_INTERVAL = 30 * 60 * 1000; // Run speed test every 30 minutes (Wi-Fi only to save data)
 const SPEED_TEST_BONUS_POINTS = 2; // Bonus points per speed test
 const PREMIUM_SPEED_THRESHOLD = 50; // Mbps - extra bonus for fast connections
-const DAILY_SPEED_TEST_LIMIT = 10; // Server enforces this - matches MAX_SPEED_TESTS_PER_DAY in edge function
+const DAILY_SPEED_TEST_LIMIT = 3; // Max rewarded speed tests per day (25 pts each)
 const SPEED_TEST_DAILY_KEY = 'nomiqa_speed_tests_today';
 const MAX_SESSION_DURATION_MS = 24 * 60 * 60 * 1000; // 24 hours max session - runs all day!
 const MAX_OFFLINE_QUEUE_SIZE = 1000; // FIFO cap to prevent localStorage overflow
@@ -1690,6 +1690,8 @@ export const useNetworkContribution = () => {
     formatDuration,
     formatDistance,
     triggerManualSpeedTest,
-    getSpeedTestDataEstimate
+    getSpeedTestDataEstimate,
+    getRewardedTestsRemaining: () => Math.max(0, DAILY_SPEED_TEST_LIMIT - getSpeedTestsToday()),
+    dailySpeedTestLimit: DAILY_SPEED_TEST_LIMIT,
   };
 };

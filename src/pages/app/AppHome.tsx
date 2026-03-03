@@ -77,7 +77,9 @@ export const AppHome: React.FC = () => {
     stopContribution,
     formatDuration,
     triggerManualSpeedTest,
-    getSpeedTestDataEstimate
+    getSpeedTestDataEstimate,
+    getRewardedTestsRemaining,
+    dailySpeedTestLimit,
   } = useNetworkContribution();
 
   // Global coverage data for the globe
@@ -552,10 +554,13 @@ export const AppHome: React.FC = () => {
               
               <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 mb-4">
                 <p className="text-sm text-foreground">
-                  This speed test will use approximately <span className="font-bold text-amber-500">3-25 MB</span> of your cellular data.
+                  This speed test will use approximately <span className="font-bold text-amber-500">3–25 MB</span> of your cellular data.
+                </p>
+                <p className="text-sm text-foreground mt-2">
+                  Running all 3 daily tests on cellular could use up to <span className="font-bold text-amber-500">~75 MB</span> total.
                 </p>
                 <p className="text-xs text-muted-foreground mt-2">
-                  💡 Tip: Run speed tests on WiFi for free!
+                  💡 Tip: Run speed tests on Wi-Fi to save your data!
                 </p>
               </div>
               
@@ -868,7 +873,12 @@ export const AppHome: React.FC = () => {
                     </div>
                   </div>
                 ) : (
-                  <span className={cn("text-[10px]", isDark ? "text-white/50" : "text-muted-foreground")}>Test Network</span>
+                  <div className="flex flex-col items-center">
+                    <span className={cn("text-[10px]", isDark ? "text-white/50" : "text-muted-foreground")}>Test Network</span>
+                    <span className={cn("text-[10px] font-bold tabular-nums", getRewardedTestsRemaining() > 0 ? "text-amber-400" : isDark ? "text-white/30" : "text-muted-foreground/60")}>
+                      {dailySpeedTestLimit - getRewardedTestsRemaining()}/{dailySpeedTestLimit} 🎁
+                    </span>
+                  </div>
                 )}
               </button>
             </div>
