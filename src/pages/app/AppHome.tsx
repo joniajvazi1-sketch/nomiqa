@@ -579,21 +579,18 @@ export const AppHome: React.FC = () => {
       </AnimatePresence>
 
       <div
-        className={cn("relative", isDark ? "bg-[hsl(220,45%,7%)]" : "bg-background")}
+        className={cn("relative", "bg-background")}
         style={{ 
           paddingBottom: 'calc(100px + env(safe-area-inset-bottom))',
           minHeight: 'calc(var(--vh, 1vh) * 100 + 200px)'
         }}
         ref={containerRef}
       >
-        {/* Uniform background in dark mode - matches light mode consistency */}
+        {/* Uniform background overlay - uses CSS variable for consistency */}
         {isDark && (
           <div 
-            className="fixed inset-0 pointer-events-none"
-            style={{
-              background: 'hsl(220, 45%, 7%)',
-              zIndex: 0
-            }}
+            className="fixed inset-0 pointer-events-none bg-background"
+            style={{ zIndex: 0 }}
           />
         )}
         <PullToRefreshIndicator 
