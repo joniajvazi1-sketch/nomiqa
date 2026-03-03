@@ -82,6 +82,16 @@ serve(async (req) => {
       console.warn('[get-global-coverage] Count query warning:', countError);
     }
 
+    // Get stable city count from coverage_tiles materialized view
+    const { count: stableTileCount } = await supabase
+      .from('coverage_tiles')
+      .select('location_geohash', { count: 'exact', head: true });
+
+    // Get contributor count
+    const { data: contributorData } = await supabase
+      .rpc('get_leaderboard_top', { p_limit: 10000 });
+    const totalContributors = contributorData?.length || 0;
+
     // Query recent signal logs for aggregation
     // PRIVACY: we only aggregate, never return individual coords
     const { data: signalLogs, error } = await supabase
@@ -209,9 +219,10 @@ serve(async (req) => {
     const response = {
       cells,
       totalDataPoints,
-      uniqueLocations: cells.length,
+      uniqueLocations: stableTileCount || cells.length,
       coverageAreaKm2,
       countriesCount: uniqueRegions,
+      totalContributors,
       gridSizeKm: Math.round(CITY_GRID_SIZE * 111),
       lastUpdated: new Date().toISOString(),
     };

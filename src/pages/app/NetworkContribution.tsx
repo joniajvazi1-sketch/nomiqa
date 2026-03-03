@@ -351,6 +351,7 @@ export const NetworkContribution: React.FC = () => {
             loading={globalCoverageLoading}
             totalDataPoints={globalCoverageData?.totalDataPoints || 0}
             uniqueLocations={globalCoverageData?.uniqueLocations || 0}
+            totalContributors={globalCoverageData?.totalContributors || 0}
             isPersonalView={false}
             userPosition={userPosition}
           />
