@@ -13,6 +13,7 @@ export interface GlobalCoverageData {
   cells: GlobalCoverageCell[];
   totalDataPoints: number;
   uniqueLocations: number;
+  allTimeCities: number;
   coverageAreaKm2: number;
   totalContributors: number;
   lastUpdated: string;

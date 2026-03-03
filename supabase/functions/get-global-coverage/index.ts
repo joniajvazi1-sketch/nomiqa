@@ -82,7 +82,13 @@ serve(async (req) => {
       console.warn('[get-global-coverage] Count query warning:', countError);
     }
 
-    // Get stable city count from coverage_tiles materialized view
+    // Get ALL-TIME unique city-level grid cells (stable, never decreases)
+    // Uses ~50km grid: FLOOR(lat/0.5), FLOOR(lng/0.5) = one "city"
+    const { data: cityCountData } = await supabase
+      .rpc('get_all_time_city_count');
+    const allTimeCityCount = cityCountData ?? 0;
+
+    // Get stable tile count from coverage_tiles materialized view
     const { count: stableTileCount } = await supabase
       .from('coverage_tiles')
       .select('location_geohash', { count: 'exact', head: true });
@@ -220,6 +226,7 @@ serve(async (req) => {
       cells,
       totalDataPoints,
       uniqueLocations: stableTileCount || cells.length,
+      allTimeCities: allTimeCityCount,
       coverageAreaKm2,
       countriesCount: uniqueRegions,
       totalContributors,
