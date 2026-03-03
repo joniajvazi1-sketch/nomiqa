@@ -434,7 +434,7 @@ export const AppRewards: React.FC = () => {
 
             <div className="grid grid-cols-2 gap-3 pt-2">
               <button 
-                onClick={() => { mediumTap(); toast({ title: 'Run Speed Tests', description: 'Quick contribution – run a speed test for +5 points!' }); }}
+                onClick={() => { mediumTap(); toast({ title: 'Run Speed Tests', description: 'Earn 25 pts on cellular or 10 pts on Wi-Fi per test (max 3/day)' }); }}
                 className="bg-card/60 rounded-lg p-3 text-center border border-border hover:border-primary/30 active:scale-95 transition-all"
               >
                 <Target className="w-4 h-4 text-primary mx-auto mb-1" />

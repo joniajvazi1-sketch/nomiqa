@@ -127,7 +127,7 @@ export const AppHome: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [referralCount, setReferralCount] = useState(0);
   const [todayEarnings, setTodayEarnings] = useState(0);
-  const [todayBreakdown, setTodayBreakdown] = useState<{ contribution: number; speedTest: number; rewards: number }>({ contribution: 0, speedTest: 0, rewards: 0 });
+  const [todayBreakdown, setTodayBreakdown] = useState<{ contribution: number; speedTest: number; rewards: number; friends: number }>({ contribution: 0, speedTest: 0, rewards: 0, friends: 0 });
   
   const startButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -209,19 +209,29 @@ export const AppHome: React.FC = () => {
         const checkinPts = (checkinRes.data || []).reduce((sum, r) => sum + (r.bonus_points || 0), 0);
         const socialPts = (socialRes.data || []).reduce((sum, r) => sum + (r.points_awarded || 0), 0);
         const speedTestCount = (speedTestRes.data || []).length;
-        const speedTestPts = Math.min(speedTestCount, 3) * 25; // 25 pts per rewarded test, max 3
+        // Speed tests earn 10-25 pts depending on connection; estimate conservatively
+        const speedTestPts = Math.min(speedTestCount, 3) * 15; // average estimate
         const challengeCount = (challengeRes.data || []).length;
         
-        // Contribution points from daily_limits already includes speed test points added via add_points_with_cap
-        // Rewards (checkins, social, challenges) bypass daily limits and go directly to total
+        // Get referral commission points earned today
+        const { data: commissionRes } = await supabase
+          .from('referral_commissions')
+          .select('commission_points')
+          .eq('referrer_user_id', currentUser.id)
+          .gte('created_at', todayStr);
+        const commissionPts = (commissionRes || []).reduce((sum, r) => sum + (r.commission_points || 0), 0);
+        
+        // Contribution points from daily_limits includes scanning + speed test points (capped at 200)
+        // Rewards (checkins, social, challenges) bypass daily limits
         const rewardPts = checkinPts + socialPts;
         
         setTodayBreakdown({
-          contribution: Math.max(0, contributionPts - speedTestPts), // subtract speed test pts from contribution total
-          speedTest: speedTestPts,
+          contribution: contributionPts, // all capped contribution (scanning + speed tests)
+          speedTest: 0, // folded into contribution since both are capped
           rewards: rewardPts,
+          friends: commissionPts,
         });
-        setTodayEarnings(contributionPts + rewardPts);
+        setTodayEarnings(contributionPts + rewardPts + commissionPts);
       }
     } catch (error) {
       console.error('Error loading data:', error);
@@ -559,8 +569,11 @@ export const AppHome: React.FC = () => {
                 <p className="text-sm text-foreground mt-2">
                   Running all 3 daily tests on cellular could use up to <span className="font-bold text-amber-500">~75 MB</span> total.
                 </p>
+                <p className="text-sm text-emerald-400 font-semibold mt-2">
+                  🎉 Cellular tests earn <span className="font-bold">25 pts</span> (vs 10 pts on Wi-Fi)!
+                </p>
                 <p className="text-xs text-muted-foreground mt-2">
-                  💡 Tip: Run speed tests on Wi-Fi to save your data!
+                  💡 Cellular data helps map real network coverage — that's why it's worth more!
                 </p>
               </div>
               
@@ -677,53 +690,51 @@ export const AppHome: React.FC = () => {
             <div className={cn("flex items-center justify-between px-3 py-2 rounded-xl mb-2", isDark ? "bg-white/5" : "bg-muted/40")}>
               <span className={cn("text-xs font-medium", isDark ? "text-white/60" : "text-muted-foreground")}>Today</span>
               <span className="text-sm font-bold text-foreground tabular-nums">
-                +{todayBreakdown.contribution + todayBreakdown.speedTest + todayBreakdown.rewards} pts
+                +{todayBreakdown.contribution + todayBreakdown.rewards + todayBreakdown.friends} pts
               </span>
             </div>
 
-            <div className="flex items-center gap-2">
-              <div className={cn("flex-1 rounded-xl p-2.5 border", isDark ? "bg-white/5 border-white/5" : "bg-muted/50 border-border")}>
-                <p className={cn("text-[9px] uppercase tracking-wide mb-0.5", isDark ? "text-white/50" : "text-muted-foreground")}>Contributing</p>
+            <div className="grid grid-cols-3 gap-2">
+              {/* Contributing - CAPPED at 200/day */}
+              <div className={cn("rounded-xl p-2.5 border", isDark ? "bg-white/5 border-white/5" : "bg-muted/50 border-border")}>
+                <p className={cn("text-[9px] uppercase tracking-wide mb-0.5", isDark ? "text-white/50" : "text-muted-foreground")}>📡 Contributing</p>
                 <p className="text-base font-bold text-emerald-400 tabular-nums">
-                  {todayBreakdown.contribution + todayBreakdown.speedTest}
+                  {todayBreakdown.contribution}
                   <span className={cn("text-[10px] font-normal ml-0.5", isDark ? "text-white/30" : "text-muted-foreground")}>/200</span>
                 </p>
                 <div className={cn("w-full h-1 rounded-full mt-1.5", isDark ? "bg-white/10" : "bg-muted")}>
                   <div 
                     className="h-full rounded-full bg-emerald-400 transition-all duration-500"
-                    style={{ width: `${Math.min(100, ((todayBreakdown.contribution + todayBreakdown.speedTest) / 200) * 100)}%` }}
+                    style={{ width: `${Math.min(100, (todayBreakdown.contribution / 200) * 100)}%` }}
                   />
                 </div>
-                {(todayBreakdown.contribution > 0 || todayBreakdown.speedTest > 0) && (
-                  <div className="flex flex-wrap gap-x-2 mt-1">
-                    {todayBreakdown.contribution > 0 && (
-                      <span className={cn("text-[8px] tabular-nums", isDark ? "text-white/40" : "text-muted-foreground")}>
-                        📡 {todayBreakdown.contribution}
-                      </span>
-                    )}
-                    {todayBreakdown.speedTest > 0 && (
-                      <span className={cn("text-[8px] tabular-nums", isDark ? "text-white/40" : "text-muted-foreground")}>
-                        ⚡ {todayBreakdown.speedTest}
-                      </span>
-                    )}
-                  </div>
-                )}
+                <span className={cn("text-[8px] block mt-1", isDark ? "text-white/30" : "text-muted-foreground/70")}>Scanning + Speed Tests</span>
+                <span className={cn("text-[8px] block", isDark ? "text-amber-300/60" : "text-amber-600/70")}>⚠️ Capped at 200/day</span>
               </div>
-              <div className={cn("flex-1 rounded-xl p-2.5 border", isDark ? "bg-white/5 border-white/5" : "bg-muted/50 border-border")}>
-                <p className={cn("text-[9px] uppercase tracking-wide mb-0.5", isDark ? "text-white/50" : "text-muted-foreground")}>Bonuses</p>
+
+              {/* Friends - UNCAPPED */}
+              <div className={cn("rounded-xl p-2.5 border", isDark ? "bg-white/5 border-white/5" : "bg-muted/50 border-border")}>
+                <p className={cn("text-[9px] uppercase tracking-wide mb-0.5", isDark ? "text-white/50" : "text-muted-foreground")}>👥 Friends</p>
+                <p className="text-base font-bold text-sky-400 tabular-nums">+{todayBreakdown.friends}</p>
+                <span className={cn("text-[8px] block mt-1", isDark ? "text-white/30" : "text-muted-foreground/70")}>{referralCount} team members</span>
+                <span className={cn("text-[8px] block", isDark ? "text-emerald-300/60" : "text-emerald-600/70")}>✅ No cap</span>
+              </div>
+
+              {/* Bonuses - UNCAPPED */}
+              <div className={cn("rounded-xl p-2.5 border", isDark ? "bg-white/5 border-white/5" : "bg-muted/50 border-border")}>
+                <p className={cn("text-[9px] uppercase tracking-wide mb-0.5", isDark ? "text-white/50" : "text-muted-foreground")}>🎁 Bonuses</p>
                 <p className="text-base font-bold text-amber-400 tabular-nums">+{todayBreakdown.rewards}</p>
-                {todayBreakdown.rewards > 0 && (
-                  <span className={cn("text-[8px]", isDark ? "text-white/30" : "text-muted-foreground")}>🎁 No cap</span>
-                )}
-              </div>
-              <div className={cn("flex-1 rounded-xl p-2.5 border", isDark ? "bg-white/5 border-white/5" : "bg-muted/50 border-border")}>
-                <p className={cn("text-[9px] uppercase tracking-wide mb-0.5", isDark ? "text-white/50" : "text-muted-foreground")}>Team</p>
-                <p className="text-base font-bold text-foreground tabular-nums">{referralCount}</p>
-                {streakDays >= 2 && (
-                  <span className={cn("text-[8px]", isDark ? "text-white/30" : "text-muted-foreground")}>🔥 {streakDays}d streak</span>
-                )}
+                <span className={cn("text-[8px] block mt-1", isDark ? "text-white/30" : "text-muted-foreground/70")}>Check-ins, tasks</span>
+                <span className={cn("text-[8px] block", isDark ? "text-emerald-300/60" : "text-emerald-600/70")}>✅ No cap</span>
               </div>
             </div>
+
+            {/* Streak indicator */}
+            {streakDays >= 2 && (
+              <div className={cn("flex items-center justify-center gap-1 mt-1.5", isDark ? "text-white/40" : "text-muted-foreground")}>
+                <span className="text-[10px]">🔥 {streakDays} day streak</span>
+              </div>
+            )}
           </div>
         </motion.div>
 
