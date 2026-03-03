@@ -2067,6 +2067,16 @@ export type Database = {
       cleanup_old_rate_limits: { Args: never; Returns: undefined }
       cleanup_old_webhook_requests: { Args: never; Returns: undefined }
       get_all_time_city_count: { Args: never; Returns: number }
+      get_coverage_grid_cells: {
+        Args: never
+        Returns: {
+          avg_signal: number
+          data_points: number
+          dominant_network: string
+          lat: number
+          lng: number
+        }[]
+      }
       get_leaderboard_top: {
         Args: { p_limit?: number }
         Returns: {

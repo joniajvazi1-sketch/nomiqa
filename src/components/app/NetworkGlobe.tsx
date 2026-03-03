@@ -550,8 +550,8 @@ const DataHotspot: React.FC<{
   const pulseSpeed = useRef(Math.random() * 1.5 + 0.8);
   const phaseOffset = useRef(Math.random() * Math.PI * 2);
   
-  // Dot size — subtle variation based on data density
-  const dotSize = Math.min(0.01 + (marker.count / 80) * 0.005, 0.022);
+  // Dot size — larger for better visibility and clickability
+  const dotSize = Math.min(0.018 + (marker.count / 80) * 0.008, 0.04);
   
   // Color based on intensity
   const baseColor = useMemo(() => {
@@ -616,26 +616,32 @@ const DataHotspot: React.FC<{
         <meshBasicMaterial color={baseColor} transparent opacity={0.06} />
       </mesh>
       
-      {/* Popup when selected — always visible regardless of zoom */}
+      {/* Invisible larger click target for easier selection */}
+      <mesh onClick={handleClick}>
+        <sphereGeometry args={[dotSize * 5, 8, 6]} />
+        <meshBasicMaterial transparent opacity={0} />
+      </mesh>
+      
+      {/* Popup when selected */}
       {isSelected && (
-        <Html center distanceFactor={0} zIndexRange={[50, 0]} style={{ pointerEvents: 'auto' }}>
+        <Html center distanceFactor={2.5} zIndexRange={[100, 0]} style={{ pointerEvents: 'auto' }}>
           <div 
-            className="relative bg-white/95 backdrop-blur-sm border border-gray-200 rounded-lg px-2.5 py-1.5 min-w-[90px] max-w-[140px] shadow-lg pointer-events-auto"
+            className="relative bg-card border border-border rounded-lg px-3 py-2 min-w-[100px] max-w-[160px] shadow-xl pointer-events-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <button
               onClick={(e) => { e.stopPropagation(); onSelect(null); }}
-              className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-gray-700 hover:bg-gray-900 text-white rounded-full flex items-center justify-center text-[8px] font-bold leading-none shadow-md transition-colors"
+              className="absolute -top-2 -right-2 w-5 h-5 bg-foreground text-background rounded-full flex items-center justify-center text-[9px] font-bold leading-none shadow-md transition-colors"
               aria-label="Close"
             >
               ✕
             </button>
-            <p className="text-gray-900 font-bold text-[10px] pr-2 leading-tight">
+            <p className="text-foreground font-bold text-xs pr-3 leading-tight">
               {marker.cityName}
             </p>
-            <div className="flex items-center gap-1.5 mt-0.5">
-              <span className="text-cyan-600 text-xs font-bold">{marker.count}</span>
-              <span className="text-gray-500 text-[9px]">data points</span>
+            <div className="flex items-center gap-1.5 mt-1">
+              <span className="text-primary text-sm font-bold">{marker.count}</span>
+              <span className="text-muted-foreground text-[10px]">data points</span>
             </div>
           </div>
         </Html>
@@ -824,47 +830,47 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
 
   return (
     <div ref={containerRef} className="relative w-full h-full overflow-hidden bg-transparent">
-      {/* Top stats bar - aligned with parent badges */}
-      <div className="absolute top-0 left-0 right-0 z-20 p-4 bg-gradient-to-b from-background/80 via-background/40 to-transparent dark:from-transparent dark:via-transparent dark:to-transparent" style={{ pointerEvents: 'auto' }}>
+      {/* Top stats bar - readable in both light and dark mode */}
+      <div className="absolute top-0 left-0 right-0 z-20 p-4 bg-gradient-to-b from-background via-background/60 to-transparent" style={{ pointerEvents: 'auto' }}>
         <div className="flex items-center justify-center mb-2">
-          <span className="text-muted-foreground text-xs font-medium">Community Coverage Map</span>
+          <span className="text-foreground/70 text-xs font-medium">Community Coverage Map</span>
         </div>
         
         {/* Legend - signal quality indicators */}
         <div className="flex items-center justify-center gap-3 mb-2">
           <div className="flex items-center gap-1.5">
             <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_4px_rgba(34,197,94,0.5)]" />
-            <span className="text-muted-foreground text-[10px] font-medium">Strong 5G/LTE</span>
+            <span className="text-foreground/60 text-[10px] font-medium">Strong 5G/LTE</span>
           </div>
           <div className="flex items-center gap-1.5">
             <div className="w-2 h-2 rounded-full bg-cyan-500 shadow-[0_0_4px_rgba(6,182,212,0.5)]" />
-            <span className="text-muted-foreground text-[10px] font-medium">Good Signal</span>
+            <span className="text-foreground/60 text-[10px] font-medium">Good Signal</span>
           </div>
           <div className="flex items-center gap-1.5">
             <div className="w-2 h-2 rounded-full bg-purple-500 shadow-[0_0_4px_rgba(168,85,247,0.5)]" />
-            <span className="text-muted-foreground text-[10px] font-medium">Exploring</span>
+            <span className="text-foreground/60 text-[10px] font-medium">Exploring</span>
           </div>
         </div>
         
         {/* Stats row - shows REAL data from database */}
         <div className="flex justify-between gap-2">
-          <div className="flex-1 bg-black/10 dark:bg-white/5 backdrop-blur-md border border-black/15 dark:border-white/10 rounded-xl px-3 py-2 text-center">
+          <div className="flex-1 bg-muted/80 dark:bg-white/5 backdrop-blur-md border border-border rounded-xl px-3 py-2 text-center">
             <div className="text-foreground text-base font-bold tabular-nums">
               {realStats.dataPoints.toLocaleString()}
             </div>
-            <div className="text-muted-foreground text-[10px] font-medium">Data Points</div>
+            <div className="text-foreground/50 text-[10px] font-medium">Data Points</div>
           </div>
-          <div className="flex-1 bg-black/10 dark:bg-white/5 backdrop-blur-md border border-black/15 dark:border-white/10 rounded-xl px-3 py-2 text-center">
+          <div className="flex-1 bg-muted/80 dark:bg-white/5 backdrop-blur-md border border-border rounded-xl px-3 py-2 text-center">
             <div className="text-foreground text-base font-bold tabular-nums">
               {realStats.cities.toLocaleString()}
             </div>
-            <div className="text-muted-foreground text-[10px] font-medium">Cities</div>
+            <div className="text-foreground/50 text-[10px] font-medium">Cities</div>
           </div>
-          <div className="flex-1 bg-black/10 dark:bg-white/5 backdrop-blur-md border border-black/15 dark:border-white/10 rounded-xl px-3 py-2 text-center">
+          <div className="flex-1 bg-muted/80 dark:bg-white/5 backdrop-blur-md border border-border rounded-xl px-3 py-2 text-center">
             <div className="text-foreground text-base font-bold tabular-nums">
               {realStats.contributors > 0 ? realStats.contributors : '—'}
             </div>
-            <div className="text-muted-foreground text-[10px] font-medium">Users</div>
+            <div className="text-foreground/50 text-[10px] font-medium">Users</div>
           </div>
         </div>
       </div>
