@@ -579,19 +579,19 @@ export const AppHome: React.FC = () => {
       </AnimatePresence>
 
       <div
-        className={cn("relative", isDark ? "bg-[hsl(220,60%,4%)]" : "bg-background")}
+        className={cn("relative", isDark ? "bg-[hsl(220,45%,7%)]" : "bg-background")}
         style={{ 
           paddingBottom: 'calc(100px + env(safe-area-inset-bottom))',
           minHeight: 'calc(var(--vh, 1vh) * 100 + 200px)'
         }}
         ref={containerRef}
       >
-        {/* Seamless gradient background - extends full height */}
+        {/* Uniform background in dark mode - matches light mode consistency */}
         {isDark && (
           <div 
             className="fixed inset-0 pointer-events-none"
             style={{
-              background: 'linear-gradient(180deg, hsl(220,40%,8%) 0%, hsl(220,60%,4%) 30%, hsl(220,50%,3%) 60%, hsl(220,50%,2%) 100%)',
+              background: 'hsl(220, 45%, 7%)',
               zIndex: 0
             }}
           />
