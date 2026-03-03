@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Coins, TrendingUp, Zap, 
-  Info, ChevronRight, Activity, Target
+  Info, ChevronRight, Activity, Target,
+  CheckCircle2, Circle, MapPin, Clock, Flame
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -25,11 +26,13 @@ interface EarningsData {
   label: string;
 }
 
-interface EarningFactors {
-  uptime: number;
-  coverageQuality: number;
-  speedTests: number;
-  areasExplored: number;
+interface WeeklyChecklist {
+  activeDays: number;
+  speedTestsDone: number;
+  areasMapped: number;
+  streakDays: number;
+  checkedInToday: boolean;
+  pointsThisWeek: number;
 }
 
 
@@ -42,11 +45,13 @@ export const AppRewards: React.FC = () => {
   const [totalPoints, setTotalPoints] = useState(0);
   const [pendingPoints, setPendingPoints] = useState(0);
   const [earningsData, setEarningsData] = useState<EarningsData[]>([]);
-  const [earningFactors, setEarningFactors] = useState<EarningFactors>({
-    uptime: 0,
-    coverageQuality: 0,
-    speedTests: 0,
-    areasExplored: 0
+  const [weeklyChecklist, setWeeklyChecklist] = useState<WeeklyChecklist>({
+    activeDays: 0,
+    speedTestsDone: 0,
+    areasMapped: 0,
+    streakDays: 0,
+    checkedInToday: false,
+    pointsThisWeek: 0
   });
   const [timeRange, setTimeRange] = useState<'daily' | 'weekly' | 'monthly'>('daily');
 
@@ -104,20 +109,19 @@ export const AppRewards: React.FC = () => {
       const aggregated = aggregateEarnings(sessions || [], timeRange);
       setEarningsData(aggregated);
 
-      // Load earning factors
-      const { data: levelData } = await supabase
-        .from('user_contribution_levels')
-        .select('areas_mapped, active_days')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      const { data: speedTests } = await supabase
-        .from('speed_test_results')
-        .select('id')
-        .eq('user_id', user.id);
-
+      // Load weekly checklist data
       const weekAgo = new Date();
       weekAgo.setDate(weekAgo.getDate() - 7);
+      const today = new Date().toISOString().split('T')[0];
+
+      const [levelRes, speedTestRes, streakRes, checkinRes, weeklyPointsRes] = await Promise.all([
+        supabase.from('user_contribution_levels').select('areas_mapped, active_days').eq('user_id', user.id).maybeSingle(),
+        supabase.from('speed_test_results').select('id').eq('user_id', user.id).gte('recorded_at', weekAgo.toISOString()),
+        supabase.from('user_points').select('background_streak_days, contribution_streak_days').eq('user_id', user.id).maybeSingle(),
+        supabase.from('daily_checkins').select('id').eq('user_id', user.id).eq('check_in_date', today).maybeSingle(),
+        supabase.from('user_daily_limits').select('points_earned').eq('user_id', user.id).gte('limit_date', weekAgo.toISOString().split('T')[0])
+      ]);
+
       const recentSessions = (sessions || []).filter(
         s => new Date(s.started_at) >= weekAgo
       );
@@ -125,11 +129,13 @@ export const AppRewards: React.FC = () => {
         recentSessions.map(s => new Date(s.started_at).toDateString())
       ).size;
 
-      setEarningFactors({
-        uptime: Math.round((activeDaysThisWeek / 7) * 100),
-        coverageQuality: levelData?.areas_mapped ? Math.min(100, levelData.areas_mapped * 4) : 0,
-        speedTests: speedTests?.length || 0,
-        areasExplored: levelData?.areas_mapped || 0
+      setWeeklyChecklist({
+        activeDays: activeDaysThisWeek,
+        speedTestsDone: speedTestRes.data?.length || 0,
+        areasMapped: levelRes.data?.areas_mapped || 0,
+        streakDays: Math.max(streakRes.data?.background_streak_days || 0, streakRes.data?.contribution_streak_days || 0),
+        checkedInToday: !!checkinRes.data,
+        pointsThisWeek: (weeklyPointsRes.data || []).reduce((sum: number, d: { points_earned: number | null }) => sum + (d.points_earned || 0), 0)
       });
 
     } catch (error) {
@@ -213,14 +219,6 @@ export const AppRewards: React.FC = () => {
     return 'text-muted-foreground';
   };
 
-  // Convert percentages to friendly progress labels
-  const getProgressLabel = (value: number): { label: string; subtext: string } => {
-    if (value === 0) return { label: 'Getting started', subtext: 'Start moving to improve' };
-    if (value <= 30) return { label: 'Building', subtext: 'Good start' };
-    if (value <= 60) return { label: 'Growing', subtext: 'Nice progress' };
-    if (value <= 80) return { label: 'Strong', subtext: 'Great work!' };
-    return { label: 'Excellent', subtext: 'Top performer!' };
-  };
 
   if (loading) {
     return (
@@ -390,69 +388,118 @@ export const AppRewards: React.FC = () => {
           )}
         </div>
 
-        {/* Contribution Quality - Glassmorphism */}
+        {/* Weekly Boost Checklist — real data, actionable */}
         <div className="rounded-2xl bg-card/60 backdrop-blur-sm border border-border p-4">
-          <div className="flex items-center gap-2 mb-3">
-            <Activity className="w-4 h-4 text-primary" />
-            <span className="text-sm font-semibold text-foreground">Your Contribution Quality</span>
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Activity className="w-4 h-4 text-primary" />
+              <span className="text-sm font-semibold text-foreground">Weekly Boost Checklist</span>
+            </div>
+            <span className="text-xs font-mono text-primary">
+              {weeklyChecklist.pointsThisWeek.toLocaleString()} pts this week
+            </span>
           </div>
-          
-          <p className="text-xs text-muted-foreground bg-muted/50 rounded-lg px-3 py-2 mb-4">
-            💡 Higher-quality and more diverse coverage earns higher rewards
-          </p>
 
-          <div className="space-y-4">
-            <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <span className="text-sm text-foreground">Uptime</span>
-                <div className="text-right">
-                  <span className={cn("text-sm font-semibold", earningFactors.uptime >= 80 ? 'text-green-500' : earningFactors.uptime >= 50 ? 'text-amber-500' : 'text-muted-foreground')}>
-                    {getProgressLabel(earningFactors.uptime).label}
-                  </span>
-                  <span className="text-xs text-muted-foreground ml-1">
-                    ({getProgressLabel(earningFactors.uptime).subtext})
-                  </span>
-                </div>
-              </div>
-              <Progress value={earningFactors.uptime} className="h-2" />
-            </div>
+          <div className="space-y-2.5">
+            {/* Active Days */}
+            {(() => {
+              const done = weeklyChecklist.activeDays >= 5;
+              return (
+                <button
+                  onClick={() => { lightTap(); if (!done) navigate('/app/home'); }}
+                  className="w-full flex items-center gap-3 p-2.5 rounded-xl bg-card/40 border border-border hover:border-primary/30 active:scale-[0.98] transition-all text-left"
+                >
+                  {done ? <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" /> : <Circle className="w-4 h-4 text-muted-foreground shrink-0" />}
+                  <div className="flex-1 min-w-0">
+                    <p className={cn("text-sm font-medium", done ? "text-foreground" : "text-muted-foreground")}>
+                      Contribute 5+ days
+                    </p>
+                    <p className="text-[11px] text-muted-foreground">
+                      {weeklyChecklist.activeDays}/7 days active · Builds streak multiplier
+                    </p>
+                  </div>
+                  <span className="text-xs font-semibold text-primary shrink-0">+2x</span>
+                </button>
+              );
+            })()}
 
-            <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <span className="text-sm text-foreground">Coverage Quality</span>
-                <div className="text-right">
-                  <span className={cn("text-sm font-semibold", earningFactors.coverageQuality >= 80 ? 'text-green-500' : earningFactors.coverageQuality >= 50 ? 'text-amber-500' : 'text-muted-foreground')}>
-                    {getProgressLabel(earningFactors.coverageQuality).label}
-                  </span>
-                  <span className="text-xs text-muted-foreground ml-1">
-                    ({getProgressLabel(earningFactors.coverageQuality).subtext})
-                  </span>
-                </div>
-              </div>
-              <Progress value={earningFactors.coverageQuality} className="h-2" />
-            </div>
+            {/* Speed Tests */}
+            {(() => {
+              const done = weeklyChecklist.speedTestsDone >= 3;
+              return (
+                <button
+                  onClick={() => { lightTap(); toast({ title: '⚡ Speed Tests', description: 'Earn 25 pts on cellular or 10 pts on Wi-Fi per test (max 3/day). Run them from the home screen while contributing.' }); }}
+                  className="w-full flex items-center gap-3 p-2.5 rounded-xl bg-card/40 border border-border hover:border-primary/30 active:scale-[0.98] transition-all text-left"
+                >
+                  {done ? <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" /> : <Circle className="w-4 h-4 text-muted-foreground shrink-0" />}
+                  <div className="flex-1 min-w-0">
+                    <p className={cn("text-sm font-medium", done ? "text-foreground" : "text-muted-foreground")}>
+                      Run speed tests
+                    </p>
+                    <p className="text-[11px] text-muted-foreground">
+                      {weeklyChecklist.speedTestsDone} done this week · Up to 75 pts/day
+                    </p>
+                  </div>
+                  <Target className="w-4 h-4 text-primary shrink-0" />
+                </button>
+              );
+            })()}
 
-            <div className="grid grid-cols-2 gap-3 pt-2">
-              <button 
-                onClick={() => { mediumTap(); toast({ title: 'Run Speed Tests', description: 'Earn 25 pts on cellular or 10 pts on Wi-Fi per test (max 3/day)' }); }}
-                className="bg-card/60 rounded-lg p-3 text-center border border-border hover:border-primary/30 active:scale-95 transition-all"
-              >
-                <Target className="w-4 h-4 text-primary mx-auto mb-1" />
-                <p className="text-lg font-bold text-foreground">{earningFactors.speedTests}</p>
-                <p className="text-xs text-muted-foreground">Speed Tests</p>
-                <p className="text-[9px] text-primary mt-1">Tap to learn more</p>
-              </button>
-              <button 
-                onClick={() => { mediumTap(); toast({ title: 'Explore New Areas', description: 'Contribute network data while moving to map new locations!' }); }}
-                className="bg-card/60 rounded-lg p-3 text-center border border-border hover:border-primary/30 active:scale-95 transition-all"
-              >
-                <Zap className="w-4 h-4 text-amber-500 mx-auto mb-1" />
-                <p className="text-lg font-bold text-foreground">{earningFactors.areasExplored}</p>
-                <p className="text-xs text-muted-foreground">Areas Mapped</p>
-                <p className="text-[9px] text-primary mt-1">Tap to learn more</p>
-              </button>
-            </div>
+            {/* Daily Check-in */}
+            {(() => {
+              const done = weeklyChecklist.checkedInToday;
+              return (
+                <button
+                  onClick={() => { lightTap(); if (!done) navigate('/app/home'); }}
+                  className="w-full flex items-center gap-3 p-2.5 rounded-xl bg-card/40 border border-border hover:border-primary/30 active:scale-[0.98] transition-all text-left"
+                >
+                  {done ? <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" /> : <Circle className="w-4 h-4 text-muted-foreground shrink-0" />}
+                  <div className="flex-1 min-w-0">
+                    <p className={cn("text-sm font-medium", done ? "text-foreground" : "text-muted-foreground")}>
+                      {done ? "Checked in today ✓" : "Daily check-in"}
+                    </p>
+                    <p className="text-[11px] text-muted-foreground">
+                      {done ? "Come back tomorrow!" : "10-50 bonus pts · Streak bonuses"}
+                    </p>
+                  </div>
+                  <Clock className="w-4 h-4 text-amber-500 shrink-0" />
+                </button>
+              );
+            })()}
+
+            {/* Explore new areas */}
+            {(() => {
+              const done = weeklyChecklist.areasMapped >= 3;
+              return (
+                <button
+                  onClick={() => { lightTap(); toast({ title: '🗺️ Map New Areas', description: 'Move around to different locations while contributing. New areas = rare data = higher quality scores!' }); }}
+                  className="w-full flex items-center gap-3 p-2.5 rounded-xl bg-card/40 border border-border hover:border-primary/30 active:scale-[0.98] transition-all text-left"
+                >
+                  {done ? <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" /> : <Circle className="w-4 h-4 text-muted-foreground shrink-0" />}
+                  <div className="flex-1 min-w-0">
+                    <p className={cn("text-sm font-medium", done ? "text-foreground" : "text-muted-foreground")}>
+                      Explore new areas
+                    </p>
+                    <p className="text-[11px] text-muted-foreground">
+                      {weeklyChecklist.areasMapped} areas mapped · Rare data earns more
+                    </p>
+                  </div>
+                  <MapPin className="w-4 h-4 text-primary shrink-0" />
+                </button>
+              );
+            })()}
           </div>
+
+          {/* Streak summary */}
+          {weeklyChecklist.streakDays > 0 && (
+            <div className="mt-3 pt-3 border-t border-border flex items-center gap-2">
+              <Flame className="w-4 h-4 text-orange-500" />
+              <span className="text-xs text-muted-foreground">
+                <span className="font-semibold text-foreground">{weeklyChecklist.streakDays}-day streak</span>
+                {' '}· {weeklyChecklist.streakDays >= 30 ? '2x multiplier 🔥' : weeklyChecklist.streakDays >= 7 ? `${(1.1 + (0.9 * (weeklyChecklist.streakDays - 7) / 23)).toFixed(1)}x multiplier` : 'Keep going for bonus multiplier at 7 days'}
+              </span>
+            </div>
+          )}
         </div>
 
 
