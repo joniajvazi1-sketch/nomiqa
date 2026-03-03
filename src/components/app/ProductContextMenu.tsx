@@ -92,7 +92,7 @@ export const ProductContextMenu: React.FC<ProductContextMenuProps> = ({
     await share({
       title: `${product.country_name} eSIM`,
       text: `Check out this ${product.data_amount} eSIM for ${product.country_name} - only $${product.price_usd}!`,
-      url: `https://nomiqa.com/shop?product=${product.id}`
+      url: `https://nomiqa-depin.com/shop?product=${product.id}`
     });
   }, [selectionTap, share, product]);
 

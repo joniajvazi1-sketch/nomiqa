@@ -58,7 +58,7 @@ export const HelpCenter: React.FC<HelpCenterProps> = ({ onClose }) => {
   };
 
   const handleViewDocs = () => {
-    window.open('https://nomiqa.com/help', '_blank');
+    window.open('https://nomiqa-depin.com/help', '_blank');
   };
 
   const content = (

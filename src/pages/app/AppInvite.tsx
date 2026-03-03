@@ -78,9 +78,9 @@ export const AppInvite: React.FC = () => {
   };
 
   const referralLink = affiliate?.username 
-    ? `https://nomiqa.com/${affiliate.username}`
+    ? `https://nomiqa-depin.com/${affiliate.username}`
     : affiliate?.affiliate_code 
-      ? `https://nomiqa.com/r/${affiliate.affiliate_code}`
+      ? `https://nomiqa-depin.com/r/${affiliate.affiliate_code}`
       : '';
 
   const handleCopyLink = async () => {

@@ -452,10 +452,10 @@ export const AppProfile: React.FC = () => {
                 <div className="mt-3 pt-3 border-t border-border">
                   <p className="text-xs text-muted-foreground mb-1.5">Your referral link</p>
                   <button
-                    onClick={() => copyToClipboard(`nomiqa.com/${affiliate.username || affiliate.affiliate_code}`)}
+                    onClick={() => copyToClipboard(`https://nomiqa-depin.com/${affiliate.username || affiliate.affiliate_code}`)}
                     className="w-full p-2.5 rounded-lg bg-muted/50 text-sm font-medium text-foreground flex items-center justify-between active:scale-[0.99] transition-transform"
                   >
-                    <span className="truncate">nomiqa.com/{affiliate.username || affiliate.affiliate_code}</span>
+                    <span className="truncate">nomiqa-depin.com/{affiliate.username || affiliate.affiliate_code}</span>
                     <span className="text-xs text-primary ml-2">Copy</span>
                   </button>
                 </div>
