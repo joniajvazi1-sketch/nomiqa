@@ -956,47 +956,49 @@ export const AppHome: React.FC = () => {
         {/* 7. Content Cards Below */}
         <div className="relative z-10 px-4 space-y-4 pb-8 mt-4">
 
-              {/* Grow Together Section */}
+              {/* Invite & Earn Section */}
               <motion.div
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
                 className={cn("rounded-2xl backdrop-blur-xl border p-4", isDark ? "bg-background/40 border-border/30" : "bg-card/80 border-border")}
               >
-                <div className="flex items-center gap-3 mb-4">
+                <div className="flex items-center gap-3 mb-3">
                   <div className="w-11 h-11 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg">
                     <Users className="w-5 h-5 text-white" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-base font-bold text-foreground">Grow Together 🌱</h3>
-                    <p className={cn("text-xs", isDark ? "text-white/60" : "text-muted-foreground")}>Earn 5% of your team's earnings</p>
+                    <h3 className="text-base font-bold text-foreground">Invite & Earn</h3>
+                    <p className={cn("text-xs", isDark ? "text-white/60" : "text-muted-foreground")}>Get 5% of your team's points — forever</p>
                   </div>
                 </div>
 
-                <div className={cn("rounded-xl p-3 flex items-center gap-2 mb-4 border", isDark ? "bg-white/5 border-white/5" : "bg-muted/50 border-border")}>
+                {/* Tappable referral link */}
+                <button
+                  onClick={() => { lightTap(); handleCopyLink(); }}
+                  className={cn("w-full rounded-xl p-3 flex items-center gap-2 mb-3 border text-left active:scale-[0.98] transition-transform", isDark ? "bg-white/5 border-white/10 hover:bg-white/8" : "bg-muted/50 border-border hover:bg-muted")}
+                >
                   <span className="flex-1 text-sm text-foreground truncate font-mono">
                     nomiqa-depin.com/{username || 'invite'}
                   </span>
-                  <button
-                    onClick={() => { lightTap(); handleCopyLink(); }}
-                    className="p-2 rounded-lg bg-violet-500/20 hover:bg-violet-500/30 transition-colors"
-                  >
-                    <Copy className="w-4 h-4 text-violet-400" />
-                  </button>
-                </div>
+                  <Copy className="w-4 h-4 text-violet-400 flex-shrink-0" />
+                </button>
 
                 <button
                   onClick={() => { mediumTap(); handleShareReferral(); }}
                   className="w-full h-11 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-semibold flex items-center justify-center gap-2 active:scale-[0.98] transition-transform shadow-lg"
                 >
                   <Share2 className="w-4 h-4" />
-                  Share & Grow Your Team
+                  Invite Friends
                 </button>
 
                 {referralCount > 0 && (
-                  <p className="text-center text-xs text-violet-300 mt-3">
-                    🎉 {referralCount} friend{referralCount !== 1 ? 's' : ''} earning with you!
-                  </p>
+                  <div className={cn("flex items-center justify-center gap-2 mt-3 px-3 py-2 rounded-lg", isDark ? "bg-violet-500/10 border border-violet-500/20" : "bg-violet-50 border border-violet-200")}>
+                    <TrendingUp className="w-3.5 h-3.5 text-violet-400" />
+                    <span className={cn("text-xs font-semibold", isDark ? "text-violet-300" : "text-violet-600")}>
+                      {referralCount} team member{referralCount !== 1 ? 's' : ''} contributing
+                    </span>
+                  </div>
                 )}
               </motion.div>
 
@@ -1009,27 +1011,27 @@ export const AppHome: React.FC = () => {
               >
                 <button
                   onClick={() => { lightTap(); navigate('/app/challenges'); }}
-                  className={cn("rounded-2xl backdrop-blur-xl border p-4 flex flex-col items-center gap-2 active:scale-[0.98] transition-transform", isDark ? "bg-background/40 border-border/30" : "bg-card/80 border-border")}
+                  className={cn("rounded-2xl backdrop-blur-xl border p-4 flex items-center gap-3 active:scale-[0.98] transition-transform", isDark ? "bg-background/40 border-border/30" : "bg-card/80 border-border")}
                 >
-                  <div className="w-11 h-11 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg flex-shrink-0">
                     <Zap className="w-5 h-5 text-white" />
                   </div>
-                  <div className="text-center">
+                  <div className="text-left">
                     <p className="text-sm font-bold text-foreground">Challenges</p>
-                    <p className={cn("text-[10px]", isDark ? "text-amber-400" : "text-primary")}>Earn bonus</p>
+                    <p className={cn("text-[10px]", isDark ? "text-amber-400" : "text-primary")}>Bonus points</p>
                   </div>
                 </button>
 
                 <button
                   onClick={() => { lightTap(); navigate('/app/invite'); }}
-                  className={cn("rounded-2xl backdrop-blur-xl border p-4 flex flex-col items-center gap-2 active:scale-[0.98] transition-transform", isDark ? "bg-background/40 border-border/30" : "bg-card/80 border-border")}
+                  className={cn("rounded-2xl backdrop-blur-xl border p-4 flex items-center gap-3 active:scale-[0.98] transition-transform", isDark ? "bg-background/40 border-border/30" : "bg-card/80 border-border")}
                 >
-                  <div className="w-11 h-11 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg flex-shrink-0">
                     <Users className="w-5 h-5 text-white" />
                   </div>
-                  <div className="text-center">
+                  <div className="text-left">
                     <p className="text-sm font-bold text-foreground">My Team</p>
-                    <p className={cn("text-[10px]", isDark ? "text-cyan-400" : "text-primary")}>See activity</p>
+                    <p className={cn("text-[10px]", isDark ? "text-cyan-400" : "text-primary")}>{referralCount > 0 ? `${referralCount} member${referralCount !== 1 ? 's' : ''}` : 'Invite friends'}</p>
                   </div>
                 </button>
               </motion.div>
@@ -1042,40 +1044,25 @@ export const AppHome: React.FC = () => {
                 className={cn("rounded-2xl backdrop-blur-xl border p-4", isDark ? "bg-background/40 border-border/30" : "bg-card/80 border-border")}
               >
                 <div className="flex items-center gap-2 mb-4">
-                  <h3 className="text-base font-bold text-foreground">How You Earn</h3>
-                  <span className="text-sm">✨</span>
+                  <h3 className="text-base font-bold text-foreground">3 Steps to Earn</h3>
                 </div>
                 
                 <div className="space-y-3">
-                  <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center flex-shrink-0 shadow-md">
-                      <span className="text-xs font-bold text-white">1</span>
+                  {[
+                    { num: '1', title: 'Tap Contribute', desc: 'Runs quietly — less than 3% battery', gradient: 'from-emerald-400 to-teal-500' },
+                    { num: '2', title: 'Walk, commute, or chill', desc: 'Your phone maps signal quality anonymously', gradient: 'from-teal-400 to-cyan-500' },
+                    { num: '3', title: 'Collect points daily', desc: 'Convert to $NQA tokens at network launch', gradient: 'from-cyan-400 to-blue-500' },
+                  ].map((step) => (
+                    <div key={step.num} className="flex items-start gap-3">
+                      <div className={cn("w-8 h-8 rounded-full bg-gradient-to-br flex items-center justify-center flex-shrink-0 shadow-md", step.gradient)}>
+                        <span className="text-xs font-bold text-white">{step.num}</span>
+                      </div>
+                      <div className="flex-1 pt-0.5">
+                        <p className="text-sm font-semibold text-foreground">{step.title}</p>
+                        <p className={cn("text-xs mt-0.5", isDark ? "text-white/50" : "text-muted-foreground")}>{step.desc}</p>
+                      </div>
                     </div>
-                    <div className="flex-1 pt-0.5">
-                      <p className="text-sm font-semibold text-foreground">App runs in background</p>
-                      <p className={cn("text-xs mt-0.5", isDark ? "text-white/50" : "text-muted-foreground")}>Uses less than 3% battery</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-teal-400 to-cyan-500 flex items-center justify-center flex-shrink-0 shadow-md">
-                      <span className="text-xs font-bold text-white">2</span>
-                    </div>
-                    <div className="flex-1 pt-0.5">
-                      <p className="text-sm font-semibold text-foreground">Contribute network data</p>
-                      <p className={cn("text-xs mt-0.5", isDark ? "text-white/50" : "text-muted-foreground")}>100% anonymous signal quality info</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center flex-shrink-0 shadow-md">
-                      <span className="text-xs font-bold text-white">3</span>
-                    </div>
-                    <div className="flex-1 pt-0.5">
-                      <p className="text-sm font-semibold text-foreground">Earn points automatically</p>
-                      <p className={cn("text-xs mt-0.5", isDark ? "text-white/50" : "text-muted-foreground")}>Redeem for real rewards 🎁</p>
-                    </div>
-                  </div>
+                  ))}
                 </div>
               </motion.div>
 
