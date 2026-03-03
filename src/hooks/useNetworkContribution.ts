@@ -361,6 +361,10 @@ export const useNetworkContribution = () => {
     status: 'idle'
   });
   
+  // Client-side daily cap tracking to prevent UI from showing inflated numbers
+  const CLIENT_DAILY_CAP = 200;
+  const [dailyCapReached, setDailyCapReached] = useState(false);
+  
   const [stats, setStats] = useState<ContributionStats>({
     pointsEarned: 0,
     distanceMeters: 0,
@@ -556,17 +560,32 @@ export const useNetworkContribution = () => {
     if (lastPositionRef.current) {
       distanceGained = calculateDistance(lastPositionRef.current, position);
       
-      if (distanceGained > 5) {
+      if (distanceGained > 5 && !dailyCapReached) {
         distancePoints = distanceGained * 0.01;
         
-        setStats(prev => ({
-          ...prev,
-          distanceMeters: prev.distanceMeters + distanceGained,
-          distancePoints: prev.distancePoints + distancePoints,
-          pointsEarned: prev.pointsEarned + distancePoints,
-          speedKmh: Math.round(speedKmh),
-          dataPointsCount: prev.dataPointsCount + 1
-        }));
+        setStats(prev => {
+          const newPoints = prev.pointsEarned + distancePoints;
+          // Client-side cap: don't let displayed points exceed daily cap
+          if (newPoints >= CLIENT_DAILY_CAP) {
+            setDailyCapReached(true);
+            return {
+              ...prev,
+              distanceMeters: prev.distanceMeters + distanceGained,
+              distancePoints: prev.distancePoints + distancePoints,
+              pointsEarned: Math.min(newPoints, CLIENT_DAILY_CAP),
+              speedKmh: Math.round(speedKmh),
+              dataPointsCount: prev.dataPointsCount + 1
+            };
+          }
+          return {
+            ...prev,
+            distanceMeters: prev.distanceMeters + distanceGained,
+            distancePoints: prev.distancePoints + distancePoints,
+            pointsEarned: newPoints,
+            speedKmh: Math.round(speedKmh),
+            dataPointsCount: prev.dataPointsCount + 1
+          };
+        });
       }
     }
     
@@ -777,8 +796,9 @@ export const useNetworkContribution = () => {
   }, [connectionType, isCellular, session.status, lastPosition, success, telcoMetrics]);
 
   // Time-based earnings - now works on both cellular and WiFi
+  // Stops accumulating locally once daily cap is reached
   useEffect(() => {
-    if (session.status !== 'active' || !isValidConnection(connectionType)) return;
+    if (session.status !== 'active' || !isValidConnection(connectionType) || dailyCapReached) return;
     
     const currentMinute = Math.floor(stats.duration / 60);
     const lastAwardedMinute = lastTimePointsRef.current;
@@ -787,15 +807,26 @@ export const useNetworkContribution = () => {
       const minutesElapsed = currentMinute - lastAwardedMinute;
       const timePointsEarned = minutesElapsed * 0.5;
       
-      setStats(prev => ({
-        ...prev,
-        timePoints: prev.timePoints + timePointsEarned,
-        pointsEarned: prev.pointsEarned + timePointsEarned
-      }));
+      setStats(prev => {
+        const newPoints = prev.pointsEarned + timePointsEarned;
+        if (newPoints >= CLIENT_DAILY_CAP) {
+          setDailyCapReached(true);
+          return {
+            ...prev,
+            timePoints: prev.timePoints + timePointsEarned,
+            pointsEarned: Math.min(newPoints, CLIENT_DAILY_CAP)
+          };
+        }
+        return {
+          ...prev,
+          timePoints: prev.timePoints + timePointsEarned,
+          pointsEarned: newPoints
+        };
+      });
       
       lastTimePointsRef.current = currentMinute;
     }
-  }, [stats.duration, session.status, isCellular]);
+  }, [stats.duration, session.status, isCellular, dailyCapReached]);
 
   // AUTO-SAVE: Periodically save points to database (every 5 minutes)
   // This ensures users don't lose points even if they forget to stop or app crashes
@@ -863,12 +894,16 @@ export const useNetworkContribution = () => {
           
           if (reason === 'daily_cap_reached') {
             console.log('[NetworkContribution] Daily cap reached - pausing point accrual');
+            setDailyCapReached(true);
           } else if (reason === 'monthly_cap_reached') {
             console.log('[NetworkContribution] Monthly cap reached - pausing point accrual');
+            setDailyCapReached(true); // Also stop local accumulation
           } else if (reason === 'lifetime_cap_reached') {
             console.log('[NetworkContribution] Lifetime cap reached - congrats!');
+            setDailyCapReached(true);
           } else if (reason === 'account_frozen') {
             console.warn('[NetworkContribution] Account frozen - points not added');
+            setDailyCapReached(true);
           }
           
           if (wasCapped) {
