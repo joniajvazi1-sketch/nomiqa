@@ -327,7 +327,7 @@ export const requestIOSAlwaysPermission = async (): Promise<boolean> => {
  * 
  * BUSINESS RULES:
  * 1. CELLULAR ONLY - Users only earn points on mobile data
- * 2. TIME-BASED EARNINGS - points = (distanceMeters * 0.01) + (minutesActive * 0.5)
+ * 2. TIME-BASED EARNINGS - points = (distanceMeters * 0.005) + (minutesActive * 0.1) — slow drip over 24h
  * 3. TELCO LOGGING - Log every 100m OR every 5 minutes if stationary
  * 4. SPEED TESTS - Run lightweight speed test every 10 minutes
  */
@@ -511,7 +511,7 @@ export const useNetworkContribution = () => {
             try {
               const bgStats = await BackgroundLocation.drainBackgroundStats();
               if (bgStats.distanceMeters > 0 || bgStats.samples > 0) {
-                const bgDistancePoints = bgStats.distanceMeters * 0.01;
+                const bgDistancePoints = bgStats.distanceMeters * 0.005;
                 console.log(`[NetworkContribution] Drained Android background: ${bgStats.distanceMeters.toFixed(1)}m (+${bgDistancePoints.toFixed(2)} pts), ${bgStats.samples} samples`);
                 
                 // Merge background distance into current stats
@@ -620,7 +620,7 @@ export const useNetworkContribution = () => {
       distanceGained = calculateDistance(lastPositionRef.current, position);
       
       if (distanceGained > 5 && !dailyCapReached) {
-        distancePoints = distanceGained * 0.01;
+        distancePoints = distanceGained * 0.005;
         
         setStats(prev => {
           const newPoints = prev.pointsEarned + distancePoints;
@@ -863,7 +863,8 @@ export const useNetworkContribution = () => {
 
   // Time-based earnings - works on both cellular and WiFi
   // Stops accumulating locally once daily cap is reached
-  // Battery saver: no points when not charging; Low power: half rate (0.25/min instead of 0.5/min)
+  // Rate: 0.1 pts/min (normal) / 0.05 pts/min (low power) — spreads 200 cap across ~24h
+  // Battery saver: no points when not charging
   useEffect(() => {
     if (session.status !== 'active' || !isValidConnection(connectionType) || dailyCapReached || isBatterySaverBlocking) return;
     
@@ -872,7 +873,7 @@ export const useNetworkContribution = () => {
     
     if (currentMinute > lastAwardedMinute) {
       const minutesElapsed = currentMinute - lastAwardedMinute;
-      const ratePerMinute = collectionPrefs.low_power_collection ? 0.25 : 0.5;
+      const ratePerMinute = collectionPrefs.low_power_collection ? 0.05 : 0.1;
       const timePointsEarned = minutesElapsed * ratePerMinute;
       
       setStats(prev => {

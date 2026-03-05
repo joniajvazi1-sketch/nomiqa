@@ -29,9 +29,9 @@ export const TOKENOMICS = {
   
   // Base earning rates (per day, active user)
   DAILY_POINTS: {
-    BACKGROUND_CONTRIBUTION: 50, // Base for background scanning
-    DAILY_CHALLENGES: 30,        // Average from challenges
-    BASE_TOTAL: 80,              // Conservative base (50 + 30)
+    BACKGROUND_CONTRIBUTION: 144, // 0.1 pts/min × 1440 min = 144 (time alone over 24h)
+    DAILY_CHALLENGES: 30,         // Average from challenges
+    BASE_TOTAL: 174,              // Conservative base (144 + 30)
   },
   
   // Daily cap (hard limit to prevent abuse)
