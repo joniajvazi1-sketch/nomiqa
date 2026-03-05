@@ -19,7 +19,14 @@ import {
   Wifi,
   CloudOff,
   MapPin,
-  Flame
+  Flame,
+  BarChart3,
+  Activity,
+  Tv,
+  Video,
+  Phone,
+  Gamepad2,
+  Globe
 } from 'lucide-react';
 import { useHaptics } from '@/hooks/useHaptics';
 import { supabase } from '@/integrations/supabase/client';
@@ -63,6 +70,10 @@ export const AppHome: React.FC = () => {
   const [showStreakPopup, setShowStreakPopup] = useState(false);
   const [checkinHistory, setCheckinHistory] = useState<{ date: string; points: number }[]>([]);
   const [miningBoost, setMiningBoost] = useState(0);
+
+  // Network intelligence state
+  const [carriers, setCarriers] = useState<{ carrier_name: string; country_code: string; avg_download_mbps: number; avg_upload_mbps: number; avg_latency_ms: number; coverage_score: number }[]>([]);
+  const [recentFeed, setRecentFeed] = useState<any[]>([]);
   const { share } = useNativeShare();
   const { theme, setTheme, resolvedTheme } = useTheme();
   const isDark = resolvedTheme === 'dark' || theme === 'dark';
@@ -251,6 +262,19 @@ export const AppHome: React.FC = () => {
         });
         setTodayEarnings(contributionPts + rewardPts + commissionPts);
       }
+
+      // Load network intelligence (carriers + live feed) - non-blocking
+      const [carriersRes, feedRes] = await Promise.all([
+        supabase.from('carrier_benchmarks' as any).select('*').order('coverage_score', { ascending: false }).limit(6),
+        supabase.from('signal_logs')
+          .select('id, network_generation, carrier_name, country_code, speed_test_down, recorded_at')
+          .not('carrier_name', 'is', null)
+          .not('speed_test_down', 'is', null)
+          .order('recorded_at', { ascending: false })
+          .limit(5),
+      ]);
+      if (carriersRes.data) setCarriers(carriersRes.data as any);
+      if (feedRes.data) setRecentFeed(feedRes.data);
     } catch (error) {
       console.error('Error loading data:', error);
     } finally {
@@ -1068,6 +1092,125 @@ export const AppHome: React.FC = () => {
                   </div>
                 </button>
               </motion.div>
+
+              {/* Network Intelligence Section */}
+              {(carriers.length > 0 || recentFeed.length > 0) && (
+                <motion.div
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className={cn("rounded-2xl backdrop-blur-xl border p-4 space-y-4", isDark ? "bg-background/40 border-border/30" : "bg-card/80 border-border")}
+                >
+                  <div className="flex items-center gap-2">
+                    <Signal className="w-4 h-4 text-primary" />
+                    <h3 className="text-base font-bold text-foreground">Network Intelligence</h3>
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse ml-auto" />
+                  </div>
+
+                  {/* QoE Scores */}
+                  <div>
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <Tv className="w-3.5 h-3.5 text-muted-foreground" />
+                      <span className={cn("text-xs font-semibold", isDark ? "text-white/70" : "text-muted-foreground")}>Quality of Experience</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      {(() => {
+                        const avgDown = carriers.length ? carriers.reduce((s, c) => s + (c.avg_download_mbps || 0), 0) / carriers.length : 0;
+                        const avgLatency = carriers.length ? carriers.reduce((s, c) => s + (c.avg_latency_ms || 100), 0) / carriers.length : 100;
+                        const qoeItems = [
+                          { icon: Video, label: 'Streaming', score: avgDown >= 25 ? 'Excellent' : avgDown >= 10 ? 'Good' : avgDown >= 5 ? 'Fair' : 'Poor' },
+                          { icon: Phone, label: 'Video Calls', score: avgDown >= 15 ? 'Excellent' : avgDown >= 5 ? 'Good' : avgDown >= 2 ? 'Fair' : 'Poor' },
+                          { icon: Gamepad2, label: 'Gaming', score: avgLatency <= 30 ? 'Excellent' : avgLatency <= 60 ? 'Good' : avgLatency <= 100 ? 'Fair' : 'Poor' },
+                          { icon: Globe, label: 'Browsing', score: avgDown >= 5 ? 'Excellent' : avgDown >= 2 ? 'Good' : avgDown >= 1 ? 'Fair' : 'Poor' },
+                        ];
+                        const colorMap: Record<string, string> = { Excellent: 'text-emerald-400', Good: 'text-primary', Fair: 'text-amber-400', Poor: 'text-destructive' };
+                        return qoeItems.map(({ icon: Icon, label, score }) => (
+                          <div key={label} className={cn("p-2.5 rounded-xl flex items-center gap-2.5 border", isDark ? "bg-white/5 border-white/5" : "bg-muted/50 border-border")}>
+                            <Icon className="w-4 h-4 text-muted-foreground shrink-0" />
+                            <div>
+                              <div className={cn("text-[10px]", isDark ? "text-white/50" : "text-muted-foreground")}>{label}</div>
+                              <div className={`text-xs font-bold ${colorMap[score]}`}>{score}</div>
+                            </div>
+                          </div>
+                        ));
+                      })()}
+                    </div>
+                  </div>
+
+                  {/* Top Carriers */}
+                  {carriers.length > 0 && (
+                    <div>
+                      <div className="flex items-center gap-1.5 mb-2">
+                        <BarChart3 className="w-3.5 h-3.5 text-muted-foreground" />
+                        <span className={cn("text-xs font-semibold", isDark ? "text-white/70" : "text-muted-foreground")}>Top Carriers</span>
+                      </div>
+                      <div className="space-y-1.5">
+                        {carriers.slice(0, 4).map((c, i) => {
+                          const emoji = c.country_code?.length === 2
+                            ? String.fromCodePoint(...c.country_code.toUpperCase().split('').map(ch => 127397 + ch.charCodeAt(0)))
+                            : '🌍';
+                          return (
+                            <div key={i} className={cn("flex items-center justify-between px-3 py-2 rounded-xl border", isDark ? "bg-white/5 border-white/5" : "bg-muted/50 border-border")}>
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm">{emoji}</span>
+                                <span className="text-xs font-medium text-foreground">{c.carrier_name}</span>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <span className="text-xs font-bold text-primary tabular-nums">{c.avg_download_mbps?.toFixed(0)} Mbps</span>
+                                <div className="flex items-center gap-1">
+                                  <div className={cn("w-8 h-1.5 rounded-full overflow-hidden", isDark ? "bg-white/10" : "bg-muted")}>
+                                    <div className="h-full rounded-full bg-gradient-to-r from-primary to-accent" style={{ width: `${Math.min(c.coverage_score || 0, 100)}%` }} />
+                                  </div>
+                                  <span className="text-[10px] font-bold text-foreground tabular-nums">{c.coverage_score?.toFixed(0)}</span>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Live Activity Feed */}
+                  {recentFeed.length > 0 && (
+                    <div>
+                      <div className="flex items-center gap-1.5 mb-2">
+                        <Activity className="w-3.5 h-3.5 text-muted-foreground" />
+                        <span className={cn("text-xs font-semibold", isDark ? "text-white/70" : "text-muted-foreground")}>Recent Activity</span>
+                        <div className="w-1.5 h-1.5 rounded-full bg-destructive animate-pulse" />
+                      </div>
+                      <div className="space-y-1.5">
+                        {recentFeed.map((item: any) => {
+                          const emoji = item.country_code?.length === 2
+                            ? String.fromCodePoint(...item.country_code.toUpperCase().split('').map((ch: string) => 127397 + ch.charCodeAt(0)))
+                            : '🌍';
+                          const diff = Date.now() - new Date(item.recorded_at).getTime();
+                          const mins = Math.floor(diff / 60000);
+                          const timeAgo = mins < 1 ? 'now' : mins < 60 ? `${mins}m` : `${Math.floor(mins / 60)}h`;
+                          const net = (item.network_generation || '').toLowerCase();
+                          const netLabel = net.includes('5g') ? '5G' : net.includes('4g') || net.includes('lte') ? 'LTE' : '3G';
+                          const netColor = net.includes('5g') ? 'text-accent' : 'text-primary';
+                          return (
+                            <div key={item.id} className={cn("flex items-center justify-between px-3 py-2 rounded-xl border", isDark ? "bg-white/5 border-white/5" : "bg-muted/50 border-border")}>
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm">{emoji}</span>
+                                <span className="text-xs text-foreground">{item.carrier_name}</span>
+                                <span className={`text-[10px] font-bold ${netColor}`}>{netLabel}</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                {item.speed_test_down && (
+                                  <span className="text-xs font-bold text-primary tabular-nums">{item.speed_test_down.toFixed(0)} Mbps</span>
+                                )}
+                                <span className={cn("text-[10px]", isDark ? "text-white/30" : "text-muted-foreground")}>{timeAgo}</span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </motion.div>
+              )}
 
               {/* How It Works */}
               <motion.div
