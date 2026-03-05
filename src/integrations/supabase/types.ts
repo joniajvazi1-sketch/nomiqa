@@ -1942,6 +1942,53 @@ export type Database = {
           },
         ]
       }
+      carrier_benchmarks: {
+        Row: {
+          avg_download_mbps: number | null
+          avg_latency_ms: number | null
+          avg_rsrp: number | null
+          avg_sinr: number | null
+          avg_upload_mbps: number | null
+          carrier_name: string | null
+          country_code: string | null
+          coverage_score: number | null
+          last_updated: string | null
+          median_download_mbps: number | null
+          median_latency_ms: number | null
+          median_rsrp: number | null
+          median_upload_mbps: number | null
+          network_generation: string | null
+          pct_5g_capable_devices: number | null
+          pct_excellent_signal: number | null
+          pct_good_signal: number | null
+          pct_poor_signal: number | null
+          sample_count: number | null
+          unique_users: number | null
+        }
+        Relationships: []
+      }
+      coverage_gaps: {
+        Row: {
+          affected_users: number | null
+          avg_confidence: number | null
+          avg_download_mbps: number | null
+          avg_latency_ms: number | null
+          avg_rsrp: number | null
+          avg_sinr: number | null
+          avg_upload_mbps: number | null
+          carrier_name: string | null
+          center_lat: number | null
+          center_lng: number | null
+          country_code: string | null
+          first_detected: string | null
+          last_detected: string | null
+          location_geohash: string | null
+          network_generation: string | null
+          sample_count: number | null
+          severity_score: number | null
+        }
+        Relationships: []
+      }
       coverage_tiles: {
         Row: {
           avg_confidence: number | null
@@ -1965,6 +2012,28 @@ export type Database = {
           pct_good_signal: number | null
           pct_poor_signal: number | null
           pct_roaming: number | null
+          sample_count: number | null
+          unique_users: number | null
+        }
+        Relationships: []
+      }
+      network_congestion: {
+        Row: {
+          avg_download_mbps: number | null
+          avg_latency_ms: number | null
+          avg_rsrp: number | null
+          avg_sinr: number | null
+          avg_upload_mbps: number | null
+          carrier_name: string | null
+          center_lat: number | null
+          center_lng: number | null
+          congestion_score: number | null
+          country_code: string | null
+          day_of_week: number | null
+          hour_of_day: number | null
+          is_peak_hour: boolean | null
+          location_geohash: string | null
+          network_generation: string | null
           sample_count: number | null
           unique_users: number | null
         }
@@ -2143,6 +2212,7 @@ export type Database = {
           id: string
         }[]
       }
+      refresh_b2b_analytics: { Args: never; Returns: undefined }
       refresh_coverage_tiles: { Args: never; Returns: undefined }
       request_data_deletion: {
         Args: { requesting_user_id: string }
