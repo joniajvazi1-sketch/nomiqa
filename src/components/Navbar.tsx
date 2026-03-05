@@ -391,6 +391,11 @@ export const Navbar = () => {
                       <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">⚡ {t("navHowDePINWorks")}</span>
                     </button>
 
+                    {/* Tier 2: Live Coverage Map */}
+                    <button onClick={() => handleNavClick('/network')} className="group text-left text-cyan-300/70 hover:text-cyan-200 bg-cyan-500/[0.05] hover:bg-cyan-500/[0.1] transition-all duration-300 py-3.5 px-5 rounded-lg font-normal text-base tracking-wide backdrop-blur-sm border border-cyan-500/10 hover:border-cyan-400/25">
+                      <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">📡 Live Coverage Map</span>
+                    </button>
+
                     <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent my-2" />
 
                     {/* Tier 3: Standard items - clean & minimal */}
@@ -494,6 +499,11 @@ export const Navbar = () => {
                     {/* Tier 2: How DePIN Works */}
                     <button onClick={() => handleNavClick('/how-it-works')} className="group text-left text-rose-300/70 hover:text-rose-200 bg-rose-500/[0.05] hover:bg-rose-500/[0.1] transition-all duration-300 py-3.5 px-5 rounded-lg font-normal text-[15px] tracking-wide backdrop-blur-sm border border-rose-500/10 hover:border-rose-400/25">
                       <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">⚡ {t("navHowDePINWorks")}</span>
+                    </button>
+
+                    {/* Tier 2: Live Coverage Map */}
+                    <button onClick={() => handleNavClick('/network')} className="group text-left text-cyan-300/70 hover:text-cyan-200 bg-cyan-500/[0.05] hover:bg-cyan-500/[0.1] transition-all duration-300 py-3.5 px-5 rounded-lg font-normal text-[15px] tracking-wide backdrop-blur-sm border border-cyan-500/10 hover:border-cyan-400/25">
+                      <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">📡 Live Coverage Map</span>
                     </button>
 
                     <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent my-2" />
