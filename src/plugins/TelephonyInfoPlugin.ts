@@ -58,6 +58,9 @@ export interface NativeDeviceInfo {
   fingerprint?: string;  // Android build fingerprint
   modelIdentifier?: string; // iOS raw model (same as model)
   deviceName?: string;   // iOS user's device name
+  // Device capability detection
+  is5gCapable?: boolean;       // Whether device radio supports 5G
+  maxSupportedGeneration?: string; // '5G', '4G', '3G', '2G'
 }
 
 export interface TelephonyInfoPluginInterface {

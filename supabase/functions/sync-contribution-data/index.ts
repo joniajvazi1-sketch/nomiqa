@@ -65,6 +65,9 @@ interface SignalLogData {
   is_mock_location?: boolean;
   device_integrity_score?: number;
   device_integrity_flags?: string[];
+  // Device capability (B2B value)
+  device_5g_capable?: boolean;
+  max_supported_generation?: string;
 }
 
 interface LocationProof {
@@ -904,6 +907,9 @@ serve(async (req) => {
                        s.device_integrity_flags?.includes('ua:android_emulator') || false,
           is_rooted_jailbroken: s.device_integrity_flags?.includes('ua:root_app') || 
                                 s.device_integrity_flags?.includes('platform:root') || false,
+          // Device capability (B2B value)
+          device_5g_capable: s.device_5g_capable ?? null,
+          max_supported_generation: s.max_supported_generation ?? null,
         });
         
         // Signal log processed - internal tracking only

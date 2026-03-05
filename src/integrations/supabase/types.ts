@@ -1220,6 +1220,7 @@ export type Database = {
           country_code: string | null
           created_at: string | null
           data_quality_score: number | null
+          device_5g_capable: boolean | null
           device_manufacturer: string | null
           device_model: string | null
           frequency_mhz: number | null
@@ -1238,6 +1239,7 @@ export type Database = {
           latitude: number
           location_geohash: string | null
           longitude: number
+          max_supported_generation: string | null
           mcc: string | null
           mcc_mnc: string | null
           mnc: string | null
@@ -1272,6 +1274,7 @@ export type Database = {
           country_code?: string | null
           created_at?: string | null
           data_quality_score?: number | null
+          device_5g_capable?: boolean | null
           device_manufacturer?: string | null
           device_model?: string | null
           frequency_mhz?: number | null
@@ -1290,6 +1293,7 @@ export type Database = {
           latitude: number
           location_geohash?: string | null
           longitude: number
+          max_supported_generation?: string | null
           mcc?: string | null
           mcc_mnc?: string | null
           mnc?: string | null
@@ -1324,6 +1328,7 @@ export type Database = {
           country_code?: string | null
           created_at?: string | null
           data_quality_score?: number | null
+          device_5g_capable?: boolean | null
           device_manufacturer?: string | null
           device_model?: string | null
           frequency_mhz?: number | null
@@ -1342,6 +1347,7 @@ export type Database = {
           latitude?: number
           location_geohash?: string | null
           longitude?: number
+          max_supported_generation?: string | null
           mcc?: string | null
           mcc_mnc?: string | null
           mnc?: string | null

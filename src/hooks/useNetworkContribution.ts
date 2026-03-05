@@ -744,6 +744,9 @@ export const useNetworkContribution = () => {
             // Device integrity anti-fraud signals
             device_integrity_score: integrity.integrityScore,
             device_integrity_flags: integrity.flags,
+            // Device capability (B2B value)
+            device_5g_capable: signalLog.device5gCapable ?? null,
+            max_supported_generation: signalLog.maxSupportedGeneration ?? null,
           }]
         }
       });
@@ -1234,7 +1237,10 @@ export const useNetworkContribution = () => {
           speed_test_provider: item.telcoMetrics?.speedTestProvider,
           latency_error: item.telcoMetrics?.latencyError,
           latency_provider: item.telcoMetrics?.latencyProvider,
-          latency_method: item.telcoMetrics?.latencyMethod
+          latency_method: item.telcoMetrics?.latencyMethod,
+          // Device capability (B2B value)
+          device_5g_capable: item.telcoMetrics?.device5gCapable ?? null,
+          max_supported_generation: item.telcoMetrics?.maxSupportedGeneration ?? null,
         }));
         
         const { data, error: telcoError } = await supabase.functions.invoke('sync-contribution-data', {
