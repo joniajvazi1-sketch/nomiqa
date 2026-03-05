@@ -18,7 +18,8 @@ import {
   Signal,
   Wifi,
   CloudOff,
-  MapPin
+  MapPin,
+  Flame
 } from 'lucide-react';
 import { useHaptics } from '@/hooks/useHaptics';
 import { supabase } from '@/integrations/supabase/client';
@@ -57,7 +58,7 @@ export const AppHome: React.FC = () => {
   const { buttonTap, successPattern } = useEnhancedHaptics();
   const { playCoin, playSuccess } = useEnhancedSounds();
   const { isOnline } = useNetworkStatus();
-  const streakDays = 0; // Achievements removed
+  const [streakDays, setStreakDays] = useState(0);
   const { share } = useNativeShare();
   const { theme, setTheme, resolvedTheme } = useTheme();
   const isDark = resolvedTheme === 'dark' || theme === 'dark';
@@ -192,7 +193,10 @@ export const AppHome: React.FC = () => {
         ]);
 
         if (profileRes.data?.username) setUsername(profileRes.data.username);
-        if (pointsRes.data) setPoints(pointsRes.data);
+        if (pointsRes.data) {
+          setPoints(pointsRes.data);
+          setStreakDays(pointsRes.data.contribution_streak_days || 0);
+        }
         
         // Real referral count from affiliate_referrals (safety net against cached total_registrations drift)
         if (affiliateRes.data?.id) {
@@ -1015,12 +1019,12 @@ export const AppHome: React.FC = () => {
                   onClick={() => { lightTap(); navigate('/app/rewards'); }}
                   className={cn("rounded-2xl backdrop-blur-xl border p-4 flex items-center gap-3 active:scale-[0.98] transition-transform", isDark ? "bg-background/40 border-border/30" : "bg-card/80 border-border")}
                 >
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg flex-shrink-0">
-                    <Zap className="w-5 h-5 text-white" />
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center shadow-lg flex-shrink-0">
+                    <Flame className="w-5 h-5 text-white" />
                   </div>
                   <div className="text-left">
-                    <p className="text-sm font-bold text-foreground">Daily Rewards</p>
-                    <p className={cn("text-[10px]", isDark ? "text-amber-400" : "text-primary")}>Bonus points</p>
+                    <p className="text-sm font-bold text-foreground">{streakDays > 0 ? `${streakDays}-Day Streak` : 'Start Streak'}</p>
+                    <p className={cn("text-[10px]", isDark ? "text-orange-400" : "text-primary")}>{streakDays >= 30 ? '2x boost active 🔥' : streakDays >= 7 ? `${(1.1 + (0.9 * (streakDays - 7) / 23)).toFixed(1)}x boost` : 'Earn daily bonus'}</p>
                   </div>
                 </button>
 
