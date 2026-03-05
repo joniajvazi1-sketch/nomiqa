@@ -102,13 +102,19 @@ Deno.serve(async (req) => {
       );
     }
 
-    const validDatasets = ['coverage', 'gaps', 'benchmarks', 'congestion'];
+    const validDatasets = ['coverage', 'gaps', 'benchmarks', 'congestion', 'qoe'];
     if (!validDatasets.includes(dataset)) {
       return new Response(
         JSON.stringify({ error: `Invalid dataset. Use one of: ${validDatasets.join(', ')}` }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    // QoE-specific filters
+    const minQoe = parseInt(url.searchParams.get('min_qoe') || '0');
+    const streamingQuality = url.searchParams.get('streaming_quality');
+    const gamingQuality = url.searchParams.get('gaming_quality');
+    const qoeRating = url.searchParams.get('qoe_rating');
 
     let data: Record<string, unknown>[] | null = null;
     let datasetName = dataset;
@@ -180,6 +186,26 @@ Deno.serve(async (req) => {
       const { data: congestion, error } = await query;
       if (error) throw error;
       data = congestion;
+
+    } else if (dataset === 'qoe') {
+      // Quality of Experience scores
+      let query = supabase
+        .from('network_qoe_scores')
+        .select('*')
+        .gte('qoe_score', minQoe)
+        .order('qoe_score', { ascending: false })
+        .range(offset, offset + limit - 1);
+
+      if (country) query = query.eq('country_code', country.toUpperCase());
+      if (carrier) query = query.ilike('carrier_name', `%${carrier}%`);
+      if (network) query = query.eq('network_generation', network);
+      if (streamingQuality) query = query.eq('streaming_quality', streamingQuality);
+      if (gamingQuality) query = query.eq('gaming_quality', gamingQuality);
+      if (qoeRating) query = query.eq('qoe_rating', qoeRating);
+
+      const { data: qoe, error } = await query;
+      if (error) throw error;
+      data = qoe;
     }
 
     // Log successful export
