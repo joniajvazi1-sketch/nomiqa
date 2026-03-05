@@ -39,6 +39,7 @@ import { hasDataConsent } from '@/components/app/DataConsentModal';
 import { useEnhancedHaptics } from '@/hooks/useEnhancedHaptics';
 import { useEnhancedSounds } from '@/hooks/useEnhancedSounds';
 import { toast as toastNew } from '@/hooks/use-toast';
+import { StreakCalendar } from '@/components/app/StreakCalendar';
 
 // Lazy load NetworkGlobe for performance
 const NetworkGlobe = lazy(() => import('@/components/app/NetworkGlobe').then(m => ({ default: m.NetworkGlobe })));
@@ -59,6 +60,9 @@ export const AppHome: React.FC = () => {
   const { playCoin, playSuccess } = useEnhancedSounds();
   const { isOnline } = useNetworkStatus();
   const [streakDays, setStreakDays] = useState(0);
+  const [showStreakPopup, setShowStreakPopup] = useState(false);
+  const [checkinHistory, setCheckinHistory] = useState<{ date: string; points: number }[]>([]);
+  const [miningBoost, setMiningBoost] = useState(0);
   const { share } = useNativeShare();
   const { theme, setTheme, resolvedTheme } = useTheme();
   const isDark = resolvedTheme === 'dark' || theme === 'dark';
@@ -181,15 +185,16 @@ export const AppHome: React.FC = () => {
         const todayStr = new Date().toISOString().split('T')[0];
         
         // Parallelize ALL queries for speed
-        const [profileRes, pointsRes, affiliateRes, dailyLimitRes, checkinRes, socialRes, challengeRes, speedTestRes] = await Promise.all([
+        const [profileRes, pointsRes, affiliateRes, dailyLimitRes, checkinRes, socialRes, challengeRes, speedTestRes, checkinHistoryRes] = await Promise.all([
           supabase.from('profiles_safe').select('username').eq('user_id', currentUser.id).maybeSingle(),
           supabase.from('user_points').select('*').eq('user_id', currentUser.id).maybeSingle(),
-          supabase.from('affiliates_safe').select('id, total_registrations').eq('user_id', currentUser.id).maybeSingle(),
+          supabase.from('affiliates_safe').select('id, total_registrations, miner_boost_percentage').eq('user_id', currentUser.id).maybeSingle(),
           supabase.from('user_daily_limits').select('points_earned').eq('user_id', currentUser.id).eq('limit_date', todayStr).maybeSingle(),
           supabase.from('daily_checkins').select('bonus_points').eq('user_id', currentUser.id).eq('check_in_date', todayStr),
           supabase.from('social_task_claims').select('points_awarded').eq('user_id', currentUser.id).gte('claimed_at', todayStr),
           supabase.from('user_challenge_progress').select('challenge_id').eq('user_id', currentUser.id).not('claimed_at', 'is', null).gte('period_start', todayStr),
           supabase.from('speed_test_results').select('id').eq('user_id', currentUser.id).gte('recorded_at', todayStr),
+          supabase.from('daily_checkins').select('check_in_date, bonus_points').eq('user_id', currentUser.id).order('check_in_date', { ascending: false }).limit(90),
         ]);
 
         if (profileRes.data?.username) setUsername(profileRes.data.username);
@@ -198,6 +203,15 @@ export const AppHome: React.FC = () => {
           setStreakDays(pointsRes.data.contribution_streak_days || 0);
         }
         
+        // Load mining boost from affiliate data
+        if (affiliateRes.data?.miner_boost_percentage) {
+          setMiningBoost(affiliateRes.data.miner_boost_percentage);
+        }
+        
+        // Load checkin history for streak calendar
+        if (checkinHistoryRes.data) {
+          setCheckinHistory(checkinHistoryRes.data.map((c: any) => ({ date: c.check_in_date, points: c.bonus_points })));
+        }
         // Real referral count from affiliate_referrals (safety net against cached total_registrations drift)
         if (affiliateRes.data?.id) {
           const { count } = await supabase
@@ -1016,7 +1030,7 @@ export const AppHome: React.FC = () => {
                 className="grid grid-cols-2 gap-3"
               >
                 <button
-                  onClick={() => { lightTap(); navigate('/app/rewards'); }}
+                  onClick={() => { lightTap(); setShowStreakPopup(true); }}
                   className={cn("rounded-2xl backdrop-blur-xl border p-4 flex items-center gap-3 active:scale-[0.98] transition-transform", isDark ? "bg-background/40 border-border/30" : "bg-card/80 border-border")}
                 >
                   <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center shadow-lg flex-shrink-0">
@@ -1024,7 +1038,7 @@ export const AppHome: React.FC = () => {
                   </div>
                   <div className="text-left">
                     <p className="text-sm font-bold text-foreground">{streakDays > 0 ? `${streakDays}-Day Streak` : 'Start Streak'}</p>
-                    <p className={cn("text-[10px]", isDark ? "text-orange-400" : "text-primary")}>{streakDays >= 30 ? '2x boost active 🔥' : streakDays >= 7 ? `${(1.1 + (0.9 * (streakDays - 7) / 23)).toFixed(1)}x boost` : 'Earn daily bonus'}</p>
+                    <p className={cn("text-[10px]", isDark ? "text-orange-400" : "text-primary")}>{miningBoost > 0 ? `+${miningBoost}% boost` : streakDays >= 30 ? '2x boost active 🔥' : streakDays >= 7 ? `${(1.1 + (0.9 * (streakDays - 7) / 23)).toFixed(1)}x boost` : 'View calendar'}</p>
                   </div>
                 </button>
 
@@ -1074,6 +1088,55 @@ export const AppHome: React.FC = () => {
 
         </div>
       </div>
+
+      {/* Streak Calendar Popup */}
+      <AnimatePresence>
+        {showStreakPopup && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/50 backdrop-blur-sm"
+            onClick={() => setShowStreakPopup(false)}
+          >
+            <div onClick={(e) => e.stopPropagation()} className="w-full max-w-[320px] space-y-3">
+              <StreakCalendar
+                checkins={checkinHistory}
+                currentStreak={streakDays}
+                onClose={() => setShowStreakPopup(false)}
+              />
+              {/* Mining Boost Card */}
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="bg-card rounded-2xl border border-border p-4 shadow-xl"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Zap className="w-4 h-4 text-amber-500" />
+                    <span className="text-sm font-semibold text-foreground">Mining Boost</span>
+                  </div>
+                  <span className="text-lg font-bold text-primary">{miningBoost.toFixed(1)}%</span>
+                </div>
+                <p className="text-[11px] text-muted-foreground mt-1">
+                  {miningBoost > 0 
+                    ? 'Earned from your referral network' 
+                    : 'Invite friends to unlock mining boost'}
+                </p>
+                {streakDays >= 7 && (
+                  <div className="mt-2 pt-2 border-t border-border flex items-center justify-between">
+                    <span className="text-[11px] text-muted-foreground">Streak multiplier</span>
+                    <span className="text-sm font-bold text-orange-500">
+                      {streakDays >= 30 ? '2.0x' : `${(1.1 + (0.9 * (streakDays - 7) / 23)).toFixed(1)}x`}
+                    </span>
+                  </div>
+                )}
+              </motion.div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 };
