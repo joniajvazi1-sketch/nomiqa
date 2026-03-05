@@ -218,6 +218,32 @@ public class TelephonyInfoPlugin extends Plugin {
             result.put("buildId", Build.ID);
             result.put("fingerprint", Build.FINGERPRINT);
             
+            // 5G capability detection
+            boolean is5gCapable = false;
+            String maxGeneration = "4G"; // Default assumption for modern Android
+            
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                // API 29+: Check PackageManager for 5G radio feature
+                try {
+                    android.content.pm.PackageManager pm = getContext().getPackageManager();
+                    if (pm.hasSystemFeature("android.hardware.telephony.radio.access.nr")) {
+                        is5gCapable = true;
+                        maxGeneration = "5G";
+                    }
+                } catch (Exception e) {
+                    // Feature check failed, keep defaults
+                }
+            }
+            
+            // Fallback: SDK < 29 means device is pre-5G era
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+                maxGeneration = "4G";
+                is5gCapable = false;
+            }
+            
+            result.put("is5gCapable", is5gCapable);
+            result.put("maxSupportedGeneration", maxGeneration);
+            
         } catch (Exception e) {
             result.put("error", "Failed to get device info: " + e.getMessage());
         }

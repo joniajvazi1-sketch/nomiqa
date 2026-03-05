@@ -72,6 +72,9 @@ export interface SignalLogEntry extends TelcoMetrics {
   sessionId?: string;
   dataQualityScore?: number; // 0-100 quality score
   isMockLocation?: boolean; // Anti-cheat flag
+  // Device capability (B2B value)
+  device5gCapable?: boolean;
+  maxSupportedGeneration?: string; // '5G', '4G', '3G', '2G'
 }
 
 // Minimum distance between logs (meters)
@@ -119,6 +122,8 @@ export const useTelcoMetrics = () => {
     manufacturer: string;
     osVersion: string;
     platform: string;
+    is5gCapable?: boolean;
+    maxSupportedGeneration?: string;
   } | null>(null);
   
   /**
@@ -152,7 +157,12 @@ export const useTelcoMetrics = () => {
           osVersion: `Android ${info.osVersion || 'Unknown'}`
         };
         setDeviceInfo(deviceData);
-        nativeDeviceInfoRef.current = { ...deviceData, platform: 'android' };
+        nativeDeviceInfoRef.current = { 
+          ...deviceData, 
+          platform: 'android',
+          is5gCapable: info.is5gCapable ?? undefined,
+          maxSupportedGeneration: info.maxSupportedGeneration ?? undefined,
+        };
         console.log('[TelcoMetrics] Android device info from native:', JSON.stringify(info));
       } else if (isIOS) {
         // iOS: Use BackgroundLocation.getDeviceInfo()
@@ -466,7 +476,10 @@ export const useTelcoMetrics = () => {
       headingDegrees: position.coords.heading || undefined,
       recordedAt: new Date().toISOString(),
       sessionId,
-      isMockLocation
+      isMockLocation,
+      // Device capability (from native init, NULL on iOS — computed server-side later)
+      device5gCapable: nativeDeviceInfoRef.current?.is5gCapable ?? undefined,
+      maxSupportedGeneration: nativeDeviceInfoRef.current?.maxSupportedGeneration ?? undefined,
     };
     
     // Calculate data quality score
