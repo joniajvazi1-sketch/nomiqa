@@ -1022,36 +1022,49 @@ export const AppHome: React.FC = () => {
                 )}
               </motion.div>
 
-              {/* Quick Actions - Challenges & Team */}
+              {/* Quick Actions - Streak, Challenges & Team */}
               <motion.div
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.15 }}
-                className="grid grid-cols-2 gap-3"
+                className="grid grid-cols-3 gap-2"
               >
                 <button
                   onClick={() => { lightTap(); setShowStreakPopup(true); }}
-                  className={cn("rounded-2xl backdrop-blur-xl border p-4 flex items-center gap-3 active:scale-[0.98] transition-transform", isDark ? "bg-background/40 border-border/30" : "bg-card/80 border-border")}
+                  className={cn("rounded-2xl backdrop-blur-xl border p-3 flex flex-col items-center gap-2 active:scale-[0.98] transition-transform", isDark ? "bg-background/40 border-border/30" : "bg-card/80 border-border")}
                 >
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center shadow-lg flex-shrink-0">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center shadow-lg">
                     <Flame className="w-5 h-5 text-white" />
                   </div>
-                  <div className="text-left">
-                    <p className="text-sm font-bold text-foreground">{streakDays > 0 ? `${streakDays}-Day Streak` : 'Start Streak'}</p>
-                    <p className={cn("text-[10px]", isDark ? "text-orange-400" : "text-primary")}>{miningBoost > 0 ? `+${miningBoost}% boost` : streakDays >= 30 ? '2x boost active 🔥' : streakDays >= 7 ? `${(1.1 + (0.9 * (streakDays - 7) / 23)).toFixed(1)}x boost` : 'View calendar'}</p>
+                  <div className="text-center">
+                    <p className="text-xs font-bold text-foreground">{streakDays > 0 ? `${streakDays}-Day` : 'Streak'}</p>
+                    <p className={cn("text-[10px]", isDark ? "text-orange-400" : "text-primary")}>{miningBoost > 0 ? `+${miningBoost}%` : 'Calendar'}</p>
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => { lightTap(); navigate('/app/challenges'); }}
+                  className={cn("rounded-2xl backdrop-blur-xl border p-3 flex flex-col items-center gap-2 active:scale-[0.98] transition-transform", isDark ? "bg-background/40 border-border/30" : "bg-card/80 border-border")}
+                >
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-lg">
+                    <Zap className="w-5 h-5 text-white" />
+                  </div>
+                  <div className="text-center">
+                    <p className="text-xs font-bold text-foreground">Challenges</p>
+                    <p className={cn("text-[10px]", isDark ? "text-purple-400" : "text-primary")}>Earn bonus</p>
                   </div>
                 </button>
 
                 <button
                   onClick={() => { lightTap(); navigate('/app/invite'); }}
-                  className={cn("rounded-2xl backdrop-blur-xl border p-4 flex items-center gap-3 active:scale-[0.98] transition-transform", isDark ? "bg-background/40 border-border/30" : "bg-card/80 border-border")}
+                  className={cn("rounded-2xl backdrop-blur-xl border p-3 flex flex-col items-center gap-2 active:scale-[0.98] transition-transform", isDark ? "bg-background/40 border-border/30" : "bg-card/80 border-border")}
                 >
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg flex-shrink-0">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg">
                     <Users className="w-5 h-5 text-white" />
                   </div>
-                  <div className="text-left">
-                    <p className="text-sm font-bold text-foreground">My Team</p>
-                    <p className={cn("text-[10px]", isDark ? "text-cyan-400" : "text-primary")}>{referralCount > 0 ? `${referralCount} member${referralCount !== 1 ? 's' : ''}` : 'Invite friends'}</p>
+                  <div className="text-center">
+                    <p className="text-xs font-bold text-foreground">My Team</p>
+                    <p className={cn("text-[10px]", isDark ? "text-cyan-400" : "text-primary")}>{referralCount > 0 ? `${referralCount} members` : 'Invite'}</p>
                   </div>
                 </button>
               </motion.div>
@@ -1071,7 +1084,7 @@ export const AppHome: React.FC = () => {
                   {[
                     { num: '1', title: 'Tap Contribute', desc: 'Runs quietly — less than 3% battery', gradient: 'from-emerald-400 to-teal-500' },
                     { num: '2', title: 'Walk, commute, or chill', desc: 'Your phone maps signal quality anonymously', gradient: 'from-teal-400 to-cyan-500' },
-                    { num: '3', title: 'Collect points daily', desc: 'Convert to $NQA tokens at network launch', gradient: 'from-cyan-400 to-blue-500' },
+                    { num: '3', title: 'Collect points daily', desc: 'Convert to $NOMIQA tokens at network launch', gradient: 'from-cyan-400 to-blue-500' },
                   ].map((step) => (
                     <div key={step.num} className="flex items-start gap-3">
                       <div className={cn("w-8 h-8 rounded-full bg-gradient-to-br flex items-center justify-center flex-shrink-0 shadow-md", step.gradient)}>

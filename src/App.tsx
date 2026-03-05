@@ -50,6 +50,7 @@ const AppCheckout = lazy(() => import("./pages/app/AppCheckout").then(m => ({ de
 const AppInvite = lazy(() => import("./pages/app/AppInvite").then(m => ({ default: m.AppInvite })));
 const AppRewards = lazy(() => import("./pages/app/AppRewards").then(m => ({ default: m.AppRewards })));
 const AppNetworkStats = lazy(() => import("./pages/app/AppNetworkStats").then(m => ({ default: m.AppNetworkStats })));
+const AppChallenges = lazy(() => import("./pages/app/AppChallenges").then(m => ({ default: m.AppChallenges })));
 const AppAuth = lazy(() => import("./pages/app/AppAuth").then(m => ({ default: m.AppAuth })));
 const OAuthRedirect = lazy(() => import("./pages/app/OAuthRedirect"));
 
@@ -191,7 +192,7 @@ const NativeAppRoutes = () => (
       <Route path="/app/rewards" element={<AppRewards />} />
       <Route path="/app/shop" element={<AppShop />} />
       <Route path="/app/profile" element={<AppProfile />} />
-      {/* Removed: achievements and challenges routes */}
+      <Route path="/app/challenges" element={<AppChallenges />} />
       
       <Route path="/app/network-stats" element={<AppNetworkStats />} />
       <Route path="/app/auth" element={<AppAuth />} />
