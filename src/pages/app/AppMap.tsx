@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect, useState, useMemo, memo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Signal, Users, MapPin, Globe, BarChart3, Activity, Clock } from 'lucide-react';
+import { Signal, Users, MapPin, Globe, BarChart3, Activity, Clock, Tv, Video, Gamepad2, Phone } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTheme } from 'next-themes';
 
@@ -156,6 +156,51 @@ export function AppMap() {
           </div>
         </div>
       )}
+
+      {/* Network Quality Score (QoE) */}
+      <div className="px-4 mb-4">
+        <div className="flex items-center gap-2 mb-3">
+          <Tv className="w-4 h-4 text-neon-cyan" />
+          <h2 className="text-base font-bold text-foreground">Network Quality (QoE)</h2>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          {[
+            { icon: Video, label: 'Streaming', getScore: () => {
+              const avg = carriers.length ? carriers.reduce((s, c) => s + (c.avg_download_mbps || 0), 0) / carriers.length : 0;
+              return avg >= 25 ? 'Excellent' : avg >= 10 ? 'Good' : avg >= 5 ? 'Fair' : 'Poor';
+            }},
+            { icon: Phone, label: 'Video Calls', getScore: () => {
+              const avg = carriers.length ? carriers.reduce((s, c) => s + (c.avg_download_mbps || 0), 0) / carriers.length : 0;
+              return avg >= 15 ? 'Excellent' : avg >= 5 ? 'Good' : avg >= 2 ? 'Fair' : 'Poor';
+            }},
+            { icon: Gamepad2, label: 'Gaming', getScore: () => {
+              const avgLatency = carriers.length ? carriers.reduce((s, c) => s + (c.avg_latency_ms || 100), 0) / carriers.length : 100;
+              return avgLatency <= 30 ? 'Excellent' : avgLatency <= 60 ? 'Good' : avgLatency <= 100 ? 'Fair' : 'Poor';
+            }},
+            { icon: Globe, label: 'Browsing', getScore: () => {
+              const avg = carriers.length ? carriers.reduce((s, c) => s + (c.avg_download_mbps || 0), 0) / carriers.length : 0;
+              return avg >= 5 ? 'Excellent' : avg >= 2 ? 'Good' : avg >= 1 ? 'Fair' : 'Poor';
+            }},
+          ].map(({ icon: Icon, label, getScore }) => {
+            const score = getScore();
+            const colorMap: Record<string, string> = {
+              'Excellent': 'text-green-400',
+              'Good': 'text-neon-cyan',
+              'Fair': 'text-warm-sand',
+              'Poor': 'text-neon-coral',
+            };
+            return (
+              <div key={label} className="p-3 rounded-xl bg-card/40 border border-border/20 flex items-center gap-3">
+                <Icon className="w-5 h-5 text-muted-foreground shrink-0" />
+                <div>
+                  <div className="text-xs text-muted-foreground">{label}</div>
+                  <div className={`text-sm font-bold ${colorMap[score] || 'text-foreground'}`}>{score}</div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
 
       {/* Live Feed */}
       {recentFeed.length > 0 && (
