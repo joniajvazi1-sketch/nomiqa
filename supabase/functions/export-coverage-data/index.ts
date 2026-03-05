@@ -5,58 +5,27 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-api-key',
 };
 
-interface CoverageTile {
-  location_geohash: string;
-  country_code: string;
-  carrier_name: string;
-  network_generation: string;
-  sample_count: number;
-  unique_users: number;
-  first_seen: string;
-  last_updated: string;
-  median_rsrp: number;
-  median_rsrq: number;
-  median_sinr: number;
-  avg_rsrp: number;
-  median_download_mbps: number;
-  median_upload_mbps: number;
-  median_latency_ms: number;
-  avg_download_mbps: number;
-  avg_latency_ms: number;
-  pct_excellent_signal: number;
-  pct_good_signal: number;
-  pct_poor_signal: number;
-  avg_confidence: number;
-  high_confidence_samples: number;
-  pct_roaming: number;
-}
-
-function toCSV(data: CoverageTile[]): string {
+function toCSV(data: Record<string, unknown>[]): string {
   if (data.length === 0) return '';
-  
   const headers = Object.keys(data[0]);
-  const rows = data.map(row => 
+  const rows = data.map(row =>
     headers.map(h => {
-      const val = row[h as keyof CoverageTile];
-      // Escape values with commas or quotes
+      const val = row[h];
       if (typeof val === 'string' && (val.includes(',') || val.includes('"'))) {
         return `"${val.replace(/"/g, '""')}"`;
       }
       return val ?? '';
     }).join(',')
   );
-  
   return [headers.join(','), ...rows].join('\n');
 }
 
 Deno.serve(async (req) => {
-  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    // Only allow GET requests
     if (req.method !== 'GET') {
       return new Response(
         JSON.stringify({ error: 'Method not allowed' }),
@@ -73,7 +42,6 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Create Supabase client with service role for config access
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
@@ -96,16 +64,14 @@ Deno.serve(async (req) => {
 
     const validKeys = configData.config_value as string[];
     if (!validKeys.includes(apiKey)) {
-      // Log invalid API key attempt
       await supabase.from('security_audit_log').insert({
         event_type: 'invalid_b2b_api_key',
         severity: 'warn',
-        details: { 
+        details: {
           key_prefix: apiKey.substring(0, 8) + '...',
           endpoint: 'export-coverage-data'
         }
       });
-
       return new Response(
         JSON.stringify({ error: 'Invalid API key' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -115,17 +81,20 @@ Deno.serve(async (req) => {
     // Parse query parameters
     const url = new URL(req.url);
     const format = url.searchParams.get('format') || 'json';
+    const dataset = url.searchParams.get('dataset') || 'coverage'; // coverage | gaps | benchmarks | congestion
     const country = url.searchParams.get('country');
     const carrier = url.searchParams.get('carrier');
     const network = url.searchParams.get('network');
     const limit = Math.min(parseInt(url.searchParams.get('limit') || '1000'), 10000);
     const offset = parseInt(url.searchParams.get('offset') || '0');
-    // Demo mode: lower thresholds for pre-launch demos (use ?demo=true)
     const demoMode = url.searchParams.get('demo') === 'true';
     const minUsers = demoMode ? 1 : 5;
     const minSamples = demoMode ? 5 : 20;
+    // For congestion: filter by peak hours only
+    const peakOnly = url.searchParams.get('peak_only') === 'true';
+    // For gaps: minimum severity
+    const minSeverity = parseInt(url.searchParams.get('min_severity') || '0');
 
-    // Validate format
     if (!['json', 'csv'].includes(format)) {
       return new Response(
         JSON.stringify({ error: 'Invalid format. Use "json" or "csv"' }),
@@ -133,80 +102,128 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Query coverage_tiles with K-anonymity thresholds
-    let query = supabase
-      .from('coverage_tiles')
-      .select('*')
-      .gte('unique_users', minUsers)
-      .gte('sample_count', minSamples)
-      .order('sample_count', { ascending: false })
-      .range(offset, offset + limit - 1);
-
-    // Apply filters
-    if (country) {
-      query = query.eq('country_code', country.toUpperCase());
-    }
-    if (carrier) {
-      query = query.ilike('carrier_name', `%${carrier}%`);
-    }
-    if (network) {
-      query = query.eq('network_generation', network);
-    }
-
-    const { data: tiles, error: queryError, count } = await query;
-
-    if (queryError) {
-      console.error('Query error:', queryError);
+    const validDatasets = ['coverage', 'gaps', 'benchmarks', 'congestion'];
+    if (!validDatasets.includes(dataset)) {
       return new Response(
-        JSON.stringify({ error: 'Failed to fetch coverage data' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ error: `Invalid dataset. Use one of: ${validDatasets.join(', ')}` }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
+    }
+
+    let data: Record<string, unknown>[] | null = null;
+    let datasetName = dataset;
+
+    if (dataset === 'coverage') {
+      // Original coverage tiles export
+      let query = supabase
+        .from('coverage_tiles')
+        .select('*')
+        .gte('unique_users', minUsers)
+        .gte('sample_count', minSamples)
+        .order('sample_count', { ascending: false })
+        .range(offset, offset + limit - 1);
+
+      if (country) query = query.eq('country_code', country.toUpperCase());
+      if (carrier) query = query.ilike('carrier_name', `%${carrier}%`);
+      if (network) query = query.eq('network_generation', network);
+
+      const { data: tiles, error } = await query;
+      if (error) throw error;
+      data = tiles;
+
+    } else if (dataset === 'gaps') {
+      // Coverage gap detection
+      let query = supabase
+        .from('coverage_gaps')
+        .select('*')
+        .gte('severity_score', minSeverity)
+        .order('severity_score', { ascending: false })
+        .range(offset, offset + limit - 1);
+
+      if (country) query = query.eq('country_code', country.toUpperCase());
+      if (carrier) query = query.ilike('carrier_name', `%${carrier}%`);
+      if (network) query = query.eq('network_generation', network);
+
+      const { data: gaps, error } = await query;
+      if (error) throw error;
+      data = gaps;
+
+    } else if (dataset === 'benchmarks') {
+      // Carrier benchmarking
+      let query = supabase
+        .from('carrier_benchmarks')
+        .select('*')
+        .order('coverage_score', { ascending: false })
+        .range(offset, offset + limit - 1);
+
+      if (country) query = query.eq('country_code', country.toUpperCase());
+      if (carrier) query = query.ilike('carrier_name', `%${carrier}%`);
+      if (network) query = query.eq('network_generation', network);
+
+      const { data: benchmarks, error } = await query;
+      if (error) throw error;
+      data = benchmarks;
+
+    } else if (dataset === 'congestion') {
+      // Network congestion detection
+      let query = supabase
+        .from('network_congestion')
+        .select('*')
+        .order('congestion_score', { ascending: false })
+        .range(offset, offset + limit - 1);
+
+      if (country) query = query.eq('country_code', country.toUpperCase());
+      if (carrier) query = query.ilike('carrier_name', `%${carrier}%`);
+      if (network) query = query.eq('network_generation', network);
+      if (peakOnly) query = query.eq('is_peak_hour', true);
+
+      const { data: congestion, error } = await query;
+      if (error) throw error;
+      data = congestion;
     }
 
     // Log successful export
     await supabase.from('webhook_logs').insert({
       event_type: 'b2b_export_success',
       payload: {
+        dataset,
         format,
-        filters: { country, carrier, network },
-        rows_returned: tiles?.length || 0,
+        filters: { country, carrier, network, peak_only: peakOnly, min_severity: minSeverity },
+        rows_returned: data?.length || 0,
         limit,
-        offset
+        offset,
+        demo_mode: demoMode
       },
       processed: true
     });
 
-    // Return data in requested format
+    // Return data
     if (format === 'csv') {
-      const csvData = toCSV(tiles as CoverageTile[]);
+      const csvData = toCSV((data || []) as Record<string, unknown>[]);
       return new Response(csvData, {
         headers: {
           ...corsHeaders,
           'Content-Type': 'text/csv',
-          'Content-Disposition': `attachment; filename="coverage_data_${new Date().toISOString().split('T')[0]}.csv"`
+          'Content-Disposition': `attachment; filename="${datasetName}_${new Date().toISOString().split('T')[0]}.csv"`
         }
       });
     }
 
-    // JSON format (default)
     return new Response(
       JSON.stringify({
-        data: tiles,
+        data: data || [],
         meta: {
-          total_returned: tiles?.length || 0,
+          dataset,
+          total_returned: data?.length || 0,
           limit,
           offset,
-          filters: { country, carrier, network },
+          filters: { country, carrier, network, peak_only: peakOnly, min_severity: minSeverity },
           k_anonymity: { min_users: minUsers, min_samples: minSamples, demo_mode: demoMode },
-          exported_at: new Date().toISOString()
+          exported_at: new Date().toISOString(),
+          available_datasets: validDatasets
         }
       }),
-      { 
-        headers: { 
-          ...corsHeaders, 
-          'Content-Type': 'application/json' 
-        } 
-      }
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (error) {
