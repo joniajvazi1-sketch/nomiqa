@@ -1,7 +1,10 @@
-import { useEffect, useState, useMemo, memo } from "react";
+import { useEffect, useState, useMemo, memo, lazy, Suspense } from "react";
 import { Helmet } from "react-helmet-async";
 import { supabase } from "@/integrations/supabase/client";
 import { Database, Globe, Users, Activity, Signal, Wifi, Zap, MapPin, TrendingUp, BarChart3, Radio, Clock } from "lucide-react";
+
+// Lazy-load Leaflet heatmap (heavy dependency)
+const CoverageHeatmap = lazy(() => import("@/components/CoverageHeatmap").then(m => ({ default: m.CoverageHeatmap })));
 import { motion, AnimatePresence } from "framer-motion";
 
 // ─── Types ───────────────────────────────────────────────────────────────
@@ -129,94 +132,7 @@ const LiveFeedItem = memo(({ item, index }: { item: RecentContribution; index: n
 });
 LiveFeedItem.displayName = "LiveFeedItem";
 
-// ─── Coverage Globe (CSS-only lightweight) ───────────────────────────────
-
-const CoverageGlobe = memo(({ cells }: { cells: CoverageCell[] }) => {
-  // Group cells into density buckets for the visual
-  const hotspots = useMemo(() => {
-    if (!cells.length) return [];
-    // Take top 80 cells by count for rendering
-    return cells
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 80)
-      .map(cell => ({
-        // Map lat/lng to percentage positions on a flat projection
-        x: ((cell.lng + 180) / 360) * 100,
-        y: ((90 - cell.lat) / 180) * 100,
-        size: Math.min(Math.max(Math.sqrt(cell.count) * 0.8, 3), 14),
-        intensity: cell.intensity,
-        network: cell.network,
-      }));
-  }, [cells]);
-
-  return (
-    <div className="relative w-full aspect-[2/1] rounded-2xl overflow-hidden bg-card/30 border border-border/30">
-      {/* World map outline (CSS gradient approximation) */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_50%,hsl(var(--card))_0%,hsl(var(--background))_100%)]" />
-      
-      {/* Grid lines */}
-      <div className="absolute inset-0 opacity-[0.04]" 
-        style={{ 
-          backgroundImage: `
-            linear-gradient(to right, hsl(var(--foreground)) 1px, transparent 1px),
-            linear-gradient(to bottom, hsl(var(--foreground)) 1px, transparent 1px)
-          `,
-          backgroundSize: '10% 10%'
-        }} 
-      />
-      
-      {/* Coverage hotspots */}
-      {hotspots.map((spot, i) => {
-        const color = spot.network === '5g' 
-          ? 'hsl(var(--neon-violet))' 
-          : spot.network === '3g' 
-            ? 'hsl(var(--warm-sand))'
-            : 'hsl(var(--neon-cyan))';
-        return (
-          <div
-            key={i}
-            className="absolute rounded-full animate-pulse"
-            style={{
-              left: `${spot.x}%`,
-              top: `${spot.y}%`,
-              width: `${spot.size}px`,
-              height: `${spot.size}px`,
-              backgroundColor: color,
-              opacity: 0.4 + spot.intensity * 0.5,
-              boxShadow: `0 0 ${spot.size * 2}px ${color}`,
-              transform: 'translate(-50%, -50%)',
-              animationDelay: `${i * 50}ms`,
-              animationDuration: `${2 + Math.random() * 2}s`,
-            }}
-          />
-        );
-      })}
-      
-      {/* Legend */}
-      <div className="absolute bottom-4 left-4 flex items-center gap-4 text-xs text-muted-foreground">
-        <div className="flex items-center gap-1.5">
-          <div className="w-2.5 h-2.5 rounded-full bg-neon-cyan shadow-[0_0_6px_hsl(var(--neon-cyan))]" />
-          <span>LTE</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-2.5 h-2.5 rounded-full bg-neon-violet shadow-[0_0_6px_hsl(var(--neon-violet))]" />
-          <span>5G</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-2.5 h-2.5 rounded-full bg-warm-sand shadow-[0_0_6px_hsl(var(--warm-sand))]" />
-          <span>3G</span>
-        </div>
-      </div>
-
-      {/* "Live" badge */}
-      <div className="absolute top-4 right-4 flex items-center gap-2 px-3 py-1.5 rounded-full bg-card/80 backdrop-blur-sm border border-neon-cyan/20">
-        <div className="w-2 h-2 rounded-full bg-neon-cyan animate-pulse" />
-        <span className="text-xs font-medium text-neon-cyan">Live Coverage</span>
-      </div>
-    </div>
-  );
-});
-CoverageGlobe.displayName = "CoverageGlobe";
+// CoverageGlobe removed — replaced by CoverageHeatmap (Leaflet)
 
 // ─── Main Page ───────────────────────────────────────────────────────────
 
@@ -345,7 +261,9 @@ const NetworkDashboard = () => {
                 <Radio className="w-5 h-5 text-neon-cyan" />
                 <h2 className="text-2xl md:text-3xl font-bold text-foreground">Coverage Heatmap</h2>
               </div>
-              <CoverageGlobe cells={stats?.cells || []} />
+              <Suspense fallback={<div className="h-[500px] rounded-2xl bg-card/30 border border-border/30 animate-pulse" />}>
+                <CoverageHeatmap cells={stats?.cells || []} height="500px" />
+              </Suspense>
             </motion.div>
           </div>
         </section>
