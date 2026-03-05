@@ -44,7 +44,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
     && window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
 
   // WebGL/canvas safety: avoid parent transforms on map/network routes
-  const isMapRoute = location.pathname === '/app/map' || location.pathname === '/app/network';
+  const isMapRoute = location.pathname === '/app/network';
 
   // Bottom navigation height (56px bar + 16px margin + safe area buffer)
   // Android needs extra padding since env() may not work consistently

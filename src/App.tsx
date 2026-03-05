@@ -42,7 +42,7 @@ const SocialRewards = lazy(() => import("./pages/SocialRewards"));
 
 // Lazy load APP pages (native only)
 const AppHome = lazy(() => import("./pages/app/AppHome").then(m => ({ default: m.AppHome })));
-const NetworkContribution = lazy(() => import("./pages/app/NetworkContribution").then(m => ({ default: m.NetworkContribution })));
+
 const AppShop = lazy(() => import("./pages/app/AppShop").then(m => ({ default: m.AppShop })));
 const AppProfile = lazy(() => import("./pages/app/AppProfile").then(m => ({ default: m.AppProfile })));
 
@@ -177,17 +177,6 @@ const NativeAppRoutes = () => (
   <AppLayout>
     <Routes>
       <Route path="/app" element={<AppHome />} />
-      <Route
-        path="/app/map"
-        element={
-          <AppErrorBoundary
-            title="Map unavailable"
-            description="The map failed to load. Please refresh and try again."
-          >
-            <NetworkContribution />
-          </AppErrorBoundary>
-        }
-      />
       <Route path="/app/invite" element={<AppInvite />} />
       <Route path="/app/rewards" element={<AppRewards />} />
       <Route path="/app/shop" element={<AppShop />} />
