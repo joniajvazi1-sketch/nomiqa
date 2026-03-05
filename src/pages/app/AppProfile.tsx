@@ -531,7 +531,7 @@ export const AppProfile: React.FC = () => {
             {/* Quick Links */}
             <div className="rounded-2xl bg-card border border-border divide-y divide-border overflow-hidden">
               <button
-                onClick={() => { selectionTap(); navigate('/app/challenges'); }}
+                onClick={() => { selectionTap(); navigate('/app/rewards'); }}
                 className="w-full flex items-center justify-between p-3.5 hover:bg-muted/30 active:bg-muted/50 transition-colors"
               >
                 <div className="flex items-center gap-3">
