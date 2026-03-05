@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Home, Gift, ShoppingBag, User } from 'lucide-react';
+import { Home, Gift, ShoppingBag, User, Map } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 import { useHaptics } from '@/hooks/useHaptics';
 import { useTheme } from 'next-themes';
@@ -35,6 +35,7 @@ export const BottomTabBar: React.FC = () => {
 
   const tabs: TabItem[] = [
     { path: '/app', icon: Home, label: 'Home' },
+    { path: '/app/map', icon: Map, label: 'Map' },
     { path: '/app/rewards', icon: Gift, label: 'Rewards' },
     { path: '/app/shop', icon: ShoppingBag, label: 'eSIMs' },
     { path: '/app/profile', icon: User, label: 'Profile' }
