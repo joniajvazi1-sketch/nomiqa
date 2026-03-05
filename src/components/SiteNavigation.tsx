@@ -34,6 +34,7 @@ export const SiteNavigation = memo(() => {
                 <ul className="space-y-4 text-white/60 text-sm md:text-base pl-0">
                   <li><Link to="/getting-started" className="hover:text-neon-cyan transition-colors duration-200 font-light block">{t("footerHowDepinWorks")}</Link></li>
                   <li><Link to="/download" className="hover:text-neon-cyan transition-colors duration-200 font-light block">{t("footerDownloadApp")}</Link></li>
+                  <li><Link to="/network" className="hover:text-neon-cyan transition-colors duration-200 font-light block">📡 Live Coverage Map</Link></li>
                   <li><Link to="/#datamarketplace" className="hover:text-neon-cyan transition-colors duration-200 font-light block">{t("footerDataMarketplace")}</Link></li>
                 </ul>
               </AccordionContent>

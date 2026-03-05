@@ -39,6 +39,7 @@ const Download = lazy(() => import("./pages/Download"));
 const HowItWorks = lazy(() => import("./pages/HowItWorks"));
 const MobileOnly = lazy(() => import("./pages/MobileOnly"));
 const SocialRewards = lazy(() => import("./pages/SocialRewards"));
+const NetworkDashboard = lazy(() => import("./pages/NetworkDashboard"));
 
 // Lazy load APP pages (native only)
 const AppHome = lazy(() => import("./pages/app/AppHome").then(m => ({ default: m.AppHome })));
@@ -233,6 +234,7 @@ const WebRoutes = () => (
       <Route path="/admin/users" element={<AdminUsers />} />
       <Route path="/download" element={<Download />} />
       <Route path="/how-it-works" element={<HowItWorks />} />
+      <Route path="/network" element={<NetworkDashboard />} />
 
       {/* Localized route groups */}
       {/** German */}
@@ -255,6 +257,7 @@ const WebRoutes = () => (
         <Route path="social-rewards" element={<SocialRewards />} />
         <Route path="download" element={<Download />} />
         <Route path="how-it-works" element={<HowItWorks />} />
+        <Route path="network" element={<NetworkDashboard />} />
       </Route>
       {/** English */}
       <Route path="/english">
@@ -276,6 +279,7 @@ const WebRoutes = () => (
         <Route path="social-rewards" element={<SocialRewards />} />
         <Route path="download" element={<Download />} />
         <Route path="how-it-works" element={<HowItWorks />} />
+        <Route path="network" element={<NetworkDashboard />} />
       </Route>
       {/** French */}
       <Route path="/francais">
@@ -297,6 +301,7 @@ const WebRoutes = () => (
         <Route path="social-rewards" element={<SocialRewards />} />
         <Route path="download" element={<Download />} />
         <Route path="how-it-works" element={<HowItWorks />} />
+        <Route path="network" element={<NetworkDashboard />} />
       </Route>
       {/** Spanish */}
       <Route path="/espanol">
@@ -318,6 +323,7 @@ const WebRoutes = () => (
         <Route path="social-rewards" element={<SocialRewards />} />
         <Route path="download" element={<Download />} />
         <Route path="how-it-works" element={<HowItWorks />} />
+        <Route path="network" element={<NetworkDashboard />} />
       </Route>
       {/** Portuguese */}
       <Route path="/portugues">
@@ -339,6 +345,7 @@ const WebRoutes = () => (
         <Route path="social-rewards" element={<SocialRewards />} />
         <Route path="download" element={<Download />} />
         <Route path="how-it-works" element={<HowItWorks />} />
+        <Route path="network" element={<NetworkDashboard />} />
       </Route>
       {/** Russian */}
       <Route path="/russian">
@@ -360,6 +367,7 @@ const WebRoutes = () => (
         <Route path="social-rewards" element={<SocialRewards />} />
         <Route path="download" element={<Download />} />
         <Route path="how-it-works" element={<HowItWorks />} />
+        <Route path="network" element={<NetworkDashboard />} />
       </Route>
       {/** Chinese */}
       <Route path="/chinese">
@@ -381,6 +389,7 @@ const WebRoutes = () => (
         <Route path="social-rewards" element={<SocialRewards />} />
         <Route path="download" element={<Download />} />
         <Route path="how-it-works" element={<HowItWorks />} />
+        <Route path="network" element={<NetworkDashboard />} />
       </Route>
       {/** Japanese */}
       <Route path="/japanese">
@@ -402,6 +411,7 @@ const WebRoutes = () => (
         <Route path="social-rewards" element={<SocialRewards />} />
         <Route path="download" element={<Download />} />
         <Route path="how-it-works" element={<HowItWorks />} />
+        <Route path="network" element={<NetworkDashboard />} />
       </Route>
       {/** Arabic */}
       <Route path="/arabic">
@@ -423,6 +433,7 @@ const WebRoutes = () => (
         <Route path="social-rewards" element={<SocialRewards />} />
         <Route path="download" element={<Download />} />
         <Route path="how-it-works" element={<HowItWorks />} />
+        <Route path="network" element={<NetworkDashboard />} />
       </Route>
       {/** Italian */}
       <Route path="/italiano">
@@ -445,6 +456,7 @@ const WebRoutes = () => (
         
         <Route path="download" element={<Download />} />
         <Route path="how-it-works" element={<HowItWorks />} />
+        <Route path="network" element={<NetworkDashboard />} />
       </Route>
 
       {/* Username-based affiliate links - must be last before catch-all */}
