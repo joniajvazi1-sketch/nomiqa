@@ -2039,6 +2039,28 @@ export type Database = {
         }
         Relationships: []
       }
+      network_qoe_scores: {
+        Row: {
+          avg_download_mbps: number | null
+          avg_jitter_ms: number | null
+          avg_latency_ms: number | null
+          avg_rsrp: number | null
+          avg_upload_mbps: number | null
+          carrier_name: string | null
+          country_code: string | null
+          gaming_quality: string | null
+          network_generation: string | null
+          qoe_rating: string | null
+          qoe_score: number | null
+          sample_count: number | null
+          streaming_quality: string | null
+          tile: string | null
+          time_bucket: string | null
+          unique_users: number | null
+          video_call_quality: string | null
+        }
+        Relationships: []
+      }
       profiles_safe: {
         Row: {
           country_code: string | null
