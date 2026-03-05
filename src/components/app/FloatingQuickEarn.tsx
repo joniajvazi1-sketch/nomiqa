@@ -18,7 +18,7 @@ export const FloatingQuickEarn = ({ isSessionActive = false, livePoints = 0 }: F
   const [isExpanded, setIsExpanded] = useState(false);
 
   // Don't show on the network contribution page
-  if (location.pathname === '/app/map') {
+  if (location.pathname === '/app') {
     return null;
   }
 
@@ -29,13 +29,13 @@ export const FloatingQuickEarn = ({ isSessionActive = false, livePoints = 0 }: F
     if (isSessionActive) {
       setIsExpanded(!isExpanded);
     } else {
-      navigate('/app/map');
+      navigate('/app');
     }
   };
 
   const handleNavigate = () => {
     buttonTap();
-    navigate('/app/map');
+    navigate('/app');
   };
 
   return (

@@ -35,7 +35,7 @@ const DEFAULT_CONFIG: Record<EmptyStateType, {
     title: 'Start earning points',
     description: 'Scan your network to collect points and rewards',
     actionLabel: 'Start Scanning',
-    actionHref: '/app/map',
+    actionHref: '/app',
     icon: MapPin
   },
   orders: {
@@ -56,7 +56,7 @@ const DEFAULT_CONFIG: Record<EmptyStateType, {
     title: 'No activity yet',
     description: 'Your earning history will appear here',
     actionLabel: 'Start Contributing',
-    actionHref: '/app/map',
+    actionHref: '/app',
     icon: Zap
   },
   leaderboard: {
@@ -70,7 +70,7 @@ const DEFAULT_CONFIG: Record<EmptyStateType, {
     title: 'No active challenges',
     description: 'New challenges coming soon! Keep contributing to unlock.',
     actionLabel: 'Start Earning',
-    actionHref: '/app/map',
+    actionHref: '/app',
     icon: Target
   }
 };
