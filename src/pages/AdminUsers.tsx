@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Users, UserCheck, Wallet, Search, CheckCircle, XCircle, ArrowLeft, ChevronRight, RefreshCw, Trophy, Medal } from "lucide-react";
+import { Users, UserCheck, Wallet, Search, CheckCircle, XCircle, ArrowLeft, ChevronRight, RefreshCw, Trophy, Medal, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
