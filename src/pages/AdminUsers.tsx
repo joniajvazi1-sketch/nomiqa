@@ -56,14 +56,33 @@ export default function AdminUsers() {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
-  const [visibleCount, setVisibleCount] = useState(50);
+  const [page, setPage] = useState(0);
+  const [totalFiltered, setTotalFiltered] = useState(0);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const pageSize = 50;
 
-  const fetchData = async (isRefresh = false) => {
+  // Debounce search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+      setPage(0);
+      setUsers([]);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  const fetchData = async (pageNum: number, isRefresh = false, append = false) => {
     try {
       if (isRefresh) {
         setRefreshing(true);
-        setVisibleCount(50); // Reset pagination on refresh
+        setPage(0);
+        setUsers([]);
+        pageNum = 0;
+      }
+      if (append) {
+        setLoadingMore(true);
       }
       
       const { data: { session } } = await supabase.auth.getSession();
@@ -73,7 +92,16 @@ export default function AdminUsers() {
         return;
       }
 
-      const response = await supabase.functions.invoke("get-admin-users");
+      const params: Record<string, string> = {
+        page: String(pageNum),
+        pageSize: String(pageSize),
+      };
+      if (debouncedSearch) {
+        params.search = debouncedSearch;
+      }
+
+      const queryString = new URLSearchParams(params).toString();
+      const response = await supabase.functions.invoke(`get-admin-users?${queryString}`);
       
       if (response.error) {
         throw new Error(response.error.message);
@@ -88,11 +116,17 @@ export default function AdminUsers() {
         return;
       }
 
-      setUsers(response.data.users || []);
+      const newUsers = response.data.users || [];
+      if (append) {
+        setUsers(prev => [...prev, ...newUsers]);
+      } else {
+        setUsers(newUsers);
+      }
       setStats(response.data.stats || null);
+      setTotalFiltered(response.data.totalFiltered || 0);
       
       if (isRefresh) {
-        toast.success(`Refreshed: ${response.data.users?.length || 0} users loaded`);
+        toast.success(`Refreshed: ${response.data.totalFiltered || 0} total users`);
       }
     } catch (err: any) {
       console.error("Error fetching admin data:", err);
@@ -103,34 +137,22 @@ export default function AdminUsers() {
     } finally {
       setLoading(false);
       setRefreshing(false);
+      setLoadingMore(false);
     }
   };
 
   useEffect(() => {
-    fetchData();
-  }, [navigate]);
-
-  const filteredUsers = users.filter((user) => {
-    const search = searchTerm.toLowerCase();
-    return (
-      user.username?.toLowerCase().includes(search) ||
-      user.email?.toLowerCase().includes(search) ||
-      user.affiliate_usernames?.toLowerCase().includes(search) ||
-      user.referred_by?.username?.toLowerCase().includes(search) ||
-      user.referred_by?.email?.toLowerCase().includes(search)
-    );
-  });
-
-  // Paginated users for display (only when not searching)
-  const displayedUsers = searchTerm 
-    ? filteredUsers 
-    : filteredUsers.slice(0, visibleCount);
-  
-  const hasMoreUsers = !searchTerm && visibleCount < filteredUsers.length;
+    fetchData(0);
+  }, [navigate, debouncedSearch]);
 
   const loadMoreUsers = () => {
-    setVisibleCount(prev => prev + 50);
+    const nextPage = page + 1;
+    setPage(nextPage);
+    fetchData(nextPage, false, true);
   };
+
+  const hasMoreUsers = users.length < totalFiltered;
+  const displayedUsers = users;
 
   const formatDate = (date: string) => {
     return new Date(date).toLocaleDateString("en-US", {
