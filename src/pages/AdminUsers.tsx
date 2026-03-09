@@ -44,6 +44,7 @@ interface Stats {
   total_affiliates: number;
   total_referrals: number;
   total_conversions: number;
+  referred_users: number;
 }
 
 export default function AdminUsers() {
