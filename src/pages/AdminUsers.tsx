@@ -528,7 +528,7 @@ export default function AdminUsers() {
         {/* Desktop Table */}
         <Card className="hidden md:block bg-white/5 border-white/10">
           <CardHeader className="pb-3">
-            <CardTitle className="text-lg">All Users ({filteredUsers.length}){!searchTerm && ` - Showing ${displayedUsers.length}`}</CardTitle>
+            <CardTitle className="text-lg">All Users ({totalFiltered}){totalFiltered > 0 && ` - Showing ${displayedUsers.length}`}</CardTitle>
           </CardHeader>
           <CardContent>
             <ScrollArea className="w-full">
