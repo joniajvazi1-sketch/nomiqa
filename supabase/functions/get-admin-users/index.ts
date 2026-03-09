@@ -119,6 +119,7 @@ serve(async (req) => {
       total_affiliates: totalAffiliates || 0,
       total_referrals: totalReferrals || 0,
       total_conversions: totalConversions || 0,
+      referred_users: referredUsers || 0,
     };
 
     // Fetch paginated profiles with optional search
