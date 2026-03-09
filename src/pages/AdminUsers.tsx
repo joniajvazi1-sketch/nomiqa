@@ -516,8 +516,9 @@ export default function AdminUsers() {
                   onClick={loadMoreUsers} 
                   variant="outline" 
                   className="w-full mt-4"
+                  disabled={loadingMore}
                 >
-                  Load 50 more ({filteredUsers.length - visibleCount} remaining)
+                  {loadingMore ? 'Loading...' : `Load more (${totalFiltered - users.length} remaining)`}
                 </Button>
               )}
             </>
