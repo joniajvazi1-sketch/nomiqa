@@ -101,6 +101,7 @@ serve(async (req) => {
       { count: totalAffiliates },
       { count: totalReferrals },
       { count: totalConversions },
+      { count: referredUsers },
     ] = await Promise.all([
       adminClient.from("profiles").select("id", { count: "exact", head: true }),
       adminClient.from("profiles").select("id", { count: "exact", head: true }).eq("email_verified", true),
@@ -108,6 +109,7 @@ serve(async (req) => {
       adminClient.from("affiliates").select("id", { count: "exact", head: true }),
       adminClient.from("affiliate_referrals").select("id", { count: "exact", head: true }).in("status", ["registered", "converted"]),
       adminClient.from("affiliate_referrals").select("id", { count: "exact", head: true }).eq("status", "converted"),
+      adminClient.from("affiliate_referrals").select("registered_user_id", { count: "exact", head: true }).not("registered_user_id", "is", null).in("status", ["registered", "converted"]),
     ]);
 
     const stats = {
