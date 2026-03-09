@@ -314,7 +314,7 @@ export default function AdminUsers() {
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <Button 
-              onClick={() => fetchData(true)} 
+              onClick={() => fetchData(0, true)} 
               variant="ghost" 
               size="sm" 
               disabled={refreshing}
