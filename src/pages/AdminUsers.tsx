@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Users, UserCheck, Wallet, Search, CheckCircle, XCircle, ArrowLeft, ChevronRight, RefreshCw, Trophy, Medal } from "lucide-react";
+import { Users, UserCheck, Wallet, Search, CheckCircle, XCircle, ArrowLeft, ChevronRight, RefreshCw, Trophy, Medal, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -44,6 +44,7 @@ interface Stats {
   total_affiliates: number;
   total_referrals: number;
   total_conversions: number;
+  referred_users: number;
 }
 
 export default function AdminUsers() {
@@ -310,7 +311,7 @@ export default function AdminUsers() {
       <div className="p-4 space-y-4 max-w-7xl mx-auto">
         {/* Stats Cards */}
         {stats && (
-          <div className="grid grid-cols-3 gap-2 md:gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
             <Card className="bg-white/5 border-white/10">
               <CardContent className="p-3 md:p-4">
                 <div className="flex items-center gap-1.5 md:gap-2">
@@ -327,6 +328,18 @@ export default function AdminUsers() {
                   <span className="text-xs md:text-sm text-muted-foreground truncate">Verified</span>
                 </div>
                 <p className="text-xl md:text-2xl font-bold mt-1">{stats.verified_emails}</p>
+              </CardContent>
+            </Card>
+            <Card className="bg-white/5 border-white/10">
+              <CardContent className="p-3 md:p-4">
+                <div className="flex items-center gap-1.5 md:gap-2">
+                  <UserPlus className="w-4 h-4 md:w-5 md:h-5 text-amber-500 shrink-0" />
+                  <span className="text-xs md:text-sm text-muted-foreground truncate">Referred</span>
+                </div>
+                <p className="text-xl md:text-2xl font-bold mt-1">{stats.referred_users}</p>
+                <p className="text-[10px] md:text-xs text-muted-foreground mt-0.5">
+                  {stats.total_users > 0 ? Math.round((stats.referred_users / stats.total_users) * 100) : 0}% of users
+                </p>
               </CardContent>
             </Card>
             <Card className="bg-white/5 border-white/10">
