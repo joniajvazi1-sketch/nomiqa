@@ -15,7 +15,7 @@ interface UseNotificationTriggersReturn {
 export const useNotificationTriggers = (): UseNotificationTriggersReturn => {
   const { isEnabled, sendLocalNotification, notifyAchievementUnlock, notifyStreakReminder } = usePushNotifications();
   const { preferences } = useNotificationPreferences();
-  const reminderTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const reminderTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Check if notifications should be sent
   const shouldNotify = useCallback((type: keyof typeof preferences): boolean => {

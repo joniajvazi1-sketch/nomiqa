@@ -189,7 +189,7 @@ export default function Checkout() {
     if (!showPaymentModal || !currentOrderId) return;
 
     console.log('Setting up realtime subscription for order:', currentOrderId);
-    let pollInterval: NodeJS.Timeout | null = null;
+    let pollInterval: ReturnType<typeof setInterval> | null = null;
 
     // Realtime subscription for instant updates
     const channel = supabase

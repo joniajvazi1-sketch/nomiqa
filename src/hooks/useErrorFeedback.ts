@@ -20,7 +20,7 @@ interface ErrorFeedbackOptions {
 
 export const useErrorFeedback = () => {
   const { error: errorHaptic } = useHaptics();
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   /**
    * Trigger error feedback on an element

@@ -400,9 +400,9 @@ export const useNetworkContribution = () => {
   const isPaused = session.status === 'active' && (!isValidConnection(connectionType) || isBatterySaverBlocking);
   
   const lastPositionRef = useRef<Position | null>(null);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const speedTestTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const speedTestTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastTimePointsRef = useRef<number>(0);
   const lastAutoSavePointsRef = useRef<number>(0);
   const accessTokenRef = useRef<string | null>(null);
