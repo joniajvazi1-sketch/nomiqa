@@ -196,7 +196,7 @@ export const AppCheckout = () => {
   useEffect(() => {
     if (!showPaymentModal || !currentOrderId) return;
 
-    let pollInterval: NodeJS.Timeout | null = null;
+    let pollInterval: ReturnType<typeof setInterval> | null = null;
 
     const channel = supabase
       .channel(`order-${currentOrderId}`)

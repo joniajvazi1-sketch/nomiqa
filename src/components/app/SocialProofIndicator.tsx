@@ -49,7 +49,7 @@ export const SocialProofIndicator = ({ className, compact = false }: SocialProof
   const [activities, setActivities] = useState<Activity[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [activeUsers, setActiveUsers] = useState(Math.floor(Math.random() * 200) + 150);
-  const intervalRef = useRef<NodeJS.Timeout>();
+  const intervalRef = useRef<ReturnType<typeof setInterval>>();
 
   // Generate initial activities
   useEffect(() => {
