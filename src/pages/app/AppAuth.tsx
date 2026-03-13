@@ -1248,6 +1248,31 @@ export const AppAuth: React.FC = () => {
               </div>
             )}
 
+            {/* Referral Code Input (signup only) */}
+            {isSignup && (
+              <div className="space-y-2">
+                <Label htmlFor="referral" className="text-foreground">Referral Code <span className="text-muted-foreground font-normal">(optional)</span></Label>
+                <div className="relative">
+                  <Gift className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    id="referral"
+                    type="text"
+                    placeholder="friend's username"
+                    value={referralInput}
+                    onChange={(e) => setReferralInput(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
+                    className="pl-10 h-12 bg-card border-border transition-all duration-200"
+                    disabled={isFormDisabled}
+                    autoComplete="off"
+                    autoCapitalize="none"
+                    maxLength={20}
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Enter a friend's code to earn bonus points together
+                </p>
+              </div>
+            )
+
             {/* Terms checkbox for signup */}
             {isSignup && (
               <div className="flex items-start gap-2">
