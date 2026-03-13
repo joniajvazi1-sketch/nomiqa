@@ -197,6 +197,29 @@ export const AppProfile: React.FC = () => {
         }
         setAffiliate(affiliateData);
         setOrders(ordersResult.data || []);
+
+        // Check if user already has a referral applied
+        try {
+          const { data: referralCheck } = await supabase.functions.invoke('apply-referral-code', {
+            body: { checkOnly: true }
+          });
+          setAppliedReferral(referralCheck?.hasReferral ?? false);
+        } catch { setAppliedReferral(false); }
+
+        // Check if referral code has been changed before (via audit log)
+        if (affiliateData?.id) {
+          const { data: auditLogs } = await supabase
+            .from('security_audit_log')
+            .select('id, details')
+            .eq('event_type', 'affiliate_code_changed')
+            .eq('user_id', currentUser.id)
+            .limit(10);
+          const changed = (auditLogs || []).some((log: any) => {
+            const affiliateId = (log.details as Record<string, unknown> | null)?.affiliate_id;
+            return typeof affiliateId === 'string' && affiliateId === affiliateData!.id;
+          });
+          setHasChangedCode(changed);
+        }
       }
     } catch (error) {
       console.error('Error loading data:', error);
