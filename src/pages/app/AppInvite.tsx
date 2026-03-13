@@ -84,6 +84,34 @@ export const AppInvite: React.FC = () => {
 
   const referralCode = affiliate?.username || affiliate?.affiliate_code || '';
 
+  const handleChangeCode = async () => {
+    if (!newCode.trim() || newCode.length < 3) {
+      setCodeError('Code must be at least 3 characters');
+      return;
+    }
+    setSavingCode(true);
+    setCodeError('');
+    try {
+      const { data, error } = await supabase.functions.invoke('update-referral-code', {
+        body: { referralCode: newCode.trim() },
+      });
+      if (error) throw error;
+      if (data?.error) {
+        setCodeError(data.error);
+        setSavingCode(false);
+        return;
+      }
+      toast({ title: 'Referral code updated!' });
+      setIsEditingCode(false);
+      // Reload affiliate data to reflect change
+      await loadAffiliateData();
+    } catch (err: any) {
+      setCodeError(err.message || 'Failed to update code');
+    } finally {
+      setSavingCode(false);
+    }
+  };
+
   const handleCopyCode = async () => {
     if (!referralCode) return;
     buttonTap();
