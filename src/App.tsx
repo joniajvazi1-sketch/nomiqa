@@ -25,7 +25,7 @@ const Auth = lazy(() => import("./pages/Auth"));
 const GettingStarted = lazy(() => import("./pages/GettingStarted"));
 const Roadmap = lazy(() => import("./pages/Roadmap"));
 const Affiliate = lazy(() => import("./pages/Affiliate"));
-const AffiliateRedirect = lazy(() => import("./pages/AffiliateRedirect"));
+// AffiliateRedirect removed - referral links no longer supported, only codes
 const Privacy = lazy(() => import("./pages/Privacy"));
 const Terms = lazy(() => import("./pages/Terms"));
 const About = lazy(() => import("./pages/About"));
