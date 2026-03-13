@@ -49,6 +49,10 @@ export const AppInvite: React.FC = () => {
   const [affiliate, setAffiliate] = useState<AffiliateData | null>(null);
   const [copied, setCopied] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [isEditingCode, setIsEditingCode] = useState(false);
+  const [newCode, setNewCode] = useState('');
+  const [savingCode, setSavingCode] = useState(false);
+  const [codeError, setCodeError] = useState('');
 
   useEffect(() => {
     loadAffiliateData();
