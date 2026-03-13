@@ -62,10 +62,16 @@ import { forwardRef } from "react";
 
 const PageLoader = forwardRef<HTMLDivElement>((_, ref) => {
   const [showHelp, setShowHelp] = useState(false);
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    const t = window.setTimeout(() => setShowHelp(true), 12000);
-    return () => window.clearTimeout(t);
+    // Small delay before showing spinner to avoid flash for fast loads
+    const showTimer = window.setTimeout(() => setVisible(true), 120);
+    const helpTimer = window.setTimeout(() => setShowHelp(true), 12000);
+    return () => {
+      window.clearTimeout(showTimer);
+      window.clearTimeout(helpTimer);
+    };
   }, []);
 
   return (
@@ -73,32 +79,32 @@ const PageLoader = forwardRef<HTMLDivElement>((_, ref) => {
       ref={ref} 
       className="min-h-screen bg-background flex items-center justify-center"
       style={{ 
-        // Inline fallback for iOS WebView - CSS vars may not be ready yet
         minHeight: '100vh',
         backgroundColor: '#0a0a0a',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
+        opacity: visible ? 1 : 0,
+        transition: 'opacity 0.2s ease-out',
       }}
     >
       <div className="relative flex flex-col items-center gap-5 px-6 text-center">
         <div className="relative">
           <div 
-            className="w-16 h-16 border-4 border-neon-cyan/20 border-t-neon-cyan rounded-full animate-spin" 
+            className="w-12 h-12 border-[3px] border-neon-cyan/20 border-t-neon-cyan rounded-full animate-spin" 
             style={{
-              width: '64px',
-              height: '64px',
-              border: '4px solid rgba(0, 200, 255, 0.2)',
+              width: '48px',
+              height: '48px',
+              border: '3px solid rgba(0, 200, 255, 0.15)',
               borderTopColor: '#00c8ff',
               borderRadius: '50%',
-              animation: 'spin 1s linear infinite',
+              animation: 'spin 0.8s linear infinite',
             }}
           />
-          <div className="absolute inset-0 bg-neon-cyan/20 rounded-full blur-xl animate-pulse" />
         </div>
 
         {showHelp && (
-          <div className="max-w-xs">
+          <div className="max-w-xs" style={{ animation: 'page-fade-in 0.3s ease-out both' }}>
             <p className="text-sm text-muted-foreground" style={{ fontSize: '14px', color: 'rgba(255, 255, 255, 0.6)' }}>
               Still loading? On some mobile browsers, storage/network settings can block the app from finishing.
             </p>
