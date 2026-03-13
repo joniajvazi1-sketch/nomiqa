@@ -287,6 +287,7 @@ export const AppProfile: React.FC = () => {
   };
 
 
+  const handleCopyLink = async () => {
     if (!affiliate) return;
     buttonTap();
     const code = affiliate.username || affiliate.affiliate_code;
