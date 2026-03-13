@@ -131,13 +131,15 @@ export const ReferralCodeSection = ({ username }: ReferralCodeSectionProps) => {
     setCodeError('');
     try {
       const { data, error } = await supabase.functions.invoke('update-referral-code', {
-        body: { newCode: newCode.trim() },
+        body: { referralCode: newCode.trim() },
       });
-      if (error) throw error;
-      if (data?.error) {
-        setCodeError(data.error);
+      // Extract error from response body
+      const errMsg = data?.error || (error ? await error?.context?.json?.().then((b: any) => b?.error).catch(() => null) : null);
+      if (errMsg) {
+        setCodeError(errMsg === 'Referral code already taken' ? 'This code is already taken, please choose another' : errMsg);
         return;
       }
+      if (error) throw error;
       toast.success('Referral code updated!');
       setIsEditingCode(false);
       setAffiliateCode(newCode.trim());

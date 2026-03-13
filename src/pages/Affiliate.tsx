@@ -187,12 +187,13 @@ export default function Affiliate() {
       const { data, error } = await supabase.functions.invoke('update-referral-code', {
         body: { referralCode: newCode.trim() },
       });
-      if (error) throw error;
-      if (data?.error) {
-        setCodeError(data.error);
+      const errMsg = data?.error || (error ? await error?.context?.json?.().then((b: any) => b?.error).catch(() => null) : null);
+      if (errMsg) {
+        setCodeError(errMsg === 'Referral code already taken' ? 'This code is already taken, please choose another' : errMsg);
         setSavingCode(false);
         return;
       }
+      if (error) throw error;
       toast.success('Referral code updated!');
       setIsEditingCode(false);
       if (user) await fetchAffiliates(user.id, user.email || undefined);
