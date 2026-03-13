@@ -135,7 +135,7 @@ export const AppInvite: React.FC = () => {
         <Users className="w-16 h-16 text-muted-foreground mb-4" />
         <h2 className="text-xl font-semibold mb-2">Sign in to Invite</h2>
         <p className="text-muted-foreground text-sm">
-          Create an account to get your personal referral link
+          Create an account to get your personal referral code
         </p>
       </div>
     );
