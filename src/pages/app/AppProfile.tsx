@@ -109,6 +109,16 @@ export const AppProfile: React.FC = () => {
   const [deletingAccount, setDeletingAccount] = useState(false);
   const [showHelpCenter, setShowHelpCenter] = useState(false);
   const [walletError, setWalletError] = useState<string | null>(null);
+  
+  // Referral code states
+  const [isEditingReferralCode, setIsEditingReferralCode] = useState(false);
+  const [newReferralCode, setNewReferralCode] = useState('');
+  const [savingReferralCode, setSavingReferralCode] = useState(false);
+  const [hasChangedCode, setHasChangedCode] = useState(false);
+  const [appliedReferral, setAppliedReferral] = useState<boolean | null>(null);
+  const [applyReferralInput, setApplyReferralInput] = useState('');
+  const [applyingReferral, setApplyingReferral] = useState(false);
+  const [showApplyReferral, setShowApplyReferral] = useState(false);
 
   useEffect(() => {
     loadData();
