@@ -194,8 +194,8 @@ export default function Affiliate() {
         return;
       }
       setAffiliate({ ...affiliate, username: username.toLowerCase() });
-      setCustomLink(`https://nomiqa-depin.com/${username.toLowerCase()}`);
-      toast.success("Custom link updated!");
+      setCustomLink(username.toLowerCase());
+      toast.success("Referral code updated!");
     } catch (error: any) {
       toast.error(error.message || "Failed to update username");
     } finally {
