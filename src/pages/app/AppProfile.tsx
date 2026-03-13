@@ -198,19 +198,19 @@ export const AppProfile: React.FC = () => {
   const handleCopyLink = async () => {
     if (!affiliate) return;
     buttonTap();
-    const link = affiliate.username ? `https://nomiqa-depin.com/${affiliate.username}` : `https://nomiqa-depin.com/r/${affiliate.affiliate_code}`;
-    const copied = await copyToClipboard(link);
+    const code = affiliate.username || affiliate.affiliate_code;
+    const copied = await copyToClipboard(code);
     if (copied) {
       successPattern();
-      toast({ title: 'Link copied!' });
+      toast({ title: 'Referral code copied!' });
     }
   };
 
   const handleShare = async () => {
     if (!affiliate) return;
     buttonTap();
-    const link = affiliate.username ? `https://nomiqa-depin.com/${affiliate.username}` : `https://nomiqa-depin.com/r/${affiliate.affiliate_code}`;
-    await share({ title: 'Join Nomiqa', text: 'Get travel eSIMs and earn rewards!', url: link });
+    const code = affiliate.username || affiliate.affiliate_code;
+    await share({ title: 'Join Nomiqa', text: `Join Nomiqa and earn rewards! Use my referral code: ${code} when you sign up. Download: https://nomiqa-depin.com/download`, url: 'https://nomiqa-depin.com/download' });
   };
 
   const handleLogout = async () => {
@@ -338,11 +338,7 @@ export const AppProfile: React.FC = () => {
     );
   }
 
-  const referralLink = affiliate?.username 
-    ? `nomiqa-depin.com/${affiliate.username}` 
-    : affiliate?.affiliate_code 
-      ? `nomiqa-depin.com/r/${affiliate.affiliate_code}` 
-      : '';
+  const referralCode = affiliate?.username || affiliate?.affiliate_code || '';
 
   return (
     <>
@@ -506,7 +502,7 @@ export const AppProfile: React.FC = () => {
                     onClick={handleCopyLink}
                     className="w-full flex items-center justify-between gap-2 p-2.5 rounded-xl bg-muted/40 border border-border/50 active:scale-[0.99] transition-transform group"
                   >
-                    <span className="text-xs font-mono text-muted-foreground truncate">{referralLink}</span>
+                    <span className="text-xs font-mono text-muted-foreground truncate">{referralCode}</span>
                     <span className="flex items-center gap-1 text-[11px] text-primary font-medium whitespace-nowrap">
                       <Copy className="w-3 h-3" />
                       Copy

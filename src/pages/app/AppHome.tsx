@@ -318,28 +318,26 @@ export const AppHome: React.FC = () => {
   });
 
   const handleShareReferral = async () => {
-    const referralLink = username 
-      ? `https://nomiqa-depin.com/${username}` 
-      : 'https://nomiqa-depin.com/download';
-    
+    const code = username || 'nomiqa';
     await share({
       title: 'Join Nomiqa',
-      text: 'Earn by contributing to the network. Join me on Nomiqa!',
-      url: referralLink
+      text: `Earn by contributing to the network. Join me on Nomiqa! Use my referral code: ${code} when you sign up.`,
+      url: 'https://nomiqa-depin.com/download'
     });
   };
 
   const handleCopyLink = async () => {
-    const referralLink = username 
-      ? `https://nomiqa-depin.com/${username}` 
-      : 'https://nomiqa-depin.com/download';
-    
+    const code = username || '';
+    if (!code) {
+      toast.error('No referral code available');
+      return;
+    }
     try {
-      await navigator.clipboard.writeText(referralLink);
+      await navigator.clipboard.writeText(code);
       lightTap();
-      toast.success('Link copied!');
+      toast.success('Referral code copied!');
     } catch {
-      toast.error('Could not copy link');
+      toast.error('Could not copy code');
     }
   };
 
@@ -1017,13 +1015,13 @@ export const AppHome: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Tappable referral link */}
+                {/* Tappable referral code */}
                 <button
                   onClick={() => { lightTap(); handleCopyLink(); }}
                   className={cn("w-full rounded-xl p-3 flex items-center gap-2 mb-3 border text-left active:scale-[0.98] transition-transform", isDark ? "bg-white/5 border-white/10 hover:bg-white/8" : "bg-muted/50 border-border hover:bg-muted")}
                 >
                   <span className="flex-1 text-sm text-foreground truncate font-mono">
-                    nomiqa-depin.com/{username || 'invite'}
+                    {username || 'No code yet'}
                   </span>
                   <Copy className="w-4 h-4 text-violet-400 flex-shrink-0" />
                 </button>

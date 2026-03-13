@@ -128,10 +128,10 @@ export default function Affiliate() {
       );
       setAffiliate(highestTierAffiliate);
       setSelectedAffiliateId(highestTierAffiliate.id);
-      setAffiliateLink(`https://nomiqa-depin.com/r/${highestTierAffiliate.affiliate_code}`);
+      setAffiliateLink(highestTierAffiliate.affiliate_code);
       setUsername(highestTierAffiliate.username || '');
       if (highestTierAffiliate.username) {
-        setCustomLink(`https://nomiqa-depin.com/${highestTierAffiliate.username}`);
+        setCustomLink(highestTierAffiliate.username);
       }
     }
   };
@@ -159,17 +159,17 @@ export default function Affiliate() {
     if (selected) {
       setSelectedAffiliateId(affiliateId);
       setAffiliate(selected);
-      setAffiliateLink(`https://nomiqa-depin.com/r/${selected.affiliate_code}`);
+      setAffiliateLink(selected.affiliate_code);
       setUsername(selected.username || '');
       if (selected.username) {
-        setCustomLink(`https://nomiqa-depin.com/${selected.username}`);
+        setCustomLink(selected.username);
       }
     }
   }, [allAffiliates]);
   
-  const copyLink = useCallback((link: string) => {
-    navigator.clipboard.writeText(link);
-    toast.success("Link copied to clipboard!");
+  const copyCode = useCallback((code: string) => {
+    navigator.clipboard.writeText(code);
+    toast.success("Referral code copied!");
   }, []);
 
   const updateUsername = async () => {
@@ -194,8 +194,8 @@ export default function Affiliate() {
         return;
       }
       setAffiliate({ ...affiliate, username: username.toLowerCase() });
-      setCustomLink(`https://nomiqa-depin.com/${username.toLowerCase()}`);
-      toast.success("Custom link updated!");
+      setCustomLink(username.toLowerCase());
+      toast.success("Referral code updated!");
     } catch (error: any) {
       toast.error(error.message || "Failed to update username");
     } finally {
@@ -262,8 +262,8 @@ export default function Affiliate() {
       }
       setAffiliate(affiliateData);
       setUsername(affiliateData.username || '');
-      setCustomLink(`https://nomiqa-depin.com/${affiliateData.username}`);
-      setAffiliateLink(`https://nomiqa-depin.com/r/${affiliateData.affiliate_code}`);
+      setCustomLink(affiliateData.username);
+      setAffiliateLink(affiliateData.affiliate_code);
       setShowNewLinkInput(false);
       setNewLinkUsername('');
       setUsernameAvailability('idle');
@@ -373,7 +373,7 @@ export default function Affiliate() {
             /* Has Affiliate - Dashboard */
             <div className="space-y-6">
 
-              {/* Your Link - FIRST */}
+              {/* Your Referral Code - FIRST */}
               <div className="rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/10 overflow-hidden">
                 <div className="p-5 md:p-6 border-b border-white/10">
                   <div className="flex items-center gap-3">
@@ -381,48 +381,47 @@ export default function Affiliate() {
                       <Share2 className="w-5 h-5 text-primary" strokeWidth={2.5} />
                     </div>
                     <div>
-                      <h3 className="text-lg font-light text-white">{t("affiliateYourLink")}</h3>
-                      <p className="text-sm text-white/50">{t("affiliateYourLinkDesc")}</p>
+                      <h3 className="text-lg font-light text-white">Your Referral Code</h3>
+                      <p className="text-sm text-white/50">Share this code with friends to earn rewards</p>
                     </div>
                   </div>
                 </div>
                 <div className="p-5 md:p-6">
                   {affiliate.username ? (
                     <div className="space-y-3">
-                      <div className="flex gap-2">
-                        <Input 
-                          value={customLink} 
-                          readOnly 
-                          className="bg-white/[0.03] border-white/10 text-white font-medium"
-                        />
-                        <Button onClick={() => copyLink(customLink)} variant="outline" className="border-white/10 hover:bg-white/5">
-                          <Copy className="w-4 h-4" />
-                        </Button>
+                      <div className="p-4 bg-primary/5 border border-primary/20 rounded-xl text-center">
+                        <p className="text-3xl font-bold font-mono text-primary tracking-wider mb-2">
+                          {customLink}
+                        </p>
+                        <p className="text-xs text-white/50">
+                          Friends enter this code when they sign up
+                        </p>
                       </div>
-                      <p className="text-xs text-white/50">
-                        Your personalized link: <span className="text-primary font-medium">nomiqa-depin.com/{affiliate.username}</span>
-                      </p>
+                      <Button onClick={() => copyCode(customLink)} className="w-full" variant="outline">
+                        <Copy className="w-4 h-4 mr-2" />
+                        Copy Referral Code
+                      </Button>
                     </div>
                   ) : (
                     <div className="space-y-4">
                       <div className="p-4 rounded-xl bg-primary/5 border border-primary/20">
-                        <p className="text-sm text-white mb-1 font-medium">Create your personalized link</p>
-                        <p className="text-xs text-white/50">Choose a unique username for your invite link</p>
+                        <p className="text-sm text-white mb-1 font-medium">Set your referral code</p>
+                        <p className="text-xs text-white/50">Choose a unique username as your referral code</p>
                       </div>
                       <div className="flex gap-2">
                         <Input 
                           value={username}
                           onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
                           placeholder="your-username"
-                          className="bg-white/[0.03] border-white/10 text-white"
+                          className="bg-white/[0.03] border-white/10 text-white font-mono"
                         />
                         <Button onClick={updateUsername} disabled={updatingUsername || !username.trim()}>
-                          {updatingUsername ? <Loader2 className="w-4 h-4 animate-spin" /> : "Create Link"}
+                          {updatingUsername ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save"}
                         </Button>
                       </div>
                       {username && (
                         <p className="text-xs text-white/50">
-                          Preview: <span className="text-primary">nomiqa-depin.com/{username}</span>
+                          Your code will be: <span className="text-primary font-mono">{username}</span>
                         </p>
                       )}
                     </div>
