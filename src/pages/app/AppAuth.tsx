@@ -264,10 +264,12 @@ export const AppAuth: React.FC = () => {
       setCheckingUsername(false);
       return true;
     } catch (err) {
-      console.error('Error checking username:', err);
-      setUsernameAvailable(null);
+      // Fail open: if username check fails (e.g. unauthenticated), allow signup to proceed
+      // The server-side signup-user function will do the authoritative check
+      console.warn('Username check failed, allowing signup:', err);
+      setUsernameAvailable(true);
       setCheckingUsername(false);
-      return false;
+      return true;
     }
   };
 
