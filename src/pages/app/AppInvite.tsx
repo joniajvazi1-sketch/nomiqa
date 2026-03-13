@@ -135,7 +135,7 @@ export const AppInvite: React.FC = () => {
         <Users className="w-16 h-16 text-muted-foreground mb-4" />
         <h2 className="text-xl font-semibold mb-2">Sign in to Invite</h2>
         <p className="text-muted-foreground text-sm">
-          Create an account to get your personal referral link
+          Create an account to get your personal referral code
         </p>
       </div>
     );
@@ -197,7 +197,7 @@ export const AppInvite: React.FC = () => {
           </Card>
         </motion.div>
 
-        {/* Referral Link Section - Premium */}
+        {/* Referral Code Section - Premium */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}

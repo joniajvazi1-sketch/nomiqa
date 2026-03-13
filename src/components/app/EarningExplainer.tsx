@@ -21,7 +21,7 @@ const EXPLAINERS = {
   },
   referral: {
     label: 'Contributors Invited',
-    description: 'People who joined using your link',
+    description: 'People who joined using your referral code',
   },
   boost: {
     label: 'Contribution Boost',

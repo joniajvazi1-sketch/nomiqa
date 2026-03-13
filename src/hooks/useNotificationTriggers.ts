@@ -54,7 +54,7 @@ export const useNotificationTriggers = (): UseNotificationTriggersReturn => {
 
     await sendLocalNotification({
       title: '🎉 New Referral!',
-      body: `${referredUsername} just joined using your link! You'll earn commission on their purchases.`,
+      body: `${referredUsername} just joined using your referral code! You'll earn commission on their contributions.`,
       data: { type: 'referral_conversion', referredUsername }
     });
   }, [shouldNotify, sendLocalNotification]);
