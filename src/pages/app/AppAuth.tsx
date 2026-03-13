@@ -173,6 +173,16 @@ export const AppAuth: React.FC = () => {
 
   const isSignup = searchParams.get('mode') === 'signup' || searchParams.get('mode') === 'register';
 
+  // Pre-fill referral input from stored tracking code
+  useEffect(() => {
+    if (isSignup && !referralInput) {
+      const { referralCode } = useAffiliateTracking.getState();
+      if (referralCode) {
+        setReferralInput(referralCode);
+      }
+    }
+  }, [isSignup]);
+
   // Clear form error when user types
   useEffect(() => {
     if (formError) setFormError('');
