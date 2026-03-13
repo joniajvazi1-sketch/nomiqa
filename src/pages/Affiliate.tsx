@@ -362,7 +362,7 @@ export default function Affiliate() {
               <CardContent className="p-8 text-center">
                 <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto mb-4" />
                 <h2 className="text-xl font-medium text-foreground mb-2">Welcome, {user?.email}</h2>
-                <p className="text-muted-foreground mb-6">Create your first invite link to start earning boosts and passive rewards</p>
+                <p className="text-muted-foreground mb-6">Create your referral code to start earning boosts and passive rewards</p>
                 <Button onClick={createAffiliate} size="lg" disabled={creating} className="bg-primary hover:bg-primary/90">
                   {creating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   {t("affiliateCreateButton")}
