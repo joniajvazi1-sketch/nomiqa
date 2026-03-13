@@ -2,6 +2,27 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================
+   SMOOTH PAGE TRANSITIONS
+   ============================================ */
+@keyframes page-fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes section-reveal {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-page-in {
+  animation: page-fade-in 0.35s ease-out both;
+}
+
+.animate-section-in {
+  animation: section-reveal 0.4s ease-out both;
+}
+
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
 All colors MUST be HSL.
 */
