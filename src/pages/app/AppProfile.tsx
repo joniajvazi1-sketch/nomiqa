@@ -198,19 +198,19 @@ export const AppProfile: React.FC = () => {
   const handleCopyLink = async () => {
     if (!affiliate) return;
     buttonTap();
-    const link = affiliate.username ? `https://nomiqa-depin.com/${affiliate.username}` : `https://nomiqa-depin.com/r/${affiliate.affiliate_code}`;
-    const copied = await copyToClipboard(link);
+    const code = affiliate.username || affiliate.affiliate_code;
+    const copied = await copyToClipboard(code);
     if (copied) {
       successPattern();
-      toast({ title: 'Link copied!' });
+      toast({ title: 'Referral code copied!' });
     }
   };
 
   const handleShare = async () => {
     if (!affiliate) return;
     buttonTap();
-    const link = affiliate.username ? `https://nomiqa-depin.com/${affiliate.username}` : `https://nomiqa-depin.com/r/${affiliate.affiliate_code}`;
-    await share({ title: 'Join Nomiqa', text: 'Get travel eSIMs and earn rewards!', url: link });
+    const code = affiliate.username || affiliate.affiliate_code;
+    await share({ title: 'Join Nomiqa', text: `Join Nomiqa and earn rewards! Use my referral code: ${code} when you sign up. Download: https://nomiqa-depin.com/download`, url: 'https://nomiqa-depin.com/download' });
   };
 
   const handleLogout = async () => {
