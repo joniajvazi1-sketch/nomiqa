@@ -338,11 +338,7 @@ export const AppProfile: React.FC = () => {
     );
   }
 
-  const referralLink = affiliate?.username 
-    ? `nomiqa-depin.com/${affiliate.username}` 
-    : affiliate?.affiliate_code 
-      ? `nomiqa-depin.com/r/${affiliate.affiliate_code}` 
-      : '';
+  const referralCode = affiliate?.username || affiliate?.affiliate_code || '';
 
   return (
     <>
