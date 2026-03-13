@@ -318,28 +318,26 @@ export const AppHome: React.FC = () => {
   });
 
   const handleShareReferral = async () => {
-    const referralLink = username 
-      ? `https://nomiqa-depin.com/${username}` 
-      : 'https://nomiqa-depin.com/download';
-    
+    const code = username || 'nomiqa';
     await share({
       title: 'Join Nomiqa',
-      text: 'Earn by contributing to the network. Join me on Nomiqa!',
-      url: referralLink
+      text: `Earn by contributing to the network. Join me on Nomiqa! Use my referral code: ${code} when you sign up.`,
+      url: 'https://nomiqa-depin.com/download'
     });
   };
 
   const handleCopyLink = async () => {
-    const referralLink = username 
-      ? `https://nomiqa-depin.com/${username}` 
-      : 'https://nomiqa-depin.com/download';
-    
+    const code = username || '';
+    if (!code) {
+      toast.error('No referral code available');
+      return;
+    }
     try {
-      await navigator.clipboard.writeText(referralLink);
+      await navigator.clipboard.writeText(code);
       lightTap();
-      toast.success('Link copied!');
+      toast.success('Referral code copied!');
     } catch {
-      toast.error('Could not copy link');
+      toast.error('Could not copy code');
     }
   };
 
