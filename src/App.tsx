@@ -517,6 +517,20 @@ const AppRouter = () => {
   
   // Handle OAuth deep link callbacks on native platforms
   useDeepLinkAuth();
+
+  // Preload common route chunks on idle for instant navigation
+  useEffect(() => {
+    const preload = () => {
+      import('./pages/ShopPage');
+      import('./pages/Auth');
+      import('./pages/Affiliate');
+    };
+    if ('requestIdleCallback' in window) {
+      (window as any).requestIdleCallback(preload, { timeout: 4000 });
+    } else {
+      setTimeout(preload, 2000);
+    }
+  }, []);
   
   // Check for standalone routes first (OAuth, mobile-only page)
   const standaloneRoute = StandaloneRoutes();
