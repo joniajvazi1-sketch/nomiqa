@@ -19,7 +19,8 @@ import {
   CheckCircle2,
   XCircle,
   Fingerprint,
-  User
+  User,
+  Gift
 } from 'lucide-react';
 import { useAffiliateTracking } from '@/hooks/useAffiliateTracking';
 import { UsernameSelection } from '@/components/UsernameSelection';
