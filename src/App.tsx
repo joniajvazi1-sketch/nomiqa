@@ -476,8 +476,7 @@ const WebRoutes = () => (
         <Route path="network" element={<NetworkDashboard />} />
       </Route>
 
-      {/* Username-based affiliate links - must be last before catch-all */}
-      <Route path="/:username" element={<AffiliateRedirect />} />
+      {/* Username-based affiliate links removed - code-only model */}
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />
     </Routes>
