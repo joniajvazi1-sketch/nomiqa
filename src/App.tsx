@@ -238,7 +238,7 @@ const WebRoutes = () => (
       <Route path="/getting-started" element={<GettingStarted />} />
       <Route path="/roadmap" element={<Roadmap />} />
       <Route path="/affiliate" element={<Affiliate />} />
-      <Route path="/r/:code" element={<AffiliateRedirect />} />
+      {/* Referral links removed - code-only model */}
       <Route path="/privacy" element={<Privacy />} />
       <Route path="/terms" element={<Terms />} />
       <Route path="/about" element={<About />} />
