@@ -650,6 +650,62 @@ export const AppProfile: React.FC = () => {
               </div>
             )}
 
+            {/* Apply a Friend's Referral Code */}
+            {appliedReferral === false && (
+              <div className="rounded-2xl bg-card border border-border overflow-hidden">
+                <div className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-9 h-9 rounded-xl bg-accent/10 flex items-center justify-center">
+                        <Gift className="w-4.5 h-4.5 text-accent" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-foreground">Got a Referral Code?</p>
+                        <p className="text-[11px] text-muted-foreground">Apply a friend's code for bonus points</p>
+                      </div>
+                    </div>
+                    {!showApplyReferral && (
+                      <Button size="sm" variant="outline" onClick={() => { selectionTap(); setShowApplyReferral(true); }} className="h-8 text-xs px-3">
+                        Apply
+                      </Button>
+                    )}
+                  </div>
+                  {showApplyReferral && (
+                    <div className="flex items-center gap-2 mt-3">
+                      <Input
+                        value={applyReferralInput}
+                        onChange={(e) => setApplyReferralInput(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
+                        placeholder="friend's code"
+                        className="h-9 text-sm font-mono bg-muted/50 flex-1"
+                        maxLength={20}
+                        autoFocus
+                      />
+                      <Button size="sm" onClick={handleApplyReferralCode} disabled={applyingReferral} className="h-9 px-3">
+                        {applyingReferral ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : 'Apply'}
+                      </Button>
+                      <Button size="sm" variant="ghost" onClick={() => { setShowApplyReferral(false); setApplyReferralInput(''); }} className="h-9 px-2">
+                        <X className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+            {appliedReferral === true && (
+              <div className="rounded-2xl bg-card border border-border p-4">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-accent/10 flex items-center justify-center">
+                    <Gift className="w-4.5 h-4.5 text-accent" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">Referral Applied ✓</p>
+                    <p className="text-[11px] text-muted-foreground">You're earning bonus points with a friend</p>
+                  </div>
+                </div>
+              </div>
+            )
+
+
             {/* Quick Links */}
             <div className="rounded-2xl bg-card border border-border divide-y divide-border overflow-hidden">
               <button
