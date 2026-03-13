@@ -110,16 +110,24 @@ const Index = () => {
       <Hero />
       {/* DePIN-First: Educate about DePIN before showing products */}
       <Suspense fallback={<DePINSkeleton />}>
-        <DePINAdvantage />
+        <div className="animate-section-in" style={{ animationDelay: '0.05s' }}>
+          <DePINAdvantage />
+        </div>
       </Suspense>
       <Suspense fallback={<SectionSkeleton />}>
-        <WhatIsDePIN />
+        <div className="animate-section-in" style={{ animationDelay: '0.1s' }}>
+          <WhatIsDePIN />
+        </div>
       </Suspense>
       <Suspense fallback={<SectionSkeleton />}>
-        <DataMarketplace />
+        <div className="animate-section-in" style={{ animationDelay: '0.15s' }}>
+          <DataMarketplace />
+        </div>
       </Suspense>
       <Suspense fallback={<StatsSkeleton />}>
-        <LiveNetworkStats />
+        <div className="animate-section-in" style={{ animationDelay: '0.2s' }}>
+          <LiveNetworkStats />
+        </div>
       </Suspense>
       <Suspense fallback={<PartnersSkeleton />}>
         <TrustPartners />

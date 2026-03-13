@@ -89,7 +89,7 @@ export const Hero = () => {
   };
 
   return (
-    <section className="relative min-h-screen flex items-start md:items-center overflow-hidden">
+    <section className="relative min-h-screen flex items-start md:items-center overflow-hidden animate-page-in">
       {/* Premium background with elegant overlay */}
       <div className="absolute inset-0">
         <picture>
