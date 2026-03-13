@@ -235,8 +235,8 @@ MAIN BENEFITS OF INVITING USERS:
    - Level 3 (Third level): 3% commission
 
 HOW IT WORKS:
-1. Share your unique referral link from the app or nomiqa.com/affiliate
-2. When someone signs up with your link, they're added to your network
+1. Share your unique referral code from the app or nomiqa.com/affiliate
+2. When someone signs up with your code, they're added to your network
 3. You immediately get boost benefits and start earning 5% of their contributions
 4. If they buy eSIMs, you get additional sales commissions
 

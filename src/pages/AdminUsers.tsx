@@ -278,7 +278,7 @@ export default function AdminUsers() {
             <Card className="bg-white/5 border-white/10">
               <CardHeader className="pb-2 pt-4">
                 <CardTitle className="text-sm">
-                  Affiliate Stats {selectedUser.affiliate_count > 1 && `(${selectedUser.affiliate_count} links)`}
+                  Affiliate Stats {selectedUser.affiliate_count > 1 && `(${selectedUser.affiliate_count} codes)`}
                 </CardTitle>
               </CardHeader>
               <CardContent className="pb-4">

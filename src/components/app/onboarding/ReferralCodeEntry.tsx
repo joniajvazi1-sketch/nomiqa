@@ -22,7 +22,7 @@ export const ReferralCodeEntry: React.FC<ReferralCodeEntryProps> = ({
   const { mediumTap, success, lightTap } = useHaptics();
   const { referralCode: existingCode, setReferralCode } = useAffiliateTracking();
 
-  // Pre-fill if user came via referral link
+  // Pre-fill if user came via referral code
   useEffect(() => {
     if (existingCode) {
       setCode(existingCode);
