@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { 
   Copy, TrendingUp, Users, DollarSign, CheckCircle2, Loader2, 
-  Award, Share2, ArrowRight, Network
+  Award, Share2, ArrowRight, Network, Pencil, Check, X, AlertTriangle
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAffiliateTracking } from "@/hooks/useAffiliateTracking";
