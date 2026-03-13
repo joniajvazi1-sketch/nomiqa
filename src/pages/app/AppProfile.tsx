@@ -227,8 +227,66 @@ export const AppProfile: React.FC = () => {
       setLoading(false);
     }
   };
+  const handleChangeReferralCode = async () => {
+    if (!newReferralCode.trim() || newReferralCode.length < 3) {
+      toast({ title: 'Code must be at least 3 characters', variant: 'destructive' });
+      return;
+    }
+    setSavingReferralCode(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('update-referral-code', {
+        body: { referralCode: newReferralCode.trim().toLowerCase() }
+      });
+      if (error) {
+        const errBody = typeof error === 'object' && error !== null && 'context' in error
+          ? await (error as any).context?.json?.().catch(() => ({}))
+          : {};
+        throw new Error(errBody?.error || data?.error || 'Failed to update code');
+      }
+      if (data?.error) throw new Error(data.error);
+      successPattern();
+      toast({ title: 'Referral code updated!' });
+      setIsEditingReferralCode(false);
+      setHasChangedCode(true);
+      // Reload to get updated affiliate data
+      loadData();
+    } catch (err: any) {
+      toast({ title: err.message || 'Failed to update code', variant: 'destructive' });
+    } finally {
+      setSavingReferralCode(false);
+    }
+  };
 
-  const handleCopyLink = async () => {
+  const handleApplyReferralCode = async () => {
+    if (!applyReferralInput.trim()) {
+      toast({ title: 'Please enter a referral code', variant: 'destructive' });
+      return;
+    }
+    setApplyingReferral(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('apply-referral-code', {
+        body: { referralCode: applyReferralInput.trim().toLowerCase() }
+      });
+      if (error) {
+        const errBody = typeof error === 'object' && error !== null && 'context' in error
+          ? await (error as any).context?.json?.().catch(() => ({}))
+          : {};
+        throw new Error(errBody?.error || data?.error || 'Failed to apply code');
+      }
+      if (data?.error) throw new Error(data.error);
+      successPattern();
+      toast({ title: 'Referral code applied! 🎉', description: 'You both earn bonus points.' });
+      setAppliedReferral(true);
+      setShowApplyReferral(false);
+      setApplyReferralInput('');
+    } catch (err: any) {
+      toast({ title: err.message || 'Failed to apply code', variant: 'destructive' });
+    } finally {
+      setApplyingReferral(false);
+    }
+  };
+
+
     if (!affiliate) return;
     buttonTap();
     const code = affiliate.username || affiliate.affiliate_code;
