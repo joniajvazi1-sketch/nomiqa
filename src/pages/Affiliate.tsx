@@ -262,8 +262,8 @@ export default function Affiliate() {
       }
       setAffiliate(affiliateData);
       setUsername(affiliateData.username || '');
-      setCustomLink(`https://nomiqa-depin.com/${affiliateData.username}`);
-      setAffiliateLink(`https://nomiqa-depin.com/r/${affiliateData.affiliate_code}`);
+      setCustomLink(affiliateData.username);
+      setAffiliateLink(affiliateData.affiliate_code);
       setShowNewLinkInput(false);
       setNewLinkUsername('');
       setUsernameAvailability('idle');
