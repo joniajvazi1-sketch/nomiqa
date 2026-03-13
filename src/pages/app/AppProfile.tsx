@@ -703,7 +703,7 @@ export const AppProfile: React.FC = () => {
                   </div>
                 </div>
               </div>
-            )
+            )}
 
 
             {/* Quick Links */}
