@@ -20,6 +20,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ReferralPointsSection } from "@/components/ReferralPointsSection";
+import { ReferralCodeSection } from "@/components/ReferralCodeSection";
 
 interface UserProfile {
   username: string;
@@ -1218,6 +1219,9 @@ export default function MyAccount() {
                       {t("cryptoConversionMessage")}
                     </p>
                   </div>
+
+                  {/* Your Referral Code */}
+                  <ReferralCodeSection username={profile?.username || ''} />
 
                   <Button 
                     onClick={() => navigate(localizedPath('/affiliate', language))}

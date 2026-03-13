@@ -3,8 +3,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
-import { Textarea } from "./ui/textarea";
-import { Copy, Check, Facebook, Twitter, Linkedin, Mail, Share2, Loader2 } from "lucide-react";
+import { Copy, Check, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useTranslation } from "@/contexts/TranslationContext";
@@ -17,7 +16,7 @@ interface ShareModalProps {
 
 export const ShareModal = ({ open, onOpenChange, product }: ShareModalProps) => {
   const { formatPrice } = useTranslation();
-  const [affiliateCode, setAffiliateCode] = useState<string | null>(null);
+  const [referralCode, setReferralCode] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
   const [email, setEmail] = useState("");
@@ -32,25 +31,22 @@ export const ShareModal = ({ open, onOpenChange, product }: ShareModalProps) => 
   const checkAffiliate = async () => {
     setLoading(true);
     try {
-      // Check if user is logged in
       const { data: { user } } = await supabase.auth.getUser();
       
       if (user) {
-        // Fetch affiliate by user_id (using _safe view)
         const { data } = await supabase
           .from('affiliates_safe')
-          .select('affiliate_code')
+          .select('affiliate_code, username')
           .eq('user_id', user.id)
           .maybeSingle();
         
         if (data) {
-          setAffiliateCode(data.affiliate_code);
+          setReferralCode(data.username || data.affiliate_code);
         }
       } else {
-        // Check localStorage for guest affiliate
         const guestCode = localStorage.getItem('guest_affiliate_code');
         if (guestCode) {
-          setAffiliateCode(guestCode);
+          setReferralCode(guestCode);
         }
       }
     } catch (error) {
@@ -68,18 +64,15 @@ export const ShareModal = ({ open, onOpenChange, product }: ShareModalProps) => 
 
     setCreating(true);
     try {
-      // Call edge function to create affiliate with secure code
       const { data: result, error } = await supabase.functions.invoke('create-affiliate', {
-        body: {
-          email,
-        }
+        body: { email },
       });
 
       if (error) throw error;
       if (!result?.affiliate) throw new Error('Failed to create affiliate');
 
       const affiliateData = result.affiliate;
-      setAffiliateCode(affiliateData.affiliate_code);
+      setReferralCode(affiliateData.username || affiliateData.affiliate_code);
       localStorage.setItem('guest_affiliate_code', affiliateData.affiliate_code);
       toast.success("Affiliate account created!");
     } catch (error: any) {
@@ -91,46 +84,12 @@ export const ShareModal = ({ open, onOpenChange, product }: ShareModalProps) => 
 
   if (!product) return null;
 
-  const affiliateLink = affiliateCode 
-    ? `https://nomiqa-depin.com/r/${affiliateCode}`
-    : '';
-
-  const shareText = `Check out this amazing eSIM plan: ${product.name} - ${product.data_amount} for ${product.validity_days} days in ${product.country_name}! Only ${formatPrice(product.price_usd)}`;
-
-
-  const copyLink = () => {
-    if (affiliateLink) {
-      navigator.clipboard.writeText(affiliateLink);
+  const copyCode = () => {
+    if (referralCode) {
+      navigator.clipboard.writeText(referralCode);
       setCopied(true);
-      toast.success("Link copied to clipboard!");
+      toast.success("Referral code copied!");
       setTimeout(() => setCopied(false), 2000);
-    }
-  };
-
-  const shareVia = (platform: string) => {
-    if (!affiliateLink) return;
-
-    const encodedLink = encodeURIComponent(affiliateLink);
-    const encodedText = encodeURIComponent(shareText);
-
-    let url = '';
-    switch (platform) {
-      case 'facebook':
-        url = `https://www.facebook.com/sharer/sharer.php?u=${encodedLink}`;
-        break;
-      case 'twitter':
-        url = `https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedLink}`;
-        break;
-      case 'linkedin':
-        url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodedLink}`;
-        break;
-      case 'email':
-        url = `mailto:?subject=${encodeURIComponent(`Great eSIM Deal: ${product.name}`)}&body=${encodedText}%0A%0A${encodedLink}`;
-        break;
-    }
-
-    if (url) {
-      window.open(url, '_blank', 'width=600,height=400');
     }
   };
 
@@ -140,7 +99,7 @@ export const ShareModal = ({ open, onOpenChange, product }: ShareModalProps) => 
         <DialogHeader>
           <DialogTitle>Share & Earn</DialogTitle>
           <DialogDescription>
-            Share this product and earn commissions on every sale
+            Share your referral code and earn commissions on every sale
           </DialogDescription>
         </DialogHeader>
 
@@ -148,10 +107,10 @@ export const ShareModal = ({ open, onOpenChange, product }: ShareModalProps) => 
           <div className="flex justify-center py-8">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
-        ) : !affiliateCode ? (
+        ) : !referralCode ? (
           <div className="space-y-4">
             <div className="bg-primary/5 p-4 rounded-lg space-y-2">
-              <p className="text-sm font-medium">Get Your Affiliate Link</p>
+              <p className="text-sm font-medium">Get Your Referral Code</p>
               <p className="text-xs text-muted-foreground">
                 Enter your email to create an affiliate account and start earning 9% → 6% → 3% on all referrals
               </p>
@@ -190,69 +149,19 @@ export const ShareModal = ({ open, onOpenChange, product }: ShareModalProps) => 
               </div>
             </div>
 
-            {/* Affiliate Link */}
+            {/* Referral Code */}
             <div className="space-y-2">
-              <Label htmlFor="affiliate-link">Your Affiliate Link</Label>
-              <div className="flex gap-2">
-                <Input
-                  id="affiliate-link"
-                  value={affiliateLink}
-                  readOnly
-                  className="font-mono text-sm"
-                />
-                <Button onClick={copyLink} size="icon" variant="outline">
-                  {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                </Button>
-              </div>
-            </div>
-
-            {/* Share Message */}
-            <div className="space-y-2">
-              <Label htmlFor="share-message">Share Message</Label>
-              <Textarea
-                id="share-message"
-                value={shareText}
-                readOnly
-                rows={3}
-                className="text-sm"
-              />
-            </div>
-
-            {/* Social Share Buttons */}
-            <div className="space-y-2">
-              <Label>Share via</Label>
-              <div className="grid grid-cols-4 gap-2">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => shareVia('facebook')}
-                  className="h-12"
-                >
-                  <Facebook className="h-5 w-5" />
-                </Button>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => shareVia('twitter')}
-                  className="h-12"
-                >
-                  <Twitter className="h-5 w-5" />
-                </Button>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => shareVia('linkedin')}
-                  className="h-12"
-                >
-                  <Linkedin className="h-5 w-5" />
-                </Button>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => shareVia('email')}
-                  className="h-12"
-                >
-                  <Mail className="h-5 w-5" />
+              <Label>Your Referral Code</Label>
+              <div className="p-4 bg-primary/5 border border-primary/20 rounded-xl text-center">
+                <p className="text-3xl font-bold font-mono text-primary tracking-wider mb-3">
+                  {referralCode}
+                </p>
+                <p className="text-xs text-muted-foreground mb-3">
+                  Friends enter this code when they sign up
+                </p>
+                <Button onClick={copyCode} className="w-full" size="sm">
+                  {copied ? <Check className="h-4 w-4 mr-2" /> : <Copy className="h-4 w-4 mr-2" />}
+                  {copied ? 'Copied!' : 'Copy Code'}
                 </Button>
               </div>
             </div>

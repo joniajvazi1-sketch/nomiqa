@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Users, Gift, Copy, Share2, Check, 
-  Award, Sparkles, MessageCircle, Mail, Link2
+  Award, Sparkles, MessageCircle, Mail
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -77,21 +77,17 @@ export const AppInvite: React.FC = () => {
     }
   };
 
-  const referralLink = affiliate?.username 
-    ? `https://nomiqa-depin.com/${affiliate.username}`
-    : affiliate?.affiliate_code 
-      ? `https://nomiqa-depin.com/r/${affiliate.affiliate_code}`
-      : '';
+  const referralCode = affiliate?.username || affiliate?.affiliate_code || '';
 
-  const handleCopyLink = async () => {
-    if (!referralLink) return;
+  const handleCopyCode = async () => {
+    if (!referralCode) return;
     buttonTap();
-    const success = await copyToClipboard(referralLink);
+    const success = await copyToClipboard(referralCode);
     if (success) {
       setCopied(true);
       successPattern();
       playSuccess();
-      toast({ title: 'Link copied!' });
+      toast({ title: 'Referral code copied!' });
       setTimeout(() => setCopied(false), 2000);
     }
   };
@@ -100,19 +96,19 @@ export const AppInvite: React.FC = () => {
     buttonTap();
     await share({
       title: 'Join Nomiqa',
-      text: `Contribute to better mobile connectivity with Nomiqa! Use my link to join and we both get ${TOKENOMICS.REFERRAL_BONUS_POINTS} bonus points.`,
-      url: referralLink,
+      text: `Join Nomiqa and contribute to better mobile connectivity! Use my referral code: ${referralCode} to sign up and we both get ${TOKENOMICS.REFERRAL_BONUS_POINTS} bonus points.`,
+      url: 'https://nomiqa-depin.com/download',
       dialogTitle: 'Invite Contributors'
     });
   };
 
   const handleShareVia = async (platform: 'whatsapp' | 'telegram' | 'sms' | 'email') => {
     buttonTap();
-    const message = `Contribute to better mobile connectivity with Nomiqa! Use my link: ${referralLink}`;
+    const message = `Join Nomiqa and contribute to better mobile connectivity! Use my referral code: ${referralCode} when you sign up. Download: https://nomiqa-depin.com/download`;
     
     const urls: Record<string, string> = {
       whatsapp: `https://wa.me/?text=${encodeURIComponent(message)}`,
-      telegram: `https://t.me/share/url?url=${encodeURIComponent(referralLink)}&text=${encodeURIComponent('Join me on Nomiqa!')}`,
+      telegram: `https://t.me/share/url?url=${encodeURIComponent('https://nomiqa-depin.com/download')}&text=${encodeURIComponent(`Join me on Nomiqa! Use code: ${referralCode}`)}`,
       sms: `sms:?body=${encodeURIComponent(message)}`,
       email: `mailto:?subject=${encodeURIComponent('Join Nomiqa')}&body=${encodeURIComponent(message)}`
     };
@@ -210,44 +206,53 @@ export const AppInvite: React.FC = () => {
           <Card className="card-premium">
             <CardContent className="p-4">
               <div className="flex items-center justify-between mb-3">
-                <span className="text-sm font-medium text-foreground">Your Invite Link</span>
+                <span className="text-sm font-medium text-foreground">Your Referral Code</span>
                 <Badge variant="outline" className="text-xs border-primary/30 text-primary">
-                  @{affiliate?.username || 'your-link'}
+                  @{affiliate?.username || 'your-code'}
                 </Badge>
               </div>
               
-              {/* Link display */}
+              {/* Code display */}
               <motion.div 
                 whileTap={{ scale: 0.98 }}
-                className="bg-muted/50 rounded-xl p-3 flex items-center justify-between mb-4 cursor-pointer border border-border/50"
-                onClick={handleCopyLink}
+                className="bg-muted/50 rounded-xl p-4 flex items-center justify-center mb-4 cursor-pointer border border-border/50"
+                onClick={handleCopyCode}
               >
-                <span className="text-sm text-foreground truncate pr-2 font-mono">
-                  {referralLink || 'Loading...'}
+                <span className="text-2xl font-bold text-primary font-mono tracking-wider">
+                  {referralCode || 'Loading...'}
                 </span>
-                <Button 
-                  size="sm" 
-                  variant="ghost" 
-                  className="shrink-0 h-8 w-8 p-0"
-                  onClick={handleCopyLink}
-                >
-                  {copied ? (
-                    <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}>
-                      <Check className="w-4 h-4 text-success" />
-                    </motion.div>
-                  ) : (
-                    <Copy className="w-4 h-4" />
-                  )}
-                </Button>
               </motion.div>
+
+              <p className="text-xs text-muted-foreground text-center mb-4">
+                Friends enter this code when they sign up
+              </p>
+
+              {/* Copy button */}
+              <Button 
+                className="w-full h-12 text-base font-medium gap-2 mb-2"
+                onClick={handleCopyCode}
+              >
+                {copied ? (
+                  <>
+                    <Check className="w-5 h-5" />
+                    Copied!
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-5 h-5" />
+                    Copy Referral Code
+                  </>
+                )}
+              </Button>
 
               {/* Main share button */}
               <Button 
                 className="w-full h-12 text-base font-medium gap-2 pulse-glow"
+                variant="outline"
                 onClick={handleShare}
               >
                 <Share2 className="w-5 h-5" />
-                Share Invite Link
+                Share with Friends
               </Button>
 
               {/* Quick share buttons - Enhanced */}
@@ -281,13 +286,6 @@ export const AppInvite: React.FC = () => {
                   className="w-12 h-12 rounded-full bg-muted/50 flex items-center justify-center hover:bg-muted transition-colors"
                 >
                   <Mail className="w-5 h-5 text-foreground" />
-                </motion.button>
-                <motion.button
-                  whileTap={{ scale: 0.95 }}
-                  onClick={handleCopyLink}
-                  className="w-12 h-12 rounded-full bg-muted/50 flex items-center justify-center hover:bg-muted transition-colors"
-                >
-                  <Link2 className="w-5 h-5 text-foreground" />
                 </motion.button>
               </div>
             </CardContent>
