@@ -154,6 +154,7 @@ export const AppAuth: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
+  const [referralInput, setReferralInput] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
