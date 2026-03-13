@@ -25,7 +25,7 @@ const Auth = lazy(() => import("./pages/Auth"));
 const GettingStarted = lazy(() => import("./pages/GettingStarted"));
 const Roadmap = lazy(() => import("./pages/Roadmap"));
 const Affiliate = lazy(() => import("./pages/Affiliate"));
-const AffiliateRedirect = lazy(() => import("./pages/AffiliateRedirect"));
+// AffiliateRedirect removed - referral links no longer supported, only codes
 const Privacy = lazy(() => import("./pages/Privacy"));
 const Terms = lazy(() => import("./pages/Terms"));
 const About = lazy(() => import("./pages/About"));
@@ -238,7 +238,7 @@ const WebRoutes = () => (
       <Route path="/getting-started" element={<GettingStarted />} />
       <Route path="/roadmap" element={<Roadmap />} />
       <Route path="/affiliate" element={<Affiliate />} />
-      <Route path="/r/:code" element={<AffiliateRedirect />} />
+      {/* Referral links removed - code-only model */}
       <Route path="/privacy" element={<Privacy />} />
       <Route path="/terms" element={<Terms />} />
       <Route path="/about" element={<About />} />
@@ -476,8 +476,7 @@ const WebRoutes = () => (
         <Route path="network" element={<NetworkDashboard />} />
       </Route>
 
-      {/* Username-based affiliate links - must be last before catch-all */}
-      <Route path="/:username" element={<AffiliateRedirect />} />
+      {/* Username-based affiliate links removed - code-only model */}
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />
     </Routes>

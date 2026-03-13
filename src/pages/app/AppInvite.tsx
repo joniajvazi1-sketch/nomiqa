@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Users, Gift, Copy, Share2, Check, 
-  Award, Sparkles, MessageCircle, Mail
+  Award, Sparkles, MessageCircle, Mail, Pencil, X, Loader2, AlertTriangle
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import { useNativeShare } from '@/hooks/useNativeShare';
 import { useEnhancedHaptics } from '@/hooks/useEnhancedHaptics';
 import { useEnhancedSounds } from '@/hooks/useEnhancedSounds';
@@ -48,6 +49,10 @@ export const AppInvite: React.FC = () => {
   const [affiliate, setAffiliate] = useState<AffiliateData | null>(null);
   const [copied, setCopied] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [isEditingCode, setIsEditingCode] = useState(false);
+  const [newCode, setNewCode] = useState('');
+  const [savingCode, setSavingCode] = useState(false);
+  const [codeError, setCodeError] = useState('');
 
   useEffect(() => {
     loadAffiliateData();
@@ -78,6 +83,34 @@ export const AppInvite: React.FC = () => {
   };
 
   const referralCode = affiliate?.username || affiliate?.affiliate_code || '';
+
+  const handleChangeCode = async () => {
+    if (!newCode.trim() || newCode.length < 3) {
+      setCodeError('Code must be at least 3 characters');
+      return;
+    }
+    setSavingCode(true);
+    setCodeError('');
+    try {
+      const { data, error } = await supabase.functions.invoke('update-referral-code', {
+        body: { referralCode: newCode.trim() },
+      });
+      if (error) throw error;
+      if (data?.error) {
+        setCodeError(data.error);
+        setSavingCode(false);
+        return;
+      }
+      toast({ title: 'Referral code updated!' });
+      setIsEditingCode(false);
+      // Reload affiliate data to reflect change
+      await loadAffiliateData();
+    } catch (err: any) {
+      setCodeError(err.message || 'Failed to update code');
+    } finally {
+      setSavingCode(false);
+    }
+  };
 
   const handleCopyCode = async () => {
     if (!referralCode) return;
@@ -212,38 +245,75 @@ export const AppInvite: React.FC = () => {
                 </Badge>
               </div>
               
-              {/* Code display */}
-              <motion.div 
-                whileTap={{ scale: 0.98 }}
-                className="bg-muted/50 rounded-xl p-4 flex items-center justify-center mb-4 cursor-pointer border border-border/50"
-                onClick={handleCopyCode}
-              >
-                <span className="text-2xl font-bold text-primary font-mono tracking-wider">
-                  {referralCode || 'Loading...'}
-                </span>
-              </motion.div>
+              {!isEditingCode ? (
+                <>
+                  {/* Code display */}
+                  <motion.div 
+                    whileTap={{ scale: 0.98 }}
+                    className="bg-muted/50 rounded-xl p-4 flex items-center justify-center mb-4 cursor-pointer border border-border/50"
+                    onClick={handleCopyCode}
+                  >
+                    <span className="text-2xl font-bold text-primary font-mono tracking-wider">
+                      {referralCode || 'Loading...'}
+                    </span>
+                  </motion.div>
 
-              <p className="text-xs text-muted-foreground text-center mb-4">
-                Friends enter this code when they sign up
-              </p>
+                  <p className="text-xs text-muted-foreground text-center mb-4">
+                    Friends enter this code when they sign up
+                  </p>
 
-              {/* Copy button */}
-              <Button 
-                className="w-full h-12 text-base font-medium gap-2 mb-2"
-                onClick={handleCopyCode}
-              >
-                {copied ? (
-                  <>
-                    <Check className="w-5 h-5" />
-                    Copied!
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-5 h-5" />
-                    Copy Referral Code
-                  </>
-                )}
-              </Button>
+                  {/* Copy button */}
+                  <Button 
+                    className="w-full h-12 text-base font-medium gap-2 mb-2"
+                    onClick={handleCopyCode}
+                  >
+                    {copied ? (
+                      <>
+                        <Check className="w-5 h-5" />
+                        Copied!
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-5 h-5" />
+                        Copy Referral Code
+                      </>
+                    )}
+                  </Button>
+
+                  {/* Change code button */}
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="w-full text-muted-foreground mt-1"
+                    onClick={() => { setNewCode(referralCode); setIsEditingCode(true); setCodeError(''); }}
+                  >
+                    <Pencil className="w-4 h-4 mr-1" /> Change Referral Code
+                  </Button>
+                </>
+              ) : (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 p-3 rounded-lg bg-destructive/10 border border-destructive/20">
+                    <AlertTriangle className="w-4 h-4 text-destructive shrink-0" />
+                    <p className="text-xs text-destructive">You can only change your referral code once. This cannot be undone.</p>
+                  </div>
+                  <Input
+                    value={newCode}
+                    onChange={(e) => { setNewCode(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '')); setCodeError(''); }}
+                    placeholder="New referral code"
+                    className="font-mono"
+                  />
+                  {codeError && <p className="text-xs text-destructive">{codeError}</p>}
+                  <div className="flex gap-2">
+                    <Button onClick={handleChangeCode} disabled={savingCode} size="sm" className="flex-1">
+                      {savingCode ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Check className="h-4 w-4 mr-1" />}
+                      Save
+                    </Button>
+                    <Button onClick={() => { setIsEditingCode(false); setCodeError(''); }} variant="outline" size="sm">
+                      <X className="h-4 w-4 mr-1" /> Cancel
+                    </Button>
+                  </div>
+                </div>
+              )}
 
               {/* Main share button */}
               <Button 
