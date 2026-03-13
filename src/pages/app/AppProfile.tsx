@@ -502,7 +502,7 @@ export const AppProfile: React.FC = () => {
                     onClick={handleCopyLink}
                     className="w-full flex items-center justify-between gap-2 p-2.5 rounded-xl bg-muted/40 border border-border/50 active:scale-[0.99] transition-transform group"
                   >
-                    <span className="text-xs font-mono text-muted-foreground truncate">{referralLink}</span>
+                    <span className="text-xs font-mono text-muted-foreground truncate">{referralCode}</span>
                     <span className="flex items-center gap-1 text-[11px] text-primary font-medium whitespace-nowrap">
                       <Copy className="w-3 h-3" />
                       Copy

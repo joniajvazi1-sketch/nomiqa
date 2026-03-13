@@ -1015,13 +1015,13 @@ export const AppHome: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Tappable referral link */}
+                {/* Tappable referral code */}
                 <button
                   onClick={() => { lightTap(); handleCopyLink(); }}
                   className={cn("w-full rounded-xl p-3 flex items-center gap-2 mb-3 border text-left active:scale-[0.98] transition-transform", isDark ? "bg-white/5 border-white/10 hover:bg-white/8" : "bg-muted/50 border-border hover:bg-muted")}
                 >
                   <span className="flex-1 text-sm text-foreground truncate font-mono">
-                    nomiqa-depin.com/{username || 'invite'}
+                    {username || 'No code yet'}
                   </span>
                   <Copy className="w-4 h-4 text-violet-400 flex-shrink-0" />
                 </button>
