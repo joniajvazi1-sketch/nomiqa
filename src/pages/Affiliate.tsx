@@ -54,6 +54,10 @@ export default function Affiliate() {
   const [showVerification, setShowVerification] = useState(false);
   const [pendingEmail, setPendingEmail] = useState("");
   const [selectedAffiliateId, setSelectedAffiliateId] = useState<string>("");
+  const [isEditingCode, setIsEditingCode] = useState(false);
+  const [newCode, setNewCode] = useState('');
+  const [savingCode, setSavingCode] = useState(false);
+  const [codeError, setCodeError] = useState('');
   
   const selectedAffiliate = allAffiliates.find(a => a.id === selectedAffiliateId) || affiliate;
   
