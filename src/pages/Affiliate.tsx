@@ -128,10 +128,10 @@ export default function Affiliate() {
       );
       setAffiliate(highestTierAffiliate);
       setSelectedAffiliateId(highestTierAffiliate.id);
-      setAffiliateLink(`https://nomiqa-depin.com/r/${highestTierAffiliate.affiliate_code}`);
+      setAffiliateLink(highestTierAffiliate.affiliate_code);
       setUsername(highestTierAffiliate.username || '');
       if (highestTierAffiliate.username) {
-        setCustomLink(`https://nomiqa-depin.com/${highestTierAffiliate.username}`);
+        setCustomLink(highestTierAffiliate.username);
       }
     }
   };
