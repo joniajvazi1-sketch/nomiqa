@@ -237,13 +237,12 @@ export const AppProfile: React.FC = () => {
       const { data, error } = await supabase.functions.invoke('update-referral-code', {
         body: { referralCode: newReferralCode.trim().toLowerCase() }
       });
-      if (error) {
-        const errBody = typeof error === 'object' && error !== null && 'context' in error
-          ? await (error as any).context?.json?.().catch(() => ({}))
-          : {};
-        throw new Error(errBody?.error || data?.error || 'Failed to update code');
+      const errMsg = data?.error || (error ? await (error as any)?.context?.json?.().then((b: any) => b?.error).catch(() => null) : null);
+      if (errMsg) {
+        const friendly = errMsg === 'Referral code already taken' ? 'This code is already taken, please choose another' : errMsg;
+        throw new Error(friendly);
       }
-      if (data?.error) throw new Error(data.error);
+      if (error) throw new Error('Failed to update code');
       successPattern();
       toast({ title: 'Referral code updated!' });
       setIsEditingReferralCode(false);
