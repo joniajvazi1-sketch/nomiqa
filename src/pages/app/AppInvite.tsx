@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Users, Gift, Copy, Share2, Check, 
-  Award, Sparkles, MessageCircle, Mail, Link2
+  Award, Sparkles, MessageCircle, Mail
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
