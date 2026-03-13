@@ -176,6 +176,33 @@ export default function Affiliate() {
     toast.success("Referral code copied!");
   }, []);
 
+  const handleChangeReferralCode = async () => {
+    if (!newCode.trim() || newCode.length < 3) {
+      setCodeError('Code must be at least 3 characters');
+      return;
+    }
+    setSavingCode(true);
+    setCodeError('');
+    try {
+      const { data, error } = await supabase.functions.invoke('update-referral-code', {
+        body: { referralCode: newCode.trim() },
+      });
+      if (error) throw error;
+      if (data?.error) {
+        setCodeError(data.error);
+        setSavingCode(false);
+        return;
+      }
+      toast.success('Referral code updated!');
+      setIsEditingCode(false);
+      if (user) await fetchAffiliates(user.id, user.email || undefined);
+    } catch (err: any) {
+      setCodeError(err.message || 'Failed to update code');
+    } finally {
+      setSavingCode(false);
+    }
+  };
+
   const updateUsername = async () => {
     if (!username || !affiliate) return;
     if (!/^[a-z0-9-]+$/.test(username)) {
