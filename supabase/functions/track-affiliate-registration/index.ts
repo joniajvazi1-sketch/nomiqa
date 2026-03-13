@@ -3,8 +3,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
 const registrationSchema = z.object({
@@ -13,38 +13,28 @@ const registrationSchema = z.object({
   referrer: z.string().optional(),
 });
 
-// Points awarded to REFERRER immediately on each registration (no split, no delays)
 const REFERRER_BONUS_POINTS = 50;
-// Points awarded to NEW USER (invitee) as welcome bonus
 const INVITEE_BONUS_POINTS = 50;
-
-// Max referrals per 24 hours (velocity limit)
 const VELOCITY_THRESHOLD_24H = 10;
-// Max referrals per affiliate (lifetime cap)
 const MAX_REFERRALS_DEFAULT = 100;
 
-// Detect traffic source from referrer
 function detectSource(referrerUrl: string | null): string {
-  if (!referrerUrl) return 'direct';
-  
+  if (!referrerUrl) return "direct";
   const url = referrerUrl.toLowerCase();
-  
-  if (url.includes('facebook.com') || url.includes('fb.com')) return 'facebook';
-  if (url.includes('twitter.com') || url.includes('t.co')) return 'twitter';
-  if (url.includes('instagram.com')) return 'instagram';
-  if (url.includes('linkedin.com')) return 'linkedin';
-  if (url.includes('tiktok.com')) return 'tiktok';
-  if (url.includes('reddit.com')) return 'reddit';
-  if (url.includes('youtube.com')) return 'youtube';
-  if (url.includes('pinterest.com')) return 'pinterest';
-  if (url.includes('whatsapp.com')) return 'whatsapp';
-  if (url.includes('telegram')) return 'telegram';
-  if (url.includes('discord')) return 'discord';
-  
-  return 'other';
+  if (url.includes("facebook.com") || url.includes("fb.com")) return "facebook";
+  if (url.includes("twitter.com") || url.includes("t.co")) return "twitter";
+  if (url.includes("instagram.com")) return "instagram";
+  if (url.includes("linkedin.com")) return "linkedin";
+  if (url.includes("tiktok.com")) return "tiktok";
+  if (url.includes("reddit.com")) return "reddit";
+  if (url.includes("youtube.com")) return "youtube";
+  if (url.includes("pinterest.com")) return "pinterest";
+  if (url.includes("whatsapp.com")) return "whatsapp";
+  if (url.includes("telegram")) return "telegram";
+  if (url.includes("discord")) return "discord";
+  return "other";
 }
 
-// Calculate mining boost based on total registrations
 function calculateMiningBoost(totalRegistrations: number): { level: number; boost: number } {
   if (totalRegistrations >= 100) return { level: 5, boost: 100 };
   if (totalRegistrations >= 50) return { level: 4, boost: 70 };
@@ -54,318 +44,266 @@ function calculateMiningBoost(totalRegistrations: number): { level: number; boos
   return { level: 0, boost: 0 };
 }
 
+async function resolveAffiliate(supabase: ReturnType<typeof createClient>, referralInput: string) {
+  const normalized = referralInput.trim();
+  const lower = normalized.toLowerCase();
+  const upper = normalized.toUpperCase();
+
+  const selectFields =
+    "id, affiliate_code, total_registrations, username, user_id, miner_boost_percentage, registration_milestone_level, max_referrals";
+
+  const tryByCode = async (code: string) =>
+    supabase
+      .from("affiliates")
+      .select(selectFields)
+      .eq("affiliate_code", code)
+      .eq("status", "active")
+      .eq("email_verified", true)
+      .maybeSingle();
+
+  let result = await tryByCode(normalized);
+  if (!result.data && upper !== normalized) result = await tryByCode(upper);
+  if (!result.data && lower !== normalized) result = await tryByCode(lower);
+
+  if (!result.data) {
+    result = await supabase
+      .from("affiliates")
+      .select(selectFields)
+      .eq("username", lower)
+      .eq("status", "active")
+      .eq("email_verified", true)
+      .maybeSingle();
+  }
+
+  return result;
+}
+
 serve(async (req) => {
-  if (req.method === 'OPTIONS') {
+  if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    // SECURITY: Verify internal call - this endpoint should only be called by other edge functions
-    const authHeader = req.headers.get('authorization');
-    const apiKey = req.headers.get('apikey');
-    const expectedServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-    
+    const authHeader = req.headers.get("authorization");
+    const apiKey = req.headers.get("apikey");
+    const expectedServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+
     if (!expectedServiceKey) {
-      console.error('[track-affiliate-registration] Missing SUPABASE_SERVICE_ROLE_KEY');
-      return new Response(
-        JSON.stringify({ error: 'Server configuration error' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-    
-    // Allow service role key (from other edge functions) 
-    const isServiceCall = 
-      (authHeader && authHeader === `Bearer ${expectedServiceKey}`) ||
-      (apiKey && apiKey === expectedServiceKey);
-    
-    if (!isServiceCall) {
-      console.warn('[track-affiliate-registration] Unauthorized access attempt');
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized - internal endpoint only' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ error: "Server configuration error" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
-    // Validate input
+    const isServiceCall =
+      (authHeader && authHeader === `Bearer ${expectedServiceKey}`) ||
+      (apiKey && apiKey === expectedServiceKey);
+
+    if (!isServiceCall) {
+      return new Response(JSON.stringify({ error: "Unauthorized - internal endpoint only" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const rawBody = await req.json();
     const validationResult = registrationSchema.safeParse(rawBody);
-    
+
     if (!validationResult.success) {
-      console.error('Validation error:', validationResult.error.issues);
-      return new Response(
-        JSON.stringify({ error: 'Invalid input', details: validationResult.error.issues }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ error: "Invalid input", details: validationResult.error.issues }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const { referralCode, userId, referrer } = validationResult.data;
     const source = detectSource(referrer || null);
 
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    console.log(`Tracking registration for referral code: ${referralCode}, user: ${userId}`);
+    const { data: affiliate, error: affError } = await resolveAffiliate(supabase, referralCode);
 
-    // Find affiliate by code with username for the welcome email
-    const { data: affiliate, error: affError } = await supabase
-      .from('affiliates')
-      .select('id, affiliate_code, total_registrations, username, user_id, miner_boost_percentage, registration_milestone_level, max_referrals')
-      .eq('affiliate_code', referralCode)
-      .maybeSingle();
-
-    if (affError) {
-      console.error('Error finding affiliate:', affError);
-      throw affError;
-    }
+    if (affError) throw affError;
 
     if (!affiliate) {
-      console.log('Invalid referral code:', referralCode);
-      return new Response(
-        JSON.stringify({ error: 'Invalid referral code' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ error: "Invalid referral code" }), {
+        status: 404,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
-    // ==========================================================
-    // SAFEGUARD 1: Check referral cap (max referrals per affiliate)
-    // ==========================================================
+    if (affiliate.user_id && affiliate.user_id === userId) {
+      return new Response(JSON.stringify({ error: "Self-referrals are not allowed" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const maxReferrals = affiliate.max_referrals || MAX_REFERRALS_DEFAULT;
     if ((affiliate.total_registrations || 0) >= maxReferrals) {
-      console.log(`Affiliate ${affiliate.affiliate_code} has reached referral cap: ${affiliate.total_registrations}/${maxReferrals}`);
-      // Still allow registration but don't award points
       return new Response(
-        JSON.stringify({ 
-          success: true, 
-          message: 'Registration recorded but referral cap reached',
-          referralCapReached: true
-        }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ success: true, message: "Registration recorded but referral cap reached", referralCapReached: true }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
 
-    // ==========================================================
-    // SAFEGUARD 2: Check 24h velocity (rate limiting)
-    // ==========================================================
     const { count: recentReferralsCount } = await supabase
-      .from('affiliate_referrals')
-      .select('id', { count: 'exact', head: true })
-      .eq('affiliate_id', affiliate.id)
-      .gte('registered_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString());
+      .from("affiliate_referrals")
+      .select("id", { count: "exact", head: true })
+      .eq("affiliate_id", affiliate.id)
+      .gte("registered_at", new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString());
 
     const velocity24h = recentReferralsCount || 0;
     if (velocity24h >= VELOCITY_THRESHOLD_24H) {
-      console.warn(`Velocity limit exceeded for affiliate ${affiliate.affiliate_code}: ${velocity24h} referrals in 24h`);
-      // Log to security audit
-      await supabase.from('security_audit_log').insert({
+      await supabase.from("security_audit_log").insert({
         user_id: affiliate.user_id,
-        event_type: 'referral_velocity_exceeded',
-        severity: 'warn',
+        event_type: "referral_velocity_exceeded",
+        severity: "warn",
         details: {
           affiliate_id: affiliate.id,
           velocity_24h: velocity24h,
           threshold: VELOCITY_THRESHOLD_24H,
-          attempted_user_id: userId
-        }
+          attempted_user_id: userId,
+        },
       });
-      // Still allow registration but don't award points
+
       return new Response(
-        JSON.stringify({ 
-          success: true, 
-          message: 'Registration recorded but velocity limit reached',
-          velocityLimitReached: true
-        }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ success: true, message: "Registration recorded but velocity limit reached", velocityLimitReached: true }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
-    
-    // Get the new user's email for sending welcome email
+
     const { data: newUserData } = await supabase.auth.admin.getUserById(userId);
     const newUserEmail = newUserData?.user?.email;
 
-    // Check if this user already has a referral record
     const { data: existingReferral } = await supabase
-      .from('affiliate_referrals')
-      .select('id')
-      .eq('registered_user_id', userId)
+      .from("affiliate_referrals")
+      .select("id")
+      .eq("registered_user_id", userId)
       .limit(1);
 
     if (existingReferral && existingReferral.length > 0) {
-      console.log('User already has a referral record:', userId);
       return new Response(
-        JSON.stringify({ 
-          success: true, 
-          message: 'User already registered via referral',
-          alreadyRegistered: true
-        }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ success: true, message: "User already registered via referral", alreadyRegistered: true }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
 
-    // Create the referral record with 'registered' status
-    const { error: insertError } = await supabase
-      .from('affiliate_referrals')
-      .insert({
-        affiliate_id: affiliate.id,
-        visitor_id: userId,
-        registered_user_id: userId,
-        status: 'registered',
-        source: source,
-        commission_level: 1,
-        clicked_at: new Date().toISOString(),
-        registered_at: new Date().toISOString()
-      });
+    const { error: insertError } = await supabase.from("affiliate_referrals").insert({
+      affiliate_id: affiliate.id,
+      visitor_id: userId,
+      registered_user_id: userId,
+      status: "registered",
+      source,
+      commission_level: 1,
+      clicked_at: new Date().toISOString(),
+      registered_at: new Date().toISOString(),
+    });
 
-    if (insertError) {
-      console.error('Error inserting referral:', insertError);
-      throw insertError;
-    }
+    if (insertError) throw insertError;
 
-    // RACE-CONDITION FIX: Use atomic count from the database
-    const { data: actualCount, error: countError } = await supabase
-      .from('affiliate_referrals')
-      .select('id', { count: 'exact', head: true })
-      .eq('affiliate_id', affiliate.id)
-      .not('registered_user_id', 'is', null);
-
-    if (countError) {
-      console.error('Error counting referrals:', countError);
-    }
+    const { count: actualCount } = await supabase
+      .from("affiliate_referrals")
+      .select("id", { count: "exact", head: true })
+      .eq("affiliate_id", affiliate.id)
+      .not("registered_user_id", "is", null);
 
     const newTotalRegistrations = actualCount || (affiliate.total_registrations || 0) + 1;
     const { level: newLevel, boost: newBoost } = calculateMiningBoost(newTotalRegistrations);
 
-    // Update total registrations count and mining boost for the referrer's affiliate record
-    const updateData: Record<string, any> = { 
+    const updateData: Record<string, unknown> = {
       total_registrations: newTotalRegistrations,
       registration_milestone_level: newLevel,
       miner_boost_percentage: newBoost,
-      updated_at: new Date().toISOString()
+      updated_at: new Date().toISOString(),
     };
-    
-    // Mark if referral cap is now reached
+
     if (newTotalRegistrations >= maxReferrals) {
       updateData.referrals_capped_at = new Date().toISOString();
     }
 
-    const { error: updateError } = await supabase
-      .from('affiliates')
-      .update(updateData)
-      .eq('id', affiliate.id);
+    await supabase.from("affiliates").update(updateData).eq("id", affiliate.id);
 
-    if (updateError) {
-      console.error('Error updating registration count:', updateError);
-    }
-
-    // ==========================================================
-    // REFERRAL POINTS: 50 pts immediately to BOTH referrer and invitee
-    // NO splits, NO pending bonuses, NO delays - simple and reliable
-    // Referral points BYPASS daily/monthly caps (only lifetime enforced)
-    // ==========================================================
-    
-    // Award 50 pts IMMEDIATELY to the REFERRER
     if (affiliate.user_id) {
-      const { data: referrerResult, error: referrerError } = await supabase
-        .rpc('add_referral_points', {
-          p_user_id: affiliate.user_id,
-          p_points: REFERRER_BONUS_POINTS,
-          p_source: 'referral_bonus'
-        });
-      
+      const { error: referrerError } = await supabase.rpc("add_referral_points", {
+        p_user_id: affiliate.user_id,
+        p_points: REFERRER_BONUS_POINTS,
+        p_source: "referral_bonus",
+      });
+
       if (referrerError) {
-        console.error('Error awarding referrer points:', referrerError);
-        // CRITICAL: Log failure for manual recovery
-        await supabase.from('security_audit_log').insert({
+        await supabase.from("security_audit_log").insert({
           user_id: affiliate.user_id,
-          event_type: 'referral_points_failed',
-          severity: 'error',
+          event_type: "referral_points_failed",
+          severity: "error",
           details: {
             referrer_user_id: affiliate.user_id,
             referred_user_id: userId,
             points_attempted: REFERRER_BONUS_POINTS,
-            error: referrerError.message
-          }
+            error: referrerError.message,
+          },
         });
-      } else {
-        console.log(`Awarded ${REFERRER_BONUS_POINTS} pts to referrer ${affiliate.user_id}`, referrerResult);
       }
     }
 
-    // Award 50 pts IMMEDIATELY to the NEW USER (invitee)
-    const { data: inviteeResult, error: inviteeError } = await supabase
-      .rpc('add_referral_points', {
-        p_user_id: userId,
-        p_points: INVITEE_BONUS_POINTS,
-        p_source: 'referral_welcome'
-      });
-    
+    const { error: inviteeError } = await supabase.rpc("add_referral_points", {
+      p_user_id: userId,
+      p_points: INVITEE_BONUS_POINTS,
+      p_source: "referral_welcome",
+    });
+
     if (inviteeError) {
-      console.error('Error awarding invitee points:', inviteeError);
-      // CRITICAL: Log failure for manual recovery
-      await supabase.from('security_audit_log').insert({
+      await supabase.from("security_audit_log").insert({
         user_id: userId,
-        event_type: 'invitee_points_failed',
-        severity: 'error',
+        event_type: "invitee_points_failed",
+        severity: "error",
         details: {
           invitee_user_id: userId,
           referrer_user_id: affiliate.user_id,
           points_attempted: INVITEE_BONUS_POINTS,
-          error: inviteeError.message
-        }
+          error: inviteeError.message,
+        },
       });
-    } else {
-      console.log(`Awarded ${INVITEE_BONUS_POINTS} pts to new user ${userId}`, inviteeResult);
     }
 
-    console.log(`Registration tracked successfully for affiliate ${affiliate.affiliate_code}, count: ${newTotalRegistrations}, boost: ${newBoost}%`);
-    
-    // Send welcome email to the new referred user
     if (newUserEmail) {
-      try {
-        await fetch(`${supabaseUrl}/functions/v1/send-email`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${supabaseKey}`,
+      await fetch(`${supabaseUrl}/functions/v1/send-email`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${supabaseKey}`,
+        },
+        body: JSON.stringify({
+          type: "referral_welcome",
+          to: newUserEmail,
+          data: {
+            referrerUsername: affiliate.username || affiliate.affiliate_code,
+            bonusPoints: INVITEE_BONUS_POINTS,
           },
-          body: JSON.stringify({
-            type: 'referral_welcome',
-            to: newUserEmail,
-            data: {
-              referrerUsername: affiliate.username || affiliate.affiliate_code,
-              bonusPoints: INVITEE_BONUS_POINTS,
-            },
-          }),
-        });
-        console.log(`Referral welcome email sent to ${newUserEmail}`);
-      } catch (emailError) {
-        console.error('Error sending referral welcome email:', emailError);
-      }
+        }),
+      }).catch((emailError) => console.error("Error sending referral welcome email:", emailError));
     }
 
     return new Response(
-      JSON.stringify({ 
+      JSON.stringify({
         success: true,
-        message: 'Registration tracked successfully',
+        message: "Registration tracked successfully",
         affiliateCode: affiliate.affiliate_code,
-        pointsAwarded: {
-          referrer: REFERRER_BONUS_POINTS,
-          invitee: INVITEE_BONUS_POINTS
-        },
+        pointsAwarded: { referrer: REFERRER_BONUS_POINTS, invitee: INVITEE_BONUS_POINTS },
         bypassedCaps: true,
         newMiningBoost: newBoost,
         referralCount: newTotalRegistrations,
-        maxReferrals: maxReferrals
+        maxReferrals,
       }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
-
   } catch (error) {
-    console.error('Error tracking registration:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    return new Response(
-      JSON.stringify({ error: errorMessage }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    return new Response(JSON.stringify({ error: errorMessage }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });
