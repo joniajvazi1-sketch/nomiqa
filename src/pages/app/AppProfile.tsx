@@ -109,6 +109,16 @@ export const AppProfile: React.FC = () => {
   const [deletingAccount, setDeletingAccount] = useState(false);
   const [showHelpCenter, setShowHelpCenter] = useState(false);
   const [walletError, setWalletError] = useState<string | null>(null);
+  
+  // Referral code states
+  const [isEditingReferralCode, setIsEditingReferralCode] = useState(false);
+  const [newReferralCode, setNewReferralCode] = useState('');
+  const [savingReferralCode, setSavingReferralCode] = useState(false);
+  const [hasChangedCode, setHasChangedCode] = useState(false);
+  const [appliedReferral, setAppliedReferral] = useState<boolean | null>(null);
+  const [applyReferralInput, setApplyReferralInput] = useState('');
+  const [applyingReferral, setApplyingReferral] = useState(false);
+  const [showApplyReferral, setShowApplyReferral] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -187,6 +197,29 @@ export const AppProfile: React.FC = () => {
         }
         setAffiliate(affiliateData);
         setOrders(ordersResult.data || []);
+
+        // Check if user already has a referral applied
+        try {
+          const { data: referralCheck } = await supabase.functions.invoke('apply-referral-code', {
+            body: { checkOnly: true }
+          });
+          setAppliedReferral(referralCheck?.hasReferral ?? false);
+        } catch { setAppliedReferral(false); }
+
+        // Check if referral code has been changed before (via audit log)
+        if (affiliateData?.id) {
+          const { data: auditLogs } = await supabase
+            .from('security_audit_log')
+            .select('id, details')
+            .eq('event_type', 'affiliate_code_changed')
+            .eq('user_id', currentUser.id)
+            .limit(10);
+          const changed = (auditLogs || []).some((log: any) => {
+            const affiliateId = (log.details as Record<string, unknown> | null)?.affiliate_id;
+            return typeof affiliateId === 'string' && affiliateId === affiliateData!.id;
+          });
+          setHasChangedCode(changed);
+        }
       }
     } catch (error) {
       console.error('Error loading data:', error);
@@ -194,6 +227,65 @@ export const AppProfile: React.FC = () => {
       setLoading(false);
     }
   };
+  const handleChangeReferralCode = async () => {
+    if (!newReferralCode.trim() || newReferralCode.length < 3) {
+      toast({ title: 'Code must be at least 3 characters', variant: 'destructive' });
+      return;
+    }
+    setSavingReferralCode(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('update-referral-code', {
+        body: { referralCode: newReferralCode.trim().toLowerCase() }
+      });
+      if (error) {
+        const errBody = typeof error === 'object' && error !== null && 'context' in error
+          ? await (error as any).context?.json?.().catch(() => ({}))
+          : {};
+        throw new Error(errBody?.error || data?.error || 'Failed to update code');
+      }
+      if (data?.error) throw new Error(data.error);
+      successPattern();
+      toast({ title: 'Referral code updated!' });
+      setIsEditingReferralCode(false);
+      setHasChangedCode(true);
+      // Reload to get updated affiliate data
+      loadData();
+    } catch (err: any) {
+      toast({ title: err.message || 'Failed to update code', variant: 'destructive' });
+    } finally {
+      setSavingReferralCode(false);
+    }
+  };
+
+  const handleApplyReferralCode = async () => {
+    if (!applyReferralInput.trim()) {
+      toast({ title: 'Please enter a referral code', variant: 'destructive' });
+      return;
+    }
+    setApplyingReferral(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('apply-referral-code', {
+        body: { referralCode: applyReferralInput.trim().toLowerCase() }
+      });
+      if (error) {
+        const errBody = typeof error === 'object' && error !== null && 'context' in error
+          ? await (error as any).context?.json?.().catch(() => ({}))
+          : {};
+        throw new Error(errBody?.error || data?.error || 'Failed to apply code');
+      }
+      if (data?.error) throw new Error(data.error);
+      successPattern();
+      toast({ title: 'Referral code applied! 🎉', description: 'You both earn bonus points.' });
+      setAppliedReferral(true);
+      setShowApplyReferral(false);
+      setApplyReferralInput('');
+    } catch (err: any) {
+      toast({ title: err.message || 'Failed to apply code', variant: 'destructive' });
+    } finally {
+      setApplyingReferral(false);
+    }
+  };
+
 
   const handleCopyLink = async () => {
     if (!affiliate) return;
@@ -497,17 +589,51 @@ export const AppProfile: React.FC = () => {
                     </Button>
                   </div>
                   
-                  {/* Referral link */}
-                  <button
-                    onClick={handleCopyLink}
-                    className="w-full flex items-center justify-between gap-2 p-2.5 rounded-xl bg-muted/40 border border-border/50 active:scale-[0.99] transition-transform group"
-                  >
-                    <span className="text-xs font-mono text-muted-foreground truncate">{referralCode}</span>
-                    <span className="flex items-center gap-1 text-[11px] text-primary font-medium whitespace-nowrap">
-                      <Copy className="w-3 h-3" />
-                      Copy
-                    </span>
-                  </button>
+                  {/* Referral code display */}
+                  <div className="space-y-2">
+                    <button
+                      onClick={handleCopyLink}
+                      className="w-full flex items-center justify-between gap-2 p-2.5 rounded-xl bg-muted/40 border border-border/50 active:scale-[0.99] transition-transform group"
+                    >
+                      <span className="text-xs font-mono text-muted-foreground truncate">{referralCode}</span>
+                      <span className="flex items-center gap-1 text-[11px] text-primary font-medium whitespace-nowrap">
+                        <Copy className="w-3 h-3" />
+                        Copy
+                      </span>
+                    </button>
+
+                    {/* Change referral code (once) */}
+                    {!hasChangedCode && !isEditingReferralCode && (
+                      <button
+                        onClick={() => { selectionTap(); setIsEditingReferralCode(true); setNewReferralCode(''); }}
+                        className="text-[11px] text-primary hover:underline ml-1"
+                      >
+                        Customize your code (one-time)
+                      </button>
+                    )}
+                    {hasChangedCode && (
+                      <p className="text-[10px] text-muted-foreground ml-1">✓ Code customized</p>
+                    )}
+
+                    {isEditingReferralCode && (
+                      <div className="flex items-center gap-2 pt-1">
+                        <Input
+                          value={newReferralCode}
+                          onChange={(e) => setNewReferralCode(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
+                          placeholder="new_code"
+                          className="h-9 text-sm font-mono bg-muted/50 flex-1"
+                          maxLength={20}
+                          autoFocus
+                        />
+                        <Button size="sm" onClick={handleChangeReferralCode} disabled={savingReferralCode} className="h-9 px-3">
+                          {savingReferralCode ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
+                        </Button>
+                        <Button size="sm" variant="ghost" onClick={() => setIsEditingReferralCode(false)} className="h-9 px-2">
+                          <X className="w-3.5 h-3.5" />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
                 </div>
                 
                 {/* Stats bar */}
@@ -523,6 +649,62 @@ export const AppProfile: React.FC = () => {
                 </div>
               </div>
             )}
+
+            {/* Apply a Friend's Referral Code */}
+            {appliedReferral === false && (
+              <div className="rounded-2xl bg-card border border-border overflow-hidden">
+                <div className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-9 h-9 rounded-xl bg-accent/10 flex items-center justify-center">
+                        <Gift className="w-4.5 h-4.5 text-accent" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-foreground">Got a Referral Code?</p>
+                        <p className="text-[11px] text-muted-foreground">Apply a friend's code for bonus points</p>
+                      </div>
+                    </div>
+                    {!showApplyReferral && (
+                      <Button size="sm" variant="outline" onClick={() => { selectionTap(); setShowApplyReferral(true); }} className="h-8 text-xs px-3">
+                        Apply
+                      </Button>
+                    )}
+                  </div>
+                  {showApplyReferral && (
+                    <div className="flex items-center gap-2 mt-3">
+                      <Input
+                        value={applyReferralInput}
+                        onChange={(e) => setApplyReferralInput(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
+                        placeholder="friend's code"
+                        className="h-9 text-sm font-mono bg-muted/50 flex-1"
+                        maxLength={20}
+                        autoFocus
+                      />
+                      <Button size="sm" onClick={handleApplyReferralCode} disabled={applyingReferral} className="h-9 px-3">
+                        {applyingReferral ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : 'Apply'}
+                      </Button>
+                      <Button size="sm" variant="ghost" onClick={() => { setShowApplyReferral(false); setApplyReferralInput(''); }} className="h-9 px-2">
+                        <X className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+            {appliedReferral === true && (
+              <div className="rounded-2xl bg-card border border-border p-4">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-accent/10 flex items-center justify-center">
+                    <Gift className="w-4.5 h-4.5 text-accent" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">Referral Applied ✓</p>
+                    <p className="text-[11px] text-muted-foreground">You're earning bonus points with a friend</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
 
             {/* Quick Links */}
             <div className="rounded-2xl bg-card border border-border divide-y divide-border overflow-hidden">

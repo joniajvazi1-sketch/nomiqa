@@ -19,7 +19,8 @@ import {
   CheckCircle2,
   XCircle,
   Fingerprint,
-  User
+  User,
+  Gift
 } from 'lucide-react';
 import { useAffiliateTracking } from '@/hooks/useAffiliateTracking';
 import { UsernameSelection } from '@/components/UsernameSelection';
@@ -154,6 +155,7 @@ export const AppAuth: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
+  const [referralInput, setReferralInput] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
@@ -170,6 +172,16 @@ export const AppAuth: React.FC = () => {
   const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
 
   const isSignup = searchParams.get('mode') === 'signup' || searchParams.get('mode') === 'register';
+
+  // Pre-fill referral input from stored tracking code
+  useEffect(() => {
+    if (isSignup && !referralInput) {
+      const { referralCode } = useAffiliateTracking.getState();
+      if (referralCode) {
+        setReferralInput(referralCode);
+      }
+    }
+  }, [isSignup]);
 
   // Clear form error when user types
   useEffect(() => {
@@ -563,9 +575,13 @@ export const AppAuth: React.FC = () => {
 
     try {
       if (isSignup) {
+        // Use referral code from input field first, then fall back to stored tracking code
         let { referralCode, clearReferralCode } = useAffiliateTracking.getState();
         
-        if (!referralCode) {
+        // If user typed a referral code in the signup form, use that instead
+        if (referralInput.trim()) {
+          referralCode = referralInput.trim().toLowerCase();
+        } else if (!referralCode) {
           try {
             const storedData = localStorage.getItem('affiliate-tracking');
             if (storedData) {
@@ -1240,6 +1256,31 @@ export const AppAuth: React.FC = () => {
                     </p>
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* Referral Code Input (signup only) */}
+            {isSignup && (
+              <div className="space-y-2">
+                <Label htmlFor="referral" className="text-foreground">Referral Code <span className="text-muted-foreground font-normal">(optional)</span></Label>
+                <div className="relative">
+                  <Gift className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    id="referral"
+                    type="text"
+                    placeholder="friend's username"
+                    value={referralInput}
+                    onChange={(e) => setReferralInput(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
+                    className="pl-10 h-12 bg-card border-border transition-all duration-200"
+                    disabled={isFormDisabled}
+                    autoComplete="off"
+                    autoCapitalize="none"
+                    maxLength={20}
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Enter a friend's code to earn bonus points together
+                </p>
               </div>
             )}
 
