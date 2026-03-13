@@ -589,17 +589,51 @@ export const AppProfile: React.FC = () => {
                     </Button>
                   </div>
                   
-                  {/* Referral link */}
-                  <button
-                    onClick={handleCopyLink}
-                    className="w-full flex items-center justify-between gap-2 p-2.5 rounded-xl bg-muted/40 border border-border/50 active:scale-[0.99] transition-transform group"
-                  >
-                    <span className="text-xs font-mono text-muted-foreground truncate">{referralCode}</span>
-                    <span className="flex items-center gap-1 text-[11px] text-primary font-medium whitespace-nowrap">
-                      <Copy className="w-3 h-3" />
-                      Copy
-                    </span>
-                  </button>
+                  {/* Referral code display */}
+                  <div className="space-y-2">
+                    <button
+                      onClick={handleCopyLink}
+                      className="w-full flex items-center justify-between gap-2 p-2.5 rounded-xl bg-muted/40 border border-border/50 active:scale-[0.99] transition-transform group"
+                    >
+                      <span className="text-xs font-mono text-muted-foreground truncate">{referralCode}</span>
+                      <span className="flex items-center gap-1 text-[11px] text-primary font-medium whitespace-nowrap">
+                        <Copy className="w-3 h-3" />
+                        Copy
+                      </span>
+                    </button>
+
+                    {/* Change referral code (once) */}
+                    {!hasChangedCode && !isEditingReferralCode && (
+                      <button
+                        onClick={() => { selectionTap(); setIsEditingReferralCode(true); setNewReferralCode(''); }}
+                        className="text-[11px] text-primary hover:underline ml-1"
+                      >
+                        Customize your code (one-time)
+                      </button>
+                    )}
+                    {hasChangedCode && (
+                      <p className="text-[10px] text-muted-foreground ml-1">✓ Code customized</p>
+                    )}
+
+                    {isEditingReferralCode && (
+                      <div className="flex items-center gap-2 pt-1">
+                        <Input
+                          value={newReferralCode}
+                          onChange={(e) => setNewReferralCode(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
+                          placeholder="new_code"
+                          className="h-9 text-sm font-mono bg-muted/50 flex-1"
+                          maxLength={20}
+                          autoFocus
+                        />
+                        <Button size="sm" onClick={handleChangeReferralCode} disabled={savingReferralCode} className="h-9 px-3">
+                          {savingReferralCode ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
+                        </Button>
+                        <Button size="sm" variant="ghost" onClick={() => setIsEditingReferralCode(false)} className="h-9 px-2">
+                          <X className="w-3.5 h-3.5" />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
                 </div>
                 
                 {/* Stats bar */}
