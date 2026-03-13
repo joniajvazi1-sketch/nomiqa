@@ -1219,6 +1219,9 @@ export default function MyAccount() {
                     </p>
                   </div>
 
+                  {/* Your Referral Code */}
+                  <ReferralCodeSection username={profile?.username || ''} />
+
                   <Button 
                     onClick={() => navigate(localizedPath('/affiliate', language))}
                     className="w-full h-auto py-3 px-4 text-sm md:text-base lg:text-lg font-light bg-white/[0.05] backdrop-blur-xl border-2 border-neon-coral/30 text-white hover:bg-neon-coral/10 hover:border-neon-coral/50 rounded-xl transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-neon-coral/20"
