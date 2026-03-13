@@ -77,21 +77,17 @@ export const AppInvite: React.FC = () => {
     }
   };
 
-  const referralLink = affiliate?.username 
-    ? `https://nomiqa-depin.com/${affiliate.username}`
-    : affiliate?.affiliate_code 
-      ? `https://nomiqa-depin.com/r/${affiliate.affiliate_code}`
-      : '';
+  const referralCode = affiliate?.username || affiliate?.affiliate_code || '';
 
-  const handleCopyLink = async () => {
-    if (!referralLink) return;
+  const handleCopyCode = async () => {
+    if (!referralCode) return;
     buttonTap();
-    const success = await copyToClipboard(referralLink);
+    const success = await copyToClipboard(referralCode);
     if (success) {
       setCopied(true);
       successPattern();
       playSuccess();
-      toast({ title: 'Link copied!' });
+      toast({ title: 'Referral code copied!' });
       setTimeout(() => setCopied(false), 2000);
     }
   };
@@ -100,19 +96,19 @@ export const AppInvite: React.FC = () => {
     buttonTap();
     await share({
       title: 'Join Nomiqa',
-      text: `Contribute to better mobile connectivity with Nomiqa! Use my link to join and we both get ${TOKENOMICS.REFERRAL_BONUS_POINTS} bonus points.`,
-      url: referralLink,
+      text: `Join Nomiqa and contribute to better mobile connectivity! Use my referral code: ${referralCode} to sign up and we both get ${TOKENOMICS.REFERRAL_BONUS_POINTS} bonus points.`,
+      url: 'https://nomiqa-depin.com/download',
       dialogTitle: 'Invite Contributors'
     });
   };
 
   const handleShareVia = async (platform: 'whatsapp' | 'telegram' | 'sms' | 'email') => {
     buttonTap();
-    const message = `Contribute to better mobile connectivity with Nomiqa! Use my link: ${referralLink}`;
+    const message = `Join Nomiqa and contribute to better mobile connectivity! Use my referral code: ${referralCode} when you sign up. Download: https://nomiqa-depin.com/download`;
     
     const urls: Record<string, string> = {
       whatsapp: `https://wa.me/?text=${encodeURIComponent(message)}`,
-      telegram: `https://t.me/share/url?url=${encodeURIComponent(referralLink)}&text=${encodeURIComponent('Join me on Nomiqa!')}`,
+      telegram: `https://t.me/share/url?url=${encodeURIComponent('https://nomiqa-depin.com/download')}&text=${encodeURIComponent(`Join me on Nomiqa! Use code: ${referralCode}`)}`,
       sms: `sms:?body=${encodeURIComponent(message)}`,
       email: `mailto:?subject=${encodeURIComponent('Join Nomiqa')}&body=${encodeURIComponent(message)}`
     };
