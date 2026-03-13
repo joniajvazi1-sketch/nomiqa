@@ -420,18 +420,53 @@ export default function Affiliate() {
                 <div className="p-5 md:p-6">
                   {affiliate.username ? (
                     <div className="space-y-3">
-                      <div className="p-4 bg-primary/5 border border-primary/20 rounded-xl text-center">
-                        <p className="text-3xl font-bold font-mono text-primary tracking-wider mb-2">
-                          {customLink}
-                        </p>
-                        <p className="text-xs text-white/50">
-                          Friends enter this code when they sign up
-                        </p>
-                      </div>
-                      <Button onClick={() => copyCode(customLink)} className="w-full" variant="outline">
-                        <Copy className="w-4 h-4 mr-2" />
-                        Copy Referral Code
-                      </Button>
+                      {!isEditingCode ? (
+                        <>
+                          <div className="p-4 bg-primary/5 border border-primary/20 rounded-xl text-center">
+                            <p className="text-3xl font-bold font-mono text-primary tracking-wider mb-2">
+                              {customLink}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              Friends enter this code when they sign up
+                            </p>
+                          </div>
+                          <Button onClick={() => copyCode(customLink)} className="w-full" variant="outline">
+                            <Copy className="w-4 h-4 mr-2" />
+                            Copy Referral Code
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="w-full text-muted-foreground"
+                            onClick={() => { setNewCode(customLink); setIsEditingCode(true); setCodeError(''); }}
+                          >
+                            <Pencil className="w-4 h-4 mr-1" /> Change Referral Code
+                          </Button>
+                        </>
+                      ) : (
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-2 p-3 rounded-lg bg-destructive/10 border border-destructive/20">
+                            <AlertTriangle className="w-4 h-4 text-destructive shrink-0" />
+                            <p className="text-xs text-destructive">You can only change your referral code once. This cannot be undone.</p>
+                          </div>
+                          <Input
+                            value={newCode}
+                            onChange={(e) => { setNewCode(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '')); setCodeError(''); }}
+                            placeholder="New referral code"
+                            className="font-mono"
+                          />
+                          {codeError && <p className="text-xs text-destructive">{codeError}</p>}
+                          <div className="flex gap-2">
+                            <Button onClick={handleChangeReferralCode} disabled={savingCode} size="sm" className="flex-1">
+                              {savingCode ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Check className="h-4 w-4 mr-1" />}
+                              Save
+                            </Button>
+                            <Button onClick={() => { setIsEditingCode(false); setCodeError(''); }} variant="outline" size="sm">
+                              <X className="h-4 h-4 mr-1" /> Cancel
+                            </Button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <div className="space-y-4">
