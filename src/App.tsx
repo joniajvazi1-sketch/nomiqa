@@ -134,7 +134,16 @@ const PageLoader = forwardRef<HTMLDivElement>((_, ref) => {
 });
 PageLoader.displayName = 'PageLoader';
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 min - prevent unnecessary refetches
+      gcTime: 1000 * 60 * 15, // 15 min cache
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
 
 function AffiliateTracker() {
   const location = useLocation();
