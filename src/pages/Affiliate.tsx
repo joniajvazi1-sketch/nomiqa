@@ -167,9 +167,9 @@ export default function Affiliate() {
     }
   }, [allAffiliates]);
   
-  const copyLink = useCallback((link: string) => {
-    navigator.clipboard.writeText(link);
-    toast.success("Link copied to clipboard!");
+  const copyCode = useCallback((code: string) => {
+    navigator.clipboard.writeText(code);
+    toast.success("Referral code copied!");
   }, []);
 
   const updateUsername = async () => {
