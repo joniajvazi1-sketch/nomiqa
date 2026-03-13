@@ -159,10 +159,10 @@ export default function Affiliate() {
     if (selected) {
       setSelectedAffiliateId(affiliateId);
       setAffiliate(selected);
-      setAffiliateLink(`https://nomiqa-depin.com/r/${selected.affiliate_code}`);
+      setAffiliateLink(selected.affiliate_code);
       setUsername(selected.username || '');
       if (selected.username) {
-        setCustomLink(`https://nomiqa-depin.com/${selected.username}`);
+        setCustomLink(selected.username);
       }
     }
   }, [allAffiliates]);
