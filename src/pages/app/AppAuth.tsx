@@ -1272,7 +1272,7 @@ export const AppAuth: React.FC = () => {
                   Enter a friend's code to earn bonus points together
                 </p>
               </div>
-            )
+            )}
 
             {/* Terms checkbox for signup */}
             {isSignup && (
