@@ -564,9 +564,13 @@ export const AppAuth: React.FC = () => {
 
     try {
       if (isSignup) {
+        // Use referral code from input field first, then fall back to stored tracking code
         let { referralCode, clearReferralCode } = useAffiliateTracking.getState();
         
-        if (!referralCode) {
+        // If user typed a referral code in the signup form, use that instead
+        if (referralInput.trim()) {
+          referralCode = referralInput.trim().toLowerCase();
+        } else if (!referralCode) {
           try {
             const storedData = localStorage.getItem('affiliate-tracking');
             if (storedData) {
