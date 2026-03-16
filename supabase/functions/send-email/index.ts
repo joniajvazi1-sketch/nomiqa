@@ -266,7 +266,7 @@ const generateEmailHTML = (type: string, data: any): { html: string; subject: st
             </div>
 
             <div style="text-align: center; margin: 20px 0;">
-              <a href="https://nomiqa-esim.com" style="display: inline-block; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; text-decoration: none; padding: 12px 32px; border-radius: 8px; font-weight: bold;">View Account Benefits</a>
+              <a href="https://nomiqa-depin.com" style="display: inline-block; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; text-decoration: none; padding: 12px 32px; border-radius: 8px; font-weight: bold;">View Account Benefits</a>
             </div>
 
             <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; color: #999; font-size: 12px;">
@@ -327,7 +327,7 @@ const generateEmailHTML = (type: string, data: any): { html: string; subject: st
             </div>
 
             <div style="text-align: center; margin: 20px 0;">
-              <a href="https://nomiqa-esim.com/english/affiliate" style="display: inline-block; background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white; text-decoration: none; padding: 12px 32px; border-radius: 8px; font-weight: bold;">View Affiliate Dashboard</a>
+              <a href="https://nomiqa-depin.com/english/affiliate" style="display: inline-block; background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white; text-decoration: none; padding: 12px 32px; border-radius: 8px; font-weight: bold;">View Affiliate Dashboard</a>
             </div>
 
             <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; color: #999; font-size: 12px;">
@@ -518,7 +518,7 @@ const generateEmailHTML = (type: string, data: any): { html: string; subject: st
               </div>
               
               <div style="text-align: center; margin-top: 30px;">
-                <a href="https://nomiqa-esim.com/account" style="display: inline-block; background: linear-gradient(135deg, #10b981 0%, #22d3ee 100%); color: #0f172a; text-decoration: none; padding: 14px 36px; border-radius: 8px; font-weight: bold; font-size: 15px;">Get Started Now</a>
+                <a href="https://nomiqa-depin.com/account" style="display: inline-block; background: linear-gradient(135deg, #10b981 0%, #22d3ee 100%); color: #0f172a; text-decoration: none; padding: 14px 36px; border-radius: 8px; font-weight: bold; font-size: 15px;">Get Started Now</a>
               </div>
               
               <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); text-align: center;">
@@ -699,7 +699,7 @@ const handler = async (req: Request): Promise<Response> => {
     const { html, subject } = generateEmailHTML(type, data);
 
     const emailResponse = await resend.emails.send({
-      from: "Nomiqa <support@nomiqa-esim.com>",
+      from: "Nomiqa <support@nomiqa-depin.com>",
       to: [to],
       subject,
       html,

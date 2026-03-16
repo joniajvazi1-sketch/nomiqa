@@ -223,7 +223,7 @@ serve(async (req) => {
             "Authorization": `Bearer ${RESEND_API_KEY}`,
           },
           body: JSON.stringify({
-            from: "Nomiqa <support@nomiqa-esim.com>",
+            from: "Nomiqa <support@nomiqa-depin.com>",
             to: [user.email],
             subject: "🚀 Join the Nomiqa Community – Exclusive Rewards Await!",
             html: generateEmailHTML(user.username || "Nomad", unsubscribeUrl),
