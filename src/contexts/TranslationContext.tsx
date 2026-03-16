@@ -1861,8 +1861,6 @@ export function TranslationProvider({ children }: { children: ReactNode }) {
       'app.challenges.completeToEarn': 'appCompleteToEarn',
       'app.challenges.noChallenges': 'appNoChallenges',
       'app.challenges.checkBackLater': 'appCheckBackLater',
-      // Leaderboard
-      'app.leaderboard': 'appLeaderboard',
       // Settings
       'app.settings.selectLanguage': 'appSelectLanguage',
       // Onboarding

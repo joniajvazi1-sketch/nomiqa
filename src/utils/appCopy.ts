@@ -94,7 +94,7 @@ export const APP_COPY = {
     dailySpinReady: "Ready to spin!",
     dailySpinUsed: "Come back tomorrow",
     challengeComplete: "Challenge Complete! 🎉",
-    achievementUnlocked: "Achievement Unlocked!",
+    
   },
 
   // Referrals / Invitations (REGULATOR-SAFE)

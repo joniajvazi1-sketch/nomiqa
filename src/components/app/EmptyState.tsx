@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { EmptyStateIllustration } from './EmptyStateIllustration';
 import { cn } from '@/lib/utils';
-import { MapPin, ShoppingBag, Zap, Trophy, Users, Target } from 'lucide-react';
+import { MapPin, ShoppingBag, Zap, Target } from 'lucide-react';
 
 type EmptyStateType = 'wallet' | 'orders' | 'transactions' | 'challenges';
 
