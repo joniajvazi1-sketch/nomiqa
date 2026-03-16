@@ -88,9 +88,9 @@ export function UsernameSelection({ userId, email, onComplete }: UsernameSelecti
     setError(null);
     setIsAvailable(null);
 
-    // Debounced check
-    const timeoutId = setTimeout(() => checkUsername(sanitized), 500);
-    return () => clearTimeout(timeoutId);
+    // Properly debounced check
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => checkUsername(sanitized), 500);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
