@@ -1,13 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Loader2, User, CheckCircle2, XCircle } from "lucide-react";
+import { Loader2, User, CheckCircle2, XCircle, Gift } from "lucide-react";
 import { useTranslation } from "@/contexts/TranslationContext";
 import { z } from "zod";
+import { useAffiliateTracking } from "@/hooks/useAffiliateTracking";
 
 interface UsernameSelectionProps {
   userId: string;
@@ -23,10 +24,23 @@ const usernameSchema = z.string()
 export function UsernameSelection({ userId, email, onComplete }: UsernameSelectionProps) {
   const { t } = useTranslation();
   const [username, setUsername] = useState("");
+  const [referralCode, setReferralCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(false);
   const [isAvailable, setIsAvailable] = useState<boolean | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  // Pre-fill referral code from store/URL
+  useEffect(() => {
+    const { referralCode: storedCode } = useAffiliateTracking.getState();
+    if (storedCode) {
+      setReferralCode(storedCode);
+    } else {
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlRef = urlParams.get('ref');
+      if (urlRef) setReferralCode(urlRef);
+    }
+  }, []);
 
   const checkUsername = async (value: string) => {
     if (value.length < 3) {
@@ -102,6 +116,21 @@ export function UsernameSelection({ userId, email, onComplete }: UsernameSelecti
 
       if (updateError) throw updateError;
 
+      // Apply referral code if entered
+      if (referralCode.trim()) {
+        try {
+          await supabase.functions.invoke('apply-referral-code', {
+            body: { referralCode: referralCode.trim() }
+          });
+          console.log('Referral code applied:', referralCode.trim());
+          // Clear stored referral code
+          useAffiliateTracking.getState().clearReferralCode();
+        } catch (refErr) {
+          console.error('Failed to apply referral code:', refErr);
+          // Don't block the flow
+        }
+      }
+
       toast.success("Username set successfully!");
       onComplete();
     } catch (err: any) {
@@ -157,6 +186,26 @@ export function UsernameSelection({ userId, email, onComplete }: UsernameSelecti
             <p className="text-xs text-muted-foreground">
               3-20 characters, letters, numbers, and underscores only
             </p>
+          </div>
+
+          {/* Referral Code (optional) */}
+          <div className="space-y-2">
+            <Label htmlFor="referralCode">
+              {t("referralCode") || "Referral Code"} <span className="text-muted-foreground font-normal">({t("optional") || "optional"})</span>
+            </Label>
+            <div className="relative">
+              <Gift className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                id="referralCode"
+                type="text"
+                value={referralCode}
+                onChange={(e) => setReferralCode(e.target.value.trim())}
+                placeholder={t("enterReferralCode") || "Enter referral code"}
+                className="pl-10"
+                maxLength={50}
+                autoComplete="off"
+              />
+            </div>
           </div>
 
           <Button

@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { NetworkBackground } from "@/components/NetworkBackground";
 import { toast } from "sonner";
-import { Loader2, Mail, Eye, EyeOff, User, CheckCircle2, XCircle } from "lucide-react";
+import { Loader2, Mail, Eye, EyeOff, User, CheckCircle2, XCircle, Gift } from "lucide-react";
 import { useTranslation } from "@/contexts/TranslationContext";
 import nomiqaAnimatedLogo from "@/assets/nomiqa-token-logo.png";
 import { useAffiliateTracking } from "@/hooks/useAffiliateTracking";
@@ -30,6 +30,7 @@ export default function Auth() {
   const [resetToken, setResetToken] = useState("");
   const [currentUser, setCurrentUser] = useState<{ id: string; email: string } | null>(null);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [referralInput, setReferralInput] = useState("");
   
   // Email auth states
   const [email, setEmail] = useState("");
@@ -61,6 +62,19 @@ export default function Auth() {
       });
     }
   }, [isResetMode]);
+
+  // Pre-fill referral code from URL or store
+  useEffect(() => {
+    if (isSignup && !referralInput) {
+      const urlRef = searchParams.get('ref');
+      if (urlRef) {
+        setReferralInput(urlRef);
+      } else {
+        const { referralCode } = useAffiliateTracking.getState();
+        if (referralCode) setReferralInput(referralCode);
+      }
+    }
+  }, [isSignup, searchParams]);
   useEffect(() => {
     let isMounted = true;
     let handlingUserId: string | null = null;
@@ -416,29 +430,34 @@ export default function Auth() {
     try {
       if (isSignup) {
         // Use signup-user edge function to handle signup with service role
-        // Get referral code from: 1) URL params, 2) zustand store, 3) localStorage fallback
+        // Priority: 1) User-entered referral input, 2) URL params, 3) zustand store, 4) localStorage
         let { referralCode, clearReferralCode, setReferralCode } = useAffiliateTracking.getState();
         
-        // Priority 1: Check URL params (most reliable - survives cross-device/browser)
-        const urlRefCode = searchParams.get('ref');
-        if (urlRefCode && !referralCode) {
-          referralCode = urlRefCode;
-          console.log('Referral code from URL parameter:', referralCode);
-          // Also save to localStorage for consistency
-          setReferralCode(referralCode);
-        }
-        
-        // Priority 2: Check localStorage directly in case zustand hasn't rehydrated
-        if (!referralCode) {
-          try {
-            const storedData = localStorage.getItem('affiliate-tracking');
-            if (storedData) {
-              const parsed = JSON.parse(storedData);
-              referralCode = parsed?.state?.referralCode || null;
-              console.log('Referral code from localStorage fallback:', referralCode);
+        // User-entered referral code takes highest priority
+        if (referralInput.trim()) {
+          referralCode = referralInput.trim();
+          console.log('Referral code from user input:', referralCode);
+        } else {
+          // Fallback: Check URL params
+          const urlRefCode = searchParams.get('ref');
+          if (urlRefCode && !referralCode) {
+            referralCode = urlRefCode;
+            console.log('Referral code from URL parameter:', referralCode);
+            setReferralCode(referralCode);
+          }
+          
+          // Fallback: Check localStorage directly
+          if (!referralCode) {
+            try {
+              const storedData = localStorage.getItem('affiliate-tracking');
+              if (storedData) {
+                const parsed = JSON.parse(storedData);
+                referralCode = parsed?.state?.referralCode || null;
+                console.log('Referral code from localStorage fallback:', referralCode);
+              }
+            } catch (e) {
+              console.error('Error reading referral code from localStorage:', e);
             }
-          } catch (e) {
-            console.error('Error reading referral code from localStorage:', e);
           }
         }
         
@@ -1106,6 +1125,29 @@ export default function Auth() {
                     <p className="text-xs text-muted-foreground">
                       {t("usernameHint") || "3-20 characters, letters, numbers and underscores only"}
                     </p>
+                  </div>
+                )}
+
+                {/* Referral Code (signup only) */}
+                {isSignup && (
+                  <div className="space-y-2">
+                    <Label htmlFor="referralCode">
+                      {t("referralCode") || "Referral Code"} <span className="text-muted-foreground font-normal">({t("optional") || "optional"})</span>
+                    </Label>
+                    <div className="relative">
+                      <Gift className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="referralCode"
+                        type="text"
+                        value={referralInput}
+                        onChange={(e) => setReferralInput(e.target.value.trim())}
+                        placeholder={t("enterReferralCode") || "Enter referral code"}
+                        disabled={loading}
+                        className="pl-10"
+                        maxLength={50}
+                        autoComplete="off"
+                      />
+                    </div>
                   </div>
                 )}
 
