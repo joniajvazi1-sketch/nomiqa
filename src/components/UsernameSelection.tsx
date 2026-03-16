@@ -29,6 +29,7 @@ export function UsernameSelection({ userId, email, onComplete }: UsernameSelecti
   const [checking, setChecking] = useState(false);
   const [isAvailable, setIsAvailable] = useState<boolean | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Pre-fill referral code from store/URL
   useEffect(() => {
