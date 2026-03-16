@@ -62,6 +62,19 @@ export default function Auth() {
       });
     }
   }, [isResetMode]);
+
+  // Pre-fill referral code from URL or store
+  useEffect(() => {
+    if (isSignup && !referralInput) {
+      const urlRef = searchParams.get('ref');
+      if (urlRef) {
+        setReferralInput(urlRef);
+      } else {
+        const { referralCode } = useAffiliateTracking.getState();
+        if (referralCode) setReferralInput(referralCode);
+      }
+    }
+  }, [isSignup, searchParams]);
   useEffect(() => {
     let isMounted = true;
     let handlingUserId: string | null = null;
