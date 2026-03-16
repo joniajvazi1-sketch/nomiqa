@@ -221,7 +221,7 @@ export const AppHome: React.FC = () => {
         }
         // Set referral code from affiliate data (same logic as Profile/Invite screens)
         if (affiliateRes.data) {
-          setReferralCode(affiliateRes.data.username || affiliateRes.data.affiliate_code || null);
+          setReferralCode(affiliateRes.data.affiliate_code || affiliateRes.data.username || null);
         }
         
         // Load checkin history for streak calendar
@@ -742,23 +742,23 @@ export const AppHome: React.FC = () => {
             <div className="grid grid-cols-3 gap-2">
               {/* Contributing */}
               <div className={cn("rounded-xl p-2.5 border", isDark ? "bg-white/5 border-white/5" : "bg-muted/50 border-border")}>
-                <p className={cn("text-[9px] uppercase tracking-wide mb-0.5", isDark ? "text-white/50" : "text-muted-foreground")}>📡 Contributing</p>
-                <p className="text-base font-bold text-emerald-400 tabular-nums">+{todayBreakdown.contribution}</p>
-                <span className={cn("text-[8px] block mt-1", isDark ? "text-white/30" : "text-muted-foreground/70")}>Scanning + Speed Tests</span>
+                <p className={cn("text-[8px] uppercase tracking-wide mb-0.5 truncate", isDark ? "text-white/50" : "text-muted-foreground")}>📡 Contributing</p>
+                <p className="text-sm font-bold text-emerald-400 tabular-nums">+{todayBreakdown.contribution}</p>
+                <span className={cn("text-[7px] block mt-1 truncate", isDark ? "text-white/30" : "text-muted-foreground/70")}>Scanning + Speed</span>
               </div>
 
               {/* Friends */}
               <div className={cn("rounded-xl p-2.5 border", isDark ? "bg-white/5 border-white/5" : "bg-muted/50 border-border")}>
-                <p className={cn("text-[9px] uppercase tracking-wide mb-0.5", isDark ? "text-white/50" : "text-muted-foreground")}>👥 Friends</p>
-                <p className="text-base font-bold text-sky-400 tabular-nums">+{todayBreakdown.friends}</p>
-                <span className={cn("text-[8px] block mt-1", isDark ? "text-white/30" : "text-muted-foreground/70")}>{referralCount} team members</span>
+                <p className={cn("text-[8px] uppercase tracking-wide mb-0.5 truncate", isDark ? "text-white/50" : "text-muted-foreground")}>👥 Friends</p>
+                <p className="text-sm font-bold text-sky-400 tabular-nums">+{todayBreakdown.friends}</p>
+                <span className={cn("text-[7px] block mt-1 truncate", isDark ? "text-white/30" : "text-muted-foreground/70")}>{referralCount} team members</span>
               </div>
 
               {/* Bonuses */}
               <div className={cn("rounded-xl p-2.5 border", isDark ? "bg-white/5 border-white/5" : "bg-muted/50 border-border")}>
-                <p className={cn("text-[9px] uppercase tracking-wide mb-0.5", isDark ? "text-white/50" : "text-muted-foreground")}>🎁 Bonuses</p>
-                <p className="text-base font-bold text-amber-400 tabular-nums">+{todayBreakdown.rewards}</p>
-                <span className={cn("text-[8px] block mt-1", isDark ? "text-white/30" : "text-muted-foreground/70")}>Check-ins, tasks</span>
+                <p className={cn("text-[8px] uppercase tracking-wide mb-0.5 truncate", isDark ? "text-white/50" : "text-muted-foreground")}>🎁 Bonuses</p>
+                <p className="text-sm font-bold text-amber-400 tabular-nums">+{todayBreakdown.rewards}</p>
+                <span className={cn("text-[7px] block mt-1 truncate", isDark ? "text-white/30" : "text-muted-foreground/70")}>Check-ins, tasks</span>
               </div>
             </div>
 

@@ -134,9 +134,7 @@ export default function Affiliate() {
       setSelectedAffiliateId(highestTierAffiliate.id);
       setAffiliateLink(highestTierAffiliate.affiliate_code);
       setUsername(highestTierAffiliate.username || '');
-      if (highestTierAffiliate.username) {
-        setCustomLink(highestTierAffiliate.username);
-      }
+      setCustomLink(highestTierAffiliate.affiliate_code || highestTierAffiliate.username || '');
     }
   };
 
@@ -165,9 +163,7 @@ export default function Affiliate() {
       setAffiliate(selected);
       setAffiliateLink(selected.affiliate_code);
       setUsername(selected.username || '');
-      if (selected.username) {
-        setCustomLink(selected.username);
-      }
+      setCustomLink(selected.affiliate_code || selected.username || '');
     }
   }, [allAffiliates]);
   
@@ -294,7 +290,7 @@ export default function Affiliate() {
       }
       setAffiliate(affiliateData);
       setUsername(affiliateData.username || '');
-      setCustomLink(affiliateData.username);
+      setCustomLink(affiliateData.affiliate_code || affiliateData.username || '');
       setAffiliateLink(affiliateData.affiliate_code);
       setShowNewLinkInput(false);
       setNewLinkUsername('');
@@ -419,7 +415,7 @@ export default function Affiliate() {
                   </div>
                 </div>
                 <div className="p-5 md:p-6">
-                  {affiliate.username ? (
+                  {(affiliate.affiliate_code || affiliate.username) ? (
                     <div className="space-y-3">
                       {!isEditingCode ? (
                         <>

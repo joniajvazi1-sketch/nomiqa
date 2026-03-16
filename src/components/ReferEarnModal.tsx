@@ -68,7 +68,7 @@ export const ReferEarnModal = ({ open, onOpenChange, product }: ReferEarnModalPr
     }
   };
 
-  const referralCode = affiliate?.username || affiliate?.affiliate_code || '';
+  const referralCode = affiliate?.affiliate_code || affiliate?.username || '';
 
   const copyCode = () => {
     if (referralCode) {
