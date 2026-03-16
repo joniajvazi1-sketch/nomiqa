@@ -206,7 +206,7 @@ const translations: Record<string, Partial<Record<Language | 'HI', string>>> = {
   appClaimed: { EN: "Claimed", ES: "Reclamado", FR: "Réclamé", DE: "Eingelöst", RU: "Получено", ZH: "已领取", JA: "取得済み", PT: "Resgatado", AR: "تم المطالبة", IT: "Riscattato" },
   appClaim: { EN: "Claim", ES: "Reclamar", FR: "Réclamer", DE: "Einlösen", RU: "Получить", ZH: "领取", JA: "取得", PT: "Resgatar", AR: "مطالبة", IT: "Riscatta" },
   appInProgress: { EN: "In Progress", ES: "En progreso", FR: "En cours", DE: "In Bearbeitung", RU: "В процессе", ZH: "进行中", JA: "進行中", PT: "Em andamento", AR: "قيد التنفيذ", IT: "In corso" },
-  appUnlockedOn: { EN: "Unlocked on", ES: "Desbloqueado el", FR: "Débloqué le", DE: "Freigeschaltet am", RU: "Разблокировано", ZH: "解锁于", JA: "解除日", PT: "Desbloqueado em", AR: "تم الفتح في", IT: "Sbloccato il" },
+  
   appDayStreak2: { EN: "day streak", ES: "días seguidos", FR: "jours de suite", DE: "Tage Serie", RU: "дней подряд", ZH: "天连续", JA: "日連続", PT: "dias seguidos", AR: "يوم متتالي", IT: "giorni consecutivi" },
   appEarningsBonus: { EN: "earnings bonus", ES: "bono de ganancias", FR: "bonus de gains", DE: "Verdienstbonus", RU: "бонус заработка", ZH: "收益奖金", JA: "収益ボーナス", PT: "bônus de ganhos", AR: "مكافأة الأرباح", IT: "bonus guadagni" },
   // ========== APP - Wallet Additional ==========
