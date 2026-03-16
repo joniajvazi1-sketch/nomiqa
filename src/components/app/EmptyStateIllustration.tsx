@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 interface EmptyStateIllustrationProps {
-  type: 'wallet' | 'orders' | 'achievements' | 'transactions' | 'leaderboard' | 'challenges';
+  type: 'wallet' | 'orders' | 'transactions' | 'challenges';
   className?: string;
 }
 
