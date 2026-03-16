@@ -177,13 +177,12 @@ export const AppProfile: React.FC = () => {
 
         let affiliateData = affiliateResult.data;
         if (!affiliateData) {
-          const affiliateCode = Math.random().toString(36).substring(2, 10).toUpperCase();
           const { data: newAffiliate, error: affiliateError } = await supabase
             .from('affiliates')
             .insert({ 
               user_id: currentUser.id, 
               email: currentUser.email || '',
-              affiliate_code: affiliateCode,
+              affiliate_code: username.toLowerCase(),
               username: username,
               email_verified: true,
               status: 'active'
