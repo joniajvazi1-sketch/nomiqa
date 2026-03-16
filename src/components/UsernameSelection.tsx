@@ -116,6 +116,21 @@ export function UsernameSelection({ userId, email, onComplete }: UsernameSelecti
 
       if (updateError) throw updateError;
 
+      // Apply referral code if entered
+      if (referralCode.trim()) {
+        try {
+          await supabase.functions.invoke('apply-referral-code', {
+            body: { referralCode: referralCode.trim() }
+          });
+          console.log('Referral code applied:', referralCode.trim());
+          // Clear stored referral code
+          useAffiliateTracking.getState().clearReferralCode();
+        } catch (refErr) {
+          console.error('Failed to apply referral code:', refErr);
+          // Don't block the flow
+        }
+      }
+
       toast.success("Username set successfully!");
       onComplete();
     } catch (err: any) {
