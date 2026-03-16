@@ -323,7 +323,7 @@ export const AppHome: React.FC = () => {
   });
 
   const handleShareReferral = async () => {
-    const code = username || 'nomiqa';
+    const code = referralCode || username || 'nomiqa';
     await share({
       title: 'Join Nomiqa',
       text: `Earn by contributing to the network. Join me on Nomiqa! Use my referral code: ${code} when you sign up.`,
@@ -332,7 +332,7 @@ export const AppHome: React.FC = () => {
   };
 
   const handleCopyLink = async () => {
-    const code = username || '';
+    const code = referralCode || username || '';
     if (!code) {
       toast.error('No referral code available');
       return;
