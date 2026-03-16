@@ -290,7 +290,7 @@ export default function Affiliate() {
       }
       setAffiliate(affiliateData);
       setUsername(affiliateData.username || '');
-      setCustomLink(affiliateData.username);
+      setCustomLink(affiliateData.affiliate_code || affiliateData.username || '');
       setAffiliateLink(affiliateData.affiliate_code);
       setShowNewLinkInput(false);
       setNewLinkUsername('');
