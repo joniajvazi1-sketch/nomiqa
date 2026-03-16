@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,6 +29,7 @@ export function UsernameSelection({ userId, email, onComplete }: UsernameSelecti
   const [checking, setChecking] = useState(false);
   const [isAvailable, setIsAvailable] = useState<boolean | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Pre-fill referral code from store/URL
   useEffect(() => {
@@ -87,9 +88,9 @@ export function UsernameSelection({ userId, email, onComplete }: UsernameSelecti
     setError(null);
     setIsAvailable(null);
 
-    // Debounced check
-    const timeoutId = setTimeout(() => checkUsername(sanitized), 500);
-    return () => clearTimeout(timeoutId);
+    // Properly debounced check
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => checkUsername(sanitized), 500);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
