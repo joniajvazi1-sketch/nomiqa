@@ -749,9 +749,9 @@ export const AppHome: React.FC = () => {
 
               {/* Friends */}
               <div className={cn("rounded-xl p-2.5 border", isDark ? "bg-white/5 border-white/5" : "bg-muted/50 border-border")}>
-                <p className={cn("text-[9px] uppercase tracking-wide mb-0.5", isDark ? "text-white/50" : "text-muted-foreground")}>👥 Friends</p>
-                <p className="text-base font-bold text-sky-400 tabular-nums">+{todayBreakdown.friends}</p>
-                <span className={cn("text-[8px] block mt-1", isDark ? "text-white/30" : "text-muted-foreground/70")}>{referralCount} team members</span>
+                <p className={cn("text-[8px] uppercase tracking-wide mb-0.5 truncate", isDark ? "text-white/50" : "text-muted-foreground")}>👥 Friends</p>
+                <p className="text-sm font-bold text-sky-400 tabular-nums">+{todayBreakdown.friends}</p>
+                <span className={cn("text-[7px] block mt-1 truncate", isDark ? "text-white/30" : "text-muted-foreground/70")}>{referralCount} team members</span>
               </div>
 
               {/* Bonuses */}
