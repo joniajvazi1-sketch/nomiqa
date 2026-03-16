@@ -194,6 +194,42 @@ export const AppProfile: React.FC = () => {
             affiliateData = newAffiliate;
           }
         }
+
+        // Auto-fix: if affiliate_code is a random code (not matching username), update it
+        if (affiliateData && affiliateData.affiliate_code !== username.toLowerCase()) {
+          // Check if the user has manually changed their code before
+          const { data: changeAudit } = await supabase
+            .from('security_audit_log')
+            .select('id')
+            .eq('event_type', 'affiliate_code_changed')
+            .eq('user_id', currentUser.id)
+            .limit(1);
+          
+          // Only auto-fix if user never manually changed their code
+          if (!changeAudit || changeAudit.length === 0) {
+            // Check if username is available as affiliate_code
+            const { data: codeCollision } = await supabase
+              .from('affiliates')
+              .select('id')
+              .eq('affiliate_code', username.toLowerCase())
+              .neq('id', affiliateData.id)
+              .maybeSingle();
+            
+            if (!codeCollision) {
+              const { error: fixError } = await supabase
+                .from('affiliates')
+                .update({ affiliate_code: username.toLowerCase(), username: username })
+                .eq('id', affiliateData.id)
+                .eq('user_id', currentUser.id);
+              
+              if (!fixError) {
+                affiliateData = { ...affiliateData, affiliate_code: username.toLowerCase(), username };
+                console.log('Auto-fixed affiliate code to match username:', username.toLowerCase());
+              }
+            }
+          }
+        }
+
         setAffiliate(affiliateData);
         setOrders(ordersResult.data || []);
 
