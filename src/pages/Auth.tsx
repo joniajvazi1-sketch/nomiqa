@@ -430,29 +430,34 @@ export default function Auth() {
     try {
       if (isSignup) {
         // Use signup-user edge function to handle signup with service role
-        // Get referral code from: 1) URL params, 2) zustand store, 3) localStorage fallback
+        // Priority: 1) User-entered referral input, 2) URL params, 3) zustand store, 4) localStorage
         let { referralCode, clearReferralCode, setReferralCode } = useAffiliateTracking.getState();
         
-        // Priority 1: Check URL params (most reliable - survives cross-device/browser)
-        const urlRefCode = searchParams.get('ref');
-        if (urlRefCode && !referralCode) {
-          referralCode = urlRefCode;
-          console.log('Referral code from URL parameter:', referralCode);
-          // Also save to localStorage for consistency
-          setReferralCode(referralCode);
-        }
-        
-        // Priority 2: Check localStorage directly in case zustand hasn't rehydrated
-        if (!referralCode) {
-          try {
-            const storedData = localStorage.getItem('affiliate-tracking');
-            if (storedData) {
-              const parsed = JSON.parse(storedData);
-              referralCode = parsed?.state?.referralCode || null;
-              console.log('Referral code from localStorage fallback:', referralCode);
+        // User-entered referral code takes highest priority
+        if (referralInput.trim()) {
+          referralCode = referralInput.trim();
+          console.log('Referral code from user input:', referralCode);
+        } else {
+          // Fallback: Check URL params
+          const urlRefCode = searchParams.get('ref');
+          if (urlRefCode && !referralCode) {
+            referralCode = urlRefCode;
+            console.log('Referral code from URL parameter:', referralCode);
+            setReferralCode(referralCode);
+          }
+          
+          // Fallback: Check localStorage directly
+          if (!referralCode) {
+            try {
+              const storedData = localStorage.getItem('affiliate-tracking');
+              if (storedData) {
+                const parsed = JSON.parse(storedData);
+                referralCode = parsed?.state?.referralCode || null;
+                console.log('Referral code from localStorage fallback:', referralCode);
+              }
+            } catch (e) {
+              console.error('Error reading referral code from localStorage:', e);
             }
-          } catch (e) {
-            console.error('Error reading referral code from localStorage:', e);
           }
         }
         
