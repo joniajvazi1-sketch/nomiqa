@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { NetworkBackground } from "@/components/NetworkBackground";
 import { toast } from "sonner";
-import { Loader2, Mail, Eye, EyeOff, User, CheckCircle2, XCircle } from "lucide-react";
+import { Loader2, Mail, Eye, EyeOff, User, CheckCircle2, XCircle, Gift } from "lucide-react";
 import { useTranslation } from "@/contexts/TranslationContext";
 import nomiqaAnimatedLogo from "@/assets/nomiqa-token-logo.png";
 import { useAffiliateTracking } from "@/hooks/useAffiliateTracking";
