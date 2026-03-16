@@ -518,7 +518,7 @@ const generateEmailHTML = (type: string, data: any): { html: string; subject: st
               </div>
               
               <div style="text-align: center; margin-top: 30px;">
-                <a href="https://nomiqa-esim.com/account" style="display: inline-block; background: linear-gradient(135deg, #10b981 0%, #22d3ee 100%); color: #0f172a; text-decoration: none; padding: 14px 36px; border-radius: 8px; font-weight: bold; font-size: 15px;">Get Started Now</a>
+                <a href="https://nomiqa-depin.com/account" style="display: inline-block; background: linear-gradient(135deg, #10b981 0%, #22d3ee 100%); color: #0f172a; text-decoration: none; padding: 14px 36px; border-radius: 8px; font-weight: bold; font-size: 15px;">Get Started Now</a>
               </div>
               
               <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); text-align: center;">
