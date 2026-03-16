@@ -6,7 +6,7 @@ import { EmptyStateIllustration } from './EmptyStateIllustration';
 import { cn } from '@/lib/utils';
 import { MapPin, ShoppingBag, Zap, Trophy, Users, Target } from 'lucide-react';
 
-type EmptyStateType = 'wallet' | 'orders' | 'achievements' | 'transactions' | 'leaderboard' | 'challenges';
+type EmptyStateType = 'wallet' | 'orders' | 'transactions' | 'challenges';
 
 interface EmptyStateAction {
   label: string;
