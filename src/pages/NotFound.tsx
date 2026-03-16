@@ -44,21 +44,21 @@ const NotFound = () => {
           {/* Message */}
           <h1 className="text-2xl md:text-3xl font-light text-white mb-4">
             {looksLikeReferralLink 
-              ? "Referral Links Have Changed" 
+              ? t("notFoundReferralTitle") 
               : t("notFoundTitle")}
           </h1>
           <p className="text-lg text-white/60 font-light mb-4">
             {looksLikeReferralLink 
-              ? `We've upgraded to referral codes! The link "/${pathSegment}" is no longer active.`
+              ? t("notFoundReferralDesc")
               : t("notFoundDescription")}
           </p>
           {looksLikeReferralLink && (
             <div className="bg-white/[0.05] backdrop-blur-xl border border-neon-cyan/20 rounded-xl p-6 mb-6 text-left max-w-md mx-auto">
-              <p className="text-white/80 text-sm font-light mb-3">To use a referral code:</p>
+              <p className="text-white/80 text-sm font-light mb-3">{t("notFoundReferralHowTo")}</p>
               <ol className="text-white/60 text-sm font-light space-y-2 list-decimal list-inside">
-                <li>Download the Nomiqa app</li>
-                <li>Sign up for an account</li>
-                <li>Enter the referral code <span className="text-neon-cyan font-medium">"{pathSegment}"</span> during signup</li>
+                <li>{t("notFoundReferralStep1")}</li>
+                <li>{t("notFoundReferralStep2")}</li>
+                <li>{t("notFoundReferralStep3")} <span className="text-neon-cyan font-medium">"{pathSegment}"</span></li>
               </ol>
             </div>
           )}
