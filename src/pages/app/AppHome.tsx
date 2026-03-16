@@ -142,6 +142,7 @@ export const AppHome: React.FC = () => {
   } | null>(null);
   const [loading, setLoading] = useState(true);
   const [referralCount, setReferralCount] = useState(0);
+  const [referralCode, setReferralCode] = useState<string | null>(null);
   const [todayEarnings, setTodayEarnings] = useState(0);
   const [todayBreakdown, setTodayBreakdown] = useState<{ contribution: number; speedTest: number; rewards: number; friends: number }>({ contribution: 0, speedTest: 0, rewards: 0, friends: 0 });
   
@@ -199,7 +200,7 @@ export const AppHome: React.FC = () => {
         const [profileRes, pointsRes, affiliateRes, dailyLimitRes, checkinRes, socialRes, challengeRes, speedTestRes, checkinHistoryRes] = await Promise.all([
           supabase.from('profiles_safe').select('username').eq('user_id', currentUser.id).maybeSingle(),
           supabase.from('user_points').select('*').eq('user_id', currentUser.id).maybeSingle(),
-          supabase.from('affiliates_safe').select('id, total_registrations, miner_boost_percentage').eq('user_id', currentUser.id).maybeSingle(),
+          supabase.from('affiliates_safe').select('id, total_registrations, miner_boost_percentage, affiliate_code, username').eq('user_id', currentUser.id).maybeSingle(),
           supabase.from('user_daily_limits').select('points_earned').eq('user_id', currentUser.id).eq('limit_date', todayStr).maybeSingle(),
           supabase.from('daily_checkins').select('bonus_points').eq('user_id', currentUser.id).eq('check_in_date', todayStr),
           supabase.from('social_task_claims').select('points_awarded').eq('user_id', currentUser.id).gte('claimed_at', todayStr),
@@ -217,6 +218,10 @@ export const AppHome: React.FC = () => {
         // Load mining boost from affiliate data
         if (affiliateRes.data?.miner_boost_percentage) {
           setMiningBoost(affiliateRes.data.miner_boost_percentage);
+        }
+        // Set referral code from affiliate data (same logic as Profile/Invite screens)
+        if (affiliateRes.data) {
+          setReferralCode(affiliateRes.data.username || affiliateRes.data.affiliate_code || null);
         }
         
         // Load checkin history for streak calendar
@@ -318,7 +323,7 @@ export const AppHome: React.FC = () => {
   });
 
   const handleShareReferral = async () => {
-    const code = username || 'nomiqa';
+    const code = referralCode || username || 'nomiqa';
     await share({
       title: 'Join Nomiqa',
       text: `Earn by contributing to the network. Join me on Nomiqa! Use my referral code: ${code} when you sign up.`,
@@ -327,7 +332,7 @@ export const AppHome: React.FC = () => {
   };
 
   const handleCopyLink = async () => {
-    const code = username || '';
+    const code = referralCode || username || '';
     if (!code) {
       toast.error('No referral code available');
       return;
@@ -1021,7 +1026,7 @@ export const AppHome: React.FC = () => {
                   className={cn("w-full rounded-xl p-3 flex items-center gap-2 mb-3 border text-left active:scale-[0.98] transition-transform", isDark ? "bg-white/5 border-white/10 hover:bg-white/8" : "bg-muted/50 border-border hover:bg-muted")}
                 >
                   <span className="flex-1 text-sm text-foreground truncate font-mono">
-                    {username || 'No code yet'}
+                    {referralCode || username || 'No code yet'}
                   </span>
                   <Copy className="w-4 h-4 text-violet-400 flex-shrink-0" />
                 </button>
