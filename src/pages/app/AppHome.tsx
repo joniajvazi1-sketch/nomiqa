@@ -200,7 +200,7 @@ export const AppHome: React.FC = () => {
         const [profileRes, pointsRes, affiliateRes, dailyLimitRes, checkinRes, socialRes, challengeRes, speedTestRes, checkinHistoryRes] = await Promise.all([
           supabase.from('profiles_safe').select('username').eq('user_id', currentUser.id).maybeSingle(),
           supabase.from('user_points').select('*').eq('user_id', currentUser.id).maybeSingle(),
-          supabase.from('affiliates_safe').select('id, total_registrations, miner_boost_percentage').eq('user_id', currentUser.id).maybeSingle(),
+          supabase.from('affiliates_safe').select('id, total_registrations, miner_boost_percentage, affiliate_code, username').eq('user_id', currentUser.id).maybeSingle(),
           supabase.from('user_daily_limits').select('points_earned').eq('user_id', currentUser.id).eq('limit_date', todayStr).maybeSingle(),
           supabase.from('daily_checkins').select('bonus_points').eq('user_id', currentUser.id).eq('check_in_date', todayStr),
           supabase.from('social_task_claims').select('points_awarded').eq('user_id', currentUser.id).gte('claimed_at', todayStr),
