@@ -30,6 +30,7 @@ export default function Auth() {
   const [resetToken, setResetToken] = useState("");
   const [currentUser, setCurrentUser] = useState<{ id: string; email: string } | null>(null);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [referralInput, setReferralInput] = useState("");
   
   // Email auth states
   const [email, setEmail] = useState("");
