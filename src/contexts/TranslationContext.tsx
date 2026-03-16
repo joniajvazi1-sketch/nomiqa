@@ -48,7 +48,7 @@ const translations: Record<string, Partial<Record<Language | 'HI', string>>> = {
   appUnlocked: { EN: "unlocked", ES: "desbloqueados", FR: "débloqués", DE: "freigeschaltet", RU: "разблокировано", ZH: "已解锁", JA: "解除済み", PT: "desbloqueados", AR: "مفتوحة", IT: "sbloccati" },
   appViewAll: { EN: "View All", ES: "Ver todo", FR: "Voir tout", DE: "Alle anzeigen", RU: "Показать все", ZH: "查看全部", JA: "すべて見る", PT: "Ver tudo", AR: "عرض الكل", IT: "Vedi tutto" },
   appChallenges: { EN: "Challenges", ES: "Desafíos", FR: "Défis", DE: "Herausforderungen", RU: "Испытания", ZH: "挑战", JA: "チャレンジ", PT: "Desafios", AR: "التحديات", IT: "Sfide" },
-  appLeaderboard: { EN: "Leaderboard", ES: "Clasificación", FR: "Classement", DE: "Rangliste", RU: "Таблица лидеров", ZH: "排行榜", JA: "リーダーボード", PT: "Classificação", AR: "لوحة الصدارة", IT: "Classifica" },
+  
   appSignIn: { EN: "Sign In", ES: "Iniciar sesión", FR: "Se connecter", DE: "Anmelden", RU: "Войти", ZH: "登录", JA: "ログイン", PT: "Entrar", AR: "تسجيل الدخول", IT: "Accedi" },
   appGetStarted: { EN: "Get Started", ES: "Comenzar", FR: "Commencer", DE: "Loslegen", RU: "Начать", ZH: "开始", JA: "始める", PT: "Começar", AR: "ابدأ", IT: "Inizia" },
   // ========== APP - Shop ==========
