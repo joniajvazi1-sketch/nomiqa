@@ -1541,15 +1541,7 @@ export const useNetworkContribution = () => {
         }
 
         // Update distance and contribution time (these aren't capped)
-        await supabase
-          .from('user_points')
-          .update({
-            total_distance_meters: supabase.rpc ? undefined : stats.distanceMeters,
-            total_contribution_time_seconds: stats.duration
-          })
-          .eq('user_id', user.id);
-        
-        // Use a separate upsert for distance/time tracking
+        // Read current values first, then add session delta atomically
         const { data: existingPoints } = await supabase
           .from('user_points')
           .select('total_distance_meters, total_contribution_time_seconds')
