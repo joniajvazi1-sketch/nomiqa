@@ -415,7 +415,7 @@ export default function Affiliate() {
                   </div>
                 </div>
                 <div className="p-5 md:p-6">
-                  {affiliate.username ? (
+                  {(affiliate.affiliate_code || affiliate.username) ? (
                     <div className="space-y-3">
                       {!isEditingCode ? (
                         <>
