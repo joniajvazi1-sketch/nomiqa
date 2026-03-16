@@ -120,7 +120,7 @@ serve(async (req) => {
 
     const { error: updateError } = await admin
       .from("affiliates")
-      .update({ affiliate_code: normalizedCode, updated_at: new Date().toISOString() })
+      .update({ affiliate_code: normalizedCode, username: normalizedCode, updated_at: new Date().toISOString() })
       .eq("id", affiliate.id)
       .eq("user_id", user.id);
 
