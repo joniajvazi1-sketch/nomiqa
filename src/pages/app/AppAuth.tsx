@@ -1288,7 +1288,7 @@ export const AppAuth: React.FC = () => {
                   <Input
                     id="referral"
                     type="text"
-                    placeholder="friend's username"
+                    placeholder="Enter referral code"
                     value={referralInput}
                     onChange={(e) => setReferralInput(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
                     className="pl-10 h-12 bg-card border-border transition-all duration-200"
