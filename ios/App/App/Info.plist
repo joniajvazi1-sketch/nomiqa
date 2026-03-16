@@ -76,17 +76,12 @@
 				<string>com.nomiqa.app</string>
 			</array>
 		</dict>
-		<!-- Google Sign-In URL Scheme: Reversed Client ID from GoogleService-Info.plist -->
-		<!-- User must add their actual reversed client ID here after adding GoogleService-Info.plist -->
-		<dict>
-			<key>CFBundleURLName</key>
-			<string>Google Sign-In</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<!-- Replace with your reversed client ID from GoogleService-Info.plist -->
-				<string>com.googleusercontent.apps.YOUR_CLIENT_ID</string>
-			</array>
-		</dict>
+	<!-- 
+			Google Sign-In URL Scheme: NOT NEEDED for this app.
+			Native Google OAuth uses the Lovable Cloud broker flow (system browser → /~oauth/initiate)
+			instead of the native Google Sign-In SDK. No GoogleService-Info.plist required.
+			If migrating to native SDK in the future, add reversed client ID here.
+		-->
 	</array>
 	
 	<!-- Face ID usage description for biometric authentication -->

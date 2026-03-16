@@ -10,7 +10,10 @@
     <string name="background_location_rationale">Background location allows continuous coverage mapping while you travel, maximizing your rewards. You can disable this anytime in Settings.</string>
     <string name="phone_state_rationale">Phone state access enables collection of signal quality metrics (RSRP, cell tower info) to create accurate coverage maps for telecom analytics.</string>
     
-    <!-- Google Sign-In: Server Client ID (Web Client ID from Google Cloud Console) -->
-    <!-- User must replace this with their actual Web Client ID from Firebase/Google Cloud Console -->
-    <string name="server_client_id">YOUR_WEB_CLIENT_ID.apps.googleusercontent.com</string>
+    <!-- 
+         Google Sign-In: NOT NEEDED for this app.
+         Native Google OAuth uses the Lovable Cloud broker flow (system browser → /~oauth/initiate)
+         instead of the native Google Sign-In SDK. No Firebase/Google Cloud Web Client ID required.
+         If migrating to native SDK in the future, add the Web Client ID here.
+    -->
 </resources>

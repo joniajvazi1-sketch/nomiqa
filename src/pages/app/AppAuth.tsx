@@ -836,8 +836,10 @@ export const AppAuth: React.FC = () => {
         console.log('[AppAuth] Opening OAuth broker in system browser...');
         await Browser.open({ url: oauthBrokerUrl });
         
-        // Clear timeout - deep link handler will take over
-        window.clearTimeout(oauthTimeout);
+        // Keep the 60s safety timeout running for native too.
+        // The appStateChange listener handles the "user cancelled" case,
+        // but if that listener misses it (e.g. backgrounded app), the
+        // timeout ensures we never stay stuck.
         console.log('[AppAuth] System browser opened, waiting for OAuth callback...');
         return;
       }
