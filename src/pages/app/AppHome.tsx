@@ -142,6 +142,7 @@ export const AppHome: React.FC = () => {
   } | null>(null);
   const [loading, setLoading] = useState(true);
   const [referralCount, setReferralCount] = useState(0);
+  const [referralCode, setReferralCode] = useState<string | null>(null);
   const [todayEarnings, setTodayEarnings] = useState(0);
   const [todayBreakdown, setTodayBreakdown] = useState<{ contribution: number; speedTest: number; rewards: number; friends: number }>({ contribution: 0, speedTest: 0, rewards: 0, friends: 0 });
   
