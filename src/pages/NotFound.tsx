@@ -11,6 +11,13 @@ const NotFound = () => {
   const location = useLocation();
   const { language, t } = useTranslation();
 
+  // Detect if this looks like a former referral/username link (single path segment, no dots/extensions)
+  const pathSegment = location.pathname.replace(/^\//, '').replace(/\/$/, '');
+  const looksLikeReferralLink = pathSegment.length > 0 
+    && !pathSegment.includes('/') 
+    && !pathSegment.includes('.')
+    && !/^(app|auth|shop|checkout|orders|privacy|terms|about|token|help|rewards|affiliate|roadmap|download|network|mobile-only|social-rewards|payment-success|getting-started|how-it-works|admin|deutsch|english|francais|espanol|portugues|russian|chinese|japanese|arabic|italiano)$/i.test(pathSegment);
+
   useEffect(() => {
     console.error("404 Error: User attempted to access non-existent route:", location.pathname);
   }, [location.pathname]);
@@ -30,17 +37,31 @@ const NotFound = () => {
           {/* 404 Number */}
           <div className="mb-8">
             <span className="text-8xl md:text-9xl font-light bg-gradient-to-r from-neon-cyan via-white to-neon-violet bg-clip-text text-transparent">
-              404
+              {looksLikeReferralLink ? '👋' : '404'}
             </span>
           </div>
 
           {/* Message */}
           <h1 className="text-2xl md:text-3xl font-light text-white mb-4">
-            {t("notFoundTitle")}
+            {looksLikeReferralLink 
+              ? "Referral Links Have Changed" 
+              : t("notFoundTitle")}
           </h1>
-          <p className="text-lg text-white/60 font-light mb-10">
-            {t("notFoundDescription")}
+          <p className="text-lg text-white/60 font-light mb-4">
+            {looksLikeReferralLink 
+              ? `We've upgraded to referral codes! The link "/${pathSegment}" is no longer active.`
+              : t("notFoundDescription")}
           </p>
+          {looksLikeReferralLink && (
+            <div className="bg-white/[0.05] backdrop-blur-xl border border-neon-cyan/20 rounded-xl p-6 mb-6 text-left max-w-md mx-auto">
+              <p className="text-white/80 text-sm font-light mb-3">To use a referral code:</p>
+              <ol className="text-white/60 text-sm font-light space-y-2 list-decimal list-inside">
+                <li>Download the Nomiqa app</li>
+                <li>Sign up for an account</li>
+                <li>Enter the referral code <span className="text-neon-cyan font-medium">"{pathSegment}"</span> during signup</li>
+              </ol>
+            </div>
+          )}
 
           {/* Primary CTA */}
           <Link to={localizedPath("/", language)} className="inline-block mb-10">
