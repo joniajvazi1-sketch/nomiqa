@@ -219,6 +219,10 @@ export const AppHome: React.FC = () => {
         if (affiliateRes.data?.miner_boost_percentage) {
           setMiningBoost(affiliateRes.data.miner_boost_percentage);
         }
+        // Set referral code from affiliate data (same logic as Profile/Invite screens)
+        if (affiliateRes.data) {
+          setReferralCode(affiliateRes.data.username || affiliateRes.data.affiliate_code || null);
+        }
         
         // Load checkin history for streak calendar
         if (checkinHistoryRes.data) {
