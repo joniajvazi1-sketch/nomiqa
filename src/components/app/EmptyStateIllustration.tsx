@@ -18,9 +18,7 @@ export const EmptyStateIllustration: React.FC<EmptyStateIllustrationProps> = ({
   const illustrations = {
     wallet: <WalletIllustration />,
     orders: <OrdersIllustration />,
-    achievements: <AchievementsIllustration />,
     transactions: <TransactionsIllustration />,
-    leaderboard: <LeaderboardIllustration />,
     challenges: <ChallengesIllustration />
   };
 
