@@ -24,10 +24,23 @@ const usernameSchema = z.string()
 export function UsernameSelection({ userId, email, onComplete }: UsernameSelectionProps) {
   const { t } = useTranslation();
   const [username, setUsername] = useState("");
+  const [referralCode, setReferralCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(false);
   const [isAvailable, setIsAvailable] = useState<boolean | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  // Pre-fill referral code from store/URL
+  useEffect(() => {
+    const { referralCode: storedCode } = useAffiliateTracking.getState();
+    if (storedCode) {
+      setReferralCode(storedCode);
+    } else {
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlRef = urlParams.get('ref');
+      if (urlRef) setReferralCode(urlRef);
+    }
+  }, []);
 
   const checkUsername = async (value: string) => {
     if (value.length < 3) {
