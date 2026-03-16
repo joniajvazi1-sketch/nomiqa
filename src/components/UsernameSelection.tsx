@@ -1,13 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Loader2, User, CheckCircle2, XCircle } from "lucide-react";
+import { Loader2, User, CheckCircle2, XCircle, Gift } from "lucide-react";
 import { useTranslation } from "@/contexts/TranslationContext";
 import { z } from "zod";
+import { useAffiliateTracking } from "@/hooks/useAffiliateTracking";
 
 interface UsernameSelectionProps {
   userId: string;
