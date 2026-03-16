@@ -428,7 +428,7 @@ export const AppProfile: React.FC = () => {
     );
   }
 
-  const referralCode = affiliate?.username || affiliate?.affiliate_code || '';
+  const referralCode = affiliate?.affiliate_code || affiliate?.username || '';
 
   return (
     <>

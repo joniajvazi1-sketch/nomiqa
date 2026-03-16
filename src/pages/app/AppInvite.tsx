@@ -82,7 +82,7 @@ export const AppInvite: React.FC = () => {
     }
   };
 
-  const referralCode = affiliate?.username || affiliate?.affiliate_code || '';
+  const referralCode = affiliate?.affiliate_code || affiliate?.username || '';
 
   const handleChangeCode = async () => {
     if (!newCode.trim() || newCode.length < 3) {
