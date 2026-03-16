@@ -159,7 +159,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send email to support team
     const emailResponse = await resend.emails.send({
-      from: "Nomiqa Support <support@nomiqa-esim.com>",
+      from: "Nomiqa Support <support@nomiqa-depin.com>",
       to: ["support@nomiqa-esim.com"],
       subject: `✅ VERIFIED Earnings Claim - ${username} ($${totalAmount.toFixed(2)})`,
       html: `
