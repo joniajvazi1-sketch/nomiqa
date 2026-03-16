@@ -134,9 +134,7 @@ export default function Affiliate() {
       setSelectedAffiliateId(highestTierAffiliate.id);
       setAffiliateLink(highestTierAffiliate.affiliate_code);
       setUsername(highestTierAffiliate.username || '');
-      if (highestTierAffiliate.username) {
-        setCustomLink(highestTierAffiliate.username);
-      }
+      setCustomLink(highestTierAffiliate.affiliate_code || highestTierAffiliate.username || '');
     }
   };
 
