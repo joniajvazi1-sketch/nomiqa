@@ -48,7 +48,7 @@ const translations: Record<string, Partial<Record<Language | 'HI', string>>> = {
   appUnlocked: { EN: "unlocked", ES: "desbloqueados", FR: "débloqués", DE: "freigeschaltet", RU: "разблокировано", ZH: "已解锁", JA: "解除済み", PT: "desbloqueados", AR: "مفتوحة", IT: "sbloccati" },
   appViewAll: { EN: "View All", ES: "Ver todo", FR: "Voir tout", DE: "Alle anzeigen", RU: "Показать все", ZH: "查看全部", JA: "すべて見る", PT: "Ver tudo", AR: "عرض الكل", IT: "Vedi tutto" },
   appChallenges: { EN: "Challenges", ES: "Desafíos", FR: "Défis", DE: "Herausforderungen", RU: "Испытания", ZH: "挑战", JA: "チャレンジ", PT: "Desafios", AR: "التحديات", IT: "Sfide" },
-  appLeaderboard: { EN: "Leaderboard", ES: "Clasificación", FR: "Classement", DE: "Rangliste", RU: "Таблица лидеров", ZH: "排行榜", JA: "リーダーボード", PT: "Classificação", AR: "لوحة الصدارة", IT: "Classifica" },
+  
   appSignIn: { EN: "Sign In", ES: "Iniciar sesión", FR: "Se connecter", DE: "Anmelden", RU: "Войти", ZH: "登录", JA: "ログイン", PT: "Entrar", AR: "تسجيل الدخول", IT: "Accedi" },
   appGetStarted: { EN: "Get Started", ES: "Comenzar", FR: "Commencer", DE: "Loslegen", RU: "Начать", ZH: "开始", JA: "始める", PT: "Começar", AR: "ابدأ", IT: "Inizia" },
   // ========== APP - Shop ==========
@@ -206,29 +206,7 @@ const translations: Record<string, Partial<Record<Language | 'HI', string>>> = {
   appClaimed: { EN: "Claimed", ES: "Reclamado", FR: "Réclamé", DE: "Eingelöst", RU: "Получено", ZH: "已领取", JA: "取得済み", PT: "Resgatado", AR: "تم المطالبة", IT: "Riscattato" },
   appClaim: { EN: "Claim", ES: "Reclamar", FR: "Réclamer", DE: "Einlösen", RU: "Получить", ZH: "领取", JA: "取得", PT: "Resgatar", AR: "مطالبة", IT: "Riscatta" },
   appInProgress: { EN: "In Progress", ES: "En progreso", FR: "En cours", DE: "In Bearbeitung", RU: "В процессе", ZH: "进行中", JA: "進行中", PT: "Em andamento", AR: "قيد التنفيذ", IT: "In corso" },
-  // ========== APP - Leaderboard ==========
-  appLeaderboardTitle: { EN: "Leaderboard", ES: "Clasificación", FR: "Classement", DE: "Rangliste", RU: "Таблица лидеров", ZH: "排行榜", JA: "リーダーボード", PT: "Classificação", AR: "لوحة الصدارة", IT: "Classifica" },
-  appThisWeekLeaderboard: { EN: "This Week", ES: "Esta semana", FR: "Cette semaine", DE: "Diese Woche", RU: "Эта неделя", ZH: "本周", JA: "今週", PT: "Esta semana", AR: "هذا الأسبوع", IT: "Questa settimana" },
-  appThisMonth: { EN: "This Month", ES: "Este mes", FR: "Ce mois", DE: "Diesen Monat", RU: "Этот месяц", ZH: "本月", JA: "今月", PT: "Este mês", AR: "هذا الشهر", IT: "Questo mese" },
-  appAllTime: { EN: "All Time", ES: "Todo el tiempo", FR: "Tout le temps", DE: "Gesamtzeit", RU: "За всё время", ZH: "总榜", JA: "全期間", PT: "Todo o período", AR: "كل الوقت", IT: "Di sempre" },
-  appContributors: { EN: "contributors", ES: "contribuyentes", FR: "contributeurs", DE: "Beitragende", RU: "участников", ZH: "贡献者", JA: "貢献者", PT: "contribuidores", AR: "المساهمين", IT: "contributori" },
-  appRank: { EN: "Rank", ES: "Rango", FR: "Rang", DE: "Rang", RU: "Ранг", ZH: "排名", JA: "ランク", PT: "Posição", AR: "المرتبة", IT: "Posizione" },
-  appYourRank: { EN: "Your Rank", ES: "Tu rango", FR: "Votre rang", DE: "Dein Rang", RU: "Ваш ранг", ZH: "您的排名", JA: "あなたのランク", PT: "Sua posição", AR: "مرتبتك", IT: "La tua posizione" },
-  appTopPercent: { EN: "Top", ES: "Top", FR: "Top", DE: "Top", RU: "Топ", ZH: "前", JA: "トップ", PT: "Top", AR: "أفضل", IT: "Top" },
-  appKeepContributing: { EN: "Keep contributing to climb the ranks!", ES: "¡Sigue contribuyendo para subir en el ranking!", FR: "Continuez à contribuer pour monter dans le classement!", DE: "Weiter beitragen, um im Ranking aufzusteigen!", RU: "Продолжайте вносить вклад, чтобы подняться!", ZH: "继续贡献以提升排名！", JA: "貢献を続けてランクを上げよう！", PT: "Continue contribuindo para subir no ranking!", AR: "استمر في المساهمة للتقدم في الترتيب!", IT: "Continua a contribuire per salire in classifica!" },
-  appStartContributingToJoin: { EN: "Start contributing to join the leaderboard", ES: "Empieza a contribuir para unirte al ranking", FR: "Commencez à contribuer pour rejoindre le classement", DE: "Beginne beizutragen, um der Rangliste beizutreten", RU: "Начните вносить вклад, чтобы попасть в таблицу", ZH: "开始贡献以加入排行榜", JA: "貢献を始めてリーダーボードに参加しよう", PT: "Comece a contribuir para entrar no ranking", AR: "ابدأ المساهمة للانضمام إلى لوحة الصدارة", IT: "Inizia a contribuire per entrare in classifica" },
-  // ========== APP - Achievements ==========
-  appAchievementsTitle: { EN: "Achievements", ES: "Logros", FR: "Succès", DE: "Erfolge", RU: "Достижения", ZH: "成就", JA: "実績", PT: "Conquistas", AR: "الإنجازات", IT: "Obiettivi" },
-  appUnlockedCount: { EN: "unlocked", ES: "desbloqueados", FR: "débloqués", DE: "freigeschaltet", RU: "разблокировано", ZH: "已解锁", JA: "解除済み", PT: "desbloqueados", AR: "مفتوحة", IT: "sbloccati" },
-  appProgress: { EN: "Progress", ES: "Progreso", FR: "Progression", DE: "Fortschritt", RU: "Прогресс", ZH: "进度", JA: "進捗", PT: "Progresso", AR: "التقدم", IT: "Progresso" },
-  appCompleted: { EN: "Completed!", ES: "¡Completado!", FR: "Terminé!", DE: "Abgeschlossen!", RU: "Выполнено!", ZH: "已完成！", JA: "完了！", PT: "Concluído!", AR: "اكتمل!", IT: "Completato!" },
-  appReward: { EN: "Reward", ES: "Recompensa", FR: "Récompense", DE: "Belohnung", RU: "Награда", ZH: "奖励", JA: "報酬", PT: "Recompensa", AR: "المكافأة", IT: "Ricompensa" },
-  appBronze: { EN: "Bronze", ES: "Bronce", FR: "Bronze", DE: "Bronze", RU: "Бронза", ZH: "铜牌", JA: "ブロンズ", PT: "Bronze", AR: "برونزي", IT: "Bronzo" },
-  appSilver: { EN: "Silver", ES: "Plata", FR: "Argent", DE: "Silber", RU: "Серебро", ZH: "银牌", JA: "シルバー", PT: "Prata", AR: "فضي", IT: "Argento" },
-  appGold: { EN: "Gold", ES: "Oro", FR: "Or", DE: "Gold", RU: "Золото", ZH: "金牌", JA: "ゴールド", PT: "Ouro", AR: "ذهبي", IT: "Oro" },
-  appPlatinum: { EN: "Platinum", ES: "Platino", FR: "Platine", DE: "Platin", RU: "Платина", ZH: "白金", JA: "プラチナ", PT: "Platina", AR: "بلاتيني", IT: "Platino" },
-  appAchievementUnlocked: { EN: "Achievement Unlocked!", ES: "¡Logro desbloqueado!", FR: "Succès débloqué!", DE: "Erfolg freigeschaltet!", RU: "Достижение разблокировано!", ZH: "成就解锁！", JA: "実績解除！", PT: "Conquista desbloqueada!", AR: "تم فتح الإنجاز!", IT: "Obiettivo sbloccato!" },
-  appUnlockedOn: { EN: "Unlocked on", ES: "Desbloqueado el", FR: "Débloqué le", DE: "Freigeschaltet am", RU: "Разблокировано", ZH: "解锁于", JA: "解除日", PT: "Desbloqueado em", AR: "تم الفتح في", IT: "Sbloccato il" },
+  
   appDayStreak2: { EN: "day streak", ES: "días seguidos", FR: "jours de suite", DE: "Tage Serie", RU: "дней подряд", ZH: "天连续", JA: "日連続", PT: "dias seguidos", AR: "يوم متتالي", IT: "giorni consecutivi" },
   appEarningsBonus: { EN: "earnings bonus", ES: "bono de ganancias", FR: "bonus de gains", DE: "Verdienstbonus", RU: "бонус заработка", ZH: "收益奖金", JA: "収益ボーナス", PT: "bônus de ganhos", AR: "مكافأة الأرباح", IT: "bonus guadagni" },
   // ========== APP - Wallet Additional ==========
@@ -1861,8 +1839,6 @@ export function TranslationProvider({ children }: { children: ReactNode }) {
       'app.challenges.completeToEarn': 'appCompleteToEarn',
       'app.challenges.noChallenges': 'appNoChallenges',
       'app.challenges.checkBackLater': 'appCheckBackLater',
-      // Leaderboard
-      'app.leaderboard': 'appLeaderboard',
       // Settings
       'app.settings.selectLanguage': 'appSelectLanguage',
       // Onboarding

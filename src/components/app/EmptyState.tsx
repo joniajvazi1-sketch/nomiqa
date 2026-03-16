@@ -4,9 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { EmptyStateIllustration } from './EmptyStateIllustration';
 import { cn } from '@/lib/utils';
-import { MapPin, ShoppingBag, Zap, Trophy, Users, Target } from 'lucide-react';
+import { MapPin, ShoppingBag, Zap, Target } from 'lucide-react';
 
-type EmptyStateType = 'wallet' | 'orders' | 'achievements' | 'transactions' | 'leaderboard' | 'challenges';
+type EmptyStateType = 'wallet' | 'orders' | 'transactions' | 'challenges';
 
 interface EmptyStateAction {
   label: string;
@@ -45,26 +45,12 @@ const DEFAULT_CONFIG: Record<EmptyStateType, {
     actionHref: '/app/shop',
     icon: ShoppingBag
   },
-  achievements: {
-    title: 'Your first badge awaits!',
-    description: 'Earn badges by completing daily challenges and contributions.',
-    actionLabel: 'View Challenges',
-    actionHref: '/app/challenges',
-    icon: Trophy
-  },
   transactions: {
     title: 'No activity yet',
     description: 'Your earning history will appear here',
     actionLabel: 'Start Contributing',
     actionHref: '/app',
     icon: Zap
-  },
-  leaderboard: {
-    title: 'Rankings coming soon',
-    description: 'First week: rankings appear after 7 days of data.',
-    actionLabel: 'Invite Friends',
-    actionHref: '/app/invite',
-    icon: Users
   },
   challenges: {
     title: 'No active challenges',
