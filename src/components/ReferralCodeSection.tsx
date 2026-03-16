@@ -42,7 +42,7 @@ export const ReferralCodeSection = ({ username }: ReferralCodeSectionProps) => {
         .maybeSingle();
 
       if (affiliate) {
-        setAffiliateCode(affiliate.username || affiliate.affiliate_code);
+        setAffiliateCode(affiliate.affiliate_code || affiliate.username);
       }
 
       // Check if user already has a referral
