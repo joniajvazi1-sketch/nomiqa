@@ -1128,6 +1128,29 @@ export default function Auth() {
                   </div>
                 )}
 
+                {/* Referral Code (signup only) */}
+                {isSignup && (
+                  <div className="space-y-2">
+                    <Label htmlFor="referralCode">
+                      {t("referralCode") || "Referral Code"} <span className="text-muted-foreground font-normal">({t("optional") || "optional"})</span>
+                    </Label>
+                    <div className="relative">
+                      <Gift className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="referralCode"
+                        type="text"
+                        value={referralInput}
+                        onChange={(e) => setReferralInput(e.target.value.trim())}
+                        placeholder={t("enterReferralCode") || "Enter referral code"}
+                        disabled={loading}
+                        className="pl-10"
+                        maxLength={50}
+                        autoComplete="off"
+                      />
+                    </div>
+                  </div>
+                )}
+
                 {isSignup && (
                   <div className="flex items-start space-x-3 p-3 bg-muted/50 rounded-lg">
                     <Checkbox 
