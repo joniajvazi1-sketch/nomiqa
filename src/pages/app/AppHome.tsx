@@ -756,8 +756,8 @@ export const AppHome: React.FC = () => {
 
               {/* Bonuses */}
               <div className={cn("rounded-xl p-2.5 border", isDark ? "bg-white/5 border-white/5" : "bg-muted/50 border-border")}>
-                <p className={cn("text-[9px] uppercase tracking-wide mb-0.5", isDark ? "text-white/50" : "text-muted-foreground")}>🎁 Bonuses</p>
-                <p className="text-base font-bold text-amber-400 tabular-nums">+{todayBreakdown.rewards}</p>
+                <p className={cn("text-[8px] uppercase tracking-wide mb-0.5 truncate", isDark ? "text-white/50" : "text-muted-foreground")}>🎁 Bonuses</p>
+                <p className="text-sm font-bold text-amber-400 tabular-nums">+{todayBreakdown.rewards}</p>
                 <span className={cn("text-[8px] block mt-1", isDark ? "text-white/30" : "text-muted-foreground/70")}>Check-ins, tasks</span>
               </div>
             </div>
