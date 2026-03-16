@@ -1596,7 +1596,7 @@ export const useNetworkContribution = () => {
    * Run a speed test and award bonus points (capped at 5/day)
    */
   const runSpeedTestWithBonus = async (): Promise<SpeedTestResult | null> => {
-    if (!isCellular || isRunningSpeedTest) return null;
+    if (isRunningSpeedTest) return null;
     
     setIsRunningSpeedTest(true);
     console.log('Running speed test for bonus points...');
