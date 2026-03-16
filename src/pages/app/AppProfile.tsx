@@ -299,7 +299,7 @@ export const AppProfile: React.FC = () => {
   const handleShare = async () => {
     if (!affiliate) return;
     buttonTap();
-    const code = affiliate.username || affiliate.affiliate_code;
+    const code = affiliate.affiliate_code || affiliate.username || '';
     await share({ title: 'Join Nomiqa', text: `Join Nomiqa and earn rewards! Use my referral code: ${code} when you sign up. Download: https://nomiqa-depin.com/download`, url: 'https://nomiqa-depin.com/download' });
   };
 

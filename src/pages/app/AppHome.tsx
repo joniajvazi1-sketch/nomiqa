@@ -221,7 +221,7 @@ export const AppHome: React.FC = () => {
         }
         // Set referral code from affiliate data (same logic as Profile/Invite screens)
         if (affiliateRes.data) {
-          setReferralCode(affiliateRes.data.username || affiliateRes.data.affiliate_code || null);
+          setReferralCode(affiliateRes.data.affiliate_code || affiliateRes.data.username || null);
         }
         
         // Load checkin history for streak calendar
