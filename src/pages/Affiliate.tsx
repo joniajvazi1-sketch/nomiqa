@@ -163,9 +163,7 @@ export default function Affiliate() {
       setAffiliate(selected);
       setAffiliateLink(selected.affiliate_code);
       setUsername(selected.username || '');
-      if (selected.username) {
-        setCustomLink(selected.username);
-      }
+      setCustomLink(selected.affiliate_code || selected.username || '');
     }
   }, [allAffiliates]);
   
