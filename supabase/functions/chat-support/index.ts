@@ -332,7 +332,7 @@ Useful links:
       }
       if (response.status === 402) {
         return new Response(
-          JSON.stringify({ error: "Service temporarily unavailable. Please contact support@nomiqa-esim.com" }),
+          JSON.stringify({ error: "Service temporarily unavailable. Please contact support@nomiqa-depin.com" }),
           { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
