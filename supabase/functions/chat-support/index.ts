@@ -339,7 +339,7 @@ Useful links:
       const errorText = await response.text();
       console.error("AI gateway error:", response.status, errorText);
       return new Response(
-        JSON.stringify({ error: "AI service error. Please try again or email support@nomiqa-esim.com" }),
+        JSON.stringify({ error: "AI service error. Please try again or email support@nomiqa-depin.com" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }

@@ -699,7 +699,7 @@ const handler = async (req: Request): Promise<Response> => {
     const { html, subject } = generateEmailHTML(type, data);
 
     const emailResponse = await resend.emails.send({
-      from: "Nomiqa <support@nomiqa-esim.com>",
+      from: "Nomiqa <support@nomiqa-depin.com>",
       to: [to],
       subject,
       html,
