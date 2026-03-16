@@ -279,7 +279,7 @@ Multiple eSIMs?
 - Full GDPR compliance
 
 === CONTACT & SUPPORT ===
-Email: support@nomiqa-esim.com
+Email: support@nomiqa-depin.com
 Response time: Usually within 24 hours
 
 Useful links:
