@@ -45,26 +45,12 @@ const DEFAULT_CONFIG: Record<EmptyStateType, {
     actionHref: '/app/shop',
     icon: ShoppingBag
   },
-  achievements: {
-    title: 'Your first badge awaits!',
-    description: 'Earn badges by completing daily challenges and contributions.',
-    actionLabel: 'View Challenges',
-    actionHref: '/app/challenges',
-    icon: Trophy
-  },
   transactions: {
     title: 'No activity yet',
     description: 'Your earning history will appear here',
     actionLabel: 'Start Contributing',
     actionHref: '/app',
     icon: Zap
-  },
-  leaderboard: {
-    title: 'Rankings coming soon',
-    description: 'First week: rankings appear after 7 days of data.',
-    actionLabel: 'Invite Friends',
-    actionHref: '/app/invite',
-    icon: Users
   },
   challenges: {
     title: 'No active challenges',
