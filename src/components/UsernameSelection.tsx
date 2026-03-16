@@ -188,6 +188,26 @@ export function UsernameSelection({ userId, email, onComplete }: UsernameSelecti
             </p>
           </div>
 
+          {/* Referral Code (optional) */}
+          <div className="space-y-2">
+            <Label htmlFor="referralCode">
+              {t("referralCode") || "Referral Code"} <span className="text-muted-foreground font-normal">({t("optional") || "optional"})</span>
+            </Label>
+            <div className="relative">
+              <Gift className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                id="referralCode"
+                type="text"
+                value={referralCode}
+                onChange={(e) => setReferralCode(e.target.value.trim())}
+                placeholder={t("enterReferralCode") || "Enter referral code"}
+                className="pl-10"
+                maxLength={50}
+                autoComplete="off"
+              />
+            </div>
+          </div>
+
           <Button
             type="submit"
             className="w-full h-12 text-base font-medium rounded-xl transition-all duration-300 hover:scale-105"
