@@ -493,23 +493,39 @@ export const AppAuth: React.FC = () => {
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
 
-    const listener = App.addListener('appStateChange', (state) => {
-      if (state.isActive && googleLoading) {
-        // App came back to foreground while we were waiting for OAuth
-        // Check if we have a session now
+    // Listen for Browser close (user cancelled OAuth) and app resume
+    const browserListener = Browser.addListener('browserFinished', () => {
+      console.log('[AppAuth] System browser closed by user');
+      // Give deep link handler 2s to fire before assuming cancellation
+      setTimeout(() => {
         supabase.auth.getSession().then(({ data: { session } }) => {
           if (!session) {
-            // No session yet - user might have cancelled
+            console.log('[AppAuth] No session after browser close - user likely cancelled');
             safeSessionStorage.removeItem('nomiqa_oauth_pending');
             setGoogleLoading(false);
           }
-          // If session exists, the onAuthStateChange will handle it
         });
+      }, 2000);
+    });
+
+    const appListener = App.addListener('appStateChange', (state) => {
+      if (state.isActive && googleLoading) {
+        // App came back to foreground while we were waiting for OAuth
+        // Give deep link 2s to process before checking
+        setTimeout(() => {
+          supabase.auth.getSession().then(({ data: { session } }) => {
+            if (!session) {
+              safeSessionStorage.removeItem('nomiqa_oauth_pending');
+              setGoogleLoading(false);
+            }
+          });
+        }, 2000);
       }
     });
 
     return () => {
-      listener.then(l => l.remove());
+      browserListener.then(l => l.remove());
+      appListener.then(l => l.remove());
     };
   }, [googleLoading]);
 
