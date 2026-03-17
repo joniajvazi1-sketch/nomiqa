@@ -199,7 +199,7 @@ export const ReferEarnModal = ({ open, onOpenChange, product }: ReferEarnModalPr
                 </div>
                 <div className="text-right">
                   <div className="text-2xl font-bold text-primary">{formatPrice(product?.price_usd)}</div>
-                  <p className="text-xs text-muted-foreground">Earn 9% commission</p>
+                  <p className="text-xs text-muted-foreground">Earn 10% commission</p>
                 </div>
               </div>
             </div>
@@ -282,7 +282,7 @@ export const ReferEarnModal = ({ open, onOpenChange, product }: ReferEarnModalPr
               <div className="flex items-start gap-2">
                 <Users className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
                 <p className="text-muted-foreground">
-                  <strong className="text-foreground">Earn 5%</strong> of what your referrals mine — they don't lose anything!
+                  <strong className="text-foreground">Earn 10%</strong> of what your referrals earn — they don't lose anything!
                 </p>
               </div>
             </div>
@@ -290,7 +290,7 @@ export const ReferEarnModal = ({ open, onOpenChange, product }: ReferEarnModalPr
 
           <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
             <p className="text-xs text-green-700 dark:text-green-400">
-              💰 You earn 9% on direct referrals, 6% on level 2, and 3% on level 3
+              💰 You earn 10% commission on all direct referral purchases
             </p>
           </div>
         </div>

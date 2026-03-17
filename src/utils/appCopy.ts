@@ -100,7 +100,7 @@ export const APP_COPY = {
   // Referrals / Invitations (REGULATOR-SAFE)
   referral: {
     inviteTitle: "Invite Contributors",
-    inviteDescription: "Invite contributors → Earn a share of the value they help create",
+    inviteDescription: "Invite contributors → Earn 10% of what they earn",
     bonusExplanation: "Referral rewards are based on verified network contributions.",
     shareMessage: "Join me on Nomiqa! Help improve mobile networks and earn rewards for your contributions.",
   },

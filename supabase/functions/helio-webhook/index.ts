@@ -542,8 +542,8 @@ serve(async (req) => {
           if (affiliate) {
             console.log('Affiliate found:', affiliate.id);
             
-            // Calculate commission (9% for level 1)
-            const level1Commission = order.total_amount_usd * 0.09;
+            // Calculate commission (10% flat)
+            const level1Commission = order.total_amount_usd * 0.10;
             
             // Find the referral click record - match by visitor_id OR user_id
             const { data: referral } = await supabase
@@ -650,85 +650,7 @@ serve(async (req) => {
               }
             }
 
-            // Process level 2 commission if there's a parent AND they've unlocked tier 2
-            if (affiliate.parent_affiliate_id) {
-              const { data: parentAffiliate } = await supabase
-                .from('affiliates')
-                .select('id, total_conversions, total_earnings_usd, parent_affiliate_id, tier_level')
-                .eq('id', affiliate.parent_affiliate_id)
-                .maybeSingle();
-
-              // Only give level 2 commission if parent has tier 2 or higher (10+ conversions)
-              if (parentAffiliate && parentAffiliate.tier_level >= 2) {
-                const level2Commission = order.total_amount_usd * 0.06;
-                
-                await supabase
-                  .from('affiliate_referrals')
-                  .insert({
-                    affiliate_id: parentAffiliate.id,
-                    visitor_id: order.user_id || order.visitor_id || order.email,
-                    order_id: order.id,
-                    status: 'converted',
-                    commission_amount_usd: level2Commission,
-                    commission_level: 2,
-                    source: 'level2',
-                    clicked_at: new Date().toISOString(),
-                    converted_at: new Date().toISOString()
-                  });
-
-                await supabase
-                  .from('affiliates')
-                  .update({
-                    total_earnings_usd: (parentAffiliate.total_earnings_usd || 0) + level2Commission,
-                    updated_at: new Date().toISOString()
-                  })
-                  .eq('id', parentAffiliate.id);
-
-                console.log(`✓ Level 2 commission earned (tier ${parentAffiliate.tier_level}): $${level2Commission.toFixed(2)}`);
-
-                // Process level 3 commission if grandparent exists AND they've unlocked tier 3
-                if (parentAffiliate.parent_affiliate_id) {
-                  const { data: grandparentAffiliate } = await supabase
-                    .from('affiliates')
-                    .select('id, total_conversions, total_earnings_usd, tier_level')
-                    .eq('id', parentAffiliate.parent_affiliate_id)
-                    .maybeSingle();
-
-                  // Only give level 3 commission if grandparent has tier 3 (30+ conversions)
-                  if (grandparentAffiliate && grandparentAffiliate.tier_level >= 3) {
-                    const level3Commission = order.total_amount_usd * 0.03;
-                    
-                    await supabase
-                      .from('affiliate_referrals')
-                      .insert({
-                        affiliate_id: grandparentAffiliate.id,
-                        visitor_id: order.user_id || order.visitor_id || order.email,
-                        order_id: order.id,
-                        status: 'converted',
-                        commission_amount_usd: level3Commission,
-                        commission_level: 3,
-                        source: 'level3',
-                        clicked_at: new Date().toISOString(),
-                        converted_at: new Date().toISOString()
-                      });
-
-                    await supabase
-                      .from('affiliates')
-                      .update({
-                        total_earnings_usd: (grandparentAffiliate.total_earnings_usd || 0) + level3Commission,
-                        updated_at: new Date().toISOString()
-                      })
-                      .eq('id', grandparentAffiliate.id);
-
-                    console.log(`✓ Level 3 commission earned (tier ${grandparentAffiliate.tier_level}): $${level3Commission.toFixed(2)}`);
-                  } else {
-                    console.log('Grandparent not tier 3 yet - level 3 commission not earned');
-                  }
-                }
-              } else {
-                console.log('Parent not tier 2 yet - level 2 commission not earned');
-              }
-            }
+            // Flat 10% commission - no multi-level tiers
 
             console.log('✓ Affiliate conversion processed successfully');
           } else {

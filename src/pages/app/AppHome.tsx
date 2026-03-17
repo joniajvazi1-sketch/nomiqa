@@ -1016,7 +1016,7 @@ export const AppHome: React.FC = () => {
                   </div>
                   <div className="flex-1">
                     <h3 className="text-base font-bold text-foreground">Invite & Earn</h3>
-                    <p className={cn("text-xs", isDark ? "text-white/60" : "text-muted-foreground")}>Get 5% of your team's points — forever</p>
+                    <p className={cn("text-xs", isDark ? "text-white/60" : "text-muted-foreground")}>Get 10% of your team's points — forever</p>
                   </div>
                 </div>
 
