@@ -304,10 +304,20 @@ export const AppHome: React.FC = () => {
     };
     const handlePointsUpdated = (e: Event) => {
       const detail = (e as CustomEvent)?.detail;
-      if (detail?.newTotal != null && points) {
-        // Instant optimistic update from RPC response
+      const currentPoints = pointsRef.current;
+      
+      // Optimistic total points update
+      if (detail?.newTotal != null && currentPoints) {
         setPoints(prev => prev ? { ...prev, total_points: detail.newTotal } : prev);
+      } else if (detail?.pointsAdded != null && detail.pointsAdded > 0 && currentPoints) {
+        setPoints(prev => prev ? { ...prev, total_points: prev.total_points + detail.pointsAdded } : prev);
       }
+      
+      // Optimistic today earnings update
+      if (detail?.pointsAdded != null && detail.pointsAdded > 0) {
+        setTodayEarnings(prev => prev + detail.pointsAdded);
+      }
+      
       // Always do a full refresh in background for consistency
       loadData();
     };
