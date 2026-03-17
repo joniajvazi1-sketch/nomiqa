@@ -409,26 +409,39 @@ export const AppProfile: React.FC = () => {
   const handleDeleteAccount = async () => {
     setDeletingAccount(true);
     try {
+      console.log('[DeleteAccount] Step 1: Calling request_data_deletion RPC...');
       const { error: rpcError } = await supabase.rpc('request_data_deletion', {
         requesting_user_id: user.id
       });
       
-      if (rpcError) throw rpcError;
+      if (rpcError) {
+        console.error('[DeleteAccount] RPC failed:', rpcError.message, rpcError.details);
+        // Don't throw — continue to edge function which handles full deletion
+      } else {
+        console.log('[DeleteAccount] Step 1 complete: RPC succeeded');
+      }
 
-      const { error: deleteError } = await supabase.functions.invoke('delete-user', {
+      console.log('[DeleteAccount] Step 2: Calling delete-user edge function...');
+      const { data: deleteData, error: deleteError } = await supabase.functions.invoke('delete-user', {
         body: { self_delete: true }
       });
       
-      if (deleteError) throw deleteError;
+      if (deleteError) {
+        console.error('[DeleteAccount] Edge function error:', deleteError);
+        throw deleteError;
+      }
+      
+      console.log('[DeleteAccount] Step 2 complete:', deleteData);
 
       await supabase.auth.signOut();
       toast({ title: 'Account deleted', description: 'Your account and data have been removed.' });
       navigate('/');
-    } catch (error) {
-      console.error('Error deleting account:', error);
+    } catch (error: any) {
+      console.error('[DeleteAccount] Failed:', error?.message || error);
+      captureError(error instanceof Error ? error : new Error(String(error)), { context: 'account_deletion' });
       toast({ 
         title: 'Failed to delete account', 
-        description: 'Please try again or contact support.',
+        description: error?.message || 'Please try again or contact support.',
         variant: 'destructive' 
       });
     } finally {
