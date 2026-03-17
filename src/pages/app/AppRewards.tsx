@@ -66,11 +66,16 @@ export const AppRewards: React.FC = () => {
         loadRewardsData();
       }
     };
+    const handlePointsUpdated = () => {
+      loadRewardsData();
+    };
     document.addEventListener('visibilitychange', handleVisibility);
     window.addEventListener('focus', handleVisibility);
+    window.addEventListener('points-updated', handlePointsUpdated);
     return () => {
       document.removeEventListener('visibilitychange', handleVisibility);
       window.removeEventListener('focus', handleVisibility);
+      window.removeEventListener('points-updated', handlePointsUpdated);
     };
   }, [timeRange]);
 
