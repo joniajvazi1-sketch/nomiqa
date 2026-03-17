@@ -121,79 +121,20 @@ export const ReferEarn = () => {
             </div>
 
             <div className="space-y-6 sm:space-y-7 md:space-y-8 max-w-3xl mx-auto">
-              {/* Level 1 */}
+              {/* Single Level - 10% */}
               <div className="group">
                 <div className="flex flex-col md:flex-row md:items-start gap-3 sm:gap-4 md:gap-6 p-5 sm:p-6 md:p-7 bg-gradient-to-r from-neon-coral/5 to-transparent border-l-4 border-neon-coral rounded-xl md:rounded-2xl hover:from-neon-coral/10 transition-all duration-500 hover-lift text-center md:text-left">
                   <div className="flex items-center gap-3 md:block justify-center md:justify-start">
                     <div className="w-11 h-11 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full bg-neon-coral/10 border-2 border-neon-coral/30 flex items-center justify-center flex-shrink-0">
-                      <span className="text-lg sm:text-xl md:text-2xl font-light text-neon-coral">1</span>
+                      <DollarSign className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-neon-coral" />
                     </div>
                     <p className="text-[10px] sm:text-xs md:text-sm text-neon-coral/80 font-light uppercase tracking-[0.2em] md:mt-3">{t("directReferral")}</p>
                   </div>
                   <div className="flex-1 space-y-2 sm:space-y-3">
                     <p className="text-sm sm:text-base md:text-lg font-light text-white">{t("sarahBuysEsim")}</p>
                     <div className="flex items-baseline gap-2 pt-1 sm:pt-2 justify-center md:justify-start">
-                      <span className="text-2xl sm:text-3xl md:text-4xl font-extralight text-neon-coral">$4.50</span>
-                      <span className="text-xs sm:text-sm text-white/60 font-light">{t("commission9Percent")}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Divider */}
-              <div className="relative py-2 sm:py-3">
-                <div className="absolute left-1/2 md:left-7 top-0 bottom-0 w-px bg-gradient-to-b from-white/10 via-neon-coral/30 to-white/10 -translate-x-1/2 md:translate-x-0"></div>
-                <div className="flex justify-center md:justify-start md:pl-20">
-                  <div className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-neon-coral/10 border border-neon-coral/20 rounded-full text-[10px] sm:text-xs md:text-sm font-light text-neon-coral">
-                    {t("passiveStarts")}
-                  </div>
-                </div>
-              </div>
-
-              {/* Level 2 */}
-              <div className="group">
-                <div className="flex flex-col md:flex-row md:items-start gap-3 sm:gap-4 md:gap-6 p-5 sm:p-6 md:p-7 bg-gradient-to-r from-neon-violet/5 to-transparent border-l-4 border-neon-violet rounded-xl md:rounded-2xl hover:from-neon-violet/10 transition-all duration-500 hover-lift text-center md:text-left">
-                  <div className="flex items-center gap-3 md:block justify-center md:justify-start">
-                    <div className="w-11 h-11 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full bg-neon-violet/10 border-2 border-neon-violet/30 flex items-center justify-center flex-shrink-0">
-                      <span className="text-lg sm:text-xl md:text-2xl font-light text-neon-violet">2</span>
-                    </div>
-                    <p className="text-[10px] sm:text-xs md:text-sm text-neon-violet/80 font-light uppercase tracking-[0.2em] md:mt-3">{t("tier2Passive")}</p>
-                  </div>
-                  <div className="flex-1 space-y-2 sm:space-y-3">
-                    <div>
-                      <p className="text-sm sm:text-base md:text-lg font-light text-white">{t("sarahInvitesMike")}</p>
-                      <p className="text-xs sm:text-sm text-white/60 font-light mt-1 sm:mt-1.5">{t("dontKnowMike")}</p>
-                    </div>
-                    <div className="flex items-baseline gap-2 pt-1 sm:pt-2 justify-center md:justify-start">
-                      <span className="text-2xl sm:text-3xl md:text-4xl font-extralight text-neon-violet">$3.00</span>
-                      <span className="text-xs sm:text-sm text-white/60 font-light">{t("commission6Percent")}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Divider */}
-              <div className="relative py-1 sm:py-2">
-                <div className="absolute left-1/2 md:left-7 top-0 bottom-0 w-px bg-gradient-to-b from-white/10 via-neon-violet/30 to-white/10 -translate-x-1/2 md:translate-x-0"></div>
-              </div>
-
-              {/* Level 3 */}
-              <div className="group">
-                <div className="flex flex-col md:flex-row md:items-start gap-3 sm:gap-4 md:gap-6 p-5 sm:p-6 md:p-7 bg-gradient-to-r from-neon-cyan/5 to-transparent border-l-4 border-neon-cyan rounded-xl md:rounded-2xl hover:from-neon-cyan/10 transition-all duration-500 hover-lift text-center md:text-left">
-                  <div className="flex items-center gap-3 md:block justify-center md:justify-start">
-                    <div className="w-11 h-11 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full bg-neon-cyan/10 border-2 border-neon-cyan/30 flex items-center justify-center flex-shrink-0">
-                      <span className="text-lg sm:text-xl md:text-2xl font-light text-neon-cyan">3</span>
-                    </div>
-                    <p className="text-[10px] sm:text-xs md:text-sm text-neon-cyan/80 font-light uppercase tracking-[0.2em] md:mt-3">{t("tier3Passive")}</p>
-                  </div>
-                  <div className="flex-1 space-y-2 sm:space-y-3">
-                    <div>
-                      <p className="text-sm sm:text-base md:text-lg font-light text-white">{t("mikeInvitesLisa")}</p>
-                      <p className="text-xs sm:text-sm text-white/60 font-light mt-1 sm:mt-1.5">{t("neverHeardLisa")}</p>
-                    </div>
-                    <div className="flex items-baseline gap-2 pt-1 sm:pt-2 justify-center md:justify-start">
-                      <span className="text-2xl sm:text-3xl md:text-4xl font-extralight text-neon-cyan">$1.50</span>
-                      <span className="text-xs sm:text-sm text-white/60 font-light">{t("commission3Percent")}</span>
+                      <span className="text-2xl sm:text-3xl md:text-4xl font-extralight text-neon-coral">$5.00</span>
+                      <span className="text-xs sm:text-sm text-white/60 font-light">{t("commission10Percent")}</span>
                     </div>
                   </div>
                 </div>
