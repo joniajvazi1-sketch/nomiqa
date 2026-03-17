@@ -361,14 +361,15 @@ export const AppHome: React.FC = () => {
   };
 
   // Handle stop contribution with celebration
-  const handleStopContribution = useCallback(() => {
-    if (stats.pointsEarned > 0) {
-      setCelebrationPoints(stats.pointsEarned);
+  const handleStopContribution = useCallback(async () => {
+    const earnedThisSession = stats.pointsEarned;
+    if (earnedThisSession > 0) {
+      setCelebrationPoints(earnedThisSession);
       setShowCelebration(true);
     }
-    stopContribution();
-    // Instantly refresh earnings after stopping
-    setTimeout(() => window.dispatchEvent(new CustomEvent('points-updated', { detail: {} })), 500);
+    await stopContribution();
+    // Dispatch with pointsAdded so all screens can optimistically update
+    window.dispatchEvent(new CustomEvent('points-updated', { detail: { pointsAdded: earnedThisSession } }));
   }, [stats.pointsEarned, stopContribution]);
 
   // Handle start/stop contribution - wrapped in try/catch to prevent app crash

@@ -124,6 +124,17 @@ export const AppProfile: React.FC = () => {
     loadData();
   }, []);
 
+  // Refresh profile data when points change on other screens
+  useEffect(() => {
+    const handlePointsUpdated = () => {
+      loadData();
+    };
+    window.addEventListener('points-updated', handlePointsUpdated);
+    return () => {
+      window.removeEventListener('points-updated', handlePointsUpdated);
+    };
+  }, []);
+
   const loadData = async () => {
     try {
       const { data: { user: currentUser } } = await supabase.auth.getUser();
