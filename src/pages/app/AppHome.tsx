@@ -147,6 +147,10 @@ export const AppHome: React.FC = () => {
   const [todayBreakdown, setTodayBreakdown] = useState<{ contribution: number; speedTest: number; rewards: number; friends: number }>({ contribution: 0, speedTest: 0, rewards: 0, friends: 0 });
   
   const startButtonRef = useRef<HTMLButtonElement>(null);
+  const pointsRef = useRef(points);
+  useEffect(() => { pointsRef.current = points; }, [points]);
+  const todayEarningsRef = useRef(todayEarnings);
+  useEffect(() => { todayEarningsRef.current = todayEarnings; }, [todayEarnings]);
 
   // Track iOS permission status for display
   useEffect(() => {
