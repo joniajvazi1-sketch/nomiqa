@@ -368,7 +368,7 @@ export const AppHome: React.FC = () => {
     }
     stopContribution();
     // Instantly refresh earnings after stopping
-    setTimeout(() => window.dispatchEvent(new Event('points-updated')), 500);
+    setTimeout(() => window.dispatchEvent(new CustomEvent('points-updated', { detail: {} })), 500);
   }, [stats.pointsEarned, stopContribution]);
 
   // Handle start/stop contribution - wrapped in try/catch to prevent app crash
