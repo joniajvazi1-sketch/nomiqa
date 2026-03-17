@@ -511,7 +511,7 @@ export const useNetworkContribution = () => {
             try {
               const bgStats = await BackgroundLocation.drainBackgroundStats();
               if (bgStats.distanceMeters > 0 || bgStats.samples > 0) {
-                const bgDistancePoints = bgStats.distanceMeters * 0.005;
+                const bgDistancePoints = bgStats.distanceMeters * 0.002;
                 console.log(`[NetworkContribution] Drained Android background: ${bgStats.distanceMeters.toFixed(1)}m (+${bgDistancePoints.toFixed(2)} pts), ${bgStats.samples} samples`);
                 
                 // Merge background distance into current stats
