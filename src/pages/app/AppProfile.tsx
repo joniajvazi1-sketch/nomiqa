@@ -415,7 +415,9 @@ export const AppProfile: React.FC = () => {
       
       if (rpcError) throw rpcError;
 
-      const { error: deleteError } = await supabase.functions.invoke('delete-user');
+      const { error: deleteError } = await supabase.functions.invoke('delete-user', {
+        body: { self_delete: true }
+      });
       
       if (deleteError) throw deleteError;
 

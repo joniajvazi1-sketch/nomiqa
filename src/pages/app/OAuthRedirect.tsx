@@ -151,11 +151,10 @@ const OAuthRedirect = () => {
     // Try to open the app
     window.location.href = deepLinkUrl;
     
-    // Show the native prompt after a delay to give the deep link time to process
-    // On Android, deep links can take 1-2 seconds to resolve
+    // Show the native prompt quickly so user can retry if deep link didn't fire
     setTimeout(() => {
       setShowNativePrompt(true);
-    }, 1500);
+    }, 800);
   };
 
   const handleOpenApp = () => {

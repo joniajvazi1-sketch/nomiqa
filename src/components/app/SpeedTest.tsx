@@ -80,6 +80,9 @@ export function SpeedTest({
 
       if (insertError) {
         console.error('[SpeedTest] Failed to save result:', insertError);
+        toast.error('Failed to save speed test', {
+          description: insertError.message || 'Please try again'
+        });
         return;
       }
 
