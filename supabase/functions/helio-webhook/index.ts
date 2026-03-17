@@ -542,8 +542,8 @@ serve(async (req) => {
           if (affiliate) {
             console.log('Affiliate found:', affiliate.id);
             
-            // Calculate commission (9% for level 1)
-            const level1Commission = order.total_amount_usd * 0.09;
+            // Calculate commission (10% flat)
+            const level1Commission = order.total_amount_usd * 0.10;
             
             // Find the referral click record - match by visitor_id OR user_id
             const { data: referral } = await supabase
