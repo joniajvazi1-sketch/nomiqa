@@ -45,6 +45,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 
   // WebGL/canvas safety: avoid parent transforms on map/network routes
   const isMapRoute = location.pathname === '/app/network' || location.pathname === '/app/map';
+  const isAuthRoute = location.pathname === '/app/auth' || location.pathname === '/app/oauth-redirect';
 
   // Bottom navigation height (56px bar + 16px margin + safe area buffer)
   // Android needs extra padding since env() may not work consistently
