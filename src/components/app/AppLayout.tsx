@@ -225,9 +225,11 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         scroll-layer / stacking-context bugs where a momentum scrolling container can
         visually show the bar but intercept taps and/or shift its fixed positioning.
       */}
-      <FullscreenPortal>
-        <BottomTabBar />
-      </FullscreenPortal>
+      {!isAuthRoute && (
+        <FullscreenPortal>
+          <BottomTabBar />
+        </FullscreenPortal>
+      )}
     </div>
   );
 };

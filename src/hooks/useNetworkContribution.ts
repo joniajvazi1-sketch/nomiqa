@@ -620,7 +620,7 @@ export const useNetworkContribution = () => {
       distanceGained = calculateDistance(lastPositionRef.current, position);
       
       if (distanceGained > 5 && !dailyCapReached) {
-        distancePoints = distanceGained * 0.005;
+        distancePoints = distanceGained * 0.002;
         
         setStats(prev => {
           const newPoints = prev.pointsEarned + distancePoints;
