@@ -147,6 +147,10 @@ export const AppHome: React.FC = () => {
   const [todayBreakdown, setTodayBreakdown] = useState<{ contribution: number; speedTest: number; rewards: number; friends: number }>({ contribution: 0, speedTest: 0, rewards: 0, friends: 0 });
   
   const startButtonRef = useRef<HTMLButtonElement>(null);
+  const pointsRef = useRef(points);
+  useEffect(() => { pointsRef.current = points; }, [points]);
+  const todayEarningsRef = useRef(todayEarnings);
+  useEffect(() => { todayEarningsRef.current = todayEarnings; }, [todayEarnings]);
 
   // Track iOS permission status for display
   useEffect(() => {
@@ -300,10 +304,20 @@ export const AppHome: React.FC = () => {
     };
     const handlePointsUpdated = (e: Event) => {
       const detail = (e as CustomEvent)?.detail;
-      if (detail?.newTotal != null && points) {
-        // Instant optimistic update from RPC response
+      const currentPoints = pointsRef.current;
+      
+      // Optimistic total points update
+      if (detail?.newTotal != null && currentPoints) {
         setPoints(prev => prev ? { ...prev, total_points: detail.newTotal } : prev);
+      } else if (detail?.pointsAdded != null && detail.pointsAdded > 0 && currentPoints) {
+        setPoints(prev => prev ? { ...prev, total_points: prev.total_points + detail.pointsAdded } : prev);
       }
+      
+      // Optimistic today earnings update
+      if (detail?.pointsAdded != null && detail.pointsAdded > 0) {
+        setTodayEarnings(prev => prev + detail.pointsAdded);
+      }
+      
       // Always do a full refresh in background for consistency
       loadData();
     };
@@ -354,7 +368,7 @@ export const AppHome: React.FC = () => {
     }
     stopContribution();
     // Instantly refresh earnings after stopping
-    setTimeout(() => window.dispatchEvent(new Event('points-updated')), 500);
+    setTimeout(() => window.dispatchEvent(new CustomEvent('points-updated', { detail: {} })), 500);
   }, [stats.pointsEarned, stopContribution]);
 
   // Handle start/stop contribution - wrapped in try/catch to prevent app crash
@@ -462,7 +476,7 @@ export const AppHome: React.FC = () => {
         successPattern();
         playCoin();
         // Instantly refresh earnings after speed test
-        window.dispatchEvent(new Event('points-updated'));
+        window.dispatchEvent(new CustomEvent('points-updated', { detail: { pointsAdded: 25 } }));
         toastNew({
           title: "Speed Test Complete ⚡",
           description: `↓ ${result.down?.toFixed(1) ?? 'N/A'} Mbps  ↑ ${result.up?.toFixed(1) ?? 'N/A'} Mbps`,
