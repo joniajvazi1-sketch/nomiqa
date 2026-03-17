@@ -102,7 +102,7 @@ export const ReferEarn = () => {
               </li>
               <li className="flex items-start gap-2 sm:gap-3">
                 <span className="text-neon-coral text-sm sm:text-base flex-shrink-0">✓</span>
-                <span className="text-xs sm:text-sm md:text-base font-light">{t("multiLevelCommission")}</span>
+                <span className="text-xs sm:text-sm md:text-base font-light">{t("flatCommission10")}</span>
               </li>
             </ul>
           </div>
