@@ -282,7 +282,7 @@ export const ReferEarnModal = ({ open, onOpenChange, product }: ReferEarnModalPr
               <div className="flex items-start gap-2">
                 <Users className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
                 <p className="text-muted-foreground">
-                  <strong className="text-foreground">Earn 5%</strong> of what your referrals mine — they don't lose anything!
+                  <strong className="text-foreground">Earn 10%</strong> of what your referrals earn — they don't lose anything!
                 </p>
               </div>
             </div>
