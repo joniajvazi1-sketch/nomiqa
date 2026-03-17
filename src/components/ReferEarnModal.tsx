@@ -199,7 +199,7 @@ export const ReferEarnModal = ({ open, onOpenChange, product }: ReferEarnModalPr
                 </div>
                 <div className="text-right">
                   <div className="text-2xl font-bold text-primary">{formatPrice(product?.price_usd)}</div>
-                  <p className="text-xs text-muted-foreground">Earn 9% commission</p>
+                  <p className="text-xs text-muted-foreground">Earn 10% commission</p>
                 </div>
               </div>
             </div>
