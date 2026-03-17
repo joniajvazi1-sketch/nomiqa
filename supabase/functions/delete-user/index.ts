@@ -61,9 +61,11 @@ async function deleteAllUserData(
   await safeDelete(admin, 'notification_preferences', 'user_id', userId, results);
   await safeDelete(admin, 'user_collection_preferences', 'user_id', userId, results);
   await safeDelete(admin, 'user_goals', 'user_id', userId, results);
+  await safeDelete(admin, 'spin_wheel_results', 'user_id', userId, results);
 
-  // 8. Spending & profile
+  // 8. Spending, roles & profile
   await safeDelete(admin, 'user_spending', 'user_id', userId, results);
+  await safeDelete(admin, 'user_roles', 'user_id', userId, results);
   await safeDelete(admin, 'profiles', 'user_id', userId, results);
 
   // 9. Referral data (both as referrer and referred)
