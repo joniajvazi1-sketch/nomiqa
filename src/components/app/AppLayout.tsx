@@ -198,7 +198,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         style={{ 
           // Bottom padding for floating nav
           // Android: nav is offset by 48px (system bar) + 56px bar + margins
-          paddingBottom: isAndroid 
+          paddingBottom: isAuthRoute ? '0px' : isAndroid 
             ? `${BOTTOM_NAV_HEIGHT + 48 + 16}px`  // bar height + system nav + extra margin
             : `calc(${BOTTOM_NAV_HEIGHT}px + max(env(safe-area-inset-bottom, 0px), constant(safe-area-inset-bottom, 0px)))`,
           // iOS momentum scrolling
