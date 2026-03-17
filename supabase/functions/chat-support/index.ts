@@ -225,20 +225,18 @@ MAIN BENEFITS OF INVITING USERS:
    - More contributors in your network = up to +100% boost on YOUR earnings
    - This is the primary incentive - grow your network, earn more from your own contributions
 
-2. PASSIVE EARNINGS FROM NETWORK: Earn 5% of all points your referred users earn from THEIR network contributions
-   - When they contribute data, you earn 5% of their points automatically
+2. PASSIVE EARNINGS FROM NETWORK: Earn 10% of all points your referred users earn from THEIR network contributions
+   - When they contribute data, you earn 10% of their points automatically
    - This continues as long as they keep contributing
 
-3. SALES COMMISSIONS (Secondary): If your referrals buy eSIM plans, you also earn:
-   - Level 1 (Direct referrals): 9% commission on purchases
-   - Level 2 (Their referrals): 6% commission
-   - Level 3 (Third level): 3% commission
+3. SALES COMMISSIONS (Secondary): If your referrals buy eSIM plans, you earn:
+   - 10% commission on all direct referral purchases (flat rate, no tiers)
 
 HOW IT WORKS:
 1. Share your unique referral code from the app or nomiqa.com/affiliate
 2. When someone signs up with your code, they're added to your network
-3. You immediately get boost benefits and start earning 5% of their contributions
-4. If they buy eSIMs, you get additional sales commissions
+3. You immediately get boost benefits and start earning 10% of their contributions
+4. If they buy eSIMs, you get additional 10% sales commission
 
 KEY POINT: Focus on inviting active users who will contribute to the network, not just buyers!
 

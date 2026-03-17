@@ -144,21 +144,16 @@ export const ReferEarn = () => {
               <div className="mt-8 sm:mt-10 md:mt-12 p-6 sm:p-7 md:p-9 bg-gradient-to-br from-white/[0.03] to-white/[0.01] border border-white/10 rounded-xl md:rounded-2xl">
                 <div className="flex flex-col items-center gap-5 md:gap-6 md:flex-row md:justify-between text-center md:text-left">
                   <div className="w-full md:w-auto">
-                    <p className="text-xs sm:text-sm text-white/60 font-light mb-2">{t("totalFrom3Sales")}</p>
+                    <p className="text-xs sm:text-sm text-white/60 font-light mb-2">{t("totalFromSale")}</p>
                     <div className="flex items-baseline gap-2 justify-center md:justify-start flex-wrap">
-                      <span className="text-3xl sm:text-4xl md:text-5xl font-extralight bg-gradient-to-r from-neon-coral via-neon-violet to-neon-cyan bg-clip-text text-transparent">
-                        $9.00
+                      <span className="text-3xl sm:text-4xl md:text-5xl font-extralight bg-gradient-to-r from-neon-coral to-neon-cyan bg-clip-text text-transparent">
+                        $5.00
                       </span>
                       <span className="text-sm sm:text-base text-white/60 font-light">{t("usdcOrSol")}</span>
                     </div>
                   </div>
-                  <div className="flex gap-4 sm:gap-5 md:flex-col md:gap-2">
-                    <div className="text-xs sm:text-sm font-light text-white/80">
-                      {t("yourWork")}
-                    </div>
-                    <div className="text-xs sm:text-sm font-light text-neon-coral">
-                      {t("passiveIncome450")}
-                    </div>
+                  <div className="text-xs sm:text-sm font-light text-neon-coral">
+                    {t("flatCommission10")}
                   </div>
                 </div>
               </div>

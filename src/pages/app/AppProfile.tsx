@@ -616,7 +616,7 @@ export const AppProfile: React.FC = () => {
                       </div>
                       <div>
                         <p className="text-sm font-semibold text-foreground">Invite & Earn</p>
-                        <p className="text-[11px] text-muted-foreground">5% of your team's earnings</p>
+                        <p className="text-[11px] text-muted-foreground">10% of your team's earnings</p>
                       </div>
                     </div>
                     <Button size="sm" variant="default" onClick={handleShare} className="h-8 text-xs px-3 active:scale-95">
