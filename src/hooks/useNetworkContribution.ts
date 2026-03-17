@@ -327,7 +327,7 @@ export const requestIOSAlwaysPermission = async (): Promise<boolean> => {
  * 
  * BUSINESS RULES:
  * 1. CELLULAR ONLY - Users only earn points on mobile data
- * 2. TIME-BASED EARNINGS - points = (distanceMeters * 0.005) + (minutesActive * 0.1) — slow drip over 24h
+ * 2. TIME-BASED EARNINGS - points = (distanceMeters * 0.002) + (minutesActive * 0.1) — slow drip over 24h
  * 3. TELCO LOGGING - Log every 100m OR every 5 minutes if stationary
  * 4. SPEED TESTS - Run lightweight speed test every 10 minutes
  */
