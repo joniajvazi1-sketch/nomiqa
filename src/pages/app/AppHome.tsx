@@ -476,7 +476,7 @@ export const AppHome: React.FC = () => {
         successPattern();
         playCoin();
         // Instantly refresh earnings after speed test
-        window.dispatchEvent(new Event('points-updated'));
+        window.dispatchEvent(new CustomEvent('points-updated', { detail: { pointsAdded: 25 } }));
         toastNew({
           title: "Speed Test Complete ⚡",
           description: `↓ ${result.down?.toFixed(1) ?? 'N/A'} Mbps  ↑ ${result.up?.toFixed(1) ?? 'N/A'} Mbps`,
