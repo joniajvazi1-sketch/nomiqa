@@ -57,7 +57,7 @@ export const TOKENOMICS = {
   REFERRAL_BONUS_POINTS: 50,
   
   // Ongoing commission rate (5% of referred user's earnings)
-  REFERRAL_COMMISSION_RATE: 0.05,
+  REFERRAL_COMMISSION_RATE: 0.10,
   
   // Welcome bonus for new users (points)
   WELCOME_BONUS_POINTS: 20,

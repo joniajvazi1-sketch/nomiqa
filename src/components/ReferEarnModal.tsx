@@ -290,7 +290,7 @@ export const ReferEarnModal = ({ open, onOpenChange, product }: ReferEarnModalPr
 
           <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
             <p className="text-xs text-green-700 dark:text-green-400">
-              💰 You earn 9% on direct referrals, 6% on level 2, and 3% on level 3
+              💰 You earn 10% commission on all direct referral purchases
             </p>
           </div>
         </div>
