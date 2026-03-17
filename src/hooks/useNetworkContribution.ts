@@ -1327,6 +1327,22 @@ export const useNetworkContribution = () => {
       return false;
     }
 
+    // Request phone state permission on Android (for telco-grade signal metrics)
+    if (isAndroid && isNative) {
+      try {
+        const { TelephonyInfoPlugin } = await import('@/plugins/TelephonyInfoPlugin');
+        const permStatus = await TelephonyInfoPlugin.checkPermissions();
+        if (!permStatus.phoneState) {
+          console.log('[NetworkContribution] Requesting phone state permission...');
+          const phoneResult = await TelephonyInfoPlugin.requestPermissions();
+          console.log('[NetworkContribution] Phone state permission result:', phoneResult);
+        }
+      } catch (phoneErr) {
+        console.warn('[NetworkContribution] Phone state permission request failed (continuing):', phoneErr);
+        // Non-blocking - contribution can work without phone state
+      }
+    }
+
     heavyTap();
 
     try {

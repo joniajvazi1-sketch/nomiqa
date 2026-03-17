@@ -82,14 +82,15 @@ export const DailyCheckIn = ({ userId, onClose }: DailyCheckInProps) => {
       const newStreakDay = (currentStreak % 7) + 1;
       const bonusPoints = STREAK_REWARDS[newStreakDay - 1]?.points || 10;
 
+      // Use upsert to handle duplicate check-ins gracefully (unique constraint on user_id + check_in_date)
       const { error } = await supabase
         .from('daily_checkins')
-        .insert({
+        .upsert({
           user_id: userId,
           check_in_date: today,
           bonus_points: bonusPoints,
           streak_day: newStreakDay,
-        });
+        }, { onConflict: 'user_id,check_in_date' });
 
       if (error) throw error;
 
@@ -102,26 +103,41 @@ export const DailyCheckIn = ({ userId, onClose }: DailyCheckInProps) => {
 
       if (pointsError) {
         console.error('Error awarding check-in points:', pointsError);
-      } else {
-        const result = pointsResult as any;
-        if (!result?.success) {
-          console.warn('Check-in points capped:', result?.reason);
-          if (result?.reason === 'daily_cap_reached') {
-            toast.info('Daily earning limit reached', {
-              description: 'Your check-in was recorded but no additional points were awarded today.',
-            });
-          }
-        }
+        toast.error('Failed to award points. Please try again.');
+        // Still mark as checked in since the record was inserted
+        setCurrentStreak(newStreakDay);
+        setHasCheckedInToday(true);
+        return;
       }
+
+      const result = pointsResult as any;
+      const actualPointsAdded = (result?.points_added as number) || 0;
 
       successPattern();
       playCelebration();
       setCurrentStreak(newStreakDay);
       setHasCheckedInToday(true);
 
-      toast.success(`+${bonusPoints} points earned!`, {
-        description: `Day ${newStreakDay} streak bonus claimed!`,
-      });
+      if (!result?.success || actualPointsAdded === 0) {
+        const reason = result?.reason;
+        if (reason === 'daily_cap_reached') {
+          toast.info('Daily earning limit reached', {
+            description: 'Your check-in was recorded but no additional points were awarded today.',
+          });
+        } else if (reason === 'account_frozen') {
+          toast.info('Account frozen', {
+            description: 'Your check-in was recorded but points are currently paused.',
+          });
+        } else {
+          toast.success('Check-in recorded!', {
+            description: `Day ${newStreakDay} streak — points capped for today.`,
+          });
+        }
+      } else {
+        toast.success(`+${actualPointsAdded} points earned!`, {
+          description: `Day ${newStreakDay} streak bonus claimed!`,
+        });
+      }
 
       // Notify other screens to refresh points immediately
       window.dispatchEvent(new CustomEvent('points-updated'));

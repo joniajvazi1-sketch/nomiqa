@@ -1,57 +1,92 @@
 
 
-# QA Bug Fix Plan — 5 Failing Tasks
+# Full Audit Report — Ship / Don't Ship
 
-## Bug 1: Account Deletion Fails (Task 9)
-**Root cause:** `AppProfile.tsx` line 418 calls `supabase.functions.invoke('delete-user')` without passing `{ body: { self_delete: true } }`. The edge function receives no body, so `self_delete` is undefined and it falls through to the admin-deletion branch, which requires an `email` field — causing a 400 error.
+## 🚨 ANSWER TO THE CRITICAL QUESTION
 
-**Fix:** Change the invoke call to pass `{ body: { self_delete: true } }`.
+**"Is there ANY direct database write to user_points anywhere left in the codebase?"**
 
-## Bug 2: Daily Check-In Points Not Added (Task 4)
-**Root cause:** The `daily_checkins` table has an INSERT RLS policy with `WITH CHECK (auth.uid() = user_id)`, which is correct. The `DailyCheckIn.tsx` code also looks correct — it inserts into `daily_checkins` and calls `add_points_with_cap`. The last successful check-in in the DB was Feb 10. Since the code logic appears correct, the most likely issue is a **silent RPC error** from `add_points_with_cap` that isn't surfaced to the user — specifically the toast only shows on success, but if the insert to `daily_checkins` fails (e.g., duplicate key for today), the error is thrown but the catch block just shows a generic "Failed to check in" without details. Need to check if there's a unique constraint conflict. Looking at the migration: there's no UNIQUE constraint on `(user_id, check_in_date)` — only an index. So a duplicate insert would succeed, creating double entries. The `.maybeSingle()` call on the today check would also fail if duplicates exist. **Fix:** Add a unique constraint on `(user_id, check_in_date)` and use `upsert` or handle the conflict. Also add better error logging.
+**YES. Do not ship yet.** Here are ALL direct writes:
 
-Actually, re-reading the code more carefully: the insert uses `.insert()` without `.select()`, so if there's no unique constraint, it just inserts. The real issue might be timing — `checkTodayStatus` runs on mount, but if the date string comparison fails (timezone issue), it could try to insert when one already exists. Let me check — the code uses `new Date().toISOString().split('T')[0]` which gives UTC date. If the user is in a timezone ahead of UTC, they might see "today" as a different date than what's stored.
+### Client-side (TypeScript)
 
-The more likely actual bug: the `add_points_with_cap` RPC is called, but looking at the code flow — after insert succeeds, it calls `add_points_with_cap`. If the user's daily cap is already reached, it returns `success: false` with `reason: daily_cap_reached` and shows a toast.info. But the toast.success with "+X points earned!" still fires regardless because it's outside the cap check. Wait no — looking again at lines 90-107: the success toast and `setHasCheckedInToday(true)` happen AFTER the RPC call, unconditionally. The points might be capped but the check-in is recorded.
+| File | Line | Type | Risk |
+|------|------|------|------|
+| `src/hooks/useNetworkContribution.ts` | 1388-1410 | `.update()` distance/time fields only | ⚠️ LOW — no points modified, only `total_distance_meters` and `total_contribution_time_seconds` |
+| `src/pages/app/AppProfile.tsx` | 160-162 | `.insert()` with `total_points: 0` | ✅ SAFE — creates empty row, no points |
+| `supabase/functions/sync-contribution-data/index.ts` | 1131-1148 | `.update()` / `.insert()` with `pending_points` | 🚨 **BUG** — fallback path bypasses caps entirely. If `add_points_with_cap` RPC fails, raw points are written to `pending_points` uncapped |
+| `supabase/functions/sync-contribution-data/index.ts` | 729 | `.update()` to freeze user | ✅ SAFE — sets `is_frozen: true`, no points |
 
-The user report says "Points not added when check-in was tapped." This could mean: (a) the insert itself fails, or (b) the points RPC returns 0. Since there's no unique constraint, (a) is unlikely. For (b), if the user already hit their daily 200-point cap, the check-in would record but award 0 points.
+### Server-side (SQL functions)
 
-**Most likely root cause:** The daily earning cap (200 points) was already reached when they tried the check-in. The code shows a generic success toast `+${bonusPoints} points` even when the RPC caps it to 0. 
+| Function | Write type | Risk |
+|----------|-----------|------|
+| `claim_challenge_reward` | Direct `INSERT ON CONFLICT ... total_points + reward` | 🚨 **NO CAP** — challenge rewards bypass daily/monthly/lifetime caps entirely |
+| `process_referral_commission` (trigger) | Direct `INSERT ON CONFLICT ... total_points + commission` | 🚨 **NO CAP** — referral commissions bypass all caps |
+| `check_and_award_pending_referral_bonus` | Direct `UPDATE total_points + bonus` | 🚨 **NO CAP** — pending referral bonuses bypass all caps |
+| `add_points_with_cap` | Cap-enforced write | ✅ CORRECT |
+| `add_referral_points` | Lifetime-only cap | ⚠️ By design |
 
-**Fix:** Check the actual `points_added` from the RPC result (not the expected `bonusPoints`) and show accurate feedback. Also add the unique constraint to prevent double check-ins.
+### Remaining `window.location.origin` issues (referral links)
 
-## Bug 3: Phone State Permission Not Requested (Task 3)
-**Root cause:** `PhoneStateRationale.tsx` exists as a component but is **never imported** anywhere in the app. The permission flow in `useNetworkContribution.ts` only handles location (foreground → background) but never triggers the phone state permission request. The `TelephonyInfoPlugin.requestPermissions()` is never called during the contribution start flow.
-
-**Fix:** After background location is granted in `startContribution()`, add a step that shows the `PhoneStateRationale` dialog and then calls `TelephonyInfoPlugin.requestPermissions()`. This requires the hook to expose a callback/state for the parent component to render the rationale, or integrate it directly into the permission flow.
-
-## Bug 4: Speed Test Results Not Saved/Shown (Task 7)
-**Root cause:** The DB query returns 0 rows for `speed_test_results`. The `SpeedTest.tsx` insert code looks correct. The INSERT RLS policy exists. The issue is likely that the **RLS policy's WITH CHECK clause** might be blocking the insert silently. Let me check — the policy is `Users can insert own speed test results` for INSERT. Need to verify the WITH CHECK clause. The query showed `qual: <nil>` for the INSERT policy, meaning there's no explicit WITH CHECK. In Supabase, an INSERT policy without WITH CHECK uses the USING clause, but since there's no USING shown either, it might be a permissive policy that allows all authenticated inserts.
-
-Actually, `qual: <nil>` for INSERT means the policy might not have a proper WITH CHECK. This would mean the policy allows inserts from any authenticated user without restriction. So the insert should work.
-
-The user said "Results visible in the pop-up notification but not shown in the app." This means the speed test ran and showed a toast, but `SpeedTestHistory` shows nothing. Since the DB is empty, the insert is failing silently (the code has `if (insertError) { console.error(...); return; }` — it returns without throwing, so the points awarding and toast still don't fire). But the user said results ARE visible in the pop-up... so maybe the toast is from the test completing (line 152 `triggerSuccess()`), not from the save.
-
-Wait — looking at the flow: `runTest()` calls `await saveResult(testResult)` after setting `setResult(testResult)`. The `result` state shows the UI card with speeds. But the data never persists to DB. The insert is likely failing due to missing columns or RLS. Let me check if there's a `with_check` expression.
-
-**Fix:** Need to verify the exact RLS policy. Most likely fix: ensure the INSERT policy has `WITH CHECK (auth.uid() = user_id)`. Also add user-visible error feedback when the insert fails instead of silently returning.
-
-## Bug 5: Google OAuth Redirect (Task 6 — Partial)
-**Root cause per memory:** The native OAuth flow uses a broker URL that redirects to `nomiqa-depin.com/app/oauth-redirect`, which then triggers a deep link back to the app. Sometimes the redirect page doesn't trigger the deep link and the user stays on the web version. This is an existing known intermittent issue related to timing/browser behavior.
-
-**Fix:** Improve the `OAuthRedirect.tsx` fallback — add a more prominent "Open in App" button and reduce the delay before showing it. Also ensure the deep link scheme fires immediately on page load.
+| File | Line | Status |
+|------|------|--------|
+| `src/components/ShareModal.tsx` | 95 | ✅ FIXED — uses `https://nomiqa-depin.com` |
+| `src/components/ReferEarnModal.tsx` | 70 | 🚨 **NOT FIXED** — still uses `window.location.origin` |
+| `src/pages/Affiliate.tsx` | 131, 134, 162, 165, 197, 265, 266 | 🚨 **NOT FIXED** — 7 occurrences of `window.location.origin` |
+| `src/pages/Auth.tsx` | 366 | ⚠️ Acceptable — OAuth redirect, not affiliate link |
 
 ---
 
-## Implementation Summary
+## Required Fixes Before Shipping
 
-| Task | Bug | Fix | Risk |
-|------|-----|-----|------|
-| 9 | delete-user missing body | Pass `{ body: { self_delete: true } }` in invoke call | Low — 1 line |
-| 4 | Check-in points toast shows wrong value | Use actual RPC result for toast; add unique constraint | Low |
-| 3 | Phone state permission never requested | Wire `PhoneStateRationale` into contribution start flow | Medium — multi-file |
-| 7 | Speed test insert may fail silently | Verify/fix RLS; add error feedback | Low-Medium |
-| 6 | OAuth redirect intermittent | Improve OAuthRedirect fallback timing | Low |
+### Fix 1: `ReferEarnModal.tsx` — Canonical domain for referral links
+Replace `window.location.origin` with `https://nomiqa-depin.com` on line 70.
 
-Total: ~5 files to edit, 1 DB migration for the unique constraint.
+### Fix 2: `Affiliate.tsx` — Canonical domain for all affiliate links
+Replace all 7 `window.location.origin` occurrences with `https://nomiqa-depin.com` (lines 131, 134, 162, 165, 197, 265, 266).
+
+### Fix 3: `sync-contribution-data/index.ts` — Remove fallback direct write
+The fallback on lines 1123-1148 writes `pending_points` directly when `add_points_with_cap` fails. This bypasses all caps. Change to: log the error and skip awarding (or retry), rather than raw-writing points.
+
+### Fix 4 (Recommended but by-design): `claim_challenge_reward` SQL
+Currently writes points directly without any cap check. If you want ALL paths gated, this RPC should call `add_points_with_cap` internally instead of raw incrementing `total_points`. Same for `process_referral_commission` trigger and `check_and_award_pending_referral_bonus`.
+
+---
+
+## Items That ARE Ship-Safe (Confirmed ✅)
+
+| # | Item | Status |
+|---|------|--------|
+| 1 | **Auth** — Google OAuth uses canonical domain, session persistence correct, no competing flows | ✅ |
+| 2 | **DailyCheckIn** — Now uses `add_points_with_cap` RPC | ✅ |
+| 3 | **ShareModal** — Uses canonical domain | ✅ |
+| 4 | **ChallengeCard** — No duplicate event dispatch | ✅ |
+| 5 | **useChallenges** — Optimistic update with `new_total` | ✅ |
+| 6 | **Data collection** — No IMEI/MAC/contacts/SMS/clipboard/camera. Location rounded. Fingerprint hashed | ✅ |
+| 7 | **Retention crons** — signal_logs (90d, 5AM UTC), mining_logs (90d, 4AM UTC), order PII (120d, 2AM UTC), coverage refresh (15min) | ✅ |
+| 8 | **RLS** — All sensitive tables locked. Anonymous access denied. Service role not in client | ✅ |
+| 9 | **Routing** — Native → `/app`, Web → `/`, `?appPreview` blocked on production | ✅ |
+| 10 | **Account deletion** — `request_data_deletion` + `delete-user` edge function wipe all data | ✅ |
+| 11 | **Frozen users** — `add_points_with_cap` checks `is_frozen` and rejects | ✅ |
+| 12 | **Self-referral** — Blocked in `process_referral_commission` trigger | ✅ |
+| 13 | **Referral velocity** — `check_referral_eligibility` enforces 10/24h limit | ✅ |
+| 14 | **Idempotent challenge claims** — `claim_challenge_reward` checks `claimed_at IS NOT NULL` | ✅ |
+| 15 | **useNativeGoogleAuth.ts** — Deleted (orphaned) | ✅ |
+
+---
+
+## Implementation Plan
+
+### Step 1: Fix `ReferEarnModal.tsx` canonical domain
+Replace `${window.location.origin}` with `https://nomiqa-depin.com` on line 70.
+
+### Step 2: Fix `Affiliate.tsx` canonical domain (7 locations)
+Replace all `${window.location.origin}` with `https://nomiqa-depin.com` on lines 131, 134, 162, 165, 197, 265, 266.
+
+### Step 3: Remove unsafe fallback in `sync-contribution-data`
+In lines 1122-1148, instead of writing `pending_points` directly, log the error and return without awarding points. The data is not lost — the session is already saved. Points can be reconciled later.
+
+### Step 4 (Optional, recommended): Gate `claim_challenge_reward` through caps
+Modify the SQL function to use `add_points_with_cap` internally instead of raw `total_points` increment. This prevents challenge reward spam from exceeding caps.
 
