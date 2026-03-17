@@ -45,6 +45,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 
   // WebGL/canvas safety: avoid parent transforms on map/network routes
   const isMapRoute = location.pathname === '/app/network' || location.pathname === '/app/map';
+  const isAuthRoute = location.pathname === '/app/auth' || location.pathname === '/app/oauth-redirect';
 
   // Bottom navigation height (56px bar + 16px margin + safe area buffer)
   // Android needs extra padding since env() may not work consistently
@@ -197,7 +198,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         style={{ 
           // Bottom padding for floating nav
           // Android: nav is offset by 48px (system bar) + 56px bar + margins
-          paddingBottom: isAndroid 
+          paddingBottom: isAuthRoute ? '0px' : isAndroid 
             ? `${BOTTOM_NAV_HEIGHT + 48 + 16}px`  // bar height + system nav + extra margin
             : `calc(${BOTTOM_NAV_HEIGHT}px + max(env(safe-area-inset-bottom, 0px), constant(safe-area-inset-bottom, 0px)))`,
           // iOS momentum scrolling
@@ -224,9 +225,11 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         scroll-layer / stacking-context bugs where a momentum scrolling container can
         visually show the bar but intercept taps and/or shift its fixed positioning.
       */}
-      <FullscreenPortal>
-        <BottomTabBar />
-      </FullscreenPortal>
+      {!isAuthRoute && (
+        <FullscreenPortal>
+          <BottomTabBar />
+        </FullscreenPortal>
+      )}
     </div>
   );
 };

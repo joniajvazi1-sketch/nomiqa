@@ -139,8 +139,10 @@ export const DailyCheckIn = ({ userId, onClose }: DailyCheckInProps) => {
         });
       }
 
-      // Notify other screens to refresh points immediately
-      window.dispatchEvent(new CustomEvent('points-updated'));
+      // Notify other screens to refresh points immediately (with newTotal for optimistic update)
+      window.dispatchEvent(new CustomEvent('points-updated', {
+        detail: { newTotal: result?.new_total }
+      }));
 
       setTimeout(() => {
         setIsOpen(false);

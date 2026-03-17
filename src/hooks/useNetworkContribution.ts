@@ -327,7 +327,7 @@ export const requestIOSAlwaysPermission = async (): Promise<boolean> => {
  * 
  * BUSINESS RULES:
  * 1. CELLULAR ONLY - Users only earn points on mobile data
- * 2. TIME-BASED EARNINGS - points = (distanceMeters * 0.005) + (minutesActive * 0.1) — slow drip over 24h
+ * 2. TIME-BASED EARNINGS - points = (distanceMeters * 0.002) + (minutesActive * 0.1) — slow drip over 24h
  * 3. TELCO LOGGING - Log every 100m OR every 5 minutes if stationary
  * 4. SPEED TESTS - Run lightweight speed test every 10 minutes
  */
@@ -511,7 +511,7 @@ export const useNetworkContribution = () => {
             try {
               const bgStats = await BackgroundLocation.drainBackgroundStats();
               if (bgStats.distanceMeters > 0 || bgStats.samples > 0) {
-                const bgDistancePoints = bgStats.distanceMeters * 0.005;
+                const bgDistancePoints = bgStats.distanceMeters * 0.002;
                 console.log(`[NetworkContribution] Drained Android background: ${bgStats.distanceMeters.toFixed(1)}m (+${bgDistancePoints.toFixed(2)} pts), ${bgStats.samples} samples`);
                 
                 // Merge background distance into current stats
@@ -620,7 +620,7 @@ export const useNetworkContribution = () => {
       distanceGained = calculateDistance(lastPositionRef.current, position);
       
       if (distanceGained > 5 && !dailyCapReached) {
-        distancePoints = distanceGained * 0.005;
+        distancePoints = distanceGained * 0.002;
         
         setStats(prev => {
           const newPoints = prev.pointsEarned + distancePoints;
