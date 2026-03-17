@@ -59,11 +59,17 @@ export function SpeedTest({
   const canEarnPoints = rewardedTestsRemaining > 0;
 
   const saveResult = useCallback(async (testResult: SpeedTestResult) => {
-    if (!userId) return;
+    if (!userId) {
+      console.warn('[SpeedTest] Cannot save: user not authenticated');
+      toast.error('Please sign in to save results', {
+        description: 'Your test ran but results were not saved.'
+      });
+      return;
+    }
 
     try {
-      // Save speed test result
-      const { error: insertError } = await supabase
+      // Save speed test result with .select() for explicit error reporting
+      const { data: insertData, error: insertError } = await supabase
         .from('speed_test_results')
         .insert({
           user_id: userId,
@@ -76,15 +82,21 @@ export function SpeedTest({
           carrier,
           provider: testResult.provider,
           error: testResult.downloadError || testResult.uploadError || testResult.latencyError
-        });
+        })
+        .select();
 
       if (insertError) {
-        console.error('[SpeedTest] Failed to save result:', insertError);
+        console.error('[SpeedTest] Failed to save result:', insertError.message, insertError.details, insertError.hint);
         toast.error('Failed to save speed test', {
           description: insertError.message || 'Please try again'
         });
         return;
       }
+      
+      console.log('[SpeedTest] Result saved successfully:', insertData?.length, 'rows');
+      
+      // Dispatch event so SpeedTestHistory can refresh
+      window.dispatchEvent(new CustomEvent('speed-test-saved'));
 
       // Award bonus points only if under daily limit — use server-side cap enforcement
       // Cellular tests earn 25 pts (2.5x) to incentivize real-world network data
