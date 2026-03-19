@@ -59,21 +59,21 @@ interface TileData {
 // Prepare tile data from coverage cells (pure computation, no React)
 const prepareTiles = (cells: GlobalCoverageCell[]): TileData[] => {
   if (!cells || cells.length === 0) return [];
-  const maxCount = Math.max(...cells.map(c => c.count), 1);
 
   return cells.slice(0, 500).map(cell => {
-    const intensity = cell.count / maxCount;
-    const quality = getQualityTier(intensity);
+    // Use actual signal intensity from edge function instead of relative count
+    const signalIntensity = typeof cell.intensity === 'number' ? cell.intensity : 0.5;
+    const quality = getQualityTier(signalIntensity);
     const networkLabel = cell.network === '5g' ? '5G' :
       cell.network === 'lte' ? 'LTE' :
       cell.network === '3g' ? '3G' : 'Mixed';
-    const tileSize = Math.min(0.025 + (cell.count / 100) * 0.012, 0.06);
+    const tileSize = Math.min(0.035 + (cell.count / 100) * 0.012, 0.07);
 
     return {
       lat: cell.lat,
       lng: cell.lng,
       count: cell.count,
-      position: latLngToVector3(cell.lat, cell.lng, 1.52),
+      position: latLngToVector3(cell.lat, cell.lng, 1.535),
       normal: getSurfaceNormal(cell.lat, cell.lng),
       quality,
       networkType: networkLabel,
