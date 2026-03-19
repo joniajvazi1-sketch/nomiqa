@@ -274,8 +274,15 @@ export const AppHome: React.FC = () => {
       }
 
       // Load network intelligence (carriers + live feed) - non-blocking
+      // Filter by user's country for relevant QoE scores
+      let carriersQuery = supabase.from('carrier_benchmarks' as any).select('*');
+      if (detectedCountry) {
+        carriersQuery = carriersQuery.eq('country_code', detectedCountry);
+      }
+      carriersQuery = carriersQuery.order('coverage_score', { ascending: false }).limit(6);
+
       const [carriersRes, feedRes] = await Promise.all([
-        supabase.from('carrier_benchmarks' as any).select('*').order('coverage_score', { ascending: false }).limit(6),
+        carriersQuery,
         supabase.from('signal_logs')
           .select('id, network_generation, carrier_name, country_code, speed_test_down, recorded_at')
           .not('carrier_name', 'is', null)
@@ -283,7 +290,14 @@ export const AppHome: React.FC = () => {
           .order('recorded_at', { ascending: false })
           .limit(5),
       ]);
-      if (carriersRes.data) setCarriers(carriersRes.data as any);
+
+      // Fallback to global if no country-specific data
+      if (carriersRes.data && carriersRes.data.length > 0) {
+        setCarriers(carriersRes.data as any);
+      } else if (detectedCountry) {
+        const globalRes = await supabase.from('carrier_benchmarks' as any).select('*').order('coverage_score', { ascending: false }).limit(6);
+        if (globalRes.data) setCarriers(globalRes.data as any);
+      }
       if (feedRes.data) setRecentFeed(feedRes.data);
     } catch (error) {
       console.error('Error loading data:', error);
