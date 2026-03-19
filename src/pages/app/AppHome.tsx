@@ -202,7 +202,7 @@ export const AppHome: React.FC = () => {
         
         // Parallelize ALL queries for speed
         const [profileRes, pointsRes, affiliateRes, dailyLimitRes, checkinRes, socialRes, challengeRes, speedTestRes, checkinHistoryRes] = await Promise.all([
-          supabase.from('profiles_safe').select('username').eq('user_id', currentUser.id).maybeSingle(),
+          supabase.from('profiles_safe').select('username, country_code').eq('user_id', currentUser.id).maybeSingle(),
           supabase.from('user_points').select('*').eq('user_id', currentUser.id).maybeSingle(),
           supabase.from('affiliates_safe').select('id, total_registrations, miner_boost_percentage, affiliate_code, username').eq('user_id', currentUser.id).maybeSingle(),
           supabase.from('user_daily_limits').select('points_earned').eq('user_id', currentUser.id).eq('limit_date', todayStr).maybeSingle(),
