@@ -1,4 +1,4 @@
-import React, { useRef, useMemo, Suspense, useState, useEffect } from 'react';
+import React, { useRef, useMemo, Suspense, useState, useEffect, useCallback } from 'react';
 import { Canvas, useFrame, useLoader, ThreeEvent } from '@react-three/fiber';
 import { OrbitControls, Sphere, Stars, Html } from '@react-three/drei';
 import { useTheme } from 'next-themes';
@@ -27,13 +27,180 @@ const latLngToVector3 = (lat: number, lng: number, radius: number): THREE.Vector
   return new THREE.Vector3(x, y, z);
 };
 
-// Get surface normal at a point (points away from globe center)
 const getSurfaceNormal = (lat: number, lng: number): THREE.Vector3 => {
   return latLngToVector3(lat, lng, 1).normalize();
 };
 
-// Ultra-realistic Earth with NASA textures
-const Earth: React.FC<{ isDark?: boolean }> = ({ isDark = true }) => {
+// Quality tier helpers
+const getQualityTier = (intensity: number): 'strong' | 'medium' | 'weak' => {
+  if (intensity > 0.6) return 'strong';
+  if (intensity > 0.3) return 'medium';
+  return 'weak';
+};
+
+const QUALITY_COLORS = {
+  strong: { base: new THREE.Color('#22c55e'), glow: new THREE.Color('#86efac') },
+  medium: { base: new THREE.Color('#f59e0b'), glow: new THREE.Color('#fcd34d') },
+  weak:   { base: new THREE.Color('#ef4444'), glow: new THREE.Color('#fca5a5') },
+};
+
+interface TileData {
+  lat: number;
+  lng: number;
+  count: number;
+  position: THREE.Vector3;
+  normal: THREE.Vector3;
+  quality: 'strong' | 'medium' | 'weak';
+  networkType: string;
+  avgSignalLabel: string;
+  tileSize: number;
+}
+
+// Prepare tile data from coverage cells (pure computation, no React)
+const prepareTiles = (cells: GlobalCoverageCell[]): TileData[] => {
+  if (!cells || cells.length === 0) return [];
+  const maxCount = Math.max(...cells.map(c => c.count), 1);
+
+  return cells.slice(0, 500).map(cell => {
+    const intensity = cell.count / maxCount;
+    const quality = getQualityTier(intensity);
+    const networkLabel = cell.network === '5g' ? '5G' :
+      cell.network === 'lte' ? 'LTE' :
+      cell.network === '3g' ? '3G' : 'Mixed';
+    const tileSize = Math.min(0.025 + (cell.count / 100) * 0.012, 0.06);
+
+    return {
+      lat: cell.lat,
+      lng: cell.lng,
+      count: cell.count,
+      position: latLngToVector3(cell.lat, cell.lng, 1.52),
+      normal: getSurfaceNormal(cell.lat, cell.lng),
+      quality,
+      networkType: networkLabel,
+      avgSignalLabel: quality === 'strong' ? 'Strong' : quality === 'medium' ? 'Medium' : 'Weak',
+      tileSize,
+    };
+  });
+};
+
+// InstancedMesh-based coverage tiles — 2 draw calls total
+const InstancedCoverageTiles: React.FC<{
+  tiles: TileData[];
+  selectedIndex: number | null;
+  onSelectIndex: (idx: number | null) => void;
+}> = ({ tiles, selectedIndex, onSelectIndex }) => {
+  const discRef = useRef<THREE.InstancedMesh>(null);
+  const glowRef = useRef<THREE.InstancedMesh>(null);
+
+  // Shared geometries
+  const discGeo = useMemo(() => new THREE.CircleGeometry(1, 16), []);
+  const ringGeo = useMemo(() => new THREE.RingGeometry(1, 1.6, 16), []);
+
+  // Update instance matrices and colors whenever tiles change
+  useEffect(() => {
+    if (!discRef.current || !glowRef.current || tiles.length === 0) return;
+
+    const tempMatrix = new THREE.Matrix4();
+    const tempQuat = new THREE.Quaternion();
+    const up = new THREE.Vector3(0, 0, 1);
+    const tempColor = new THREE.Color();
+
+    for (let i = 0; i < tiles.length; i++) {
+      const t = tiles[i];
+      tempQuat.setFromUnitVectors(up, t.normal);
+      const scale = i === selectedIndex ? t.tileSize * 1.6 : t.tileSize;
+
+      tempMatrix.compose(t.position, tempQuat, new THREE.Vector3(scale, scale, 1));
+      discRef.current.setMatrixAt(i, tempMatrix);
+      glowRef.current.setMatrixAt(i, tempMatrix);
+
+      const colors = QUALITY_COLORS[t.quality];
+      discRef.current.setColorAt(i, tempColor.copy(colors.base));
+      glowRef.current.setColorAt(i, tempColor.copy(colors.glow));
+    }
+
+    discRef.current.instanceMatrix.needsUpdate = true;
+    glowRef.current.instanceMatrix.needsUpdate = true;
+    if (discRef.current.instanceColor) discRef.current.instanceColor.needsUpdate = true;
+    if (glowRef.current.instanceColor) glowRef.current.instanceColor.needsUpdate = true;
+  }, [tiles, selectedIndex]);
+
+  const handleClick = useCallback((e: ThreeEvent<MouseEvent>) => {
+    e.stopPropagation();
+    if (e.instanceId !== undefined) {
+      onSelectIndex(e.instanceId === selectedIndex ? null : e.instanceId);
+    }
+  }, [selectedIndex, onSelectIndex]);
+
+  const count = tiles.length;
+  if (count === 0) return null;
+
+  const selectedTile = selectedIndex !== null ? tiles[selectedIndex] : null;
+
+  return (
+    <>
+      {/* Disc instances */}
+      <instancedMesh
+        ref={discRef}
+        args={[discGeo, undefined, count]}
+        onClick={handleClick}
+      >
+        <meshBasicMaterial transparent opacity={0.85} vertexColors side={THREE.DoubleSide} />
+      </instancedMesh>
+
+      {/* Glow ring instances */}
+      <instancedMesh
+        ref={glowRef}
+        args={[ringGeo, undefined, count]}
+      >
+        <meshBasicMaterial transparent opacity={0.2} vertexColors side={THREE.DoubleSide} />
+      </instancedMesh>
+
+      {/* Tooltip for selected tile */}
+      {selectedTile && (
+        <group position={selectedTile.position}>
+          <Html center distanceFactor={2.5} zIndexRange={[100, 0]} style={{ pointerEvents: 'auto' }}>
+            <div
+              className="relative bg-card border border-border rounded-lg px-3 py-2.5 min-w-[140px] max-w-[200px] shadow-xl pointer-events-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                onClick={(e) => { e.stopPropagation(); onSelectIndex(null); }}
+                className="absolute -top-2 -right-2 w-5 h-5 bg-foreground text-background rounded-full flex items-center justify-center text-[9px] font-bold leading-none shadow-md"
+                aria-label="Close"
+              >
+                ✕
+              </button>
+              <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider mb-1">Coverage Tile</p>
+              <div className="space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground text-[10px]">Signal</span>
+                  <span className={`text-xs font-bold ${
+                    selectedTile.quality === 'strong' ? 'text-green-500' :
+                    selectedTile.quality === 'medium' ? 'text-amber-500' : 'text-red-500'
+                  }`}>
+                    {selectedTile.avgSignalLabel}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground text-[10px]">Samples</span>
+                  <span className="text-foreground text-xs font-bold">{selectedTile.count.toLocaleString()}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground text-[10px]">Network</span>
+                  <span className="text-foreground text-xs font-semibold">{selectedTile.networkType}</span>
+                </div>
+              </div>
+            </div>
+          </Html>
+        </group>
+      )}
+    </>
+  );
+};
+
+// Earth with children rendered inside the same rotating group
+const Earth: React.FC<{ isDark?: boolean; children?: React.ReactNode }> = ({ isDark = true, children }) => {
   const groupRef = useRef<THREE.Group>(null);
   const cloudsRef = useRef<THREE.Mesh>(null);
 
@@ -82,179 +249,9 @@ const Earth: React.FC<{ isDark?: boolean }> = ({ isDark = true }) => {
       <Sphere args={[1.65, 64, 64]}>
         <meshBasicMaterial color={isDark ? "#4d9fff" : "#a0d8ef"} transparent opacity={isDark ? 0.04 : 0.1} side={THREE.BackSide} />
       </Sphere>
-    </group>
-  );
-};
 
-// Aggregated coverage tile marker
-interface CoverageTileData {
-  lat: number;
-  lng: number;
-  count: number;
-  position: THREE.Vector3;
-  normal: THREE.Vector3;
-  quality: 'strong' | 'medium' | 'weak';
-  networkType: string;
-  avgSignalLabel: string;
-}
-
-// Get quality tier from intensity
-const getQualityTier = (intensity: number): 'strong' | 'medium' | 'weak' => {
-  if (intensity > 0.6) return 'strong';
-  if (intensity > 0.3) return 'medium';
-  return 'weak';
-};
-
-// Color map for quality tiers
-const QUALITY_COLORS = {
-  strong: { base: new THREE.Color('#22c55e'), glow: new THREE.Color('#86efac') },
-  medium: { base: new THREE.Color('#f59e0b'), glow: new THREE.Color('#fcd34d') },
-  weak:   { base: new THREE.Color('#ef4444'), glow: new THREE.Color('#fca5a5') },
-};
-
-// Flat coverage tile on globe surface
-const CoverageTile: React.FC<{
-  tile: CoverageTileData;
-  onSelect: (tile: CoverageTileData | null) => void;
-  isSelected: boolean;
-}> = ({ tile, onSelect, isSelected }) => {
-  const meshRef = useRef<THREE.Mesh>(null);
-  const glowRef = useRef<THREE.Mesh>(null);
-
-  const colors = QUALITY_COLORS[tile.quality];
-
-  // Tile size scales with data density, capped
-  const tileSize = Math.min(0.025 + (tile.count / 100) * 0.012, 0.06);
-
-  // Create a quaternion to orient the disc to the surface normal
-  const quaternion = useMemo(() => {
-    const q = new THREE.Quaternion();
-    const up = new THREE.Vector3(0, 0, 1);
-    q.setFromUnitVectors(up, tile.normal);
-    return q;
-  }, [tile.normal]);
-
-  // No pulsing animation — static tiles for analytics look
-  useFrame(() => {
-    if (meshRef.current) {
-      const s = isSelected ? 1.6 : 1;
-      meshRef.current.scale.lerp(new THREE.Vector3(s, s, 1), 0.12);
-    }
-  });
-
-  const handleClick = (e: ThreeEvent<MouseEvent>) => {
-    e.stopPropagation();
-    onSelect(isSelected ? null : tile);
-  };
-
-  return (
-    <group position={tile.position} quaternion={quaternion}>
-      {/* Flat coverage disc */}
-      <mesh ref={meshRef} onClick={handleClick}>
-        <circleGeometry args={[tileSize, 16]} />
-        <meshBasicMaterial color={colors.base} transparent opacity={0.85} side={THREE.DoubleSide} />
-      </mesh>
-
-      {/* Soft glow ring around tile */}
-      <mesh ref={glowRef}>
-        <ringGeometry args={[tileSize, tileSize * 1.6, 16]} />
-        <meshBasicMaterial color={colors.glow} transparent opacity={0.2} side={THREE.DoubleSide} />
-      </mesh>
-
-      {/* Invisible larger click target */}
-      <mesh onClick={handleClick}>
-        <circleGeometry args={[tileSize * 3, 8]} />
-        <meshBasicMaterial transparent opacity={0} side={THREE.DoubleSide} />
-      </mesh>
-
-      {/* Tooltip popup when selected */}
-      {isSelected && (
-        <Html center distanceFactor={2.5} zIndexRange={[100, 0]} style={{ pointerEvents: 'auto' }}>
-          <div
-            className="relative bg-card border border-border rounded-lg px-3 py-2.5 min-w-[140px] max-w-[200px] shadow-xl pointer-events-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              onClick={(e) => { e.stopPropagation(); onSelect(null); }}
-              className="absolute -top-2 -right-2 w-5 h-5 bg-foreground text-background rounded-full flex items-center justify-center text-[9px] font-bold leading-none shadow-md"
-              aria-label="Close"
-            >
-              ✕
-            </button>
-            <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider mb-1">Coverage Tile</p>
-            <div className="space-y-1">
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground text-[10px]">Signal</span>
-                <span className={`text-xs font-bold ${
-                  tile.quality === 'strong' ? 'text-green-500' :
-                  tile.quality === 'medium' ? 'text-amber-500' : 'text-red-500'
-                }`}>
-                  {tile.avgSignalLabel}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground text-[10px]">Samples</span>
-                <span className="text-foreground text-xs font-bold">{tile.count.toLocaleString()}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground text-[10px]">Network</span>
-                <span className="text-foreground text-xs font-semibold">{tile.networkType}</span>
-              </div>
-            </div>
-          </div>
-        </Html>
-      )}
-    </group>
-  );
-};
-
-// Aggregated coverage tiles from database cells
-const CoverageTiles: React.FC<{
-  cells: GlobalCoverageCell[];
-  selectedTile: CoverageTileData | null;
-  onSelectTile: (tile: CoverageTileData | null) => void;
-}> = ({ cells, selectedTile, onSelectTile }) => {
-  const groupRef = useRef<THREE.Group>(null);
-
-  const tiles = useMemo<CoverageTileData[]>(() => {
-    if (!cells || cells.length === 0) return [];
-
-    const maxCount = Math.max(...cells.map(c => c.count), 1);
-
-    return cells.slice(0, 500).map(cell => {
-      const intensity = cell.count / maxCount;
-      const quality = getQualityTier(intensity);
-      const networkLabel = cell.network === '5g' ? '5G' :
-        cell.network === 'lte' ? 'LTE' :
-        cell.network === '3g' ? '3G' : 'Mixed';
-
-      return {
-        lat: cell.lat,
-        lng: cell.lng,
-        count: cell.count,
-        position: latLngToVector3(cell.lat, cell.lng, 1.52),
-        normal: getSurfaceNormal(cell.lat, cell.lng),
-        quality,
-        networkType: networkLabel,
-        avgSignalLabel: quality === 'strong' ? 'Strong' : quality === 'medium' ? 'Medium' : 'Weak',
-      };
-    });
-  }, [cells]);
-
-  useFrame(() => {
-    if (groupRef.current) groupRef.current.rotation.y += 0.0003;
-  });
-
-  return (
-    <group ref={groupRef}>
-      {tiles.map((tile, idx) => (
-        <CoverageTile
-          key={`tile-${tile.lat}-${tile.lng}-${idx}`}
-          tile={tile}
-          onSelect={onSelectTile}
-          isSelected={selectedTile?.lat === tile.lat && selectedTile?.lng === tile.lng}
-        />
-      ))}
+      {/* Coverage tiles rotate with the Earth — no desync */}
+      {children}
     </group>
   );
 };
@@ -262,11 +259,13 @@ const CoverageTiles: React.FC<{
 // Scene with lighting
 const GlobeScene: React.FC<{
   cells: GlobalCoverageCell[];
-  selectedTile: CoverageTileData | null;
-  onSelectTile: (tile: CoverageTileData | null) => void;
+  selectedIndex: number | null;
+  onSelectIndex: (idx: number | null) => void;
   isPersonalView?: boolean;
   isDark?: boolean;
-}> = ({ cells, selectedTile, onSelectTile, isPersonalView, isDark = true }) => {
+}> = ({ cells, selectedIndex, onSelectIndex, isPersonalView, isDark = true }) => {
+  const tiles = useMemo(() => prepareTiles(cells), [cells]);
+
   return (
     <>
       <ambientLight intensity={isDark ? 0.4 : 0.8} color={isDark ? "#b8d4ff" : "#ffffff"} />
@@ -275,15 +274,20 @@ const GlobeScene: React.FC<{
       <directionalLight position={[0, 5, -3]} intensity={isDark ? 0.3 : 0.6} color="#87ceeb" />
       {isDark && <Stars radius={100} depth={50} count={1500} factor={3} saturation={0} fade speed={0.5} />}
 
-      <Earth isDark={isDark} />
-      <CoverageTiles cells={cells} selectedTile={selectedTile} onSelectTile={onSelectTile} />
+      <Earth isDark={isDark}>
+        <InstancedCoverageTiles
+          tiles={tiles}
+          selectedIndex={selectedIndex}
+          onSelectIndex={onSelectIndex}
+        />
+      </Earth>
 
       <OrbitControls
         enablePan={false}
         enableZoom={true}
         minDistance={isPersonalView ? 1.6 : 2.0}
         maxDistance={6}
-        autoRotate={!selectedTile && !isPersonalView}
+        autoRotate={selectedIndex === null && !isPersonalView}
         autoRotateSpeed={0.2}
         dampingFactor={0.05}
         enableDamping
@@ -328,7 +332,7 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
   isPersonalView = false,
   userPosition = null,
 }) => {
-  const [selectedTile, setSelectedTile] = useState<CoverageTileData | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [hasError, setHasError] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -426,14 +430,14 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
                 toneMappingExposure: 1.2,
               }}
               dpr={[1, 1.5]}
-              onPointerMissed={() => setSelectedTile(null)}
+              onPointerMissed={() => setSelectedIndex(null)}
               onError={() => setHasError(true)}
               style={{ touchAction: 'pan-y' }}
             >
               <GlobeScene
                 cells={coverageData}
-                selectedTile={selectedTile}
-                onSelectTile={setSelectedTile}
+                selectedIndex={selectedIndex}
+                onSelectIndex={setSelectedIndex}
                 isPersonalView={isPersonalView}
                 isDark={isDark}
               />
