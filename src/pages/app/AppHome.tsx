@@ -215,7 +215,7 @@ export const AppHome: React.FC = () => {
         ]);
 
         if (profileRes.data?.username) setUsername(profileRes.data.username);
-        const detectedCountry = profileRes.data?.country_code || null;
+        detectedCountry = profileRes.data?.country_code || null;
         if (pointsRes.data) {
           setPoints(pointsRes.data);
           setStreakDays(pointsRes.data.contribution_streak_days || 0);
