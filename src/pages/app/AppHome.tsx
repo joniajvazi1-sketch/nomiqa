@@ -1157,10 +1157,11 @@ export const AppHome: React.FC = () => {
                   {/* Top Carriers */}
                   {carriers.length > 0 && (
                     <div>
-                      <div className="flex items-center gap-1.5 mb-2">
+                      <div className="flex items-center gap-1.5 mb-1">
                         <BarChart3 className="w-3.5 h-3.5 text-muted-foreground" />
                         <span className={cn("text-xs font-semibold", isDark ? "text-white/70" : "text-muted-foreground")}>Top Carriers</span>
                       </div>
+                      <p className={cn("text-[10px] mb-2", isDark ? "text-white/30" : "text-muted-foreground/70")}>Based on community data</p>
                       <div className="space-y-1.5">
                         {carriers.slice(0, 4).map((c, i) => {
                           const emoji = c.country_code?.length === 2
