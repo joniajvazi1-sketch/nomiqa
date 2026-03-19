@@ -145,7 +145,7 @@ const InstancedCoverageTiles: React.FC<{
         args={[discGeo, undefined, count]}
         onClick={handleClick}
       >
-        <meshBasicMaterial transparent opacity={0.85} vertexColors side={THREE.DoubleSide} />
+        <meshBasicMaterial transparent opacity={0.95} vertexColors side={THREE.DoubleSide} />
       </instancedMesh>
 
       {/* Glow ring instances */}
