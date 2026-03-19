@@ -350,7 +350,7 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
     return () => observer.disconnect();
   }, []);
 
-  const initialCameraZ = isPersonalView ? 2.5 : 50;
+  const initialCameraZ = isPersonalView ? 2.5 : 3.5;
 
   const realStats = useMemo(() => ({
     dataPoints: totalDataPoints || coverageData.reduce((sum, c) => sum + c.count, 0),
