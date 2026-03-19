@@ -34,7 +34,6 @@ export const ReferralCodeSection = ({ username }: ReferralCodeSectionProps) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Get affiliate code
       const { data: affiliate } = await supabase
         .from('affiliates_safe')
         .select('affiliate_code, username')
@@ -45,7 +44,6 @@ export const ReferralCodeSection = ({ username }: ReferralCodeSectionProps) => {
         setAffiliateCode(affiliate.affiliate_code || affiliate.username);
       }
 
-      // Check if user already has a referral
       const { data: checkData } = await supabase.functions.invoke('apply-referral-code', {
         body: { checkOnly: true },
       });
@@ -133,7 +131,6 @@ export const ReferralCodeSection = ({ username }: ReferralCodeSectionProps) => {
       const { data, error } = await supabase.functions.invoke('update-referral-code', {
         body: { referralCode: newCode.trim() },
       });
-      // Extract error from response body
       const errMsg = data?.error || (error ? await error?.context?.json?.().then((b: any) => b?.error).catch(() => null) : null);
       if (errMsg) {
         setCodeError(errMsg === 'Referral code already taken' ? 'This code is already taken, please choose another' : errMsg);
@@ -162,61 +159,81 @@ export const ReferralCodeSection = ({ username }: ReferralCodeSectionProps) => {
     <div className="space-y-4">
       {/* Your Referral Code */}
       {affiliateCode && (
-        <div className="p-5 rounded-xl bg-gradient-to-br from-primary/10 to-accent/5 border border-primary/20">
-          <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-            <Gift className="w-5 h-5 text-primary" />
-            Your Referral Code
-          </h3>
+        <div className="rounded-2xl overflow-hidden border border-primary/20 bg-card">
+          {/* Gradient top strip */}
+          <div className="h-1 w-full bg-gradient-to-r from-primary via-accent to-primary" />
 
-          {!isEditingCode ? (
-            <div className="text-center">
-              <p className="text-3xl font-bold font-mono text-primary tracking-wider mb-2">
-                {affiliateCode}
-              </p>
-              <p className="text-xs text-muted-foreground mb-3">
-                Friends enter this code when they sign up
-              </p>
-              <div className="flex gap-2">
-                <Button onClick={copyCode} className="flex-1" size="sm">
-                  {copied ? <Check className="h-4 w-4 mr-2" /> : <Copy className="h-4 w-4 mr-2" />}
-                  {copied ? 'Copied!' : 'Copy Code'}
-                </Button>
-                <Button 
-                  onClick={() => { setNewCode(affiliateCode); setIsEditingCode(true); }} 
-                  variant="outline" 
-                  size="sm"
-                >
-                  <Pencil className="h-4 w-4 mr-1" /> Change
-                </Button>
+          <div className="p-5">
+            <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
+              <Gift className="w-5 h-5 text-primary" />
+              Your Referral Code
+            </h3>
+
+            {!isEditingCode ? (
+              <div className="space-y-3">
+                {/* Code pill */}
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={copyCode}
+                    className="flex-1 flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl bg-gradient-to-br from-primary/10 to-accent/5 border border-primary/20 hover:from-primary/15 hover:to-accent/10 active:scale-[0.98] transition-all group cursor-pointer"
+                  >
+                    <span className="text-xl font-bold font-mono text-primary tracking-widest">
+                      {affiliateCode}
+                    </span>
+                    <span className="transition-transform group-hover:scale-110">
+                      {copied ? (
+                        <Check className="h-4 w-4 text-green-500" />
+                      ) : (
+                        <Copy className="h-4 w-4 text-primary/60" />
+                      )}
+                    </span>
+                  </button>
+                  <button
+                    onClick={() => { setNewCode(affiliateCode); setIsEditingCode(true); }}
+                    className="w-11 h-11 rounded-xl bg-muted/50 border border-border flex items-center justify-center hover:bg-muted transition-colors"
+                    title="Change referral code (one-time)"
+                  >
+                    <Pencil className="h-4 w-4 text-muted-foreground" />
+                  </button>
+                </div>
+                <p className="text-xs text-muted-foreground text-center">
+                  {copied ? '✓ Copied to clipboard!' : 'Click to copy · Friends enter this code when they sign up'}
+                </p>
               </div>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              <p className="text-xs text-muted-foreground">⚠️ You can only change your referral code once</p>
-              <Input
-                value={newCode}
-                onChange={(e) => { setNewCode(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '')); setCodeError(''); }}
-                placeholder="New referral code"
-                className="font-mono"
-              />
-              {codeError && <p className="text-xs text-destructive">{codeError}</p>}
-              <div className="flex gap-2">
-                <Button onClick={handleChangeCode} disabled={savingCode} size="sm" className="flex-1">
-                  {savingCode ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Check className="h-4 w-4 mr-1" />}
-                  Save
-                </Button>
-                <Button onClick={() => { setIsEditingCode(false); setCodeError(''); }} variant="outline" size="sm">
-                  <X className="h-4 w-4 mr-1" /> Cancel
-                </Button>
+            ) : (
+              <div className="space-y-3">
+                <p className="text-xs text-amber-500">⚠️ You can only change your referral code once</p>
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 relative">
+                    <Input
+                      value={newCode}
+                      onChange={(e) => { setNewCode(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '')); setCodeError(''); }}
+                      placeholder="New referral code"
+                      className="font-mono h-11 pr-12"
+                      maxLength={20}
+                      autoFocus
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground">
+                      {newCode.length}/20
+                    </span>
+                  </div>
+                  <Button onClick={handleChangeCode} disabled={savingCode || newCode.length < 3} size="sm" className="h-11 px-3.5">
+                    {savingCode ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+                  </Button>
+                  <Button onClick={() => { setIsEditingCode(false); setCodeError(''); }} variant="ghost" size="sm" className="h-11 px-2.5">
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+                {codeError && <p className="text-xs text-destructive">{codeError}</p>}
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       )}
 
       {/* Apply Someone's Referral Code */}
       {!hasReferral && (
-        <div className="p-5 rounded-xl bg-card border border-border">
+        <div className="p-5 rounded-2xl bg-card border border-border">
           <h3 className="font-semibold text-foreground mb-2 flex items-center gap-2">
             <Gift className="w-5 h-5 text-accent" />
             Apply a Referral Code
@@ -238,7 +255,7 @@ export const ReferralCodeSection = ({ username }: ReferralCodeSectionProps) => {
               }}
               placeholder="Enter username or code"
               className={cn(
-                "pr-10",
+                "pr-10 h-11",
                 isValid === true && "border-green-500",
                 isValid === false && "border-destructive"
               )}
@@ -251,7 +268,7 @@ export const ReferralCodeSection = ({ username }: ReferralCodeSectionProps) => {
           </div>
           {applyError && <p className="text-xs text-destructive mb-2">{applyError}</p>}
           {isValid && <p className="text-xs text-green-600 dark:text-green-400 mb-2">✓ You'll both earn 50 bonus points!</p>}
-          <Button onClick={handleApplyCode} disabled={!isValid || applying} size="sm" className="w-full">
+          <Button onClick={handleApplyCode} disabled={!isValid || applying} size="sm" className="w-full h-10">
             {applying ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : null}
             Apply Referral Code
           </Button>
@@ -259,8 +276,11 @@ export const ReferralCodeSection = ({ username }: ReferralCodeSectionProps) => {
       )}
 
       {hasReferral && (
-        <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/20 text-center">
-          <p className="text-xs text-green-700 dark:text-green-400">✓ Referral code applied</p>
+        <div className="p-3.5 rounded-xl bg-green-500/10 border border-green-500/20 text-center">
+          <p className="text-xs text-green-700 dark:text-green-400 flex items-center justify-center gap-1.5">
+            <Check className="w-3.5 h-3.5" />
+            Referral code applied
+          </p>
         </div>
       )}
     </div>

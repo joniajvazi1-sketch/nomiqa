@@ -1,50 +1,92 @@
 
 
-# Redesign Referral Code Sections (Profile + MyAccount)
+# Full Audit Report — Ship / Don't Ship
 
-## What's changing
+## 🚨 ANSWER TO THE CRITICAL QUESTION
 
-Two separate referral code UIs need visual upgrades:
-1. **Mobile App Profile** (`AppProfile.tsx`, lines 632-766) — the "Invite & Earn" card with inline code editing
-2. **Web MyAccount** (`ReferralCodeSection.tsx`) — standalone component with code display, edit, and apply sections
+**"Is there ANY direct database write to user_points anywhere left in the codebase?"**
 
-Both already support changing the referral code. The goal is to make them visually polished and ensure the "change code" feature is clearly accessible on the profile.
+**YES. Do not ship yet.** Here are ALL direct writes:
 
-## Design Changes
+### Client-side (TypeScript)
 
-### 1. AppProfile.tsx — Invite & Earn Card (lines 632-766)
+| File | Line | Type | Risk |
+|------|------|------|------|
+| `src/hooks/useNetworkContribution.ts` | 1388-1410 | `.update()` distance/time fields only | ⚠️ LOW — no points modified, only `total_distance_meters` and `total_contribution_time_seconds` |
+| `src/pages/app/AppProfile.tsx` | 160-162 | `.insert()` with `total_points: 0` | ✅ SAFE — creates empty row, no points |
+| `supabase/functions/sync-contribution-data/index.ts` | 1131-1148 | `.update()` / `.insert()` with `pending_points` | 🚨 **BUG** — fallback path bypasses caps entirely. If `add_points_with_cap` RPC fails, raw points are written to `pending_points` uncapped |
+| `supabase/functions/sync-contribution-data/index.ts` | 729 | `.update()` to freeze user | ✅ SAFE — sets `is_frozen: true`, no points |
 
-**Current issues:** Plain card, small tap targets, code display is a basic mono text row, "Customize your code" is a tiny underlined link that's easy to miss.
+### Server-side (SQL functions)
 
-**Redesign:**
-- Add a subtle gradient accent strip at the top of the card
-- Make the referral code display larger and more prominent with a pill-shaped container, centered bold mono text, and a gradient background
-- Replace the tiny "Customize your code (one-time)" link with a visible icon button (Pencil) next to the code display — same row, always visible unless already changed
-- Add a subtle "tap to copy" hint animation on the code pill
-- Improve the edit mode: larger input with inline character counter, clearer save/cancel buttons
-- Stats bar: add subtle icons for Team Members and Team Points
-- "Got a Referral Code?" section: make the Apply button more prominent with a gradient outline style
+| Function | Write type | Risk |
+|----------|-----------|------|
+| `claim_challenge_reward` | Direct `INSERT ON CONFLICT ... total_points + reward` | 🚨 **NO CAP** — challenge rewards bypass daily/monthly/lifetime caps entirely |
+| `process_referral_commission` (trigger) | Direct `INSERT ON CONFLICT ... total_points + commission` | 🚨 **NO CAP** — referral commissions bypass all caps |
+| `check_and_award_pending_referral_bonus` | Direct `UPDATE total_points + bonus` | 🚨 **NO CAP** — pending referral bonuses bypass all caps |
+| `add_points_with_cap` | Cap-enforced write | ✅ CORRECT |
+| `add_referral_points` | Lifetime-only cap | ⚠️ By design |
 
-### 2. ReferralCodeSection.tsx (web version)
+### Remaining `window.location.origin` issues (referral links)
 
-**Current issues:** Functional but plain. The code is shown as oversized text. Apply section looks disconnected.
+| File | Line | Status |
+|------|------|--------|
+| `src/components/ShareModal.tsx` | 95 | ✅ FIXED — uses `https://nomiqa-depin.com` |
+| `src/components/ReferEarnModal.tsx` | 70 | 🚨 **NOT FIXED** — still uses `window.location.origin` |
+| `src/pages/Affiliate.tsx` | 131, 134, 162, 165, 197, 265, 266 | 🚨 **NOT FIXED** — 7 occurrences of `window.location.origin` |
+| `src/pages/Auth.tsx` | 366 | ⚠️ Acceptable — OAuth redirect, not affiliate link |
 
-**Redesign:**
-- Wrap the entire section in a single cohesive card with a subtle gradient border
-- Code display: centered pill with copy-on-click, subtle shimmer animation on hover
-- Change button: show as an icon button beside the code (not below), with tooltip
-- Apply section: compact inline form with real-time validation indicator (already exists, just tighten spacing)
-- Add micro-interactions: copy confirmation with checkmark animation
+---
 
-## Files Changed (2)
+## Required Fixes Before Shipping
 
-| File | Changes |
-|------|---------|
-| `src/pages/app/AppProfile.tsx` | Redesign the Invite & Earn card (lines 632-766): larger code display pill, visible edit button, improved stats bar, better apply referral section |
-| `src/components/ReferralCodeSection.tsx` | Visual refresh: gradient border card, pill-style code display, tighter layout, hover shimmer on copy |
+### Fix 1: `ReferEarnModal.tsx` — Canonical domain for referral links
+Replace `window.location.origin` with `https://nomiqa-depin.com` on line 70.
 
-## Technical Notes
-- No backend changes needed — all logic (change code, apply code, copy) already works
-- No new dependencies — uses existing Tailwind utilities and shadcn components
-- The `update-referral-code` edge function already handles the one-time change restriction server-side
+### Fix 2: `Affiliate.tsx` — Canonical domain for all affiliate links
+Replace all 7 `window.location.origin` occurrences with `https://nomiqa-depin.com` (lines 131, 134, 162, 165, 197, 265, 266).
+
+### Fix 3: `sync-contribution-data/index.ts` — Remove fallback direct write
+The fallback on lines 1123-1148 writes `pending_points` directly when `add_points_with_cap` fails. This bypasses all caps. Change to: log the error and skip awarding (or retry), rather than raw-writing points.
+
+### Fix 4 (Recommended but by-design): `claim_challenge_reward` SQL
+Currently writes points directly without any cap check. If you want ALL paths gated, this RPC should call `add_points_with_cap` internally instead of raw incrementing `total_points`. Same for `process_referral_commission` trigger and `check_and_award_pending_referral_bonus`.
+
+---
+
+## Items That ARE Ship-Safe (Confirmed ✅)
+
+| # | Item | Status |
+|---|------|--------|
+| 1 | **Auth** — Google OAuth uses canonical domain, session persistence correct, no competing flows | ✅ |
+| 2 | **DailyCheckIn** — Now uses `add_points_with_cap` RPC | ✅ |
+| 3 | **ShareModal** — Uses canonical domain | ✅ |
+| 4 | **ChallengeCard** — No duplicate event dispatch | ✅ |
+| 5 | **useChallenges** — Optimistic update with `new_total` | ✅ |
+| 6 | **Data collection** — No IMEI/MAC/contacts/SMS/clipboard/camera. Location rounded. Fingerprint hashed | ✅ |
+| 7 | **Retention crons** — signal_logs (90d, 5AM UTC), mining_logs (90d, 4AM UTC), order PII (120d, 2AM UTC), coverage refresh (15min) | ✅ |
+| 8 | **RLS** — All sensitive tables locked. Anonymous access denied. Service role not in client | ✅ |
+| 9 | **Routing** — Native → `/app`, Web → `/`, `?appPreview` blocked on production | ✅ |
+| 10 | **Account deletion** — `request_data_deletion` + `delete-user` edge function wipe all data | ✅ |
+| 11 | **Frozen users** — `add_points_with_cap` checks `is_frozen` and rejects | ✅ |
+| 12 | **Self-referral** — Blocked in `process_referral_commission` trigger | ✅ |
+| 13 | **Referral velocity** — `check_referral_eligibility` enforces 10/24h limit | ✅ |
+| 14 | **Idempotent challenge claims** — `claim_challenge_reward` checks `claimed_at IS NOT NULL` | ✅ |
+| 15 | **useNativeGoogleAuth.ts** — Deleted (orphaned) | ✅ |
+
+---
+
+## Implementation Plan
+
+### Step 1: Fix `ReferEarnModal.tsx` canonical domain
+Replace `${window.location.origin}` with `https://nomiqa-depin.com` on line 70.
+
+### Step 2: Fix `Affiliate.tsx` canonical domain (7 locations)
+Replace all `${window.location.origin}` with `https://nomiqa-depin.com` on lines 131, 134, 162, 165, 197, 265, 266.
+
+### Step 3: Remove unsafe fallback in `sync-contribution-data`
+In lines 1122-1148, instead of writing `pending_points` directly, log the error and return without awarding points. The data is not lost — the session is already saved. Points can be reconciled later.
+
+### Step 4 (Optional, recommended): Gate `claim_challenge_reward` through caps
+Modify the SQL function to use `add_points_with_cap` internally instead of raw `total_points` increment. This prevents challenge reward spam from exceeding caps.
 

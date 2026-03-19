@@ -629,11 +629,14 @@ export const AppProfile: React.FC = () => {
               onTap={() => { selectionTap(); navigate('/app/rewards'); }} 
             />
 
-            {/* Invite Friends — clean & actionable */}
+            {/* Invite Friends — polished & actionable */}
             {affiliate && (
-              <div className="rounded-2xl bg-card border border-border overflow-hidden">
+              <div className="rounded-2xl bg-card border border-border overflow-hidden relative">
+                {/* Gradient accent strip */}
+                <div className="h-1 w-full bg-gradient-to-r from-primary via-accent to-primary" />
+                
                 <div className="p-4">
-                  <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2.5">
                       <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
                         <Users className="w-4.5 h-4.5 text-primary" />
@@ -649,61 +652,74 @@ export const AppProfile: React.FC = () => {
                     </Button>
                   </div>
                   
-                  {/* Referral code display */}
-                  <div className="space-y-2">
-                    <button
-                      onClick={handleCopyLink}
-                      className="w-full flex items-center justify-between gap-2 p-2.5 rounded-xl bg-muted/40 border border-border/50 active:scale-[0.99] transition-transform group"
-                    >
-                      <span className="text-xs font-mono text-muted-foreground truncate">{referralCode}</span>
-                      <span className="flex items-center gap-1 text-[11px] text-primary font-medium whitespace-nowrap">
-                        <Copy className="w-3 h-3" />
-                        Copy
-                      </span>
-                    </button>
-
-                    {/* Change referral code (once) */}
-                    {!hasChangedCode && !isEditingReferralCode && (
-                      <button
-                        onClick={() => { selectionTap(); setIsEditingReferralCode(true); setNewReferralCode(''); }}
-                        className="text-[11px] text-primary hover:underline ml-1"
-                      >
-                        Customize your code (one-time)
-                      </button>
-                    )}
-                    {hasChangedCode && (
-                      <p className="text-[10px] text-muted-foreground ml-1">✓ Code customized</p>
-                    )}
-
-                    {isEditingReferralCode && (
-                      <div className="flex items-center gap-2 pt-1">
-                        <Input
-                          value={newReferralCode}
-                          onChange={(e) => setNewReferralCode(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
-                          placeholder="new_code"
-                          className="h-9 text-sm font-mono bg-muted/50 flex-1"
-                          maxLength={20}
-                          autoFocus
-                        />
-                        <Button size="sm" onClick={handleChangeReferralCode} disabled={savingReferralCode} className="h-9 px-3">
-                          {savingReferralCode ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
+                  {/* Referral code display — pill style */}
+                  {!isEditingReferralCode ? (
+                    <div className="space-y-2">
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium ml-1">Your Referral Code</p>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={handleCopyLink}
+                          className="flex-1 flex items-center justify-center gap-2.5 py-3 px-4 rounded-xl bg-gradient-to-br from-primary/10 to-accent/5 border border-primary/20 active:scale-[0.98] transition-all group"
+                        >
+                          <span className="text-lg font-bold font-mono text-primary tracking-widest">{referralCode}</span>
+                          <Copy className="w-4 h-4 text-primary/60 group-active:text-primary transition-colors" />
+                        </button>
+                        {!hasChangedCode && (
+                          <button
+                            onClick={() => { selectionTap(); setIsEditingReferralCode(true); setNewReferralCode(referralCode || ''); }}
+                            className="w-10 h-10 rounded-xl bg-muted/50 border border-border flex items-center justify-center active:scale-95 transition-transform"
+                          >
+                            <Pencil className="w-4 h-4 text-muted-foreground" />
+                          </button>
+                        )}
+                      </div>
+                      <p className="text-[10px] text-muted-foreground text-center">
+                        {hasChangedCode ? '✓ Code customized' : 'Tap code to copy · Tap pencil to change (once)'}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium ml-1">Change Referral Code</p>
+                      <p className="text-[10px] text-amber-500 ml-1">⚠️ You can only change your code once</p>
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 relative">
+                          <Input
+                            value={newReferralCode}
+                            onChange={(e) => setNewReferralCode(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
+                            placeholder="your_new_code"
+                            className="h-11 text-sm font-mono bg-muted/50 pr-12"
+                            maxLength={20}
+                            autoFocus
+                          />
+                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground">
+                            {newReferralCode.length}/20
+                          </span>
+                        </div>
+                        <Button size="sm" onClick={handleChangeReferralCode} disabled={savingReferralCode || newReferralCode.length < 3} className="h-11 px-3.5">
+                          {savingReferralCode ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                         </Button>
-                        <Button size="sm" variant="ghost" onClick={() => setIsEditingReferralCode(false)} className="h-9 px-2">
-                          <X className="w-3.5 h-3.5" />
+                        <Button size="sm" variant="ghost" onClick={() => setIsEditingReferralCode(false)} className="h-11 px-2.5">
+                          <X className="w-4 h-4" />
                         </Button>
                       </div>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
                 
                 {/* Stats bar */}
                 <div className="grid grid-cols-2 divide-x divide-border border-t border-border">
-                  <div className="py-2.5 text-center">
-                    <p className="text-sm font-bold text-foreground">{affiliate.total_registrations}</p>
+                  <div className="py-3 flex flex-col items-center gap-0.5">
+                    <div className="flex items-center gap-1.5">
+                      <Users className="w-3 h-3 text-muted-foreground" />
+                      <p className="text-sm font-bold text-foreground">{affiliate.total_registrations}</p>
+                    </div>
                     <p className="text-[10px] text-muted-foreground">Team Members</p>
                   </div>
-                  <div className="py-2.5 text-center">
-                    <p className="text-sm font-bold text-primary">{Math.round((affiliate.total_earnings_usd || 0) * 100)}</p>
+                  <div className="py-3 flex flex-col items-center gap-0.5">
+                    <div className="flex items-center gap-1.5">
+                      <Gift className="w-3 h-3 text-primary" />
+                      <p className="text-sm font-bold text-primary">{Math.round((affiliate.total_earnings_usd || 0) * 100)}</p>
+                    </div>
                     <p className="text-[10px] text-muted-foreground">Team Points</p>
                   </div>
                 </div>
@@ -725,7 +741,7 @@ export const AppProfile: React.FC = () => {
                       </div>
                     </div>
                     {!showApplyReferral && (
-                      <Button size="sm" variant="outline" onClick={() => { selectionTap(); setShowApplyReferral(true); }} className="h-8 text-xs px-3">
+                      <Button size="sm" onClick={() => { selectionTap(); setShowApplyReferral(true); }} className="h-8 text-xs px-3 bg-gradient-to-r from-accent/80 to-accent text-accent-foreground border-0 active:scale-95">
                         Apply
                       </Button>
                     )}
@@ -735,16 +751,16 @@ export const AppProfile: React.FC = () => {
                       <Input
                         value={applyReferralInput}
                         onChange={(e) => setApplyReferralInput(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
-                        placeholder="friend's code"
-                        className="h-9 text-sm font-mono bg-muted/50 flex-1"
+                        placeholder="friend's username"
+                        className="h-10 text-sm font-mono bg-muted/50 flex-1"
                         maxLength={20}
                         autoFocus
                       />
-                      <Button size="sm" onClick={handleApplyReferralCode} disabled={applyingReferral} className="h-9 px-3">
+                      <Button size="sm" onClick={handleApplyReferralCode} disabled={applyingReferral} className="h-10 px-4">
                         {applyingReferral ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : 'Apply'}
                       </Button>
-                      <Button size="sm" variant="ghost" onClick={() => { setShowApplyReferral(false); setApplyReferralInput(''); }} className="h-9 px-2">
-                        <X className="w-3.5 h-3.5" />
+                      <Button size="sm" variant="ghost" onClick={() => { setShowApplyReferral(false); setApplyReferralInput(''); }} className="h-10 px-2.5">
+                        <X className="w-4 h-4" />
                       </Button>
                     </div>
                   )}
@@ -752,10 +768,10 @@ export const AppProfile: React.FC = () => {
               </div>
             )}
             {appliedReferral === true && (
-              <div className="rounded-2xl bg-card border border-border p-4">
+              <div className="rounded-2xl bg-card border border-accent/20 p-4 bg-gradient-to-br from-accent/5 to-transparent">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-xl bg-accent/10 flex items-center justify-center">
-                    <Gift className="w-4.5 h-4.5 text-accent" />
+                  <div className="w-9 h-9 rounded-xl bg-accent/15 flex items-center justify-center">
+                    <Check className="w-4.5 h-4.5 text-accent" />
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-foreground">Referral Applied ✓</p>
