@@ -194,6 +194,7 @@ export const AppHome: React.FC = () => {
   }, [isIOS, isActive]);
 
   const loadData = useCallback(async () => {
+    let detectedCountry: string | null = null;
     try {
       const { data: { user: currentUser } } = await supabase.auth.getUser();
 
