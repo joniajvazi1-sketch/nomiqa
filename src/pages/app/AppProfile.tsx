@@ -741,7 +741,7 @@ export const AppProfile: React.FC = () => {
                       </div>
                     </div>
                     {!showApplyReferral && (
-                      <Button size="sm" variant="outline" onClick={() => { selectionTap(); setShowApplyReferral(true); }} className="h-8 text-xs px-3">
+                      <Button size="sm" onClick={() => { selectionTap(); setShowApplyReferral(true); }} className="h-8 text-xs px-3 bg-gradient-to-r from-accent/80 to-accent text-accent-foreground border-0 active:scale-95">
                         Apply
                       </Button>
                     )}
@@ -751,16 +751,16 @@ export const AppProfile: React.FC = () => {
                       <Input
                         value={applyReferralInput}
                         onChange={(e) => setApplyReferralInput(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
-                        placeholder="friend's code"
-                        className="h-9 text-sm font-mono bg-muted/50 flex-1"
+                        placeholder="friend's username"
+                        className="h-10 text-sm font-mono bg-muted/50 flex-1"
                         maxLength={20}
                         autoFocus
                       />
-                      <Button size="sm" onClick={handleApplyReferralCode} disabled={applyingReferral} className="h-9 px-3">
+                      <Button size="sm" onClick={handleApplyReferralCode} disabled={applyingReferral} className="h-10 px-4">
                         {applyingReferral ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : 'Apply'}
                       </Button>
-                      <Button size="sm" variant="ghost" onClick={() => { setShowApplyReferral(false); setApplyReferralInput(''); }} className="h-9 px-2">
-                        <X className="w-3.5 h-3.5" />
+                      <Button size="sm" variant="ghost" onClick={() => { setShowApplyReferral(false); setApplyReferralInput(''); }} className="h-10 px-2.5">
+                        <X className="w-4 h-4" />
                       </Button>
                     </div>
                   )}
@@ -768,10 +768,10 @@ export const AppProfile: React.FC = () => {
               </div>
             )}
             {appliedReferral === true && (
-              <div className="rounded-2xl bg-card border border-border p-4">
+              <div className="rounded-2xl bg-card border border-accent/20 p-4 bg-gradient-to-br from-accent/5 to-transparent">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-xl bg-accent/10 flex items-center justify-center">
-                    <Gift className="w-4.5 h-4.5 text-accent" />
+                  <div className="w-9 h-9 rounded-xl bg-accent/15 flex items-center justify-center">
+                    <Check className="w-4.5 h-4.5 text-accent" />
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-foreground">Referral Applied ✓</p>
