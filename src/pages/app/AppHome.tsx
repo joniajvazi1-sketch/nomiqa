@@ -1124,21 +1124,22 @@ export const AppHome: React.FC = () => {
                     <h3 className="text-base font-bold text-foreground">Coverage Insights</h3>
                   </div>
 
-                  {/* QoE Scores */}
+                  {/* Network Capability Scores */}
                   <div>
-                    <div className="flex items-center gap-1.5 mb-2">
-                      <Tv className="w-3.5 h-3.5 text-muted-foreground" />
-                      <span className={cn("text-xs font-semibold", isDark ? "text-white/70" : "text-muted-foreground")}>Quality of Experience</span>
+                    <div className="flex items-center gap-1.5 mb-0.5">
+                      <Sparkles className="w-3.5 h-3.5 text-muted-foreground" />
+                      <span className={cn("text-xs font-semibold", isDark ? "text-white/70" : "text-muted-foreground")}>What Your Network Supports</span>
                     </div>
+                    <p className={cn("text-[10px] mb-2 ml-5", isDark ? "text-white/30" : "text-muted-foreground/70")}>Estimated from average carrier speeds in your area — not from your usage</p>
                     <div className="grid grid-cols-2 gap-2">
                       {(() => {
                         const avgDown = carriers.length ? carriers.reduce((s, c) => s + (c.avg_download_mbps || 0), 0) / carriers.length : 0;
                         const avgLatency = carriers.length ? carriers.reduce((s, c) => s + (c.avg_latency_ms || 100), 0) / carriers.length : 100;
                         const qoeItems = [
-                          { icon: Video, label: 'Streaming', score: avgDown >= 25 ? 'Excellent' : avgDown >= 10 ? 'Good' : avgDown >= 5 ? 'Fair' : 'Poor' },
+                          { icon: Video, label: 'HD Streaming', score: avgDown >= 25 ? 'Excellent' : avgDown >= 10 ? 'Good' : avgDown >= 5 ? 'Fair' : 'Poor' },
                           { icon: Phone, label: 'Video Calls', score: avgDown >= 15 ? 'Excellent' : avgDown >= 5 ? 'Good' : avgDown >= 2 ? 'Fair' : 'Poor' },
-                          { icon: Gamepad2, label: 'Gaming', score: avgLatency <= 30 ? 'Excellent' : avgLatency <= 60 ? 'Good' : avgLatency <= 100 ? 'Fair' : 'Poor' },
-                          { icon: Globe, label: 'Browsing', score: avgDown >= 5 ? 'Excellent' : avgDown >= 2 ? 'Good' : avgDown >= 1 ? 'Fair' : 'Poor' },
+                          { icon: Gamepad2, label: 'Low Latency', score: avgLatency <= 30 ? 'Excellent' : avgLatency <= 60 ? 'Good' : avgLatency <= 100 ? 'Fair' : 'Poor' },
+                          { icon: Globe, label: 'General Use', score: avgDown >= 5 ? 'Excellent' : avgDown >= 2 ? 'Good' : avgDown >= 1 ? 'Fair' : 'Poor' },
                         ];
                         const colorMap: Record<string, string> = { Excellent: 'text-emerald-400', Good: 'text-primary', Fair: 'text-amber-400', Poor: 'text-destructive' };
                         return qoeItems.map(({ icon: Icon, label, score }) => (
