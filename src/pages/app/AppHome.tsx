@@ -1189,44 +1189,27 @@ export const AppHome: React.FC = () => {
                     </div>
                   )}
 
-                  {/* Live Activity Feed */}
-                  {recentFeed.length > 0 && (
-                    <div>
-                      <div className="flex items-center gap-1.5 mb-2">
-                        <Activity className="w-3.5 h-3.5 text-muted-foreground" />
-                        <span className={cn("text-xs font-semibold", isDark ? "text-white/70" : "text-muted-foreground")}>Recent Activity</span>
-                        <div className="w-1.5 h-1.5 rounded-full bg-destructive animate-pulse" />
+                  {/* Community Stats */}
+                  <div>
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <TrendingUp className="w-3.5 h-3.5 text-muted-foreground" />
+                      <span className={cn("text-xs font-semibold", isDark ? "text-white/70" : "text-muted-foreground")}>Network Trends</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className={cn("p-3 rounded-xl border text-center", isDark ? "bg-white/5 border-white/5" : "bg-muted/50 border-border")}>
+                        <p className={cn("text-[10px]", isDark ? "text-white/50" : "text-muted-foreground")}>Samples Today</p>
+                        <p className="text-sm font-bold text-foreground tabular-nums">{recentFeed.length > 0 ? recentFeed.length : '—'}</p>
                       </div>
-                      <div className="space-y-1.5">
-                        {recentFeed.map((item: any) => {
-                          const emoji = item.country_code?.length === 2
-                            ? String.fromCodePoint(...item.country_code.toUpperCase().split('').map((ch: string) => 127397 + ch.charCodeAt(0)))
-                            : '🌍';
-                          const diff = Date.now() - new Date(item.recorded_at).getTime();
-                          const mins = Math.floor(diff / 60000);
-                          const timeAgo = mins < 1 ? 'now' : mins < 60 ? `${mins}m` : `${Math.floor(mins / 60)}h`;
-                          const net = (item.network_generation || '').toLowerCase();
-                          const netLabel = net.includes('5g') ? '5G' : net.includes('4g') || net.includes('lte') ? 'LTE' : '3G';
-                          const netColor = net.includes('5g') ? 'text-accent' : 'text-primary';
-                          return (
-                            <div key={item.id} className={cn("flex items-center justify-between px-3 py-2 rounded-xl border", isDark ? "bg-white/5 border-white/5" : "bg-muted/50 border-border")}>
-                              <div className="flex items-center gap-2">
-                                <span className="text-sm">{emoji}</span>
-                                <span className="text-xs text-foreground">{item.carrier_name}</span>
-                                <span className={`text-[10px] font-bold ${netColor}`}>{netLabel}</span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                {item.speed_test_down && (
-                                  <span className="text-xs font-bold text-primary tabular-nums">{item.speed_test_down.toFixed(0)} Mbps</span>
-                                )}
-                                <span className={cn("text-[10px]", isDark ? "text-white/30" : "text-muted-foreground")}>{timeAgo}</span>
-                              </div>
-                            </div>
-                          );
-                        })}
+                      <div className={cn("p-3 rounded-xl border text-center", isDark ? "bg-white/5 border-white/5" : "bg-muted/50 border-border")}>
+                        <p className={cn("text-[10px]", isDark ? "text-white/50" : "text-muted-foreground")}>Coverage Areas</p>
+                        <p className="text-sm font-bold text-foreground tabular-nums">
+                          {recentFeed.length > 0
+                            ? new Set(recentFeed.map((f: any) => f.country_code).filter(Boolean)).size
+                            : '—'}
+                        </p>
                       </div>
                     </div>
-                  )}
+                  </div>
                 </motion.div>
               )}
 
