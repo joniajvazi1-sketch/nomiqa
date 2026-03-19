@@ -1121,8 +1121,7 @@ export const AppHome: React.FC = () => {
                 >
                   <div className="flex items-center gap-2">
                     <Signal className="w-4 h-4 text-primary" />
-                    <h3 className="text-base font-bold text-foreground">Network Intelligence</h3>
-                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse ml-auto" />
+                    <h3 className="text-base font-bold text-foreground">Coverage Insights</h3>
                   </div>
 
                   {/* QoE Scores */}
