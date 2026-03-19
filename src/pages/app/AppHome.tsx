@@ -22,7 +22,7 @@ import {
   Flame,
   BarChart3,
   Activity,
-  Tv,
+  Sparkles,
   Video,
   Phone,
   Gamepad2,
