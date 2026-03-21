@@ -1199,6 +1199,7 @@ serve(async (req) => {
         points_earned: actualPointsEarned,
         base_points: basePointsEarned,
         was_capped: wasCapped,
+        version_outdated: versionOutdated,
         proofs_generated: proofs.length,
         validation_summary: {
           avg_suspicion_score: avgSuspicionScore.toFixed(2),
