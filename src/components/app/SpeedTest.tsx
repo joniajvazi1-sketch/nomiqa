@@ -116,7 +116,7 @@ export function SpeedTest({
       const isCellularTest = networkType && !['wifi', 'unknown', 'none'].includes(networkType.toLowerCase());
       const pointsForTest = isCellularTest ? POINTS_CELLULAR : POINTS_WIFI;
       
-      if (dailyTestCount < DAILY_TEST_LIMIT && (testResult.down !== null || testResult.latency !== null)) {
+      if (versionOk && dailyTestCount < DAILY_TEST_LIMIT && (testResult.down !== null || testResult.latency !== null)) {
         const { data: pointsResult, error: rpcError } = await supabase.rpc('add_points_with_cap', {
           p_user_id: userId,
           p_base_points: pointsForTest,
@@ -142,6 +142,10 @@ export function SpeedTest({
             });
           }
         }
+      } else if (!versionOk) {
+        toast.info('Update required to earn points', {
+          description: 'Your speed test was saved. Please update the app.'
+        });
       }
 
       // Update daily count

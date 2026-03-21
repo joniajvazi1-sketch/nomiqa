@@ -561,6 +561,13 @@ export const AppHome: React.FC = () => {
   return (
     <>
       <AppSEO />
+
+      {/* Version outdated banner */}
+      {versionOutdated && (
+        <div className="sticky top-0 z-50 bg-destructive text-destructive-foreground text-center text-sm py-2 px-4 font-medium">
+          ⚠️ Please update your app to keep earning points.
+        </div>
+      )}
       
       <Suspense fallback={null}>
         <AnimatePresence>
