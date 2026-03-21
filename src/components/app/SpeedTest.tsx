@@ -7,6 +7,8 @@ import { runSpeedTest, SpeedTestResult } from '@/utils/speedTestProviders';
 import { supabase } from '@/integrations/supabase/client';
 import { useHaptics } from '@/hooks/useHaptics';
 import { toast } from 'sonner';
+import { getAppVersion } from '@/lib/sentry';
+import { meetsMinVersion } from '@/utils/versionCompare';
 
 const DAILY_TEST_LIMIT = 3;
 const POINTS_CELLULAR = 25;
