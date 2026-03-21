@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
+import { getAppVersion } from '@/lib/sentry';
 import { Capacitor } from '@capacitor/core';
 import { supabase } from '@/integrations/supabase/client';
 import { useBackgroundGeolocation } from './useBackgroundGeolocation';
