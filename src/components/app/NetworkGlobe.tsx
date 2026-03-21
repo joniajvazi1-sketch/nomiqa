@@ -393,13 +393,13 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
         <div className="flex justify-between gap-2">
           <div className="flex-1 bg-muted/80 dark:bg-white/5 backdrop-blur-md border border-border rounded-xl px-3 py-2 text-center">
             <div className="text-foreground text-base font-bold tabular-nums">
-              {realStats.dataPoints.toLocaleString()}
+              {realStats.dataPoints >= 1000 ? `${Math.round(realStats.dataPoints / 1000)}k` : realStats.dataPoints}
             </div>
             <div className="text-foreground/50 text-[10px] font-medium">Samples</div>
           </div>
           <div className="flex-1 bg-muted/80 dark:bg-white/5 backdrop-blur-md border border-border rounded-xl px-3 py-2 text-center">
             <div className="text-foreground text-base font-bold tabular-nums">
-              {realStats.cities.toLocaleString()}
+              {realStats.cities >= 1000 ? `${Math.round(realStats.cities / 1000)}k` : realStats.cities}
             </div>
             <div className="text-foreground/50 text-[10px] font-medium">Areas</div>
           </div>
