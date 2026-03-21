@@ -79,6 +79,19 @@ interface LocationProof {
   network_hash: string;
 }
 
+// Semver comparison: returns -1 if a < b, 0 if equal, 1 if a > b
+function compareSemver(a: string, b: string): number {
+  const pa = a.split('.').map(Number);
+  const pb = b.split('.').map(Number);
+  for (let i = 0; i < 3; i++) {
+    const na = pa[i] || 0;
+    const nb = pb[i] || 0;
+    if (na > nb) return 1;
+    if (na < nb) return -1;
+  }
+  return 0;
+}
+
 // MCC to ISO country code mapping (major countries)
 const MCC_TO_COUNTRY: Record<string, string> = {
   '202': 'GR', '204': 'NL', '206': 'BE', '208': 'FR', '214': 'ES', '216': 'HU',
