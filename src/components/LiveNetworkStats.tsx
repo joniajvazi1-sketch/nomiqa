@@ -11,19 +11,20 @@ interface NetworkStats {
 }
 
 // CSS-only animated counter to eliminate React re-renders
+const formatCompact = (value: number): string => {
+  if (value >= 1000) return `${Math.round(value / 1000)}k`;
+  return value.toString();
+};
+
 const CSSCounter = memo(({ value, isVisible }: { value: number; isVisible: boolean }) => {
-  const formattedValue = value.toLocaleString();
-  
   return (
     <span 
       className={`inline-block tabular-nums transition-opacity duration-500 ${
         isVisible ? 'opacity-100' : 'opacity-0'
       }`}
-      style={{ 
-        fontVariantNumeric: 'tabular-nums',
-      }}
+      style={{ fontVariantNumeric: 'tabular-nums' }}
     >
-      {formattedValue}
+      {formatCompact(value)}
     </span>
   );
 });
@@ -59,54 +60,42 @@ export const LiveNetworkStats = () => {
   }, []);
 
   useEffect(() => {
+    const CACHE_KEY = 'nomiqa_network_stats';
+    const CACHE_TTL = 20 * 60 * 1000; // 20 minutes
+
+    const getCached = (): NetworkStats | null => {
+      try {
+        const raw = localStorage.getItem(CACHE_KEY);
+        if (!raw) return null;
+        const { data, ts } = JSON.parse(raw);
+        if (Date.now() - ts < CACHE_TTL) return data;
+      } catch {}
+      return null;
+    };
+
+    const cached = getCached();
+    if (cached) {
+      setStats(cached);
+      setIsLoading(false);
+      return;
+    }
+
     const fetchStats = async () => {
       try {
-        // Try cached edge function first for faster response
         const { data: cachedData, error: cacheError } = await supabase.functions.invoke('get-network-stats-cached');
         
         if (!cacheError && cachedData) {
-          setStats({
+          const s: NetworkStats = {
             totalDataPoints: cachedData.totalDataPoints || 0,
             totalContributors: cachedData.totalContributors || 0,
             countriesCovered: cachedData.countriesCovered || 180,
             sessionsToday: cachedData.sessionsToday || 0,
-          });
-          setIsLoading(false);
-          return;
+          };
+          setStats(s);
+          localStorage.setItem(CACHE_KEY, JSON.stringify({ data: s, ts: Date.now() }));
         }
-        
-        // Fallback: Fetch stats in parallel - optimized to avoid fetching 1000+ products
-        const [signalLogsResult, contributorsResult, sessionsResult] = await Promise.all([
-          supabase.from('signal_logs').select('id', { count: 'exact', head: true }),
-          supabase.from('user_points').select('id', { count: 'exact', head: true }),
-          supabase.from('contribution_sessions')
-            .select('id', { count: 'exact', head: true })
-            .gte('started_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()),
-        ]);
-
-        // Use a lightweight distinct count query instead of fetching 1000+ rows
-        const { count: countriesCount } = await supabase
-          .from('products')
-          .select('country_code', { count: 'exact', head: true });
-
-        // Products table has ~180+ unique countries - use that as approximation
-        const countriesCovered = countriesCount ? Math.min(Math.floor(countriesCount / 5), 200) : 180;
-
-        setStats({
-          totalDataPoints: signalLogsResult.count || 0,
-          totalContributors: contributorsResult.count || 0,
-          countriesCovered: countriesCovered,
-          sessionsToday: sessionsResult.count || 0,
-        });
       } catch (error) {
         console.error('Failed to fetch network stats:', error);
-        // Fallback to baseline numbers if fetch fails
-        setStats({
-          totalDataPoints: 1247,
-          totalContributors: 89,
-          countriesCovered: 180,
-          sessionsToday: 12,
-        });
       } finally {
         setIsLoading(false);
       }
