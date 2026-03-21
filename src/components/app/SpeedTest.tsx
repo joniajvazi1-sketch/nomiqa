@@ -34,7 +34,18 @@ export function SpeedTest({
   const [dailyTestCount, setDailyTestCount] = useState(0);
   const [userId, setUserId] = useState<string | null>(null);
   const [phase, setPhase] = useState<'idle' | 'latency' | 'download' | 'upload' | 'complete'>('idle');
+  const [versionOk, setVersionOk] = useState(true);
   const { success: triggerSuccess, mediumTap } = useHaptics();
+
+  // Check min app version for points eligibility
+  useEffect(() => {
+    supabase.from('app_remote_config').select('config_value').eq('config_key', 'min_app_version').eq('is_sensitive', false).maybeSingle().then(({ data }) => {
+      if (data?.config_value) {
+        const minVer = typeof data.config_value === 'string' ? data.config_value : String(data.config_value);
+        setVersionOk(meetsMinVersion(getAppVersion(), minVer));
+      }
+    });
+  }, []);
 
   // Fetch user and daily test count
   useEffect(() => {
