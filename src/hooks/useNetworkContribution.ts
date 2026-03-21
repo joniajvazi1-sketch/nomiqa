@@ -741,7 +741,7 @@ export const useNetworkContribution = () => {
             latency_provider: signalLog.latencyProvider,
             latency_method: signalLog.latencyMethod,
             // B2B fields
-            app_version: '1.0.0', // TODO: Get from app config
+            app_version: getAppVersion(),
             // Device integrity anti-fraud signals
             device_integrity_score: integrity.integrityScore,
             device_integrity_flags: integrity.flags,
