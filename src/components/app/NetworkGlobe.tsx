@@ -350,35 +350,53 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
   if (hasError) return <GlobeErrorFallback />;
 
   return (
-    <div ref={containerRef} className="relative w-full h-full">
+    <div ref={containerRef} className="relative w-full h-full overflow-hidden bg-transparent">
+      {/* 3D Globe Canvas */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ touchAction: 'none' }}>
+        <div
+          className="w-[220px] h-[220px] md:w-[280px] md:h-[280px] rounded-full overflow-hidden"
+          style={{ pointerEvents: 'auto', touchAction: 'pan-y' }}
+        >
+          <Suspense fallback={<GlobeLoading />}>
+            <Canvas
+              camera={{ position: [0, 0.3, initialCameraZ], fov: 45 }}
+              frameloop={isVisible ? 'always' : 'never'}
+              gl={{
+                antialias: false,
+                alpha: true,
+                powerPreference: 'low-power',
+                toneMapping: THREE.ACESFilmicToneMapping,
+                toneMappingExposure: 1.2,
+              }}
+              dpr={[1, 1.5]}
+              onPointerMissed={() => setSelectedIndex(null)}
+              onError={() => setHasError(true)}
+              style={{ touchAction: 'pan-y' }}
+            >
+              <GlobeScene
+                cells={coverageData}
+                selectedIndex={selectedIndex}
+                onSelectIndex={setSelectedIndex}
+                isPersonalView={isPersonalView}
+                isDark={isDark}
+              />
+            </Canvas>
+          </Suspense>
+        </div>
+      </div>
+
+      {/* Loading overlay */}
       {loading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-background/80 z-30">
-          <div className="w-10 h-10 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+        <div className="absolute inset-0 flex items-center justify-center bg-background/90 z-30">
+          <div className="flex flex-col items-center gap-3">
+            <div className="w-10 h-10 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+            <span className="text-primary text-sm font-medium">Loading coverage data...</span>
+          </div>
         </div>
       )}
-      <Canvas
-        camera={{ position: [0, 0.3, initialCameraZ], fov: 45 }}
-        frameloop={isVisible ? 'always' : 'never'}
-        gl={{
-          antialias: false,
-          alpha: true,
-          powerPreference: 'low-power',
-          toneMapping: THREE.ACESFilmicToneMapping,
-          toneMappingExposure: 1.2,
-        }}
-        dpr={[1, 1.5]}
-        onPointerMissed={() => setSelectedIndex(null)}
-        onError={() => setHasError(true)}
-        style={{ touchAction: 'pan-y' }}
-      >
-        <GlobeScene
-          cells={coverageData}
-          selectedIndex={selectedIndex}
-          onSelectIndex={setSelectedIndex}
-          isPersonalView={isPersonalView}
-          isDark={isDark}
-        />
-      </Canvas>
+
+      {/* Bottom gradient fade */}
+      <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-background to-transparent z-10 pointer-events-none" />
     </div>
   );
 };
