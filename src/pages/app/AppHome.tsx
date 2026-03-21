@@ -802,27 +802,51 @@ export const AppHome: React.FC = () => {
           </div>
         </motion.div>
 
-        {/* 3. Globe Section - centered between stats bar and buttons */}
-        <div 
-          className="relative z-10 w-full -mb-2 mt-14"
-          style={{ height: '50vh', minHeight: '300px', maxHeight: '480px', contain: 'strict', pointerEvents: 'none', touchAction: 'pan-y' }}
-        >
-          <Suspense fallback={
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-10 h-10 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+        {/* 3. Globe Section */}
+        <div className="relative z-10 w-full mt-6 mb-2">
+          <div className="w-full" style={{ height: '280px', touchAction: 'pan-y' }}>
+            <Suspense fallback={
+              <div className="flex items-center justify-center h-full">
+                <div className="w-10 h-10 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+              </div>
+            }>
+              <NetworkGlobe 
+                coverageData={globalCoverageData?.cells || []}
+                loading={globalCoverageLoading}
+                isPersonalView={false}
+              />
+            </Suspense>
+          </div>
+
+          {/* Stats row below globe */}
+          <div className="flex justify-between gap-2 px-4 mt-3">
+            <div className={cn("flex-1 rounded-xl px-3 py-2 text-center border", isDark ? "bg-white/5 border-border/30" : "bg-muted/80 border-border")}>
+              <div className="text-foreground text-sm font-bold tabular-nums">
+                {(globalCoverageData?.totalDataPoints || 0).toLocaleString()}
+              </div>
+              <div className="text-muted-foreground text-[10px]">Samples</div>
             </div>
-          }>
-            <NetworkGlobe 
-              coverageData={globalCoverageData?.cells || []}
-              loading={globalCoverageLoading}
-              totalDataPoints={globalCoverageData?.totalDataPoints || 0}
-              uniqueLocations={globalCoverageData?.uniqueLocations || 0}
-              allTimeCities={globalCoverageData?.allTimeCities || 0}
-              totalContributors={globalCoverageData?.totalContributors || 0}
-              isPersonalView={false}
-              userPosition={userPosition}
-            />
-          </Suspense>
+            <div className={cn("flex-1 rounded-xl px-3 py-2 text-center border", isDark ? "bg-white/5 border-border/30" : "bg-muted/80 border-border")}>
+              <div className="text-foreground text-sm font-bold tabular-nums">
+                {(globalCoverageData?.allTimeCities || globalCoverageData?.uniqueLocations || 0).toLocaleString()}
+              </div>
+              <div className="text-muted-foreground text-[10px]">Areas</div>
+            </div>
+            <div className={cn("flex-1 rounded-xl px-3 py-2 text-center border", isDark ? "bg-white/5 border-border/30" : "bg-muted/80 border-border")}>
+              <div className="text-foreground text-sm font-bold tabular-nums">
+                {(globalCoverageData?.totalContributors || 0).toLocaleString()}
+              </div>
+              <div className="text-muted-foreground text-[10px]">Contributors</div>
+            </div>
+          </div>
+
+          {/* Legend + hint */}
+          <div className="flex items-center justify-center gap-4 mt-2 px-4">
+            <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-sm bg-green-500" /><span className="text-muted-foreground text-[9px]">Strong</span></div>
+            <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-sm bg-amber-500" /><span className="text-muted-foreground text-[9px]">Medium</span></div>
+            <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-sm bg-red-500" /><span className="text-muted-foreground text-[9px]">Weak</span></div>
+            <span className="text-muted-foreground/50 text-[9px]">· Tap tiles for details</span>
+          </div>
         </div>
 
         {/* 4. Session Stats - Only when active */}
