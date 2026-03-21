@@ -100,8 +100,7 @@ export const AppHome: React.FC = () => {
 
   // Global coverage data for the globe
   const { data: globalCoverageData, loading: globalCoverageLoading } = useGlobalCoverage({
-    autoRefresh: true,
-    refreshInterval: 60000,
+    autoRefresh: false,
   });
 
   const isActive = session.status === 'active';
