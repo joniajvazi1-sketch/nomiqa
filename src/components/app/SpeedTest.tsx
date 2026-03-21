@@ -7,6 +7,8 @@ import { runSpeedTest, SpeedTestResult } from '@/utils/speedTestProviders';
 import { supabase } from '@/integrations/supabase/client';
 import { useHaptics } from '@/hooks/useHaptics';
 import { toast } from 'sonner';
+import { getAppVersion } from '@/lib/sentry';
+import { meetsMinVersion } from '@/utils/versionCompare';
 
 const DAILY_TEST_LIMIT = 3;
 const POINTS_CELLULAR = 25;
@@ -32,7 +34,18 @@ export function SpeedTest({
   const [dailyTestCount, setDailyTestCount] = useState(0);
   const [userId, setUserId] = useState<string | null>(null);
   const [phase, setPhase] = useState<'idle' | 'latency' | 'download' | 'upload' | 'complete'>('idle');
+  const [versionOk, setVersionOk] = useState(true);
   const { success: triggerSuccess, mediumTap } = useHaptics();
+
+  // Check min app version for points eligibility
+  useEffect(() => {
+    supabase.from('app_remote_config').select('config_value').eq('config_key', 'min_app_version').eq('is_sensitive', false).maybeSingle().then(({ data }) => {
+      if (data?.config_value) {
+        const minVer = typeof data.config_value === 'string' ? data.config_value : String(data.config_value);
+        setVersionOk(meetsMinVersion(getAppVersion(), minVer));
+      }
+    });
+  }, []);
 
   // Fetch user and daily test count
   useEffect(() => {
@@ -103,7 +116,7 @@ export function SpeedTest({
       const isCellularTest = networkType && !['wifi', 'unknown', 'none'].includes(networkType.toLowerCase());
       const pointsForTest = isCellularTest ? POINTS_CELLULAR : POINTS_WIFI;
       
-      if (dailyTestCount < DAILY_TEST_LIMIT && (testResult.down !== null || testResult.latency !== null)) {
+      if (versionOk && dailyTestCount < DAILY_TEST_LIMIT && (testResult.down !== null || testResult.latency !== null)) {
         const { data: pointsResult, error: rpcError } = await supabase.rpc('add_points_with_cap', {
           p_user_id: userId,
           p_base_points: pointsForTest,
@@ -129,6 +142,10 @@ export function SpeedTest({
             });
           }
         }
+      } else if (!versionOk) {
+        toast.info('Update required to earn points', {
+          description: 'Your speed test was saved. Please update the app.'
+        });
       }
 
       // Update daily count

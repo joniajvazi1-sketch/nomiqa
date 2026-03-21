@@ -79,6 +79,19 @@ interface LocationProof {
   network_hash: string;
 }
 
+// Semver comparison: returns -1 if a < b, 0 if equal, 1 if a > b
+function compareSemver(a: string, b: string): number {
+  const pa = a.split('.').map(Number);
+  const pb = b.split('.').map(Number);
+  for (let i = 0; i < 3; i++) {
+    const na = pa[i] || 0;
+    const nb = pb[i] || 0;
+    if (na > nb) return 1;
+    if (na < nb) return -1;
+  }
+  return 0;
+}
+
 // MCC to ISO country code mapping (major countries)
 const MCC_TO_COUNTRY: Record<string, string> = {
   '202': 'GR', '204': 'NL', '206': 'BE', '208': 'FR', '214': 'ES', '216': 'HU',
@@ -1105,31 +1118,59 @@ serve(async (req) => {
     await supabase.from('mining_logs').insert(miningLogs);
 
     // P2.0: Use the new capped points system with early user boost and streak multiplier
+    // P3.0: Enforce minimum app version for points eligibility
+    // Extract app_version from first signal log (all logs in a batch share the same version)
+    const clientAppVersion = signalLogs?.[0]?.app_version || null;
+    let versionOutdated = false;
+    
+    // Fetch min_app_version from remote config
+    const { data: configRow } = await supabase
+      .from('app_remote_config')
+      .select('config_value')
+      .eq('config_key', 'min_app_version')
+      .eq('is_sensitive', false)
+      .maybeSingle();
+    
+    if (configRow?.config_value) {
+      const minVer = typeof configRow.config_value === 'string' 
+        ? configRow.config_value 
+        : String(configRow.config_value);
+      
+      if (!clientAppVersion || compareSemver(clientAppVersion, minVer) < 0) {
+        versionOutdated = true;
+        console.log(`Version gate: client=${clientAppVersion || 'unknown'} < min=${minVer}. Data saved, points skipped.`);
+      }
+    }
+
     // Calculate session hours for time-based multiplier
     const sessionHours = contributions.length > 1 
       ? (new Date(contributions[contributions.length - 1].recorded_at).getTime() - 
          new Date(contributions[0].recorded_at).getTime()) / (1000 * 60 * 60)
       : null;
     
-    const { data: pointsResult, error: pointsError } = await supabase
-      .rpc('add_points_with_cap', {
-        p_user_id: user.id,
-        p_base_points: basePointsEarned,
-        p_source: 'contribution',
-        p_session_hours: sessionHours
-      });
-    
-    let actualPointsEarned = basePointsEarned;
+    let actualPointsEarned = 0;
     let wasCapped = false;
     
-    if (pointsResult && !pointsError) {
-      actualPointsEarned = pointsResult.points_added || 0;
-      wasCapped = pointsResult.capped || false;
-    } else {
-      // RPC failed — log error but do NOT write points directly (bypasses caps).
-      // The contribution data is already saved in signal_logs. Points can be reconciled later.
-      console.error('add_points_with_cap RPC failed — points NOT awarded for this sync. Data is safe in signal_logs.', pointsError);
+    if (versionOutdated) {
+      // Old version: save data (already done above) but award 0 points
       actualPointsEarned = 0;
+    } else {
+      const { data: pointsResult, error: pointsError } = await supabase
+        .rpc('add_points_with_cap', {
+          p_user_id: user.id,
+          p_base_points: basePointsEarned,
+          p_source: 'contribution',
+          p_session_hours: sessionHours
+        });
+      
+      if (pointsResult && !pointsError) {
+        actualPointsEarned = pointsResult.points_added || 0;
+        wasCapped = pointsResult.capped || false;
+      } else {
+        // RPC failed — log error but do NOT write points directly (bypasses caps).
+        console.error('add_points_with_cap RPC failed — points NOT awarded for this sync. Data is safe in signal_logs.', pointsError);
+        actualPointsEarned = 0;
+      }
     }
 
     // ==========================================
@@ -1158,6 +1199,7 @@ serve(async (req) => {
         points_earned: actualPointsEarned,
         base_points: basePointsEarned,
         was_capped: wasCapped,
+        version_outdated: versionOutdated,
         proofs_generated: proofs.length,
         validation_summary: {
           avg_suspicion_score: avgSuspicionScore.toFixed(2),
