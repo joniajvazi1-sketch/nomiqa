@@ -57,6 +57,12 @@ const DataConsentModal = lazy(() => import('@/components/app/DataConsentModal').
 const BackgroundLocationRationale = lazy(() => import('@/components/app/BackgroundLocationRationale').then(m => ({ default: m.BackgroundLocationRationale })));
 const RewardCelebration = lazy(() => import('@/components/app/RewardCelebration').then(m => ({ default: m.RewardCelebration })));
 
+// Format large numbers as compact "19k", "1.2k" etc.
+const formatCompactNumber = (n: number): string => {
+  if (n >= 1000) return `${Math.floor(n / 1000)}k`;
+  return n.toString();
+};
+
 // Permission status type for iOS display
 type IOSPermissionStatusLabel = 'Not Determined' | 'While Using' | 'Always' | 'Denied' | 'Unknown';
 
