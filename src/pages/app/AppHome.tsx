@@ -821,19 +821,19 @@ export const AppHome: React.FC = () => {
           <div className="flex justify-between gap-2 px-4 mt-3">
             <div className={cn("flex-1 rounded-xl px-3 py-2 text-center border", isDark ? "bg-white/5 border-border/30" : "bg-muted/80 border-border")}>
               <div className="text-foreground text-sm font-bold tabular-nums">
-                {(globalCoverageData?.totalDataPoints || 0).toLocaleString()}
+                {formatCompactNumber(globalCoverageData?.totalDataPoints || 0)}
               </div>
               <div className="text-muted-foreground text-[10px]">Samples</div>
             </div>
             <div className={cn("flex-1 rounded-xl px-3 py-2 text-center border", isDark ? "bg-white/5 border-border/30" : "bg-muted/80 border-border")}>
               <div className="text-foreground text-sm font-bold tabular-nums">
-                {(globalCoverageData?.allTimeCities || globalCoverageData?.uniqueLocations || 0).toLocaleString()}
+                {formatCompactNumber(globalCoverageData?.allTimeCities || globalCoverageData?.uniqueLocations || 0)}
               </div>
               <div className="text-muted-foreground text-[10px]">Areas</div>
             </div>
             <div className={cn("flex-1 rounded-xl px-3 py-2 text-center border", isDark ? "bg-white/5 border-border/30" : "bg-muted/80 border-border")}>
               <div className="text-foreground text-sm font-bold tabular-nums">
-                {(globalCoverageData?.totalContributors || 0).toLocaleString()}
+                {formatCompactNumber(globalCoverageData?.totalContributors || 0)}
               </div>
               <div className="text-muted-foreground text-[10px]">Contributors</div>
             </div>
