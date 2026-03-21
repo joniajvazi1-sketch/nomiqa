@@ -11,19 +11,20 @@ interface NetworkStats {
 }
 
 // CSS-only animated counter to eliminate React re-renders
+const formatCompact = (value: number): string => {
+  if (value >= 1000) return `${Math.round(value / 1000)}k`;
+  return value.toString();
+};
+
 const CSSCounter = memo(({ value, isVisible }: { value: number; isVisible: boolean }) => {
-  const formattedValue = value.toLocaleString();
-  
   return (
     <span 
       className={`inline-block tabular-nums transition-opacity duration-500 ${
         isVisible ? 'opacity-100' : 'opacity-0'
       }`}
-      style={{ 
-        fontVariantNumeric: 'tabular-nums',
-      }}
+      style={{ fontVariantNumeric: 'tabular-nums' }}
     >
-      {formattedValue}
+      {formatCompact(value)}
     </span>
   );
 });
