@@ -325,7 +325,12 @@ const GlobeErrorFallback: React.FC = () => (
 export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
   coverageData,
   loading = false,
+  totalDataPoints = 0,
+  uniqueLocations = 0,
+  allTimeCities = 0,
+  totalContributors = 0,
   isPersonalView = false,
+  userPosition = null,
 }) => {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [hasError, setHasError] = useState(false);
@@ -345,14 +350,70 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
     return () => observer.disconnect();
   }, []);
 
-  const initialCameraZ = isPersonalView ? 2.5 : 3.2;
+  const initialCameraZ = isPersonalView ? 2.5 : 3.5;
+
+  const realStats = useMemo(() => ({
+    dataPoints: totalDataPoints || coverageData.reduce((sum, c) => sum + c.count, 0),
+    cities: allTimeCities || uniqueLocations || coverageData.length,
+    contributors: totalContributors,
+  }), [coverageData, totalDataPoints, uniqueLocations, allTimeCities, totalContributors]);
 
   if (hasError) return <GlobeErrorFallback />;
 
   return (
     <div ref={containerRef} className="relative w-full h-full overflow-hidden bg-transparent">
+      {/* Header with aggregated data label */}
+      <div className="absolute top-0 left-0 right-0 z-20 p-4 bg-gradient-to-b from-background via-background/60 to-transparent" style={{ pointerEvents: 'auto' }}>
+        <div className="flex items-center justify-center mb-1">
+          <span className="text-foreground/70 text-xs font-medium">Aggregated Network Coverage</span>
+        </div>
+
+        {/* Privacy disclaimer */}
+        <p className="text-center text-foreground/40 text-[9px] mb-2">
+          Anonymized, aggregated measurements — not individual users
+        </p>
+
+        {/* Legend — coverage quality tiers */}
+        <div className="flex items-center justify-center gap-3 mb-2">
+          <div className="flex items-center gap-1.5">
+            <div className="w-2.5 h-2.5 rounded-sm bg-green-500" />
+            <span className="text-foreground/60 text-[10px] font-medium">Strong</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="w-2.5 h-2.5 rounded-sm bg-amber-500" />
+            <span className="text-foreground/60 text-[10px] font-medium">Medium</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="w-2.5 h-2.5 rounded-sm bg-red-500" />
+            <span className="text-foreground/60 text-[10px] font-medium">Weak</span>
+          </div>
+        </div>
+
+        {/* Stats row */}
+        <div className="flex justify-between gap-2">
+          <div className="flex-1 bg-muted/80 dark:bg-white/5 backdrop-blur-md border border-border rounded-xl px-3 py-2 text-center">
+            <div className="text-foreground text-base font-bold tabular-nums">
+              {realStats.dataPoints.toLocaleString()}
+            </div>
+            <div className="text-foreground/50 text-[10px] font-medium">Samples</div>
+          </div>
+          <div className="flex-1 bg-muted/80 dark:bg-white/5 backdrop-blur-md border border-border rounded-xl px-3 py-2 text-center">
+            <div className="text-foreground text-base font-bold tabular-nums">
+              {realStats.cities.toLocaleString()}
+            </div>
+            <div className="text-foreground/50 text-[10px] font-medium">Areas</div>
+          </div>
+          <div className="flex-1 bg-muted/80 dark:bg-white/5 backdrop-blur-md border border-border rounded-xl px-3 py-2 text-center">
+            <div className="text-foreground text-base font-bold tabular-nums">
+              {realStats.contributors > 0 ? realStats.contributors : '—'}
+            </div>
+            <div className="text-foreground/50 text-[10px] font-medium">Contributors</div>
+          </div>
+        </div>
+      </div>
+
       {/* 3D Globe Canvas */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ touchAction: 'none' }}>
+      <div className="absolute left-0 right-0 bottom-0 top-[110px] flex items-center justify-center pointer-events-none" style={{ touchAction: 'none' }}>
         <div
           className="w-[220px] h-[220px] md:w-[280px] md:h-[280px] rounded-full overflow-hidden"
           style={{ pointerEvents: 'auto', touchAction: 'pan-y' }}

@@ -57,12 +57,6 @@ const DataConsentModal = lazy(() => import('@/components/app/DataConsentModal').
 const BackgroundLocationRationale = lazy(() => import('@/components/app/BackgroundLocationRationale').then(m => ({ default: m.BackgroundLocationRationale })));
 const RewardCelebration = lazy(() => import('@/components/app/RewardCelebration').then(m => ({ default: m.RewardCelebration })));
 
-// Format large numbers as compact "19k", "1.2k" etc.
-const formatCompactNumber = (n: number): string => {
-  if (n >= 1000) return `${Math.floor(n / 1000)}k`;
-  return n.toString();
-};
-
 // Permission status type for iOS display
 type IOSPermissionStatusLabel = 'Not Determined' | 'While Using' | 'Always' | 'Denied' | 'Unknown';
 
@@ -106,7 +100,8 @@ export const AppHome: React.FC = () => {
 
   // Global coverage data for the globe
   const { data: globalCoverageData, loading: globalCoverageLoading } = useGlobalCoverage({
-    autoRefresh: false,
+    autoRefresh: true,
+    refreshInterval: 60000,
   });
 
   const isActive = session.status === 'active';
@@ -807,7 +802,7 @@ export const AppHome: React.FC = () => {
           </div>
         </motion.div>
 
-        {/* 3. Globe Section */}
+        {/* 3. Globe Section - centered between stats bar and buttons */}
         <div 
           className="relative z-10 w-full -mb-2 mt-14"
           style={{ height: '50vh', minHeight: '300px', maxHeight: '480px', contain: 'strict', pointerEvents: 'none', touchAction: 'pan-y' }}
@@ -820,38 +815,14 @@ export const AppHome: React.FC = () => {
             <NetworkGlobe 
               coverageData={globalCoverageData?.cells || []}
               loading={globalCoverageLoading}
+              totalDataPoints={globalCoverageData?.totalDataPoints || 0}
+              uniqueLocations={globalCoverageData?.uniqueLocations || 0}
+              allTimeCities={globalCoverageData?.allTimeCities || 0}
+              totalContributors={globalCoverageData?.totalContributors || 0}
               isPersonalView={false}
+              userPosition={userPosition}
             />
           </Suspense>
-
-          {/* Stats row overlaid at bottom */}
-          <div className="absolute bottom-8 left-0 right-0 z-20 flex justify-between gap-2 px-4">
-            <div className={cn("flex-1 rounded-xl px-3 py-2 text-center border backdrop-blur-md", isDark ? "bg-white/5 border-border/30" : "bg-muted/80 border-border")}>
-              <div className="text-foreground text-sm font-bold tabular-nums">
-                {formatCompactNumber(globalCoverageData?.totalDataPoints || 0)}
-              </div>
-              <div className="text-muted-foreground text-[10px]">Samples</div>
-            </div>
-            <div className={cn("flex-1 rounded-xl px-3 py-2 text-center border backdrop-blur-md", isDark ? "bg-white/5 border-border/30" : "bg-muted/80 border-border")}>
-              <div className="text-foreground text-sm font-bold tabular-nums">
-                {formatCompactNumber(globalCoverageData?.allTimeCities || globalCoverageData?.uniqueLocations || 0)}
-              </div>
-              <div className="text-muted-foreground text-[10px]">Areas</div>
-            </div>
-            <div className={cn("flex-1 rounded-xl px-3 py-2 text-center border backdrop-blur-md", isDark ? "bg-white/5 border-border/30" : "bg-muted/80 border-border")}>
-              <div className="text-foreground text-sm font-bold tabular-nums">
-                {formatCompactNumber(globalCoverageData?.totalContributors || 0)}
-              </div>
-              <div className="text-muted-foreground text-[10px]">Contributors</div>
-            </div>
-          </div>
-
-          {/* Legend */}
-          <div className="absolute bottom-1 left-0 right-0 z-20 flex items-center justify-center gap-3">
-            <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-sm bg-green-500" /><span className="text-muted-foreground text-[9px]">Strong</span></div>
-            <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-sm bg-amber-500" /><span className="text-muted-foreground text-[9px]">Medium</span></div>
-            <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-sm bg-red-500" /><span className="text-muted-foreground text-[9px]">Weak</span></div>
-          </div>
         </div>
 
         {/* 4. Session Stats - Only when active */}
