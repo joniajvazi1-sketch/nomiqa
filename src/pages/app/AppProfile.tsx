@@ -543,13 +543,13 @@ export const AppProfile: React.FC = () => {
               
               <p className="text-xs text-muted-foreground mb-3">{profile?.email}</p>
               
-              {/* Tier badge */}
+              {/* Early Member badge */}
               <div className={cn(
                 "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold",
-                tierConfig.bg, tierConfig.color
+                "bg-primary/20 text-primary"
               )}>
-                <TierIcon className="w-3.5 h-3.5" />
-                {tierConfig.name}
+                <Zap className="w-3.5 h-3.5" />
+                Early Member
               </div>
             </div>
 
