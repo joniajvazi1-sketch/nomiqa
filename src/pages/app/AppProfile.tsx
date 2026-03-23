@@ -479,10 +479,7 @@ export const AppProfile: React.FC = () => {
         {/* ── Profile Header ── */}
         <div className="relative rounded-2xl overflow-hidden mb-5">
           {/* Gradient background */}
-          <div className={cn(
-            "absolute inset-0 bg-gradient-to-br opacity-60",
-            tierConfig.gradient
-          )} />
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary/5 opacity-60" />
           <div className="absolute inset-0 bg-card/70 backdrop-blur-xl" />
           
           <div className="relative p-5">
