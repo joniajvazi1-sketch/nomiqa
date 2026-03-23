@@ -131,9 +131,8 @@ export const AppProfile: React.FC = () => {
       setUser(currentUser);
 
       if (currentUser) {
-        const [profileResult, membershipResult, affiliateResult, ordersResult, statsResult] = await Promise.all([
+        const [profileResult, affiliateResult, ordersResult, statsResult] = await Promise.all([
           supabase.from('profiles_safe').select('username, solana_wallet').eq('user_id', currentUser.id).maybeSingle(),
-          supabase.from('user_spending').select('*').eq('user_id', currentUser.id).maybeSingle(),
           supabase.from('affiliates_safe').select('*').eq('user_id', currentUser.id).order('tier_level', { ascending: false }).limit(1).maybeSingle(),
           supabase.from('orders').select('id, package_name, data_amount, status, created_at').eq('user_id', currentUser.id).order('created_at', { ascending: false }).limit(10),
           supabase.functions.invoke('get-contribution-stats')
@@ -144,13 +143,6 @@ export const AppProfile: React.FC = () => {
         setProfile({ username, email: currentUser.email || '', solana_wallet: profileData?.solana_wallet });
         setEditedUsername(username);
         setSolanaWallet(profileData?.solana_wallet || '');
-
-        let membershipData = membershipResult.data;
-        if (!membershipData) {
-          const { data: newMembership } = await supabase.from('user_spending').insert({ user_id: currentUser.id, total_spent_usd: 0 }).select().single();
-          membershipData = newMembership;
-        }
-        setMembership(membershipData);
 
         if (statsResult.data && !statsResult.error) {
           setUserPoints({
