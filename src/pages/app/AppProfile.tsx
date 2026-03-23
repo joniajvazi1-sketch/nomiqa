@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTheme } from 'next-themes';
 import { 
-  User, Package, LogOut, Crown, Star, Sparkles,
+  User, Package, LogOut, Star,
   Share2, Pencil, Check, X, RefreshCw, Users,
   Wallet, Shield, Loader2, Gift,
   Target, ChevronRight, Trash2, AlertTriangle, HelpCircle,
@@ -47,11 +47,6 @@ interface UserProfile {
   solana_wallet?: string | null;
 }
 
-interface MembershipData {
-  total_spent_usd: number;
-  membership_tier: string;
-  cashback_rate: number;
-}
 
 interface AffiliateData {
   id: string;
@@ -73,12 +68,7 @@ interface Order {
   created_at: string;
 }
 
-const TIER_CONFIG = {
-  beginner: { icon: Star, color: 'text-amber-400', bg: 'bg-amber-400/20', name: 'Starter', gradient: 'from-amber-400/20 to-orange-400/10' },
-  traveler: { icon: Crown, color: 'text-sky-400', bg: 'bg-sky-400/20', name: 'Traveler', gradient: 'from-sky-400/20 to-blue-400/10' },
-  adventurer: { icon: Crown, color: 'text-amber-500', bg: 'bg-amber-500/20', name: 'Adventurer', gradient: 'from-amber-500/20 to-orange-500/10' },
-  explorer: { icon: Sparkles, color: 'text-violet-400', bg: 'bg-violet-400/20', name: 'Explorer', gradient: 'from-violet-400/20 to-purple-400/10' }
-};
+const PROFILE_GRADIENT = 'from-primary/20 to-primary/5';
 
 export const AppProfile: React.FC = () => {
   const navigate = useNavigate();
@@ -92,7 +82,7 @@ export const AppProfile: React.FC = () => {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [membership, setMembership] = useState<MembershipData | null>(null);
+  
   const [affiliate, setAffiliate] = useState<AffiliateData | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [isEditingUsername, setIsEditingUsername] = useState(false);
@@ -141,9 +131,8 @@ export const AppProfile: React.FC = () => {
       setUser(currentUser);
 
       if (currentUser) {
-        const [profileResult, membershipResult, affiliateResult, ordersResult, statsResult] = await Promise.all([
+        const [profileResult, affiliateResult, ordersResult, statsResult] = await Promise.all([
           supabase.from('profiles_safe').select('username, solana_wallet').eq('user_id', currentUser.id).maybeSingle(),
-          supabase.from('user_spending').select('*').eq('user_id', currentUser.id).maybeSingle(),
           supabase.from('affiliates_safe').select('*').eq('user_id', currentUser.id).order('tier_level', { ascending: false }).limit(1).maybeSingle(),
           supabase.from('orders').select('id, package_name, data_amount, status, created_at').eq('user_id', currentUser.id).order('created_at', { ascending: false }).limit(10),
           supabase.functions.invoke('get-contribution-stats')
@@ -154,13 +143,6 @@ export const AppProfile: React.FC = () => {
         setProfile({ username, email: currentUser.email || '', solana_wallet: profileData?.solana_wallet });
         setEditedUsername(username);
         setSolanaWallet(profileData?.solana_wallet || '');
-
-        let membershipData = membershipResult.data;
-        if (!membershipData) {
-          const { data: newMembership } = await supabase.from('user_spending').insert({ user_id: currentUser.id, total_spent_usd: 0 }).select().single();
-          membershipData = newMembership;
-        }
-        setMembership(membershipData);
 
         if (statsResult.data && !statsResult.error) {
           setUserPoints({
@@ -460,9 +442,6 @@ export const AppProfile: React.FC = () => {
     }
   };
 
-  const getTierConfig = (tier: string) => TIER_CONFIG[tier as keyof typeof TIER_CONFIG] || TIER_CONFIG.beginner;
-  const tierConfig = membership ? getTierConfig(membership.membership_tier) : getTierConfig('beginner');
-  const TierIcon = tierConfig.icon;
 
   if (!user && !loading) {
     return (
@@ -500,10 +479,7 @@ export const AppProfile: React.FC = () => {
         {/* ── Profile Header ── */}
         <div className="relative rounded-2xl overflow-hidden mb-5">
           {/* Gradient background */}
-          <div className={cn(
-            "absolute inset-0 bg-gradient-to-br opacity-60",
-            tierConfig.gradient
-          )} />
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary/5 opacity-60" />
           <div className="absolute inset-0 bg-card/70 backdrop-blur-xl" />
           
           <div className="relative p-5">
@@ -567,13 +543,13 @@ export const AppProfile: React.FC = () => {
               
               <p className="text-xs text-muted-foreground mb-3">{profile?.email}</p>
               
-              {/* Tier badge */}
+              {/* Early Member badge */}
               <div className={cn(
                 "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold",
-                tierConfig.bg, tierConfig.color
+                "bg-primary/20 text-primary"
               )}>
-                <TierIcon className="w-3.5 h-3.5" />
-                {tierConfig.name}
+                <Zap className="w-3.5 h-3.5" />
+                Early Member
               </div>
             </div>
 

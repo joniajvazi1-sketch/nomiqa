@@ -19,8 +19,13 @@ const NotFound = () => {
     && !/^(app|auth|shop|checkout|orders|privacy|terms|about|token|help|rewards|affiliate|roadmap|download|network|mobile-only|social-rewards|payment-success|getting-started|how-it-works|admin|deutsch|english|francais|espanol|portugues|russian|chinese|japanese|arabic|italiano)$/i.test(pathSegment);
 
   useEffect(() => {
+    // If it looks like an old referral link, redirect to auth/register with the code pre-filled
+    if (looksLikeReferralLink) {
+      window.location.href = `/app/auth?mode=register&ref=${encodeURIComponent(pathSegment)}`;
+      return;
+    }
     console.error("404 Error: User attempted to access non-existent route:", location.pathname);
-  }, [location.pathname]);
+  }, [location.pathname, looksLikeReferralLink, pathSegment]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-black via-deep-space to-black relative overflow-hidden">
