@@ -220,12 +220,15 @@ const GlobeScene: React.FC<{
 
       <OrbitControls
         enablePan={false}
-        enableZoom={false}
+        enableZoom={true}
+        minDistance={2.0}
+        maxDistance={6}
         autoRotate
         autoRotateSpeed={0.3}
         dampingFactor={0.05}
         enableDamping
         rotateSpeed={0.3}
+        zoomSpeed={0.8}
       />
     </>
   );
