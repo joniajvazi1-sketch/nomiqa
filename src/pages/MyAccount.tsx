@@ -586,9 +586,9 @@ export default function MyAccount() {
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <p className="text-3xl font-bold text-accent">
-                          ${0.toFixed(2)}
-                        </p>
+                         <p className="text-3xl font-bold text-accent">
+                           $0.00
+                         </p>
                       </CardContent>
                     </Card>
                   </div>
