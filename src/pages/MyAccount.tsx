@@ -255,13 +255,6 @@ export default function MyAccount() {
     );
   }
 
-  const nextTier = getNextTierInfo();
-  const TierIcon = membership ? TIER_ICONS[membership.membership_tier as keyof typeof TIER_ICONS] : Star;
-  
-  // Calculate total cashback earned
-  const totalCashbackEarned = membership 
-    ? (membership.total_spent_usd * membership.cashback_rate) / 100 
-    : 0;
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
