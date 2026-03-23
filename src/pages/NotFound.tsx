@@ -55,14 +55,25 @@ const NotFound = () => {
               : t("notFoundDescription")}
           </p>
           {looksLikeReferralLink && (
-            <div className="bg-white/[0.05] backdrop-blur-xl border border-neon-cyan/20 rounded-xl p-6 mb-6 text-left max-w-md mx-auto">
-              <p className="text-white/80 text-sm font-light mb-3">{t("notFoundReferralHowTo")}</p>
-              <ol className="text-white/60 text-sm font-light space-y-2 list-decimal list-inside">
-                <li>{t("notFoundReferralStep1")}</li>
-                <li>{t("notFoundReferralStep2")}</li>
-                <li>{t("notFoundReferralStep3")} <span className="text-neon-cyan font-medium">"{pathSegment}"</span></li>
-              </ol>
-            </div>
+            <>
+              <div className="bg-white/[0.05] backdrop-blur-xl border border-neon-cyan/20 rounded-xl p-6 mb-6 text-left max-w-md mx-auto">
+                <p className="text-white/80 text-sm font-light mb-3">{t("notFoundReferralHowTo")}</p>
+                <ol className="text-white/60 text-sm font-light space-y-2 list-decimal list-inside">
+                  <li>{t("notFoundReferralStep1")}</li>
+                  <li>{t("notFoundReferralStep2")}</li>
+                  <li>{t("notFoundReferralStep3")} <span className="text-neon-cyan font-medium">"{pathSegment}"</span></li>
+                </ol>
+              </div>
+              <Link to={`/app/auth?mode=register&ref=${encodeURIComponent(pathSegment)}`} className="inline-block mb-6">
+                <Button 
+                  size="lg"
+                  className="gap-2 bg-neon-cyan/20 backdrop-blur-xl border-2 border-neon-cyan/50 text-white hover:bg-neon-cyan/30 hover:border-neon-cyan/70 font-semibold rounded-xl transition-all duration-300 hover:scale-105"
+                >
+                  <Gift className="w-5 h-5" />
+                  Register with code "{pathSegment}"
+                </Button>
+              </Link>
+            </>
           )}
 
           {/* Primary CTA */}
