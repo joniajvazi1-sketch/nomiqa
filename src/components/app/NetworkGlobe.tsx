@@ -1,6 +1,6 @@
 import React, { useRef, useMemo, Suspense, useState, useEffect, useCallback } from 'react';
 import { Canvas, useFrame, useLoader, ThreeEvent } from '@react-three/fiber';
-import { OrbitControls, Sphere } from '@react-three/drei';
+import { OrbitControls, Sphere, Stars, Html } from '@react-three/drei';
 import { useTheme } from 'next-themes';
 import * as THREE from 'three';
 import { GlobalCoverageCell } from '@/hooks/useGlobalCoverage';
@@ -31,6 +31,7 @@ const getSurfaceNormal = (lat: number, lng: number): THREE.Vector3 => {
   return latLngToVector3(lat, lng, 1).normalize();
 };
 
+// Quality tier helpers
 const getQualityTier = (intensity: number): 'strong' | 'medium' | 'weak' => {
   if (intensity > 0.6) return 'strong';
   if (intensity > 0.3) return 'medium';
@@ -55,17 +56,18 @@ interface TileData {
   tileSize: number;
 }
 
+// Prepare tile data from coverage cells (pure computation, no React)
 const prepareTiles = (cells: GlobalCoverageCell[]): TileData[] => {
   if (!cells || cells.length === 0) return [];
 
   return cells.slice(0, 500).map(cell => {
+    // Use actual signal intensity from edge function instead of relative count
     const signalIntensity = typeof cell.intensity === 'number' ? cell.intensity : 0.5;
     const quality = getQualityTier(signalIntensity);
     const networkLabel = cell.network === '5g' ? '5G' :
       cell.network === 'lte' ? 'LTE' :
       cell.network === '3g' ? '3G' : 'Mixed';
-    // Larger hexagons so they're clearly visible
-    const tileSize = Math.min(0.08 + (cell.count / 50) * 0.03, 0.18);
+    const tileSize = Math.min(0.035 + (cell.count / 100) * 0.012, 0.07);
 
     return {
       lat: cell.lat,
@@ -81,22 +83,28 @@ const prepareTiles = (cells: GlobalCoverageCell[]): TileData[] => {
   });
 };
 
-// InstancedMesh hexagonal coverage tiles
-const InstancedCoverageTiles: React.FC<{ tiles: TileData[] }> = ({ tiles }) => {
+// InstancedMesh-based coverage hexagons — 2 draw calls total
+const InstancedCoverageTiles: React.FC<{
+  tiles: TileData[];
+  selectedIndex: number | null;
+  onSelectIndex: (idx: number | null) => void;
+}> = ({ tiles, selectedIndex, onSelectIndex }) => {
   const discRef = useRef<THREE.InstancedMesh>(null);
   const glowRef = useRef<THREE.InstancedMesh>(null);
 
+  // Hexagon geometry (6 sides) instead of circles
   const hexGeo = useMemo(() => {
     const geo = new THREE.CircleGeometry(1, 6);
-    geo.rotateZ(Math.PI / 6);
+    geo.rotateZ(Math.PI / 6); // flat-top hexagon orientation
     return geo;
   }, []);
   const hexRingGeo = useMemo(() => {
-    const geo = new THREE.RingGeometry(1, 1.6, 6);
+    const geo = new THREE.RingGeometry(1, 1.5, 6);
     geo.rotateZ(Math.PI / 6);
     return geo;
   }, []);
 
+  // Update instance matrices and colors whenever tiles change
   useEffect(() => {
     if (!discRef.current || !glowRef.current || tiles.length === 0) return;
 
@@ -108,8 +116,9 @@ const InstancedCoverageTiles: React.FC<{ tiles: TileData[] }> = ({ tiles }) => {
     for (let i = 0; i < tiles.length; i++) {
       const t = tiles[i];
       tempQuat.setFromUnitVectors(up, t.normal);
+      const scale = i === selectedIndex ? t.tileSize * 1.6 : t.tileSize;
 
-      tempMatrix.compose(t.position, tempQuat, new THREE.Vector3(t.tileSize, t.tileSize, 1));
+      tempMatrix.compose(t.position, tempQuat, new THREE.Vector3(scale, scale, 1));
       discRef.current.setMatrixAt(i, tempMatrix);
       glowRef.current.setMatrixAt(i, tempMatrix);
 
@@ -122,24 +131,41 @@ const InstancedCoverageTiles: React.FC<{ tiles: TileData[] }> = ({ tiles }) => {
     glowRef.current.instanceMatrix.needsUpdate = true;
     if (discRef.current.instanceColor) discRef.current.instanceColor.needsUpdate = true;
     if (glowRef.current.instanceColor) glowRef.current.instanceColor.needsUpdate = true;
-  }, [tiles]);
+  }, [tiles, selectedIndex]);
+
+  const handleClick = useCallback((e: ThreeEvent<MouseEvent>) => {
+    e.stopPropagation();
+    if (e.instanceId !== undefined) {
+      onSelectIndex(e.instanceId === selectedIndex ? null : e.instanceId);
+    }
+  }, [selectedIndex, onSelectIndex]);
 
   const count = tiles.length;
   if (count === 0) return null;
 
   return (
     <>
-      <instancedMesh ref={discRef} args={[hexGeo, undefined, count]}>
+      {/* Hexagon instances */}
+      <instancedMesh
+        ref={discRef}
+        args={[hexGeo, undefined, count]}
+        onClick={handleClick}
+      >
         <meshBasicMaterial transparent opacity={0.9} vertexColors side={THREE.DoubleSide} />
       </instancedMesh>
-      <instancedMesh ref={glowRef} args={[hexRingGeo, undefined, count]}>
-        <meshBasicMaterial transparent opacity={0.3} vertexColors side={THREE.DoubleSide} />
+
+      {/* Glow ring instances */}
+      <instancedMesh
+        ref={glowRef}
+        args={[hexRingGeo, undefined, count]}
+      >
+        <meshBasicMaterial transparent opacity={0.25} vertexColors side={THREE.DoubleSide} />
       </instancedMesh>
     </>
   );
 };
 
-// Ultra-realistic Earth
+// Earth with children rendered inside the same rotating group
 const Earth: React.FC<{ isDark?: boolean; children?: React.ReactNode }> = ({ isDark = true, children }) => {
   const groupRef = useRef<THREE.Group>(null);
   const cloudsRef = useRef<THREE.Mesh>(null);
@@ -156,75 +182,111 @@ const Earth: React.FC<{ isDark?: boolean; children?: React.ReactNode }> = ({ isD
   });
 
   useFrame(() => {
-    if (groupRef.current) groupRef.current.rotation.y += 0.0004;
-    if (cloudsRef.current) cloudsRef.current.rotation.y += 0.0002;
+    if (groupRef.current) groupRef.current.rotation.y += 0.0003;
+    if (cloudsRef.current) cloudsRef.current.rotation.y += 0.00015;
   });
 
   return (
     <group ref={groupRef}>
-      {/* Main Earth sphere — high detail */}
       <mesh>
         <sphereGeometry args={[1.5, 128, 128]} />
         <meshPhongMaterial
           map={dayTexture}
           bumpMap={bumpTexture}
-          bumpScale={0.02}
+          bumpScale={0.015}
           specularMap={specularTexture}
-          specular={new THREE.Color(isDark ? 0x444444 : 0x888888)}
-          shininess={isDark ? 30 : 50}
+          specular={new THREE.Color(isDark ? 0x333333 : 0x666666)}
+          shininess={isDark ? 25 : 40}
         />
       </mesh>
-      {/* Night lights layer */}
       {isDark && (
         <mesh>
           <sphereGeometry args={[1.501, 128, 128]} />
-          <meshBasicMaterial map={nightTexture} transparent opacity={0.65} blending={THREE.AdditiveBlending} depthWrite={false} />
+          <meshBasicMaterial map={nightTexture} transparent opacity={0.6} blending={THREE.AdditiveBlending} depthWrite={false} />
         </mesh>
       )}
-      {/* Cloud layer */}
       <mesh ref={cloudsRef}>
         <sphereGeometry args={[1.52, 64, 64]} />
-        <meshPhongMaterial color="#ffffff" transparent opacity={isDark ? 0.1 : 0.2} depthWrite={false} />
+        <meshPhongMaterial color="#ffffff" transparent opacity={isDark ? 0.08 : 0.18} depthWrite={false} />
       </mesh>
-      {/* Atmosphere inner glow */}
-      <Sphere args={[1.56, 64, 64]}>
-        <meshBasicMaterial color={isDark ? "#6ab7ff" : "#87ceeb"} transparent opacity={isDark ? 0.07 : 0.12} side={THREE.BackSide} />
+      <Sphere args={[1.55, 64, 64]}>
+        <meshBasicMaterial color={isDark ? "#6ab7ff" : "#87ceeb"} transparent opacity={isDark ? 0.06 : 0.12} side={THREE.BackSide} />
       </Sphere>
-      {/* Atmosphere outer glow */}
-      <Sphere args={[1.68, 64, 64]}>
-        <meshBasicMaterial color={isDark ? "#4d9fff" : "#a0d8ef"} transparent opacity={isDark ? 0.05 : 0.1} side={THREE.BackSide} />
+      <Sphere args={[1.65, 64, 64]}>
+        <meshBasicMaterial color={isDark ? "#4d9fff" : "#a0d8ef"} transparent opacity={isDark ? 0.04 : 0.1} side={THREE.BackSide} />
       </Sphere>
 
+      {/* Coverage tiles rotate with the Earth — no desync */}
       {children}
     </group>
   );
 };
 
-// Scene — no zoom, just auto-rotate
+// Camera zoom animation toward selected tile
+const CameraZoom: React.FC<{ target: THREE.Vector3 | null; defaultDistance: number }> = ({ target, defaultDistance }) => {
+  const targetPos = useRef(new THREE.Vector3(0, 0.3, defaultDistance));
+
+  useEffect(() => {
+    if (target) {
+      // Position camera looking at the tile from closer
+      const dir = target.clone().normalize();
+      targetPos.current.copy(dir.multiplyScalar(2.2));
+    } else {
+      targetPos.current.set(0, 0.3, defaultDistance);
+    }
+  }, [target, defaultDistance]);
+
+  useFrame(({ camera }) => {
+    camera.position.lerp(targetPos.current, 0.04);
+    camera.lookAt(0, 0, 0);
+  });
+
+  return null;
+};
+
+// Scene with lighting
 const GlobeScene: React.FC<{
   cells: GlobalCoverageCell[];
+  selectedIndex: number | null;
+  onSelectIndex: (idx: number | null) => void;
+  isPersonalView?: boolean;
   isDark?: boolean;
-}> = ({ cells, isDark = true }) => {
+}> = ({ cells, selectedIndex, onSelectIndex, isPersonalView, isDark = true }) => {
   const tiles = useMemo(() => prepareTiles(cells), [cells]);
+  const zoomTarget = useMemo(() => {
+    if (selectedIndex !== null && tiles[selectedIndex]) {
+      return tiles[selectedIndex].position.clone();
+    }
+    return null;
+  }, [selectedIndex, tiles]);
+
+  const defaultDist = isPersonalView ? 2.5 : 3.5;
 
   return (
     <>
-      <ambientLight intensity={isDark ? 0.5 : 0.9} color={isDark ? "#b8d4ff" : "#ffffff"} />
-      <directionalLight position={[5, 2, 5]} intensity={isDark ? 2.0 : 3.0} color={isDark ? "#fff5e6" : "#fffdf5"} />
-      <directionalLight position={[-5, -2, -5]} intensity={isDark ? 0.2 : 0.6} color={isDark ? "#4da6ff" : "#87ceeb"} />
-      <directionalLight position={[0, 5, -3]} intensity={isDark ? 0.4 : 0.7} color="#87ceeb" />
+      <ambientLight intensity={isDark ? 0.4 : 0.8} color={isDark ? "#b8d4ff" : "#ffffff"} />
+      <directionalLight position={[5, 2, 5]} intensity={isDark ? 1.8 : 2.8} color={isDark ? "#fff5e6" : "#fffdf5"} />
+      <directionalLight position={[-5, -2, -5]} intensity={isDark ? 0.15 : 0.5} color={isDark ? "#4da6ff" : "#87ceeb"} />
+      <directionalLight position={[0, 5, -3]} intensity={isDark ? 0.3 : 0.6} color="#87ceeb" />
+      {isDark && <Stars radius={100} depth={50} count={1500} factor={3} saturation={0} fade speed={0.5} />}
 
       <Earth isDark={isDark}>
-        <InstancedCoverageTiles tiles={tiles} />
+        <InstancedCoverageTiles
+          tiles={tiles}
+          selectedIndex={selectedIndex}
+          onSelectIndex={onSelectIndex}
+        />
       </Earth>
+
+      <CameraZoom target={zoomTarget} defaultDistance={defaultDist} />
 
       <OrbitControls
         enablePan={false}
         enableZoom={true}
-        minDistance={2.0}
+        minDistance={isPersonalView ? 1.6 : 2.0}
         maxDistance={6}
-        autoRotate
-        autoRotateSpeed={0.3}
+        autoRotate={selectedIndex === null && !isPersonalView}
+        autoRotateSpeed={0.2}
         dampingFactor={0.05}
         enableDamping
         rotateSpeed={0.3}
@@ -234,6 +296,7 @@ const GlobeScene: React.FC<{
   );
 };
 
+// Loading fallback
 const GlobeLoading: React.FC = () => (
   <div className="absolute inset-0 flex items-center justify-center">
     <div className="flex flex-col items-center gap-3">
@@ -243,6 +306,7 @@ const GlobeLoading: React.FC = () => (
   </div>
 );
 
+// Error boundary for 3D canvas
 const GlobeErrorFallback: React.FC = () => (
   <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-b from-muted to-background">
     <div className="text-center p-6">
@@ -255,6 +319,7 @@ const GlobeErrorFallback: React.FC = () => (
   </div>
 );
 
+// Main component
 export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
   coverageData,
   loading = false,
@@ -263,7 +328,9 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
   allTimeCities = 0,
   totalContributors = 0,
   isPersonalView = false,
+  userPosition = null,
 }) => {
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [hasError, setHasError] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -281,6 +348,8 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
     return () => observer.disconnect();
   }, []);
 
+  const initialCameraZ = isPersonalView ? 2.5 : 3.5;
+
   const realStats = useMemo(() => ({
     dataPoints: totalDataPoints || coverageData.reduce((sum, c) => sum + c.count, 0),
     cities: allTimeCities || uniqueLocations || coverageData.length,
@@ -291,15 +360,18 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
 
   return (
     <div ref={containerRef} className="relative w-full h-full overflow-hidden bg-transparent">
-      {/* Header */}
+      {/* Header with aggregated data label */}
       <div className="absolute top-0 left-0 right-0 z-20 p-4 bg-gradient-to-b from-background via-background/60 to-transparent" style={{ pointerEvents: 'auto' }}>
         <div className="flex items-center justify-center mb-1">
           <span className="text-foreground/70 text-xs font-medium">Aggregated Network Coverage</span>
         </div>
+
+        {/* Privacy disclaimer */}
         <p className="text-center text-foreground/40 text-[9px] mb-2">
           Anonymized, aggregated measurements — not individual users
         </p>
-        {/* Legend */}
+
+        {/* Legend — coverage quality tiers */}
         <div className="flex items-center justify-center gap-3 mb-2">
           <div className="flex items-center gap-1.5">
             <div className="w-2.5 h-2.5 rounded-sm bg-green-500" />
@@ -314,7 +386,8 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
             <span className="text-foreground/60 text-[10px] font-medium">Weak</span>
           </div>
         </div>
-        {/* Stats */}
+
+        {/* Stats row */}
         <div className="flex justify-between gap-2">
           <div className="flex-1 bg-muted/80 dark:bg-white/5 backdrop-blur-md border border-border rounded-xl px-3 py-2 text-center">
             <div className="text-foreground text-base font-bold tabular-nums">
@@ -337,26 +410,38 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
         </div>
       </div>
 
-      {/* 3D Globe — full width, no clipping */}
-      <div className="absolute inset-0 top-[110px]" style={{ touchAction: 'pan-y' }}>
-        <Suspense fallback={<GlobeLoading />}>
-          <Canvas
-            camera={{ position: [0, 0.3, 3.5], fov: 45 }}
-            frameloop={isVisible ? 'always' : 'never'}
-            gl={{
-              antialias: true,
-              alpha: true,
-              powerPreference: 'default',
-              toneMapping: THREE.ACESFilmicToneMapping,
-              toneMappingExposure: 1.3,
-            }}
-            dpr={[1, 2]}
-            onError={() => setHasError(true)}
-            style={{ touchAction: 'pan-y' }}
-          >
-            <GlobeScene cells={coverageData} isDark={isDark} />
-          </Canvas>
-        </Suspense>
+      {/* 3D Globe Canvas */}
+      <div className="absolute left-0 right-0 bottom-0 top-[110px] flex items-center justify-center pointer-events-none" style={{ touchAction: 'none' }}>
+        <div
+          className="w-[220px] h-[220px] md:w-[280px] md:h-[280px] rounded-full overflow-hidden"
+          style={{ pointerEvents: 'auto', touchAction: 'pan-y' }}
+        >
+          <Suspense fallback={<GlobeLoading />}>
+            <Canvas
+              camera={{ position: [0, 0.3, initialCameraZ], fov: 45 }}
+              frameloop={isVisible ? 'always' : 'never'}
+              gl={{
+                antialias: false,
+                alpha: true,
+                powerPreference: 'low-power',
+                toneMapping: THREE.ACESFilmicToneMapping,
+                toneMappingExposure: 1.2,
+              }}
+              dpr={[1, 1.5]}
+              onPointerMissed={() => setSelectedIndex(null)}
+              onError={() => setHasError(true)}
+              style={{ touchAction: 'pan-y' }}
+            >
+              <GlobeScene
+                cells={coverageData}
+                selectedIndex={selectedIndex}
+                onSelectIndex={setSelectedIndex}
+                isPersonalView={isPersonalView}
+                isDark={isDark}
+              />
+            </Canvas>
+          </Suspense>
+        </div>
       </div>
 
       {/* Loading overlay */}
