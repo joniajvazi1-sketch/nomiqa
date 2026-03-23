@@ -69,7 +69,6 @@ interface Order {
 }
 
 const PROFILE_GRADIENT = 'from-primary/20 to-primary/5';
-};
 
 export const AppProfile: React.FC = () => {
   const navigate = useNavigate();
