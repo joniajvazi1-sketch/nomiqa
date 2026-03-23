@@ -442,9 +442,6 @@ export const AppProfile: React.FC = () => {
     }
   };
 
-  const getTierConfig = (tier: string) => TIER_CONFIG[tier as keyof typeof TIER_CONFIG] || TIER_CONFIG.beginner;
-  const tierConfig = membership ? getTierConfig(membership.membership_tier) : getTierConfig('beginner');
-  const TierIcon = tierConfig.icon;
 
   if (!user && !loading) {
     return (
