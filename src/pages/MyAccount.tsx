@@ -49,7 +49,7 @@ export default function MyAccount() {
   const { language, t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [membership, setMembership] = useState<MembershipData | null>(null);
+  
   const [affiliateData, setAffiliateData] = useState<AffiliateData | null>(null);
   const [userPoints, setUserPoints] = useState<UserPointsData | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);
