@@ -47,11 +47,6 @@ interface UserProfile {
   solana_wallet?: string | null;
 }
 
-interface MembershipData {
-  total_spent_usd: number;
-  membership_tier: string;
-  cashback_rate: number;
-}
 
 interface AffiliateData {
   id: string;
