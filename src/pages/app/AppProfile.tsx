@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTheme } from 'next-themes';
 import { 
-  User, Package, LogOut, Crown, Star, Sparkles,
+  User, Package, LogOut, Star,
   Share2, Pencil, Check, X, RefreshCw, Users,
   Wallet, Shield, Loader2, Gift,
   Target, ChevronRight, Trash2, AlertTriangle, HelpCircle,
