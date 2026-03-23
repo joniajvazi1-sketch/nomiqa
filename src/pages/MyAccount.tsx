@@ -587,7 +587,7 @@ export default function MyAccount() {
                       </CardHeader>
                       <CardContent>
                         <p className="text-3xl font-bold text-accent">
-                          ${totalCashbackEarned.toFixed(2)}
+                          ${0.toFixed(2)}
                         </p>
                       </CardContent>
                     </Card>
@@ -669,10 +669,10 @@ export default function MyAccount() {
                                   rows={3}
                                 />
                               </div>
-                              {((affiliateData?.total_earnings_usd || 0) + totalCashbackEarned) < 5 && (
+                              {((affiliateData?.total_earnings_usd || 0) + 0) < 5 && (
                                 <Alert variant="destructive">
                                   <AlertDescription className="text-sm">
-                                    ⚠️ No withdrawal under $5. Current total: ${((affiliateData?.total_earnings_usd || 0) + totalCashbackEarned).toFixed(2)}
+                                    ⚠️ No withdrawal under $5. Current total: ${((affiliateData?.total_earnings_usd || 0) + 0).toFixed(2)}
                                   </AlertDescription>
                                 </Alert>
                               )}
@@ -682,7 +682,7 @@ export default function MyAccount() {
                                   !walletAddress.trim() || 
                                   walletError !== "" ||
                                   submittingClaim ||
-                                  ((affiliateData?.total_earnings_usd || 0) + totalCashbackEarned) < 5
+                                  ((affiliateData?.total_earnings_usd || 0) + 0) < 5
                                 }
                                 onClick={async () => {
                                   // Validate wallet address format
@@ -698,7 +698,7 @@ export default function MyAccount() {
                                     return;
                                   }
                                   
-                                  const totalAmount = (affiliateData?.total_earnings_usd || 0) + totalCashbackEarned;
+                                  const totalAmount = (affiliateData?.total_earnings_usd || 0) + 0;
                                   
                                   if (totalAmount < 5) {
                                     toast.error("Minimum withdrawal is $5.00");
@@ -712,7 +712,7 @@ export default function MyAccount() {
                                         walletAddress: walletAddress.trim(),
                                         message: claimMessage,
                                         affiliateEarnings: affiliateData?.total_earnings_usd || 0,
-                                        cashbackEarnings: totalCashbackEarned,
+                                        cashbackEarnings: 0,
                                         totalAmount: totalAmount,
                                         userEmail: profile?.email,
                                         username: profile?.username
