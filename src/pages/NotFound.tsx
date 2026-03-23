@@ -64,7 +64,7 @@ const NotFound = () => {
                   <li>{t("notFoundReferralStep3")} <span className="text-neon-cyan font-medium">"{pathSegment}"</span></li>
                 </ol>
               </div>
-              <Link to={`/app/auth?mode=register&ref=${encodeURIComponent(pathSegment)}`} className="inline-block mb-6">
+              <Link to={`/auth?mode=register&ref=${encodeURIComponent(pathSegment)}`} className="inline-block mb-6">
                 <Button 
                   size="lg"
                   className="gap-2 bg-neon-cyan/20 backdrop-blur-xl border-2 border-neon-cyan/50 text-white hover:bg-neon-cyan/30 hover:border-neon-cyan/70 font-semibold rounded-xl transition-all duration-300 hover:scale-105"
