@@ -68,11 +68,7 @@ interface Order {
   created_at: string;
 }
 
-const TIER_CONFIG = {
-  beginner: { icon: Star, color: 'text-amber-400', bg: 'bg-amber-400/20', name: 'Starter', gradient: 'from-amber-400/20 to-orange-400/10' },
-  traveler: { icon: Crown, color: 'text-sky-400', bg: 'bg-sky-400/20', name: 'Traveler', gradient: 'from-sky-400/20 to-blue-400/10' },
-  adventurer: { icon: Crown, color: 'text-amber-500', bg: 'bg-amber-500/20', name: 'Adventurer', gradient: 'from-amber-500/20 to-orange-500/10' },
-  explorer: { icon: Sparkles, color: 'text-violet-400', bg: 'bg-violet-400/20', name: 'Explorer', gradient: 'from-violet-400/20 to-purple-400/10' }
+const PROFILE_GRADIENT = 'from-primary/20 to-primary/5';
 };
 
 export const AppProfile: React.FC = () => {
