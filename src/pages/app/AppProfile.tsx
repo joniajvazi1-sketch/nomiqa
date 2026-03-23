@@ -83,7 +83,7 @@ export const AppProfile: React.FC = () => {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [membership, setMembership] = useState<MembershipData | null>(null);
+  
   const [affiliate, setAffiliate] = useState<AffiliateData | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [isEditingUsername, setIsEditingUsername] = useState(false);
