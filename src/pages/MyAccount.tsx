@@ -28,12 +28,6 @@ interface UserProfile {
   solana_wallet: string | null;
 }
 
-interface MembershipData {
-  total_spent_usd: number;
-  membership_tier: string;
-  cashback_rate: number;
-  cashback_balance?: number; // Calculated on frontend
-}
 
 interface AffiliateData {
   total_earnings_usd: number;
