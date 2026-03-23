@@ -145,67 +145,11 @@ export default function MyAccount() {
       
       setIsAdmin(!!roleData);
 
-      // Check for tier upgrade
-      const previousTier = localStorage.getItem('previousTier');
-      if (previousTier && previousTier !== membershipData.membership_tier) {
-        const tierOrder = ['bronze', 'silver', 'gold', 'platinum'];
-        const previousIndex = tierOrder.indexOf(previousTier);
-        const currentIndex = tierOrder.indexOf(membershipData.membership_tier);
-        
-        if (currentIndex > previousIndex) {
-          setShowConfetti(true);
-          const tierKey = `tier${membershipData.membership_tier.charAt(0).toUpperCase() + membershipData.membership_tier.slice(1)}`;
-          toast.success(`🎉 Congratulations! You've unlocked ${t(tierKey)} tier!`);
-        }
-      }
-      localStorage.setItem('previousTier', membershipData.membership_tier);
     } catch (error: any) {
       console.error('Error loading account:', error);
       toast.error('Failed to load account data');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const getNextTierInfo = () => {
-    if (!membership) return null;
-    
-    const tiers = [
-      { name: 'beginner', threshold: 0, rate: 5 },
-      { name: 'traveler', threshold: 20, rate: 6 },
-      { name: 'adventurer', threshold: 50, rate: 7 },
-      { name: 'explorer', threshold: 150, rate: 10 }
-    ];
-
-    const currentTier = membership.membership_tier;
-    const currentIndex = tiers.findIndex(t => t.name === currentTier);
-    if (currentIndex === tiers.length - 1) return null; // Already at max tier
-
-    const nextTier = tiers[currentIndex + 1];
-    const remaining = nextTier.threshold - membership.total_spent_usd;
-    const progress = Math.min((membership.total_spent_usd / nextTier.threshold) * 100, 100);
-
-    return { ...nextTier, remaining, progress };
-  };
-
-  const refreshMembership = async () => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return;
-
-      const { data: membershipData } = await supabase
-        .from('user_spending')
-        .select('*')
-        .eq('user_id', session.user.id)
-        .maybeSingle();
-
-      if (membershipData) {
-        setMembership(membershipData);
-        toast.success('Membership data refreshed');
-      }
-    } catch (error) {
-      console.error('Error refreshing membership:', error);
-      toast.error('Failed to refresh membership data');
     }
   };
 
