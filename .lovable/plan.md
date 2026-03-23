@@ -1,50 +1,102 @@
 
 
-# Enforce Minimum App Version for Points Earning
+# Revised: Nomiqa University Project Deliverables
 
-## Problem
-Old APKs you distributed still work and earn points. There's no version gate — the `sync-contribution-data` and speed test flows award points regardless of which app version is calling them.
+## Corrections Applied
+- Removed spin wheel, leaderboard, and biometric authentication
+- Renamed "Contributor Level Progress" → "Affiliate Progress" (tier progression based on team size/referrals)
+- Removed EPIC 6 (Marketing Website) entirely — focus is only on the mobile app
+- Email delivery uses Resend API (for eSIM order emails, support, and all transactional emails)
 
-## Approach
-Add a **minimum version check** at the server level (edge functions) so old APKs get rejected from earning points. Data can still be saved (it's still useful), but **no points are awarded** for outdated versions.
+## 7 EPICs → 6 EPICs (Website removed)
 
-Additionally, fix the hardcoded `app_version: '1.0.0'` in the contribution hook so it sends the real version.
+### EPIC 1: DePIN Network Contribution (Core Product)
+| ID | User Story |
+|----|-----------|
+| NC-1 | As a user, I want to passively collect signal data in the background so I earn points without active interaction |
+| NC-2 | As a user, I want to run speed tests to contribute download/upload/latency data |
+| NC-3 | As a user, I want to see my contribution session history and stats |
+| NC-4 | As a user, I want coverage confirmations to validate network quality at my location |
+| NC-5 | As a user, I want connection state changes tracked (WiFi-to-cellular transitions) |
+| NC-6 | As a user, I want data quality scoring so higher quality contributions earn more |
+| NC-7 | As an admin, I want to export aggregated coverage data for B2B sales |
 
-## Changes
+### EPIC 2: Tokenomics & Points Economy
+| ID | User Story |
+|----|-----------|
+| TE-1 | As a user, I want to earn points for background contributions with daily/monthly caps |
+| TE-2 | As a user, I want streak bonuses for consecutive days of contribution |
+| TE-3 | As a user, I want daily check-ins to build my streak |
+| TE-4 | As a user, I want weekly/monthly challenges for bonus points |
+| TE-5 | As a user, I want to set personal goals |
+| TE-6 | As a user, I want to earn points from social tasks (follow on Twitter, join Telegram) |
+| TE-7 | As a system, points must be frozen if fraud is detected |
 
-### 1. Add `min_app_version` to remote config
-Insert a new row into `app_remote_config` with key `min_app_version` and value `"1.0.2"`. This way you can bump the minimum version from the database without redeploying code.
+### EPIC 3: eSIM Marketplace
+| ID | User Story |
+|----|-----------|
+| ES-1 | As a user, I want to browse eSIM plans by country |
+| ES-2 | As a user, I want to purchase an eSIM with Stripe (card) |
+| ES-3 | As a user, I want to purchase an eSIM with crypto (Helio/Solana) |
+| ES-4 | As a user, I want async eSIM provisioning via API |
+| ES-5 | As a user, I want to view my eSIM installation instructions (QR code, LPA, manual) |
+| ES-6 | As a user, I want to track my eSIM data usage |
+| ES-7 | As a user, I want order confirmation emails with eSIM details (via Resend) |
 
-### 2. Fix client to send real app version
-**`src/hooks/useNetworkContribution.ts`** — Replace the hardcoded `app_version: '1.0.0'` with the actual version from `getAppVersion()` (already exported from `src/lib/sentry.ts`).
+### EPIC 4: User Authentication & Account Management
+| ID | User Story |
+|----|-----------|
+| AU-1 | As a user, I want to register with email and password |
+| AU-2 | As a user, I want to verify my email with a 6-digit code |
+| AU-3 | As a user, I want to reset my password |
+| AU-4 | As a user, I want to choose a unique username |
+| AU-5 | As a user, I want to connect my Solana wallet |
+| AU-6 | As a user, I want to delete my account and all data |
+| AU-7 | As a user, I want OAuth login (Google) |
+| AU-8 | As an admin, I want to view/manage users |
 
-### 3. Gate points in `sync-contribution-data` edge function
-**`supabase/functions/sync-contribution-data/index.ts`** — Before calling `add_points_with_cap`:
-- Read the `app_version` from the submitted signal log data
-- Fetch `min_app_version` from `app_remote_config`
-- If app version is missing or below minimum, skip points award but **still save the signal data** (it has B2B value)
-- Return a flag `version_outdated: true` in the response so the app can show an update prompt
+### EPIC 5: Referral & Affiliate System
+| ID | User Story |
+|----|-----------|
+| RF-1 | As a user, I want a unique referral code to share |
+| RF-2 | As a user, I want to apply a referral code during registration |
+| RF-3 | As a user, I want to earn 10% commission on my referrals' point earnings |
+| RF-4 | As a user, I want to track my referral conversions |
+| RF-5 | As a user, I want to share my code via native share |
+| RF-6 | As a system, referral velocity must be rate-limited to prevent abuse |
+| RF-7 | As a user, I want to see my affiliate tier progress (Starter → Builder → Leader → Ambassador → Pioneer) based on team size |
 
-### 4. Gate points in speed test save
-**`src/components/app/SpeedTest.tsx`** — Add the app version to the `speed_test_results` insert. The server-side `add_points_with_cap` RPC doesn't have version info, so add a lightweight client-side check: fetch `min_app_version` from `app_remote_config` on mount, and if outdated, skip the points RPC call (still save the test result). Show a toast telling the user to update.
+### EPIC 6: Mobile App Platform (Capacitor/Native)
+| ID | User Story |
+|----|-----------|
+| MA-1 | As a user, I want native Android/iOS app with bottom tab navigation |
+| MA-2 | As a user, I want background location tracking with proper permissions |
+| MA-3 | As a user, I want telephony info (carrier, network type, signal) |
+| MA-4 | As a user, I want haptic feedback and sound effects |
+| MA-5 | As a user, I want pull-to-refresh on all screens |
+| MA-6 | As a user, I want an onboarding flow on first launch |
+| MA-7 | As a user, I want push notifications |
+| MA-8 | As a user, I want offline support |
+| MA-9 | As a user, I want data consent controls (GDPR) |
+| MA-10 | As a user, I want an interactive network globe visualization |
+| MA-11 | As a user, I want app version gating for points earning |
 
-### 5. Show update prompt for old versions
-**`src/pages/app/AppHome.tsx`** — On mount, check `min_app_version` from remote config against `getAppVersion()`. If outdated, show a persistent banner: "Please update your app to keep earning points."
+## Deliverables to Generate
 
-## Version comparison logic
-Simple semver compare: split on `.`, compare major/minor/patch numerically. This is a ~10 line utility function.
+| File | Contents |
+|------|----------|
+| `nomiqa-epics-user-stories.pdf` | All 6 EPICs with user stories, acceptance criteria, and tasks — ready to paste into Jira |
+| `nomiqa-pitch-deck.pdf` | Professional pitch presentation (app-focused, no website mention) |
+| `nomiqa-project-documentation.pdf` | Full documentation covering Process, Outcome, Presentation, Documentation grading criteria |
+| `nomiqa-jira-import.csv` | CSV file for Jira bulk import with all issues pre-formatted |
 
-## Files Changed (4)
+## Key Adjustments in All Documents
+- App-only focus throughout (no website/landing page references)
+- Affiliate progress tiers (team-size-based) instead of contributor levels
+- Resend API for all email delivery (eSIM confirmations, support, transactional)
+- No spin wheel, no leaderboard, no biometric auth
+- Team: Joni Ajvazi, Achref Ouslati
 
-| File | Change |
-|------|--------|
-| `src/hooks/useNetworkContribution.ts` | Send real `getAppVersion()` instead of hardcoded `'1.0.0'` |
-| `supabase/functions/sync-contribution-data/index.ts` | Check `min_app_version` config before awarding points |
-| `src/components/app/SpeedTest.tsx` | Check version before awarding speed test points |
-| `src/pages/app/AppHome.tsx` | Show "update required" banner if version is below minimum |
-
-Plus one database insert: `min_app_version = '1.0.2'` in `app_remote_config`.
-
-## How to bump in the future
-Just update the `min_app_version` value in the database — no code deploy needed. Old APKs will immediately stop earning points.
+## Implementation
+Generate all 4 PDFs + CSV using Python scripts, write to `/mnt/documents/`, QA each visual output before delivering.
 
