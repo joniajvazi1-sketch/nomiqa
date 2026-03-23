@@ -5,7 +5,7 @@ import { NetworkBackground } from "@/components/NetworkBackground";
 import { useTranslation } from "@/contexts/TranslationContext";
 import { localizedPath } from "@/utils/localizedLinks";
 import { Button } from "@/components/ui/button";
-import { Home, ShoppingBag, HelpCircle, ArrowLeft } from "lucide-react";
+import { Home, ShoppingBag, HelpCircle, ArrowLeft, Gift } from "lucide-react";
 
 const NotFound = () => {
   const location = useLocation();
@@ -19,13 +19,10 @@ const NotFound = () => {
     && !/^(app|auth|shop|checkout|orders|privacy|terms|about|token|help|rewards|affiliate|roadmap|download|network|mobile-only|social-rewards|payment-success|getting-started|how-it-works|admin|deutsch|english|francais|espanol|portugues|russian|chinese|japanese|arabic|italiano)$/i.test(pathSegment);
 
   useEffect(() => {
-    // If it looks like an old referral link, redirect to auth/register with the code pre-filled
-    if (looksLikeReferralLink) {
-      window.location.href = `/app/auth?mode=register&ref=${encodeURIComponent(pathSegment)}`;
-      return;
+    if (!looksLikeReferralLink) {
+      console.error("404 Error: User attempted to access non-existent route:", location.pathname);
     }
-    console.error("404 Error: User attempted to access non-existent route:", location.pathname);
-  }, [location.pathname, looksLikeReferralLink, pathSegment]);
+  }, [location.pathname, looksLikeReferralLink]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-black via-deep-space to-black relative overflow-hidden">
@@ -58,14 +55,25 @@ const NotFound = () => {
               : t("notFoundDescription")}
           </p>
           {looksLikeReferralLink && (
-            <div className="bg-white/[0.05] backdrop-blur-xl border border-neon-cyan/20 rounded-xl p-6 mb-6 text-left max-w-md mx-auto">
-              <p className="text-white/80 text-sm font-light mb-3">{t("notFoundReferralHowTo")}</p>
-              <ol className="text-white/60 text-sm font-light space-y-2 list-decimal list-inside">
-                <li>{t("notFoundReferralStep1")}</li>
-                <li>{t("notFoundReferralStep2")}</li>
-                <li>{t("notFoundReferralStep3")} <span className="text-neon-cyan font-medium">"{pathSegment}"</span></li>
-              </ol>
-            </div>
+            <>
+              <div className="bg-white/[0.05] backdrop-blur-xl border border-neon-cyan/20 rounded-xl p-6 mb-6 text-left max-w-md mx-auto">
+                <p className="text-white/80 text-sm font-light mb-3">{t("notFoundReferralHowTo")}</p>
+                <ol className="text-white/60 text-sm font-light space-y-2 list-decimal list-inside">
+                  <li>{t("notFoundReferralStep1")}</li>
+                  <li>{t("notFoundReferralStep2")}</li>
+                  <li>{t("notFoundReferralStep3")} <span className="text-neon-cyan font-medium">"{pathSegment}"</span></li>
+                </ol>
+              </div>
+              <Link to={`/app/auth?mode=register&ref=${encodeURIComponent(pathSegment)}`} className="inline-block mb-6">
+                <Button 
+                  size="lg"
+                  className="gap-2 bg-neon-cyan/20 backdrop-blur-xl border-2 border-neon-cyan/50 text-white hover:bg-neon-cyan/30 hover:border-neon-cyan/70 font-semibold rounded-xl transition-all duration-300 hover:scale-105"
+                >
+                  <Gift className="w-5 h-5" />
+                  Register with code "{pathSegment}"
+                </Button>
+              </Link>
+            </>
           )}
 
           {/* Primary CTA */}
