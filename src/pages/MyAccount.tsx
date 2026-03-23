@@ -300,13 +300,6 @@ export default function MyAccount() {
                 <span className="text-[9px] sm:text-sm font-medium leading-tight">{t("accountInfo")}</span>
               </TabsTrigger>
               <TabsTrigger 
-                value="membership" 
-                className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2 sm:py-3 px-1 sm:px-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary transition-all duration-300 hover:scale-105"
-              >
-                <Award className="w-4 h-4" />
-                <span className="text-[9px] sm:text-sm font-medium leading-tight">{t("membershipTab")}</span>
-              </TabsTrigger>
-              <TabsTrigger 
                 value="orders" 
                 className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2 sm:py-3 px-1 sm:px-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary transition-all duration-300 hover:scale-105"
               >
