@@ -83,7 +83,7 @@ const prepareTiles = (cells: GlobalCoverageCell[]): TileData[] => {
   });
 };
 
-// InstancedMesh-based coverage tiles — 2 draw calls total
+// InstancedMesh-based coverage hexagons — 2 draw calls total
 const InstancedCoverageTiles: React.FC<{
   tiles: TileData[];
   selectedIndex: number | null;
@@ -92,9 +92,17 @@ const InstancedCoverageTiles: React.FC<{
   const discRef = useRef<THREE.InstancedMesh>(null);
   const glowRef = useRef<THREE.InstancedMesh>(null);
 
-  // Shared geometries
-  const discGeo = useMemo(() => new THREE.CircleGeometry(1, 16), []);
-  const ringGeo = useMemo(() => new THREE.RingGeometry(1, 1.6, 16), []);
+  // Hexagon geometry (6 sides) instead of circles
+  const hexGeo = useMemo(() => {
+    const geo = new THREE.CircleGeometry(1, 6);
+    geo.rotateZ(Math.PI / 6); // flat-top hexagon orientation
+    return geo;
+  }, []);
+  const hexRingGeo = useMemo(() => {
+    const geo = new THREE.RingGeometry(1, 1.5, 6);
+    geo.rotateZ(Math.PI / 6);
+    return geo;
+  }, []);
 
   // Update instance matrices and colors whenever tiles change
   useEffect(() => {
@@ -135,66 +143,24 @@ const InstancedCoverageTiles: React.FC<{
   const count = tiles.length;
   if (count === 0) return null;
 
-  const selectedTile = selectedIndex !== null ? tiles[selectedIndex] : null;
-
   return (
     <>
-      {/* Disc instances */}
+      {/* Hexagon instances */}
       <instancedMesh
         ref={discRef}
-        args={[discGeo, undefined, count]}
+        args={[hexGeo, undefined, count]}
         onClick={handleClick}
       >
-        <meshBasicMaterial transparent opacity={0.95} vertexColors side={THREE.DoubleSide} />
+        <meshBasicMaterial transparent opacity={0.9} vertexColors side={THREE.DoubleSide} />
       </instancedMesh>
 
       {/* Glow ring instances */}
       <instancedMesh
         ref={glowRef}
-        args={[ringGeo, undefined, count]}
+        args={[hexRingGeo, undefined, count]}
       >
-        <meshBasicMaterial transparent opacity={0.2} vertexColors side={THREE.DoubleSide} />
+        <meshBasicMaterial transparent opacity={0.25} vertexColors side={THREE.DoubleSide} />
       </instancedMesh>
-
-      {/* Tooltip for selected tile */}
-      {selectedTile && (
-        <group position={selectedTile.position}>
-          <Html center distanceFactor={2.5} zIndexRange={[100, 0]} style={{ pointerEvents: 'auto' }}>
-            <div
-              className="relative bg-card border border-border rounded-lg px-3 py-2.5 min-w-[140px] max-w-[200px] shadow-xl pointer-events-auto"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <button
-                onClick={(e) => { e.stopPropagation(); onSelectIndex(null); }}
-                className="absolute -top-2 -right-2 w-5 h-5 bg-foreground text-background rounded-full flex items-center justify-center text-[9px] font-bold leading-none shadow-md"
-                aria-label="Close"
-              >
-                ✕
-              </button>
-              <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider mb-1">Coverage Tile</p>
-              <div className="space-y-1">
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground text-[10px]">Signal</span>
-                  <span className={`text-xs font-bold ${
-                    selectedTile.quality === 'strong' ? 'text-green-500' :
-                    selectedTile.quality === 'medium' ? 'text-amber-500' : 'text-red-500'
-                  }`}>
-                    {selectedTile.avgSignalLabel}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground text-[10px]">Samples</span>
-                  <span className="text-foreground text-xs font-bold">{selectedTile.count.toLocaleString()}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground text-[10px]">Network</span>
-                  <span className="text-foreground text-xs font-semibold">{selectedTile.networkType}</span>
-                </div>
-              </div>
-            </div>
-          </Html>
-        </group>
-      )}
     </>
   );
 };
