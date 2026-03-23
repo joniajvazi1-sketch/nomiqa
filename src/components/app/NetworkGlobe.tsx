@@ -222,6 +222,28 @@ const Earth: React.FC<{ isDark?: boolean; children?: React.ReactNode }> = ({ isD
   );
 };
 
+// Camera zoom animation toward selected tile
+const CameraZoom: React.FC<{ target: THREE.Vector3 | null; defaultDistance: number }> = ({ target, defaultDistance }) => {
+  const targetPos = useRef(new THREE.Vector3(0, 0.3, defaultDistance));
+
+  useEffect(() => {
+    if (target) {
+      // Position camera looking at the tile from closer
+      const dir = target.clone().normalize();
+      targetPos.current.copy(dir.multiplyScalar(2.2));
+    } else {
+      targetPos.current.set(0, 0.3, defaultDistance);
+    }
+  }, [target, defaultDistance]);
+
+  useFrame(({ camera }) => {
+    camera.position.lerp(targetPos.current, 0.04);
+    camera.lookAt(0, 0, 0);
+  });
+
+  return null;
+};
+
 // Scene with lighting
 const GlobeScene: React.FC<{
   cells: GlobalCoverageCell[];
@@ -231,6 +253,14 @@ const GlobeScene: React.FC<{
   isDark?: boolean;
 }> = ({ cells, selectedIndex, onSelectIndex, isPersonalView, isDark = true }) => {
   const tiles = useMemo(() => prepareTiles(cells), [cells]);
+  const zoomTarget = useMemo(() => {
+    if (selectedIndex !== null && tiles[selectedIndex]) {
+      return tiles[selectedIndex].position.clone();
+    }
+    return null;
+  }, [selectedIndex, tiles]);
+
+  const defaultDist = isPersonalView ? 2.5 : 3.5;
 
   return (
     <>
@@ -247,6 +277,8 @@ const GlobeScene: React.FC<{
           onSelectIndex={onSelectIndex}
         />
       </Earth>
+
+      <CameraZoom target={zoomTarget} defaultDistance={defaultDist} />
 
       <OrbitControls
         enablePan={false}
