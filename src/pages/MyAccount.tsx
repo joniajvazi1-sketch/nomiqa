@@ -43,33 +43,6 @@ interface UserPointsData {
   pending_points: number;
 }
 
-const TIER_COLORS = {
-  beginner: "bg-gradient-to-br from-amber-900 via-amber-700 to-orange-800",
-  traveler: "bg-gradient-to-br from-slate-500 via-slate-400 to-slate-600",
-  adventurer: "bg-gradient-to-br from-yellow-600 via-amber-500 to-yellow-700",
-  explorer: "bg-gradient-to-br from-purple-700 via-violet-600 to-purple-800"
-};
-
-const TIER_GLOW = {
-  beginner: "shadow-[0_0_50px_rgba(217,119,6,0.6),0_0_100px_rgba(217,119,6,0.4)]",
-  traveler: "shadow-[0_0_50px_rgba(148,163,184,0.6),0_0_100px_rgba(148,163,184,0.4)]",
-  adventurer: "shadow-[0_0_60px_rgba(234,179,8,0.7),0_0_120px_rgba(234,179,8,0.5)]",
-  explorer: "shadow-[0_0_70px_rgba(168,85,247,0.8),0_0_140px_rgba(168,85,247,0.6)]"
-};
-
-const TIER_ICONS = {
-  beginner: Star,
-  traveler: Award,
-  adventurer: Crown,
-  explorer: Sparkles
-};
-
-const TIER_TEXT_COLOR = {
-  beginner: "text-amber-600 dark:text-amber-500",
-  traveler: "text-slate-700 dark:text-slate-400",
-  adventurer: "text-yellow-700 dark:text-yellow-500",
-  explorer: "text-purple-700 dark:text-purple-500"
-};
 
 export default function MyAccount() {
   const navigate = useNavigate();
