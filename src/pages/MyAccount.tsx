@@ -95,31 +95,6 @@ export default function MyAccount() {
       });
       setEditedUsername(username);
       setSolanaWallet(profileData?.solana_wallet || '');
-
-      // Fetch or create membership data
-      let { data: membershipData } = await supabase
-        .from('user_spending')
-        .select('*')
-        .eq('user_id', session.user.id)
-        .maybeSingle();
-
-      if (!membershipData) {
-        // Create initial membership record
-        const { data: newMembership, error } = await supabase
-          .from('user_spending')
-          .insert({
-            user_id: session.user.id,
-            total_spent_usd: 0
-          })
-          .select()
-          .single();
-
-        if (error) throw error;
-        membershipData = newMembership;
-      }
-
-      setMembership(membershipData);
-
       // Fetch ALL affiliate accounts for this user (query by both user_id and email)
       // Using affiliates_safe view to exclude sensitive verification fields
       const { data: affiliateAccounts } = await supabase
