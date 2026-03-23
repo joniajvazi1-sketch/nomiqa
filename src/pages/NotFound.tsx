@@ -5,7 +5,7 @@ import { NetworkBackground } from "@/components/NetworkBackground";
 import { useTranslation } from "@/contexts/TranslationContext";
 import { localizedPath } from "@/utils/localizedLinks";
 import { Button } from "@/components/ui/button";
-import { Home, ShoppingBag, HelpCircle, ArrowLeft } from "lucide-react";
+import { Home, ShoppingBag, HelpCircle, ArrowLeft, Gift } from "lucide-react";
 
 const NotFound = () => {
   const location = useLocation();
