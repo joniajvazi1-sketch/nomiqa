@@ -284,7 +284,7 @@ export default function MyAccount() {
           </div>
 
           <Tabs defaultValue="info" className="w-full">
-            <TabsList className="grid w-full grid-cols-4 md:grid-cols-7 mb-8 h-auto bg-card/50 backdrop-blur-sm border border-border/50 p-1 gap-1">
+            <TabsList className="grid w-full grid-cols-3 md:grid-cols-6 mb-8 h-auto bg-card/50 backdrop-blur-sm border border-border/50 p-1 gap-1">
               <TabsTrigger 
                 value="points" 
                 className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2 sm:py-3 px-1 sm:px-2 data-[state=active]:bg-neon-cyan/10 data-[state=active]:text-neon-cyan transition-all duration-300 hover:scale-105"
