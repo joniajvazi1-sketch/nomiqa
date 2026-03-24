@@ -230,13 +230,319 @@ const WebRoutes = () => (
       
       {/* Base routes (no locale prefix) */}
       <Route path="/" element={<Index />} />
-      <Route path="/index" element={<Navigate to="/" replace />} />
       <Route path="/shop" element={<ShopPage />} />
       <Route path="/auth" element={<Auth />} />
-...
-  // Native platform (or explicit app preview mode) → app UI
-  // Web platform → web routes (which redirect /app/* to /mobile-only)
-  return isNative ? <NativeAppRoutes /> : <WebRoutes />;
+      <Route path="/checkout" element={<Checkout />} />
+      <Route path="/orders" element={<Orders />} />
+      <Route path="/account" element={<MyAccount />} />
+      <Route path="/getting-started" element={<GettingStarted />} />
+      <Route path="/roadmap" element={<Roadmap />} />
+      <Route path="/affiliate" element={<Affiliate />} />
+      {/* Referral links removed - code-only model */}
+      <Route path="/privacy" element={<Privacy />} />
+      <Route path="/terms" element={<Terms />} />
+      <Route path="/about" element={<About />} />
+      <Route path="/token" element={<Token />} />
+      <Route path="/help" element={<Help />} />
+      <Route path="/rewards" element={<Rewards />} />
+      <Route path="/social-rewards" element={<SocialRewards />} />
+      
+      <Route path="/payment-success" element={<PaymentSuccess />} />
+      <Route path="/admin/users" element={<AdminUsers />} />
+      <Route path="/download" element={<Download />} />
+      <Route path="/how-it-works" element={<HowItWorks />} />
+      <Route path="/network" element={<NetworkDashboard />} />
+
+      {/* Localized route groups */}
+      {/** German */}
+      <Route path="/deutsch">
+        <Route index element={<Index />} />
+        <Route path="shop" element={<ShopPage />} />
+        <Route path="auth" element={<Auth />} />
+        <Route path="checkout" element={<Checkout />} />
+        <Route path="orders" element={<Orders />} />
+        <Route path="account" element={<MyAccount />} />
+        <Route path="getting-started" element={<GettingStarted />} />
+        <Route path="roadmap" element={<Roadmap />} />
+        <Route path="affiliate" element={<Affiliate />} />
+        <Route path="privacy" element={<Privacy />} />
+        <Route path="terms" element={<Terms />} />
+        <Route path="about" element={<About />} />
+        <Route path="token" element={<Token />} />
+        <Route path="help" element={<Help />} />
+        <Route path="rewards" element={<Rewards />} />
+        <Route path="social-rewards" element={<SocialRewards />} />
+        <Route path="download" element={<Download />} />
+        <Route path="how-it-works" element={<HowItWorks />} />
+        <Route path="network" element={<NetworkDashboard />} />
+      </Route>
+      {/** English */}
+      <Route path="/english">
+        <Route index element={<Index />} />
+        <Route path="shop" element={<ShopPage />} />
+        <Route path="auth" element={<Auth />} />
+        <Route path="checkout" element={<Checkout />} />
+        <Route path="orders" element={<Orders />} />
+        <Route path="account" element={<MyAccount />} />
+        <Route path="getting-started" element={<GettingStarted />} />
+        <Route path="roadmap" element={<Roadmap />} />
+        <Route path="affiliate" element={<Affiliate />} />
+        <Route path="privacy" element={<Privacy />} />
+        <Route path="terms" element={<Terms />} />
+        <Route path="about" element={<About />} />
+        <Route path="token" element={<Token />} />
+        <Route path="help" element={<Help />} />
+        <Route path="rewards" element={<Rewards />} />
+        <Route path="social-rewards" element={<SocialRewards />} />
+        <Route path="download" element={<Download />} />
+        <Route path="how-it-works" element={<HowItWorks />} />
+        <Route path="network" element={<NetworkDashboard />} />
+      </Route>
+      {/** French */}
+      <Route path="/francais">
+        <Route index element={<Index />} />
+        <Route path="shop" element={<ShopPage />} />
+        <Route path="auth" element={<Auth />} />
+        <Route path="checkout" element={<Checkout />} />
+        <Route path="orders" element={<Orders />} />
+        <Route path="account" element={<MyAccount />} />
+        <Route path="getting-started" element={<GettingStarted />} />
+        <Route path="roadmap" element={<Roadmap />} />
+        <Route path="affiliate" element={<Affiliate />} />
+        <Route path="privacy" element={<Privacy />} />
+        <Route path="terms" element={<Terms />} />
+        <Route path="about" element={<About />} />
+        <Route path="token" element={<Token />} />
+        <Route path="help" element={<Help />} />
+        <Route path="rewards" element={<Rewards />} />
+        <Route path="social-rewards" element={<SocialRewards />} />
+        <Route path="download" element={<Download />} />
+        <Route path="how-it-works" element={<HowItWorks />} />
+        <Route path="network" element={<NetworkDashboard />} />
+      </Route>
+      {/** Spanish */}
+      <Route path="/espanol">
+        <Route index element={<Index />} />
+        <Route path="shop" element={<ShopPage />} />
+        <Route path="auth" element={<Auth />} />
+        <Route path="checkout" element={<Checkout />} />
+        <Route path="orders" element={<Orders />} />
+        <Route path="account" element={<MyAccount />} />
+        <Route path="getting-started" element={<GettingStarted />} />
+        <Route path="roadmap" element={<Roadmap />} />
+        <Route path="affiliate" element={<Affiliate />} />
+        <Route path="privacy" element={<Privacy />} />
+        <Route path="terms" element={<Terms />} />
+        <Route path="about" element={<About />} />
+        <Route path="token" element={<Token />} />
+        <Route path="help" element={<Help />} />
+        <Route path="rewards" element={<Rewards />} />
+        <Route path="social-rewards" element={<SocialRewards />} />
+        <Route path="download" element={<Download />} />
+        <Route path="how-it-works" element={<HowItWorks />} />
+        <Route path="network" element={<NetworkDashboard />} />
+      </Route>
+      {/** Portuguese */}
+      <Route path="/portugues">
+        <Route index element={<Index />} />
+        <Route path="shop" element={<ShopPage />} />
+        <Route path="auth" element={<Auth />} />
+        <Route path="checkout" element={<Checkout />} />
+        <Route path="orders" element={<Orders />} />
+        <Route path="account" element={<MyAccount />} />
+        <Route path="getting-started" element={<GettingStarted />} />
+        <Route path="roadmap" element={<Roadmap />} />
+        <Route path="affiliate" element={<Affiliate />} />
+        <Route path="privacy" element={<Privacy />} />
+        <Route path="terms" element={<Terms />} />
+        <Route path="about" element={<About />} />
+        <Route path="token" element={<Token />} />
+        <Route path="help" element={<Help />} />
+        <Route path="rewards" element={<Rewards />} />
+        <Route path="social-rewards" element={<SocialRewards />} />
+        <Route path="download" element={<Download />} />
+        <Route path="how-it-works" element={<HowItWorks />} />
+        <Route path="network" element={<NetworkDashboard />} />
+      </Route>
+      {/** Russian */}
+      <Route path="/russian">
+        <Route index element={<Index />} />
+        <Route path="shop" element={<ShopPage />} />
+        <Route path="auth" element={<Auth />} />
+        <Route path="checkout" element={<Checkout />} />
+        <Route path="orders" element={<Orders />} />
+        <Route path="account" element={<MyAccount />} />
+        <Route path="getting-started" element={<GettingStarted />} />
+        <Route path="roadmap" element={<Roadmap />} />
+        <Route path="affiliate" element={<Affiliate />} />
+        <Route path="privacy" element={<Privacy />} />
+        <Route path="terms" element={<Terms />} />
+        <Route path="about" element={<About />} />
+        <Route path="token" element={<Token />} />
+        <Route path="help" element={<Help />} />
+        <Route path="rewards" element={<Rewards />} />
+        <Route path="social-rewards" element={<SocialRewards />} />
+        <Route path="download" element={<Download />} />
+        <Route path="how-it-works" element={<HowItWorks />} />
+        <Route path="network" element={<NetworkDashboard />} />
+      </Route>
+      {/** Chinese */}
+      <Route path="/chinese">
+        <Route index element={<Index />} />
+        <Route path="shop" element={<ShopPage />} />
+        <Route path="auth" element={<Auth />} />
+        <Route path="checkout" element={<Checkout />} />
+        <Route path="orders" element={<Orders />} />
+        <Route path="account" element={<MyAccount />} />
+        <Route path="getting-started" element={<GettingStarted />} />
+        <Route path="roadmap" element={<Roadmap />} />
+        <Route path="affiliate" element={<Affiliate />} />
+        <Route path="privacy" element={<Privacy />} />
+        <Route path="terms" element={<Terms />} />
+        <Route path="about" element={<About />} />
+        <Route path="token" element={<Token />} />
+        <Route path="help" element={<Help />} />
+        <Route path="rewards" element={<Rewards />} />
+        <Route path="social-rewards" element={<SocialRewards />} />
+        <Route path="download" element={<Download />} />
+        <Route path="how-it-works" element={<HowItWorks />} />
+        <Route path="network" element={<NetworkDashboard />} />
+      </Route>
+      {/** Japanese */}
+      <Route path="/japanese">
+        <Route index element={<Index />} />
+        <Route path="shop" element={<ShopPage />} />
+        <Route path="auth" element={<Auth />} />
+        <Route path="checkout" element={<Checkout />} />
+        <Route path="orders" element={<Orders />} />
+        <Route path="account" element={<MyAccount />} />
+        <Route path="getting-started" element={<GettingStarted />} />
+        <Route path="roadmap" element={<Roadmap />} />
+        <Route path="affiliate" element={<Affiliate />} />
+        <Route path="privacy" element={<Privacy />} />
+        <Route path="terms" element={<Terms />} />
+        <Route path="about" element={<About />} />
+        <Route path="token" element={<Token />} />
+        <Route path="help" element={<Help />} />
+        <Route path="rewards" element={<Rewards />} />
+        <Route path="social-rewards" element={<SocialRewards />} />
+        <Route path="download" element={<Download />} />
+        <Route path="how-it-works" element={<HowItWorks />} />
+        <Route path="network" element={<NetworkDashboard />} />
+      </Route>
+      {/** Arabic */}
+      <Route path="/arabic">
+        <Route index element={<Index />} />
+        <Route path="shop" element={<ShopPage />} />
+        <Route path="auth" element={<Auth />} />
+        <Route path="checkout" element={<Checkout />} />
+        <Route path="orders" element={<Orders />} />
+        <Route path="account" element={<MyAccount />} />
+        <Route path="getting-started" element={<GettingStarted />} />
+        <Route path="roadmap" element={<Roadmap />} />
+        <Route path="affiliate" element={<Affiliate />} />
+        <Route path="privacy" element={<Privacy />} />
+        <Route path="terms" element={<Terms />} />
+        <Route path="about" element={<About />} />
+        <Route path="token" element={<Token />} />
+        <Route path="help" element={<Help />} />
+        <Route path="rewards" element={<Rewards />} />
+        <Route path="social-rewards" element={<SocialRewards />} />
+        <Route path="download" element={<Download />} />
+        <Route path="how-it-works" element={<HowItWorks />} />
+        <Route path="network" element={<NetworkDashboard />} />
+      </Route>
+      {/** Italian */}
+      <Route path="/italiano">
+        <Route index element={<Index />} />
+        <Route path="shop" element={<ShopPage />} />
+        <Route path="auth" element={<Auth />} />
+        <Route path="checkout" element={<Checkout />} />
+        <Route path="orders" element={<Orders />} />
+        <Route path="account" element={<MyAccount />} />
+        <Route path="getting-started" element={<GettingStarted />} />
+        <Route path="roadmap" element={<Roadmap />} />
+        <Route path="affiliate" element={<Affiliate />} />
+        <Route path="privacy" element={<Privacy />} />
+        <Route path="terms" element={<Terms />} />
+        <Route path="about" element={<About />} />
+        <Route path="token" element={<Token />} />
+        <Route path="help" element={<Help />} />
+        <Route path="rewards" element={<Rewards />} />
+        <Route path="social-rewards" element={<SocialRewards />} />
+        
+        <Route path="download" element={<Download />} />
+        <Route path="how-it-works" element={<HowItWorks />} />
+        <Route path="network" element={<NetworkDashboard />} />
+      </Route>
+
+      {/* Username-based affiliate links removed - code-only model */}
+      {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  </WebLayout>
+);
+
+/**
+ * Standalone Routes - Routes that don't need layout wrappers
+ * These are rendered without WebLayout/AppLayout
+ */
+const StandaloneRoutes = () => {
+  const location = useLocation();
+  
+  // OAuth redirect - minimal page for OAuth callback, no layout
+  if (location.pathname === '/app/oauth-redirect') {
+    return <OAuthRedirect />;
+  }
+  
+  // Mobile-only page - shown when web users try to access /app/*
+  if (location.pathname === '/mobile-only') {
+    return <MobileOnly />;
+  }
+  
+  return null;
+};
+
+/**
+ * Main App Router - Detects platform and renders appropriate UI
+ * CRITICAL: Website visitors see WebRoutes, Native app users see NativeAppRoutes
+ * 
+ * Web users visiting /app/* are redirected to /mobile-only page.
+ * Only actual native platform OR localhost preview mode can access app UI.
+ */
+const AppRouter = () => {
+  const { isNative } = usePlatform();
+  const location = useLocation();
+  
+  // Handle OAuth deep link callbacks on native platforms
+  useDeepLinkAuth();
+
+  // Preload common route chunks on idle for instant navigation
+  useEffect(() => {
+    const preload = () => {
+      import('./pages/ShopPage');
+      import('./pages/Auth');
+      import('./pages/Affiliate');
+    };
+    if ('requestIdleCallback' in window) {
+      (window as any).requestIdleCallback(preload, { timeout: 4000 });
+    } else {
+      setTimeout(preload, 2000);
+    }
+  }, []);
+  
+  // Check for standalone routes first (OAuth, mobile-only page)
+  const standaloneRoute = StandaloneRoutes();
+  if (standaloneRoute) {
+    return standaloneRoute;
+  }
+  
+  // Show app UI for /app/* routes even on web (public access)
+  const isAppRoute = location.pathname.startsWith('/app');
+  
+  // Native platform OR /app/* routes on web → show app UI
+  // All other web routes → show standard website
+  return (isNative || isAppRoute) ? <NativeAppRoutes /> : <WebRoutes />;
 };
 
 
