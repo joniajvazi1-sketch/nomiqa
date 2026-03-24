@@ -1189,7 +1189,7 @@ serve(async (req) => {
       console.error('Error checking pending referral bonus:', pendingErr);
     }
 
-    console.log(`Synced ${validContributions.length} contributions, earned ${actualPointsEarned} pts${wasCapped ? ' (capped)' : ''}${pointsResult?.streak_days > 0 ? ` (${pointsResult.streak_days}d streak)` : ''}`);
+    console.log(`Synced ${validContributions.length} contributions, earned ${actualPointsEarned} pts${wasCapped ? ' (capped)' : ''}`);
 
     return new Response(
       JSON.stringify({
