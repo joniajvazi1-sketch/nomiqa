@@ -537,12 +537,9 @@ const AppRouter = () => {
     return standaloneRoute;
   }
   
-  // Show app UI for /app/* routes even on web (public access)
-  const isAppRoute = location.pathname.startsWith('/app');
-  
-  // Native platform OR /app/* routes on web → show app UI
-  // All other web routes → show standard website
-  return (isNative || isAppRoute) ? <NativeAppRoutes /> : <WebRoutes />;
+  // Native platform (or app preview mode) shows app UI.
+  // Web always uses website routes, where /app/* is redirected to /mobile-only.
+  return isNative ? <NativeAppRoutes /> : <WebRoutes />;
 };
 
 
