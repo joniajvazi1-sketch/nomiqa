@@ -1,68 +1,101 @@
 
 
-## Problem Analysis
+# Full App Audit — Play Store Readiness
 
-Two issues reported by testers:
+## Audit Summary
 
-### Issue 1: Points don't update immediately on home screen after collecting rewards
-
-**Root cause:** The `points-updated` event system has a timing gap. When users claim rewards on other screens (Challenges, Social Tasks, Daily Check-in) and navigate back to AppHome, the optimistic update fires but AppHome may not be mounted yet to receive it. The `loadData()` call only triggers on `visibilitychange`/`focus`, which doesn't fire during same-tab navigation.
-
-Specifically:
-- `SocialTasks` dispatches `points-updated` but lives on a separate page (`/social-rewards`) — by the time the user navigates back to AppHome, the event was already fired and missed
-- Challenge claims on `/app/challenges` dispatch the event, but AppHome unmounts when navigating away, so the listener isn't active
-- The `loadData()` in AppHome only re-runs on mount, visibility change, or focus — not on route navigation back
-
-### Issue 2: Items 7 and 8 from audit
-
-Without the exact audit list in context, these likely refer to **store listing assets** and **data safety form** — Play Console configuration items that can't be fixed in code. But if they refer to in-app issues, the points sync problem above is the most commonly reported "broken" behavior.
+After reviewing all major app screens, flows, native configuration, and edge cases, here is a comprehensive breakdown of what works, what has issues, and what blocks Play Store submission.
 
 ---
 
-## Plan
+## PASSED (No Issues Found)
 
-### Fix: Ensure points refresh on every AppHome mount/navigation
+1. **Routing & Navigation** — Native routes (`/app/*`) correctly isolated from web routes. Desktop browsers redirected to `/mobile-only`. Bottom tab bar has 4 tabs (Home, Rewards, eSIMs, Profile) with proper active states.
 
-**File: `src/pages/app/AppHome.tsx`**
+2. **Authentication Flow** — Login/signup with email, Google OAuth, biometric auth all properly implemented. Session timeout safety (5s boot timer), safe sessionStorage wrapper for iOS edge cases, proper error mapping for user-friendly messages.
 
-1. **Add route-based refresh** — Call `loadData()` not just on initial mount but also when the component re-mounts after navigation. Currently `loadData` runs in a `useEffect` with `[loadData]` dependency, but React may skip re-running if the callback reference is stable. Add a `useLocation()` key or explicit trigger.
+3. **Permissions & Manifest** — Android manifest declares all required permissions (location, background location, foreground service, phone state, notifications) with rationale strings in `strings.xml`. iOS Info.plist has proper usage descriptions. Pre-permission explanation flow implemented.
 
-2. **Persist pending point updates via sessionStorage** — When `points-updated` fires, also write the delta to `sessionStorage`. On AppHome mount, check for pending updates and apply them before the full data load completes. This bridges the gap when the event fires while AppHome is unmounted.
+4. **Error Handling** — `AppErrorBoundary` wraps native routes. Contribution toggle wrapped in try/catch. Auth has timeout fallbacks. Network status monitoring with `OfflineScreen`.
 
-3. **Add immediate `loadData()` call on component mount** — Ensure the `useEffect` that calls `loadData()` always runs fresh data fetch, not relying on stale cache.
+5. **Points Event System** — `points-updated` custom events dispatched from all reward sources (DailyCheckIn, Challenges, SocialTasks, SpeedTest, StopContribution). `PointsSyncBridge` persists events to sessionStorage. AppHome reads pending sync on mount.
 
-**File: `src/components/SocialTasks.tsx`**
-- Already dispatches `points-updated` correctly. No changes needed.
+6. **Build Configuration** — Target SDK 36, Min SDK 24, versionCode 2, proper Gradle setup with play-services-location and biometric dependencies.
 
-**File: `src/pages/app/AppChallenges.tsx`**  
-- Already dispatches `points-updated` with `newTotal`. No changes needed.
+7. **Data Safety / Privacy** — Location rounded to 4 decimals, no IMEI/phone number collection, 90-day retention, GDPR deletion flow exists.
 
-### Technical approach
+---
 
-```text
-Before (broken flow):
-  User on AppHome → navigates to Challenges → claims reward → 
-  event fires (AppHome unmounted, misses it) → navigates back → 
-  AppHome mounts → shows stale points until loadData() completes
+## ISSUES FOUND
 
-After (fixed flow):
-  User on AppHome → navigates to Challenges → claims reward → 
-  event fires + writes to sessionStorage → navigates back → 
-  AppHome mounts → reads sessionStorage for instant update + 
-  loadData() confirms from server
+### Issue 1: SocialTasks page is NOT accessible from native app (BUG)
+**Severity: Medium**
+
+`SocialRewards` page at `/social-rewards` is only in WebRoutes — it's NOT in NativeAppRoutes. Native app users cannot navigate to social tasks to claim follow rewards. If there's a button linking to it from the native app, it would show a blank page or redirect to `/app`.
+
+**Fix:** Add `/app/social-rewards` route to NativeAppRoutes, or embed SocialTasks directly in AppRewards/AppChallenges.
+
+### Issue 2: DailyCheckIn points may double-count in today's earnings display
+**Severity: Low**
+
+In `handleCheckIn`, when `points-updated` fires with `newTotal`, the `PointsSyncBridge` stores an absolute total. But if AppHome is mounted and receives the event directly, it also does an optimistic update AND calls `loadData()`. The sessionStorage pending sync should be cleared by the direct listener, but there's a subtle race where both could apply.
+
+**Current mitigation:** AppHome clears `pendingPointsSync` on mount, so this only matters if AppHome is already mounted — in which case the direct listener handles it and the bridge value gets overwritten. Low risk.
+
+### Issue 3: Speed test dispatches hardcoded `pointsAdded: 25` regardless of actual reward
+**Severity: Low**
+
+Line 528 in AppHome always dispatches `{ pointsAdded: 25 }` after a speed test, but WiFi tests earn 10 pts and the actual amount depends on server-side logic. This causes a temporary over-count in the UI until `loadData()` corrects it.
+
+**Fix:** Use the actual points awarded from the speed test result, or dispatch after loadData confirms.
+
+### Issue 4: No `/app/checkout` route exists in NativeAppRoutes
+**Severity: Low**
+
+`AppCheckout` is mapped to `/checkout` (not `/app/checkout`) in NativeAppRoutes. This works but is inconsistent with the `/app/*` pattern. Cart flows linking to `/app/checkout` would 404.
+
+**Status:** Needs verification — check if shop links to `/checkout` or `/app/checkout`.
+
+### Issue 5: Missing `AppMap` route
+**Severity: None (by design)**
+
+`AppMap` is imported but not routed — map features merged into Home screen per design decision. No issue.
+
+---
+
+## PLAY STORE BLOCKERS (Non-Code)
+
+These cannot be fixed in code — they require action in Google Play Console:
+
+1. **Privacy Policy URL** — Must be linked in Play Console (use `https://nomiqa-depin.com/privacy`)
+2. **Data Safety Form** — Declare: location (functionality), device identifiers (analytics), no phone numbers/IMEI
+3. **Store Listing Assets** — 512x512 icon, 1024x500 feature graphic, phone screenshots (min 2)
+4. **Content Rating Questionnaire** — Complete IARC questionnaire
+5. **App Signing** — Enroll in Play App Signing, upload signed AAB
+6. **`READ_PHONE_STATE` Justification** — May trigger Play Store review; prepare a declaration explaining signal metrics collection (not PII)
+
+---
+
+## RECOMMENDED FIXES (Code Changes)
+
+### Fix 1: Add SocialTasks route to native app
+**File: `src/App.tsx`** — Add route in NativeAppRoutes:
 ```
+<Route path="/app/social-rewards" element={<AppChallenges />} />
+```
+Or better: create a dedicated native social tasks page, or embed SocialTasks component within AppChallenges.
 
-### Changes
+### Fix 2: Fix speed test points dispatch
+**File: `src/pages/app/AppHome.tsx`** line 528 — Replace hardcoded 25 with actual points from result or a conditional value based on connection type.
 
-1. **`src/pages/app/AppHome.tsx`** (~15 lines changed)
-   - On mount, check `sessionStorage` for a `pendingPointsUpdate` key and apply it to state immediately
-   - Add a global `points-updated` listener that writes to `sessionStorage` (so it persists even if AppHome is unmounted)
-   - Register the sessionStorage writer in `App.tsx` or a top-level provider so it's always active
+### Fix 3 (Optional): Verify checkout routing
+Confirm that the eSIM shop navigates to `/checkout` (which exists in NativeAppRoutes) not `/app/checkout` (which doesn't).
 
-2. **`src/components/app/PointsSyncBridge.tsx`** (new, ~20 lines)
-   - A lightweight component mounted at the app layout level that always listens for `points-updated` events and persists them to `sessionStorage`
-   - AppHome reads from this on mount for instant display
+---
 
-3. **`src/components/app/AppLayout.tsx`**
-   - Mount `PointsSyncBridge` so it's always active regardless of which screen is shown
+## VERDICT
+
+The app is **code-complete for Play Store submission** with one functional bug: **SocialTasks is unreachable in the native app**. If social task rewards are part of the user experience, this needs fixing before launch.
+
+Everything else (auth, permissions, error handling, points sync, build config) is solid. The remaining blockers are all Play Console configuration tasks.
 
