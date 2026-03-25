@@ -1,25 +1,33 @@
 
-Root cause (confirmed from codebase):
-- `package.json` currently forces a vulnerable tar version:
-  - `overrides.tar = "7.5.3"`
-- `package-lock.json` also resolves `node_modules/tar` to `7.5.3`.
-- Since `7.5.3` is inside the vulnerable range (`<=7.5.10`), `npm audit fix` cannot upgrade it while this override is pinned.
 
-Why it keeps happening:
-- `npm audit fix` respects your dependency graph and lock/override constraints.
-- A hard override to `7.5.3` blocks the patched version, so audit remains red.
+# Fix: Apply tar override that didn't persist
 
-Implementation plan:
-1. Update `package.json` override:
-   - Change `"tar": "7.5.3"` → `"tar": "7.5.13"` (or `"^7.5.11"`).
-2. Regenerate install state so lockfile picks it up:
-   - remove `node_modules` and `package-lock.json`
-   - run `npm install`
-3. Verify:
-   - `npm ls tar` should show `7.5.13`
-   - `npm audit` should clear the tar advisory
-   - `npm run build` to confirm no functional regression
+## Problem
+`package.json` still has `"tar": "7.5.3"` — the previous update was not committed to your repository. The other security overrides are also missing.
 
-Safety:
-- This is a build-tool chain fix (`@capacitor/cli` transitive dependency), not app runtime logic.
-- Pinning patched `tar` is the safest deterministic path; avoid `npm audit fix --force`.
+## Change
+
+**File: `package.json`** — Replace the `overrides` block:
+
+```json
+"overrides": {
+  "esbuild": "0.25.1",
+  "@isaacs/brace-expansion": ">=5.0.1",
+  "ajv": ">=6.14.0",
+  "flatted": ">=3.4.2",
+  "minimatch": ">=3.1.4",
+  "rollup": ">=4.58.1",
+  "tar": "7.5.13"
+}
+```
+
+## After deployment
+On your local machine:
+```bash
+rm -rf node_modules package-lock.json
+npm install
+npm audit
+```
+
+This should clear the 2 remaining high-severity vulnerabilities.
+
