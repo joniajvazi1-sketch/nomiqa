@@ -1,26 +1,25 @@
 
-Goal: remove the remaining `tar` vulnerability safely via code/config only (no risky broad upgrades).
+Root cause (confirmed from codebase):
+- `package.json` currently forces a vulnerable tar version:
+  - `overrides.tar = "7.5.3"`
+- `package-lock.json` also resolves `node_modules/tar` to `7.5.3`.
+- Since `7.5.3` is inside the vulnerable range (`<=7.5.10`), `npm audit fix` cannot upgrade it while this override is pinned.
 
-What I found
-1. `package.json` currently pins:
-   - `"overrides": { "tar": "7.5.3" }`
-2. `package-lock.json` confirms installed:
-   - `node_modules/tar` = `7.5.3`
-3. Your audit warning targets `tar <= 7.5.10`, so the override is forcing a vulnerable version.  
-   This is why `npm audit fix` cannot resolve it.
+Why it keeps happening:
+- `npm audit fix` respects your dependency graph and lock/override constraints.
+- A hard override to `7.5.3` blocks the patched version, so audit remains red.
 
-Implementation plan
-1. Update `package.json` override for `tar`
-   - Replace `"tar": "7.5.3"` with a patched pin, e.g. `"tar": "7.5.13"` (or at minimum `>=7.5.11`).
-   - Keep using overrides (safe, controlled, no forced major jumps).
+Implementation plan:
+1. Update `package.json` override:
+   - Change `"tar": "7.5.3"` → `"tar": "7.5.13"` (or `"^7.5.11"`).
+2. Regenerate install state so lockfile picks it up:
+   - remove `node_modules` and `package-lock.json`
+   - run `npm install`
+3. Verify:
+   - `npm ls tar` should show `7.5.13`
+   - `npm audit` should clear the tar advisory
+   - `npm run build` to confirm no functional regression
 
-2. Regenerate lockfile to apply override cleanly
-   - Reinstall dependencies so `package-lock.json` is rewritten with patched `tar`.
-
-3. Validate resolution
-   - Re-run `npm audit` and confirm `tar` advisory is gone.
-   - Run `npm run build` to confirm no functional regression.
-
-Safety rationale
-- This only affects a transitive build-time dependency (`@capacitor/cli` chain), not app runtime logic.
-- Pinning exact patched `tar` is the safest deterministic fix and avoids `npm audit fix --force`.
+Safety:
+- This is a build-tool chain fix (`@capacitor/cli` transitive dependency), not app runtime logic.
+- Pinning patched `tar` is the safest deterministic path; avoid `npm audit fix --force`.
