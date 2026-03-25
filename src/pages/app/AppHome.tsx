@@ -525,7 +525,8 @@ export const AppHome: React.FC = () => {
         successPattern();
         playCoin();
         // Instantly refresh earnings after speed test
-        const actualPoints = result.connectionType === 'wifi' ? 10 : 25;
+        const isWifi = String(connectionType).toLowerCase() === 'wifi';
+        const actualPoints = isWifi ? 10 : 25;
         window.dispatchEvent(new CustomEvent('points-updated', { detail: { pointsAdded: actualPoints } }));
         toastNew({
           title: "Speed Test Complete ⚡",
