@@ -160,6 +160,8 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   }
 
   return (
+    <>
+    <PointsSyncBridge />
     <div 
       className={cn(
         "app-theme flex flex-col",
