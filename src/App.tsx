@@ -199,7 +199,7 @@ const NativeAppRoutes = () => (
       <Route path="/app/shop" element={<AppShop />} />
       <Route path="/app/profile" element={<AppProfile />} />
       <Route path="/app/challenges" element={<AppChallenges />} />
-      
+      <Route path="/app/social-rewards" element={<SocialRewards />} />
       
       <Route path="/app/network-stats" element={<AppNetworkStats />} />
       <Route path="/app/auth" element={<AppAuth />} />
