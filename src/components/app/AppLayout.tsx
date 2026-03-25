@@ -7,6 +7,7 @@ import { PageTransition } from './PageTransition';
 import { OfflineScreen } from './OfflineScreen';
 import { SwipeablePages } from './SwipeablePages';
 import { FullscreenPortal } from './FullscreenPortal';
+import { PointsSyncBridge } from './PointsSyncBridge';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import { cn } from '@/lib/utils';
 

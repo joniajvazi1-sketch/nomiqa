@@ -310,6 +310,26 @@ export const AppHome: React.FC = () => {
     }
   }, []);
 
+  // On mount: apply any pending points from sessionStorage (bridge for missed events)
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem('pendingPointsSync');
+      if (raw) {
+        const pending = JSON.parse(raw);
+        const AGE_LIMIT = 5 * 60 * 1000; // 5 minutes
+        if (pending && Date.now() - pending.ts < AGE_LIMIT) {
+          if (pending.type === 'absolute' && pending.total != null) {
+            setPoints(prev => prev ? { ...prev, total_points: pending.total } : prev);
+          } else if (pending.type === 'delta' && pending.delta > 0) {
+            setPoints(prev => prev ? { ...prev, total_points: prev.total_points + pending.delta } : prev);
+            setTodayEarnings(prev => prev + pending.delta);
+          }
+        }
+        sessionStorage.removeItem('pendingPointsSync');
+      }
+    } catch {}
+  }, []);
+
   useEffect(() => {
     loadData();
     // Check min app version
