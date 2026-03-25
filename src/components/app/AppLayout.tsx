@@ -234,5 +234,6 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         </FullscreenPortal>
       )}
     </div>
+    </>
   );
 };
