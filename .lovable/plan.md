@@ -1,50 +1,68 @@
 
 
-# Enforce Minimum App Version for Points Earning
+## Problem Analysis
 
-## Problem
-Old APKs you distributed still work and earn points. There's no version gate — the `sync-contribution-data` and speed test flows award points regardless of which app version is calling them.
+Two issues reported by testers:
 
-## Approach
-Add a **minimum version check** at the server level (edge functions) so old APKs get rejected from earning points. Data can still be saved (it's still useful), but **no points are awarded** for outdated versions.
+### Issue 1: Points don't update immediately on home screen after collecting rewards
 
-Additionally, fix the hardcoded `app_version: '1.0.0'` in the contribution hook so it sends the real version.
+**Root cause:** The `points-updated` event system has a timing gap. When users claim rewards on other screens (Challenges, Social Tasks, Daily Check-in) and navigate back to AppHome, the optimistic update fires but AppHome may not be mounted yet to receive it. The `loadData()` call only triggers on `visibilitychange`/`focus`, which doesn't fire during same-tab navigation.
 
-## Changes
+Specifically:
+- `SocialTasks` dispatches `points-updated` but lives on a separate page (`/social-rewards`) — by the time the user navigates back to AppHome, the event was already fired and missed
+- Challenge claims on `/app/challenges` dispatch the event, but AppHome unmounts when navigating away, so the listener isn't active
+- The `loadData()` in AppHome only re-runs on mount, visibility change, or focus — not on route navigation back
 
-### 1. Add `min_app_version` to remote config
-Insert a new row into `app_remote_config` with key `min_app_version` and value `"1.0.2"`. This way you can bump the minimum version from the database without redeploying code.
+### Issue 2: Items 7 and 8 from audit
 
-### 2. Fix client to send real app version
-**`src/hooks/useNetworkContribution.ts`** — Replace the hardcoded `app_version: '1.0.0'` with the actual version from `getAppVersion()` (already exported from `src/lib/sentry.ts`).
+Without the exact audit list in context, these likely refer to **store listing assets** and **data safety form** — Play Console configuration items that can't be fixed in code. But if they refer to in-app issues, the points sync problem above is the most commonly reported "broken" behavior.
 
-### 3. Gate points in `sync-contribution-data` edge function
-**`supabase/functions/sync-contribution-data/index.ts`** — Before calling `add_points_with_cap`:
-- Read the `app_version` from the submitted signal log data
-- Fetch `min_app_version` from `app_remote_config`
-- If app version is missing or below minimum, skip points award but **still save the signal data** (it has B2B value)
-- Return a flag `version_outdated: true` in the response so the app can show an update prompt
+---
 
-### 4. Gate points in speed test save
-**`src/components/app/SpeedTest.tsx`** — Add the app version to the `speed_test_results` insert. The server-side `add_points_with_cap` RPC doesn't have version info, so add a lightweight client-side check: fetch `min_app_version` from `app_remote_config` on mount, and if outdated, skip the points RPC call (still save the test result). Show a toast telling the user to update.
+## Plan
 
-### 5. Show update prompt for old versions
-**`src/pages/app/AppHome.tsx`** — On mount, check `min_app_version` from remote config against `getAppVersion()`. If outdated, show a persistent banner: "Please update your app to keep earning points."
+### Fix: Ensure points refresh on every AppHome mount/navigation
 
-## Version comparison logic
-Simple semver compare: split on `.`, compare major/minor/patch numerically. This is a ~10 line utility function.
+**File: `src/pages/app/AppHome.tsx`**
 
-## Files Changed (4)
+1. **Add route-based refresh** — Call `loadData()` not just on initial mount but also when the component re-mounts after navigation. Currently `loadData` runs in a `useEffect` with `[loadData]` dependency, but React may skip re-running if the callback reference is stable. Add a `useLocation()` key or explicit trigger.
 
-| File | Change |
-|------|--------|
-| `src/hooks/useNetworkContribution.ts` | Send real `getAppVersion()` instead of hardcoded `'1.0.0'` |
-| `supabase/functions/sync-contribution-data/index.ts` | Check `min_app_version` config before awarding points |
-| `src/components/app/SpeedTest.tsx` | Check version before awarding speed test points |
-| `src/pages/app/AppHome.tsx` | Show "update required" banner if version is below minimum |
+2. **Persist pending point updates via sessionStorage** — When `points-updated` fires, also write the delta to `sessionStorage`. On AppHome mount, check for pending updates and apply them before the full data load completes. This bridges the gap when the event fires while AppHome is unmounted.
 
-Plus one database insert: `min_app_version = '1.0.2'` in `app_remote_config`.
+3. **Add immediate `loadData()` call on component mount** — Ensure the `useEffect` that calls `loadData()` always runs fresh data fetch, not relying on stale cache.
 
-## How to bump in the future
-Just update the `min_app_version` value in the database — no code deploy needed. Old APKs will immediately stop earning points.
+**File: `src/components/SocialTasks.tsx`**
+- Already dispatches `points-updated` correctly. No changes needed.
+
+**File: `src/pages/app/AppChallenges.tsx`**  
+- Already dispatches `points-updated` with `newTotal`. No changes needed.
+
+### Technical approach
+
+```text
+Before (broken flow):
+  User on AppHome → navigates to Challenges → claims reward → 
+  event fires (AppHome unmounted, misses it) → navigates back → 
+  AppHome mounts → shows stale points until loadData() completes
+
+After (fixed flow):
+  User on AppHome → navigates to Challenges → claims reward → 
+  event fires + writes to sessionStorage → navigates back → 
+  AppHome mounts → reads sessionStorage for instant update + 
+  loadData() confirms from server
+```
+
+### Changes
+
+1. **`src/pages/app/AppHome.tsx`** (~15 lines changed)
+   - On mount, check `sessionStorage` for a `pendingPointsUpdate` key and apply it to state immediately
+   - Add a global `points-updated` listener that writes to `sessionStorage` (so it persists even if AppHome is unmounted)
+   - Register the sessionStorage writer in `App.tsx` or a top-level provider so it's always active
+
+2. **`src/components/app/PointsSyncBridge.tsx`** (new, ~20 lines)
+   - A lightweight component mounted at the app layout level that always listens for `points-updated` events and persists them to `sessionStorage`
+   - AppHome reads from this on mount for instant display
+
+3. **`src/components/app/AppLayout.tsx`**
+   - Mount `PointsSyncBridge` so it's always active regardless of which screen is shown
 
