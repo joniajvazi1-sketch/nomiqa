@@ -7,6 +7,7 @@ import { PageTransition } from './PageTransition';
 import { OfflineScreen } from './OfflineScreen';
 import { SwipeablePages } from './SwipeablePages';
 import { FullscreenPortal } from './FullscreenPortal';
+import { PointsSyncBridge } from './PointsSyncBridge';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import { cn } from '@/lib/utils';
 
@@ -159,6 +160,8 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   }
 
   return (
+    <>
+    <PointsSyncBridge />
     <div 
       className={cn(
         "app-theme flex flex-col",
@@ -231,5 +234,6 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         </FullscreenPortal>
       )}
     </div>
+    </>
   );
 };
