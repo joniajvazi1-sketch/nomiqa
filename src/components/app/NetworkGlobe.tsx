@@ -92,94 +92,116 @@ const prepareTiles = (cells: GlobalCoverageCell[]): TileData[] => {
   });
 };
 
-// InstancedMesh-based coverage tiles — 2 draw calls total
+// InstancedMesh-based coverage tiles — grouped by quality for stable color rendering
 const InstancedCoverageTiles: React.FC<{
   tiles: TileData[];
   selectedIndex: number | null;
   onSelectIndex: (idx: number | null) => void;
 }> = ({ tiles, selectedIndex, onSelectIndex }) => {
-  const discRef = useRef<THREE.InstancedMesh>(null);
-  const glowRef = useRef<THREE.InstancedMesh>(null);
+  const strongDiscRef = useRef<THREE.InstancedMesh>(null);
+  const mediumDiscRef = useRef<THREE.InstancedMesh>(null);
+  const weakDiscRef = useRef<THREE.InstancedMesh>(null);
+  const strongGlowRef = useRef<THREE.InstancedMesh>(null);
+  const mediumGlowRef = useRef<THREE.InstancedMesh>(null);
+  const weakGlowRef = useRef<THREE.InstancedMesh>(null);
 
-  // Shared geometries
   const discGeo = useMemo(() => new THREE.CircleGeometry(1, 16), []);
   const ringGeo = useMemo(() => new THREE.RingGeometry(1, 1.6, 16), []);
 
-  // Update instance matrices and colors whenever tiles change
-  useEffect(() => {
-    if (!discRef.current || !glowRef.current || tiles.length === 0) return;
+  const groupedTiles = useMemo(() => {
+    const groups: Record<TileData['quality'], Array<{ tile: TileData; index: number }>> = {
+      strong: [],
+      medium: [],
+      weak: [],
+    };
 
+    tiles.forEach((tile, index) => {
+      groups[tile.quality].push({ tile, index });
+    });
+
+    return groups;
+  }, [tiles]);
+
+  useEffect(() => {
     const tempMatrix = new THREE.Matrix4();
     const tempQuat = new THREE.Quaternion();
     const up = new THREE.Vector3(0, 0, 1);
-    const tempColor = new THREE.Color();
 
-    for (let i = 0; i < tiles.length; i++) {
-      const t = tiles[i];
-      tempQuat.setFromUnitVectors(up, t.normal);
-      const scale = i === selectedIndex ? t.tileSize * 1.6 : t.tileSize;
+    const updateInstances = (
+      mesh: THREE.InstancedMesh | null,
+      entries: Array<{ tile: TileData; index: number }>
+    ) => {
+      if (!mesh || entries.length === 0) return;
 
-      tempMatrix.compose(t.position, tempQuat, new THREE.Vector3(scale, scale, 1));
-      discRef.current.setMatrixAt(i, tempMatrix);
-      glowRef.current.setMatrixAt(i, tempMatrix);
+      entries.forEach((entry, localIndex) => {
+        const { tile, index } = entry;
+        tempQuat.setFromUnitVectors(up, tile.normal);
+        const scale = index === selectedIndex ? tile.tileSize * 1.6 : tile.tileSize;
+        tempMatrix.compose(tile.position, tempQuat, new THREE.Vector3(scale, scale, 1));
+        mesh.setMatrixAt(localIndex, tempMatrix);
+      });
 
-      const colors = QUALITY_COLORS[t.quality];
-      discRef.current.setColorAt(i, tempColor.copy(colors.base));
-      glowRef.current.setColorAt(i, tempColor.copy(colors.glow));
-    }
+      mesh.instanceMatrix.needsUpdate = true;
+    };
 
-    discRef.current.instanceMatrix.needsUpdate = true;
-    glowRef.current.instanceMatrix.needsUpdate = true;
-    if (discRef.current.instanceColor) discRef.current.instanceColor.needsUpdate = true;
-    if (glowRef.current.instanceColor) glowRef.current.instanceColor.needsUpdate = true;
-  }, [tiles, selectedIndex]);
+    updateInstances(strongDiscRef.current, groupedTiles.strong);
+    updateInstances(mediumDiscRef.current, groupedTiles.medium);
+    updateInstances(weakDiscRef.current, groupedTiles.weak);
+    updateInstances(strongGlowRef.current, groupedTiles.strong);
+    updateInstances(mediumGlowRef.current, groupedTiles.medium);
+    updateInstances(weakGlowRef.current, groupedTiles.weak);
+  }, [groupedTiles, selectedIndex]);
 
-  const handleClick = useCallback((e: ThreeEvent<MouseEvent>) => {
-    e.stopPropagation();
-    if (e.instanceId !== undefined) {
-      onSelectIndex(e.instanceId === selectedIndex ? null : e.instanceId);
-    }
-  }, [selectedIndex, onSelectIndex]);
+  const handleGroupClick = useCallback(
+    (entries: Array<{ tile: TileData; index: number }>) => (e: ThreeEvent<MouseEvent>) => {
+      e.stopPropagation();
+      if (e.instanceId === undefined) return;
 
-  const count = tiles.length;
-  if (count === 0) return null;
+      const entry = entries[e.instanceId];
+      if (!entry) return;
+      onSelectIndex(entry.index === selectedIndex ? null : entry.index);
+    },
+    [onSelectIndex, selectedIndex]
+  );
+
+  if (tiles.length === 0) return null;
 
   const selectedTile = selectedIndex !== null ? tiles[selectedIndex] : null;
 
   return (
     <>
-      {/* Disc instances — use emissive so tiles glow bright, not black */}
       <instancedMesh
-        ref={discRef}
-        args={[discGeo, undefined, count]}
-        onClick={handleClick}
+        ref={strongDiscRef}
+        args={[discGeo, undefined, groupedTiles.strong.length]}
+        onClick={handleGroupClick(groupedTiles.strong)}
       >
-        <meshBasicMaterial
-          color="#ffffff"
-          transparent
-          opacity={0.95}
-          vertexColors
-          side={THREE.DoubleSide}
-          toneMapped={false}
-        />
+        <meshBasicMaterial color={QUALITY_COLORS.strong.base} transparent opacity={0.94} side={THREE.DoubleSide} toneMapped={false} />
+      </instancedMesh>
+      <instancedMesh
+        ref={mediumDiscRef}
+        args={[discGeo, undefined, groupedTiles.medium.length]}
+        onClick={handleGroupClick(groupedTiles.medium)}
+      >
+        <meshBasicMaterial color={QUALITY_COLORS.medium.base} transparent opacity={0.94} side={THREE.DoubleSide} toneMapped={false} />
+      </instancedMesh>
+      <instancedMesh
+        ref={weakDiscRef}
+        args={[discGeo, undefined, groupedTiles.weak.length]}
+        onClick={handleGroupClick(groupedTiles.weak)}
+      >
+        <meshBasicMaterial color={QUALITY_COLORS.weak.base} transparent opacity={0.94} side={THREE.DoubleSide} toneMapped={false} />
       </instancedMesh>
 
-      {/* Glow ring instances */}
-      <instancedMesh
-        ref={glowRef}
-        args={[ringGeo, undefined, count]}
-      >
-        <meshBasicMaterial
-          color="#ffffff"
-          transparent
-          opacity={0.55}
-          vertexColors
-          side={THREE.DoubleSide}
-          toneMapped={false}
-        />
+      <instancedMesh ref={strongGlowRef} args={[ringGeo, undefined, groupedTiles.strong.length]}>
+        <meshBasicMaterial color={QUALITY_COLORS.strong.glow} transparent opacity={0.5} side={THREE.DoubleSide} toneMapped={false} />
+      </instancedMesh>
+      <instancedMesh ref={mediumGlowRef} args={[ringGeo, undefined, groupedTiles.medium.length]}>
+        <meshBasicMaterial color={QUALITY_COLORS.medium.glow} transparent opacity={0.5} side={THREE.DoubleSide} toneMapped={false} />
+      </instancedMesh>
+      <instancedMesh ref={weakGlowRef} args={[ringGeo, undefined, groupedTiles.weak.length]}>
+        <meshBasicMaterial color={QUALITY_COLORS.weak.glow} transparent opacity={0.5} side={THREE.DoubleSide} toneMapped={false} />
       </instancedMesh>
 
-      {/* Tooltip for selected tile */}
       {selectedTile && (
         <group position={selectedTile.position}>
           <Html center distanceFactor={2.5} zIndexRange={[100, 0]} style={{ pointerEvents: 'auto' }}>
@@ -188,7 +210,10 @@ const InstancedCoverageTiles: React.FC<{
               onClick={(e) => e.stopPropagation()}
             >
               <button
-                onClick={(e) => { e.stopPropagation(); onSelectIndex(null); }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSelectIndex(null);
+                }}
                 className="absolute -top-2 -right-2 w-5 h-5 bg-foreground text-background rounded-full flex items-center justify-center text-[9px] font-bold leading-none shadow-md"
                 aria-label="Close"
               >
@@ -198,10 +223,7 @@ const InstancedCoverageTiles: React.FC<{
               <div className="space-y-1">
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground text-[10px]">Signal</span>
-                  <span className={`text-xs font-bold ${
-                    selectedTile.quality === 'strong' ? 'text-green-500' :
-                    selectedTile.quality === 'medium' ? 'text-amber-500' : 'text-red-500'
-                  }`}>
+                  <span className="text-xs font-bold" style={{ color: QUALITY_COLORS[selectedTile.quality].base }}>
                     {selectedTile.avgSignalLabel}
                   </span>
                 </div>
