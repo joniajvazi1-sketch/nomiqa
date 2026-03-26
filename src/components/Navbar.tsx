@@ -21,7 +21,7 @@ import headerLogo from "@/assets/nomiqa-token-logo.png";
 export const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { items } = useCart();
+  // Cart is now handled by ShopifyCartDrawer
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [desktopMenuOpen, setDesktopMenuOpen] = useState(false);
