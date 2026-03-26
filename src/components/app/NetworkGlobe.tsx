@@ -177,15 +177,11 @@ const InstancedCoverageTiles: React.FC<{
         ref={glowRef}
         args={[ringGeo, undefined, count]}
       >
-        <meshStandardMaterial
+        <meshBasicMaterial
           transparent
-          opacity={0.35}
+          opacity={0.4}
           vertexColors
           side={THREE.DoubleSide}
-          emissive="#ffffff"
-          emissiveIntensity={0.8}
-          roughness={0.5}
-          metalness={0}
         />
       </instancedMesh>
 
