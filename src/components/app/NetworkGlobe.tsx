@@ -203,6 +203,7 @@ const InstancedCoverageTiles: React.FC<{
 const Earth: React.FC<{ isDark?: boolean; children?: React.ReactNode }> = ({ isDark = true, children }) => {
   const groupRef = useRef<THREE.Group>(null);
   const cloudsRef = useRef<THREE.Mesh>(null);
+  const initializedRef = useRef(false);
 
   const dayTexture = useLoader(THREE.TextureLoader, 'https://unpkg.com/three-globe@2.31.1/example/img/earth-blue-marble.jpg');
   const bumpTexture = useLoader(THREE.TextureLoader, 'https://unpkg.com/three-globe@2.31.1/example/img/earth-topology.png');
@@ -216,7 +217,15 @@ const Earth: React.FC<{ isDark?: boolean; children?: React.ReactNode }> = ({ isD
   });
 
   useFrame(() => {
-    if (groupRef.current) groupRef.current.rotation.y += 0.0003;
+    if (groupRef.current) {
+      // Set initial rotation to face Europe/Africa where most data is
+      if (!initializedRef.current) {
+        // Rotate to show ~10°E longitude (Europe) facing camera
+        groupRef.current.rotation.y = -0.18; // ~10° east in radians
+        initializedRef.current = true;
+      }
+      groupRef.current.rotation.y += 0.0003;
+    }
     if (cloudsRef.current) cloudsRef.current.rotation.y += 0.00015;
   });
 
