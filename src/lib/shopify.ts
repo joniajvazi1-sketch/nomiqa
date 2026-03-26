@@ -102,7 +102,7 @@ export const PRODUCTS_QUERY = `
               }
             }
           }
-          variants(first: 10) {
+          variants(first: 30) {
             edges {
               node {
                 id
