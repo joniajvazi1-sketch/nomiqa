@@ -11,7 +11,7 @@ import { countryTranslations } from "@/utils/countryTranslations";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 /* ─── Multilingual search index ─── */
-const translationIndex = new Map<string, Set<string>>();
+const translationIndex: globalThis.Map<string, Set<string>> = new globalThis.Map();
 Object.values(countryTranslations).forEach((langs) => {
   const englishName = langs.EN.toLowerCase();
   Object.values(langs).forEach((name) => {
