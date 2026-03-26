@@ -38,6 +38,15 @@ const getQualityTier = (intensity: number): 'strong' | 'medium' | 'weak' => {
   return 'weak';
 };
 
+// Format numbers: round up slowly as they grow (27468 → "27k", 391 → "390+", 19771 → "19k")
+const formatStatNumber = (value: number): string => {
+  if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
+  if (value >= 10000) return `${Math.round(value / 1000)}k`;
+  if (value >= 1000) return `${(value / 1000).toFixed(1)}k`;
+  if (value >= 100) return `${Math.round(value / 10) * 10}+`;
+  return value.toString();
+};
+
 const QUALITY_COLORS = {
   strong: { base: new THREE.Color('#22c55e'), glow: new THREE.Color('#86efac') },
   medium: { base: new THREE.Color('#f59e0b'), glow: new THREE.Color('#fcd34d') },
@@ -149,13 +158,22 @@ const InstancedCoverageTiles: React.FC<{
 
   return (
     <>
-      {/* Disc instances */}
+      {/* Disc instances — use emissive so tiles glow bright, not black */}
       <instancedMesh
         ref={discRef}
         args={[discGeo, undefined, count]}
         onClick={handleClick}
       >
-        <meshBasicMaterial transparent opacity={0.95} vertexColors side={THREE.DoubleSide} />
+        <meshStandardMaterial
+          transparent
+          opacity={0.95}
+          vertexColors
+          side={THREE.DoubleSide}
+          emissive="#ffffff"
+          emissiveIntensity={0.6}
+          roughness={0.3}
+          metalness={0}
+        />
       </instancedMesh>
 
       {/* Glow ring instances */}
@@ -163,7 +181,16 @@ const InstancedCoverageTiles: React.FC<{
         ref={glowRef}
         args={[ringGeo, undefined, count]}
       >
-        <meshBasicMaterial transparent opacity={0.2} vertexColors side={THREE.DoubleSide} />
+        <meshStandardMaterial
+          transparent
+          opacity={0.35}
+          vertexColors
+          side={THREE.DoubleSide}
+          emissive="#ffffff"
+          emissiveIntensity={0.8}
+          roughness={0.5}
+          metalness={0}
+        />
       </instancedMesh>
 
       {/* Tooltip for selected tile */}
@@ -412,19 +439,19 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
         <div className="flex justify-between gap-2">
           <div className="flex-1 bg-muted/80 dark:bg-white/5 backdrop-blur-md border border-border rounded-xl px-3 py-2 text-center">
             <div className="text-foreground text-base font-bold tabular-nums">
-              {realStats.dataPoints >= 1000 ? `${Math.round(realStats.dataPoints / 1000)}k` : realStats.dataPoints}
+              {formatStatNumber(realStats.dataPoints)}
             </div>
             <div className="text-foreground/50 text-[10px] font-medium">Samples</div>
           </div>
           <div className="flex-1 bg-muted/80 dark:bg-white/5 backdrop-blur-md border border-border rounded-xl px-3 py-2 text-center">
             <div className="text-foreground text-base font-bold tabular-nums">
-              {realStats.cities >= 1000 ? `${Math.round(realStats.cities / 1000)}k` : realStats.cities}
+              {formatStatNumber(realStats.cities)}
             </div>
             <div className="text-foreground/50 text-[10px] font-medium">Areas</div>
           </div>
           <div className="flex-1 bg-muted/80 dark:bg-white/5 backdrop-blur-md border border-border rounded-xl px-3 py-2 text-center">
             <div className="text-foreground text-base font-bold tabular-nums">
-              {realStats.contributors >= 1000 ? `${Math.round(realStats.contributors / 1000)}k` : realStats.contributors > 0 ? realStats.contributors : '—'}
+              {realStats.contributors > 0 ? formatStatNumber(realStats.contributors) : '—'}
             </div>
             <div className="text-foreground/50 text-[10px] font-medium">Contributors</div>
           </div>
