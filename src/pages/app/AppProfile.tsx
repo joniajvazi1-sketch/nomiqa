@@ -818,13 +818,6 @@ export const AppProfile: React.FC = () => {
 
           {/* ═══ Settings Tab ═══ */}
           <TabsContent value="settings" className="mt-0 space-y-4">
-            {/* Speed Test History */}
-            <div className="rounded-2xl bg-card border border-border overflow-hidden">
-              <div className="p-4">
-                <SpeedTestHistory limit={5} compact />
-              </div>
-            </div>
-
             {/* Data Collection Controls */}
             <DataCollectionControls />
 

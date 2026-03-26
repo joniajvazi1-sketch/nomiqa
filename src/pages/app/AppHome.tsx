@@ -461,6 +461,8 @@ export const AppHome: React.FC = () => {
         description: "Please try again. If the issue persists, restart the app.",
         variant: "destructive",
       });
+    } finally {
+      isTogglingRef.current = false;
     }
   };
 
