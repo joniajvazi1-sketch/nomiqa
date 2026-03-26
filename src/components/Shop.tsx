@@ -295,16 +295,16 @@ export const Shop = () => {
             onAddToCart={handleAddToCart}
             isCartLoading={isCartLoading}
           />
-        ) : !products.length ? (
+        ) : !filteredProducts.length ? (
           <div className="text-center py-20">
             <Globe className="w-12 h-12 text-white/20 mx-auto mb-4" />
             <p className="text-white/60">
-              {activeSearch ? "No countries match your search" : "No products found"}
+              {searchInput.trim() ? "No countries match your search" : "No products found"}
             </p>
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-5">
-            {products.map((product) => (
+            {filteredProducts.map((product) => (
               <CountryCard
                 key={product.node.id}
                 product={product}
