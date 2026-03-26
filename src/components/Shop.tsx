@@ -3,14 +3,14 @@ import { useShopifyProducts } from "@/hooks/useShopifyProducts";
 import { useShopifyCart, ShopifyProduct } from "@/stores/shopifyCartStore";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { Loader2, Search, ShoppingCart, ArrowLeft, Globe, ChevronRight } from "lucide-react";
+import { Loader2, Search, ShoppingCart, ArrowLeft, Globe, ChevronRight, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 import { Card, CardContent } from "./ui/card";
 import { useTranslation } from "@/contexts/TranslationContext";
-import { Badge } from "./ui/badge";
 import { countryTranslations } from "@/utils/countryTranslations";
+import { useIsMobile } from "@/hooks/use-mobile";
 
-/** Build a lookup: lowercase translated name → english name, for all languages */
+/* ─── Multilingual search index ─── */
 const translationIndex: Map<string, Set<string>> = new Map();
 Object.values(countryTranslations).forEach((langs) => {
   const englishName = langs.EN.toLowerCase();
@@ -21,15 +21,10 @@ Object.values(countryTranslations).forEach((langs) => {
   });
 });
 
-/** Check if a product title matches a search term across all languages */
 function matchesMultilingualSearch(productTitle: string, searchTerm: string): boolean {
   const term = searchTerm.toLowerCase();
   const title = productTitle.toLowerCase();
-
-  // Direct title match
   if (title.includes(term)) return true;
-
-  // Check if the search term matches any translation
   for (const [translatedName, englishNames] of translationIndex) {
     if (translatedName.includes(term)) {
       for (const en of englishNames) {
@@ -37,31 +32,40 @@ function matchesMultilingualSearch(productTitle: string, searchTerm: string): bo
       }
     }
   }
-
   return false;
 }
 
-/** Parse variant title like "Andorra 3GB 30Days" into data + validity */
+/* ─── Helpers ─── */
 function parseVariant(title: string): { data: string; validity: string } {
   const match = title.match(/(\d+(?:\.\d+)?(?:GB|MB))\s+(\d+Days?)/i);
   if (match) return { data: match[1], validity: match[2] };
   return { data: title, validity: "" };
 }
 
-/** Extract country name from product title (remove " eSIM" suffix) */
 function getCountryName(title: string): string {
   return title.replace(/\s*eSIM$/i, "").trim();
 }
 
-/** Extract flag emoji from description */
 function getFlag(description: string): string {
   const match = description.match(/[\u{1F1E0}-\u{1F1FF}]{2}/u);
   return match ? match[0] : "🌍";
 }
 
-/** Get starting price for a product */
-function getStartingPrice(product: ShopifyProduct): number {
-  return parseFloat(product.node.priceRange.minVariantPrice.amount);
+/** Clean description for display — strip technical specs prefix */
+function getCleanDescription(description: string): string {
+  // Remove "Features Use In: 🇦🇩 " prefix and extract the meaningful part
+  const descMatch = description.match(/Description\s+(.*?)(?:\s+Technical Specs|$)/s);
+  if (descMatch) return descMatch[1].trim();
+  return description;
+}
+
+/** Extract key features from description */
+function getFeatures(description: string): { topUp: boolean; hotspot: boolean; fiveG: boolean } {
+  return {
+    topUp: /Top Up Available:\s*Yes/i.test(description),
+    hotspot: /Hotspot:\s*Yes/i.test(description),
+    fiveG: /5G/i.test(description),
+  };
 }
 
 /* ─── Country Card ─── */
@@ -69,7 +73,7 @@ const CountryCard = ({ product, onClick }: { product: ShopifyProduct; onClick: (
   const image = product.node.images.edges[0]?.node;
   const flag = getFlag(product.node.description);
   const countryName = getCountryName(product.node.title);
-  const startingPrice = getStartingPrice(product);
+  const startingPrice = parseFloat(product.node.priceRange.minVariantPrice.amount);
   const variantCount = product.node.variants.edges.length;
 
   return (
@@ -128,10 +132,12 @@ const PackageView = ({
   const flag = getFlag(product.node.description);
   const countryName = getCountryName(product.node.title);
   const variants = product.node.variants.edges;
+  const cleanDesc = getCleanDescription(product.node.description);
+  const features = getFeatures(product.node.description);
 
   return (
     <div className="animate-fade-in">
-      {/* Header */}
+      {/* Back button */}
       <button
         onClick={onBack}
         className="flex items-center gap-2 text-white/60 hover:text-neon-cyan transition-colors mb-6 group"
@@ -140,7 +146,8 @@ const PackageView = ({
         <span className="text-sm font-light">Back to countries</span>
       </button>
 
-      <div className="flex items-center gap-4 mb-8">
+      {/* Country header */}
+      <div className="flex items-center gap-4 mb-6">
         {image && (
           <div className="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 border border-white/10">
             <img src={image.url} alt={countryName} className="w-full h-full object-cover" />
@@ -157,7 +164,37 @@ const PackageView = ({
         </div>
       </div>
 
-      {/* Packages Grid */}
+      {/* Description card */}
+      <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-5 md:p-6 mb-8">
+        <p className="text-white/70 text-sm md:text-base font-light leading-relaxed mb-4">
+          {cleanDesc}
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {features.fiveG && (
+            <span className="text-xs px-3 py-1.5 rounded-full bg-neon-cyan/10 border border-neon-cyan/20 text-neon-cyan">
+              5G Supported
+            </span>
+          )}
+          {features.hotspot && (
+            <span className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-white/60">
+              Hotspot Enabled
+            </span>
+          )}
+          {features.topUp && (
+            <span className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-white/60">
+              Top Up Available
+            </span>
+          )}
+          <span className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-white/60">
+            Data Only
+          </span>
+        </div>
+      </div>
+
+      {/* Section title */}
+      <h3 className="text-lg font-medium text-white mb-4">Available Packages</h3>
+
+      {/* Packages — single column on mobile, 2-3 cols on desktop */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {variants.map((variant) => {
           const { data, validity } = parseVariant(variant.node.title);
@@ -169,12 +206,17 @@ const PackageView = ({
               className="group relative overflow-hidden bg-white/[0.03] border border-white/10 hover:border-neon-cyan/30 rounded-xl transition-all duration-200"
             >
               <CardContent className="p-5">
-                <div className="flex items-start justify-between mb-4">
-                  <div>
-                    <div className="text-xl font-semibold text-white">{data}</div>
-                    {validity && (
-                      <div className="text-sm text-white/50 font-light">{validity.replace("Days", " Days")}</div>
-                    )}
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-neon-cyan/10 border border-neon-cyan/20 flex items-center justify-center flex-shrink-0">
+                      <span className="text-sm font-bold text-neon-cyan">{data}</span>
+                    </div>
+                    <div>
+                      <div className="text-base font-semibold text-white">{data}</div>
+                      {validity && (
+                        <div className="text-xs text-white/50 font-light">{validity.replace("Days", " Days")}</div>
+                      )}
+                    </div>
                   </div>
                   <div className="text-right">
                     <div className="text-2xl font-bold bg-gradient-to-r from-neon-cyan to-white bg-clip-text text-transparent">
@@ -187,7 +229,7 @@ const PackageView = ({
                 <Button
                   onClick={() => onAddToCart(product, variant.node.id)}
                   disabled={isCartLoading || !variant.node.availableForSale}
-                  className="w-full bg-white/[0.05] border border-neon-cyan/30 text-white hover:bg-neon-cyan/10 hover:border-neon-cyan/50 font-light h-10 rounded-lg transition-colors duration-200"
+                  className="w-full bg-white/[0.05] border border-neon-cyan/30 text-white hover:bg-neon-cyan/10 hover:border-neon-cyan/50 font-light h-11 rounded-lg transition-colors duration-200"
                   size="sm"
                 >
                   <ShoppingCart className="mr-2 h-4 w-4" />
@@ -205,12 +247,13 @@ const PackageView = ({
 /* ─── Main Shop Component ─── */
 export const Shop = () => {
   const { t } = useTranslation();
+  const isMobile = useIsMobile();
   const [searchInput, setSearchInput] = useState("");
+  const [displayCount, setDisplayCount] = useState(0); // 0 = use default
   const [selectedProduct, setSelectedProduct] = useState<ShopifyProduct | null>(null);
   const addItem = useShopifyCart((state) => state.addItem);
   const isCartLoading = useShopifyCart((state) => state.isLoading);
 
-  // Always fetch all products, filter client-side for multilingual search
   const { data, isLoading, isError, refetch } = useShopifyProducts(250);
   const allProducts = data?.products || [];
 
@@ -219,6 +262,14 @@ export const Shop = () => {
     if (!term) return allProducts;
     return allProducts.filter((p) => matchesMultilingualSearch(p.node.title, term));
   }, [allProducts, searchInput]);
+
+  // Default limits: 5 on mobile, 10 on desktop. Search shows all matches.
+  const defaultLimit = isMobile ? 5 : 10;
+  const isSearching = searchInput.trim().length > 0;
+  const limit = isSearching ? filteredProducts.length : (displayCount || defaultLimit);
+  const visibleProducts = filteredProducts.slice(0, limit);
+  const hasMore = !isSearching && filteredProducts.length > limit;
+  const remainingCount = filteredProducts.length - limit;
 
   const handleAddToCart = useCallback(
     async (product: ShopifyProduct, variantId: string) => {
@@ -236,6 +287,13 @@ export const Shop = () => {
     },
     [addItem]
   );
+
+  const loadMore = () => {
+    setDisplayCount((prev) => {
+      const current = prev || defaultLimit;
+      return current + (isMobile ? 10 : 20);
+    });
+  };
 
   return (
     <section id="shop" className="py-16 md:py-24 px-4 relative overflow-hidden">
@@ -268,9 +326,9 @@ export const Shop = () => {
             <form onSubmit={(e) => e.preventDefault()} className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-neon-cyan z-10 pointer-events-none" />
               <Input
-                placeholder={t("searchPlaceholder") || "Search countries..."}
+                placeholder={t("searchPlaceholder") || "Search countries in any language..."}
                 value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
+                onChange={(e) => { setSearchInput(e.target.value); setDisplayCount(0); }}
                 className="pl-11 h-12 md:h-14 bg-white/[0.03] border-white/10 hover:border-neon-cyan/30 focus:border-neon-cyan/50 text-white placeholder:text-white/40 rounded-xl transition-colors duration-200"
               />
             </form>
@@ -303,15 +361,30 @@ export const Shop = () => {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-5">
-            {filteredProducts.map((product) => (
-              <CountryCard
-                key={product.node.id}
-                product={product}
-                onClick={() => setSelectedProduct(product)}
-              />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-5">
+              {visibleProducts.map((product) => (
+                <CountryCard
+                  key={product.node.id}
+                  product={product}
+                  onClick={() => setSelectedProduct(product)}
+                />
+              ))}
+            </div>
+
+            {hasMore && (
+              <div className="flex justify-center mt-8">
+                <Button
+                  onClick={loadMore}
+                  variant="outline"
+                  className="bg-white/[0.03] border-white/10 text-white/70 hover:bg-white/[0.06] hover:border-neon-cyan/30 hover:text-neon-cyan rounded-xl px-8 py-5 font-light"
+                >
+                  <ChevronDown className="w-4 h-4 mr-2" />
+                  Show More ({remainingCount} countries)
+                </Button>
+              </div>
+            )}
+          </>
         )}
       </div>
     </section>
