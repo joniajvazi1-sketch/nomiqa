@@ -94,7 +94,7 @@ export const AppCheckout = () => {
     }
 
     setIsSubmitting(true);
-    setCheckoutStep(1);
+    
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
