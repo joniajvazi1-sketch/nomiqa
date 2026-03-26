@@ -381,7 +381,7 @@ export const AppCheckout = () => {
               </div>
             ) : (
               <>
-                {paymentMethod === 'card' ? <CreditCard className="w-5 h-5 mr-2" /> : <Wallet className="w-5 h-5 mr-2" />}
+                <CreditCard className="w-5 h-5 mr-2" />
                 Pay ${total.toFixed(2)}
               </>
             )}
