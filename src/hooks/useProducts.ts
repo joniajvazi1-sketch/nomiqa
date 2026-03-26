@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 export interface Product {
   id: string;
-  airlo_package_id: string;
+  airlo_package_id?: string;
   name: string;
   country_code: string;
   country_name: string;
