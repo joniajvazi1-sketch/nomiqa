@@ -48,10 +48,10 @@ const formatStatNumber = (value: number): string => {
 };
 
 const QUALITY_COLORS = {
-  strong: { base: new THREE.Color('#22c55e'), glow: new THREE.Color('#86efac') },
-  medium: { base: new THREE.Color('#f59e0b'), glow: new THREE.Color('#fcd34d') },
-  weak:   { base: new THREE.Color('#ef4444'), glow: new THREE.Color('#fca5a5') },
-};
+  strong: { base: 'hsl(142 72% 45%)', glow: 'hsl(142 90% 70%)' },
+  medium: { base: 'hsl(38 92% 50%)', glow: 'hsl(43 96% 62%)' },
+  weak: { base: 'hsl(0 84% 60%)', glow: 'hsl(0 92% 73%)' },
+} as const;
 
 interface TileData {
   lat: number;
