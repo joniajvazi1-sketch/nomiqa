@@ -359,58 +359,10 @@ export const AppCheckout = () => {
             </div>
           </div>
 
-          {/* Payment Method Selection */}
-          <div className="p-4 rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] space-y-3">
-            <h3 className="font-semibold text-foreground text-sm">Payment Method</h3>
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                type="button"
-                onClick={() => { selectionTap(); playPop(); setPaymentMethod('card'); }}
-                className={cn(
-                  "p-4 rounded-xl border-2 flex flex-col items-center gap-2 transition-all active:scale-95",
-                  paymentMethod === 'card'
-                    ? "border-primary bg-primary/10"
-                    : "border-white/[0.1] bg-white/[0.02] hover:border-white/[0.2]"
-                )}
-              >
-                <CreditCard className={cn(
-                  "w-6 h-6",
-                  paymentMethod === 'card' ? "text-primary" : "text-muted-foreground"
-                )} />
-                <span className={cn(
-                  "text-sm font-medium",
-                  paymentMethod === 'card' ? "text-primary" : "text-muted-foreground"
-                )}>Card</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => { selectionTap(); playPop(); setPaymentMethod('crypto'); }}
-                className={cn(
-                  "p-4 rounded-xl border-2 flex flex-col items-center gap-2 transition-all active:scale-95",
-                  paymentMethod === 'crypto'
-                    ? "border-primary bg-primary/10"
-                    : "border-white/[0.1] bg-white/[0.02] hover:border-white/[0.2]"
-                )}
-              >
-                <Wallet className={cn(
-                  "w-6 h-6",
-                  paymentMethod === 'crypto' ? "text-primary" : "text-muted-foreground"
-                )} />
-                <span className={cn(
-                  "text-sm font-medium",
-                  paymentMethod === 'crypto' ? "text-primary" : "text-muted-foreground"
-                )}>Crypto</span>
-              </button>
-            </div>
-            <p className="text-xs text-muted-foreground text-center">
-              {paymentMethod === 'card' ? 'Pay with Visa, Mastercard, or other cards' : 'Pay with SOL or USDC on Solana'}
-            </p>
-          </div>
-
           {/* Security Badge */}
           <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
             <Shield className="w-4 h-4" />
-            <span>Secure payment via {paymentMethod === 'card' ? 'Stripe' : 'Helio'}</span>
+            <span>Secure payment via Stripe</span>
           </div>
 
           {/* Submit Button */}
