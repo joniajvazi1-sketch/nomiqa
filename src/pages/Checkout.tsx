@@ -416,69 +416,6 @@ export default function Checkout() {
         </div>
       </div>
 
-      <Dialog open={showPaymentModal} onOpenChange={(open) => {
-        setShowPaymentModal(open);
-        if (!open) {
-          toast.info('You can check your order status in My eSIMs page');
-        }
-      }}>
-        <DialogContent className="max-w-5xl w-[95vw] h-[90vh] md:h-[85vh] p-0 overflow-hidden flex flex-col">
-          <DialogHeader className="p-4 md:p-6 pb-2 md:pb-4 flex-shrink-0 flex flex-row items-center justify-between">
-            <DialogTitle>{t("checkoutCompletePayment") || "Complete Your Payment"}</DialogTitle>
-          </DialogHeader>
-          {paylinkUrl && (
-            <iframe
-              src={paylinkUrl}
-              className="w-full flex-1 min-h-0 border-0"
-              style={{ minHeight: '500px' }}
-              title="Helio Payment"
-              allow="payment"
-            />
-          )}
-          {/* Always visible footer - fixed at bottom */}
-          <div className={`px-4 py-3 md:px-6 md:py-5 border-t flex-shrink-0 flex flex-col md:flex-row items-center justify-center md:justify-end gap-2 md:gap-4 ${paymentCompleted ? 'bg-green-500/10' : 'bg-card'}`}>
-            {paymentCompleted ? (
-              <>
-                <p className="text-sm text-green-400 font-medium hidden md:block">
-                  ✓ {t("checkoutPaymentSuccess") || "Payment successful! Your eSIM is ready."}
-                </p>
-                <p className="text-xs text-green-400 font-medium md:hidden text-center">
-                  ✓ {t("checkoutPaymentSuccess") || "Payment successful! Your eSIM is ready."}
-                </p>
-                <Button 
-                  onClick={() => {
-                    setShowPaymentModal(false);
-                    setPaymentCompleted(false);
-                    navigate('/orders');
-                  }}
-                  className="w-full md:w-auto bg-green-600 hover:bg-green-700 px-4 md:px-8 md:py-3 md:text-base"
-                >
-                  {t("checkoutViewMyEsims") || "View My eSIMs"}
-                </Button>
-              </>
-            ) : (
-              <>
-                <p className="text-xs text-muted-foreground md:hidden text-center">
-                  {t("checkoutMobileWalletHint") || "Paid in Phantom? Tap below to check your eSIM."}
-                </p>
-                <p className="text-sm text-muted-foreground hidden md:block">
-                  {t("checkoutAlreadyPaid") || "Already paid? Go check your eSIMs."}
-                </p>
-                <Button 
-                  variant="outline"
-                  onClick={() => {
-                    setShowPaymentModal(false);
-                    navigate('/orders');
-                  }}
-                  className="w-full md:w-auto px-4 md:px-8 md:py-3 md:text-base border-primary/40 hover:bg-primary/10"
-                >
-                  {t("checkoutGoToMyEsims") || "Go to My eSIMs"}
-                </Button>
-              </>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
