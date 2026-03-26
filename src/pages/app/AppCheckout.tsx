@@ -17,8 +17,6 @@ import { FirstPurchaseCelebration, useFirstPurchaseCelebration } from "@/compone
 
 const emailSchema = z.string().email("Please enter a valid email address");
 
-type PaymentMethod = 'card' | 'crypto';
-
 export const AppCheckout = () => {
   const navigate = useNavigate();
   const { items, removeItem, updateQuantity, clearCart, total } = useCartWithTotal();
@@ -29,13 +27,8 @@ export const AppCheckout = () => {
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [paylinkUrl, setPaylinkUrl] = useState<string | null>(null);
   const [currentOrderId, setCurrentOrderId] = useState<string | null>(null);
-  const [paymentCompleted, setPaymentCompleted] = useState(false);
   const [user, setUser] = useState<any>(null);
-  const [checkoutStep, setCheckoutStep] = useState<1 | 2 | 3>(1);
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('card');
   
   // First purchase celebration hook
   const { 
