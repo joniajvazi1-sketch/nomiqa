@@ -11,13 +11,14 @@ import { countryTranslations } from "@/utils/countryTranslations";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 /* ─── Multilingual search index ─── */
-const translationIndex: Map<string, Set<string>> = new Map();
+const translationIndex = new Map<string, Set<string>>();
 Object.values(countryTranslations).forEach((langs) => {
   const englishName = langs.EN.toLowerCase();
   Object.values(langs).forEach((name) => {
-    const key = name.toLowerCase();
-    if (!translationIndex.has(key)) translationIndex.set(key, new Set());
-    translationIndex.get(key)!.add(englishName);
+    const key = (name as string).toLowerCase();
+    const existing = translationIndex.get(key);
+    if (existing) { existing.add(englishName); }
+    else { translationIndex.set(key, new Set([englishName])); }
   });
 });
 
