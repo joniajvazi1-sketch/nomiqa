@@ -1175,8 +1175,7 @@ export const AppHome: React.FC = () => {
                 </button>
               </motion.div>
 
-              {/* Network Intelligence Section */}
-              {(carriers.length > 0 || recentFeed.length > 0) && (
+
 
               {/* How It Works */}
               <motion.div
