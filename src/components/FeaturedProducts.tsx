@@ -1,26 +1,34 @@
 import { memo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useShopifyProducts } from "@/hooks/useShopifyProducts";
-import { useShopifyCart, ShopifyProduct } from "@/stores/shopifyCartStore";
+import { ShopifyProduct } from "@/stores/shopifyCartStore";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
-import { Loader2, ArrowRight, ShoppingCart } from "lucide-react";
+import { Loader2, ArrowRight, ChevronRight } from "lucide-react";
 import { Card, CardContent } from "./ui/card";
 import { useTranslation } from "@/contexts/TranslationContext";
-import { toast } from "sonner";
 
-interface ProductCardProps {
-  product: ShopifyProduct;
-  index: number;
-  onAddToCart: (product: ShopifyProduct) => void;
-  onClick: () => void;
-  isCartLoading: boolean;
+function getCountryName(title: string): string {
+  return title.replace(/\s*eSIM$/i, "").trim();
 }
 
-const DesktopProductCard = memo(({ product, index, onAddToCart, onClick, isCartLoading }: ProductCardProps) => {
+function getFlag(description: string): string {
+  const match = description.match(/[\u{1F1E0}-\u{1F1FF}]{2}/u);
+  return match ? match[0] : "🌍";
+}
+
+interface CountryPreviewProps {
+  product: ShopifyProduct;
+  index: number;
+  onClick: () => void;
+}
+
+const DesktopCountryCard = memo(({ product, index, onClick }: CountryPreviewProps) => {
   const image = product.node.images.edges[0]?.node;
-  const price = product.node.priceRange.minVariantPrice;
-  const variant = product.node.variants.edges[0]?.node;
+  const startingPrice = parseFloat(product.node.priceRange.minVariantPrice.amount);
+  const countryName = getCountryName(product.node.title);
+  const flag = getFlag(product.node.description);
+  const planCount = product.node.variants.edges.length;
 
   return (
     <Card
@@ -29,42 +37,37 @@ const DesktopProductCard = memo(({ product, index, onAddToCart, onClick, isCartL
       onClick={onClick}
     >
       {image && (
-        <div className="relative h-36 overflow-hidden">
-          <img src={image.url} alt={image.altText || product.node.title} className="w-full h-full object-cover" loading="lazy" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+        <div className="relative h-32 overflow-hidden">
+          <img src={image.url} alt={image.altText || countryName} className="w-full h-full object-cover" loading="lazy" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+          <div className="absolute bottom-2 left-3 text-2xl">{flag}</div>
         </div>
       )}
-      <CardContent className="p-5">
-        <h3 className="text-lg font-semibold group-hover:text-neon-cyan transition-colors line-clamp-1 mb-1">
-          {product.node.title}
+      <CardContent className="p-4">
+        <h3 className="text-base font-semibold group-hover:text-neon-cyan transition-colors truncate mb-1">
+          {countryName}
         </h3>
-        <p className="text-xs text-muted-foreground line-clamp-1 mb-3">{product.node.description}</p>
-
-        <div className="flex items-center justify-between pt-3 border-t border-border/50">
-          <div className="text-2xl font-semibold bg-gradient-to-r from-white via-neon-cyan to-white bg-clip-text text-transparent">
-            {price.currencyCode} {parseFloat(price.amount).toFixed(2)}
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-muted-foreground">{planCount} plans</span>
+          <div className="flex items-center gap-1">
+            <span className="text-sm font-medium bg-gradient-to-r from-white via-neon-cyan to-white bg-clip-text text-transparent">
+              from ${startingPrice.toFixed(2)}
+            </span>
+            <ChevronRight className="w-3.5 h-3.5 text-white/30 group-hover:text-neon-cyan transition-colors" />
           </div>
-          <Button
-            size="sm"
-            variant="ghost"
-            className="text-neon-cyan hover:bg-neon-cyan/10 h-8 px-3"
-            disabled={isCartLoading || !variant?.availableForSale}
-            onClick={(e) => { e.stopPropagation(); onAddToCart(product); }}
-          >
-            <ShoppingCart className="w-4 h-4 mr-1" />
-            Add
-          </Button>
         </div>
       </CardContent>
     </Card>
   );
 });
-DesktopProductCard.displayName = 'DesktopProductCard';
+DesktopCountryCard.displayName = "DesktopCountryCard";
 
-const MobileProductRow = memo(({ product, index, onAddToCart, onClick, isCartLoading }: ProductCardProps) => {
+const MobileCountryRow = memo(({ product, index, onClick }: CountryPreviewProps) => {
   const image = product.node.images.edges[0]?.node;
-  const price = product.node.priceRange.minVariantPrice;
-  const variant = product.node.variants.edges[0]?.node;
+  const startingPrice = parseFloat(product.node.priceRange.minVariantPrice.amount);
+  const countryName = getCountryName(product.node.title);
+  const flag = getFlag(product.node.description);
+  const planCount = product.node.variants.edges.length;
 
   return (
     <div
@@ -73,61 +76,44 @@ const MobileProductRow = memo(({ product, index, onAddToCart, onClick, isCartLoa
       onClick={onClick}
     >
       <div className="flex items-center gap-3">
-        {image && (
-          <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0">
-            <img src={image.url} alt={image.altText || product.node.title} className="w-full h-full object-cover" loading="lazy" />
+        {image ? (
+          <div className="w-12 h-12 rounded-xl overflow-hidden flex-shrink-0">
+            <img src={image.url} alt={countryName} className="w-full h-full object-cover" loading="lazy" />
+          </div>
+        ) : (
+          <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0 text-xl">
+            {flag}
           </div>
         )}
         <div className="flex-1 min-w-0">
           <h3 className="text-base font-semibold group-hover:text-neon-cyan transition-colors truncate">
-            {product.node.title}
+            {flag} {countryName}
           </h3>
-          <p className="text-xs text-muted-foreground truncate">{product.node.description}</p>
+          <p className="text-xs text-muted-foreground">{planCount} plans</p>
         </div>
-        <div className="flex items-center gap-2 flex-shrink-0">
-          <div className="text-xl font-semibold bg-gradient-to-r from-white via-neon-cyan to-white bg-clip-text text-transparent whitespace-nowrap">
-            {price.currencyCode} {parseFloat(price.amount).toFixed(2)}
-          </div>
-          <Button
-            size="sm"
-            variant="ghost"
-            className="text-neon-cyan h-8 w-8 p-0"
-            disabled={isCartLoading || !variant?.availableForSale}
-            onClick={(e) => { e.stopPropagation(); onAddToCart(product); }}
-          >
-            <ShoppingCart className="w-4 h-4" />
-          </Button>
+        <div className="flex items-center gap-1 flex-shrink-0">
+          <span className="text-sm font-medium bg-gradient-to-r from-white via-neon-cyan to-white bg-clip-text text-transparent whitespace-nowrap">
+            from ${startingPrice.toFixed(2)}
+          </span>
+          <ChevronRight className="w-4 h-4 text-white/30 group-hover:text-neon-cyan" />
         </div>
       </div>
     </div>
   );
 });
-MobileProductRow.displayName = 'MobileProductRow';
+MobileCountryRow.displayName = "MobileCountryRow";
 
 export const FeaturedProducts = () => {
   const navigate = useNavigate();
   const { data, isLoading } = useShopifyProducts(12);
   const { t } = useTranslation();
-  const addItem = useShopifyCart(state => state.addItem);
-  const isCartLoading = useShopifyCart(state => state.isLoading);
 
-  const handleAddToCart = useCallback(async (product: ShopifyProduct) => {
-    const variant = product.node.variants.edges[0]?.node;
-    if (!variant) return;
-    await addItem({
-      product,
-      variantId: variant.id,
-      variantTitle: variant.title,
-      price: variant.price,
-      quantity: 1,
-      selectedOptions: variant.selectedOptions || [],
-    });
-    toast.success(`${product.node.title} added to cart!`);
-  }, [addItem]);
-
-  const handleProductClick = useCallback((product: ShopifyProduct) => {
-    navigate(`/product/${product.node.handle}`);
-  }, [navigate]);
+  const handleCountryClick = useCallback(
+    (product: ShopifyProduct) => {
+      navigate(`/shop?country=${encodeURIComponent(product.node.handle)}`);
+    },
+    [navigate]
+  );
 
   if (isLoading || !data?.products) {
     return (
@@ -161,20 +147,18 @@ export const FeaturedProducts = () => {
             </span>
           </h2>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto font-light">
-            {t("instantGlobalDataAccessDesc") || "Browse our eSIM plans for worldwide connectivity"}
+            {t("instantGlobalDataAccessDesc") || "Select a destination to see eSIM packages"}
           </p>
         </div>
 
         {/* Desktop Grid */}
-        <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
+        <div className="hidden md:grid md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 mb-12">
           {products.map((product, index) => (
-            <DesktopProductCard
+            <DesktopCountryCard
               key={product.node.id}
               product={product}
               index={index}
-              onAddToCart={handleAddToCart}
-              onClick={() => handleProductClick(product)}
-              isCartLoading={isCartLoading}
+              onClick={() => handleCountryClick(product)}
             />
           ))}
         </div>
@@ -182,13 +166,11 @@ export const FeaturedProducts = () => {
         {/* Mobile List */}
         <div className="md:hidden space-y-3 mb-12">
           {products.map((product, index) => (
-            <MobileProductRow
+            <MobileCountryRow
               key={product.node.id}
               product={product}
               index={index}
-              onAddToCart={handleAddToCart}
-              onClick={() => handleProductClick(product)}
-              isCartLoading={isCartLoading}
+              onClick={() => handleCountryClick(product)}
             />
           ))}
         </div>
@@ -196,10 +178,10 @@ export const FeaturedProducts = () => {
         <div className="text-center animate-fade-in" style={{ animationDelay: "0.6s" }}>
           <Button
             size="lg"
-            onClick={() => navigate('/shop')}
+            onClick={() => navigate("/shop")}
             className="h-auto py-3 px-6 md:px-10 md:py-7 text-sm md:text-base lg:text-lg font-light bg-white/[0.05] backdrop-blur-xl border-2 border-white/20 text-white hover:bg-white/10 hover:border-white/40 rounded-xl md:rounded-2xl transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-white/20"
           >
-            <span>{t("viewAllPlans") || "View All Plans"}</span>
+            <span>{t("viewAllPlans") || "View All Countries"}</span>
             <ArrowRight className="ml-2 w-4 h-4 md:w-5 md:h-5" />
           </Button>
         </div>
