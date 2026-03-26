@@ -19,6 +19,7 @@ const WebLayout = lazy(() => import("@/components/app/WebLayout").then(m => ({ d
 // Lazy load WEB pages
 const Index = lazy(() => import("./pages/Index"));
 const ShopPage = lazy(() => import("./pages/ShopPage"));
+const ProductDetail = lazy(() => import("./pages/ProductDetail"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Checkout = lazy(() => import("./pages/Checkout"));
 const Orders = lazy(() => import("./pages/Orders"));
