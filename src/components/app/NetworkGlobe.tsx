@@ -155,10 +155,12 @@ const InstancedCoverageTiles: React.FC<{
         onClick={handleClick}
       >
         <meshBasicMaterial
+          color="#ffffff"
           transparent
           opacity={0.95}
           vertexColors
           side={THREE.DoubleSide}
+          toneMapped={false}
         />
       </instancedMesh>
 
@@ -168,10 +170,12 @@ const InstancedCoverageTiles: React.FC<{
         args={[ringGeo, undefined, count]}
       >
         <meshBasicMaterial
+          color="#ffffff"
           transparent
-          opacity={0.4}
+          opacity={0.55}
           vertexColors
           side={THREE.DoubleSide}
+          toneMapped={false}
         />
       </instancedMesh>
 
