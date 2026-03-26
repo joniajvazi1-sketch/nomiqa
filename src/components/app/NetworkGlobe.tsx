@@ -1,6 +1,6 @@
 import React, { useRef, useMemo, Suspense, useState, useEffect, useCallback } from 'react';
 import { Canvas, useFrame, useLoader, ThreeEvent } from '@react-three/fiber';
-import { OrbitControls, Sphere, Stars, Html } from '@react-three/drei';
+import { OrbitControls, Sphere, Html } from '@react-three/drei';
 import { useTheme } from 'next-themes';
 import * as THREE from 'three';
 import { GlobalCoverageCell } from '@/hooks/useGlobalCoverage';
@@ -272,7 +272,7 @@ const GlobeScene: React.FC<{
       <directionalLight position={[5, 2, 5]} intensity={isDark ? 1.8 : 2.8} color={isDark ? "#fff5e6" : "#fffdf5"} />
       <directionalLight position={[-5, -2, -5]} intensity={isDark ? 0.15 : 0.5} color={isDark ? "#4da6ff" : "#87ceeb"} />
       <directionalLight position={[0, 5, -3]} intensity={isDark ? 0.3 : 0.6} color="#87ceeb" />
-      {isDark && <Stars radius={100} depth={50} count={1500} factor={3} saturation={0} fade speed={0.5} />}
+      
 
       <Earth isDark={isDark}>
         <InstancedCoverageTiles
