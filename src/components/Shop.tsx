@@ -206,19 +206,19 @@ const PackageView = ({
 export const Shop = () => {
   const { t } = useTranslation();
   const [searchInput, setSearchInput] = useState("");
-  const [activeSearch, setActiveSearch] = useState("");
   const [selectedProduct, setSelectedProduct] = useState<ShopifyProduct | null>(null);
   const addItem = useShopifyCart((state) => state.addItem);
   const isCartLoading = useShopifyCart((state) => state.isLoading);
 
-  const { data, isLoading, isError, refetch } = useShopifyProducts(250, activeSearch || undefined);
-  const products = data?.products || [];
+  // Always fetch all products, filter client-side for multilingual search
+  const { data, isLoading, isError, refetch } = useShopifyProducts(250);
+  const allProducts = data?.products || [];
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    setActiveSearch(searchInput.trim());
-    setSelectedProduct(null);
-  };
+  const filteredProducts = useMemo(() => {
+    const term = searchInput.trim();
+    if (!term) return allProducts;
+    return allProducts.filter((p) => matchesMultilingualSearch(p.node.title, term));
+  }, [allProducts, searchInput]);
 
   const handleAddToCart = useCallback(
     async (product: ShopifyProduct, variantId: string) => {
