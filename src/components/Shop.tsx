@@ -219,17 +219,13 @@ const PackageView = ({
       {/* Info card */}
       <div className="rounded-2xl bg-white/[0.03] border border-white/[0.08] p-4 md:p-6 mb-6">
         <p className="text-white/60 text-sm leading-relaxed mb-4">{cleanDesc}</p>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-white/40">
           {features.fiveG && (
-            <span className="text-xs px-3 py-1.5 rounded-full bg-neon-cyan/10 border border-neon-cyan/20 text-neon-cyan font-medium">5G</span>
+            <span className="flex items-center gap-1 text-neon-cyan/70"><Zap className="w-3 h-3" />5G supported</span>
           )}
-          {features.hotspot && (
-            <span className="text-xs px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/[0.08] text-white/50">Hotspot</span>
-          )}
-          {features.topUp && (
-            <span className="text-xs px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/[0.08] text-white/50">Top Up</span>
-          )}
-          <span className="text-xs px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/[0.08] text-white/50">Data Only</span>
+          {features.hotspot && <span>• Hotspot</span>}
+          {features.topUp && <span>• Top-up available</span>}
+          <span>• Data only</span>
         </div>
       </div>
 
