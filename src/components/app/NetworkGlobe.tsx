@@ -164,15 +164,11 @@ const InstancedCoverageTiles: React.FC<{
         args={[discGeo, undefined, count]}
         onClick={handleClick}
       >
-        <meshStandardMaterial
+        <meshBasicMaterial
           transparent
           opacity={0.95}
           vertexColors
           side={THREE.DoubleSide}
-          emissive="#ffffff"
-          emissiveIntensity={0.6}
-          roughness={0.3}
-          metalness={0}
         />
       </instancedMesh>
 
