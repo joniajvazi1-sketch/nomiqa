@@ -381,50 +381,6 @@ export default function Checkout() {
                     </div>
                   </div>
 
-                  {/* Payment Method Selection */}
-                  <div className="space-y-3">
-                    <Label className="text-sm font-medium text-white/80">Payment Method</Label>
-                    <div className="grid grid-cols-2 gap-3">
-                      <button
-                        type="button"
-                        onClick={() => setPaymentMethod('card')}
-                        className={cn(
-                          "p-4 rounded-xl border-2 flex flex-col items-center gap-2 transition-all",
-                          paymentMethod === 'card'
-                            ? "border-neon-cyan bg-neon-cyan/10"
-                            : "border-white/20 bg-white/5 hover:border-white/40"
-                        )}
-                      >
-                        <CreditCard className={cn(
-                          "w-6 h-6",
-                          paymentMethod === 'card' ? "text-neon-cyan" : "text-white/60"
-                        )} />
-                        <span className={cn(
-                          "text-sm font-medium",
-                          paymentMethod === 'card' ? "text-neon-cyan" : "text-white/60"
-                        )}>Card</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setPaymentMethod('crypto')}
-                        className={cn(
-                          "p-4 rounded-xl border-2 flex flex-col items-center gap-2 transition-all",
-                          paymentMethod === 'crypto'
-                            ? "border-neon-cyan bg-neon-cyan/10"
-                            : "border-white/20 bg-white/5 hover:border-white/40"
-                        )}
-                      >
-                        <Wallet className={cn(
-                          "w-6 h-6",
-                          paymentMethod === 'crypto' ? "text-neon-cyan" : "text-white/60"
-                        )} />
-                        <span className={cn(
-                          "text-sm font-medium",
-                          paymentMethod === 'crypto' ? "text-neon-cyan" : "text-white/60"
-                        )}>Crypto</span>
-                      </button>
-                    </div>
-                  </div>
 
                   <Separator className="bg-white/10" />
 
