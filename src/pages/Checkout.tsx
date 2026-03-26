@@ -17,8 +17,6 @@ import { cn } from "@/lib/utils";
 
 const emailSchema = z.string().email("Please enter a valid email address");
 
-type PaymentMethod = 'card' | 'crypto';
-
 export default function Checkout() {
   const navigate = useNavigate();
   const { items, removeItem, updateQuantity, clearCart, total } = useCartWithTotal();
@@ -27,12 +25,8 @@ export default function Checkout() {
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [paylinkUrl, setPaylinkUrl] = useState<string | null>(null);
   const [currentOrderId, setCurrentOrderId] = useState<string | null>(null);
-  const [paymentCompleted, setPaymentCompleted] = useState(false);
   const [user, setUser] = useState<any>(null);
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('card');
 
   // Check authentication status without redirecting
   useEffect(() => {
