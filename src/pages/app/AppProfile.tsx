@@ -26,7 +26,7 @@ import { DataCollectionControls } from '@/components/app/DataCollectionControls'
 import { ContributorLevelCard } from '@/components/app/ContributorLevelCard';
 import { HelpCenter } from '@/components/app/HelpCenter';
 import { captureError } from '@/lib/sentry';
-import { SpeedTestHistory } from '@/components/app/SpeedTestHistory';
+
 import { PermissionDebugPanel } from '@/components/app/PermissionDebugPanel';
 import { AppSEO } from '@/components/app/AppSEO';
 import {
