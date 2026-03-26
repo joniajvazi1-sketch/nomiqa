@@ -1,44 +1,34 @@
 
 
-## Plan: Fix 4 Critical App Bugs
+## Plan: Fix Commission Rates to 10% and /my-account Routing
 
-### 1. Contribution button rapid-tap multiplies points
+### Problem 1: Commission percentages are wrong
 
-**Root cause**: `handleToggleContribution` has no lock. Rapid tapping calls `handleStopContribution` multiple times concurrently, each capturing `stats.pointsEarned` and dispatching `points-updated` with that amount, plus each calling `stopContribution()` which does a final `add_points_with_cap` RPC.
+The affiliate page and backend still show the old tiered rates (5% network, 9% sales) instead of the agreed flat 10% for both.
 
-**Fix**:
-- Add a `useRef` lock (`isTogglingRef`) in `AppHome.tsx`
-- Set it `true` at the start of `handleToggleContribution`, `false` when done
-- Early-return if already toggling
-- Also add `await` to `handleStopContribution()` call (currently fire-and-forget)
+**Locations to fix:**
 
-### 2. Challenges don't refresh (daily stuck, weekly static)
+| File | Current | Fix |
+|------|---------|-----|
+| `src/pages/Affiliate.tsx` line 373 | `5%` badge "From Network" | Change to `10%` |
+| `src/pages/Affiliate.tsx` line 377 | `9%` badge "Sales Commission" | Replace both badges with a single `10%` "Referral Commission" badge (covers both points and sales) |
+| `src/contexts/TranslationContext.tsx` line 1206 | "earn 5% of everything your network earns" | Update all 10 languages to say "earn 10% of everything your referrals earn" |
+| `src/contexts/TranslationContext.tsx` lines 1208-1209 | `affiliateFromNetwork` / `affiliateSalesCommission` | Replace with single `affiliateReferralCommission` key: "Referral Commission" |
+| `supabase/functions/shopify-order-webhook/index.ts` lines 224, 250 | `data.price_usd * 0.09` | Change to `data.price_usd * 0.10` |
+| `src/components/ConversionRewardsSection.tsx` | Already shows 10% — no change needed | Confirmed correct |
 
-**Root cause**: `AppChallenges` queries `user_challenge_progress` with `eq('period_start', today)` for daily and `gte('period_start', weekStartStr)` for weekly. But the `sync-contribution-data` edge function that updates challenge progress may be writing rows with stale `period_start` values, or not creating new rows for new periods.
+The database trigger `process_referral_commission()` already uses `0.10` — confirmed correct.
 
-**Fix**:
-- In `AppChallenges.loadChallenges()`, after loading progress, filter out stale daily progress where `period_start < today` (treat as no progress = fresh challenge)
-- For weekly: ensure `weekStartStr` uses Monday (ISO week) not Sunday, and filter rows correctly
-- The display logic already handles "no progress" as 0% — the issue is stale rows appearing as completed from yesterday
+### Problem 2: /my-account hits catch-all → shows referral page
 
-### 3. Speed test history in settings doesn't work — remove it
+The `NotFound` component detects single-segment paths like `my-account` as potential referral usernames. There is no `/my-account` route defined.
 
-**Fix**: Remove the `<SpeedTestHistory>` block from `AppProfile.tsx` settings tab (lines 821-826). Speed test data is still collected during contributions and shown on the Network Stats page — this just removes the broken/unnecessary display from settings.
+**Fix:** Add a redirect route `<Route path="/my-account" element={<Navigate to="/account" replace />} />` in the WebRoutes, plus inside each localized route group. This is placed before the catch-all `*` route, so it will match first.
 
-### 4. Account deletion doesn't purge user data
+### Files changed
 
-**Root cause**: `delete-user` edge function cleans 28+ tables but misses `orders_pii` and `esim_usage`. Orders are anonymized but the PII table retains email, name, ICCID, QR codes.
-
-**Fix**: Add `safeDelete` calls for:
-- `orders_pii` — delete rows where `id` matches the user's order IDs (since `orders_pii.id` references `orders.id`)
-- `esim_usage` — delete rows where `order_id` matches user's order IDs
-- Must run these BEFORE orders are anonymized (step 11), since we need `orders.user_id` to find the related rows
-
-### Technical details
-
-**Files changed**:
-- `src/pages/app/AppHome.tsx` — add toggle lock
-- `src/pages/app/AppChallenges.tsx` — fix period comparison logic
-- `src/pages/app/AppProfile.tsx` — remove SpeedTestHistory section
-- `supabase/functions/delete-user/index.ts` — add orders_pii + esim_usage deletion
+1. **`src/App.tsx`** — Add `/my-account → /account` redirect in base routes and all 10 locale groups
+2. **`src/pages/Affiliate.tsx`** — Merge 5% + 9% badges into single 10% badge
+3. **`src/contexts/TranslationContext.tsx`** — Update `affiliateHeroDescription` and replace commission translation keys across all 10 languages
+4. **`supabase/functions/shopify-order-webhook/index.ts`** — Change `0.09` to `0.10` (2 occurrences)
 
