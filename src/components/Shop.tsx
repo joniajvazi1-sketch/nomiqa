@@ -75,6 +75,7 @@ const CountryCard = ({ product, onClick }: { product: ShopifyProduct; onClick: (
   const countryName = getCountryName(product.node.title);
   const startingPrice = parseFloat(product.node.priceRange.minVariantPrice.amount);
   const variantCount = product.node.variants.edges.length;
+  const features = getFeatures(product.node.description);
 
   return (
     <Card
@@ -83,35 +84,65 @@ const CountryCard = ({ product, onClick }: { product: ShopifyProduct; onClick: (
     >
       <div className="absolute inset-0 bg-gradient-to-br from-neon-cyan/5 via-transparent to-neon-violet/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none" />
 
-      {image && (
-        <div className="relative h-32 overflow-hidden">
-          <img
-            src={image.url}
-            alt={image.altText || countryName}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-            loading="lazy"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-          <div className="absolute bottom-2 left-3 text-2xl">{flag}</div>
-        </div>
-      )}
-
-      <CardContent className="relative z-10 p-4">
-        <h3 className="text-base font-medium text-white group-hover:text-neon-cyan transition-colors truncate mb-1">
-          {countryName}
-        </h3>
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-white/50">
-            {variantCount} plan{variantCount !== 1 ? "s" : ""}
-          </span>
-          <div className="flex items-center gap-1">
-            <span className="text-sm text-neon-cyan font-medium">
-              from ${startingPrice.toFixed(2)}
-            </span>
-            <ChevronRight className="w-4 h-4 text-white/30 group-hover:text-neon-cyan transition-colors" />
+      {/* Desktop: vertical card */}
+      <div className="hidden sm:block">
+        {image && (
+          <div className="relative h-32 overflow-hidden">
+            <img src={image.url} alt={image.altText || countryName} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+            <div className="absolute bottom-2 left-3 text-2xl">{flag}</div>
           </div>
-        </div>
-      </CardContent>
+        )}
+        <CardContent className="relative z-10 p-4">
+          <h3 className="text-base font-medium text-white group-hover:text-neon-cyan transition-colors truncate mb-1">
+            {countryName}
+          </h3>
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-white/50">{variantCount} plans</span>
+            <div className="flex items-center gap-1">
+              <span className="text-sm text-neon-cyan font-medium">from ${startingPrice.toFixed(2)}</span>
+              <ChevronRight className="w-3.5 h-3.5 text-white/30 group-hover:text-neon-cyan transition-colors" />
+            </div>
+          </div>
+        </CardContent>
+      </div>
+
+      {/* Mobile: horizontal row card */}
+      <div className="sm:hidden">
+        <CardContent className="relative z-10 p-4">
+          <div className="flex items-center gap-3">
+            {image ? (
+              <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 border border-white/10">
+                <img src={image.url} alt={countryName} className="w-full h-full object-cover" loading="lazy" />
+              </div>
+            ) : (
+              <div className="w-14 h-14 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0 text-2xl border border-white/10">
+                {flag}
+              </div>
+            )}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-1.5 mb-0.5">
+                <span className="text-lg">{flag}</span>
+                <h3 className="text-base font-semibold text-white group-hover:text-neon-cyan transition-colors truncate">
+                  {countryName}
+                </h3>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-white/40">
+                <span>{variantCount} plans</span>
+                {features.fiveG && <span className="text-neon-cyan/70">• 5G</span>}
+                {features.hotspot && <span>• Hotspot</span>}
+              </div>
+            </div>
+            <div className="flex flex-col items-end gap-1 flex-shrink-0">
+              <span className="text-base font-semibold text-neon-cyan whitespace-nowrap">
+                ${startingPrice.toFixed(2)}
+              </span>
+              <span className="text-[10px] text-white/30 uppercase tracking-wider">from</span>
+            </div>
+            <ChevronRight className="w-4 h-4 text-white/20 group-hover:text-neon-cyan flex-shrink-0 ml-1" />
+          </div>
+        </CardContent>
+      </div>
     </Card>
   );
 };
