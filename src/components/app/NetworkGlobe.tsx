@@ -1,6 +1,6 @@
 import React, { useRef, useMemo, Suspense, useState, useEffect, useCallback } from 'react';
 import { Canvas, useFrame, useLoader, ThreeEvent } from '@react-three/fiber';
-import { OrbitControls, Sphere, Stars, Html } from '@react-three/drei';
+import { OrbitControls, Sphere, Html } from '@react-three/drei';
 import { useTheme } from 'next-themes';
 import * as THREE from 'three';
 import { GlobalCoverageCell } from '@/hooks/useGlobalCoverage';
