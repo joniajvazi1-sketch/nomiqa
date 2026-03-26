@@ -4,7 +4,7 @@ import { useCartWithTotal } from "@/hooks/useCart";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ArrowLeft, ShoppingCart, Trash2, Minus, Plus, Check, CreditCard, Shield, Loader2, Wallet } from "lucide-react";
+import { ArrowLeft, ShoppingCart, Trash2, Minus, Plus, Check, CreditCard, Shield, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { z } from "zod";
