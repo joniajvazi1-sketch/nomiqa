@@ -8,6 +8,38 @@ import { toast } from "sonner";
 import { Card, CardContent } from "./ui/card";
 import { useTranslation } from "@/contexts/TranslationContext";
 import { Badge } from "./ui/badge";
+import { countryTranslations } from "@/utils/countryTranslations";
+
+/** Build a lookup: lowercase translated name → english name, for all languages */
+const translationIndex: Map<string, Set<string>> = new Map();
+Object.values(countryTranslations).forEach((langs) => {
+  const englishName = langs.EN.toLowerCase();
+  Object.values(langs).forEach((name) => {
+    const key = name.toLowerCase();
+    if (!translationIndex.has(key)) translationIndex.set(key, new Set());
+    translationIndex.get(key)!.add(englishName);
+  });
+});
+
+/** Check if a product title matches a search term across all languages */
+function matchesMultilingualSearch(productTitle: string, searchTerm: string): boolean {
+  const term = searchTerm.toLowerCase();
+  const title = productTitle.toLowerCase();
+
+  // Direct title match
+  if (title.includes(term)) return true;
+
+  // Check if the search term matches any translation
+  for (const [translatedName, englishNames] of translationIndex) {
+    if (translatedName.includes(term)) {
+      for (const en of englishNames) {
+        if (title.includes(en)) return true;
+      }
+    }
+  }
+
+  return false;
+}
 
 /** Parse variant title like "Andorra 3GB 30Days" into data + validity */
 function parseVariant(title: string): { data: string; validity: string } {
@@ -174,19 +206,19 @@ const PackageView = ({
 export const Shop = () => {
   const { t } = useTranslation();
   const [searchInput, setSearchInput] = useState("");
-  const [activeSearch, setActiveSearch] = useState("");
   const [selectedProduct, setSelectedProduct] = useState<ShopifyProduct | null>(null);
   const addItem = useShopifyCart((state) => state.addItem);
   const isCartLoading = useShopifyCart((state) => state.isLoading);
 
-  const { data, isLoading, isError, refetch } = useShopifyProducts(250, activeSearch || undefined);
-  const products = data?.products || [];
+  // Always fetch all products, filter client-side for multilingual search
+  const { data, isLoading, isError, refetch } = useShopifyProducts(250);
+  const allProducts = data?.products || [];
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    setActiveSearch(searchInput.trim());
-    setSelectedProduct(null);
-  };
+  const filteredProducts = useMemo(() => {
+    const term = searchInput.trim();
+    if (!term) return allProducts;
+    return allProducts.filter((p) => matchesMultilingualSearch(p.node.title, term));
+  }, [allProducts, searchInput]);
 
   const handleAddToCart = useCallback(
     async (product: ShopifyProduct, variantId: string) => {
@@ -233,7 +265,7 @@ export const Shop = () => {
         {/* Search — only show on country grid */}
         {!selectedProduct && (
           <div className="mb-10 md:mb-12 max-w-3xl mx-auto">
-            <form onSubmit={handleSearch} className="relative">
+            <form onSubmit={(e) => e.preventDefault()} className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-neon-cyan z-10 pointer-events-none" />
               <Input
                 placeholder={t("searchPlaceholder") || "Search countries..."}
@@ -263,16 +295,16 @@ export const Shop = () => {
             onAddToCart={handleAddToCart}
             isCartLoading={isCartLoading}
           />
-        ) : !products.length ? (
+        ) : !filteredProducts.length ? (
           <div className="text-center py-20">
             <Globe className="w-12 h-12 text-white/20 mx-auto mb-4" />
             <p className="text-white/60">
-              {activeSearch ? "No countries match your search" : "No products found"}
+              {searchInput.trim() ? "No countries match your search" : "No products found"}
             </p>
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-5">
-            {products.map((product) => (
+            {filteredProducts.map((product) => (
               <CountryCard
                 key={product.node.id}
                 product={product}
