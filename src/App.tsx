@@ -10,6 +10,7 @@ import { TranslationProvider } from "@/contexts/TranslationContext";
 import { usePlatform } from "@/hooks/usePlatform";
 import { AppErrorBoundary } from "@/components/app/AppErrorBoundary";
 import { useDeepLinkAuth } from "@/hooks/useDeepLinkAuth";
+import { useCartSync } from "@/hooks/useCartSync";
 
 // Lazy load layout shells — they're heavy (status bar, haptics, framer-motion)
 const AppLayout = lazy(() => import("@/components/app/AppLayout").then(m => ({ default: m.AppLayout })));
