@@ -149,6 +149,7 @@ const queryClient = new QueryClient({
 function AffiliateTracker() {
   const location = useLocation();
   useScrollToTop();
+  useCartSync();
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
