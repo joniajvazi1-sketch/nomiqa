@@ -130,10 +130,3 @@ export const useFeaturedProducts = (localCountryCodes: string[], regionalCodes: 
   });
 };
 
-export const useSyncProducts = () => {
-  return async () => {
-    const { data, error } = await supabase.functions.invoke('airlo-products');
-    if (error) throw error;
-    return data;
-  };
-};

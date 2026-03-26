@@ -125,28 +125,9 @@ export default function Checkout() {
     }
   };
 
-  // Listen for payment completion from MoonPay/Helio (backup method)
-  useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
-      if (!event.origin.includes('hel.io') && !event.origin.includes('moonpay.com')) return;
-      
-      if (event.data?.status === 'success' || event.data?.type === 'payment_success') {
-        console.log('Payment successful via postMessage! Clearing cart and redirecting to My eSIMs...');
-        setShowPaymentModal(false);
-        clearCart();
-        toast.success('Payment successful! Your eSIM will arrive shortly.');
-        // Redirect to My eSIMs page
-        navigate('/orders');
-      }
-    };
-
-    window.addEventListener('message', handleMessage);
-    return () => window.removeEventListener('message', handleMessage);
-  }, [navigate, clearCart]);
-
   // Real-time subscription + fallback polling to detect payment completion
   useEffect(() => {
-    if (!showPaymentModal || !currentOrderId) return;
+    if (!currentOrderId) return;
 
     console.log('Setting up realtime subscription for order:', currentOrderId);
     let pollInterval: ReturnType<typeof setInterval> | null = null;
