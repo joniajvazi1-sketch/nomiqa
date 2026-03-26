@@ -135,27 +135,9 @@ export const AppCheckout = () => {
     }
   };
 
-  // Listen for payment completion from MoonPay/Helio
-  useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
-      if (!event.origin.includes('hel.io') && !event.origin.includes('moonpay.com')) return;
-      
-      if (event.data?.status === 'success' || event.data?.type === 'payment_success') {
-        setCheckoutStep(3);
-        setPaymentCompleted(true);
-        triggerFirstPurchase(items[0]?.product?.country_name);
-        clearCart();
-        toast.success('Payment successful! Your eSIM will arrive shortly.');
-      }
-    };
-
-    window.addEventListener('message', handleMessage);
-    return () => window.removeEventListener('message', handleMessage);
-  }, [navigate, clearCart]);
-
   // Real-time subscription + fallback polling
   useEffect(() => {
-    if (!showPaymentModal || !currentOrderId) return;
+    if (!currentOrderId) return;
 
     let pollInterval: ReturnType<typeof setInterval> | null = null;
 
@@ -172,8 +154,6 @@ export const AppCheckout = () => {
         (payload) => {
           const newStatus = payload.new?.status;
           if (newStatus === 'completed' || newStatus === 'paid') {
-            setCheckoutStep(3);
-            setPaymentCompleted(true);
             triggerFirstPurchase(items[0]?.product?.country_name);
             clearCart();
             toast.success('Payment successful! Your eSIM is ready.');
@@ -193,8 +173,6 @@ export const AppCheckout = () => {
         if (error || !data) return;
 
         if (data.status === 'completed' || data.status === 'paid') {
-          setCheckoutStep(3);
-          setPaymentCompleted(true);
           triggerFirstPurchase(items[0]?.product?.country_name);
           clearCart();
           toast.success('Payment successful! Your eSIM is ready.');
@@ -210,7 +188,7 @@ export const AppCheckout = () => {
       supabase.removeChannel(channel);
       if (pollInterval) clearInterval(pollInterval);
     };
-  }, [showPaymentModal, currentOrderId, navigate, clearCart]);
+  }, [currentOrderId, navigate, clearCart]);
 
   // Empty cart state
   if (items.length === 0) {
