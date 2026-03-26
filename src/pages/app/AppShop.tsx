@@ -411,17 +411,17 @@ export const AppShop: React.FC = () => {
                   {(() => {
                     const features = getFeatures(selectedProduct.node.description);
                     return (
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-wrap gap-2 text-[11px] text-muted-foreground">
                         {features.fiveG && (
-                          <span className="text-xs px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary font-medium">5G</span>
+                          <span className="flex items-center gap-1"><Zap className="w-3 h-3 text-primary" />5G supported</span>
                         )}
                         {features.hotspot && (
-                          <span className="text-xs px-3 py-1.5 rounded-full bg-muted border border-border text-muted-foreground">Hotspot</span>
+                          <span>• Hotspot</span>
                         )}
                         {features.topUp && (
-                          <span className="text-xs px-3 py-1.5 rounded-full bg-muted border border-border text-muted-foreground">Top Up</span>
+                          <span>• Top-up available</span>
                         )}
-                        <span className="text-xs px-3 py-1.5 rounded-full bg-muted border border-border text-muted-foreground">Data Only</span>
+                        <span>• Data only</span>
                       </div>
                     );
                   })()}
