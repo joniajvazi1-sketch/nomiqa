@@ -101,63 +101,31 @@ export const AppCheckout = () => {
       const visitorId = getVisitorId();
       const primaryItem = items[0];
 
-      if (paymentMethod === 'card') {
-        // Stripe checkout - opens in new tab
-        const { data: stripeData, error: stripeError } = await supabase.functions.invoke(
-          'create-stripe-checkout',
-          {
-            body: {
-              email,
-              fullName: fullName.trim(),
-              productId: primaryItem.product.id,
-              quantity: primaryItem.quantity,
-              referralCode: referralCode || null,
-              visitorId,
-            }
+      // Stripe checkout - opens in new tab
+      const { data: stripeData, error: stripeError } = await supabase.functions.invoke(
+        'create-stripe-checkout',
+        {
+          body: {
+            email,
+            fullName: fullName.trim(),
+            productId: primaryItem.product.id,
+            quantity: primaryItem.quantity,
+            referralCode: referralCode || null,
+            visitorId,
           }
-        );
-
-        if (stripeError || !stripeData?.url) {
-          throw new Error('Failed to create checkout session');
         }
+      );
 
-        setCurrentOrderId(stripeData.orderId);
-        successPattern();
-        playSuccess();
-        // Open Stripe checkout in new tab
-        window.open(stripeData.url, '_blank');
-        toast.info('Complete payment in the new tab');
-        setIsSubmitting(false);
-        
-      } else {
-        // Helio crypto checkout - embedded modal
-        const { data: paylinkData, error: paylinkError } = await supabase.functions.invoke(
-          'create-helio-paylink',
-          {
-            body: {
-              email,
-              fullName: fullName.trim(),
-              productId: primaryItem.product.id,
-              quantity: primaryItem.quantity,
-              referralCode: referralCode || null,
-              visitorId,
-              userId: user?.id || null,
-            }
-          }
-        );
-
-        if (paylinkError || !paylinkData?.paylinkUrl) {
-          throw new Error('Failed to create payment link');
-        }
-
-        setCurrentOrderId(paylinkData.orderId);
-        setPaylinkUrl(paylinkData.paylinkUrl);
-        setShowPaymentModal(true);
-        setCheckoutStep(2);
-        successPattern();
-        playSuccess();
-        setIsSubmitting(false);
+      if (stripeError || !stripeData?.url) {
+        throw new Error('Failed to create checkout session');
       }
+
+      setCurrentOrderId(stripeData.orderId);
+      successPattern();
+      playSuccess();
+      window.open(stripeData.url, '_blank');
+      toast.info('Complete payment in the new tab');
+      setIsSubmitting(false);
       
     } catch (error: any) {
       errorPattern();
