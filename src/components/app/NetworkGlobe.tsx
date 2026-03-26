@@ -67,7 +67,7 @@ const prepareTiles = (cells: GlobalCoverageCell[]): TileData[] => {
     const networkLabel = cell.network === '5g' ? '5G' :
       cell.network === 'lte' ? 'LTE' :
       cell.network === '3g' ? '3G' : 'Mixed';
-    const tileSize = Math.min(0.035 + (cell.count / 100) * 0.012, 0.07);
+    const tileSize = Math.min(0.05 + (cell.count / 100) * 0.02, 0.12);
 
     return {
       lat: cell.lat,
