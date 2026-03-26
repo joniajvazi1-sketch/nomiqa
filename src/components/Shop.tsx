@@ -449,7 +449,7 @@ export const Shop = () => {
                 <CountryCard
                   key={product.node.id}
                   product={product}
-                  onClick={() => setSelectedProduct(product)}
+                  onClick={() => { setSelectedProduct(product); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                 />
               ))}
             </div>
