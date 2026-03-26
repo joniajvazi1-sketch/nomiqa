@@ -149,13 +149,22 @@ const InstancedCoverageTiles: React.FC<{
 
   return (
     <>
-      {/* Disc instances */}
+      {/* Disc instances — use emissive so tiles glow bright, not black */}
       <instancedMesh
         ref={discRef}
         args={[discGeo, undefined, count]}
         onClick={handleClick}
       >
-        <meshBasicMaterial transparent opacity={0.95} vertexColors side={THREE.DoubleSide} />
+        <meshStandardMaterial
+          transparent
+          opacity={0.95}
+          vertexColors
+          side={THREE.DoubleSide}
+          emissive="#ffffff"
+          emissiveIntensity={0.6}
+          roughness={0.3}
+          metalness={0}
+        />
       </instancedMesh>
 
       {/* Glow ring instances */}
@@ -163,7 +172,16 @@ const InstancedCoverageTiles: React.FC<{
         ref={glowRef}
         args={[ringGeo, undefined, count]}
       >
-        <meshBasicMaterial transparent opacity={0.2} vertexColors side={THREE.DoubleSide} />
+        <meshStandardMaterial
+          transparent
+          opacity={0.35}
+          vertexColors
+          side={THREE.DoubleSide}
+          emissive="#ffffff"
+          emissiveIntensity={0.8}
+          roughness={0.5}
+          metalness={0}
+        />
       </instancedMesh>
 
       {/* Tooltip for selected tile */}
