@@ -45,18 +45,16 @@ export const AppChallenges: React.FC = () => {
       if (!user) return;
 
       const today = new Date().toISOString().split('T')[0];
+      // Use Monday as ISO week start (not Sunday)
       const weekStart = new Date();
-      weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+      const dayOfWeek = (weekStart.getDay() + 6) % 7; // Mon=0, Sun=6
+      weekStart.setDate(weekStart.getDate() - dayOfWeek);
       const weekStartStr = weekStart.toISOString().split('T')[0];
 
-      const [challengesRes, dailyProgressRes, weeklyProgressRes] = await Promise.all([
+      const [challengesRes, progressRes] = await Promise.all([
         supabase.from('challenges').select('*').eq('is_active', true).order('type'),
         supabase.from('user_challenge_progress')
-          .select('challenge_id, current_value, completed_at, claimed_at')
-          .eq('user_id', user.id)
-          .eq('period_start', today),
-        supabase.from('user_challenge_progress')
-          .select('challenge_id, current_value, completed_at, claimed_at')
+          .select('challenge_id, current_value, completed_at, claimed_at, period_start')
           .eq('user_id', user.id)
           .gte('period_start', weekStartStr),
       ]);
@@ -65,8 +63,16 @@ export const AppChallenges: React.FC = () => {
         setChallenges(challengesRes.data as Challenge[]);
       }
 
+      // Build a set of daily vs weekly challenge IDs for filtering
+      const challengeTypeMap: Record<string, string> = {};
+      (challengesRes.data || []).forEach((c: any) => { challengeTypeMap[c.id] = c.type; });
+
       const progressMap: Record<string, ChallengeProgress> = {};
-      [...(dailyProgressRes.data || []), ...(weeklyProgressRes.data || [])].forEach((p: any) => {
+      (progressRes.data || []).forEach((p: any) => {
+        const type = challengeTypeMap[p.challenge_id];
+        // Daily: only use rows where period_start === today
+        if (type === 'daily' && p.period_start !== today) return;
+        // Weekly: only use rows where period_start >= weekStartStr (already filtered by query)
         progressMap[p.challenge_id] = p;
       });
       setProgress(progressMap);

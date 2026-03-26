@@ -420,12 +420,17 @@ export const AppHome: React.FC = () => {
     window.dispatchEvent(new CustomEvent('points-updated', { detail: { pointsAdded: earnedThisSession } }));
   }, [stats.pointsEarned, stopContribution]);
 
+  // Lock to prevent rapid-tap point multiplication
+  const isTogglingRef = useRef(false);
+
   // Handle start/stop contribution - wrapped in try/catch to prevent app crash
   const handleToggleContribution = async () => {
+    if (isTogglingRef.current) return;
+    isTogglingRef.current = true;
     try {
       buttonTap();
       if (isActive) {
-        handleStopContribution();
+        await handleStopContribution();
         playSuccess();
       } else {
         if (!consentGiven) {
@@ -456,6 +461,8 @@ export const AppHome: React.FC = () => {
         description: "Please try again. If the issue persists, restart the app.",
         variant: "destructive",
       });
+    } finally {
+      isTogglingRef.current = false;
     }
   };
 

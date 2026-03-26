@@ -100,6 +100,20 @@ async function deleteAllUserData(
     results['security_audit_log'] = error ? `error: ${error.message}` : 'deleted';
   } catch (e) { results['security_audit_log'] = `exception: ${(e as Error).message}`; }
 
+  // 10b. Delete orders_pii and esim_usage BEFORE anonymizing orders (need user_id to find order IDs)
+  try {
+    const { data: orderIds } = await admin.from('orders').select('id').eq('user_id', userId);
+    if (orderIds && orderIds.length > 0) {
+      const ids = orderIds.map(o => o.id);
+      for (const oid of ids) {
+        await safeDelete(admin, 'orders_pii', 'id', oid, results);
+        await safeDelete(admin, 'esim_usage', 'order_id', oid, results);
+      }
+    }
+  } catch (e) {
+    results['orders_pii_esim_cleanup'] = `exception: ${(e as Error).message}`;
+  }
+
   // 11. Anonymize orders (keep for business records but remove PII)
   try {
     const { error } = await admin
