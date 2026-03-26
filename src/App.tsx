@@ -234,6 +234,7 @@ const WebRoutes = () => (
       {/* Base routes (no locale prefix) */}
       <Route path="/" element={<Index />} />
       <Route path="/shop" element={<ShopPage />} />
+      <Route path="/product/:handle" element={<ProductDetail />} />
       <Route path="/auth" element={<Auth />} />
       <Route path="/checkout" element={<Checkout />} />
       <Route path="/orders" element={<Orders />} />
