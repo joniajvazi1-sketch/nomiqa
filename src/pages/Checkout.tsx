@@ -190,7 +190,7 @@ export default function Checkout() {
       supabase.removeChannel(channel);
       if (pollInterval) clearInterval(pollInterval);
     };
-  }, [showPaymentModal, currentOrderId, navigate, clearCart]);
+  }, [currentOrderId, navigate, clearCart]);
 
   if (items.length === 0) {
     return (
