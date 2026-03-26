@@ -1,117 +1,59 @@
 import { memo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { useFeaturedProducts, Product } from "@/hooks/useProducts";
+import { useShopifyProducts } from "@/hooks/useShopifyProducts";
+import { useShopifyCart, ShopifyProduct } from "@/stores/shopifyCartStore";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
-import { Loader2, ArrowRight } from "lucide-react";
+import { Loader2, ArrowRight, ShoppingCart } from "lucide-react";
 import { Card, CardContent } from "./ui/card";
-import { useTranslation, Language } from "@/contexts/TranslationContext";
-import { getTranslatedCountryName } from "@/utils/countryTranslations";
+import { useTranslation } from "@/contexts/TranslationContext";
+import { toast } from "sonner";
 
-// Convert country code to emoji flag
-const getEmojiFlag = (countryCode: string): string => {
-  if (!countryCode || countryCode.length !== 2) return '🌐';
-  const codePoints = countryCode
-    .toUpperCase()
-    .split('')
-    .map(char => 127397 + char.charCodeAt(0));
-  return String.fromCodePoint(...codePoints);
-};
-
-// Featured country codes - showing cheapest packages (mix of local and regional)
-const FEATURED_LOCAL_COUNTRIES = [
-  'TR', // Turkey
-  'CN', // China
-  'TH', // Thailand
-  'ID', // Indonesia
-  'SG', // Singapore
-  'JP', // Japan
-  'AE', // UAE
-  'MX'  // Mexico
-];
-
-// Regional package codes for cheaper multi-country options
-const FEATURED_REGIONAL_CODES = [
-  'ASIA',    // Asia - $1.50
-  'WORLD',   // Global - $2.50
-  'EUROPE',  // Europe - $3.00
-  'NORTH-AMERICA', // North America - $6.50
-];
-
-// Region image mapping
-const REGION_IMAGES: Record<string, string> = {
-  'EUROPE': '/regions/europe.png',
-  'EU-PLUS-UK': '/regions/europe.png',
-  'ASIA': '/regions/asia.png',
-  'CARIBBEAN-ISLANDS': '/regions/caribbean.png',
-  'LATIN-AMERICA': '/regions/latin-america.png',
-  'MIDDLE-EAST-AND-NORTH-AFRICA': '/regions/middle-east-africa.png',
-  'AFRICA': '/regions/middle-east-africa.png',
-  'NORTH-AMERICA': '/regions/north-america.png',
-  'OCEANIA': '/regions/oceania.png',
-  'WORLD': '/regions/world.png',
-};
-
-// Memoized product card for desktop - prevents re-renders
 interface ProductCardProps {
-  product: Product;
+  product: ShopifyProduct;
   index: number;
-  language: Language;
-  formatPrice: (price: number) => string;
-  t: (key: string) => string;
+  onAddToCart: (product: ShopifyProduct) => void;
   onClick: () => void;
+  isCartLoading: boolean;
 }
 
-const DesktopProductCard = memo(({ product, index, language, formatPrice, t, onClick }: ProductCardProps) => {
-  const isRegional = product.package_type === 'regional';
-  const displayName = isRegional ? product.country_name : getTranslatedCountryName(product.country_code, language);
-  
-  const flag = isRegional ? (
-    REGION_IMAGES[product.country_code] ? (
-      <img 
-        src={REGION_IMAGES[product.country_code]} 
-        alt={product.country_code} 
-        width={40}
-        height={28}
-        loading="lazy"
-        decoding="async"
-        className="w-10 h-7 rounded object-cover"
-      />
-    ) : (
-      <div className="w-10 h-7 rounded bg-white/5 flex items-center justify-center text-base">🌐</div>
-    )
-  ) : (
-    <div className="w-10 h-7 rounded bg-white/5 flex items-center justify-center text-xl">
-      {getEmojiFlag(product.country_code)}
-    </div>
-  );
+const DesktopProductCard = memo(({ product, index, onAddToCart, onClick, isCartLoading }: ProductCardProps) => {
+  const image = product.node.images.edges[0]?.node;
+  const price = product.node.priceRange.minVariantPrice;
+  const variant = product.node.variants.edges[0]?.node;
 
   return (
-    <Card 
+    <Card
       className="group relative overflow-hidden backdrop-blur-xl bg-card/50 border-border/50 hover:border-neon-cyan/30 transition-all duration-300 hover:shadow-xl hover:shadow-neon-cyan/10 hover:-translate-y-1 animate-fade-in cursor-pointer"
       style={{ animationDelay: `${index * 0.05}s` }}
       onClick={onClick}
     >
-      <CardContent className="p-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            {flag}
-            <div>
-              <h3 className="text-lg font-semibold group-hover:text-neon-cyan transition-colors">
-                {displayName}
-              </h3>
-              <p className="text-xs text-muted-foreground">
-                {product.package_type === 'regional' ? t("regionalData") : product.data_amount}
-              </p>
-            </div>
-          </div>
+      {image && (
+        <div className="relative h-36 overflow-hidden">
+          <img src={image.url} alt={image.altText || product.node.title} className="w-full h-full object-cover" loading="lazy" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
         </div>
-        
-        <div className="flex items-center justify-between pt-4 border-t border-border/50">
-          <div className="text-3xl font-semibold bg-gradient-to-r from-white via-neon-cyan to-white bg-clip-text text-transparent drop-shadow-[0_0_8px_rgba(6,182,212,0.3)]">
-            {formatPrice(product.price_usd)}
+      )}
+      <CardContent className="p-5">
+        <h3 className="text-lg font-semibold group-hover:text-neon-cyan transition-colors line-clamp-1 mb-1">
+          {product.node.title}
+        </h3>
+        <p className="text-xs text-muted-foreground line-clamp-1 mb-3">{product.node.description}</p>
+
+        <div className="flex items-center justify-between pt-3 border-t border-border/50">
+          <div className="text-2xl font-semibold bg-gradient-to-r from-white via-neon-cyan to-white bg-clip-text text-transparent">
+            {price.currencyCode} {parseFloat(price.amount).toFixed(2)}
           </div>
-          <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-neon-cyan group-hover:translate-x-1 transition-all" />
+          <Button
+            size="sm"
+            variant="ghost"
+            className="text-neon-cyan hover:bg-neon-cyan/10 h-8 px-3"
+            disabled={isCartLoading || !variant?.availableForSale}
+            onClick={(e) => { e.stopPropagation(); onAddToCart(product); }}
+          >
+            <ShoppingCart className="w-4 h-4 mr-1" />
+            Add
+          </Button>
         </div>
       </CardContent>
     </Card>
@@ -119,55 +61,42 @@ const DesktopProductCard = memo(({ product, index, language, formatPrice, t, onC
 });
 DesktopProductCard.displayName = 'DesktopProductCard';
 
-// Memoized mobile product row
-const MobileProductRow = memo(({ product, index, language, formatPrice, t, onClick }: ProductCardProps) => {
-  const isRegional = product.package_type === 'regional';
-  const displayName = isRegional ? product.country_name : getTranslatedCountryName(product.country_code, language);
-  
-  const flag = isRegional ? (
-    REGION_IMAGES[product.country_code] ? (
-      <img 
-        src={REGION_IMAGES[product.country_code]} 
-        alt={product.country_code} 
-        width={40}
-        height={28}
-        loading="lazy"
-        decoding="async"
-        className="w-10 h-7 rounded object-cover"
-      />
-    ) : (
-      <div className="w-10 h-7 rounded bg-white/5 flex items-center justify-center text-base">🌐</div>
-    )
-  ) : (
-    <div className="w-10 h-7 rounded bg-white/5 flex items-center justify-center text-xl">
-      {getEmojiFlag(product.country_code)}
-    </div>
-  );
+const MobileProductRow = memo(({ product, index, onAddToCart, onClick, isCartLoading }: ProductCardProps) => {
+  const image = product.node.images.edges[0]?.node;
+  const price = product.node.priceRange.minVariantPrice;
+  const variant = product.node.variants.edges[0]?.node;
 
   return (
     <div
-      className="group relative overflow-hidden backdrop-blur-xl bg-card/50 border border-border/50 hover:border-neon-cyan/30 rounded-2xl transition-all duration-300 hover:shadow-xl hover:shadow-neon-cyan/10 cursor-pointer animate-fade-in p-4"
+      className="group relative overflow-hidden backdrop-blur-xl bg-card/50 border border-border/50 hover:border-neon-cyan/30 rounded-2xl transition-all duration-300 cursor-pointer animate-fade-in p-4"
       style={{ animationDelay: `${index * 0.05}s` }}
       onClick={onClick}
     >
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3 flex-1 min-w-0">
-          {flag}
-          <div className="flex-1 min-w-0">
-            <h3 className="text-base font-semibold group-hover:text-neon-cyan transition-colors truncate">
-              {displayName}
-            </h3>
-            <p className="text-xs text-muted-foreground">
-              {product.package_type === 'regional' ? t("regionalData") : product.data_amount}
-            </p>
+      <div className="flex items-center gap-3">
+        {image && (
+          <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0">
+            <img src={image.url} alt={image.altText || product.node.title} className="w-full h-full object-cover" loading="lazy" />
           </div>
+        )}
+        <div className="flex-1 min-w-0">
+          <h3 className="text-base font-semibold group-hover:text-neon-cyan transition-colors truncate">
+            {product.node.title}
+          </h3>
+          <p className="text-xs text-muted-foreground truncate">{product.node.description}</p>
         </div>
-        
-        <div className="flex items-center gap-3">
-          <div className="text-2xl font-semibold bg-gradient-to-r from-white via-neon-cyan to-white bg-clip-text text-transparent drop-shadow-[0_0_8px_rgba(6,182,212,0.3)] whitespace-nowrap">
-            {formatPrice(product.price_usd)}
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="text-xl font-semibold bg-gradient-to-r from-white via-neon-cyan to-white bg-clip-text text-transparent whitespace-nowrap">
+            {price.currencyCode} {parseFloat(price.amount).toFixed(2)}
           </div>
-          <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-neon-cyan group-hover:translate-x-1 transition-all flex-shrink-0" />
+          <Button
+            size="sm"
+            variant="ghost"
+            className="text-neon-cyan h-8 w-8 p-0"
+            disabled={isCartLoading || !variant?.availableForSale}
+            onClick={(e) => { e.stopPropagation(); onAddToCart(product); }}
+          >
+            <ShoppingCart className="w-4 h-4" />
+          </Button>
         </div>
       </div>
     </div>
@@ -177,20 +106,30 @@ MobileProductRow.displayName = 'MobileProductRow';
 
 export const FeaturedProducts = () => {
   const navigate = useNavigate();
-  const { data: featuredProducts, isLoading } = useFeaturedProducts(FEATURED_LOCAL_COUNTRIES, FEATURED_REGIONAL_CODES);
-  const { language, t, formatPrice } = useTranslation();
+  const { data, isLoading } = useShopifyProducts(12);
+  const { t } = useTranslation();
+  const addItem = useShopifyCart(state => state.addItem);
+  const isCartLoading = useShopifyCart(state => state.isLoading);
 
-  const handleProductClick = useCallback((product: Product) => {
-    const isRegional = product.package_type === 'regional';
-    if (isRegional) {
-      navigate(`/shop?type=regional&search=${encodeURIComponent(product.country_name)}`);
-    } else {
-      const translatedCountryName = getTranslatedCountryName(product.country_code, language);
-      navigate(`/shop?search=${encodeURIComponent(translatedCountryName)}`);
-    }
-  }, [navigate, language]);
+  const handleAddToCart = useCallback(async (product: ShopifyProduct) => {
+    const variant = product.node.variants.edges[0]?.node;
+    if (!variant) return;
+    await addItem({
+      product,
+      variantId: variant.id,
+      variantTitle: variant.title,
+      price: variant.price,
+      quantity: 1,
+      selectedOptions: variant.selectedOptions || [],
+    });
+    toast.success(`${product.node.title} added to cart!`);
+  }, [addItem]);
 
-  if (isLoading || !featuredProducts) {
+  const handleProductClick = useCallback((product: ShopifyProduct) => {
+    navigate(`/product/${product.node.handle}`);
+  }, [navigate]);
+
+  if (isLoading || !data?.products) {
     return (
       <section className="py-24 relative overflow-hidden bg-gradient-to-b from-background via-background/50 to-background">
         <div className="container px-6 md:px-8">
@@ -202,69 +141,66 @@ export const FeaturedProducts = () => {
     );
   }
 
+  const products = data.products;
+
   return (
     <section className="py-24 relative overflow-hidden bg-gradient-to-b from-background via-background/50 to-background">
-      {/* Background effects */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(139,92,246,0.1),transparent_50%)]"></div>
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(59,130,246,0.1),transparent_50%)]"></div>
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(139,92,246,0.1),transparent_50%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(59,130,246,0.1),transparent_50%)]" />
 
       <div className="container px-6 md:px-8 relative z-10">
-        {/* Section Header */}
         <div className="text-center mb-16 animate-fade-in">
           <div className="inline-block mb-4">
             <Badge variant="outline" className="border-neon-cyan/20 text-neon-cyan bg-neon-cyan/5 px-4 py-2">
-              {t("instantAccess")}
+              {t("instantAccess") || "Instant Access"}
             </Badge>
           </div>
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-light font-display mb-6">
             <span className="bg-gradient-to-r from-neon-cyan via-white to-neon-violet bg-clip-text text-transparent font-semibold">
-              {t("instantGlobalDataAccess")}
+              {t("instantGlobalDataAccess") || "Instant Global Data Access"}
             </span>
           </h2>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto font-light">
-            {t("instantGlobalDataAccessDesc")}
+            {t("instantGlobalDataAccessDesc") || "Browse our eSIM plans for worldwide connectivity"}
           </p>
         </div>
 
-        {/* Desktop Grid - using memoized cards */}
+        {/* Desktop Grid */}
         <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
-          {featuredProducts.map((product, index) => (
+          {products.map((product, index) => (
             <DesktopProductCard
-              key={product.id}
+              key={product.node.id}
               product={product}
               index={index}
-              language={language}
-              formatPrice={formatPrice}
-              t={t}
+              onAddToCart={handleAddToCart}
               onClick={() => handleProductClick(product)}
+              isCartLoading={isCartLoading}
             />
           ))}
         </div>
 
-        {/* Mobile Compact List - using memoized rows */}
+        {/* Mobile List */}
         <div className="md:hidden space-y-3 mb-12">
-          {featuredProducts.map((product, index) => (
+          {products.map((product, index) => (
             <MobileProductRow
-              key={product.id}
+              key={product.node.id}
               product={product}
               index={index}
-              language={language}
-              formatPrice={formatPrice}
-              t={t}
+              onAddToCart={handleAddToCart}
               onClick={() => handleProductClick(product)}
+              isCartLoading={isCartLoading}
             />
           ))}
         </div>
 
-        {/* View All CTA */}
         <div className="text-center animate-fade-in" style={{ animationDelay: "0.6s" }}>
-          <Button 
+          <Button
             size="lg"
             onClick={() => navigate('/shop')}
             className="h-auto py-3 px-6 md:px-10 md:py-7 text-sm md:text-base lg:text-lg font-light bg-white/[0.05] backdrop-blur-xl border-2 border-white/20 text-white hover:bg-white/10 hover:border-white/40 rounded-xl md:rounded-2xl transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-white/20"
           >
-            <span className="break-words">{t("viewAllPlans")}</span>
-            <ArrowRight className="ml-2 w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-1 transition-transform flex-shrink-0" />
+            <span>{t("viewAllPlans") || "View All Plans"}</span>
+            <ArrowRight className="ml-2 w-4 h-4 md:w-5 md:h-5" />
           </Button>
         </div>
       </div>
