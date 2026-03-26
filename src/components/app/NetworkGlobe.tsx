@@ -430,19 +430,19 @@ export const NetworkGlobe: React.FC<NetworkGlobeProps> = ({
         <div className="flex justify-between gap-2">
           <div className="flex-1 bg-muted/80 dark:bg-white/5 backdrop-blur-md border border-border rounded-xl px-3 py-2 text-center">
             <div className="text-foreground text-base font-bold tabular-nums">
-              {realStats.dataPoints >= 1000 ? `${Math.round(realStats.dataPoints / 1000)}k` : realStats.dataPoints}
+              {formatStatNumber(realStats.dataPoints)}
             </div>
             <div className="text-foreground/50 text-[10px] font-medium">Samples</div>
           </div>
           <div className="flex-1 bg-muted/80 dark:bg-white/5 backdrop-blur-md border border-border rounded-xl px-3 py-2 text-center">
             <div className="text-foreground text-base font-bold tabular-nums">
-              {realStats.cities >= 1000 ? `${Math.round(realStats.cities / 1000)}k` : realStats.cities}
+              {formatStatNumber(realStats.cities)}
             </div>
             <div className="text-foreground/50 text-[10px] font-medium">Areas</div>
           </div>
           <div className="flex-1 bg-muted/80 dark:bg-white/5 backdrop-blur-md border border-border rounded-xl px-3 py-2 text-center">
             <div className="text-foreground text-base font-bold tabular-nums">
-              {realStats.contributors >= 1000 ? `${Math.round(realStats.contributors / 1000)}k` : realStats.contributors > 0 ? realStats.contributors : '—'}
+              {realStats.contributors > 0 ? formatStatNumber(realStats.contributors) : '—'}
             </div>
             <div className="text-foreground/50 text-[10px] font-medium">Contributors</div>
           </div>
