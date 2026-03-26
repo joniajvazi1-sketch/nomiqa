@@ -370,12 +370,8 @@ export default function Affiliate() {
               <span className="text-sm text-muted-foreground ml-2">{t("affiliateMaxBoost")}</span>
             </div>
             <div className="px-5 py-3 rounded-xl bg-neon-violet/10 border border-neon-violet/30">
-              <span className="text-2xl font-bold text-neon-violet">5%</span>
-              <span className="text-sm text-muted-foreground ml-2">{t("affiliateFromNetwork")}</span>
-            </div>
-            <div className="px-5 py-3 rounded-xl bg-muted/50 border border-border">
-              <span className="text-2xl font-bold text-foreground">9%</span>
-              <span className="text-sm text-muted-foreground ml-2">{t("affiliateSalesCommission")}</span>
+              <span className="text-2xl font-bold text-neon-violet">10%</span>
+              <span className="text-sm text-muted-foreground ml-2">{t("affiliateReferralCommission")}</span>
             </div>
           </div>
         </div>

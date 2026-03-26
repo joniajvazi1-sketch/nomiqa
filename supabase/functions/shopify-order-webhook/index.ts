@@ -247,7 +247,7 @@ serve(async (req) => {
             .from('affiliates')
             .update({
               total_conversions: (affiliate.total_conversions || 0) + 1,
-              total_earnings_usd: (affiliate.total_earnings_usd || 0) + (data.price_usd * 0.09),
+              total_earnings_usd: (affiliate.total_earnings_usd || 0) + (data.price_usd * 0.10),
             })
             .eq('id', referral.affiliate_id);
         }
