@@ -114,16 +114,6 @@ const InstancedCoverageTiles: React.FC<{
     const up = new THREE.Vector3(0, 0, 1);
     const tempColor = new THREE.Color();
 
-    // Ensure instanceColor buffers exist
-    if (!discRef.current.instanceColor) {
-      const colors = new Float32Array(tiles.length * 3);
-      discRef.current.instanceColor = new THREE.InstancedBufferAttribute(colors, 3);
-    }
-    if (!glowRef.current.instanceColor) {
-      const colors = new Float32Array(tiles.length * 3);
-      glowRef.current.instanceColor = new THREE.InstancedBufferAttribute(colors, 3);
-    }
-
     for (let i = 0; i < tiles.length; i++) {
       const t = tiles[i];
       tempQuat.setFromUnitVectors(up, t.normal);
@@ -140,8 +130,8 @@ const InstancedCoverageTiles: React.FC<{
 
     discRef.current.instanceMatrix.needsUpdate = true;
     glowRef.current.instanceMatrix.needsUpdate = true;
-    discRef.current.instanceColor.needsUpdate = true;
-    glowRef.current.instanceColor.needsUpdate = true;
+    if (discRef.current.instanceColor) discRef.current.instanceColor.needsUpdate = true;
+    if (glowRef.current.instanceColor) glowRef.current.instanceColor.needsUpdate = true;
   }, [tiles, selectedIndex]);
 
   const handleClick = useCallback((e: ThreeEvent<MouseEvent>) => {
