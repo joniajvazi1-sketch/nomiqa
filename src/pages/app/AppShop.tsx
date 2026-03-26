@@ -460,11 +460,6 @@ export const AppShop: React.FC = () => {
                     )}
                   </div>
 
-                  {/* Security */}
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-green-500/5 border border-green-500/15">
-                    <Shield className="h-4 w-4 text-green-400 shrink-0" />
-                    <p className="text-xs text-green-400/80">Privacy Protected • No KYC</p>
-                  </div>
 
                   {/* Packages */}
                   <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Choose a Package</h3>
