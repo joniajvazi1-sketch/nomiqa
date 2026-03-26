@@ -38,6 +38,15 @@ const getQualityTier = (intensity: number): 'strong' | 'medium' | 'weak' => {
   return 'weak';
 };
 
+// Format numbers: round up slowly as they grow (27468 → "27k", 391 → "390+", 19771 → "19k")
+const formatStatNumber = (value: number): string => {
+  if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
+  if (value >= 10000) return `${Math.round(value / 1000)}k`;
+  if (value >= 1000) return `${(value / 1000).toFixed(1)}k`;
+  if (value >= 100) return `${Math.round(value / 10) * 10}+`;
+  return value.toString();
+};
+
 const QUALITY_COLORS = {
   strong: { base: new THREE.Color('#22c55e'), glow: new THREE.Color('#86efac') },
   medium: { base: new THREE.Color('#f59e0b'), glow: new THREE.Color('#fcd34d') },
