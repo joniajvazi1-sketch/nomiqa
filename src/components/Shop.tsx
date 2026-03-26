@@ -3,7 +3,7 @@ import { useShopifyProducts } from "@/hooks/useShopifyProducts";
 import { useShopifyCart, ShopifyProduct } from "@/stores/shopifyCartStore";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { Loader2, Search, ShoppingCart, ArrowLeft, Globe, ChevronRight, ChevronDown, MapPin, Map } from "lucide-react";
+import { Loader2, Search, ShoppingCart, ArrowLeft, Globe, ChevronRight, ChevronDown, MapPin, Map, Zap } from "lucide-react";
 import { toast } from "sonner";
 import { Card, CardContent } from "./ui/card";
 import { useTranslation } from "@/contexts/TranslationContext";
