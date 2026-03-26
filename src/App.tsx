@@ -10,6 +10,7 @@ import { TranslationProvider } from "@/contexts/TranslationContext";
 import { usePlatform } from "@/hooks/usePlatform";
 import { AppErrorBoundary } from "@/components/app/AppErrorBoundary";
 import { useDeepLinkAuth } from "@/hooks/useDeepLinkAuth";
+import { useCartSync } from "@/hooks/useCartSync";
 
 // Lazy load layout shells — they're heavy (status bar, haptics, framer-motion)
 const AppLayout = lazy(() => import("@/components/app/AppLayout").then(m => ({ default: m.AppLayout })));
@@ -18,6 +19,7 @@ const WebLayout = lazy(() => import("@/components/app/WebLayout").then(m => ({ d
 // Lazy load WEB pages
 const Index = lazy(() => import("./pages/Index"));
 const ShopPage = lazy(() => import("./pages/ShopPage"));
+const ProductDetail = lazy(() => import("./pages/ProductDetail"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Checkout = lazy(() => import("./pages/Checkout"));
 const Orders = lazy(() => import("./pages/Orders"));
@@ -148,6 +150,7 @@ const queryClient = new QueryClient({
 function AffiliateTracker() {
   const location = useLocation();
   useScrollToTop();
+  useCartSync();
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -231,6 +234,7 @@ const WebRoutes = () => (
       {/* Base routes (no locale prefix) */}
       <Route path="/" element={<Index />} />
       <Route path="/shop" element={<ShopPage />} />
+      <Route path="/product/:handle" element={<ProductDetail />} />
       <Route path="/auth" element={<Auth />} />
       <Route path="/checkout" element={<Checkout />} />
       <Route path="/orders" element={<Orders />} />

@@ -5,8 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { ShoppingCart, LogOut, LogIn, Menu, Globe, Check, User as UserIcon, Search, MapPin } from "lucide-react";
-import { useCart } from "@/hooks/useCart";
+import { LogOut, LogIn, Menu, Globe, Check, User as UserIcon, Search, MapPin } from "lucide-react";
+import { ShopifyCartDrawer } from "@/components/ShopifyCartDrawer";
 import { useNavbarSearch } from "@/hooks/useNavbarSearch";
 import { supabase } from "@/integrations/supabase/client";
 import { User as SupabaseUser } from "@supabase/supabase-js";
@@ -21,7 +21,7 @@ import headerLogo from "@/assets/nomiqa-token-logo.png";
 export const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { items } = useCart();
+  // Cart is now handled by ShopifyCartDrawer
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [desktopMenuOpen, setDesktopMenuOpen] = useState(false);
@@ -287,15 +287,8 @@ export const Navbar = () => {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Cart */}
-            <Button variant="ghost" size="icon" className="relative hover:bg-neon-cyan/5 hover:border-neon-cyan/30 border border-white/5 transition-all duration-300 h-9 w-9 sm:h-10 sm:w-10" onClick={() => navigate(localizedPath('/checkout', language))} aria-label="Open cart">
-              <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 text-white/80 group-hover:text-neon-cyan transition-colors duration-300" />
-              {items.length > 0 && (
-                <Badge className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 bg-gradient-to-r from-neon-coral to-neon-orange text-white border-0 px-1 sm:px-1.5 py-0 text-[9px] sm:text-[10px] min-w-[16px] sm:min-w-[18px] h-4 sm:h-[18px] flex items-center justify-center shadow-glow-coral">
-                  {items.length}
-                </Badge>
-              )}
-            </Button>
+            {/* Cart Drawer */}
+            <ShopifyCartDrawer />
 
             {/* Desktop My Account Icon - Show only when logged in */}
             {user && (

@@ -1,378 +1,189 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { useProducts } from "@/hooks/useProducts";
-import { useCart } from "@/hooks/useCart";
+import { useState } from "react";
+import { useShopifyProducts } from "@/hooks/useShopifyProducts";
+import { useShopifyCart, ShopifyProduct } from "@/stores/shopifyCartStore";
 import { Button } from "./ui/button";
-import { Badge } from "./ui/badge";
 import { Input } from "./ui/input";
-import { Loader2, ShoppingCart, Search, Wifi, Calendar, Globe, MapPin, Share2, HandCoins, Info } from "lucide-react";
+import { Loader2, Search, ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
-import { ProductDetailModal } from "./ProductDetailModal";
-import { ReferEarnModal } from "./ReferEarnModal";
-import { Confetti } from "./Confetti";
+import { Card, CardContent, CardFooter } from "./ui/card";
 import { useTranslation } from "@/contexts/TranslationContext";
-import { getTranslatedCountryName, getAllTranslatedNames } from "@/utils/countryTranslations";
-
-type CoverageType = "all" | "local" | "regional";
 
 export const Shop = () => {
-  const navigate = useNavigate();
-  const { data: products, isLoading, isError, refetch } = useProducts();
-  const { items, addItem } = useCart();
-  const { language, t, formatPrice } = useTranslation();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [coverageFilter, setCoverageFilter] = useState<CoverageType>("all");
-  const [referEarnModalOpen, setReferEarnModalOpen] = useState(false);
-  const [productDetailModalOpen, setProductDetailModalOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
-  const [displayCount, setDisplayCount] = useState(9);
-  const [showConfetti, setShowConfetti] = useState(false);
-  
-  // Check for URL search parameter on mount
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const searchParam = urlParams.get('search');
-    const typeParam = urlParams.get('type');
-    if (searchParam) {
-      setSearchQuery(decodeURIComponent(searchParam));
-    }
-    if (typeParam && (typeParam === 'local' || typeParam === 'regional')) {
-      setCoverageFilter(typeParam);
-    }
-  }, [products]);
+  const { t } = useTranslation();
+  const [searchInput, setSearchInput] = useState("");
+  const [activeSearch, setActiveSearch] = useState("");
+  const [displayCount, setDisplayCount] = useState(12);
+  const addItem = useShopifyCart(state => state.addItem);
+  const isCartLoading = useShopifyCart(state => state.isLoading);
 
-  const filteredProducts = products?.filter(product => {
-    // Get all possible country names for this product (in all languages)
-    const allCountryNames = getAllTranslatedNames(product.country_code);
-    const searchLower = searchQuery.toLowerCase();
-    
-    // Check if search matches the product name or any translated country name
-    const matchesSearch = product.name.toLowerCase().includes(searchLower) ||
-                         product.country_name.toLowerCase().includes(searchLower) ||
-                         allCountryNames.some(name => name.toLowerCase().includes(searchLower));
-    
-    if (coverageFilter === "all") {
-      return matchesSearch;
-    }
-    
-    // Use package_type from database
-    const productType = (product as any).package_type || 'local';
-    return matchesSearch && productType === coverageFilter;
-  });
+  const { data, isLoading, isError, refetch } = useShopifyProducts(250, activeSearch || undefined);
 
-  const displayedProducts = filteredProducts?.slice(0, displayCount);
-  const hasMore = filteredProducts && filteredProducts.length > displayCount;
+  const products = data?.products || [];
+  const displayedProducts = products.slice(0, displayCount);
+  const hasMore = products.length > displayCount;
 
-  const handleAddToCart = (product: any) => {
-    addItem(product);
-    setShowConfetti(true);
-    toast.success(`${product.name} added to cart!`);
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    setActiveSearch(searchInput.trim());
+    setDisplayCount(12);
   };
 
-  const handleProductClick = (product: any) => {
-    setSelectedProduct(product);
-    setProductDetailModalOpen(true);
-  };
+  const handleAddToCart = async (product: ShopifyProduct) => {
+    const variant = product.node.variants.edges[0]?.node;
+    if (!variant) return;
 
-  const handleReferEarn = (product: any) => {
-    setSelectedProduct(product);
-    setReferEarnModalOpen(true);
-  };
-
-  // Regional map images mapping
-  const getRegionImage = (countryCode: string): string | null => {
-    const regionImageMap: Record<string, string> = {
-      'EUROPE': '/regions/europe.png',
-      'EU-PLUS-UK': '/regions/europe.png',
-      'ASIA': '/regions/asia.png',
-      'CARIBBEAN-ISLANDS': '/regions/caribbean.png',
-      'LATIN-AMERICA': '/regions/latin-america.png',
-      'MIDDLE-EAST-AND-NORTH-AFRICA': '/regions/middle-east-africa.png',
-      'AFRICA': '/regions/middle-east-africa.png',
-      'NORTH-AMERICA': '/regions/north-america.png',
-      'OCEANIA': '/regions/oceania.png',
-      'WORLD': '/regions/world.png',
-    };
-    return regionImageMap[countryCode] || null;
-  };
-
-  const getCountryFlag = (countryCode: string, packageType?: string, countryImageUrl?: string | null) => {
-    // For regional packages, show region map image
-    if (packageType === 'regional') {
-      const regionImage = getRegionImage(countryCode);
-      if (regionImage) {
-        return (
-          <img 
-            src={regionImage} 
-            alt={countryCode} 
-            width={56}
-            height={40}
-            loading="lazy"
-            decoding="async"
-            className="w-14 h-10 rounded-lg object-cover shadow-lg"
-          />
-        );
-      }
-      return (
-        <div className="w-14 h-10 flex items-center justify-center text-2xl bg-white/5 rounded-lg">
-          🌐
-        </div>
-      );
-    }
-    // For local packages, use country flag image from database
-    if (countryImageUrl) {
-      return (
-        <img 
-          src={countryImageUrl} 
-          alt={`${countryCode} flag`} 
-          width={56}
-          height={40}
-          loading="lazy"
-          decoding="async"
-          className="w-14 h-10 rounded-lg object-cover shadow-lg"
-        />
-      );
-    }
-    // Fallback to globe icon if no image
-    return (
-      <div className="w-14 h-10 flex items-center justify-center text-2xl bg-white/5 rounded-lg">
-        🌐
-      </div>
-    );
+    await addItem({
+      product,
+      variantId: variant.id,
+      variantTitle: variant.title,
+      price: variant.price,
+      quantity: 1,
+      selectedOptions: variant.selectedOptions || [],
+    });
+    toast.success(`${product.node.title} added to cart!`);
   };
 
   return (
     <section id="shop" className="py-16 md:py-24 px-4 relative overflow-hidden">
-      {/* Simplified background decorations - reduced blur for performance */}
-      <div className="absolute top-0 left-1/4 w-[400px] h-[400px] bg-neon-cyan/5 rounded-full blur-2xl pointer-events-none"></div>
-      <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-neon-violet/5 rounded-full blur-2xl pointer-events-none"></div>
-      
+      <div className="absolute top-0 left-1/4 w-[400px] h-[400px] bg-neon-cyan/5 rounded-full blur-2xl pointer-events-none" />
+      <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-neon-violet/5 rounded-full blur-2xl pointer-events-none" />
+
       <div className="container mx-auto max-w-7xl relative z-10">
-        {/* Hero Header */}
+        {/* Header */}
         <div className="text-center mb-12 md:mb-16">
           <div className="inline-block mb-3 md:mb-4">
             <span className="text-neon-cyan text-xs md:text-sm font-light tracking-[0.25em] uppercase">
-              ⚡ Global Connectivity
+              ⚡ {t('esimPlansTitle') || 'eSIM Plans'}
             </span>
           </div>
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-light mb-4 md:mb-5">
             <span className="block bg-gradient-to-r from-neon-cyan via-white to-neon-violet bg-clip-text text-transparent">
-              {t('esimPlansTitle')}
+              {t('esimPlansTitle') || 'Browse Plans'}
             </span>
           </h2>
           <p className="text-white/70 text-base md:text-lg lg:text-xl font-light max-w-2xl mx-auto">
-            {t('esimPlansSubtitle')}
+            {t('esimPlansSubtitle') || 'Find the perfect eSIM plan for your destination'}
           </p>
         </div>
 
-        {/* Search and Filters */}
-        <div className="mb-10 md:mb-12 max-w-3xl mx-auto space-y-4">
-          <div className="relative">
+        {/* Search */}
+        <div className="mb-10 md:mb-12 max-w-3xl mx-auto">
+          <form onSubmit={handleSearch} className="relative">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-neon-cyan z-10 pointer-events-none" />
             <Input
-              placeholder={t('searchPlaceholder')}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-11 h-12 md:h-14 bg-white/[0.03] border-white/10 hover:border-neon-cyan/30 focus:border-neon-cyan/50 text-white placeholder:text-white/40 rounded-xl transition-colors duration-200 text-left relative z-0"
+              placeholder={t('searchPlaceholder') || 'Search eSIM plans...'}
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              className="pl-11 h-12 md:h-14 bg-white/[0.03] border-white/10 hover:border-neon-cyan/30 focus:border-neon-cyan/50 text-white placeholder:text-white/40 rounded-xl transition-colors duration-200"
             />
-          </div>
-          
-          {/* Coverage Type Filter */}
-          <div className="flex flex-wrap justify-center gap-2 md:gap-3">
-            <Button
-              onClick={() => setCoverageFilter("all")}
-              variant="outline"
-              size="sm"
-              className={`rounded-full px-4 md:px-6 transition-all duration-300 ${
-                coverageFilter === "all"
-                  ? "bg-neon-cyan/20 border-neon-cyan text-neon-cyan"
-                  : "bg-white/[0.02] border-white/10 text-white/60 hover:border-white/30 hover:text-white"
-              }`}
-            >
-              <Globe className="mr-2 h-4 w-4" />
-              {t('allPlans') || 'All Plans'}
-            </Button>
-            <Button
-              onClick={() => setCoverageFilter("local")}
-              variant="outline"
-              size="sm"
-              className={`rounded-full px-4 md:px-6 transition-all duration-300 ${
-                coverageFilter === "local"
-                  ? "bg-neon-violet/20 border-neon-violet text-neon-violet"
-                  : "bg-white/[0.02] border-white/10 text-white/60 hover:border-white/30 hover:text-white"
-              }`}
-            >
-              <MapPin className="mr-2 h-4 w-4" />
-              {t('localPlans') || 'Local'}
-            </Button>
-            <Button
-              onClick={() => setCoverageFilter("regional")}
-              variant="outline"
-              size="sm"
-              className={`rounded-full px-4 md:px-6 transition-all duration-300 ${
-                coverageFilter === "regional"
-                  ? "bg-neon-coral/20 border-neon-coral text-neon-coral"
-                  : "bg-white/[0.02] border-white/10 text-white/60 hover:border-white/30 hover:text-white"
-              }`}
-            >
-              <Globe className="mr-2 h-4 w-4" />
-              {t('regionalPlans') || 'Regional'}
-            </Button>
-          </div>
+          </form>
         </div>
 
         {isLoading ? (
           <div className="flex justify-center py-20">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <Loader2 className="h-8 w-8 animate-spin text-neon-cyan" />
           </div>
         ) : isError ? (
           <div className="text-center py-20 space-y-4">
-            <p className="text-muted-foreground">Failed to load products. Please try again.</p>
+            <p className="text-white/60">Failed to load products. Please try again.</p>
             <Button onClick={() => refetch()} variant="outline" className="border-neon-cyan text-neon-cyan">
               Retry
             </Button>
           </div>
-        ) : !displayedProducts?.length ? (
+        ) : !displayedProducts.length ? (
           <div className="text-center py-20">
-            <p className="text-muted-foreground">
-              {searchQuery || coverageFilter !== "all" ? "No products match your filters" : "No products available"}
+            <p className="text-white/60">
+              {activeSearch ? "No products match your search" : "No products found"}
             </p>
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8" style={{ contain: 'layout style paint' }}>
-              {displayedProducts?.map((product) => (
-                <Card 
-                  key={product.id} 
-                  className="group relative overflow-hidden bg-white/[0.03] border border-white/10 hover:border-neon-cyan/40 transition-colors duration-200 cursor-pointer rounded-2xl"
-                  style={{ contain: 'layout style' }}
-                  onClick={() => handleProductClick(product)}
-                >
-                  {/* Simplified hover effect */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-neon-cyan/5 via-transparent to-neon-violet/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"></div>
-                  
-                  <CardHeader className="relative z-10">
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex items-center gap-3">
-                        <div className="shrink-0">
-                          {getCountryFlag(product.country_code, (product as any).package_type, product.country_image_url)}
-                        </div>
-                        <div>
-                          <CardTitle className="text-lg md:text-xl text-white group-hover:text-neon-cyan transition-colors duration-300 font-light">
-                            {getTranslatedCountryName(product.country_code, language)}
-                          </CardTitle>
-                          <CardDescription className="text-sm text-white/60 font-light">{product.name}</CardDescription>
-                        </div>
-                      </div>
-                      <div className="flex flex-col gap-1 items-end">
-                        {(product as any).package_type === 'regional' && (
-                          <Badge className="bg-gradient-to-r from-neon-violet to-neon-coral text-white border-0 shadow-glow-violet font-light text-xs">
-                            Regional
-                          </Badge>
-                        )}
-                        {product.is_popular && (
-                          <Badge className="bg-gradient-to-r from-neon-coral to-neon-orange text-white border-0 shadow-glow-coral font-light">
-                            {t('popular')}
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-                  </CardHeader>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+              {displayedProducts.map((product) => {
+                const image = product.node.images.edges[0]?.node;
+                const price = product.node.priceRange.minVariantPrice;
+                const variant = product.node.variants.edges[0]?.node;
 
-                  <CardContent className="space-y-4 relative z-10">
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="p-4 rounded-xl bg-gradient-to-br from-neon-cyan/10 to-neon-cyan/5 border border-neon-cyan/20 hover:border-neon-cyan/40 transition-all duration-300">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Wifi className="h-4 w-4 text-neon-cyan" />
-                          <span className="text-xs font-light text-white/70">{t('data')}</span>
-                        </div>
-                        <span className="font-normal text-lg text-white">{product.data_amount}</span>
-                      </div>
-                      <div className="p-4 rounded-xl bg-gradient-to-br from-neon-violet/10 to-neon-violet/5 border border-neon-violet/20 hover:border-neon-violet/40 transition-all duration-300">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Calendar className="h-4 w-4 text-neon-violet" />
-                          <span className="text-xs font-light text-white/70">{t('validity')}</span>
-                        </div>
-                        <span className="font-normal text-lg text-white">{product.validity_days} {t('days')}</span>
-                      </div>
-                    </div>
+                return (
+                  <Card
+                    key={product.node.id}
+                    className="group relative overflow-hidden bg-white/[0.03] border border-white/10 hover:border-neon-cyan/40 transition-colors duration-200 rounded-2xl"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-br from-neon-cyan/5 via-transparent to-neon-violet/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none" />
 
-                    {product.features?.coverage && (
-                      <div className="flex items-center gap-2 text-sm p-3 rounded-lg bg-white/[0.02] border border-white/5">
-                        <Globe className="h-4 w-4 text-neon-cyan shrink-0" />
-                        <span className="text-white/60 break-words font-light flex-1 min-w-0">{product.features.coverage}</span>
+                    {/* Product Image */}
+                    {image && (
+                      <div className="relative h-48 overflow-hidden">
+                        <img
+                          src={image.url}
+                          alt={image.altText || product.node.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          loading="lazy"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                       </div>
                     )}
 
-                    <div className="pt-4 border-t border-white/10 text-center md:text-left">
-                      <div className="text-3xl md:text-4xl font-semibold bg-gradient-to-r from-white via-neon-cyan to-white bg-clip-text text-transparent drop-shadow-[0_0_12px_rgba(6,182,212,0.4)]">
-                        {formatPrice(product.price_usd)}
+                    <CardContent className="relative z-10 p-5">
+                      <h3 className="text-lg font-medium text-white group-hover:text-neon-cyan transition-colors mb-1 line-clamp-2">
+                        {product.node.title}
+                      </h3>
+                      {product.node.description && (
+                        <p className="text-sm text-white/50 font-light line-clamp-2 mb-4">
+                          {product.node.description}
+                        </p>
+                      )}
+
+                      {/* Variant options */}
+                      {product.node.options.length > 0 && product.node.options[0].name !== 'Title' && (
+                        <div className="flex flex-wrap gap-1.5 mb-4">
+                          {product.node.options[0].values.slice(0, 4).map((val) => (
+                            <span key={val} className="text-xs px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-white/60">
+                              {val}
+                            </span>
+                          ))}
+                          {product.node.options[0].values.length > 4 && (
+                            <span className="text-xs px-2 py-0.5 text-white/40">+{product.node.options[0].values.length - 4}</span>
+                          )}
+                        </div>
+                      )}
+
+                      <div className="pt-3 border-t border-white/10">
+                        <div className="text-2xl md:text-3xl font-semibold bg-gradient-to-r from-white via-neon-cyan to-white bg-clip-text text-transparent">
+                          {price.currencyCode} {parseFloat(price.amount).toFixed(2)}
+                        </div>
                       </div>
-                      <p className="text-xs text-white/50 mt-2 font-light">{t('oneTimePayment')}</p>
-                    </div>
+                    </CardContent>
 
-                    <div className="flex items-center justify-center pt-2 text-sm text-white/50 group-hover:text-neon-cyan transition-colors duration-200 text-center">
-                      <span className="font-light">{t('clickForMoreInfo')}</span>
-                    </div>
-                  </CardContent>
-
-                  <CardFooter className="flex flex-col sm:flex-row gap-3 relative z-10" onClick={(e) => e.stopPropagation()}>
-                    <Button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleAddToCart(product);
-                      }}
-                      className="w-full sm:flex-1 bg-white/[0.05] border-2 border-neon-cyan/40 text-white hover:bg-neon-cyan/10 hover:border-neon-cyan/60 font-light h-12 rounded-xl transition-colors duration-200"
-                    >
-                      <ShoppingCart className="mr-2 h-4 w-4 shrink-0" />
-                      <span className="break-words">{t('addToCart')}</span>
-                    </Button>
-                    <Button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleReferEarn(product);
-                      }}
-                      className="w-full sm:flex-1 bg-white/[0.05] border-2 border-neon-coral/40 text-neon-coral hover:bg-neon-coral/10 hover:border-neon-coral/60 font-light h-12 rounded-xl transition-colors duration-200"
-                    >
-                      <HandCoins className="mr-2 h-4 w-4 shrink-0" />
-                      <span className="break-words">{t('referAndEarn')}</span>
-                    </Button>
-                  </CardFooter>
-                </Card>
-              ))}
+                    <CardFooter className="relative z-10 px-5 pb-5 pt-0">
+                      <Button
+                        onClick={() => handleAddToCart(product)}
+                        disabled={isCartLoading || !variant?.availableForSale}
+                        className="w-full bg-white/[0.05] border-2 border-neon-cyan/40 text-white hover:bg-neon-cyan/10 hover:border-neon-cyan/60 font-light h-12 rounded-xl transition-colors duration-200"
+                      >
+                        <ShoppingCart className="mr-2 h-4 w-4" />
+                        {variant?.availableForSale ? (t('addToCart') || 'Add to Cart') : 'Sold Out'}
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                );
+              })}
             </div>
-            
+
             {hasMore && (
               <div className="flex justify-center mt-12">
-                <Button 
-                  onClick={() => setDisplayCount(prev => prev + 9)}
+                <Button
+                  onClick={() => setDisplayCount(prev => prev + 12)}
                   variant="outline"
                   size="lg"
-                  className="bg-white/[0.02] border-neon-cyan/30 text-neon-cyan hover:bg-neon-cyan/10 hover:border-neon-cyan/50 px-8 py-6 rounded-xl font-light transition-all duration-300 shadow-glow-cyan"
+                  className="bg-white/[0.02] border-neon-cyan/30 text-neon-cyan hover:bg-neon-cyan/10 hover:border-neon-cyan/50 px-8 py-6 rounded-xl font-light"
                 >
-                  Load More ({filteredProducts.length - displayCount} remaining)
+                  Load More ({products.length - displayCount} remaining)
                 </Button>
               </div>
             )}
           </>
         )}
-
-        <ProductDetailModal
-          open={productDetailModalOpen}
-          onOpenChange={setProductDetailModalOpen}
-          product={selectedProduct}
-          onAddToCart={handleAddToCart}
-          onReferEarn={handleReferEarn}
-        />
-        
-        <ReferEarnModal
-          open={referEarnModalOpen}
-          onOpenChange={setReferEarnModalOpen}
-          product={selectedProduct}
-        />
-        
-        <Confetti trigger={showConfetti} onComplete={() => setShowConfetti(false)} />
       </div>
     </section>
   );
