@@ -221,7 +221,7 @@ serve(async (req) => {
             status: 'converted',
             converted_at: new Date().toISOString(),
             order_id: order.id,
-            commission_amount_usd: data.price_usd * 0.09,
+            commission_amount_usd: data.price_usd * 0.10,
             commission_level: 1,
           })
           .eq('id', referral.id);
@@ -247,7 +247,7 @@ serve(async (req) => {
             .from('affiliates')
             .update({
               total_conversions: (affiliate.total_conversions || 0) + 1,
-              total_earnings_usd: (affiliate.total_earnings_usd || 0) + (data.price_usd * 0.09),
+              total_earnings_usd: (affiliate.total_earnings_usd || 0) + (data.price_usd * 0.10),
             })
             .eq('id', referral.affiliate_id);
         }

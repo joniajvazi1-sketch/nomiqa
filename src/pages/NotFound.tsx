@@ -16,7 +16,7 @@ const NotFound = () => {
   const looksLikeReferralLink = pathSegment.length > 0 
     && !pathSegment.includes('/') 
     && !pathSegment.includes('.')
-    && !/^(app|auth|shop|checkout|orders|privacy|terms|about|token|help|rewards|affiliate|roadmap|download|network|mobile-only|social-rewards|payment-success|getting-started|how-it-works|admin|deutsch|english|francais|espanol|portugues|russian|chinese|japanese|arabic|italiano)$/i.test(pathSegment);
+    && !/^(app|auth|shop|checkout|orders|privacy|terms|about|token|help|rewards|affiliate|roadmap|download|network|mobile-only|social-rewards|payment-success|getting-started|how-it-works|admin|my-account|account|deutsch|english|francais|espanol|portugues|russian|chinese|japanese|arabic|italiano)$/i.test(pathSegment);
 
   useEffect(() => {
     if (!looksLikeReferralLink) {
