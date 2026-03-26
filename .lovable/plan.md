@@ -1,37 +1,44 @@
 
 
-## Plan: Show Shopify eSIM orders on My eSIMs page
+## Plan: Fix 4 Critical App Bugs
 
-### Problem
-When you buy an eSIM through Shopify, the order data never reaches your database. The "My eSIMs" page reads from the `orders` and `orders_pii` tables, which the old Stripe/Airalo flow populated — but Make + eSIM Access doesn't write there.
+### 1. Contribution button rapid-tap multiplies points
 
-### Solution
-Create a webhook endpoint that Make calls after provisioning an eSIM. This saves the order details to the database so they appear on both the website and app "My eSIMs" pages.
+**Root cause**: `handleToggleContribution` has no lock. Rapid tapping calls `handleStopContribution` multiple times concurrently, each capturing `stats.pointsEarned` and dispatching `points-updated` with that amount, plus each calling `stopContribution()` which does a final `add_points_with_cap` RPC.
 
-### Steps
+**Fix**:
+- Add a `useRef` lock (`isTogglingRef`) in `AppHome.tsx`
+- Set it `true` at the start of `handleToggleContribution`, `false` when done
+- Early-return if already toggling
+- Also add `await` to `handleStopContribution()` call (currently fire-and-forget)
 
-**1. Create `shopify-order-webhook` edge function**
-- Accepts POST from Make with: customer email, package name, data amount, validity, price, and eSIM details (ICCID, QR code, sharing link, etc.)
-- Secured with a shared secret (webhook signing key) to prevent unauthorized calls
-- Looks up `user_id` by matching customer email to `profiles` table
-- Inserts into `orders` table (order metadata) and `orders_pii` table (sensitive eSIM details)
-- Also inserts into `esim_usage` table for usage tracking
-- Tracks affiliate commission by matching email to `affiliate_referrals`
+### 2. Challenges don't refresh (daily stuck, weekly static)
 
-**2. Add webhook secret**
-- Request a `SHOPIFY_WEBHOOK_SECRET` secret from you — a random string you'll also paste into Make's HTTP module headers for authentication
+**Root cause**: `AppChallenges` queries `user_challenge_progress` with `eq('period_start', today)` for daily and `gte('period_start', weekStartStr)` for weekly. But the `sync-contribution-data` edge function that updates challenge progress may be writing rows with stale `period_start` values, or not creating new rows for new periods.
 
-**3. Configure Make scenario**
-- After eSIM Access provisions the eSIM, add an HTTP module in Make that calls:
-  `https://gzhmbiopiciugriatsdb.supabase.co/functions/v1/shopify-order-webhook`
-- Pass all relevant fields (email, package info, eSIM details) as JSON body
-- Include the webhook secret in the `x-webhook-secret` header
+**Fix**:
+- In `AppChallenges.loadChallenges()`, after loading progress, filter out stale daily progress where `period_start < today` (treat as no progress = fresh challenge)
+- For weekly: ensure `weekStartStr` uses Monday (ISO week) not Sunday, and filter rows correctly
+- The display logic already handles "no progress" as 0% — the issue is stale rows appearing as completed from yesterday
 
-**4. Update Orders page (website + app)**
-- Minor adjustments: remove references to old Airalo-specific fields (`airlo_order_id`, `airlo_request_id`)
-- Ensure the new orders display correctly with Shopify data
-- Add an app "My eSIMs" screen or link to orders from the app navigation
+### 3. Speed test history in settings doesn't work — remove it
 
-### What you'll need to do in Make
-After I build the webhook, you'll add one HTTP POST module at the end of your Make scenario that sends the eSIM details to the webhook URL. I'll give you the exact payload format.
+**Fix**: Remove the `<SpeedTestHistory>` block from `AppProfile.tsx` settings tab (lines 821-826). Speed test data is still collected during contributions and shown on the Network Stats page — this just removes the broken/unnecessary display from settings.
+
+### 4. Account deletion doesn't purge user data
+
+**Root cause**: `delete-user` edge function cleans 28+ tables but misses `orders_pii` and `esim_usage`. Orders are anonymized but the PII table retains email, name, ICCID, QR codes.
+
+**Fix**: Add `safeDelete` calls for:
+- `orders_pii` — delete rows where `id` matches the user's order IDs (since `orders_pii.id` references `orders.id`)
+- `esim_usage` — delete rows where `order_id` matches user's order IDs
+- Must run these BEFORE orders are anonymized (step 11), since we need `orders.user_id` to find the related rows
+
+### Technical details
+
+**Files changed**:
+- `src/pages/app/AppHome.tsx` — add toggle lock
+- `src/pages/app/AppChallenges.tsx` — fix period comparison logic
+- `src/pages/app/AppProfile.tsx` — remove SpeedTestHistory section
+- `supabase/functions/delete-user/index.ts` — add orders_pii + esim_usage deletion
 
