@@ -172,8 +172,8 @@ export default function Checkout() {
 
         if (data.status === 'completed' || data.status === 'paid') {
           console.log('Order completed (via polling)! Clearing cart and redirecting to My eSIMs...');
-          setPaymentCompleted(true);
           clearCart();
+          toast.success('Payment successful! Your eSIM is ready.');
           toast.success('Payment successful! Your eSIM is ready.');
           // Redirect to My eSIMs page
           navigate('/orders');
