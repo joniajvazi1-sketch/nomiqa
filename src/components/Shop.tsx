@@ -8,6 +8,38 @@ import { toast } from "sonner";
 import { Card, CardContent } from "./ui/card";
 import { useTranslation } from "@/contexts/TranslationContext";
 import { Badge } from "./ui/badge";
+import { countryTranslations } from "@/utils/countryTranslations";
+
+/** Build a lookup: lowercase translated name → english name, for all languages */
+const translationIndex: Map<string, Set<string>> = new Map();
+Object.values(countryTranslations).forEach((langs) => {
+  const englishName = langs.EN.toLowerCase();
+  Object.values(langs).forEach((name) => {
+    const key = name.toLowerCase();
+    if (!translationIndex.has(key)) translationIndex.set(key, new Set());
+    translationIndex.get(key)!.add(englishName);
+  });
+});
+
+/** Check if a product title matches a search term across all languages */
+function matchesMultilingualSearch(productTitle: string, searchTerm: string): boolean {
+  const term = searchTerm.toLowerCase();
+  const title = productTitle.toLowerCase();
+
+  // Direct title match
+  if (title.includes(term)) return true;
+
+  // Check if the search term matches any translation
+  for (const [translatedName, englishNames] of translationIndex) {
+    if (translatedName.includes(term)) {
+      for (const en of englishNames) {
+        if (title.includes(en)) return true;
+      }
+    }
+  }
+
+  return false;
+}
 
 /** Parse variant title like "Andorra 3GB 30Days" into data + validity */
 function parseVariant(title: string): { data: string; validity: string } {
