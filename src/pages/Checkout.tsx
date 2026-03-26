@@ -6,8 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ArrowLeft, ShoppingCart, Trash2, CreditCard, Wallet } from "lucide-react";
+
+import { ArrowLeft, ShoppingCart, Trash2, CreditCard } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -17,8 +17,6 @@ import { cn } from "@/lib/utils";
 
 const emailSchema = z.string().email("Please enter a valid email address");
 
-type PaymentMethod = 'card' | 'crypto';
-
 export default function Checkout() {
   const navigate = useNavigate();
   const { items, removeItem, updateQuantity, clearCart, total } = useCartWithTotal();
@@ -27,12 +25,8 @@ export default function Checkout() {
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [paylinkUrl, setPaylinkUrl] = useState<string | null>(null);
   const [currentOrderId, setCurrentOrderId] = useState<string | null>(null);
-  const [paymentCompleted, setPaymentCompleted] = useState(false);
   const [user, setUser] = useState<any>(null);
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('card');
 
   // Check authentication status without redirecting
   useEffect(() => {
@@ -96,67 +90,33 @@ export default function Checkout() {
       const visitorId = getVisitorId();
       const primaryItem = items[0];
 
-      if (paymentMethod === 'card') {
-        // Stripe checkout - opens in new tab
-        const { data: stripeData, error: stripeError } = await supabase.functions.invoke(
-          'create-stripe-checkout',
-          {
-            body: {
-              email,
-              fullName: fullName.trim(),
-              productId: primaryItem.product.id,
-              quantity: primaryItem.quantity,
-              referralCode: referralCode || null,
-              visitorId,
-            }
+      // Stripe checkout - opens in new tab
+      const { data: stripeData, error: stripeError } = await supabase.functions.invoke(
+        'create-stripe-checkout',
+        {
+          body: {
+            email,
+            fullName: fullName.trim(),
+            productId: primaryItem.product.id,
+            quantity: primaryItem.quantity,
+            referralCode: referralCode || null,
+            visitorId,
           }
-        );
-
-        if (stripeError || !stripeData?.url) {
-          console.error('Error creating Stripe checkout:', stripeError);
-          throw new Error('Failed to create checkout session');
         }
+      );
 
-        console.log('Stripe checkout created:', stripeData.url, 'Order ID:', stripeData.orderId);
-        setCurrentOrderId(stripeData.orderId);
-        
-        // Open Stripe checkout in new tab
-        window.open(stripeData.url, '_blank');
-        toast.info('Complete payment in the new tab');
-        setIsSubmitting(false);
-        
-      } else {
-        // Helio crypto checkout - embedded modal
-        const { data: paylinkData, error: paylinkError } = await supabase.functions.invoke(
-          'create-helio-paylink',
-          {
-            body: {
-              email,
-              fullName: fullName.trim(),
-              productId: primaryItem.product.id,
-              quantity: primaryItem.quantity,
-              referralCode: referralCode || null,
-              visitorId,
-              userId: user?.id || null,
-            }
-          }
-        );
-
-        if (paylinkError || !paylinkData?.paylinkUrl) {
-          console.error('Error creating paylink:', paylinkError);
-          throw new Error('Failed to create payment link');
-        }
-
-        console.log('Paylink created:', paylinkData.paylinkUrl, 'Order ID:', paylinkData.orderId);
-        
-        // Store order ID for status polling
-        setCurrentOrderId(paylinkData.orderId);
-        
-        // Show embedded payment modal with iframe
-        setPaylinkUrl(paylinkData.paylinkUrl);
-        setShowPaymentModal(true);
-        setIsSubmitting(false);
+      if (stripeError || !stripeData?.url) {
+        console.error('Error creating Stripe checkout:', stripeError);
+        throw new Error('Failed to create checkout session');
       }
+
+      console.log('Stripe checkout created:', stripeData.url, 'Order ID:', stripeData.orderId);
+      setCurrentOrderId(stripeData.orderId);
+      
+      // Open Stripe checkout in new tab
+      window.open(stripeData.url, '_blank');
+      toast.info('Complete payment in the new tab');
+      setIsSubmitting(false);
       
     } catch (error: any) {
       console.error('Checkout error:', error);
@@ -165,28 +125,9 @@ export default function Checkout() {
     }
   };
 
-  // Listen for payment completion from MoonPay/Helio (backup method)
-  useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
-      if (!event.origin.includes('hel.io') && !event.origin.includes('moonpay.com')) return;
-      
-      if (event.data?.status === 'success' || event.data?.type === 'payment_success') {
-        console.log('Payment successful via postMessage! Clearing cart and redirecting to My eSIMs...');
-        setShowPaymentModal(false);
-        clearCart();
-        toast.success('Payment successful! Your eSIM will arrive shortly.');
-        // Redirect to My eSIMs page
-        navigate('/orders');
-      }
-    };
-
-    window.addEventListener('message', handleMessage);
-    return () => window.removeEventListener('message', handleMessage);
-  }, [navigate, clearCart]);
-
   // Real-time subscription + fallback polling to detect payment completion
   useEffect(() => {
-    if (!showPaymentModal || !currentOrderId) return;
+    if (!currentOrderId) return;
 
     console.log('Setting up realtime subscription for order:', currentOrderId);
     let pollInterval: ReturnType<typeof setInterval> | null = null;
@@ -208,8 +149,8 @@ export default function Checkout() {
           
           if (newStatus === 'completed' || newStatus === 'paid') {
             console.log('Order completed! Clearing cart and redirecting to My eSIMs...');
-            setPaymentCompleted(true);
             clearCart();
+            toast.success('Payment successful! Your eSIM is ready.');
             toast.success('Payment successful! Your eSIM is ready.');
             // Redirect to My eSIMs page
             navigate('/orders');
@@ -231,8 +172,8 @@ export default function Checkout() {
 
         if (data.status === 'completed' || data.status === 'paid') {
           console.log('Order completed (via polling)! Clearing cart and redirecting to My eSIMs...');
-          setPaymentCompleted(true);
           clearCart();
+          toast.success('Payment successful! Your eSIM is ready.');
           toast.success('Payment successful! Your eSIM is ready.');
           // Redirect to My eSIMs page
           navigate('/orders');
@@ -249,7 +190,7 @@ export default function Checkout() {
       supabase.removeChannel(channel);
       if (pollInterval) clearInterval(pollInterval);
     };
-  }, [showPaymentModal, currentOrderId, navigate, clearCart]);
+  }, [currentOrderId, navigate, clearCart]);
 
   if (items.length === 0) {
     return (
@@ -440,50 +381,6 @@ export default function Checkout() {
                     </div>
                   </div>
 
-                  {/* Payment Method Selection */}
-                  <div className="space-y-3">
-                    <Label className="text-sm font-medium text-white/80">Payment Method</Label>
-                    <div className="grid grid-cols-2 gap-3">
-                      <button
-                        type="button"
-                        onClick={() => setPaymentMethod('card')}
-                        className={cn(
-                          "p-4 rounded-xl border-2 flex flex-col items-center gap-2 transition-all",
-                          paymentMethod === 'card'
-                            ? "border-neon-cyan bg-neon-cyan/10"
-                            : "border-white/20 bg-white/5 hover:border-white/40"
-                        )}
-                      >
-                        <CreditCard className={cn(
-                          "w-6 h-6",
-                          paymentMethod === 'card' ? "text-neon-cyan" : "text-white/60"
-                        )} />
-                        <span className={cn(
-                          "text-sm font-medium",
-                          paymentMethod === 'card' ? "text-neon-cyan" : "text-white/60"
-                        )}>Card</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setPaymentMethod('crypto')}
-                        className={cn(
-                          "p-4 rounded-xl border-2 flex flex-col items-center gap-2 transition-all",
-                          paymentMethod === 'crypto'
-                            ? "border-neon-cyan bg-neon-cyan/10"
-                            : "border-white/20 bg-white/5 hover:border-white/40"
-                        )}
-                      >
-                        <Wallet className={cn(
-                          "w-6 h-6",
-                          paymentMethod === 'crypto' ? "text-neon-cyan" : "text-white/60"
-                        )} />
-                        <span className={cn(
-                          "text-sm font-medium",
-                          paymentMethod === 'crypto' ? "text-neon-cyan" : "text-white/60"
-                        )}>Crypto</span>
-                      </button>
-                    </div>
-                  </div>
 
                   <Separator className="bg-white/10" />
 
@@ -519,69 +416,6 @@ export default function Checkout() {
         </div>
       </div>
 
-      <Dialog open={showPaymentModal} onOpenChange={(open) => {
-        setShowPaymentModal(open);
-        if (!open) {
-          toast.info('You can check your order status in My eSIMs page');
-        }
-      }}>
-        <DialogContent className="max-w-5xl w-[95vw] h-[90vh] md:h-[85vh] p-0 overflow-hidden flex flex-col">
-          <DialogHeader className="p-4 md:p-6 pb-2 md:pb-4 flex-shrink-0 flex flex-row items-center justify-between">
-            <DialogTitle>{t("checkoutCompletePayment") || "Complete Your Payment"}</DialogTitle>
-          </DialogHeader>
-          {paylinkUrl && (
-            <iframe
-              src={paylinkUrl}
-              className="w-full flex-1 min-h-0 border-0"
-              style={{ minHeight: '500px' }}
-              title="Helio Payment"
-              allow="payment"
-            />
-          )}
-          {/* Always visible footer - fixed at bottom */}
-          <div className={`px-4 py-3 md:px-6 md:py-5 border-t flex-shrink-0 flex flex-col md:flex-row items-center justify-center md:justify-end gap-2 md:gap-4 ${paymentCompleted ? 'bg-green-500/10' : 'bg-card'}`}>
-            {paymentCompleted ? (
-              <>
-                <p className="text-sm text-green-400 font-medium hidden md:block">
-                  ✓ {t("checkoutPaymentSuccess") || "Payment successful! Your eSIM is ready."}
-                </p>
-                <p className="text-xs text-green-400 font-medium md:hidden text-center">
-                  ✓ {t("checkoutPaymentSuccess") || "Payment successful! Your eSIM is ready."}
-                </p>
-                <Button 
-                  onClick={() => {
-                    setShowPaymentModal(false);
-                    setPaymentCompleted(false);
-                    navigate('/orders');
-                  }}
-                  className="w-full md:w-auto bg-green-600 hover:bg-green-700 px-4 md:px-8 md:py-3 md:text-base"
-                >
-                  {t("checkoutViewMyEsims") || "View My eSIMs"}
-                </Button>
-              </>
-            ) : (
-              <>
-                <p className="text-xs text-muted-foreground md:hidden text-center">
-                  {t("checkoutMobileWalletHint") || "Paid in Phantom? Tap below to check your eSIM."}
-                </p>
-                <p className="text-sm text-muted-foreground hidden md:block">
-                  {t("checkoutAlreadyPaid") || "Already paid? Go check your eSIMs."}
-                </p>
-                <Button 
-                  variant="outline"
-                  onClick={() => {
-                    setShowPaymentModal(false);
-                    navigate('/orders');
-                  }}
-                  className="w-full md:w-auto px-4 md:px-8 md:py-3 md:text-base border-primary/40 hover:bg-primary/10"
-                >
-                  {t("checkoutGoToMyEsims") || "Go to My eSIMs"}
-                </Button>
-              </>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

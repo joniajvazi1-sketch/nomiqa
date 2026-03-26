@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 export interface Product {
   id: string;
-  airlo_package_id: string;
+  airlo_package_id?: string;
   name: string;
   country_code: string;
   country_name: string;
@@ -130,10 +130,3 @@ export const useFeaturedProducts = (localCountryCodes: string[], regionalCodes: 
   });
 };
 
-export const useSyncProducts = () => {
-  return async () => {
-    const { data, error } = await supabase.functions.invoke('airlo-products');
-    if (error) throw error;
-    return data;
-  };
-};

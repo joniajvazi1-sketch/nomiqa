@@ -59,7 +59,7 @@ export default function Orders() {
   const [refreshingUsage, setRefreshingUsage] = useState<Record<string, boolean>>({});
   const [cooldowns, setCooldowns] = useState<Record<string, number>>({});
 
-  // Handle payment success redirect from Helio/Phantom
+  // Handle payment success redirect
   useEffect(() => {
     const paymentSuccess = searchParams.get('paymentSuccess');
     if (paymentSuccess === 'true') {

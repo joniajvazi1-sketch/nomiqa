@@ -4,7 +4,7 @@ import { useCartWithTotal } from "@/hooks/useCart";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ArrowLeft, ShoppingCart, Trash2, Minus, Plus, Check, CreditCard, Shield, Loader2, Wallet } from "lucide-react";
+import { ArrowLeft, ShoppingCart, Trash2, Minus, Plus, Check, CreditCard, Shield, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -17,8 +17,6 @@ import { FirstPurchaseCelebration, useFirstPurchaseCelebration } from "@/compone
 
 const emailSchema = z.string().email("Please enter a valid email address");
 
-type PaymentMethod = 'card' | 'crypto';
-
 export const AppCheckout = () => {
   const navigate = useNavigate();
   const { items, removeItem, updateQuantity, clearCart, total } = useCartWithTotal();
@@ -29,13 +27,8 @@ export const AppCheckout = () => {
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [paylinkUrl, setPaylinkUrl] = useState<string | null>(null);
   const [currentOrderId, setCurrentOrderId] = useState<string | null>(null);
-  const [paymentCompleted, setPaymentCompleted] = useState(false);
   const [user, setUser] = useState<any>(null);
-  const [checkoutStep, setCheckoutStep] = useState<1 | 2 | 3>(1);
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('card');
   
   // First purchase celebration hook
   const { 
@@ -101,70 +94,38 @@ export const AppCheckout = () => {
     }
 
     setIsSubmitting(true);
-    setCheckoutStep(1);
+    
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
       const visitorId = getVisitorId();
       const primaryItem = items[0];
 
-      if (paymentMethod === 'card') {
-        // Stripe checkout - opens in new tab
-        const { data: stripeData, error: stripeError } = await supabase.functions.invoke(
-          'create-stripe-checkout',
-          {
-            body: {
-              email,
-              fullName: fullName.trim(),
-              productId: primaryItem.product.id,
-              quantity: primaryItem.quantity,
-              referralCode: referralCode || null,
-              visitorId,
-            }
+      // Stripe checkout - opens in new tab
+      const { data: stripeData, error: stripeError } = await supabase.functions.invoke(
+        'create-stripe-checkout',
+        {
+          body: {
+            email,
+            fullName: fullName.trim(),
+            productId: primaryItem.product.id,
+            quantity: primaryItem.quantity,
+            referralCode: referralCode || null,
+            visitorId,
           }
-        );
-
-        if (stripeError || !stripeData?.url) {
-          throw new Error('Failed to create checkout session');
         }
+      );
 
-        setCurrentOrderId(stripeData.orderId);
-        successPattern();
-        playSuccess();
-        // Open Stripe checkout in new tab
-        window.open(stripeData.url, '_blank');
-        toast.info('Complete payment in the new tab');
-        setIsSubmitting(false);
-        
-      } else {
-        // Helio crypto checkout - embedded modal
-        const { data: paylinkData, error: paylinkError } = await supabase.functions.invoke(
-          'create-helio-paylink',
-          {
-            body: {
-              email,
-              fullName: fullName.trim(),
-              productId: primaryItem.product.id,
-              quantity: primaryItem.quantity,
-              referralCode: referralCode || null,
-              visitorId,
-              userId: user?.id || null,
-            }
-          }
-        );
-
-        if (paylinkError || !paylinkData?.paylinkUrl) {
-          throw new Error('Failed to create payment link');
-        }
-
-        setCurrentOrderId(paylinkData.orderId);
-        setPaylinkUrl(paylinkData.paylinkUrl);
-        setShowPaymentModal(true);
-        setCheckoutStep(2);
-        successPattern();
-        playSuccess();
-        setIsSubmitting(false);
+      if (stripeError || !stripeData?.url) {
+        throw new Error('Failed to create checkout session');
       }
+
+      setCurrentOrderId(stripeData.orderId);
+      successPattern();
+      playSuccess();
+      window.open(stripeData.url, '_blank');
+      toast.info('Complete payment in the new tab');
+      setIsSubmitting(false);
       
     } catch (error: any) {
       errorPattern();
@@ -174,27 +135,9 @@ export const AppCheckout = () => {
     }
   };
 
-  // Listen for payment completion from MoonPay/Helio
-  useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
-      if (!event.origin.includes('hel.io') && !event.origin.includes('moonpay.com')) return;
-      
-      if (event.data?.status === 'success' || event.data?.type === 'payment_success') {
-        setCheckoutStep(3);
-        setPaymentCompleted(true);
-        triggerFirstPurchase(items[0]?.product?.country_name);
-        clearCart();
-        toast.success('Payment successful! Your eSIM will arrive shortly.');
-      }
-    };
-
-    window.addEventListener('message', handleMessage);
-    return () => window.removeEventListener('message', handleMessage);
-  }, [navigate, clearCart]);
-
   // Real-time subscription + fallback polling
   useEffect(() => {
-    if (!showPaymentModal || !currentOrderId) return;
+    if (!currentOrderId) return;
 
     let pollInterval: ReturnType<typeof setInterval> | null = null;
 
@@ -211,8 +154,6 @@ export const AppCheckout = () => {
         (payload) => {
           const newStatus = payload.new?.status;
           if (newStatus === 'completed' || newStatus === 'paid') {
-            setCheckoutStep(3);
-            setPaymentCompleted(true);
             triggerFirstPurchase(items[0]?.product?.country_name);
             clearCart();
             toast.success('Payment successful! Your eSIM is ready.');
@@ -232,8 +173,6 @@ export const AppCheckout = () => {
         if (error || !data) return;
 
         if (data.status === 'completed' || data.status === 'paid') {
-          setCheckoutStep(3);
-          setPaymentCompleted(true);
           triggerFirstPurchase(items[0]?.product?.country_name);
           clearCart();
           toast.success('Payment successful! Your eSIM is ready.');
@@ -249,7 +188,7 @@ export const AppCheckout = () => {
       supabase.removeChannel(channel);
       if (pollInterval) clearInterval(pollInterval);
     };
-  }, [showPaymentModal, currentOrderId, navigate, clearCart]);
+  }, [currentOrderId, navigate, clearCart]);
 
   // Empty cart state
   if (items.length === 0) {
@@ -420,58 +359,10 @@ export const AppCheckout = () => {
             </div>
           </div>
 
-          {/* Payment Method Selection */}
-          <div className="p-4 rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] space-y-3">
-            <h3 className="font-semibold text-foreground text-sm">Payment Method</h3>
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                type="button"
-                onClick={() => { selectionTap(); playPop(); setPaymentMethod('card'); }}
-                className={cn(
-                  "p-4 rounded-xl border-2 flex flex-col items-center gap-2 transition-all active:scale-95",
-                  paymentMethod === 'card'
-                    ? "border-primary bg-primary/10"
-                    : "border-white/[0.1] bg-white/[0.02] hover:border-white/[0.2]"
-                )}
-              >
-                <CreditCard className={cn(
-                  "w-6 h-6",
-                  paymentMethod === 'card' ? "text-primary" : "text-muted-foreground"
-                )} />
-                <span className={cn(
-                  "text-sm font-medium",
-                  paymentMethod === 'card' ? "text-primary" : "text-muted-foreground"
-                )}>Card</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => { selectionTap(); playPop(); setPaymentMethod('crypto'); }}
-                className={cn(
-                  "p-4 rounded-xl border-2 flex flex-col items-center gap-2 transition-all active:scale-95",
-                  paymentMethod === 'crypto'
-                    ? "border-primary bg-primary/10"
-                    : "border-white/[0.1] bg-white/[0.02] hover:border-white/[0.2]"
-                )}
-              >
-                <Wallet className={cn(
-                  "w-6 h-6",
-                  paymentMethod === 'crypto' ? "text-primary" : "text-muted-foreground"
-                )} />
-                <span className={cn(
-                  "text-sm font-medium",
-                  paymentMethod === 'crypto' ? "text-primary" : "text-muted-foreground"
-                )}>Crypto</span>
-              </button>
-            </div>
-            <p className="text-xs text-muted-foreground text-center">
-              {paymentMethod === 'card' ? 'Pay with Visa, Mastercard, or other cards' : 'Pay with SOL or USDC on Solana'}
-            </p>
-          </div>
-
           {/* Security Badge */}
           <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
             <Shield className="w-4 h-4" />
-            <span>Secure payment via {paymentMethod === 'card' ? 'Stripe' : 'Helio'}</span>
+            <span>Secure payment via Stripe</span>
           </div>
 
           {/* Submit Button */}
@@ -490,7 +381,7 @@ export const AppCheckout = () => {
               </div>
             ) : (
               <>
-                {paymentMethod === 'card' ? <CreditCard className="w-5 h-5 mr-2" /> : <Wallet className="w-5 h-5 mr-2" />}
+                <CreditCard className="w-5 h-5 mr-2" />
                 Pay ${total.toFixed(2)}
               </>
             )}
@@ -498,91 +389,6 @@ export const AppCheckout = () => {
         </form>
       </div>
 
-      {/* Payment Modal */}
-      <Dialog open={showPaymentModal} onOpenChange={(open) => {
-        setShowPaymentModal(open);
-        if (!open) {
-          toast.info('Check your order in My eSIMs');
-        }
-      }}>
-        <DialogContent className="w-[calc(100%-1rem)] max-w-full h-[90vh] p-0 overflow-hidden flex flex-col rounded-t-3xl border-white/[0.08] bg-background/98 backdrop-blur-2xl">
-          <DialogHeader className="p-4 pb-2 flex-shrink-0 border-b border-white/[0.05]">
-            <DialogTitle className="text-lg font-semibold">Complete Payment</DialogTitle>
-            {/* Checkout Progress Indicator */}
-            <div className="flex items-center justify-center gap-3 mt-2">
-              {[
-                { step: 1, label: 'Processing' },
-                { step: 2, label: 'Payment' },
-                { step: 3, label: 'Confirmed' }
-              ].map(({ step, label }) => (
-                <div key={step} className="flex items-center gap-1.5">
-                  <div className={cn(
-                    'w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold transition-all',
-                    checkoutStep > step 
-                      ? 'bg-green-500 text-white' 
-                      : checkoutStep === step 
-                        ? 'bg-primary text-primary-foreground animate-pulse' 
-                        : 'bg-white/10 text-muted-foreground'
-                  )}>
-                    {checkoutStep > step ? <Check className="w-3 h-3" /> : step}
-                  </div>
-                  <span className={cn(
-                    'text-xs transition-colors',
-                    checkoutStep >= step ? 'text-foreground' : 'text-muted-foreground'
-                  )}>
-                    {label}
-                  </span>
-                  {step < 3 && (
-                    <div className={cn(
-                      'w-4 h-0.5 rounded-full transition-colors',
-                      checkoutStep > step ? 'bg-green-500' : 'bg-white/10'
-                    )} />
-                  )}
-                </div>
-              ))}
-            </div>
-          </DialogHeader>
-          {paylinkUrl && (
-            <iframe
-              src={paylinkUrl}
-              className="w-full flex-1 min-h-0 border-0"
-              title="Payment"
-              allow="payment"
-            />
-          )}
-          <div className={cn(
-            "px-4 py-4 border-t border-white/[0.05] flex-shrink-0",
-            paymentCompleted ? 'bg-green-500/10' : ''
-          )}>
-            {paymentCompleted ? (
-              <Button 
-                onClick={() => {
-                  successPattern();
-                  playSuccess();
-                  setShowPaymentModal(false);
-                  navigate('/orders');
-                }}
-                className="w-full h-12 rounded-xl bg-green-600 hover:bg-green-700"
-              >
-                <Check className="w-5 h-5 mr-2" />
-                View My eSIMs
-              </Button>
-            ) : (
-              <Button 
-                variant="outline"
-                onClick={() => {
-                  buttonTap();
-                  setShowPaymentModal(false);
-                  navigate('/orders');
-                }}
-                className="w-full h-12 rounded-xl bg-white/[0.03] border-white/[0.1]"
-              >
-                Already Paid? Check eSIMs
-              </Button>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
 
       {/* First Purchase Celebration Modal */}
       <FirstPurchaseCelebration
