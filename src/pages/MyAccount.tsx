@@ -412,6 +412,26 @@ export default function MyAccount() {
                       </div>
                     </div>
                   )}
+                  {/* Logout */}
+                  <div className="pt-4 border-t border-white/10">
+                    <Button
+                      variant="outline"
+                      className="w-full border-white/20 text-white/70 hover:text-white hover:bg-white/10"
+                      onClick={async () => {
+                        await supabase.auth.signOut();
+                        navigate(localizedPath('/', language));
+                        toast.success('Logged out successfully');
+                      }}
+                    >
+                      <LogOut className="w-4 h-4 mr-2" />
+                      {t("logout")}
+                    </Button>
+                  </div>
+
+                  {/* Delete Account */}
+                  <div className="pt-4">
+                    <DeleteAccountSection />
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>
