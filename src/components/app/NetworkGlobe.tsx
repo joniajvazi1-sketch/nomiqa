@@ -92,71 +92,76 @@ const prepareTiles = (cells: GlobalCoverageCell[]): TileData[] => {
   });
 };
 
-// InstancedMesh-based coverage tiles — grouped by quality for stable color rendering
-const InstancedCoverageTiles: React.FC<{
+// Pin-style coverage markers — colored pins on the globe surface
+const CoveragePins: React.FC<{
   tiles: TileData[];
   selectedIndex: number | null;
   onSelectIndex: (idx: number | null) => void;
 }> = ({ tiles, selectedIndex, onSelectIndex }) => {
-  const strongDiscRef = useRef<THREE.InstancedMesh>(null);
-  const mediumDiscRef = useRef<THREE.InstancedMesh>(null);
-  const weakDiscRef = useRef<THREE.InstancedMesh>(null);
-  const strongGlowRef = useRef<THREE.InstancedMesh>(null);
-  const mediumGlowRef = useRef<THREE.InstancedMesh>(null);
-  const weakGlowRef = useRef<THREE.InstancedMesh>(null);
+  const pinHeadGeo = useMemo(() => new THREE.SphereGeometry(1, 12, 12), []);
+  const pinStemGeo = useMemo(() => new THREE.CylinderGeometry(0.3, 0.3, 1, 6), []);
 
-  const discGeo = useMemo(() => new THREE.CircleGeometry(1, 16), []);
-  const ringGeo = useMemo(() => new THREE.RingGeometry(1, 1.6, 16), []);
+  const strongHeadRef = useRef<THREE.InstancedMesh>(null);
+  const mediumHeadRef = useRef<THREE.InstancedMesh>(null);
+  const weakHeadRef = useRef<THREE.InstancedMesh>(null);
+  const strongStemRef = useRef<THREE.InstancedMesh>(null);
+  const mediumStemRef = useRef<THREE.InstancedMesh>(null);
+  const weakStemRef = useRef<THREE.InstancedMesh>(null);
 
   const groupedTiles = useMemo(() => {
     const groups: Record<TileData['quality'], Array<{ tile: TileData; index: number }>> = {
-      strong: [],
-      medium: [],
-      weak: [],
+      strong: [], medium: [], weak: [],
     };
-
     tiles.forEach((tile, index) => {
       groups[tile.quality].push({ tile, index });
     });
-
     return groups;
   }, [tiles]);
 
   useEffect(() => {
     const tempMatrix = new THREE.Matrix4();
     const tempQuat = new THREE.Quaternion();
-    const up = new THREE.Vector3(0, 0, 1);
+    const up = new THREE.Vector3(0, 1, 0);
 
-    const updateInstances = (
-      mesh: THREE.InstancedMesh | null,
+    const updatePins = (
+      headMesh: THREE.InstancedMesh | null,
+      stemMesh: THREE.InstancedMesh | null,
       entries: Array<{ tile: TileData; index: number }>
     ) => {
-      if (!mesh || entries.length === 0) return;
+      if (!headMesh || !stemMesh || entries.length === 0) return;
 
       entries.forEach((entry, localIndex) => {
         const { tile, index } = entry;
+        const isSelected = index === selectedIndex;
+        const pinHeight = isSelected ? 0.12 : 0.07;
+        const headSize = isSelected ? 0.035 : 0.022;
+
+        // Pin head position (top of pin)
+        const headPos = tile.normal.clone().multiplyScalar(1.535 + pinHeight);
         tempQuat.setFromUnitVectors(up, tile.normal);
-        const scale = index === selectedIndex ? tile.tileSize * 1.6 : tile.tileSize;
-        tempMatrix.compose(tile.position, tempQuat, new THREE.Vector3(scale, scale, 1));
-        mesh.setMatrixAt(localIndex, tempMatrix);
+        tempMatrix.compose(headPos, tempQuat, new THREE.Vector3(headSize, headSize, headSize));
+        headMesh.setMatrixAt(localIndex, tempMatrix);
+
+        // Pin stem (from surface to head)
+        const stemPos = tile.normal.clone().multiplyScalar(1.535 + pinHeight * 0.5);
+        const stemScale = new THREE.Vector3(0.006, pinHeight, 0.006);
+        tempMatrix.compose(stemPos, tempQuat, stemScale);
+        stemMesh.setMatrixAt(localIndex, tempMatrix);
       });
 
-      mesh.instanceMatrix.needsUpdate = true;
+      headMesh.instanceMatrix.needsUpdate = true;
+      stemMesh.instanceMatrix.needsUpdate = true;
     };
 
-    updateInstances(strongDiscRef.current, groupedTiles.strong);
-    updateInstances(mediumDiscRef.current, groupedTiles.medium);
-    updateInstances(weakDiscRef.current, groupedTiles.weak);
-    updateInstances(strongGlowRef.current, groupedTiles.strong);
-    updateInstances(mediumGlowRef.current, groupedTiles.medium);
-    updateInstances(weakGlowRef.current, groupedTiles.weak);
+    updatePins(strongHeadRef.current, strongStemRef.current, groupedTiles.strong);
+    updatePins(mediumHeadRef.current, mediumStemRef.current, groupedTiles.medium);
+    updatePins(weakHeadRef.current, weakStemRef.current, groupedTiles.weak);
   }, [groupedTiles, selectedIndex]);
 
   const handleGroupClick = useCallback(
     (entries: Array<{ tile: TileData; index: number }>) => (e: ThreeEvent<MouseEvent>) => {
       e.stopPropagation();
       if (e.instanceId === undefined) return;
-
       const entry = entries[e.instanceId];
       if (!entry) return;
       onSelectIndex(entry.index === selectedIndex ? null : entry.index);
@@ -170,56 +175,43 @@ const InstancedCoverageTiles: React.FC<{
 
   return (
     <>
-      <instancedMesh
-        ref={strongDiscRef}
-        args={[discGeo, undefined, groupedTiles.strong.length]}
-        onClick={handleGroupClick(groupedTiles.strong)}
-      >
-        <meshBasicMaterial color={QUALITY_COLORS.strong.base} transparent opacity={0.94} side={THREE.DoubleSide} toneMapped={false} />
+      {/* Pin heads */}
+      <instancedMesh ref={strongHeadRef} args={[pinHeadGeo, undefined, groupedTiles.strong.length]} onClick={handleGroupClick(groupedTiles.strong)}>
+        <meshBasicMaterial color={QUALITY_COLORS.strong.base} toneMapped={false} />
       </instancedMesh>
-      <instancedMesh
-        ref={mediumDiscRef}
-        args={[discGeo, undefined, groupedTiles.medium.length]}
-        onClick={handleGroupClick(groupedTiles.medium)}
-      >
-        <meshBasicMaterial color={QUALITY_COLORS.medium.base} transparent opacity={0.94} side={THREE.DoubleSide} toneMapped={false} />
+      <instancedMesh ref={mediumHeadRef} args={[pinHeadGeo, undefined, groupedTiles.medium.length]} onClick={handleGroupClick(groupedTiles.medium)}>
+        <meshBasicMaterial color={QUALITY_COLORS.medium.base} toneMapped={false} />
       </instancedMesh>
-      <instancedMesh
-        ref={weakDiscRef}
-        args={[discGeo, undefined, groupedTiles.weak.length]}
-        onClick={handleGroupClick(groupedTiles.weak)}
-      >
-        <meshBasicMaterial color={QUALITY_COLORS.weak.base} transparent opacity={0.94} side={THREE.DoubleSide} toneMapped={false} />
+      <instancedMesh ref={weakHeadRef} args={[pinHeadGeo, undefined, groupedTiles.weak.length]} onClick={handleGroupClick(groupedTiles.weak)}>
+        <meshBasicMaterial color={QUALITY_COLORS.weak.base} toneMapped={false} />
       </instancedMesh>
 
-      <instancedMesh ref={strongGlowRef} args={[ringGeo, undefined, groupedTiles.strong.length]}>
-        <meshBasicMaterial color={QUALITY_COLORS.strong.glow} transparent opacity={0.5} side={THREE.DoubleSide} toneMapped={false} />
+      {/* Pin stems */}
+      <instancedMesh ref={strongStemRef} args={[pinStemGeo, undefined, groupedTiles.strong.length]}>
+        <meshBasicMaterial color={QUALITY_COLORS.strong.base} transparent opacity={0.7} toneMapped={false} />
       </instancedMesh>
-      <instancedMesh ref={mediumGlowRef} args={[ringGeo, undefined, groupedTiles.medium.length]}>
-        <meshBasicMaterial color={QUALITY_COLORS.medium.glow} transparent opacity={0.5} side={THREE.DoubleSide} toneMapped={false} />
+      <instancedMesh ref={mediumStemRef} args={[pinStemGeo, undefined, groupedTiles.medium.length]}>
+        <meshBasicMaterial color={QUALITY_COLORS.medium.base} transparent opacity={0.7} toneMapped={false} />
       </instancedMesh>
-      <instancedMesh ref={weakGlowRef} args={[ringGeo, undefined, groupedTiles.weak.length]}>
-        <meshBasicMaterial color={QUALITY_COLORS.weak.glow} transparent opacity={0.5} side={THREE.DoubleSide} toneMapped={false} />
+      <instancedMesh ref={weakStemRef} args={[pinStemGeo, undefined, groupedTiles.weak.length]}>
+        <meshBasicMaterial color={QUALITY_COLORS.weak.base} transparent opacity={0.7} toneMapped={false} />
       </instancedMesh>
 
       {selectedTile && (
-        <group position={selectedTile.position}>
+        <group position={selectedTile.normal.clone().multiplyScalar(1.535 + 0.15)}>
           <Html center distanceFactor={2.5} zIndexRange={[100, 0]} style={{ pointerEvents: 'auto' }}>
             <div
               className="relative bg-card border border-border rounded-lg px-3 py-2.5 min-w-[140px] max-w-[200px] shadow-xl pointer-events-auto"
               onClick={(e) => e.stopPropagation()}
             >
               <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onSelectIndex(null);
-                }}
+                onClick={(e) => { e.stopPropagation(); onSelectIndex(null); }}
                 className="absolute -top-2 -right-2 w-5 h-5 bg-foreground text-background rounded-full flex items-center justify-center text-[9px] font-bold leading-none shadow-md"
                 aria-label="Close"
               >
                 ✕
               </button>
-              <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider mb-1">Coverage Tile</p>
+              <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider mb-1">Coverage Pin</p>
               <div className="space-y-1">
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground text-[10px]">Signal</span>
