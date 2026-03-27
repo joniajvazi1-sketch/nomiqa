@@ -105,6 +105,9 @@ export const AppProfile: React.FC = () => {
   
   const [affiliate, setAffiliate] = useState<AffiliateData | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
+  const [usageData, setUsageData] = useState<Record<string, UsageData>>({});
+  const [refreshingUsage, setRefreshingUsage] = useState<Record<string, boolean>>({});
+  const [cooldowns, setCooldowns] = useState<Record<string, number>>({});
   const [isEditingUsername, setIsEditingUsername] = useState(false);
   const [editedUsername, setEditedUsername] = useState('');
   const [savingUsername, setSavingUsername] = useState(false);
