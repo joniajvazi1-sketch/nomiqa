@@ -6,7 +6,7 @@ import {
   Share2, Pencil, Check, X, RefreshCw, Users,
   Wallet, Shield, Loader2, Gift,
   Target, ChevronRight, Trash2, AlertTriangle, HelpCircle,
-  Sun, Moon, Copy, ExternalLink, Zap
+  Sun, Moon, Copy, ExternalLink, Zap, QrCode, Signal
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -60,12 +60,32 @@ interface AffiliateData {
   miner_boost_percentage: number;
 }
 
+interface UsageData {
+  remaining_mb: number;
+  total_mb: number;
+  status: string;
+  expired_at: string | null;
+}
+
 interface Order {
   id: string;
+  email: string;
+  status: string;
+  total_amount_usd: number;
   package_name: string;
   data_amount: string;
-  status: string;
+  validity_days: number;
   created_at: string;
+  qrcode: string | null;
+  qr_code_url: string | null;
+  matching_id: string | null;
+  iccid: string | null;
+  lpa: string | null;
+  sharing_link: string | null;
+  sharing_access_code: string | null;
+  product_id: string | null;
+  country_name?: string;
+  country_code?: string;
 }
 
 const PROFILE_GRADIENT = 'from-primary/20 to-primary/5';
@@ -85,6 +105,9 @@ export const AppProfile: React.FC = () => {
   
   const [affiliate, setAffiliate] = useState<AffiliateData | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
+  const [usageData, setUsageData] = useState<Record<string, UsageData>>({});
+  const [refreshingUsage, setRefreshingUsage] = useState<Record<string, boolean>>({});
+  const [cooldowns, setCooldowns] = useState<Record<string, number>>({});
   const [isEditingUsername, setIsEditingUsername] = useState(false);
   const [editedUsername, setEditedUsername] = useState('');
   const [savingUsername, setSavingUsername] = useState(false);
@@ -110,6 +133,24 @@ export const AppProfile: React.FC = () => {
   const [applyingReferral, setApplyingReferral] = useState(false);
   const [showApplyReferral, setShowApplyReferral] = useState(false);
 
+  // Cooldown timer for usage refresh
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCooldowns(prev => {
+        const updated = { ...prev };
+        let hasChanges = false;
+        for (const key in updated) {
+          if (updated[key] > 0) {
+            updated[key] = updated[key] - 1;
+            hasChanges = true;
+          }
+        }
+        return hasChanges ? updated : prev;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   useEffect(() => {
     loadData();
   }, []);
@@ -134,7 +175,7 @@ export const AppProfile: React.FC = () => {
         const [profileResult, affiliateResult, ordersResult, statsResult] = await Promise.all([
           supabase.from('profiles_safe').select('username, solana_wallet').eq('user_id', currentUser.id).maybeSingle(),
           supabase.from('affiliates_safe').select('*').eq('user_id', currentUser.id).order('tier_level', { ascending: false }).limit(1).maybeSingle(),
-          supabase.from('orders').select('id, package_name, data_amount, status, created_at').eq('user_id', currentUser.id).order('created_at', { ascending: false }).limit(10),
+          supabase.functions.invoke('get-my-orders'),
           supabase.functions.invoke('get-contribution-stats')
         ]);
 
@@ -223,8 +264,27 @@ export const AppProfile: React.FC = () => {
           }
         }
 
-        setAffiliate(affiliateData);
-        setOrders(ordersResult.data || []);
+        const ordersData = ordersResult.data?.orders || [];
+        setOrders(ordersData);
+
+        // Fetch usage data for all orders
+        if (ordersData.length > 0) {
+          const usageMap: Record<string, UsageData> = {};
+          const usagePromises = ordersData.map((order: Order) =>
+            supabase
+              .from('esim_usage')
+              .select('remaining_mb, total_mb, status, expired_at')
+              .eq('order_id', order.id)
+              .single()
+              .then(({ data: usage }) => ({ orderId: order.id, usage }))
+          );
+          const usageResults = await Promise.all(usagePromises);
+          usageResults.forEach(({ orderId, usage }) => {
+            if (usage) usageMap[orderId] = usage;
+          });
+          setUsageData(usageMap);
+        }
+
 
         // Check if user already has a referral applied
         try {
@@ -254,6 +314,32 @@ export const AppProfile: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const refreshUsage = async (orderId: string, iccid: string) => {
+    if (cooldowns[orderId] && cooldowns[orderId] > 0) return;
+    setRefreshingUsage(prev => ({ ...prev, [orderId]: true }));
+    try {
+      await supabase.functions.invoke('get-esim-usage', { body: { iccid } });
+      const { data: usage } = await supabase
+        .from('esim_usage')
+        .select('remaining_mb, total_mb, status, expired_at')
+        .eq('order_id', orderId)
+        .single();
+      if (usage) setUsageData(prev => ({ ...prev, [orderId]: usage }));
+      setCooldowns(prev => ({ ...prev, [orderId]: 60 }));
+    } catch (error: any) {
+      console.error('Error refreshing usage:', error);
+      setCooldowns(prev => ({ ...prev, [orderId]: 60 }));
+    } finally {
+      setRefreshingUsage(prev => ({ ...prev, [orderId]: false }));
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric', month: 'short', day: 'numeric'
+    });
   };
   const handleChangeReferralCode = async () => {
     if (!newReferralCode.trim() || newReferralCode.length < 3) {
@@ -790,26 +876,132 @@ export const AppProfile: React.FC = () => {
               </div>
             ) : (
               orders.map((order) => {
-                const getStatusDisplay = (status: string) => {
-                  switch (status) {
-                    case 'completed': case 'active': return { label: 'Active', color: 'bg-green-500/15 text-green-400 border-green-500/20' };
-                    case 'failed': case 'cancelled': return { label: 'Failed', color: 'bg-red-500/15 text-red-400 border-red-500/20' };
-                    case 'expired': return { label: 'Expired', color: 'bg-muted text-muted-foreground border-border' };
-                    default: return { label: 'Processing', color: 'bg-amber-500/15 text-amber-400 border-amber-500/20' };
-                  }
-                };
-                const statusDisplay = getStatusDisplay(order.status);
+                const usage = usageData[order.id];
+                const usagePercentage = usage && usage.total_mb > 0 ? (usage.remaining_mb / usage.total_mb) * 100 : 0;
+                const remainingGb = usage ? (usage.remaining_mb / 1024).toFixed(2) : '0';
+                const isActive = usage?.status?.toLowerCase() === 'active';
+                const isExpired = usage?.status?.toLowerCase() === 'expired';
+                const isNotActive = usage?.status?.toLowerCase() === 'not_active';
+
                 return (
-                  <div key={order.id} className="rounded-xl bg-card border border-border p-3.5">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-foreground">{order.package_name || 'eSIM Plan'}</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">{order.data_amount}</p>
+                  <div key={order.id} className="rounded-2xl overflow-hidden border border-border bg-card">
+                    {/* Header: Flag + Country + Status */}
+                    <div className="px-4 pt-4 pb-2">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 overflow-hidden bg-muted/50 border border-border">
+                            {order.country_code ? (
+                              <img 
+                                src={`https://flagcdn.com/w80/${order.country_code.toLowerCase()}.png`} 
+                                alt={order.country_name || ''} 
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <Signal className="h-4 w-4 text-muted-foreground" />
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            <h3 className="text-sm font-semibold text-foreground truncate">
+                              {order.country_name || order.package_name || 'eSIM'}
+                            </h3>
+                            <p className="text-[11px] text-muted-foreground mt-0.5">
+                              {[order.data_amount, order.validity_days ? `${order.validity_days} days` : null].filter(Boolean).join(' · ')}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <div className={`w-2 h-2 rounded-full ${
+                            isActive ? 'bg-green-400 shadow-sm shadow-green-400/50' : 
+                            isExpired ? 'bg-red-400' : 
+                            isNotActive ? 'bg-muted-foreground/30' :
+                            'bg-amber-400'
+                          }`} />
+                          <span className={`text-[11px] font-medium ${
+                            isActive ? 'text-green-400' : 
+                            isExpired ? 'text-red-400/70' : 
+                            'text-muted-foreground'
+                          }`}>
+                            {isNotActive ? 'Not Activated' :
+                             isActive ? 'Active' :
+                             isExpired ? 'Expired' :
+                             usage?.status || (order.status === 'completed' ? 'Completed' : order.status)}
+                          </span>
+                        </div>
                       </div>
-                      <Badge variant="outline" className={cn('text-[10px] font-medium border', statusDisplay.color)}>
-                        {statusDisplay.label}
-                      </Badge>
                     </div>
+
+                    {/* Usage bar */}
+                    {usage && (
+                      <div className="px-4 py-3">
+                        <div className="flex items-baseline justify-between mb-2">
+                          <div>
+                            <span className="text-xl font-semibold text-foreground tabular-nums">{remainingGb}</span>
+                            <span className="text-xs text-muted-foreground ml-1">GB left</span>
+                          </div>
+                        </div>
+                        <div className="h-2.5 bg-muted rounded-full overflow-hidden">
+                          <div
+                            className={`h-full rounded-full transition-all duration-700 ease-out ${
+                              usagePercentage > 50 ? 'bg-green-400' :
+                              usagePercentage > 20 ? 'bg-amber-400' :
+                              'bg-red-400'
+                            }`}
+                            style={{ width: `${Math.max(2, usagePercentage)}%` }}
+                          />
+                        </div>
+                        <div className="flex items-center justify-between mt-2">
+                          <span className="text-[11px] text-muted-foreground">
+                            {usage.expired_at ? `Expires: ${formatDate(usage.expired_at)}` : formatDate(order.created_at)}
+                          </span>
+                          {order.iccid && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 px-2 text-muted-foreground hover:text-foreground gap-1"
+                              onClick={() => refreshUsage(order.id, order.iccid!)}
+                              disabled={refreshingUsage[order.id] || (cooldowns[order.id] && cooldowns[order.id] > 0)}
+                            >
+                              {cooldowns[order.id] && cooldowns[order.id] > 0 ? (
+                                <span className="text-[10px] font-mono">0:{cooldowns[order.id].toString().padStart(2, '0')}</span>
+                              ) : (
+                                <>
+                                  <RefreshCw className={`h-3 w-3 ${refreshingUsage[order.id] ? 'animate-spin' : ''}`} />
+                                  <span className="text-[10px]">Refresh</span>
+                                </>
+                              )}
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Actions */}
+                    {(order.status === 'completed' || order.status === 'paid') && order.qrcode && (
+                      <div className="border-t border-border px-4 py-3 flex flex-col gap-2">
+                        {order.sharing_link && (
+                          <Button
+                            size="sm"
+                            className="w-full h-10 text-xs font-medium rounded-xl"
+                            onClick={() => window.open(order.sharing_link!, '_blank')}
+                          >
+                            <ExternalLink className="mr-2 h-3.5 w-3.5" />
+                            View eSIM Details
+                          </Button>
+                        )}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full h-10 text-xs font-medium rounded-xl"
+                          onClick={() => {
+                            navigator.clipboard.writeText(order.qrcode || '');
+                            toast({ title: 'QR code copied!' });
+                          }}
+                        >
+                          <QrCode className="mr-2 h-3.5 w-3.5" />
+                          Copy QR Code
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 );
               })
