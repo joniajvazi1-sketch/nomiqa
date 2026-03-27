@@ -266,12 +266,16 @@ export default function Orders() {
                   <div className="px-5 pt-5 pb-2">
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
-                          isActive ? 'bg-emerald-500/10 border border-emerald-500/20' : 
-                          isExpired ? 'bg-red-500/10 border border-red-500/20' : 
-                          'bg-white/[0.05] border border-white/[0.08]'
-                        }`}>
-                          <Signal className={`h-4.5 w-4.5 ${isActive ? 'text-emerald-400' : isExpired ? 'text-red-400' : 'text-foreground/30'}`} />
+                        <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 overflow-hidden bg-white/[0.05] border border-white/[0.08]">
+                          {order.country_code ? (
+                            <img 
+                              src={`https://flagcdn.com/w80/${order.country_code.toLowerCase()}.png`} 
+                              alt={order.country_name || ''} 
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <Signal className="h-4.5 w-4.5 text-foreground/30" />
+                          )}
                         </div>
                         <div className="min-w-0">
                           <h3 className="text-base font-medium text-foreground truncate">
@@ -362,11 +366,11 @@ export default function Orders() {
 
                   {/* Actions */}
                   {(order.status === 'completed' || order.status === 'paid') && order.qrcode && (
-                    <div className="border-t border-white/[0.05] px-5 py-3.5 flex gap-2.5">
+                    <div className="border-t border-white/[0.05] px-5 py-3.5 flex flex-col gap-2.5">
                       {order.sharing_link && (
                         <Button
                           size="sm"
-                          className="flex-1 bg-foreground text-background hover:bg-foreground/90 font-light rounded-xl h-10 text-sm"
+                          className="w-full bg-foreground text-background hover:bg-foreground/90 font-light rounded-xl h-11 text-sm"
                           onClick={() => window.open(order.sharing_link!, '_blank')}
                         >
                           <ExternalLink className="mr-2 h-4 w-4" />
@@ -376,7 +380,7 @@ export default function Orders() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="bg-transparent border-white/[0.1] hover:bg-white/[0.04] hover:border-white/[0.15] text-foreground/60 font-light rounded-xl h-10 text-sm px-4"
+                        className="w-full bg-transparent border-white/[0.1] hover:bg-white/[0.04] hover:border-white/[0.15] text-foreground/60 font-light rounded-xl h-11 text-sm"
                         onClick={() => { setSelectedOrder(order); setShowQR(true); }}
                       >
                         <QrCode className="mr-2 h-4 w-4" />
