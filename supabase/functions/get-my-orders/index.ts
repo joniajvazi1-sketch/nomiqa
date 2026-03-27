@@ -42,8 +42,17 @@ serve(async (req) => {
     // Use service role to fetch orders and PII
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Fetch user's orders with product info
-    const { data: orders, error: ordersError } = await supabase
+    // Get user's email from profile for matching
+    const { data: userProfile } = await supabase
+      .from('profiles')
+      .select('email')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    const userEmail = userProfile?.email || user.email;
+
+    // Fetch orders by user_id
+    const { data: ordersByUserId, error: ordersError } = await supabase
       .from('orders')
       .select(`
         id, status, total_amount_usd, package_name, data_amount, validity_days,
@@ -55,6 +64,40 @@ serve(async (req) => {
       .in('status', ['completed', 'paid'])
       .order('created_at', { ascending: false })
       .limit(20);
+
+    // Also fetch orders by email match (for orders created before account linking)
+    let ordersByEmail: any[] = [];
+    if (userEmail) {
+      const { data: piiMatches } = await supabase
+        .from('orders_pii')
+        .select('id')
+        .eq('email', userEmail.toLowerCase());
+
+      if (piiMatches && piiMatches.length > 0) {
+        const piiOrderIds = piiMatches.map(p => p.id);
+        const { data: emailOrders } = await supabase
+          .from('orders')
+          .select(`
+            id, status, total_amount_usd, package_name, data_amount, validity_days,
+            created_at, product_id, user_id, access_token, access_token_expires_at,
+            access_token_invalidated, airlo_order_id,
+            products:product_id (country_name, country_code)
+          `)
+          .in('id', piiOrderIds)
+          .in('status', ['completed', 'paid'])
+          .order('created_at', { ascending: false });
+
+        ordersByEmail = emailOrders || [];
+      }
+    }
+
+    // Merge and deduplicate
+    const orderMap = new Map();
+    for (const o of (ordersByUserId || [])) orderMap.set(o.id, o);
+    for (const o of ordersByEmail) if (!orderMap.has(o.id)) orderMap.set(o.id, o);
+    const orders = Array.from(orderMap.values()).sort(
+      (a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    ).slice(0, 30);
 
     if (ordersError) {
       console.error('Orders fetch error:', ordersError);
