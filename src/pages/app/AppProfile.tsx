@@ -60,12 +60,32 @@ interface AffiliateData {
   miner_boost_percentage: number;
 }
 
+interface UsageData {
+  remaining_mb: number;
+  total_mb: number;
+  status: string;
+  expired_at: string | null;
+}
+
 interface Order {
   id: string;
+  email: string;
+  status: string;
+  total_amount_usd: number;
   package_name: string;
   data_amount: string;
-  status: string;
+  validity_days: number;
   created_at: string;
+  qrcode: string | null;
+  qr_code_url: string | null;
+  matching_id: string | null;
+  iccid: string | null;
+  lpa: string | null;
+  sharing_link: string | null;
+  sharing_access_code: string | null;
+  product_id: string | null;
+  country_name?: string;
+  country_code?: string;
 }
 
 const PROFILE_GRADIENT = 'from-primary/20 to-primary/5';
