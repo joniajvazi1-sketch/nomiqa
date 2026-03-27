@@ -876,26 +876,132 @@ export const AppProfile: React.FC = () => {
               </div>
             ) : (
               orders.map((order) => {
-                const getStatusDisplay = (status: string) => {
-                  switch (status) {
-                    case 'completed': case 'active': return { label: 'Active', color: 'bg-green-500/15 text-green-400 border-green-500/20' };
-                    case 'failed': case 'cancelled': return { label: 'Failed', color: 'bg-red-500/15 text-red-400 border-red-500/20' };
-                    case 'expired': return { label: 'Expired', color: 'bg-muted text-muted-foreground border-border' };
-                    default: return { label: 'Processing', color: 'bg-amber-500/15 text-amber-400 border-amber-500/20' };
-                  }
-                };
-                const statusDisplay = getStatusDisplay(order.status);
+                const usage = usageData[order.id];
+                const usagePercentage = usage && usage.total_mb > 0 ? (usage.remaining_mb / usage.total_mb) * 100 : 0;
+                const remainingGb = usage ? (usage.remaining_mb / 1024).toFixed(2) : '0';
+                const isActive = usage?.status?.toLowerCase() === 'active';
+                const isExpired = usage?.status?.toLowerCase() === 'expired';
+                const isNotActive = usage?.status?.toLowerCase() === 'not_active';
+
                 return (
-                  <div key={order.id} className="rounded-xl bg-card border border-border p-3.5">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-foreground">{order.package_name || 'eSIM Plan'}</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">{order.data_amount}</p>
+                  <div key={order.id} className="rounded-2xl overflow-hidden border border-border bg-card">
+                    {/* Header: Flag + Country + Status */}
+                    <div className="px-4 pt-4 pb-2">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 overflow-hidden bg-muted/50 border border-border">
+                            {order.country_code ? (
+                              <img 
+                                src={`https://flagcdn.com/w80/${order.country_code.toLowerCase()}.png`} 
+                                alt={order.country_name || ''} 
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <Signal className="h-4 w-4 text-muted-foreground" />
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            <h3 className="text-sm font-semibold text-foreground truncate">
+                              {order.country_name || order.package_name || 'eSIM'}
+                            </h3>
+                            <p className="text-[11px] text-muted-foreground mt-0.5">
+                              {[order.data_amount, order.validity_days ? `${order.validity_days} days` : null].filter(Boolean).join(' · ')}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <div className={`w-2 h-2 rounded-full ${
+                            isActive ? 'bg-green-400 shadow-sm shadow-green-400/50' : 
+                            isExpired ? 'bg-red-400' : 
+                            isNotActive ? 'bg-muted-foreground/30' :
+                            'bg-amber-400'
+                          }`} />
+                          <span className={`text-[11px] font-medium ${
+                            isActive ? 'text-green-400' : 
+                            isExpired ? 'text-red-400/70' : 
+                            'text-muted-foreground'
+                          }`}>
+                            {isNotActive ? 'Not Activated' :
+                             isActive ? 'Active' :
+                             isExpired ? 'Expired' :
+                             usage?.status || (order.status === 'completed' ? 'Completed' : order.status)}
+                          </span>
+                        </div>
                       </div>
-                      <Badge variant="outline" className={cn('text-[10px] font-medium border', statusDisplay.color)}>
-                        {statusDisplay.label}
-                      </Badge>
                     </div>
+
+                    {/* Usage bar */}
+                    {usage && (
+                      <div className="px-4 py-3">
+                        <div className="flex items-baseline justify-between mb-2">
+                          <div>
+                            <span className="text-xl font-semibold text-foreground tabular-nums">{remainingGb}</span>
+                            <span className="text-xs text-muted-foreground ml-1">GB left</span>
+                          </div>
+                        </div>
+                        <div className="h-2.5 bg-muted rounded-full overflow-hidden">
+                          <div
+                            className={`h-full rounded-full transition-all duration-700 ease-out ${
+                              usagePercentage > 50 ? 'bg-green-400' :
+                              usagePercentage > 20 ? 'bg-amber-400' :
+                              'bg-red-400'
+                            }`}
+                            style={{ width: `${Math.max(2, usagePercentage)}%` }}
+                          />
+                        </div>
+                        <div className="flex items-center justify-between mt-2">
+                          <span className="text-[11px] text-muted-foreground">
+                            {usage.expired_at ? `Expires: ${formatDate(usage.expired_at)}` : formatDate(order.created_at)}
+                          </span>
+                          {order.iccid && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 px-2 text-muted-foreground hover:text-foreground gap-1"
+                              onClick={() => refreshUsage(order.id, order.iccid!)}
+                              disabled={refreshingUsage[order.id] || (cooldowns[order.id] && cooldowns[order.id] > 0)}
+                            >
+                              {cooldowns[order.id] && cooldowns[order.id] > 0 ? (
+                                <span className="text-[10px] font-mono">0:{cooldowns[order.id].toString().padStart(2, '0')}</span>
+                              ) : (
+                                <>
+                                  <RefreshCw className={`h-3 w-3 ${refreshingUsage[order.id] ? 'animate-spin' : ''}`} />
+                                  <span className="text-[10px]">Refresh</span>
+                                </>
+                              )}
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Actions */}
+                    {(order.status === 'completed' || order.status === 'paid') && order.qrcode && (
+                      <div className="border-t border-border px-4 py-3 flex flex-col gap-2">
+                        {order.sharing_link && (
+                          <Button
+                            size="sm"
+                            className="w-full h-10 text-xs font-medium rounded-xl"
+                            onClick={() => window.open(order.sharing_link!, '_blank')}
+                          >
+                            <ExternalLink className="mr-2 h-3.5 w-3.5" />
+                            View eSIM Details
+                          </Button>
+                        )}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full h-10 text-xs font-medium rounded-xl"
+                          onClick={() => {
+                            navigator.clipboard.writeText(order.qrcode || '');
+                            toast({ title: 'QR code copied!' });
+                          }}
+                        >
+                          <QrCode className="mr-2 h-3.5 w-3.5" />
+                          Copy QR Code
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 );
               })
