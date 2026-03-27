@@ -50,44 +50,44 @@ const seoData: Record<string, Record<Language, { title: string; description: str
   },
   shop: {
     EN: {
-      title: "Shop eSIM Plans - Crypto Payments | Nomiqa",
-      description: "Browse 200+ country eSIM plans. Pay with SOL, USDC or $NOMIQA token. Instant delivery, no KYC required. Private global connectivity starts here."
+      title: "Shop eSIM Plans - Card & Crypto Payments | Nomiqa",
+      description: "Browse 200+ country eSIM plans. Pay with credit card or crypto. Instant delivery, private global connectivity starts here."
     },
     DE: {
-      title: "eSIM-Tarife kaufen - Krypto-Zahlungen | Nomiqa",
-      description: "Durchsuche über 200 Länder-eSIM-Tarife. Bezahle mit SOL, USDC oder $NOMIQA Token. Sofortige Lieferung, keine KYC erforderlich. Private globale Konnektivität beginnt hier."
+      title: "eSIM-Tarife kaufen - Karten- & Kryptozahlungen | Nomiqa",
+      description: "Durchsuche über 200 Länder-eSIM-Tarife. Bezahle mit Kreditkarte oder Krypto. Sofortige Lieferung. Private globale Konnektivität beginnt hier."
     },
     FR: {
-      title: "Boutique Forfaits eSIM - Paiements Crypto | Nomiqa",
-      description: "Parcourez plus de 200 forfaits eSIM par pays. Payez avec SOL, USDC ou jeton $NOMIQA. Livraison instantanée, aucun KYC requis. La connectivité mondiale privée commence ici."
+      title: "Boutique Forfaits eSIM - Paiements Carte & Crypto | Nomiqa",
+      description: "Parcourez plus de 200 forfaits eSIM par pays. Payez par carte ou crypto. Livraison instantanée. La connectivité mondiale privée commence ici."
     },
     ES: {
-      title: "Comprar Planes eSIM - Pagos Crypto | Nomiqa",
-      description: "Explora planes eSIM para más de 200 países. Paga con SOL, USDC o token $NOMIQA. Entrega instantánea, sin KYC requerido. La conectividad global privada comienza aquí."
+      title: "Comprar Planes eSIM - Pagos con Tarjeta y Crypto | Nomiqa",
+      description: "Explora planes eSIM para más de 200 países. Paga con tarjeta o cripto. Entrega instantánea. La conectividad global privada comienza aquí."
     },
     IT: {
-      title: "Acquista Piani eSIM - Pagamenti Crypto | Nomiqa",
-      description: "Sfoglia piani eSIM per oltre 200 paesi. Paga con SOL, USDC o token $NOMIQA. Consegna istantanea, nessun KYC richiesto. La connettività globale privata inizia qui."
+      title: "Acquista Piani eSIM - Pagamenti Carta & Crypto | Nomiqa",
+      description: "Sfoglia piani eSIM per oltre 200 paesi. Paga con carta o crypto. Consegna istantanea. La connettività globale privata inizia qui."
     },
     PT: {
-      title: "Comprar Planos eSIM - Pagamentos Crypto | Nomiqa",
-      description: "Navegue por planos eSIM de mais de 200 países. Pague com SOL, USDC ou token $NOMIQA. Entrega instantânea, sem KYC necessário. A conectividade global privada começa aqui."
+      title: "Comprar Planos eSIM - Pagamentos Cartão & Crypto | Nomiqa",
+      description: "Navegue por planos eSIM de mais de 200 países. Pague com cartão ou cripto. Entrega instantânea. A conectividade global privada começa aqui."
     },
     JA: {
-      title: "eSIMプランを購入 - 暗号通貨決済 | Nomiqa",
-      description: "200か国以上のeSIMプランを閲覧。SOL、USDC、または$NOMIQAトークンで支払い。即時配信、KYC不要。プライベートなグローバル接続はここから始まります。"
+      title: "eSIMプランを購入 - カード＆暗号通貨決済 | Nomiqa",
+      description: "200か国以上のeSIMプランを閲覧。クレジットカードまたは暗号通貨で支払い。即時配信。プライベートなグローバル接続はここから。"
     },
     ZH: {
-      title: "购买eSIM套餐 - 加密货币支付 | Nomiqa",
-      description: "浏览200多个国家的eSIM套餐。使用SOL、USDC或$NOMIQA代币支付。即时交付，无需KYC。私密的全球连接从这里开始。"
+      title: "购买eSIM套餐 - 银行卡和加密支付 | Nomiqa",
+      description: "浏览200多个国家的eSIM套餐。使用信用卡或加密货币支付。即时交付。私密的全球连接从这里开始。"
     },
     RU: {
-      title: "Магазин Тарифов eSIM - Крипто-Платежи | Nomiqa",
-      description: "Просматривайте тарифы eSIM для более чем 200 стран. Платите SOL, USDC или токеном $NOMIQA. Мгновенная доставка, KYC не требуется. Приватная глобальная связь начинается здесь."
+      title: "Магазин Тарифов eSIM - Оплата картой и криптовалютой | Nomiqa",
+      description: "Просматривайте тарифы eSIM для более чем 200 стран. Платите картой или криптовалютой. Мгновенная доставка. Приватная глобальная связь начинается здесь."
     },
     AR: {
-      title: "تسوق خطط eSIM - مدفوعات العملات المشفرة | Nomiqa",
-      description: "تصفح خطط eSIM لأكثر من 200 دولة. ادفع باستخدام SOL أو USDC أو رمز $NOMIQA. تسليم فوري، لا يلزم KYC. الاتصال العالمي الخاص يبدأ من هنا."
+      title: "تسوق خطط eSIM - مدفوعات بالبطاقة والعملات المشفرة | Nomiqa",
+      description: "تصفح خطط eSIM لأكثر من 200 دولة. ادفع ببطاقة الائتمان أو العملات المشفرة. تسليم فوري. الاتصال العالمي الخاص يبدأ من هنا."
     }
   },
   about: {
