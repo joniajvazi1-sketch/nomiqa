@@ -134,44 +134,44 @@ const seoData: Record<string, Record<Language, { title: string; description: str
   },
   privacy: {
     EN: {
-      title: "Privacy Protection - How Nomiqa Keeps You Safe",
-      description: "Learn how Nomiqa protects your privacy with zero-knowledge architecture, crypto-only payments, and no usage tracking. Your data is yours."
+      title: "Privacy Protection - How Nomiqa Keeps Your Data Safe",
+      description: "Learn how Nomiqa protects your privacy. We only collect anonymized network performance data. No personal tracking, no browsing history. GDPR compliant."
     },
     DE: {
-      title: "Datenschutz - Wie Nomiqa dich schützt",
-      description: "Erfahre, wie Nomiqa deine Privatsphäre mit Zero-Knowledge-Architektur, reinen Krypto-Zahlungen und ohne Nutzungsverfolgung schützt. Deine Daten gehören dir."
+      title: "Datenschutz - Wie Nomiqa Ihre Daten schützt",
+      description: "Erfahren Sie, wie Nomiqa Ihre Privatsphäre schützt. Wir erfassen nur anonymisierte Netzwerkleistungsdaten. Kein persönliches Tracking, kein Browserverlauf. DSGVO-konform."
     },
     FR: {
-      title: "Protection de la vie privée - Comment Nomiqa vous protège",
-      description: "Découvrez comment Nomiqa protège votre vie privée avec une architecture à connaissance nulle, des paiements crypto uniquement et aucun suivi d'utilisation. Vos données vous appartiennent."
+      title: "Protection de la vie privée - Comment Nomiqa protège vos données",
+      description: "Découvrez comment Nomiqa protège votre vie privée. Nous ne collectons que des données de performance réseau anonymisées. Pas de suivi personnel, pas d'historique de navigation. Conforme au RGPD."
     },
     ES: {
-      title: "Protección de privacidad - Cómo Nomiqa te mantiene seguro",
-      description: "Descubre cómo Nomiqa protege tu privacidad con arquitectura de conocimiento cero, pagos solo en cripto y sin seguimiento de uso. Tus datos son tuyos."
+      title: "Protección de privacidad - Cómo Nomiqa protege tus datos",
+      description: "Descubre cómo Nomiqa protege tu privacidad. Solo recopilamos datos de rendimiento de red anonimizados. Sin seguimiento personal, sin historial de navegación. Cumplimiento GDPR."
     },
     IT: {
-      title: "Protezione della privacy - Come Nomiqa ti protegge",
-      description: "Scopri come Nomiqa protegge la tua privacy con architettura a conoscenza zero, pagamenti solo crypto e nessun tracciamento dell'utilizzo. I tuoi dati sono tuoi."
+      title: "Protezione della privacy - Come Nomiqa protegge i tuoi dati",
+      description: "Scopri come Nomiqa protegge la tua privacy. Raccogliamo solo dati anonimi sulle prestazioni di rete. Nessun tracciamento personale, nessuna cronologia di navigazione. Conforme al GDPR."
     },
     PT: {
-      title: "Proteção de privacidade - Como a Nomiqa mantém você seguro",
-      description: "Saiba como a Nomiqa protege sua privacidade com arquitetura de conhecimento zero, pagamentos apenas em cripto e sem rastreamento de uso. Seus dados são seus."
+      title: "Proteção de privacidade - Como a Nomiqa protege seus dados",
+      description: "Saiba como a Nomiqa protege sua privacidade. Coletamos apenas dados anonimizados de desempenho de rede. Sem rastreamento pessoal, sem histórico de navegação. Conforme com GDPR."
     },
     JA: {
-      title: "プライバシー保護 - Nomiqaがあなたを守る方法",
-      description: "ゼロ知識アーキテクチャ、暗号通貨のみの支払い、使用状況の追跡なしで、Nomiqaがあなたのプライバシーをどのように保護するかを学びます。あなたのデータはあなたのものです。"
+      title: "プライバシー保護 - Nomiqaがデータを守る方法",
+      description: "Nomiqaがプライバシーをどのように保護するかを学びます。匿名化されたネットワークパフォーマンスデータのみを収集。個人追跡なし、閲覧履歴なし。GDPR準拠。"
     },
     ZH: {
-      title: "隐私保护 - Nomiqa如何保护您的安全",
-      description: "了解Nomiqa如何通过零知识架构、仅加密货币支付和无使用跟踪来保护您的隐私。您的数据属于您。"
+      title: "隐私保护 - Nomiqa如何保护您的数据安全",
+      description: "了解Nomiqa如何保护您的隐私。我们仅收集匿名化的网络性能数据。无个人追踪，无浏览历史。符合GDPR标准。"
     },
     RU: {
-      title: "Защита конфиденциальности - Как Nomiqa защищает вас",
-      description: "Узнайте, как Nomiqa защищает вашу конфиденциальность с помощью архитектуры с нулевым разглашением, платежей только в криптовалюте и отсутствия отслеживания использования. Ваши данные принадлежат вам."
+      title: "Защита конфиденциальности - Как Nomiqa защищает ваши данные",
+      description: "Узнайте, как Nomiqa защищает вашу конфиденциальность. Мы собираем только анонимизированные данные о производительности сети. Без личного отслеживания, без истории просмотра. Соответствие GDPR."
     },
     AR: {
-      title: "حماية الخصوصية - كيف تحافظ Nomiqa على سلامتك",
-      description: "تعرف على كيفية حماية Nomiqa لخصوصيتك من خلال بنية المعرفة الصفرية والمدفوعات بالعملات المشفرة فقط وعدم تتبع الاستخدام. بياناتك ملكك."
+      title: "حماية الخصوصية - كيف تحمي Nomiqa بياناتك",
+      description: "تعرف على كيفية حماية Nomiqa لخصوصيتك. نحن نجمع فقط بيانات أداء الشبكة المجهولة. لا تتبع شخصي، لا سجل تصفح. متوافق مع GDPR."
     }
   },
   affiliate: {
