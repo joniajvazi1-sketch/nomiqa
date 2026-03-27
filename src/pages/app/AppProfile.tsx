@@ -315,6 +315,32 @@ export const AppProfile: React.FC = () => {
       setLoading(false);
     }
   };
+
+  const refreshUsage = async (orderId: string, iccid: string) => {
+    if (cooldowns[orderId] && cooldowns[orderId] > 0) return;
+    setRefreshingUsage(prev => ({ ...prev, [orderId]: true }));
+    try {
+      await supabase.functions.invoke('get-esim-usage', { body: { iccid } });
+      const { data: usage } = await supabase
+        .from('esim_usage')
+        .select('remaining_mb, total_mb, status, expired_at')
+        .eq('order_id', orderId)
+        .single();
+      if (usage) setUsageData(prev => ({ ...prev, [orderId]: usage }));
+      setCooldowns(prev => ({ ...prev, [orderId]: 60 }));
+    } catch (error: any) {
+      console.error('Error refreshing usage:', error);
+      setCooldowns(prev => ({ ...prev, [orderId]: 60 }));
+    } finally {
+      setRefreshingUsage(prev => ({ ...prev, [orderId]: false }));
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric', month: 'short', day: 'numeric'
+    });
+  };
   const handleChangeReferralCode = async () => {
     if (!newReferralCode.trim() || newReferralCode.length < 3) {
       toast({ title: 'Code must be at least 3 characters', variant: 'destructive' });
