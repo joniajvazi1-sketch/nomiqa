@@ -133,6 +133,24 @@ export const AppProfile: React.FC = () => {
   const [applyingReferral, setApplyingReferral] = useState(false);
   const [showApplyReferral, setShowApplyReferral] = useState(false);
 
+  // Cooldown timer for usage refresh
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCooldowns(prev => {
+        const updated = { ...prev };
+        let hasChanges = false;
+        for (const key in updated) {
+          if (updated[key] > 0) {
+            updated[key] = updated[key] - 1;
+            hasChanges = true;
+          }
+        }
+        return hasChanges ? updated : prev;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   useEffect(() => {
     loadData();
   }, []);
