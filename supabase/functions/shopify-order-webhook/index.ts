@@ -277,7 +277,7 @@ serve(async (req) => {
           .from('user_spending')
           .insert({
             user_id: userId,
-            total_spent_usd: data.price_usd,
+            total_spent_usd: data.price_usd || 0,
             total_orders: 1,
           });
       }
