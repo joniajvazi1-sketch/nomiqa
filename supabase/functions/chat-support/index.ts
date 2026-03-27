@@ -116,8 +116,8 @@ Nomiqa is building the world's first community-owned mobile network. We combine 
 
 Key Facts:
 - 200+ countries coverage with instant eSIM activation
-- Multiple payment options: Credit/Debit Cards (Visa, Mastercard, Amex) AND Crypto (SOL, USDC)
-- No KYC/ID required - true privacy, no surveillance
+- Multiple payment options: Credit/Debit Cards (Visa, Mastercard, Amex), Apple Pay, Google Pay AND Crypto (SOL, USDC)
+- No personal data tracking - true privacy, no surveillance
 - $NOMIQA network token (coming soon, NOT yet launched)
 - 99.9% network uptime
 - 4G/5G speeds where available

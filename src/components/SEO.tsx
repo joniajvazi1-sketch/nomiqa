@@ -8,86 +8,86 @@ interface SEOProps {
 const seoData: Record<string, Record<Language, { title: string; description: string }>> = {
   home: {
     EN: {
-      title: "Nomiqa - Private eSIM with Crypto Payments | 200+ Countries",
-      description: "Connect privately anywhere with Nomiqa eSIM. Pay with SOL, USDC, or $NOMIQA token. No ID, no tracking, no limits. Instant activation in 200+ countries."
+      title: "Nomiqa - Private eSIM with Secure Payments | 200+ Countries",
+      description: "Connect privately anywhere with Nomiqa eSIM. Pay with credit card or crypto. No tracking, no limits. Instant activation in 200+ countries."
     },
     DE: {
-      title: "Nomiqa - Private eSIM mit Krypto-Zahlungen | 200+ Länder",
-      description: "Verbinde dich privat überall mit Nomiqa eSIM. Bezahle mit SOL, USDC oder $NOMIQA Token. Keine ID, kein Tracking, keine Limits. Sofortige Aktivierung in über 200 Ländern."
+      title: "Nomiqa - Private eSIM mit sicheren Zahlungen | 200+ Länder",
+      description: "Verbinde dich privat überall mit Nomiqa eSIM. Bezahle mit Kreditkarte oder Krypto. Kein Tracking, keine Limits. Sofortige Aktivierung in über 200 Ländern."
     },
     FR: {
-      title: "Nomiqa - eSIM Privée avec Paiements Crypto | 200+ Pays",
-      description: "Connectez-vous en privé partout avec Nomiqa eSIM. Payez avec SOL, USDC ou jeton $NOMIQA. Pas d'ID, pas de suivi, pas de limites. Activation instantanée dans plus de 200 pays."
+      title: "Nomiqa - eSIM Privée avec Paiements Sécurisés | 200+ Pays",
+      description: "Connectez-vous en privé partout avec Nomiqa eSIM. Payez par carte ou crypto. Pas de suivi, pas de limites. Activation instantanée dans plus de 200 pays."
     },
     ES: {
-      title: "Nomiqa - eSIM Privado con Pagos Crypto | 200+ Países",
-      description: "Conéctate de forma privada en cualquier lugar con Nomiqa eSIM. Paga con SOL, USDC o token $NOMIQA. Sin ID, sin seguimiento, sin límites. Activación instantánea en más de 200 países."
+      title: "Nomiqa - eSIM Privado con Pagos Seguros | 200+ Países",
+      description: "Conéctate de forma privada en cualquier lugar con Nomiqa eSIM. Paga con tarjeta o cripto. Sin seguimiento, sin límites. Activación instantánea en más de 200 países."
     },
     IT: {
-      title: "Nomiqa - eSIM Privata con Pagamenti Crypto | 200+ Paesi",
-      description: "Connettiti privatamente ovunque con Nomiqa eSIM. Paga con SOL, USDC o token $NOMIQA. Nessun ID, nessun tracciamento, nessun limite. Attivazione istantanea in oltre 200 paesi."
+      title: "Nomiqa - eSIM Privata con Pagamenti Sicuri | 200+ Paesi",
+      description: "Connettiti privatamente ovunque con Nomiqa eSIM. Paga con carta o crypto. Nessun tracciamento, nessun limite. Attivazione istantanea in oltre 200 paesi."
     },
     PT: {
-      title: "Nomiqa - eSIM Privado com Pagamentos Crypto | 200+ Países",
-      description: "Conecte-se privativamente em qualquer lugar com Nomiqa eSIM. Pague com SOL, USDC ou token $NOMIQA. Sem ID, sem rastreamento, sem limites. Ativação instantânea em mais de 200 países."
+      title: "Nomiqa - eSIM Privado com Pagamentos Seguros | 200+ Países",
+      description: "Conecte-se privativamente em qualquer lugar com Nomiqa eSIM. Pague com cartão ou cripto. Sem rastreamento, sem limites. Ativação instantânea em mais de 200 países."
     },
     JA: {
-      title: "Nomiqa - 暗号通貨決済対応プライベートeSIM | 200か国以上",
-      description: "Nomiqa eSIMでどこでもプライベートに接続。SOL、USDC、または$NOMIQAトークンで支払い。ID不要、追跡なし、制限なし。200か国以上で即座に有効化。"
+      title: "Nomiqa - 安全な決済対応プライベートeSIM | 200か国以上",
+      description: "Nomiqa eSIMでどこでもプライベートに接続。クレジットカードまたは暗号通貨で支払い。追跡なし、制限なし。200か国以上で即座に有効化。"
     },
     ZH: {
-      title: "Nomiqa - 支持加密货币支付的私密eSIM | 200多个国家",
-      description: "使用Nomiqa eSIM在任何地方私密连接。使用SOL、USDC或$NOMIQA代币支付。无需身份证明，无追踪，无限制。在200多个国家即时激活。"
+      title: "Nomiqa - 支持安全支付的私密eSIM | 200多个国家",
+      description: "使用Nomiqa eSIM在任何地方私密连接。使用信用卡或加密货币支付。无追踪，无限制。在200多个国家即时激活。"
     },
     RU: {
-      title: "Nomiqa - Приватная eSIM с Крипто-Платежами | 200+ Стран",
-      description: "Подключайтесь конфиденциально где угодно с Nomiqa eSIM. Платите SOL, USDC или токеном $NOMIQA. Без ID, без отслеживания, без ограничений. Мгновенная активация в более чем 200 странах."
+      title: "Nomiqa - Приватная eSIM с безопасными платежами | 200+ Стран",
+      description: "Подключайтесь конфиденциально где угодно с Nomiqa eSIM. Платите картой или криптовалютой. Без отслеживания, без ограничений. Мгновенная активация в более чем 200 странах."
     },
     AR: {
-      title: "Nomiqa - eSIM خاص بمدفوعات العملات المشفرة | 200+ دولة",
-      description: "اتصل بشكل خاص في أي مكان مع Nomiqa eSIM. ادفع باستخدام SOL أو USDC أو رمز $NOMIQA. بدون هوية، بدون تتبع، بدون حدود. تفعيل فوري في أكثر من 200 دولة."
+      title: "Nomiqa - eSIM خاص بمدفوعات آمنة | 200+ دولة",
+      description: "اتصل بشكل خاص في أي مكان مع Nomiqa eSIM. ادفع ببطاقة الائتمان أو العملات المشفرة. بدون تتبع، بدون حدود. تفعيل فوري في أكثر من 200 دولة."
     }
   },
   shop: {
     EN: {
-      title: "Shop eSIM Plans - Crypto Payments | Nomiqa",
-      description: "Browse 200+ country eSIM plans. Pay with SOL, USDC or $NOMIQA token. Instant delivery, no KYC required. Private global connectivity starts here."
+      title: "Shop eSIM Plans - Card & Crypto Payments | Nomiqa",
+      description: "Browse 200+ country eSIM plans. Pay with credit card or crypto. Instant delivery, private global connectivity starts here."
     },
     DE: {
-      title: "eSIM-Tarife kaufen - Krypto-Zahlungen | Nomiqa",
-      description: "Durchsuche über 200 Länder-eSIM-Tarife. Bezahle mit SOL, USDC oder $NOMIQA Token. Sofortige Lieferung, keine KYC erforderlich. Private globale Konnektivität beginnt hier."
+      title: "eSIM-Tarife kaufen - Karten- & Kryptozahlungen | Nomiqa",
+      description: "Durchsuche über 200 Länder-eSIM-Tarife. Bezahle mit Kreditkarte oder Krypto. Sofortige Lieferung. Private globale Konnektivität beginnt hier."
     },
     FR: {
-      title: "Boutique Forfaits eSIM - Paiements Crypto | Nomiqa",
-      description: "Parcourez plus de 200 forfaits eSIM par pays. Payez avec SOL, USDC ou jeton $NOMIQA. Livraison instantanée, aucun KYC requis. La connectivité mondiale privée commence ici."
+      title: "Boutique Forfaits eSIM - Paiements Carte & Crypto | Nomiqa",
+      description: "Parcourez plus de 200 forfaits eSIM par pays. Payez par carte ou crypto. Livraison instantanée. La connectivité mondiale privée commence ici."
     },
     ES: {
-      title: "Comprar Planes eSIM - Pagos Crypto | Nomiqa",
-      description: "Explora planes eSIM para más de 200 países. Paga con SOL, USDC o token $NOMIQA. Entrega instantánea, sin KYC requerido. La conectividad global privada comienza aquí."
+      title: "Comprar Planes eSIM - Pagos con Tarjeta y Crypto | Nomiqa",
+      description: "Explora planes eSIM para más de 200 países. Paga con tarjeta o cripto. Entrega instantánea. La conectividad global privada comienza aquí."
     },
     IT: {
-      title: "Acquista Piani eSIM - Pagamenti Crypto | Nomiqa",
-      description: "Sfoglia piani eSIM per oltre 200 paesi. Paga con SOL, USDC o token $NOMIQA. Consegna istantanea, nessun KYC richiesto. La connettività globale privata inizia qui."
+      title: "Acquista Piani eSIM - Pagamenti Carta & Crypto | Nomiqa",
+      description: "Sfoglia piani eSIM per oltre 200 paesi. Paga con carta o crypto. Consegna istantanea. La connettività globale privata inizia qui."
     },
     PT: {
-      title: "Comprar Planos eSIM - Pagamentos Crypto | Nomiqa",
-      description: "Navegue por planos eSIM de mais de 200 países. Pague com SOL, USDC ou token $NOMIQA. Entrega instantânea, sem KYC necessário. A conectividade global privada começa aqui."
+      title: "Comprar Planos eSIM - Pagamentos Cartão & Crypto | Nomiqa",
+      description: "Navegue por planos eSIM de mais de 200 países. Pague com cartão ou cripto. Entrega instantânea. A conectividade global privada começa aqui."
     },
     JA: {
-      title: "eSIMプランを購入 - 暗号通貨決済 | Nomiqa",
-      description: "200か国以上のeSIMプランを閲覧。SOL、USDC、または$NOMIQAトークンで支払い。即時配信、KYC不要。プライベートなグローバル接続はここから始まります。"
+      title: "eSIMプランを購入 - カード＆暗号通貨決済 | Nomiqa",
+      description: "200か国以上のeSIMプランを閲覧。クレジットカードまたは暗号通貨で支払い。即時配信。プライベートなグローバル接続はここから。"
     },
     ZH: {
-      title: "购买eSIM套餐 - 加密货币支付 | Nomiqa",
-      description: "浏览200多个国家的eSIM套餐。使用SOL、USDC或$NOMIQA代币支付。即时交付，无需KYC。私密的全球连接从这里开始。"
+      title: "购买eSIM套餐 - 银行卡和加密支付 | Nomiqa",
+      description: "浏览200多个国家的eSIM套餐。使用信用卡或加密货币支付。即时交付。私密的全球连接从这里开始。"
     },
     RU: {
-      title: "Магазин Тарифов eSIM - Крипто-Платежи | Nomiqa",
-      description: "Просматривайте тарифы eSIM для более чем 200 стран. Платите SOL, USDC или токеном $NOMIQA. Мгновенная доставка, KYC не требуется. Приватная глобальная связь начинается здесь."
+      title: "Магазин Тарифов eSIM - Оплата картой и криптовалютой | Nomiqa",
+      description: "Просматривайте тарифы eSIM для более чем 200 стран. Платите картой или криптовалютой. Мгновенная доставка. Приватная глобальная связь начинается здесь."
     },
     AR: {
-      title: "تسوق خطط eSIM - مدفوعات العملات المشفرة | Nomiqa",
-      description: "تصفح خطط eSIM لأكثر من 200 دولة. ادفع باستخدام SOL أو USDC أو رمز $NOMIQA. تسليم فوري، لا يلزم KYC. الاتصال العالمي الخاص يبدأ من هنا."
+      title: "تسوق خطط eSIM - مدفوعات بالبطاقة والعملات المشفرة | Nomiqa",
+      description: "تصفح خطط eSIM لأكثر من 200 دولة. ادفع ببطاقة الائتمان أو العملات المشفرة. تسليم فوري. الاتصال العالمي الخاص يبدأ من هنا."
     }
   },
   about: {
@@ -134,44 +134,44 @@ const seoData: Record<string, Record<Language, { title: string; description: str
   },
   privacy: {
     EN: {
-      title: "Privacy Protection - How Nomiqa Keeps You Safe",
-      description: "Learn how Nomiqa protects your privacy with zero-knowledge architecture, crypto-only payments, and no usage tracking. Your data is yours."
+      title: "Privacy Protection - How Nomiqa Keeps Your Data Safe",
+      description: "Learn how Nomiqa protects your privacy. We only collect anonymized network performance data. No personal tracking, no browsing history. GDPR compliant."
     },
     DE: {
-      title: "Datenschutz - Wie Nomiqa dich schützt",
-      description: "Erfahre, wie Nomiqa deine Privatsphäre mit Zero-Knowledge-Architektur, reinen Krypto-Zahlungen und ohne Nutzungsverfolgung schützt. Deine Daten gehören dir."
+      title: "Datenschutz - Wie Nomiqa Ihre Daten schützt",
+      description: "Erfahren Sie, wie Nomiqa Ihre Privatsphäre schützt. Wir erfassen nur anonymisierte Netzwerkleistungsdaten. Kein persönliches Tracking, kein Browserverlauf. DSGVO-konform."
     },
     FR: {
-      title: "Protection de la vie privée - Comment Nomiqa vous protège",
-      description: "Découvrez comment Nomiqa protège votre vie privée avec une architecture à connaissance nulle, des paiements crypto uniquement et aucun suivi d'utilisation. Vos données vous appartiennent."
+      title: "Protection de la vie privée - Comment Nomiqa protège vos données",
+      description: "Découvrez comment Nomiqa protège votre vie privée. Nous ne collectons que des données de performance réseau anonymisées. Pas de suivi personnel, pas d'historique de navigation. Conforme au RGPD."
     },
     ES: {
-      title: "Protección de privacidad - Cómo Nomiqa te mantiene seguro",
-      description: "Descubre cómo Nomiqa protege tu privacidad con arquitectura de conocimiento cero, pagos solo en cripto y sin seguimiento de uso. Tus datos son tuyos."
+      title: "Protección de privacidad - Cómo Nomiqa protege tus datos",
+      description: "Descubre cómo Nomiqa protege tu privacidad. Solo recopilamos datos de rendimiento de red anonimizados. Sin seguimiento personal, sin historial de navegación. Cumplimiento GDPR."
     },
     IT: {
-      title: "Protezione della privacy - Come Nomiqa ti protegge",
-      description: "Scopri come Nomiqa protegge la tua privacy con architettura a conoscenza zero, pagamenti solo crypto e nessun tracciamento dell'utilizzo. I tuoi dati sono tuoi."
+      title: "Protezione della privacy - Come Nomiqa protegge i tuoi dati",
+      description: "Scopri come Nomiqa protegge la tua privacy. Raccogliamo solo dati anonimi sulle prestazioni di rete. Nessun tracciamento personale, nessuna cronologia di navigazione. Conforme al GDPR."
     },
     PT: {
-      title: "Proteção de privacidade - Como a Nomiqa mantém você seguro",
-      description: "Saiba como a Nomiqa protege sua privacidade com arquitetura de conhecimento zero, pagamentos apenas em cripto e sem rastreamento de uso. Seus dados são seus."
+      title: "Proteção de privacidade - Como a Nomiqa protege seus dados",
+      description: "Saiba como a Nomiqa protege sua privacidade. Coletamos apenas dados anonimizados de desempenho de rede. Sem rastreamento pessoal, sem histórico de navegação. Conforme com GDPR."
     },
     JA: {
-      title: "プライバシー保護 - Nomiqaがあなたを守る方法",
-      description: "ゼロ知識アーキテクチャ、暗号通貨のみの支払い、使用状況の追跡なしで、Nomiqaがあなたのプライバシーをどのように保護するかを学びます。あなたのデータはあなたのものです。"
+      title: "プライバシー保護 - Nomiqaがデータを守る方法",
+      description: "Nomiqaがプライバシーをどのように保護するかを学びます。匿名化されたネットワークパフォーマンスデータのみを収集。個人追跡なし、閲覧履歴なし。GDPR準拠。"
     },
     ZH: {
-      title: "隐私保护 - Nomiqa如何保护您的安全",
-      description: "了解Nomiqa如何通过零知识架构、仅加密货币支付和无使用跟踪来保护您的隐私。您的数据属于您。"
+      title: "隐私保护 - Nomiqa如何保护您的数据安全",
+      description: "了解Nomiqa如何保护您的隐私。我们仅收集匿名化的网络性能数据。无个人追踪，无浏览历史。符合GDPR标准。"
     },
     RU: {
-      title: "Защита конфиденциальности - Как Nomiqa защищает вас",
-      description: "Узнайте, как Nomiqa защищает вашу конфиденциальность с помощью архитектуры с нулевым разглашением, платежей только в криптовалюте и отсутствия отслеживания использования. Ваши данные принадлежат вам."
+      title: "Защита конфиденциальности - Как Nomiqa защищает ваши данные",
+      description: "Узнайте, как Nomiqa защищает вашу конфиденциальность. Мы собираем только анонимизированные данные о производительности сети. Без личного отслеживания, без истории просмотра. Соответствие GDPR."
     },
     AR: {
-      title: "حماية الخصوصية - كيف تحافظ Nomiqa على سلامتك",
-      description: "تعرف على كيفية حماية Nomiqa لخصوصيتك من خلال بنية المعرفة الصفرية والمدفوعات بالعملات المشفرة فقط وعدم تتبع الاستخدام. بياناتك ملكك."
+      title: "حماية الخصوصية - كيف تحمي Nomiqa بياناتك",
+      description: "تعرف على كيفية حماية Nomiqa لخصوصيتك. نحن نجمع فقط بيانات أداء الشبكة المجهولة. لا تتبع شخصي، لا سجل تصفح. متوافق مع GDPR."
     }
   },
   affiliate: {

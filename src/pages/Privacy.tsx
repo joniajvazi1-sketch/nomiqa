@@ -1,7 +1,7 @@
 import { SiteNavigation } from "@/components/SiteNavigation";
 import { SupportChatbot } from "@/components/SupportChatbot";
 import { NetworkBackground } from "@/components/NetworkBackground";
-import { Shield, Eye, Lock, Globe, Fingerprint, Database, Network, Users, Coins, CheckCircle } from "lucide-react";
+import { Shield, Eye, Lock, Globe, Fingerprint, Database, Network, Users, Coins, CheckCircle, XCircle, Server, Trash2 } from "lucide-react";
 import { useTranslation } from "@/contexts/TranslationContext";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
@@ -192,6 +192,85 @@ export default function Privacy() {
           <p className="text-center mt-8 text-neon-coral font-light">
             {t("privacyClosing")}
           </p>
+        </div>
+      </section>
+
+      {/* What We Collect vs What We Don't */}
+      <section className="relative py-12 md:py-16 px-4">
+        <div className="container max-w-5xl mx-auto">
+          <div className="text-center mb-10">
+            <h2 className="text-2xl md:text-3xl font-light text-white mb-4">{t("privacyDataTitle")}</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">{t("privacyDataSubtitle")}</p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* What We Collect */}
+            <div className="p-6 md:p-8 rounded-2xl bg-white/[0.02] border border-neon-cyan/20">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-lg bg-neon-cyan/10 flex items-center justify-center">
+                  <CheckCircle className="w-5 h-5 text-neon-cyan" />
+                </div>
+                <h3 className="text-lg font-medium text-neon-cyan">{t("privacyWeCollect")}</h3>
+              </div>
+              <ul className="space-y-3">
+                {[
+                  t("privacyCollect1"),
+                  t("privacyCollect2"),
+                  t("privacyCollect3"),
+                  t("privacyCollect4"),
+                ].map((item, i) => (
+                  <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+                    <CheckCircle className="w-4 h-4 text-neon-cyan mt-0.5 shrink-0" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* What We DON'T Collect */}
+            <div className="p-6 md:p-8 rounded-2xl bg-white/[0.02] border border-red-500/20">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-lg bg-red-500/10 flex items-center justify-center">
+                  <XCircle className="w-5 h-5 text-red-400" />
+                </div>
+                <h3 className="text-lg font-medium text-red-400">{t("privacyWeDontCollect")}</h3>
+              </div>
+              <ul className="space-y-3">
+                {[
+                  t("privacyDontCollect1"),
+                  t("privacyDontCollect2"),
+                  t("privacyDontCollect3"),
+                  t("privacyDontCollect4"),
+                  t("privacyDontCollect5"),
+                  t("privacyDontCollect6"),
+                ].map((item, i) => (
+                  <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+                    <XCircle className="w-4 h-4 text-red-400 mt-0.5 shrink-0" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          {/* Data safety highlights */}
+          <div className="grid md:grid-cols-3 gap-4 mt-8">
+            <div className="p-5 rounded-xl bg-white/[0.02] border border-white/10 text-center">
+              <Server className="w-6 h-6 text-primary mx-auto mb-3" />
+              <p className="text-sm text-white font-medium mb-1">{t("privacyEUServers")}</p>
+              <p className="text-xs text-muted-foreground">{t("privacyEUServersDesc")}</p>
+            </div>
+            <div className="p-5 rounded-xl bg-white/[0.02] border border-white/10 text-center">
+              <Lock className="w-6 h-6 text-primary mx-auto mb-3" />
+              <p className="text-sm text-white font-medium mb-1">{t("privacyEncrypted")}</p>
+              <p className="text-xs text-muted-foreground">{t("privacyEncryptedDesc")}</p>
+            </div>
+            <div className="p-5 rounded-xl bg-white/[0.02] border border-white/10 text-center">
+              <Trash2 className="w-6 h-6 text-primary mx-auto mb-3" />
+              <p className="text-sm text-white font-medium mb-1">{t("privacyDeleteAnytime")}</p>
+              <p className="text-xs text-muted-foreground">{t("privacyDeleteAnytimeDesc")}</p>
+            </div>
+          </div>
         </div>
       </section>
 

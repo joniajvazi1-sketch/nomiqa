@@ -9,13 +9,13 @@ export const HowItWorks = () => {
     },
     {
       icon: CreditCard,
-      title: "Pay with Crypto",
-      description: "Complete your purchase securely using cryptocurrency.",
+      title: "Pay Securely",
+      description: "Complete your purchase with credit card or cryptocurrency.",
     },
     {
       icon: Globe,
       title: "Activate Instantly",
-      description: "Scan the QR code and activate your eSIM in seconds. No KYC required.",
+      description: "Scan the QR code and activate your eSIM in seconds. No paperwork needed.",
     },
     {
       icon: Award,
