@@ -16,11 +16,11 @@ const orderSchema = z.object({
   shopify_order_id: z.string().optional(),
   shopify_order_number: z.string().optional(),
   
-  // Package info
-  package_name: z.string(),
-  data_amount: z.string(),
-  validity_days: z.number().int().positive(),
-  price_usd: z.number().positive(),
+  // Package info (all optional — Make may not send these)
+  package_name: z.string().optional(),
+  data_amount: z.string().optional(),
+  validity_days: z.coerce.number().int().positive().optional(),
+  price_usd: z.coerce.number().positive().optional(),
   country_name: z.string().optional(),
   country_code: z.string().optional(),
   
@@ -146,10 +146,10 @@ serve(async (req) => {
         product_id: productId,
         email: 'see-orders-pii@private',
         status: 'completed',
-        total_amount_usd: data.price_usd,
-        package_name: data.package_name,
-        data_amount: data.data_amount,
-        validity_days: data.validity_days,
+        total_amount_usd: data.price_usd || 0,
+        package_name: data.package_name || null,
+        data_amount: data.data_amount || null,
+        validity_days: data.validity_days || null,
         access_token: accessToken,
         referral_code: null,
       })
@@ -221,7 +221,7 @@ serve(async (req) => {
             status: 'converted',
             converted_at: new Date().toISOString(),
             order_id: order.id,
-            commission_amount_usd: data.price_usd * 0.10,
+            commission_amount_usd: (data.price_usd || 0) * 0.10,
             commission_level: 1,
           })
           .eq('id', referral.id);
@@ -247,7 +247,7 @@ serve(async (req) => {
             .from('affiliates')
             .update({
               total_conversions: (affiliate.total_conversions || 0) + 1,
-              total_earnings_usd: (affiliate.total_earnings_usd || 0) + (data.price_usd * 0.10),
+              total_earnings_usd: (affiliate.total_earnings_usd || 0) + ((data.price_usd || 0) * 0.10),
             })
             .eq('id', referral.affiliate_id);
         }
@@ -268,7 +268,7 @@ serve(async (req) => {
         await supabase
           .from('user_spending')
           .update({
-            total_spent_usd: (spending.total_spent_usd || 0) + data.price_usd,
+            total_spent_usd: (spending.total_spent_usd || 0) + (data.price_usd || 0),
             total_orders: undefined,
           })
           .eq('user_id', userId);
@@ -277,7 +277,7 @@ serve(async (req) => {
           .from('user_spending')
           .insert({
             user_id: userId,
-            total_spent_usd: data.price_usd,
+            total_spent_usd: data.price_usd || 0,
             total_orders: 1,
           });
       }
@@ -294,7 +294,7 @@ serve(async (req) => {
           customer_email_hash: data.customer_email.substring(0, 3) + '***',
           has_iccid: !!data.iccid,
           has_user: !!userId,
-          price: data.price_usd,
+          price: data.price_usd || 0,
         },
         processed: true,
       });
