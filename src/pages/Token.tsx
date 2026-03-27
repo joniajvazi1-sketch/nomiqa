@@ -14,6 +14,9 @@ import { toast } from "sonner";
 const Token = () => {
   const { t } = useTranslation();
   const [isVisible, setIsVisible] = useState(false);
+  const [waitlistEmail, setWaitlistEmail] = useState("");
+  const [waitlistLoading, setWaitlistLoading] = useState(false);
+  const [waitlistJoined, setWaitlistJoined] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
