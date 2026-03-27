@@ -221,7 +221,7 @@ serve(async (req) => {
             status: 'converted',
             converted_at: new Date().toISOString(),
             order_id: order.id,
-            commission_amount_usd: data.price_usd * 0.10,
+            commission_amount_usd: (data.price_usd || 0) * 0.10,
             commission_level: 1,
           })
           .eq('id', referral.id);
