@@ -285,6 +285,14 @@ export default function Orders() {
     });
   };
 
+  const formatPackageName = (name: string) => {
+    return name
+      .replace(/([a-zA-Z])(\d)/g, '$1 $2')
+      .replace(/(\d)([a-zA-Z])/g, '$1 $2')
+      .replace(/\s+/g, ' ')
+      .trim();
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 flex items-center justify-center">
