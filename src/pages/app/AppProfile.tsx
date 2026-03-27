@@ -157,7 +157,7 @@ export const AppProfile: React.FC = () => {
         const [profileResult, affiliateResult, ordersResult, statsResult] = await Promise.all([
           supabase.from('profiles_safe').select('username, solana_wallet').eq('user_id', currentUser.id).maybeSingle(),
           supabase.from('affiliates_safe').select('*').eq('user_id', currentUser.id).order('tier_level', { ascending: false }).limit(1).maybeSingle(),
-          supabase.from('orders').select('id, package_name, data_amount, status, created_at').eq('user_id', currentUser.id).order('created_at', { ascending: false }).limit(10),
+          supabase.functions.invoke('get-my-orders'),
           supabase.functions.invoke('get-contribution-stats')
         ]);
 
