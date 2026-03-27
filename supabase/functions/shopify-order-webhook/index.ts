@@ -36,8 +36,8 @@ const orderSchema = z.object({
   sharing_link: z.string().optional(),
   sharing_access_code: z.string().optional(),
   
-  // Data capacity for usage tracking
-  total_mb: z.number().optional(),
+  // Data capacity for usage tracking (provider sends bytes)
+  total_bytes: z.coerce.number().optional(),
 });
 
 serve(async (req) => {
@@ -189,13 +189,16 @@ serve(async (req) => {
 
     // Insert into esim_usage for tracking (if ICCID provided)
     if (data.iccid) {
+      // Convert bytes to MB (provider sends bytes)
+      const totalMb = data.total_bytes ? Math.round(data.total_bytes / 1024 / 1024) : null;
+      
       const { error: usageError } = await supabase
         .from('esim_usage')
         .insert({
           iccid: data.iccid,
           order_id: order.id,
-          total_mb: data.total_mb || null,
-          remaining_mb: data.total_mb || null,
+          total_mb: totalMb,
+          remaining_mb: totalMb,
           status: 'NOT_ACTIVE',
         });
 
