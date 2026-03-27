@@ -344,10 +344,15 @@ export default function Orders() {
           <div className="space-y-4" style={{ contain: 'layout style paint' }}>
             {orders.map((order) => {
               const usage = usageData[order.id];
-              const usagePercentage = usage 
-                ? (usage.remaining_mb / usage.total_mb) * 100 
+              const usagePercentage = usage && usage.total_mb > 0
+                ? (usage.remaining_mb / usage.total_mb) * 100
                 : 0;
-              
+              const packageDetailsParts = [
+                order.data_amount || null,
+                order.validity_days ? `${order.validity_days} ${t("productDetailDays")}` : null,
+              ].filter(Boolean) as string[];
+              const packageDetailsText = packageDetailsParts.join(' • ');
+
               return (
               <Card key={order.id} className={`${order.status === 'completed' || order.status === 'paid' ? 'border border-neon-cyan/30 shadow-xl shadow-neon-cyan/10 bg-white/[0.04]' : 'bg-white/[0.03] border border-white/10'} backdrop-blur-xl transition-all hover:shadow-2xl hover:scale-[1.002] duration-300 rounded-2xl will-change-auto`} style={{ contain: 'layout style' }}>
                 <CardHeader>
@@ -357,7 +362,7 @@ export default function Orders() {
                         {order.country_name && (
                           <span className="text-neon-cyan">{order.country_name} • </span>
                         )}
-                        {order.package_name}
+                        {formatPackageName(order.package_name || 'eSIM Package')}
                       </CardTitle>
                       <CardDescription className="text-foreground/60 mt-2">
                         {formatDate(order.created_at)} • {order.email}
@@ -380,7 +385,11 @@ export default function Orders() {
                     <div className="space-y-4">
                       <div className="space-y-2">
                         <p className="text-sm text-foreground/50 font-light">{t("packageDetails")}</p>
-                        <p className="text-lg font-light text-foreground">{order.data_amount} • {order.validity_days} {t("productDetailDays")}</p>
+                        {packageDetailsText ? (
+                          <p className="text-lg font-light text-foreground">{packageDetailsText}</p>
+                        ) : (
+                          <p className="text-lg font-light text-foreground/60">—</p>
+                        )}
                         <p className="text-base text-foreground/70">{t("checkoutTotal")}: <span className="text-neon-cyan font-light">${order.total_amount_usd.toFixed(2)}</span></p>
                       </div>
                       

@@ -100,30 +100,46 @@ serve(async (req) => {
       console.log(`No user found for email ${data.customer_email}, storing as guest order`);
     }
 
-    // Find a matching product or use a placeholder
+    // Find a matching product (prefer exact country/data match, then package name)
     let productId: string | null = null;
     if (data.country_code) {
-      const { data: product } = await supabase
+      let query = supabase
         .from('products')
         .select('id')
-        .eq('country_code', data.country_code.toUpperCase())
-        .eq('data_amount', data.data_amount)
-        .limit(1)
-        .maybeSingle();
-      
-      if (product) {
-        productId = product.id;
+        .eq('country_code', data.country_code.toUpperCase());
+
+      if (data.data_amount) {
+        query = query.eq('data_amount', data.data_amount);
       }
+
+      if (data.validity_days) {
+        query = query.eq('validity_days', data.validity_days);
+      }
+
+      const { data: product } = await query.limit(1).maybeSingle();
+      if (product) productId = product.id;
     }
 
-    // If no product match, get any product as fallback (orders table requires product_id)
+    // Fallback: try package name match from provider payload
+    if (!productId && data.package_name) {
+      const { data: productByName } = await supabase
+        .from('products')
+        .select('id')
+        .ilike('name', `%${data.package_name.trim()}%`)
+        .limit(1)
+        .maybeSingle();
+
+      if (productByName) productId = productByName.id;
+    }
+
+    // Final fallback: any product (required by schema)
     if (!productId) {
       const { data: fallback } = await supabase
         .from('products')
         .select('id')
         .limit(1)
         .maybeSingle();
-      
+
       productId = fallback?.id || null;
     }
 
