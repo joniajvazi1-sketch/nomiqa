@@ -117,9 +117,11 @@ export function SpeedTest({
       const pointsForTest = isCellularTest ? POINTS_CELLULAR : POINTS_WIFI;
       
       if (versionOk && dailyTestCount < DAILY_TEST_LIMIT && (testResult.down !== null || testResult.latency !== null)) {
-        const { data: pointsResult, error: rpcError } = await supabase.rpc('add_points_with_cap', {
+        // Use add_referral_points to bypass daily/monthly mining caps
+        // Speed test rewards should always be granted (only lifetime cap enforced)
+        const { data: pointsResult, error: rpcError } = await supabase.rpc('add_referral_points', {
           p_user_id: userId,
-          p_base_points: pointsForTest,
+          p_points: pointsForTest,
           p_source: 'speed_test'
         });
 
