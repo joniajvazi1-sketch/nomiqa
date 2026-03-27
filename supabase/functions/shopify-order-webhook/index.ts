@@ -16,11 +16,11 @@ const orderSchema = z.object({
   shopify_order_id: z.string().optional(),
   shopify_order_number: z.string().optional(),
   
-  // Package info
-  package_name: z.string(),
-  data_amount: z.string(),
-  validity_days: z.number().int().positive(),
-  price_usd: z.number().positive(),
+  // Package info (all optional — Make may not send these)
+  package_name: z.string().optional(),
+  data_amount: z.string().optional(),
+  validity_days: z.coerce.number().int().positive().optional(),
+  price_usd: z.coerce.number().positive().optional(),
   country_name: z.string().optional(),
   country_code: z.string().optional(),
   
