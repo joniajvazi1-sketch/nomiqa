@@ -130,9 +130,27 @@ serve(async (req) => {
     const ordersWithPii = orders.map(order => {
       const pii = piiMap.get(order.id);
       const products = order.products as any;
-      
+      const packageName = (order.package_name || '').trim();
+      const productCountryName = (products?.country_name || '').trim();
+
+      // Avoid wrong country labels when product fallback was used in webhook
+      const countryLooksWrong = Boolean(
+        packageName &&
+        productCountryName &&
+        !packageName.toLowerCase().includes(productCountryName.toLowerCase())
+      );
+
+      // Fallback parse when provider payload omitted data_amount/validity_days
+      const parsedDataAmount = packageName.match(/\b\d+(?:\.\d+)?\s?(?:GB|MB|TB)\b/i)?.[0] || null;
+      const parsedValidityDays = (() => {
+        const match = packageName.match(/\b(\d+)\s?(?:day|days)\b/i);
+        return match ? Number(match[1]) : null;
+      })();
+
       return {
         ...order,
+        data_amount: order.data_amount || parsedDataAmount,
+        validity_days: order.validity_days || parsedValidityDays,
         // Merge PII fields
         email: pii?.email || 'see-orders-pii@private',
         full_name: pii?.full_name,
@@ -146,9 +164,9 @@ serve(async (req) => {
         qrcode_installation: pii?.qrcode_installation,
         sharing_link: pii?.sharing_link,
         sharing_access_code: pii?.sharing_access_code,
-        // Flatten product data
-        country_name: products?.country_name,
-        country_code: products?.country_code,
+        // Flatten product data (hide if mismatched to package name)
+        country_name: countryLooksWrong ? undefined : products?.country_name,
+        country_code: countryLooksWrong ? undefined : products?.country_code,
         products: undefined
       };
     });
