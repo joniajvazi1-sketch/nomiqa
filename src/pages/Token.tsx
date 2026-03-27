@@ -1,16 +1,22 @@
 import { SiteNavigation } from "@/components/SiteNavigation";
 import { SupportChatbot } from "@/components/SupportChatbot";
 import { SEO } from "@/components/SEO";
-import { Users, Globe, Shield, TrendingUp, ArrowRight, Sparkles } from "lucide-react";
+import { Users, Globe, Shield, TrendingUp, ArrowRight, Sparkles, Bell } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import { useTranslation } from "@/contexts/TranslationContext";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
 import { NetworkBackground } from "@/components/NetworkBackground";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const Token = () => {
   const { t } = useTranslation();
   const [isVisible, setIsVisible] = useState(false);
+  const [waitlistEmail, setWaitlistEmail] = useState("");
+  const [waitlistLoading, setWaitlistLoading] = useState(false);
+  const [waitlistJoined, setWaitlistJoined] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -52,6 +58,33 @@ const Token = () => {
       description: t("tokenUtility4Desc"),
     },
   ];
+
+  const handleWaitlistJoin = async () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(waitlistEmail)) {
+      toast.error(t("tokenInvalidEmail"));
+      return;
+    }
+    setWaitlistLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("join-waitlist", {
+        body: { email: waitlistEmail.toLowerCase().trim(), source: "token_page" },
+      });
+      if (error) throw error;
+      if (data?.already_exists) {
+        toast.info(t("tokenAlreadySubscribed"));
+      } else {
+        toast.success(t("tokenWaitlistSuccess"));
+        setWaitlistJoined(true);
+      }
+      setWaitlistEmail("");
+    } catch (err: any) {
+      console.error("Waitlist error:", err);
+      toast.error(t("tokenWaitlistError"));
+    } finally {
+      setWaitlistLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black/40 via-deep-space/60 to-black/40 relative">
@@ -154,6 +187,37 @@ const Token = () => {
             <p className="text-white/50 font-light text-sm md:text-base">
               {t("tokenDescription2")}
             </p>
+          </div>
+
+          {/* Waitlist Section */}
+          <div className={`text-center mb-12 transition-all duration-700 delay-350 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+            <div className="max-w-md mx-auto p-6 rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/10">
+              <div className="flex items-center justify-center gap-2 mb-4">
+                <Bell className="w-5 h-5 text-neon-cyan" />
+                <h3 className="text-lg font-light text-white">{t("tokenNotifyMe")}</h3>
+              </div>
+              {waitlistJoined ? (
+                <p className="text-neon-cyan font-medium">{t("tokenSubscribed")}</p>
+              ) : (
+                <div className="flex gap-2">
+                  <Input
+                    type="email"
+                    placeholder={t("tokenEmailPlaceholder")}
+                    value={waitlistEmail}
+                    onChange={(e) => setWaitlistEmail(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleWaitlistJoin()}
+                    className="bg-white/[0.05] border-white/20 text-white placeholder:text-white/40 focus:border-neon-cyan/50"
+                  />
+                  <Button
+                    onClick={handleWaitlistJoin}
+                    disabled={waitlistLoading}
+                    className="bg-gradient-to-r from-neon-cyan/20 to-neon-violet/20 border border-neon-cyan/30 hover:border-neon-cyan/50 hover:bg-neon-cyan/20 text-white shrink-0"
+                  >
+                    {waitlistLoading ? t("tokenSubmitting") : t("tokenNotifyMe")}
+                  </Button>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* CTA Section */}

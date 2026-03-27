@@ -7,7 +7,7 @@ import { NetworkBackground } from "@/components/NetworkBackground";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Loader2, User, Award, Package, Gift, Crown, Star, TrendingUp, Zap, Sparkles, RefreshCw, Wallet, DollarSign, Copy, Pencil, Check, X, Shield, Coins } from "lucide-react";
+import { Loader2, User, Award, Package, Gift, Crown, Star, TrendingUp, Zap, Sparkles, RefreshCw, Wallet, DollarSign, Copy, Pencil, Check, X, Shield, Coins, Trash2, LogOut } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "@/contexts/TranslationContext";
 import { localizedPath } from "@/utils/localizedLinks";
@@ -21,6 +21,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ReferralPointsSection } from "@/components/ReferralPointsSection";
 import { ReferralCodeSection } from "@/components/ReferralCodeSection";
+import { DeleteAccountSection } from "@/components/DeleteAccountSection";
 
 interface UserProfile {
   username: string;
@@ -412,6 +413,26 @@ export default function MyAccount() {
                       </div>
                     </div>
                   )}
+                  {/* Logout */}
+                  <div className="pt-4 border-t border-white/10">
+                    <Button
+                      variant="outline"
+                      className="w-full border-white/20 text-white/70 hover:text-white hover:bg-white/10"
+                      onClick={async () => {
+                        await supabase.auth.signOut();
+                        navigate(localizedPath('/', language));
+                        toast.success('Logged out successfully');
+                      }}
+                    >
+                      <LogOut className="w-4 h-4 mr-2" />
+                      {t("logout")}
+                    </Button>
+                  </div>
+
+                  {/* Delete Account */}
+                  <div className="pt-4">
+                    <DeleteAccountSection />
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>
