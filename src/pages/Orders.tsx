@@ -447,7 +447,7 @@ export default function Orders() {
                             )}
                           </div>
                           
-                          {usage.status !== 'ACTIVE' && (
+                          {usage.status?.toLowerCase() !== 'active' && (
                             <div className="mt-4 p-4 bg-white/[0.03] backdrop-blur-xl rounded-xl border border-white/10">
                               <p className="text-sm text-foreground/60 font-light">
                                 💡 {t("refreshUsageHint")}
