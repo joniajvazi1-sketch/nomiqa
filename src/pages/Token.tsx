@@ -1,12 +1,15 @@
 import { SiteNavigation } from "@/components/SiteNavigation";
 import { SupportChatbot } from "@/components/SupportChatbot";
 import { SEO } from "@/components/SEO";
-import { Users, Globe, Shield, TrendingUp, ArrowRight, Sparkles } from "lucide-react";
+import { Users, Globe, Shield, TrendingUp, ArrowRight, Sparkles, Bell } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import { useTranslation } from "@/contexts/TranslationContext";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
 import { NetworkBackground } from "@/components/NetworkBackground";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const Token = () => {
   const { t } = useTranslation();
