@@ -11,6 +11,34 @@ const usageRequestSchema = z.object({
   iccid: z.string().min(18).max(22)
 });
 
+// HMAC-SHA256 signature for eSIM Access API
+async function generateSignature(
+  timestamp: string,
+  requestId: string,
+  accessCode: string,
+  requestBody: string,
+  secretKey: string
+): Promise<string> {
+  const signData = timestamp + requestId + accessCode + requestBody;
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    'raw',
+    encoder.encode(secretKey),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign']
+  );
+  const signature = await crypto.subtle.sign('HMAC', key, encoder.encode(signData));
+  return Array.from(new Uint8Array(signature))
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('')
+    .toLowerCase();
+}
+
+function generateUUID(): string {
+  return crypto.randomUUID().replace(/-/g, '');
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -60,7 +88,7 @@ serve(async (req) => {
 
     const { data: esimUsage, error: esimError } = await supabase
       .from('esim_usage')
-      .select('order_id, orders!inner(user_id, email)')
+      .select('order_id, orders!inner(user_id)')
       .eq('iccid', iccid)
       .single();
 
@@ -71,18 +99,15 @@ serve(async (req) => {
       );
     }
 
-    // Check ownership - ONLY check user_id, never email (email field is now a placeholder)
-    // Guest orders (user_id = NULL) must use access_token via get-order-by-token endpoint instead
     const order = esimUsage.orders as any;
     if (!order.user_id || order.user_id !== user.id) {
-      console.log(`Authorization failed: order.user_id=${order.user_id}, user.id=${user.id}`);
       return new Response(
         JSON.stringify({ error: 'Forbidden - not your eSIM' }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Rate limiting: Limit to 1 request per minute per user per ICCID
+    // Rate limiting: 1 request per minute per user
     const oneMinuteAgo = new Date(Date.now() - 60 * 1000).toISOString();
     const { data: recentRequests } = await supabase
       .from('webhook_logs')
@@ -92,7 +117,6 @@ serve(async (req) => {
       .limit(1);
 
     if (recentRequests && recentRequests.length > 0) {
-      console.log(`Rate limit: User ${user.id} requesting too frequently for ICCID ${iccid}`);
       return new Response(
         JSON.stringify({ error: 'Please wait before refreshing usage data' }),
         { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -107,72 +131,102 @@ serve(async (req) => {
         payload: { user_id: user.id, iccid }
       });
 
-    const airloClientId = Deno.env.get('AIRLO_CLIENT_ID');
-    const airloClientSecret = Deno.env.get('AIRLO_CLIENT_SECRET');
-    const airloEnv = Deno.env.get('AIRLO_ENV') || 'sandbox';
-    
-    const baseUrl = airloEnv === 'production' 
-      ? 'https://partners-api.airalo.com'
-      : 'https://sandbox-partners-api.airalo.com';
+    // eSIM Access API credentials
+    const accessCode = Deno.env.get('ESIM_ACCESS_CODE');
+    const secretKey = Deno.env.get('ESIM_ACCESS_SECRET_KEY');
 
-    // Get access token using FormData (required by Airalo API)
-    const tokenFormData = new FormData();
-    tokenFormData.append('client_id', airloClientId!);
-    tokenFormData.append('client_secret', airloClientSecret!);
-    tokenFormData.append('grant_type', 'client_credentials');
+    if (!accessCode || !secretKey) {
+      console.error('Missing eSIM Access API credentials');
+      throw new Error('eSIM provider configuration error');
+    }
 
-    const authResponse = await fetch(`${baseUrl}/v2/token`, {
-      method: 'POST',
-      body: tokenFormData
+    // Build request body for eSIM Access query endpoint
+    const queryBody = JSON.stringify({
+      iccid: iccid,
+      pager: { pageNum: 1, pageSize: 10 }
     });
 
-    if (!authResponse.ok) {
-      const authErrorText = await authResponse.text();
-      console.error('Airalo auth error:', authErrorText);
-      throw new Error('Failed to authenticate with Airalo');
-    }
+    // Generate HMAC-SHA256 signature
+    const timestamp = Date.now().toString();
+    const requestId = generateUUID();
+    const signature = await generateSignature(timestamp, requestId, accessCode, queryBody, secretKey);
 
-    const authJson = await authResponse.json();
-    const accessToken = authJson.data?.access_token;
-    
-    if (!accessToken) {
-      console.error('No access token in response:', authJson);
-      throw new Error('No access token received from Airalo');
-    }
-    
-    console.log('Successfully got Airalo access token');
+    console.log(`Fetching eSIM Access usage for ICCID: ${iccid}`);
 
-    // Get usage data from Airalo
-    console.log(`Fetching usage for ICCID: ${iccid}`);
-    const usageResponse = await fetch(`${baseUrl}/v2/sims/${iccid}/usage`, {
+    const usageResponse = await fetch('https://api.esimaccess.com/api/v1/open/esim/query', {
+      method: 'POST',
       headers: {
-        'Authorization': `Bearer ${accessToken}`
-      }
+        'Content-Type': 'application/json',
+        'RT-AccessCode': accessCode,
+        'RT-RequestID': requestId,
+        'RT-Signature': signature,
+        'RT-Timestamp': timestamp,
+      },
+      body: queryBody,
     });
 
     if (!usageResponse.ok) {
-      const usageErrorText = await usageResponse.text();
-      console.error('Airalo usage error:', usageResponse.status, usageErrorText);
+      const errorText = await usageResponse.text();
+      console.error('eSIM Access API error:', usageResponse.status, errorText);
       throw new Error(`Failed to fetch usage data: ${usageResponse.status}`);
     }
 
-    const usageJson = await usageResponse.json();
-    const usageData = usageJson.data;
-    console.log('Airalo usage response:', JSON.stringify(usageData));
+    const responseJson = await usageResponse.json();
+    console.log('eSIM Access response:', JSON.stringify(responseJson));
 
-    // Update local database using the service client already initialized
+    if (!responseJson.success || !responseJson.obj?.esimList?.length) {
+      console.error('eSIM Access: No data returned', responseJson);
+      throw new Error('eSIM not found in provider system');
+    }
+
+    const esim = responseJson.obj.esimList[0];
+
+    // Convert bytes to MB
+    const totalBytes = esim.totalVolume || 0;
+    const usedBytes = esim.orderUsage || 0;
+    const remainingBytes = Math.max(0, totalBytes - usedBytes);
+    const totalMb = Math.round(totalBytes / (1024 * 1024));
+    const remainingMb = Math.round(remainingBytes / (1024 * 1024));
+
+    // Map eSIM Access status to our status
+    const mapStatus = (esimStatus: string, smdpStatus: string): string => {
+      if (esimStatus === 'IN_USE') return 'active';
+      if (esimStatus === 'USED_UP') return 'expired';
+      if (esimStatus === 'GOT_RESOURCE' && smdpStatus === 'RELEASED') return 'not_active';
+      if (esimStatus === 'GOT_RESOURCE' && smdpStatus === 'ENABLED') return 'active';
+      if (esimStatus === 'CANCEL') return 'cancelled';
+      if (esimStatus === 'SUSPENDED') return 'suspended';
+      if (esimStatus === 'UNUSED_EXPIRED' || esimStatus === 'USED_EXPIRED') return 'expired';
+      return esimStatus.toLowerCase();
+    };
+
+    const status = mapStatus(esim.esimStatus, esim.smdpStatus);
+
+    // Update local database
     await supabase
       .from('esim_usage')
       .update({
-        remaining_mb: usageData.remaining,
-        total_mb: usageData.total,
-        remaining_voice: usageData.remaining_voice || 0,
-        remaining_text: usageData.remaining_text || 0,
-        status: usageData.status,
-        expired_at: usageData.expired_at,
+        remaining_mb: remainingMb,
+        total_mb: totalMb,
+        status: status,
+        expired_at: esim.expiredTime || null,
         last_updated: new Date().toISOString()
       })
       .eq('iccid', iccid);
+
+    // Return clean usage data
+    const usageData = {
+      status: status,
+      total: totalMb,
+      remaining: remainingMb,
+      used: totalMb - remainingMb,
+      total_bytes: totalBytes,
+      used_bytes: usedBytes,
+      remaining_bytes: remainingBytes,
+      expired_at: esim.expiredTime || null,
+      smdp_status: esim.smdpStatus,
+      esim_status: esim.esimStatus,
+    };
 
     return new Response(
       JSON.stringify(usageData),

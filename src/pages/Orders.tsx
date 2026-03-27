@@ -430,12 +430,13 @@ export default function Orders() {
                             <div className="space-y-1">
                               <p className="text-foreground/50 font-light">{t("statusLabel")}</p>
                               <Badge 
-                                variant={usage.status === 'ACTIVE' ? 'default' : 'secondary'}
-                                className={usage.status === 'ACTIVE' ? 'bg-green-500/20 text-green-400 border-green-500/30 font-light' : 'bg-white/10 text-foreground/70 border-white/20 font-light'}
+                                variant={usage.status?.toLowerCase() === 'active' ? 'default' : 'secondary'}
+                                className={usage.status?.toLowerCase() === 'active' ? 'bg-green-500/20 text-green-400 border-green-500/30 font-light' : 'bg-white/10 text-foreground/70 border-white/20 font-light'}
                               >
-                                {usage.status === 'NOT_ACTIVE' ? t("notActivated") : 
-                                 usage.status === 'ACTIVE' ? t("active") : 
-                                 usage.status}
+                                {usage.status?.toLowerCase() === 'not_active' ? t("notActivated") : 
+                                 usage.status?.toLowerCase() === 'active' ? t("active") : 
+                                 usage.status?.toLowerCase() === 'expired' ? t("expired") :
+                                 usage.status || '—'}
                               </Badge>
                             </div>
                             {usage.expired_at && (
@@ -446,7 +447,7 @@ export default function Orders() {
                             )}
                           </div>
                           
-                          {usage.status !== 'ACTIVE' && (
+                          {usage.status?.toLowerCase() !== 'active' && (
                             <div className="mt-4 p-4 bg-white/[0.03] backdrop-blur-xl rounded-xl border border-white/10">
                               <p className="text-sm text-foreground/60 font-light">
                                 💡 {t("refreshUsageHint")}
