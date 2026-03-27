@@ -294,7 +294,7 @@ serve(async (req) => {
           customer_email_hash: data.customer_email.substring(0, 3) + '***',
           has_iccid: !!data.iccid,
           has_user: !!userId,
-          price: data.price_usd,
+          price: data.price_usd || 0,
         },
         processed: true,
       });
