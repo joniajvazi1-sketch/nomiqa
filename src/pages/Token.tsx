@@ -59,6 +59,33 @@ const Token = () => {
     },
   ];
 
+  const handleWaitlistJoin = async () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(waitlistEmail)) {
+      toast.error(t("tokenInvalidEmail"));
+      return;
+    }
+    setWaitlistLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("join-waitlist", {
+        body: { email: waitlistEmail.toLowerCase().trim(), source: "token_page" },
+      });
+      if (error) throw error;
+      if (data?.already_exists) {
+        toast.info(t("tokenAlreadySubscribed"));
+      } else {
+        toast.success(t("tokenWaitlistSuccess"));
+        setWaitlistJoined(true);
+      }
+      setWaitlistEmail("");
+    } catch (err: any) {
+      console.error("Waitlist error:", err);
+      toast.error(t("tokenWaitlistError"));
+    } finally {
+      setWaitlistLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-black/40 via-deep-space/60 to-black/40 relative">
       <SEO page="token" />
