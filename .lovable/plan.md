@@ -1,34 +1,41 @@
 
 
-## Plan: Fix Commission Rates to 10% and /my-account Routing
+# Plan: Remove Crypto/KYC References + Update Privacy Content
 
-### Problem 1: Commission percentages are wrong
+## What's Changing
 
-The affiliate page and backend still show the old tiered rates (5% network, 9% sales) instead of the agreed flat 10% for both.
+### 1. Remove "Pay with Crypto" / "No KYC" references
+These files need updates:
 
-**Locations to fix:**
+- **`src/components/HowItWorks.tsx`** — Step 2 "Pay with Crypto" → "Pay Securely" (credit card + crypto), Step 3 remove "No KYC required"
+- **`src/components/EasyCheckout.tsx`** — The middle card uses `cryptoNativeTitle`/`cryptoNativeDesc` translation keys → rebrand to "Secure Payments" (cards + crypto)
+- **`src/contexts/TranslationContext.tsx`** — Update translation keys:
+  - `heroNoKyc` → "Instant Activation" (remove KYC reference)
+  - `heroCryptoOnly` → "Card & Crypto Payments" 
+  - `cryptoNativeTitle` → "Secure Payments"
+  - `cryptoNativeDesc` → mention both card and crypto
+  - `gsDePINBenefit2Desc` → remove "No KYC" part
+  - `cryptoConversionTitle`/`cryptoConversionMessage` → keep (these are about future token conversion, not payment method)
+- **`src/components/SEO.tsx`** — Update all localized shop SEO titles/descriptions to say "Card & Crypto Payments" instead of "Crypto Payments", remove "no KYC" from descriptions (all 10 languages)
+- **`supabase/functions/chat-support/index.ts`** — Update system prompt: remove "No KYC/ID required", update payment section to lead with credit cards, crypto as secondary
 
-| File | Current | Fix |
-|------|---------|-----|
-| `src/pages/Affiliate.tsx` line 373 | `5%` badge "From Network" | Change to `10%` |
-| `src/pages/Affiliate.tsx` line 377 | `9%` badge "Sales Commission" | Replace both badges with a single `10%` "Referral Commission" badge (covers both points and sales) |
-| `src/contexts/TranslationContext.tsx` line 1206 | "earn 5% of everything your network earns" | Update all 10 languages to say "earn 10% of everything your referrals earn" |
-| `src/contexts/TranslationContext.tsx` lines 1208-1209 | `affiliateFromNetwork` / `affiliateSalesCommission` | Replace with single `affiliateReferralCommission` key: "Referral Commission" |
-| `supabase/functions/shopify-order-webhook/index.ts` lines 224, 250 | `data.price_usd * 0.09` | Change to `data.price_usd * 0.10` |
-| `src/components/ConversionRewardsSection.tsx` | Already shows 10% — no change needed | Confirmed correct |
+### 2. Update Privacy Page Content
+- **`src/pages/Privacy.tsx`** — Add a new "What We Collect" section that clearly states:
+  - We only collect anonymized internet/network performance data (signal strength, speed, latency)
+  - We do NOT track personal browsing, app usage, messages, or identity
+  - All location data is rounded and anonymized
+  - Data is encrypted and stored in EU data centers
+  - Users can delete all data at any time
+- This is the website privacy page (marketing-focused), not the legal terms privacy section
 
-The database trigger `process_referral_commission()` already uses `0.10` — confirmed correct.
+### 3. Update Terms Privacy Section  
+- **`src/components/terms/TermsPrivacy.tsx`** — Add a clear "What We Do NOT Collect" subsection listing: phone numbers, IMEI, MAC addresses, browsing history, app usage, SMS/messages, contacts
 
-### Problem 2: /my-account hits catch-all → shows referral page
+## Technical Details
 
-The `NotFound` component detects single-segment paths like `my-account` as potential referral usernames. There is no `/my-account` route defined.
-
-**Fix:** Add a redirect route `<Route path="/my-account" element={<Navigate to="/account" replace />} />` in the WebRoutes, plus inside each localized route group. This is placed before the catch-all `*` route, so it will match first.
-
-### Files changed
-
-1. **`src/App.tsx`** — Add `/my-account → /account` redirect in base routes and all 10 locale groups
-2. **`src/pages/Affiliate.tsx`** — Merge 5% + 9% badges into single 10% badge
-3. **`src/contexts/TranslationContext.tsx`** — Update `affiliateHeroDescription` and replace commission translation keys across all 10 languages
-4. **`supabase/functions/shopify-order-webhook/index.ts`** — Change `0.09` to `0.10` (2 occurrences)
+- All translation key changes affect 10 languages (EN, ES, FR, DE, RU, ZH, JA, PT, AR, IT)
+- SEO metadata updates span ~80 lines across all language variants in SEO.tsx
+- Chat support system prompt is in an Edge Function that will auto-deploy
+- No database changes needed
+- No new dependencies
 
