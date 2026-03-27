@@ -34,10 +34,10 @@ export const TOKENOMICS = {
     BASE_TOTAL: 174,              // Conservative base (144 + 30)
   },
   
-  // Daily cap (hard limit to prevent abuse)
+  // Base daily cap (scales with boosts)
   DAILY_POINT_CAP: 200,
   
-  // Monthly cap (prevents whales/bots from draining supply)
+  // Base monthly cap (scales with boosts)
   MONTHLY_POINT_CAP: 6000,
   
   // ============ BOOST MULTIPLIERS ============
