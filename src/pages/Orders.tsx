@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, RefreshCw, Copy, QrCode, ExternalLink } from "lucide-react";
+import { ArrowLeft, RefreshCw, Copy, QrCode, ExternalLink, Wifi, Signal } from "lucide-react";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -57,19 +57,16 @@ export default function Orders() {
   const [refreshingUsage, setRefreshingUsage] = useState<Record<string, boolean>>({});
   const [cooldowns, setCooldowns] = useState<Record<string, number>>({});
 
-  // Handle payment success redirect
   useEffect(() => {
     const paymentSuccess = searchParams.get('paymentSuccess');
     if (paymentSuccess === 'true') {
       toast.success('Payment successful! Your eSIM is ready.');
-      // Clean up the URL parameter
       searchParams.delete('paymentSuccess');
       searchParams.delete('orderId');
       setSearchParams(searchParams, { replace: true });
     }
   }, [searchParams, setSearchParams]);
 
-  // Countdown timer effect
   useEffect(() => {
     const interval = setInterval(() => {
       setCooldowns(prev => {
@@ -84,69 +81,49 @@ export default function Orders() {
         return hasChanges ? updated : prev;
       });
     }, 1000);
-
     return () => clearInterval(interval);
   }, []);
 
   const fetchOrders = async () => {
     try {
-      // Check for access token in URL
       const urlParams = new URLSearchParams(window.location.search);
       const accessToken = urlParams.get('token');
-
       let data, error;
 
       if (accessToken) {
-        // Guest access using token
         const { data: response, error: funcError } = await supabase.functions.invoke('get-order-by-token', {
           body: { accessToken }
         });
-
         if (funcError) {
           console.error('Error fetching order by token:', funcError);
           toast.error("Invalid or expired access token");
           setLoading(false);
           return;
         }
-
-        // Transform single order response to array format
         data = response.order ? [response.order] : [];
         error = null;
-
-        // Set usage data if available
         if (response.usage) {
           setUsageData({ [response.order.id]: response.usage });
         }
       } else {
-        // Check if user is authenticated
         const { data: { session } } = await supabase.auth.getSession();
-        
         if (!session) {
-          // Redirect to login if not authenticated
           toast.error("Please login to view your orders");
           navigate('/auth');
           return;
         }
-
-        // Authenticated user access - Use edge function to get orders with PII
         const { data: response, error: funcError } = await supabase.functions.invoke('get-my-orders');
-
         if (funcError) {
           console.error('Error fetching orders:', funcError);
           throw funcError;
         }
-
         data = response?.orders || [];
         error = null;
       }
 
-
-      // Fetch usage data for each order in parallel (skip if using token as it's already fetched)
       if (!accessToken && data && data.length > 0) {
         const usageMap: Record<string, UsageData> = {};
-        
-        // Fetch all usage data in parallel for better performance
-        const usagePromises = data.map(order => 
+        const usagePromises = data.map(order =>
           supabase
             .from('esim_usage')
             .select('remaining_mb, total_mb, status, expired_at')
@@ -154,22 +131,14 @@ export default function Orders() {
             .single()
             .then(({ data: usage }) => ({ orderId: order.id, usage }))
         );
-        
         const usageResults = await Promise.all(usagePromises);
-        
         usageResults.forEach(({ orderId, usage }) => {
-          if (usage) {
-            usageMap[orderId] = usage;
-          }
+          if (usage) usageMap[orderId] = usage;
         });
-        
         setUsageData(usageMap);
       }
 
-      if (error) {
-        throw error;
-      }
-
+      if (error) throw error;
       setOrders(data || []);
     } catch (error: any) {
       console.error('Error fetching orders:', error);
@@ -181,74 +150,42 @@ export default function Orders() {
 
   useEffect(() => {
     fetchOrders();
-
-    // Set up real-time subscription for esim_usage updates
     const channel = supabase
       .channel('esim-usage-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'esim_usage'
-        },
-        (payload) => {
-          console.log('eSIM usage updated:', payload);
-          // Update local state with new usage data
-          const updatedUsage = payload.new as UsageData;
-          const orderId = (payload.new as any).order_id;
-          if (orderId) {
-            setUsageData(prev => ({
-              ...prev,
-              [orderId]: updatedUsage
-            }));
-            toast.success("eSIM status updated!");
-          }
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'esim_usage' }, (payload) => {
+        const updatedUsage = payload.new as UsageData;
+        const orderId = (payload.new as any).order_id;
+        if (orderId) {
+          setUsageData(prev => ({ ...prev, [orderId]: updatedUsage }));
+          toast.success("eSIM status updated!");
         }
-      )
+      })
       .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    return () => { supabase.removeChannel(channel); };
   }, []);
 
   const refreshUsage = async (orderId: string, iccid: string) => {
-    // Check if still in cooldown
     if (cooldowns[orderId] && cooldowns[orderId] > 0) {
       toast.error(`Please wait ${cooldowns[orderId]} seconds`);
       return;
     }
-    
     setRefreshingUsage(prev => ({ ...prev, [orderId]: true }));
     try {
-      const { data, error } = await supabase.functions.invoke('get-esim-usage', {
-        body: { iccid }
-      });
-
+      const { data, error } = await supabase.functions.invoke('get-esim-usage', { body: { iccid } });
       if (error) throw error;
-
-      // Refresh the order to get updated usage
       const { data: usage } = await supabase
         .from('esim_usage')
         .select('remaining_mb, total_mb, status, expired_at')
         .eq('order_id', orderId)
         .single();
-
-      if (usage) {
-        setUsageData(prev => ({ ...prev, [orderId]: usage }));
-      }
-
+      if (usage) setUsageData(prev => ({ ...prev, [orderId]: usage }));
       toast.success("Usage data refreshed");
-      // Start 60 second cooldown after successful refresh
       setCooldowns(prev => ({ ...prev, [orderId]: 60 }));
     } catch (error: any) {
       console.error('Error refreshing usage:', error);
-      // Check for rate limit error
       const errorMessage = error?.message || error?.error || 'Failed to refresh usage data';
       if (errorMessage.includes('wait') || errorMessage.includes('rate') || error?.status === 429) {
         toast.error("Please wait 1 minute before refreshing again");
-        // Start cooldown even on rate limit error
         setCooldowns(prev => ({ ...prev, [orderId]: 60 }));
       } else {
         toast.error(errorMessage);
@@ -260,20 +197,12 @@ export default function Orders() {
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+      year: 'numeric', month: 'short', day: 'numeric'
     });
   };
 
   const formatPackageName = (name: string) => {
-    return name
-      .replace(/([a-zA-Z])(\d)/g, '$1 $2')
-      .replace(/(\d)([a-zA-Z])/g, '$1 $2')
-      .replace(/\s+/g, ' ')
-      .trim();
+    return name.replace(/([a-zA-Z])(\d)/g, '$1 $2').replace(/(\d)([a-zA-Z])/g, '$1 $2').replace(/\s+/g, ' ').trim();
   };
 
   if (loading) {
@@ -314,12 +243,13 @@ export default function Orders() {
             </Button>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-5">
             {orders.map((order) => {
               const usage = usageData[order.id];
-              const usagePercentage = usage && usage.total_mb > 0
-                ? (usage.remaining_mb / usage.total_mb) * 100
-                : 0;
+              const usagePercentage = usage && usage.total_mb > 0 ? (usage.remaining_mb / usage.total_mb) * 100 : 0;
+              const usedGb = usage ? ((usage.total_mb - usage.remaining_mb) / 1024).toFixed(2) : '0';
+              const totalGb = usage ? (usage.total_mb / 1024).toFixed(1) : '0';
+              const remainingGb = usage ? (usage.remaining_mb / 1024).toFixed(2) : '0';
               const packageDetailsParts = [
                 order.data_amount || null,
                 order.validity_days ? `${order.validity_days} ${t("productDetailDays")}` : null,
@@ -327,126 +257,129 @@ export default function Orders() {
               const packageDetailsText = packageDetailsParts.join(' · ');
               const isActive = usage?.status?.toLowerCase() === 'active';
               const isExpired = usage?.status?.toLowerCase() === 'expired';
+              const isNotActive = usage?.status?.toLowerCase() === 'not_active';
 
               return (
-                <div key={order.id} className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] rounded-2xl overflow-hidden transition-all hover:border-white/[0.14] duration-300">
-                  {/* Header */}
-                  <div className="px-5 pt-5 pb-3">
-                    <div className="flex justify-between items-start gap-3">
-                      <div className="min-w-0 flex-1">
-                        <h3 className="text-lg font-light text-foreground">
-                          {order.country_name || formatPackageName(order.package_name || 'eSIM Package')}
-                        </h3>
-                        {order.country_name && (
-                          <p className="text-sm text-foreground/35 font-light mt-0.5">
-                            {formatPackageName(order.package_name || '')}
+                <div key={order.id} className="rounded-2xl overflow-hidden border border-white/[0.08] bg-white/[0.02] backdrop-blur-xl">
+                  
+                  {/* Top section: Country + Status */}
+                  <div className="px-5 pt-5 pb-2">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+                          isActive ? 'bg-emerald-500/10 border border-emerald-500/20' : 
+                          isExpired ? 'bg-red-500/10 border border-red-500/20' : 
+                          'bg-white/[0.05] border border-white/[0.08]'
+                        }`}>
+                          <Signal className={`h-4.5 w-4.5 ${isActive ? 'text-emerald-400' : isExpired ? 'text-red-400' : 'text-foreground/30'}`} />
+                        </div>
+                        <div className="min-w-0">
+                          <h3 className="text-base font-medium text-foreground truncate">
+                            {order.country_name || formatPackageName(order.package_name || 'eSIM')}
+                          </h3>
+                          <p className="text-xs text-foreground/35 font-light mt-0.5">
+                            {packageDetailsText || formatPackageName(order.package_name || '')}
                           </p>
-                        )}
+                        </div>
                       </div>
-                      <Badge
-                        variant="secondary"
-                        className={`shrink-0 font-light text-[11px] px-2.5 py-0.5 rounded-full border ${
-                          order.status === 'completed' || order.status === 'paid'
-                            ? 'bg-emerald-500/10 text-emerald-400/90 border-emerald-500/15'
-                            : order.status === 'failed'
-                            ? 'bg-red-500/10 text-red-400/90 border-red-500/15'
-                            : 'bg-white/[0.05] text-foreground/40 border-white/[0.06]'
-                        }`}
-                      >
-                        {order.status === 'completed' ? t("orderStatusCompleted") :
-                         order.status === 'pending' ? t("orderStatusPending") :
-                         order.status === 'failed' ? t("orderStatusFailed") :
-                         order.status === 'paid' ? t("orderStatusPaid") :
-                         order.status}
-                      </Badge>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <div className={`w-2 h-2 rounded-full ${
+                          isActive ? 'bg-emerald-400 shadow-sm shadow-emerald-400/50' : 
+                          isExpired ? 'bg-red-400' : 
+                          isNotActive ? 'bg-foreground/20' :
+                          'bg-amber-400'
+                        }`} />
+                        <span className={`text-xs font-light ${
+                          isActive ? 'text-emerald-400' : 
+                          isExpired ? 'text-red-400/70' : 
+                          'text-foreground/40'
+                        }`}>
+                          {isNotActive ? t("notActivated") :
+                           isActive ? t("active") :
+                           isExpired ? t("expired") :
+                           usage?.status || (order.status === 'completed' ? t("orderStatusCompleted") : order.status)}
+                        </span>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Meta row */}
-                  <div className="px-5 pb-4">
-                    <div className="flex items-center gap-1.5 text-xs text-foreground/30 font-light flex-wrap">
-                      {packageDetailsText && <><span>{packageDetailsText}</span><span>·</span></>}
-                      <span>${order.total_amount_usd.toFixed(2)}</span>
-                      <span>·</span>
-                      <span>{formatDate(order.created_at)}</span>
-                    </div>
-                  </div>
-
-                  {/* Usage */}
+                  {/* Data usage bar */}
                   {usage && (
-                    <div className="border-t border-white/[0.05] px-5 py-4 space-y-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <div className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-emerald-400' : isExpired ? 'bg-red-400/70' : 'bg-foreground/20'}`} />
-                          <span className={`text-xs font-light ${isActive ? 'text-emerald-400/90' : isExpired ? 'text-red-400/70' : 'text-foreground/40'}`}>
-                            {usage.status?.toLowerCase() === 'not_active' ? t("notActivated") :
-                             isActive ? t("active") :
-                             isExpired ? t("expired") :
-                             usage.status || '—'}
-                          </span>
+                    <div className="px-5 py-4">
+                      {/* Usage numbers */}
+                      <div className="flex items-baseline justify-between mb-3">
+                        <div>
+                          <span className="text-2xl font-light text-foreground tabular-nums">{remainingGb}</span>
+                          <span className="text-sm text-foreground/30 font-light ml-1">GB left</span>
+                        </div>
+                        <div className="text-right">
+                          <span className="text-sm text-foreground/30 font-light">{totalGb} GB</span>
+                        </div>
+                      </div>
+
+                      {/* Progress bar - thick and visible */}
+                      <div className="h-3 bg-white/[0.06] rounded-full overflow-hidden">
+                        <div
+                          className={`h-full rounded-full transition-all duration-700 ease-out ${
+                            usagePercentage > 50 ? 'bg-emerald-400' :
+                            usagePercentage > 20 ? 'bg-amber-400' :
+                            'bg-red-400'
+                          }`}
+                          style={{ width: `${Math.max(2, usagePercentage)}%` }}
+                        />
+                      </div>
+
+                      {/* Expiry + Refresh */}
+                      <div className="flex items-center justify-between mt-3">
+                        <div className="text-xs text-foreground/30 font-light">
+                          {usage.expired_at ? (
+                            <span>{t("expires")}: {formatDate(usage.expired_at)}</span>
+                          ) : (
+                            <span>{formatDate(order.created_at)}</span>
+                          )}
                         </div>
                         {order.iccid && (
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="h-7 px-2 hover:bg-white/[0.04] text-foreground/30 hover:text-foreground/60"
+                            className="h-7 px-2.5 hover:bg-white/[0.05] text-foreground/30 hover:text-foreground/60 gap-1.5"
                             onClick={() => refreshUsage(order.id, order.iccid!)}
                             disabled={refreshingUsage[order.id] || (cooldowns[order.id] && cooldowns[order.id] > 0)}
                           >
                             {cooldowns[order.id] && cooldowns[order.id] > 0 ? (
                               <span className="text-[10px] font-mono text-foreground/25">0:{cooldowns[order.id].toString().padStart(2, '0')}</span>
                             ) : (
-                              <RefreshCw className={`h-3.5 w-3.5 ${refreshingUsage[order.id] ? 'animate-spin' : ''}`} />
+                              <>
+                                <RefreshCw className={`h-3 w-3 ${refreshingUsage[order.id] ? 'animate-spin' : ''}`} />
+                                <span className="text-[11px]">Refresh</span>
+                              </>
                             )}
                           </Button>
                         )}
                       </div>
-
-                      <div className="space-y-1.5">
-                        <div className="h-1 bg-white/[0.05] rounded-full overflow-hidden">
-                          <div
-                            className={`h-full rounded-full transition-all duration-500 ${
-                              usagePercentage > 50 ? 'bg-emerald-400/70' :
-                              usagePercentage > 20 ? 'bg-amber-400/70' :
-                              'bg-red-400/70'
-                            }`}
-                            style={{ width: `${Math.max(1, usagePercentage)}%` }}
-                          />
-                        </div>
-                        <div className="flex justify-between text-[11px] text-foreground/30 font-light">
-                          <span>{(usage.remaining_mb / 1024).toFixed(1)} GB left</span>
-                          <span>{(usage.total_mb / 1024).toFixed(1)} GB</span>
-                        </div>
-                      </div>
-
-                      {usage.expired_at && (
-                        <p className="text-[11px] text-foreground/25 font-light">
-                          {t("expires")}: {formatDate(usage.expired_at)}
-                        </p>
-                      )}
                     </div>
                   )}
 
                   {/* Actions */}
                   {(order.status === 'completed' || order.status === 'paid') && order.qrcode && (
-                    <div className="border-t border-white/[0.05] px-5 py-3 flex gap-2">
+                    <div className="border-t border-white/[0.05] px-5 py-3.5 flex gap-2.5">
                       {order.sharing_link && (
                         <Button
                           size="sm"
-                          className="flex-1 bg-foreground/90 text-background hover:bg-foreground font-light rounded-xl h-9 text-xs"
+                          className="flex-1 bg-foreground text-background hover:bg-foreground/90 font-light rounded-xl h-10 text-sm"
                           onClick={() => window.open(order.sharing_link!, '_blank')}
                         >
-                          <ExternalLink className="mr-1.5 h-3.5 w-3.5" />
+                          <ExternalLink className="mr-2 h-4 w-4" />
                           {t('viewEsimDetails')}
                         </Button>
                       )}
                       <Button
                         variant="outline"
                         size="sm"
-                        className="bg-transparent border-white/[0.08] hover:bg-white/[0.04] hover:border-white/[0.12] text-foreground/60 font-light rounded-xl h-9 text-xs"
+                        className="bg-transparent border-white/[0.1] hover:bg-white/[0.04] hover:border-white/[0.15] text-foreground/60 font-light rounded-xl h-10 text-sm px-4"
                         onClick={() => { setSelectedOrder(order); setShowQR(true); }}
                       >
-                        <QrCode className="mr-1.5 h-3.5 w-3.5" />
+                        <QrCode className="mr-2 h-4 w-4" />
                         {t("viewQrCode")}
                       </Button>
                     </div>
