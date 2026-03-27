@@ -6,7 +6,7 @@ import {
   Share2, Pencil, Check, X, RefreshCw, Users,
   Wallet, Shield, Loader2, Gift,
   Target, ChevronRight, Trash2, AlertTriangle, HelpCircle,
-  Sun, Moon, Copy, ExternalLink, Zap
+  Sun, Moon, Copy, ExternalLink, Zap, QrCode, Signal
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
