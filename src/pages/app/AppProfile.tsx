@@ -246,8 +246,27 @@ export const AppProfile: React.FC = () => {
           }
         }
 
-        setAffiliate(affiliateData);
-        setOrders(ordersResult.data || []);
+        const ordersData = ordersResult.data?.orders || [];
+        setOrders(ordersData);
+
+        // Fetch usage data for all orders
+        if (ordersData.length > 0) {
+          const usageMap: Record<string, UsageData> = {};
+          const usagePromises = ordersData.map((order: Order) =>
+            supabase
+              .from('esim_usage')
+              .select('remaining_mb, total_mb, status, expired_at')
+              .eq('order_id', order.id)
+              .single()
+              .then(({ data: usage }) => ({ orderId: order.id, usage }))
+          );
+          const usageResults = await Promise.all(usagePromises);
+          usageResults.forEach(({ orderId, usage }) => {
+            if (usage) usageMap[orderId] = usage;
+          });
+          setUsageData(usageMap);
+        }
+
 
         // Check if user already has a referral applied
         try {
