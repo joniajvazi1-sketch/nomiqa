@@ -321,7 +321,7 @@ const GlobeScene: React.FC<{
       
 
       <Earth isDark={isDark}>
-        <InstancedCoverageTiles
+        <CoveragePins
           tiles={tiles}
           selectedIndex={selectedIndex}
           onSelectIndex={onSelectIndex}
