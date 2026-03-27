@@ -366,11 +366,11 @@ export default function Orders() {
 
                   {/* Actions */}
                   {(order.status === 'completed' || order.status === 'paid') && order.qrcode && (
-                    <div className="border-t border-white/[0.05] px-5 py-3.5 flex gap-2.5">
+                    <div className="border-t border-white/[0.05] px-5 py-3.5 flex flex-col gap-2.5">
                       {order.sharing_link && (
                         <Button
                           size="sm"
-                          className="flex-1 bg-foreground text-background hover:bg-foreground/90 font-light rounded-xl h-10 text-sm"
+                          className="w-full bg-foreground text-background hover:bg-foreground/90 font-light rounded-xl h-11 text-sm"
                           onClick={() => window.open(order.sharing_link!, '_blank')}
                         >
                           <ExternalLink className="mr-2 h-4 w-4" />
@@ -380,7 +380,7 @@ export default function Orders() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="bg-transparent border-white/[0.1] hover:bg-white/[0.04] hover:border-white/[0.15] text-foreground/60 font-light rounded-xl h-10 text-sm px-4"
+                        className="w-full bg-transparent border-white/[0.1] hover:bg-white/[0.04] hover:border-white/[0.15] text-foreground/60 font-light rounded-xl h-11 text-sm"
                         onClick={() => { setSelectedOrder(order); setShowQR(true); }}
                       >
                         <QrCode className="mr-2 h-4 w-4" />
