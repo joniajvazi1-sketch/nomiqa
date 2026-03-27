@@ -36,8 +36,8 @@ const orderSchema = z.object({
   sharing_link: z.string().optional(),
   sharing_access_code: z.string().optional(),
   
-  // Data capacity for usage tracking
-  total_mb: z.number().optional(),
+  // Data capacity for usage tracking (provider sends bytes)
+  total_bytes: z.coerce.number().optional(),
 });
 
 serve(async (req) => {
