@@ -39,6 +39,21 @@ export const TermsPrivacy = () => {
       </div>
 
       <div className="mb-6">
+        <h3 className="text-xl font-light mb-3 text-white">{t("termsPrivacyNotCollectedTitle")}</h3>
+        <p className="text-muted-foreground leading-relaxed mb-2">{t("termsPrivacyNotCollectedIntro")}</p>
+        <ul className="list-disc list-inside text-muted-foreground space-y-1 ml-4">
+          <li>{t("termsPrivacyNotCollected1")}</li>
+          <li>{t("termsPrivacyNotCollected2")}</li>
+          <li>{t("termsPrivacyNotCollected3")}</li>
+          <li>{t("termsPrivacyNotCollected4")}</li>
+          <li>{t("termsPrivacyNotCollected5")}</li>
+          <li>{t("termsPrivacyNotCollected6")}</li>
+          <li>{t("termsPrivacyNotCollected7")}</li>
+        </ul>
+      </div>
+
+
+      <div className="mb-6">
         <h3 className="text-xl font-light mb-3 text-white">{t("termsPrivacyPurposeTitle")}</h3>
         <ul className="list-disc list-inside text-muted-foreground space-y-1 ml-4">
           <li>{t("termsPrivacyPurposeItem1")}</li>
