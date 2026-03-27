@@ -1169,9 +1169,8 @@ const translations: Record<string, Partial<Record<Language | 'HI', string>>> = {
   privacyQuote: { EN: "Your signal. Your rules. Your freedom.", ES: "Tu señal. Tus reglas. Tu libertad.", FR: "Votre signal. Vos règles. Votre liberté.", DE: "Dein Signal. Deine Regeln. Deine Freiheit.", RU: "Ваш сигнал. Ваши правила. Ваша свобода.", ZH: "您的信号。您的规则。您的自由。", JA: "あなたの信号。あなたのルール。あなたの自由。", PT: "Seu sinal. Suas regras. Sua liberdade.", AR: "إشارتك. قواعدك. حريتك.", IT: "Il tuo segnale. Le tue regole. La tua libertà." },
   privacyQuoteAttribution: { EN: "— The Nomiqa Promise", ES: "— La Promesa de Nomiqa", FR: "— La Promesse Nomiqa", DE: "— Das Nomiqa-Versprechen", RU: "— Обещание Nomiqa", ZH: "— Nomiqa的承诺", JA: "— Nomiqaの約束", PT: "— A Promessa Nomiqa", AR: "— وعد Nomiqa", IT: "— La Promessa Nomiqa" },
 
-  
-  privacyQuote: { EN: "Your signal. Your rules. Your freedom.", ES: "Tu señal. Tus reglas. Tu libertad.", FR: "Votre signal. Vos règles. Votre liberté.", DE: "Dein Signal. Deine Regeln. Deine Freiheit.", RU: "Ваш сигнал. Ваши правила. Ваша свобода.", ZH: "您的信号。您的规则。您的自由。", JA: "あなたの信号。あなたのルール。あなたの自由。", PT: "Seu sinal. Suas regras. Sua liberdade.", AR: "إشارتك. قواعدك. حريتك.", IT: "Il tuo segnale. Le tue regole. La tua libertà." },
-  privacyQuoteAttribution: { EN: "— The Nomiqa Promise", ES: "— La Promesa de Nomiqa", FR: "— La Promesse Nomiqa", DE: "— Das Nomiqa-Versprechen", RU: "— Обещание Nomiqa", ZH: "— Nomiqa的承诺", JA: "— Nomiqaの約束", PT: "— A Promessa Nomiqa", AR: "— وعد Nomiqa", IT: "— La Promessa Nomiqa" },
+
+
   
   // Affiliate Page
   affiliateHero1: { EN: "Invite. Earn. Travel Together.", ES: "Invita. Gana. Viaja Juntos.", FR: "Invitez. Gagnez. Voyagez Ensemble.", DE: "Einladen. Verdienen. Zusammen Reisen.", RU: "Приглашай. Зарабатывай. Путешествуй Вместе.", ZH: "邀请。赚取。一起旅行。", JA: "招待。稼ぐ。一緒に旅行。", PT: "Convide. Ganhe. Viaje Juntos.", AR: "ادعُ. اربح. سافر معًا.", IT: "Invita. Guadagna. Viaggia Insieme." },
