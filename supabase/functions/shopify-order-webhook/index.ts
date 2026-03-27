@@ -268,7 +268,7 @@ serve(async (req) => {
         await supabase
           .from('user_spending')
           .update({
-            total_spent_usd: (spending.total_spent_usd || 0) + data.price_usd,
+            total_spent_usd: (spending.total_spent_usd || 0) + (data.price_usd || 0),
             total_orders: undefined,
           })
           .eq('user_id', userId);
