@@ -78,11 +78,15 @@ export interface SignalLogEntry extends TelcoMetrics {
 }
 
 // Minimum distance between logs (meters)
-const MIN_DISTANCE_THRESHOLD = 100;
+const MIN_DISTANCE_THRESHOLD = 75;
 // Maximum time between logs when stationary (ms)
 const MAX_TIME_THRESHOLD = 5 * 60 * 1000; // 5 minutes
 // Maximum samples per hour (smart sampling cap for battery)
 const MAX_SAMPLES_PER_HOUR = 12; // ~1 every 5 minutes max
+// Signal change threshold (dBm) to trigger a log
+const SIGNAL_CHANGE_THRESHOLD = 5;
+// Batch size before flushing to server
+const BATCH_SIZE = 20;
 
 /**
  * Hook for collecting telco-grade signal metrics
