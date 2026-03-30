@@ -108,6 +108,8 @@ export const useTelcoMetrics = () => {
   const lastLogPosition = useRef<{ lat: number; lon: number; time: number } | null>(null);
   const hourlyLogCount = useRef<{ hour: number; count: number }>({ hour: 0, count: 0 });
   const lastNetworkType = useRef<string | null>(null);
+  const lastSignalRsrp = useRef<number | null>(null);
+  const signalLogBatch = useRef<SignalLogEntry[]>([]);
   const speedTestCache = useRef<{ 
     down?: number; 
     up?: number; 
