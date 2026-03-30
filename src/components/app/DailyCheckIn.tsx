@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useEnhancedHaptics } from '@/hooks/useEnhancedHaptics';
 import { useEnhancedSounds } from '@/hooks/useEnhancedSounds';
 import { toast } from 'sonner';
+import { getAppVersion } from '@/lib/sentry';
 
 interface DailyCheckInProps {
   userId: string;
