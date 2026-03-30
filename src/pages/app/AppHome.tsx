@@ -332,15 +332,6 @@ export const AppHome: React.FC = () => {
 
   useEffect(() => {
     loadData();
-    // Check min app version
-    supabase.from('app_remote_config').select('config_value').eq('config_key', 'min_app_version').eq('is_sensitive', false).maybeSingle().then(({ data }) => {
-      if (data?.config_value) {
-        const minVer = typeof data.config_value === 'string' ? data.config_value : String(data.config_value);
-        if (!meetsMinVersion(getAppVersion(), minVer)) {
-          setVersionOutdated(true);
-        }
-      }
-    });
   }, [loadData]);
 
   // Refetch when user returns to the app/tab (e.g. after claiming points)
