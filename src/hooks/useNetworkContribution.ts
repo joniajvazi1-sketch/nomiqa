@@ -651,10 +651,18 @@ export const useNetworkContribution = () => {
     
     lastPositionRef.current = position;
     
-    // Check if we should log a telco-grade data point (75m, 5min, signal change ≥5dBm, or network change)
+    // Check if we should log a telco-grade data point (75m/150m, 5min, signal change ≥5dBm, or network change)
     // Low power mode: skip every other log to reduce frequency
     const shouldSkipForLowPower = collectionPrefs.low_power_collection && stats.dataPointsCount % 2 === 1;
-    const distanceOrTimeTriggered = telcoMetrics.shouldLogDataPoint(position);
+    
+    // Check tile saturation to dynamically adjust distance threshold
+    const effectiveThreshold = await telcoMetrics.getEffectiveDistanceThreshold(
+      position.coords.latitude,
+      position.coords.longitude
+    );
+    
+    // Use dynamic threshold for distance check (75m normal, 150m in saturated tiles)
+    const distanceOrTimeTriggered = telcoMetrics.shouldLogDataPoint(position, effectiveThreshold);
     
     // Signal change detection: quick RSRP probe on Android (only if distance/time didn't trigger)
     let signalChangeTriggered = false;
