@@ -113,6 +113,7 @@ export const useTelcoMetrics = () => {
   const lastNetworkType = useRef<string | null>(null);
   const lastSignalRsrp = useRef<number | null>(null);
   const signalLogBatch = useRef<SignalLogEntry[]>([]);
+  const tileSaturationCache = useRef<Map<string, { saturated: boolean; checkedAt: number }>>(new Map());
   const speedTestCache = useRef<{ 
     down?: number; 
     up?: number; 
