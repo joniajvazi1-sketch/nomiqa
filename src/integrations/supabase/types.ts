@@ -2126,10 +2126,30 @@ export type Database = {
             }
             Returns: Json
           }
-      add_referral_points: {
-        Args: { p_points: number; p_source?: string; p_user_id: string }
-        Returns: Json
-      }
+        | {
+            Args: {
+              p_app_version?: string
+              p_base_points: number
+              p_session_hours?: number
+              p_source?: string
+              p_user_id: string
+            }
+            Returns: Json
+          }
+      add_referral_points:
+        | {
+            Args: { p_points: number; p_source?: string; p_user_id: string }
+            Returns: Json
+          }
+        | {
+            Args: {
+              p_app_version?: string
+              p_points: number
+              p_source?: string
+              p_user_id: string
+            }
+            Returns: Json
+          }
       admin_freeze_user_points: {
         Args: { p_reason?: string; p_target_user_id: string }
         Returns: Json
@@ -2147,17 +2167,30 @@ export type Database = {
         Args: { p_affiliate_id: string }
         Returns: Json
       }
-      claim_challenge_reward: {
-        Args: {
-          p_bonus_points?: number
-          p_challenge_id: string
-          p_is_daily?: boolean
-          p_period_start?: string
-          p_reward_points: number
-          p_user_id: string
-        }
-        Returns: Json
-      }
+      claim_challenge_reward:
+        | {
+            Args: {
+              p_bonus_points?: number
+              p_challenge_id: string
+              p_is_daily?: boolean
+              p_period_start?: string
+              p_reward_points: number
+              p_user_id: string
+            }
+            Returns: Json
+          }
+        | {
+            Args: {
+              p_app_version?: string
+              p_bonus_points?: number
+              p_challenge_id: string
+              p_is_daily?: boolean
+              p_period_start?: string
+              p_reward_points: number
+              p_user_id: string
+            }
+            Returns: Json
+          }
       cleanup_expired_order_pii: { Args: never; Returns: number }
       cleanup_old_email_rate_limits: { Args: never; Returns: undefined }
       cleanup_old_mining_logs: { Args: never; Returns: number }

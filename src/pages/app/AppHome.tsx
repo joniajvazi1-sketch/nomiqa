@@ -40,8 +40,7 @@ import { AppSpinner } from '@/components/app/AppSpinner';
 import { useNativeShare } from '@/hooks/useNativeShare';
 import { AppSEO } from '@/components/app/AppSEO';
 import { toast } from 'sonner';
-import { getAppVersion } from '@/lib/sentry';
-import { meetsMinVersion } from '@/utils/versionCompare';
+import { useVersionGate } from '@/hooks/useVersionGate';
 import { useNetworkContribution, requestIOSAlwaysPermission, getIOSPermissionStatus } from '@/hooks/useNetworkContribution';
 import { useGlobalCoverage } from '@/hooks/useGlobalCoverage';
 import { hasDataConsent } from '@/components/app/DataConsentModal';
@@ -130,7 +129,7 @@ export const AppHome: React.FC = () => {
   const [speedTestPhase, setSpeedTestPhase] = useState<'idle' | 'latency' | 'download' | 'upload'>('idle');
   const [liveSpeed, setLiveSpeed] = useState<{ down?: number; up?: number; latency?: number }>({});
   const [showCellularDataWarning, setShowCellularDataWarning] = useState(false);
-  const [versionOutdated, setVersionOutdated] = useState(false);
+  const { isOutdated: versionOutdated } = useVersionGate();
   
   const [showOnboarding, setShowOnboarding] = useState(() => {
     if (typeof window === 'undefined') return false;
@@ -332,15 +331,6 @@ export const AppHome: React.FC = () => {
 
   useEffect(() => {
     loadData();
-    // Check min app version
-    supabase.from('app_remote_config').select('config_value').eq('config_key', 'min_app_version').eq('is_sensitive', false).maybeSingle().then(({ data }) => {
-      if (data?.config_value) {
-        const minVer = typeof data.config_value === 'string' ? data.config_value : String(data.config_value);
-        if (!meetsMinVersion(getAppVersion(), minVer)) {
-          setVersionOutdated(true);
-        }
-      }
-    });
   }, [loadData]);
 
   // Refetch when user returns to the app/tab (e.g. after claiming points)

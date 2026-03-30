@@ -8,6 +8,7 @@ import { AppSpinner } from '@/components/app/AppSpinner';
 import { useHaptics } from '@/hooks/useHaptics';
 import { toast } from 'sonner';
 import { AppSEO } from '@/components/app/AppSEO';
+import { getAppVersion } from '@/lib/sentry';
 
 interface Challenge {
   id: string;
@@ -103,7 +104,8 @@ export const AppChallenges: React.FC = () => {
         p_bonus_points: 0,
         p_period_start: today,
         p_is_daily: challenge.type === 'daily',
-      });
+        p_app_version: getAppVersion(),
+      } as any);
 
       if (error) throw error;
 

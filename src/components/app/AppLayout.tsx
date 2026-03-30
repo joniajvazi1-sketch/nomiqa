@@ -8,7 +8,9 @@ import { OfflineScreen } from './OfflineScreen';
 import { SwipeablePages } from './SwipeablePages';
 import { FullscreenPortal } from './FullscreenPortal';
 import { PointsSyncBridge } from './PointsSyncBridge';
+import { ForceUpdateScreen } from './ForceUpdateScreen';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
+import { useVersionGate } from '@/hooks/useVersionGate';
 import { cn } from '@/lib/utils';
 
 // Type imports only - actual module loaded dynamically
@@ -36,6 +38,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const location = useLocation();
   const statusBarRef = useRef<StatusBarModule | null>(null);
   const { isOffline } = useNetworkStatus();
+  const { isOutdated, minVersion, currentVersion } = useVersionGate();
   const { theme, resolvedTheme } = useTheme();
   const isDark = resolvedTheme === 'dark' || theme === 'dark';
   const mainRef = useRef<HTMLDivElement>(null);
@@ -157,6 +160,11 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   // Offline screen
   if (isOffline) {
     return <OfflineScreen />;
+  }
+
+  // Force update screen for outdated app versions
+  if (isOutdated && minVersion) {
+    return <ForceUpdateScreen currentVersion={currentVersion} minVersion={minVersion} />;
   }
 
   return (
