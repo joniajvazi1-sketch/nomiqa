@@ -8,7 +8,9 @@ import { OfflineScreen } from './OfflineScreen';
 import { SwipeablePages } from './SwipeablePages';
 import { FullscreenPortal } from './FullscreenPortal';
 import { PointsSyncBridge } from './PointsSyncBridge';
+import { ForceUpdateScreen } from './ForceUpdateScreen';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
+import { useVersionGate } from '@/hooks/useVersionGate';
 import { cn } from '@/lib/utils';
 
 // Type imports only - actual module loaded dynamically
