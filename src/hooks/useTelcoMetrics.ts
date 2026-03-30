@@ -86,7 +86,10 @@ const MAX_SAMPLES_PER_HOUR = 12; // ~1 every 5 minutes max
 // Signal change threshold (dBm) to trigger a log
 const SIGNAL_CHANGE_THRESHOLD = 5;
 // Batch size before flushing to server
-const BATCH_SIZE = 20;
+const BATCH_SIZE = 25;
+// Tile saturation cache: geohash → { saturated, checkedAt }
+const TILE_SATURATION_CACHE_TTL = 30 * 60 * 1000; // 30 minutes
+const SATURATED_DISTANCE_THRESHOLD = 150; // Double distance in saturated tiles
 
 /**
  * Hook for collecting telco-grade signal metrics
@@ -110,6 +113,7 @@ export const useTelcoMetrics = () => {
   const lastNetworkType = useRef<string | null>(null);
   const lastSignalRsrp = useRef<number | null>(null);
   const signalLogBatch = useRef<SignalLogEntry[]>([]);
+  const tileSaturationCache = useRef<Map<string, { saturated: boolean; checkedAt: number }>>(new Map());
   const speedTestCache = useRef<{ 
     down?: number; 
     up?: number; 
@@ -224,9 +228,11 @@ export const useTelcoMetrics = () => {
 
   /**
    * Check if we should log based on distance/time thresholds AND hourly cap
-   * Rule: Log every 100m OR every 5 minutes if stationary, MAX 12 per hour
+   * Rule: Log every distanceThreshold OR every 5 minutes if stationary, MAX 12 per hour
+   * @param distanceThreshold - override distance threshold (default 75m, 150m for saturated tiles)
    */
-  const shouldLogDataPoint = useCallback((position: Position): boolean => {
+  const shouldLogDataPoint = useCallback((position: Position, distanceThreshold?: number): boolean => {
+    const threshold = distanceThreshold ?? MIN_DISTANCE_THRESHOLD;
     const now = Date.now();
     const currentHour = Math.floor(now / (60 * 60 * 1000));
     
@@ -264,8 +270,8 @@ export const useTelcoMetrics = () => {
     // Time since last log
     const timeSinceLastLog = now - lastLogPosition.current.time;
     
-    // Log if moved 100m+ OR if 5 minutes have passed
-    if (distance >= MIN_DISTANCE_THRESHOLD || timeSinceLastLog >= MAX_TIME_THRESHOLD) {
+    // Log if moved threshold+ OR if 5 minutes have passed
+    if (distance >= threshold || timeSinceLastLog >= MAX_TIME_THRESHOLD) {
       lastLogPosition.current = currentPos;
       hourlyLogCount.current.count++;
       return true;
@@ -360,6 +366,56 @@ export const useTelcoMetrics = () => {
     signalLogBatch.current = [];
     return batch;
   }, []);
+
+  /**
+   * Check if a geohash tile is saturated (50+ recent samples, avg quality >70)
+   * Caches result for 30 minutes to avoid repeated DB lookups
+   */
+  const isTileSaturated = useCallback(async (latitude: number, longitude: number): Promise<boolean> => {
+    // Compute geohash at ~1km precision (5 chars)
+    const geohash = simpleGeohash(latitude, longitude, 5);
+    
+    // Check cache
+    const cached = tileSaturationCache.current.get(geohash);
+    if (cached && Date.now() - cached.checkedAt < TILE_SATURATION_CACHE_TTL) {
+      return cached.saturated;
+    }
+    
+    try {
+      // Query coverage_tiles materialized view
+      const { data, error } = await (await import('@/integrations/supabase/client')).supabase
+        .from('coverage_tiles' as any)
+        .select('sample_count, avg_quality')
+        .like('geohash', `${geohash}%`)
+        .limit(1)
+        .maybeSingle();
+      
+      if (error || !data) {
+        tileSaturationCache.current.set(geohash, { saturated: false, checkedAt: Date.now() });
+        return false;
+      }
+      
+      const saturated = (data as any).sample_count >= 50 && (data as any).avg_quality > 70;
+      tileSaturationCache.current.set(geohash, { saturated, checkedAt: Date.now() });
+      
+      if (saturated) {
+        console.log(`[TelcoMetrics] Tile ${geohash} is saturated (${(data as any).sample_count} samples), using 150m threshold`);
+      }
+      
+      return saturated;
+    } catch {
+      tileSaturationCache.current.set(geohash, { saturated: false, checkedAt: Date.now() });
+      return false;
+    }
+  }, []);
+
+  /**
+   * Get effective distance threshold (75m normal, 150m in saturated tiles)
+   */
+  const getEffectiveDistanceThreshold = useCallback(async (latitude: number, longitude: number): Promise<number> => {
+    const saturated = await isTileSaturated(latitude, longitude);
+    return saturated ? SATURATED_DISTANCE_THRESHOLD : MIN_DISTANCE_THRESHOLD;
+  }, [isTileSaturated]);
 
   /**
    * Get current batch size (for UI display or debugging)
@@ -604,6 +660,8 @@ export const useTelcoMetrics = () => {
     addToBatch,
     flushBatch,
     getBatchSize,
+    isTileSaturated,
+    getEffectiveDistanceThreshold,
     resetLoggingState,
     deviceInfo,
     getHourlySampleCount: () => hourlyLogCount.current.count
@@ -628,6 +686,36 @@ function calculateDistanceMeters(lat1: number, lon1: number, lat2: number, lon2:
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 
   return R * c;
+}
+
+/**
+ * Simple geohash encoder (returns a geohash string at given precision)
+ * Precision 5 ≈ 4.9km × 4.9km cells — good for tile saturation checks
+ */
+function simpleGeohash(lat: number, lon: number, precision: number = 5): string {
+  const BASE32 = '0123456789bcdefghjkmnpqrstuvwxyz';
+  let latRange = [-90, 90];
+  let lonRange = [-180, 180];
+  let hash = '';
+  let isEven = true;
+  let bit = 0;
+  let ch = 0;
+
+  while (hash.length < precision) {
+    if (isEven) {
+      const mid = (lonRange[0] + lonRange[1]) / 2;
+      if (lon >= mid) { ch = ch | (1 << (4 - bit)); lonRange[0] = mid; }
+      else { lonRange[1] = mid; }
+    } else {
+      const mid = (latRange[0] + latRange[1]) / 2;
+      if (lat >= mid) { ch = ch | (1 << (4 - bit)); latRange[0] = mid; }
+      else { latRange[1] = mid; }
+    }
+    isEven = !isEven;
+    if (bit < 4) { bit++; }
+    else { hash += BASE32[ch]; bit = 0; ch = 0; }
+  }
+  return hash;
 }
 
 /**
