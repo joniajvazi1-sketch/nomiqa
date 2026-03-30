@@ -162,6 +162,11 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
     return <OfflineScreen />;
   }
 
+  // Force update screen for outdated app versions
+  if (isOutdated && minVersion) {
+    return <ForceUpdateScreen currentVersion={currentVersion} minVersion={minVersion} />;
+  }
+
   return (
     <>
     <PointsSyncBridge />
