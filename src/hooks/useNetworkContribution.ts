@@ -1564,6 +1564,7 @@ export const useNetworkContribution = () => {
     }
 
     if (session.id && user) {
+      try {
         await supabase
           .from('contribution_sessions')
           .update({
