@@ -130,7 +130,7 @@ export const AppHome: React.FC = () => {
   const [speedTestPhase, setSpeedTestPhase] = useState<'idle' | 'latency' | 'download' | 'upload'>('idle');
   const [liveSpeed, setLiveSpeed] = useState<{ down?: number; up?: number; latency?: number }>({});
   const [showCellularDataWarning, setShowCellularDataWarning] = useState(false);
-  const [versionOutdated, setVersionOutdated] = useState(false);
+  const { isOutdated: versionOutdated } = useVersionGate();
   
   const [showOnboarding, setShowOnboarding] = useState(() => {
     if (typeof window === 'undefined') return false;
