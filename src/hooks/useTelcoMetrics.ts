@@ -589,15 +589,21 @@ export const useTelcoMetrics = () => {
     speedTestCache.current = null;
     hourlyLogCount.current = { hour: 0, count: 0 };
     lastNetworkType.current = null;
+    lastSignalRsrp.current = null;
+    signalLogBatch.current = [];
   }, []);
 
   return {
     initDeviceInfo,
     shouldLogDataPoint,
     shouldLogOnNetworkChange,
+    shouldLogOnSignalChange,
     getTelcoMetrics,
     runLightweightSpeedTest,
     createSignalLogEntry,
+    addToBatch,
+    flushBatch,
+    getBatchSize,
     resetLoggingState,
     deviceInfo,
     getHourlySampleCount: () => hourlyLogCount.current.count
