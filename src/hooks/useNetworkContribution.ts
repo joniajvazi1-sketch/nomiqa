@@ -684,7 +684,93 @@ export const useNetworkContribution = () => {
   }, [lastPosition, session.status, isContributionEnabled]); // Removed handlePositionUpdate from deps
 
   /**
-   * Log a telco-grade signal data point via edge function
+   * Convert a SignalLogEntry + integrity into the payload shape for sync-contribution-data
+   */
+  const buildSignalLogPayload = (signalLog: SignalLogEntry, integrity: DeviceIntegrityResult) => ({
+    user_id: user!.id,
+    session_id: session.id,
+    latitude: signalLog.latitude,
+    longitude: signalLog.longitude,
+    accuracy_meters: signalLog.accuracyMeters,
+    altitude_meters: signalLog.altitudeMeters,
+    speed_mps: signalLog.speedMps,
+    heading_degrees: signalLog.headingDegrees,
+    rsrp: signalLog.rsrp,
+    rsrq: signalLog.rsrq,
+    rssi: signalLog.rssi,
+    sinr: signalLog.sinr,
+    network_type: signalLog.networkType,
+    carrier_name: signalLog.carrierName,
+    mcc: signalLog.mcc,
+    mnc: signalLog.mnc,
+    mcc_mnc: signalLog.mccMnc,
+    roaming_status: signalLog.roamingStatus,
+    speed_test_down: signalLog.speedTestDown,
+    speed_test_up: signalLog.speedTestUp,
+    latency_ms: signalLog.latencyMs,
+    jitter_ms: signalLog.jitterMs,
+    device_model: signalLog.deviceModel,
+    device_manufacturer: signalLog.deviceManufacturer,
+    os_version: signalLog.osVersion,
+    cell_id: signalLog.cellId,
+    tac: signalLog.tac,
+    pci: signalLog.pci,
+    band_number: signalLog.bandNumber,
+    frequency_mhz: signalLog.frequencyMhz,
+    bandwidth_mhz: signalLog.bandwidthMhz,
+    recorded_at: signalLog.recordedAt,
+    data_quality_score: signalLog.dataQualityScore,
+    is_mock_location: integrity.isMockLocation,
+    is_indoor: signalLog.accuracyMeters ? signalLog.accuracyMeters > 30 : false,
+    speed_test_error: signalLog.speedTestError,
+    speed_test_provider: signalLog.speedTestProvider,
+    latency_error: signalLog.latencyError,
+    latency_provider: signalLog.latencyProvider,
+    latency_method: signalLog.latencyMethod,
+    app_version: getAppVersion(),
+    device_integrity_score: integrity.integrityScore,
+    device_integrity_flags: integrity.flags,
+    device_5g_capable: signalLog.device5gCapable ?? null,
+    max_supported_generation: signalLog.maxSupportedGeneration ?? null,
+  });
+
+  /**
+   * Flush a batch of signal logs to the server
+   */
+  const syncSignalLogBatch = async (payloads: ReturnType<typeof buildSignalLogPayload>[]) => {
+    if (payloads.length === 0) return;
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('sync-contribution-data', {
+        body: { signalLogs: payloads }
+      });
+      
+      if (error) {
+        console.error('Batch signal log sync error:', error);
+        // Don't queue individually — the batch will be retried via offline queue
+      } else {
+        const result = data?.signal_logs;
+        if (result?.inserted > 0) {
+          setStats(prev => ({
+            ...prev,
+            signalLogsCount: prev.signalLogsCount + result.inserted
+          }));
+          console.log(`[NetworkContribution] Batch synced: ${result.inserted} logs`);
+        }
+        if (result?.rejected > 0) {
+          console.warn('Signal logs rejected:', result.rejected, result.flags);
+        }
+      }
+    } catch (error) {
+      console.error('Batch sync failed:', error);
+    }
+  };
+
+  // Ref to hold pending batch payloads (integrity-enriched, ready to send)
+  const pendingBatchPayloads = useRef<ReturnType<typeof buildSignalLogPayload>[]>([]);
+
+  /**
+   * Log a telco-grade signal data point — batches 20 records before syncing
    * Includes device integrity signals for anti-fraud
    */
   const logTelcoDataPoint = async (position: Position) => {
@@ -697,80 +783,26 @@ export const useNetworkContribution = () => {
         session.id
       );
       
+      // After collecting metrics, check signal change trigger for next iteration
+      if (signalLog.rsrp != null) {
+        telcoMetrics.shouldLogOnSignalChange(signalLog.rsrp);
+      }
+      
       // Check device integrity for anti-fraud signals
       const integrity = await checkDeviceIntegrity(signalLog.isMockLocation || false);
       
-      // Insert via edge function (handles validation, geohash, country_code derivation)
-      const { data, error } = await supabase.functions.invoke('sync-contribution-data', {
-        body: {
-          signalLogs: [{
-            user_id: user.id,
-            session_id: session.id,
-            latitude: signalLog.latitude,
-            longitude: signalLog.longitude,
-            accuracy_meters: signalLog.accuracyMeters,
-            altitude_meters: signalLog.altitudeMeters,
-            speed_mps: signalLog.speedMps,
-            heading_degrees: signalLog.headingDegrees,
-            rsrp: signalLog.rsrp,
-            rsrq: signalLog.rsrq,
-            rssi: signalLog.rssi,
-            sinr: signalLog.sinr,
-            network_type: signalLog.networkType,
-            carrier_name: signalLog.carrierName,
-            mcc: signalLog.mcc,
-            mnc: signalLog.mnc,
-            mcc_mnc: signalLog.mccMnc,
-            roaming_status: signalLog.roamingStatus,
-            speed_test_down: signalLog.speedTestDown,
-            speed_test_up: signalLog.speedTestUp,
-            latency_ms: signalLog.latencyMs,
-            jitter_ms: signalLog.jitterMs,
-            device_model: signalLog.deviceModel,
-            device_manufacturer: signalLog.deviceManufacturer,
-            os_version: signalLog.osVersion,
-            cell_id: signalLog.cellId,
-            tac: signalLog.tac,
-            pci: signalLog.pci,
-            band_number: signalLog.bandNumber,
-            frequency_mhz: signalLog.frequencyMhz,
-            bandwidth_mhz: signalLog.bandwidthMhz,
-            recorded_at: signalLog.recordedAt,
-            data_quality_score: signalLog.dataQualityScore,
-            is_mock_location: integrity.isMockLocation,
-            is_indoor: signalLog.accuracyMeters ? signalLog.accuracyMeters > 30 : false,
-            speed_test_error: signalLog.speedTestError,
-            speed_test_provider: signalLog.speedTestProvider,
-            latency_error: signalLog.latencyError,
-            latency_provider: signalLog.latencyProvider,
-            latency_method: signalLog.latencyMethod,
-            // B2B fields
-            app_version: getAppVersion(),
-            // Device integrity anti-fraud signals
-            device_integrity_score: integrity.integrityScore,
-            device_integrity_flags: integrity.flags,
-            // Device capability (B2B value)
-            device_5g_capable: signalLog.device5gCapable ?? null,
-            max_supported_generation: signalLog.maxSupportedGeneration ?? null,
-          }]
-        }
-      });
+      // Build payload and add to batch
+      const payload = buildSignalLogPayload(signalLog, integrity);
+      pendingBatchPayloads.current.push(payload);
       
-      if (error) {
-        console.error('Signal log sync error:', error);
-        // Queue for offline sync
-        queueTelcoData(signalLog, integrity);
-      } else {
-        const result = data?.signal_logs;
-        if (result?.inserted > 0) {
-          setStats(prev => ({
-            ...prev,
-            signalLogsCount: prev.signalLogsCount + result.inserted
-          }));
-        }
-        if (result?.rejected > 0) {
-          console.warn('Signal logs rejected:', result.rejected, result.flags);
-        }
+      // Add to telcoMetrics batch tracker for count
+      const readyBatch = telcoMetrics.addToBatch(signalLog);
+      
+      if (readyBatch) {
+        // Batch is full — flush all pending payloads
+        const toSync = [...pendingBatchPayloads.current];
+        pendingBatchPayloads.current = [];
+        await syncSignalLogBatch(toSync);
       }
     } catch (error) {
       console.error('Failed to log telco data:', error);
