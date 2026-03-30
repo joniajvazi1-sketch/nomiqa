@@ -95,12 +95,13 @@ export const DailyCheckIn = ({ userId, onClose }: DailyCheckInProps) => {
 
       if (error) throw error;
 
-      // Award points via cap-enforced RPC (respects daily/monthly/lifetime caps + frozen status)
+      // Award points via cap-enforced RPC (respects daily/monthly/lifetime caps + frozen status + version gate)
       const { data: pointsResult, error: pointsError } = await supabase.rpc('add_points_with_cap', {
         p_user_id: userId,
         p_base_points: bonusPoints,
         p_source: 'daily_checkin',
-      });
+        p_app_version: getAppVersion(),
+      } as any);
 
       if (pointsError) {
         console.error('Error awarding check-in points:', pointsError);

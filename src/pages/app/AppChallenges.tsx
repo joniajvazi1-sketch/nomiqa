@@ -104,7 +104,8 @@ export const AppChallenges: React.FC = () => {
         p_bonus_points: 0,
         p_period_start: today,
         p_is_daily: challenge.type === 'daily',
-      });
+        p_app_version: getAppVersion(),
+      } as any);
 
       if (error) throw error;
 

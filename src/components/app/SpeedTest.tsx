@@ -122,8 +122,9 @@ export function SpeedTest({
         const { data: pointsResult, error: rpcError } = await supabase.rpc('add_referral_points', {
           p_user_id: userId,
           p_points: pointsForTest,
-          p_source: 'speed_test'
-        });
+          p_source: 'speed_test',
+          p_app_version: getAppVersion(),
+        } as any);
 
         if (rpcError) {
           console.error('[SpeedTest] Failed to award points via RPC:', rpcError);
