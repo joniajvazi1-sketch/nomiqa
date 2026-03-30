@@ -40,7 +40,6 @@ import { AppSpinner } from '@/components/app/AppSpinner';
 import { useNativeShare } from '@/hooks/useNativeShare';
 import { AppSEO } from '@/components/app/AppSEO';
 import { toast } from 'sonner';
-import { getAppVersion } from '@/lib/sentry';
 import { useVersionGate } from '@/hooks/useVersionGate';
 import { useNetworkContribution, requestIOSAlwaysPermission, getIOSPermissionStatus } from '@/hooks/useNetworkContribution';
 import { useGlobalCoverage } from '@/hooks/useGlobalCoverage';
