@@ -658,6 +658,8 @@ export const useTelcoMetrics = () => {
     addToBatch,
     flushBatch,
     getBatchSize,
+    isTileSaturated,
+    getEffectiveDistanceThreshold,
     resetLoggingState,
     deviceInfo,
     getHourlySampleCount: () => hourlyLogCount.current.count
