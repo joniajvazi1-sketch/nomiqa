@@ -687,6 +687,36 @@ function calculateDistanceMeters(lat1: number, lon1: number, lat2: number, lon2:
 }
 
 /**
+ * Simple geohash encoder (returns a geohash string at given precision)
+ * Precision 5 ≈ 4.9km × 4.9km cells — good for tile saturation checks
+ */
+function simpleGeohash(lat: number, lon: number, precision: number = 5): string {
+  const BASE32 = '0123456789bcdefghjkmnpqrstuvwxyz';
+  let latRange = [-90, 90];
+  let lonRange = [-180, 180];
+  let hash = '';
+  let isEven = true;
+  let bit = 0;
+  let ch = 0;
+
+  while (hash.length < precision) {
+    if (isEven) {
+      const mid = (lonRange[0] + lonRange[1]) / 2;
+      if (lon >= mid) { ch = ch | (1 << (4 - bit)); lonRange[0] = mid; }
+      else { lonRange[1] = mid; }
+    } else {
+      const mid = (latRange[0] + latRange[1]) / 2;
+      if (lat >= mid) { ch = ch | (1 << (4 - bit)); latRange[0] = mid; }
+      else { latRange[1] = mid; }
+    }
+    isEven = !isEven;
+    if (bit < 4) { bit++; }
+    else { hash += BASE32[ch]; bit = 0; ch = 0; }
+  }
+  return hash;
+}
+
+/**
  * Map generic connection type to granular network type
  */
 function mapConnectionToNetworkType(connectionType: string): string {
