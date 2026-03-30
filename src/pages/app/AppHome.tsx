@@ -41,7 +41,7 @@ import { useNativeShare } from '@/hooks/useNativeShare';
 import { AppSEO } from '@/components/app/AppSEO';
 import { toast } from 'sonner';
 import { getAppVersion } from '@/lib/sentry';
-import { meetsMinVersion } from '@/utils/versionCompare';
+import { useVersionGate } from '@/hooks/useVersionGate';
 import { useNetworkContribution, requestIOSAlwaysPermission, getIOSPermissionStatus } from '@/hooks/useNetworkContribution';
 import { useGlobalCoverage } from '@/hooks/useGlobalCoverage';
 import { hasDataConsent } from '@/components/app/DataConsentModal';
