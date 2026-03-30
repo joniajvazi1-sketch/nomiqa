@@ -366,6 +366,56 @@ export const useTelcoMetrics = () => {
   }, []);
 
   /**
+   * Check if a geohash tile is saturated (50+ recent samples, avg quality >70)
+   * Caches result for 30 minutes to avoid repeated DB lookups
+   */
+  const isTileSaturated = useCallback(async (latitude: number, longitude: number): Promise<boolean> => {
+    // Compute geohash at ~1km precision (5 chars)
+    const geohash = simpleGeohash(latitude, longitude, 5);
+    
+    // Check cache
+    const cached = tileSaturationCache.current.get(geohash);
+    if (cached && Date.now() - cached.checkedAt < TILE_SATURATION_CACHE_TTL) {
+      return cached.saturated;
+    }
+    
+    try {
+      // Query coverage_tiles materialized view
+      const { data, error } = await (await import('@/integrations/supabase/client')).supabase
+        .from('coverage_tiles' as any)
+        .select('sample_count, avg_quality')
+        .like('geohash', `${geohash}%`)
+        .limit(1)
+        .maybeSingle();
+      
+      if (error || !data) {
+        tileSaturationCache.current.set(geohash, { saturated: false, checkedAt: Date.now() });
+        return false;
+      }
+      
+      const saturated = (data as any).sample_count >= 50 && (data as any).avg_quality > 70;
+      tileSaturationCache.current.set(geohash, { saturated, checkedAt: Date.now() });
+      
+      if (saturated) {
+        console.log(`[TelcoMetrics] Tile ${geohash} is saturated (${(data as any).sample_count} samples), using 150m threshold`);
+      }
+      
+      return saturated;
+    } catch {
+      tileSaturationCache.current.set(geohash, { saturated: false, checkedAt: Date.now() });
+      return false;
+    }
+  }, []);
+
+  /**
+   * Get effective distance threshold (75m normal, 150m in saturated tiles)
+   */
+  const getEffectiveDistanceThreshold = useCallback(async (latitude: number, longitude: number): Promise<number> => {
+    const saturated = await isTileSaturated(latitude, longitude);
+    return saturated ? SATURATED_DISTANCE_THRESHOLD : MIN_DISTANCE_THRESHOLD;
+  }, [isTileSaturated]);
+
+  /**
    * Get current batch size (for UI display or debugging)
    */
   const getBatchSize = useCallback((): number => {
