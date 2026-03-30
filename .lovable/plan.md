@@ -1,41 +1,61 @@
 
 
-# Plan: Remove Crypto/KYC References + Update Privacy Content
+# Cost Optimization Audit — What's Done vs. What's Left
 
-## What's Changing
+## Already Implemented ✓
 
-### 1. Remove "Pay with Crypto" / "No KYC" references
-These files need updates:
+Your codebase already has most of the optimizations in place:
 
-- **`src/components/HowItWorks.tsx`** — Step 2 "Pay with Crypto" → "Pay Securely" (credit card + crypto), Step 3 remove "No KYC required"
-- **`src/components/EasyCheckout.tsx`** — The middle card uses `cryptoNativeTitle`/`cryptoNativeDesc` translation keys → rebrand to "Secure Payments" (cards + crypto)
-- **`src/contexts/TranslationContext.tsx`** — Update translation keys:
-  - `heroNoKyc` → "Instant Activation" (remove KYC reference)
-  - `heroCryptoOnly` → "Card & Crypto Payments" 
-  - `cryptoNativeTitle` → "Secure Payments"
-  - `cryptoNativeDesc` → mention both card and crypto
-  - `gsDePINBenefit2Desc` → remove "No KYC" part
-  - `cryptoConversionTitle`/`cryptoConversionMessage` → keep (these are about future token conversion, not payment method)
-- **`src/components/SEO.tsx`** — Update all localized shop SEO titles/descriptions to say "Card & Crypto Payments" instead of "Crypto Payments", remove "no KYC" from descriptions (all 10 languages)
-- **`supabase/functions/chat-support/index.ts`** — Update system prompt: remove "No KYC/ID required", update payment section to lead with credit cards, crypto as secondary
+1. **Distance + event logging** — `MIN_DISTANCE_THRESHOLD = 75m`, `shouldLogOnNetworkChange()`, `shouldLogOnSignalChange()` with 5 dBm threshold ✓
+2. **Batching** — `BATCH_SIZE = 20` records before flush, with `flushBatch()` on stop/background ✓
+3. **Hourly sample cap** — `MAX_SAMPLES_PER_HOUR = 12` prevents over-logging ✓
+4. **Auto-save throttling** — Session updates every 2 minutes (`AUTO_SAVE_INTERVAL_MS`), not every second ✓
+5. **Materialized views** — `coverage_tiles` refreshed every 15 min, B2B views every 6 hours ✓
+6. **Raw log cleanup** — 90-day retention via `pg_cron` for both `signal_logs` and `mining_logs` ✓
+7. **PII cleanup** — 120-day anonymization of order data ✓
 
-### 2. Update Privacy Page Content
-- **`src/pages/Privacy.tsx`** — Add a new "What We Collect" section that clearly states:
-  - We only collect anonymized internet/network performance data (signal strength, speed, latency)
-  - We do NOT track personal browsing, app usage, messages, or identity
-  - All location data is rounded and anonymized
-  - Data is encrypted and stored in EU data centers
-  - Users can delete all data at any time
-- This is the website privacy page (marketing-focused), not the legal terms privacy section
+## Remaining Optimizations (3 items)
 
-### 3. Update Terms Privacy Section  
-- **`src/components/terms/TermsPrivacy.tsx`** — Add a clear "What We Do NOT Collect" subsection listing: phone numbers, IMEI, MAC addresses, browsing history, app usage, SMS/messages, contacts
+### 1. Tile Saturation — Reduce logging in well-covered areas
+Currently every location is logged at the same frequency regardless of existing coverage density. In city centres where you already have thousands of data points, new logs add minimal B2B value.
+
+**Implementation:**
+- Before logging, check if the current geohash tile already has recent high-quality data (query `coverage_tiles` materialized view)
+- If tile has 50+ samples in last 7 days with avg quality > 70, skip every other log (double the distance threshold to 150m)
+- New/sparse tiles keep the standard 75m threshold
+- Cache tile saturation status locally for 30 minutes to avoid repeated DB lookups
+
+**Files:** `src/hooks/useTelcoMetrics.ts`, `src/hooks/useNetworkContribution.ts`
+
+### 2. Reduce raw log retention from 90 → 60 days
+Your advisor recommends 60 days. B2B buyers need trends and aggregates, not 3-month-old raw pings. The materialized views already preserve the aggregated value.
+
+**Implementation:** Update the `cleanup_old_signal_logs` and `cleanup_old_mining_logs` cron functions from `INTERVAL '90 days'` to `INTERVAL '60 days'`.
+
+**Method:** Database migration to replace the two cleanup functions.
+
+### 3. Increase batch size from 20 → 25
+Minor tweak matching advisor's recommendation. Reduces edge function invocations by ~20%.
+
+**Files:** `src/hooks/useTelcoMetrics.ts` (change `BATCH_SIZE` constant)
+
+## Expected Savings
+
+| Optimization | Write Reduction | Already Done? |
+|---|---|---|
+| Event-based logging (75m/signal/network) | 60-80% | ✓ |
+| Batch 20→25 records | ~20% fewer API calls | Planned |
+| Hourly cap (12/hr) | Prevents runaway | ✓ |
+| Tile saturation skip | 15-30% in dense areas | Planned |
+| 90→60 day retention | 33% less storage | Planned |
+| Session update throttle (2min) | 95% fewer updates | ✓ |
+| Materialized views | Eliminates live queries | ✓ |
+
+**Bottom line:** You're already at ~70-80% optimization. The 3 remaining items will squeeze out another 15-25% on top.
 
 ## Technical Details
 
-- All translation key changes affect 10 languages (EN, ES, FR, DE, RU, ZH, JA, PT, AR, IT)
-- SEO metadata updates span ~80 lines across all language variants in SEO.tsx
-- Chat support system prompt is in an Edge Function that will auto-deploy
-- No database changes needed
-- No new dependencies
+- Tile saturation check will use `supabase.from('coverage_tiles')` with a geohash filter, cached in a `Map<string, { saturated: boolean; checkedAt: number }>` ref
+- The 60-day retention change is a simple function body replacement via migration
+- No new tables, no new edge functions, no schema changes needed
 
