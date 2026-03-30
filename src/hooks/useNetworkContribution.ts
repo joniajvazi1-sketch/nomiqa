@@ -1056,6 +1056,15 @@ export const useNetworkContribution = () => {
     // This ensures points are persisted the instant the user switches away or the OS suspends
     const immediateSave = () => {
       if (document.visibilityState !== 'visible') {
+        // Flush any pending batched signal logs (fire-and-forget)
+        if (pendingBatchPayloads.current.length > 0) {
+          const remainingPayloads = [...pendingBatchPayloads.current];
+          pendingBatchPayloads.current = [];
+          telcoMetrics.flushBatch();
+          syncSignalLogBatch(remainingPayloads).catch(() => {});
+          console.log(`[NetworkContribution] Flushed ${remainingPayloads.length} batched logs on visibility hide`);
+        }
+        
         const currentStats = statsRef.current;
         const currentPoints = Math.floor(currentStats.pointsEarned);
         const pointsDelta = currentPoints - lastAutoSavePointsRef.current;
