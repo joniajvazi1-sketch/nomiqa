@@ -38,6 +38,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const location = useLocation();
   const statusBarRef = useRef<StatusBarModule | null>(null);
   const { isOffline } = useNetworkStatus();
+  const { isOutdated, minVersion, currentVersion } = useVersionGate();
   const { theme, resolvedTheme } = useTheme();
   const isDark = resolvedTheme === 'dark' || theme === 'dark';
   const mainRef = useRef<HTMLDivElement>(null);
