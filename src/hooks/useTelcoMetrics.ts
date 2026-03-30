@@ -368,6 +368,7 @@ export const useTelcoMetrics = () => {
     return signalLogBatch.current.length;
   }, []);
 
+  /**
    * Get current telco metrics
    * Platform-specific implementation with native plugin support
    */
