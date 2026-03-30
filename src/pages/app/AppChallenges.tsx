@@ -8,6 +8,7 @@ import { AppSpinner } from '@/components/app/AppSpinner';
 import { useHaptics } from '@/hooks/useHaptics';
 import { toast } from 'sonner';
 import { AppSEO } from '@/components/app/AppSEO';
+import { getAppVersion } from '@/lib/sentry';
 
 interface Challenge {
   id: string;
