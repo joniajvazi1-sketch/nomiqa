@@ -1554,8 +1554,16 @@ export const useNetworkContribution = () => {
       autoSaveTimerRef.current = null;
     }
 
+    // Flush any remaining batched signal logs before closing session
+    if (pendingBatchPayloads.current.length > 0) {
+      const remainingPayloads = [...pendingBatchPayloads.current];
+      pendingBatchPayloads.current = [];
+      telcoMetrics.flushBatch(); // Clear the batch tracker too
+      await syncSignalLogBatch(remainingPayloads);
+      console.log(`[NetworkContribution] Flushed ${remainingPayloads.length} remaining batched logs on stop`);
+    }
+
     if (session.id && user) {
-      try {
         await supabase
           .from('contribution_sessions')
           .update({
