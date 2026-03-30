@@ -228,9 +228,11 @@ export const useTelcoMetrics = () => {
 
   /**
    * Check if we should log based on distance/time thresholds AND hourly cap
-   * Rule: Log every 100m OR every 5 minutes if stationary, MAX 12 per hour
+   * Rule: Log every distanceThreshold OR every 5 minutes if stationary, MAX 12 per hour
+   * @param distanceThreshold - override distance threshold (default 75m, 150m for saturated tiles)
    */
-  const shouldLogDataPoint = useCallback((position: Position): boolean => {
+  const shouldLogDataPoint = useCallback((position: Position, distanceThreshold?: number): boolean => {
+    const threshold = distanceThreshold ?? MIN_DISTANCE_THRESHOLD;
     const now = Date.now();
     const currentHour = Math.floor(now / (60 * 60 * 1000));
     
@@ -268,8 +270,8 @@ export const useTelcoMetrics = () => {
     // Time since last log
     const timeSinceLastLog = now - lastLogPosition.current.time;
     
-    // Log if moved 100m+ OR if 5 minutes have passed
-    if (distance >= MIN_DISTANCE_THRESHOLD || timeSinceLastLog >= MAX_TIME_THRESHOLD) {
+    // Log if moved threshold+ OR if 5 minutes have passed
+    if (distance >= threshold || timeSinceLastLog >= MAX_TIME_THRESHOLD) {
       lastLogPosition.current = currentPos;
       hourlyLogCount.current.count++;
       return true;
