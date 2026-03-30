@@ -305,6 +305,69 @@ export const useTelcoMetrics = () => {
   }, []);
 
   /**
+   * Check if signal strength changed by ≥5 dBm (valuable for coverage quality mapping)
+   */
+  const shouldLogOnSignalChange = useCallback((currentRsrp: number | undefined): boolean => {
+    if (currentRsrp == null) return false;
+    
+    const now = Date.now();
+    const currentHour = Math.floor(now / (60 * 60 * 1000));
+    
+    if (hourlyLogCount.current.hour !== currentHour) {
+      hourlyLogCount.current = { hour: currentHour, count: 0 };
+    }
+    
+    if (lastSignalRsrp.current === null) {
+      lastSignalRsrp.current = currentRsrp;
+      return false; // First reading — just record baseline
+    }
+    
+    const delta = Math.abs(currentRsrp - lastSignalRsrp.current);
+    if (delta >= SIGNAL_CHANGE_THRESHOLD) {
+      console.log(`[TelcoMetrics] Signal change detected: ${lastSignalRsrp.current} → ${currentRsrp} (Δ${delta} dBm)`);
+      lastSignalRsrp.current = currentRsrp;
+      
+      if (hourlyLogCount.current.count < MAX_SAMPLES_PER_HOUR) {
+        hourlyLogCount.current.count++;
+      }
+      return true;
+    }
+    
+    return false;
+  }, []);
+
+  /**
+   * Add a signal log entry to the batch buffer.
+   * Returns the batch when it reaches BATCH_SIZE, otherwise null.
+   */
+  const addToBatch = useCallback((entry: SignalLogEntry): SignalLogEntry[] | null => {
+    signalLogBatch.current.push(entry);
+    console.log(`[TelcoMetrics] Batch: ${signalLogBatch.current.length}/${BATCH_SIZE}`);
+    
+    if (signalLogBatch.current.length >= BATCH_SIZE) {
+      const batch = [...signalLogBatch.current];
+      signalLogBatch.current = [];
+      return batch;
+    }
+    return null;
+  }, []);
+
+  /**
+   * Flush whatever is in the batch (e.g. on session stop or app background)
+   */
+  const flushBatch = useCallback((): SignalLogEntry[] => {
+    const batch = [...signalLogBatch.current];
+    signalLogBatch.current = [];
+    return batch;
+  }, []);
+
+  /**
+   * Get current batch size (for UI display or debugging)
+   */
+  const getBatchSize = useCallback((): number => {
+    return signalLogBatch.current.length;
+  }, []);
+
    * Get current telco metrics
    * Platform-specific implementation with native plugin support
    */
