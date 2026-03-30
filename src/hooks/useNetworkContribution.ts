@@ -651,12 +651,24 @@ export const useNetworkContribution = () => {
     
     lastPositionRef.current = position;
     
-    // Check if we should log a telco-grade data point (75m, 5min, or signal change)
+    // Check if we should log a telco-grade data point (75m, 5min, signal change ≥5dBm, or network change)
     // Low power mode: skip every other log to reduce frequency
     const shouldSkipForLowPower = collectionPrefs.low_power_collection && stats.dataPointsCount % 2 === 1;
     const distanceOrTimeTriggered = telcoMetrics.shouldLogDataPoint(position);
-    // Signal change detection: check RSRP delta ≥ 5dBm (Android only, iOS returns undefined)
-    const signalChangeTriggered = !distanceOrTimeTriggered && telcoMetrics.shouldLogOnSignalChange(undefined); // RSRP checked after metrics collection
+    
+    // Signal change detection: quick RSRP probe on Android (only if distance/time didn't trigger)
+    let signalChangeTriggered = false;
+    if (!distanceOrTimeTriggered && !shouldSkipForLowPower && Capacitor.getPlatform() === 'android') {
+      try {
+        const { TelephonyInfoPlugin, isTelephonyPluginAvailable } = await import('@/plugins/TelephonyInfoPlugin');
+        if (isTelephonyPluginAvailable()) {
+          const probe = await TelephonyInfoPlugin.getSignalInfo();
+          if (probe.rsrp) {
+            signalChangeTriggered = telcoMetrics.shouldLogOnSignalChange(probe.rsrp);
+          }
+        }
+      } catch { /* ignore probe errors */ }
+    }
     
     if ((distanceOrTimeTriggered || signalChangeTriggered) && !shouldSkipForLowPower) {
       await logTelcoDataPoint(position);
