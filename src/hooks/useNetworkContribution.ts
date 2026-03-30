@@ -651,10 +651,14 @@ export const useNetworkContribution = () => {
     
     lastPositionRef.current = position;
     
-    // Check if we should log a telco-grade data point (100m or 5min)
+    // Check if we should log a telco-grade data point (75m, 5min, or signal change)
     // Low power mode: skip every other log to reduce frequency
     const shouldSkipForLowPower = collectionPrefs.low_power_collection && stats.dataPointsCount % 2 === 1;
-    if (telcoMetrics.shouldLogDataPoint(position) && !shouldSkipForLowPower) {
+    const distanceOrTimeTriggered = telcoMetrics.shouldLogDataPoint(position);
+    // Signal change detection: check RSRP delta ≥ 5dBm (Android only, iOS returns undefined)
+    const signalChangeTriggered = !distanceOrTimeTriggered && telcoMetrics.shouldLogOnSignalChange(undefined); // RSRP checked after metrics collection
+    
+    if ((distanceOrTimeTriggered || signalChangeTriggered) && !shouldSkipForLowPower) {
       await logTelcoDataPoint(position);
     }
     
