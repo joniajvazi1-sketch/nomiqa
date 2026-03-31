@@ -118,6 +118,9 @@ export const Footer = () => {
           <Link to="/privacy" className="text-white/80 hover:text-neon-cyan transition-colors duration-300 font-light text-xs md:text-sm">
             {t("footerPrivacySecurity")}
           </Link>
+          <Link to="/delete-account" className="text-white/80 hover:text-neon-cyan transition-colors duration-300 font-light text-xs md:text-sm">
+            Delete Account
+          </Link>
           <Link to="/about" className="text-white/80 hover:text-neon-cyan transition-colors duration-300 font-light text-xs md:text-sm">
             {t("footerAboutNomiqa")}
           </Link>
