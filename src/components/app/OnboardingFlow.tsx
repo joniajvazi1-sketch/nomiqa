@@ -49,6 +49,7 @@ const SLIDES: OnboardingSlide[] = [
 export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) => {
   const navigate = useNavigate();
   const { mediumTap, success } = useHaptics();
+  const { requestPermission: requestNotificationPermission } = usePushNotifications();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isNavigating, setIsNavigating] = useState(false);
 
