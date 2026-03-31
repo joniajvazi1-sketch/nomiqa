@@ -135,14 +135,12 @@ const DeleteAccount = () => {
             </h2>
             <p className="text-sm text-muted-foreground">
               As a user in the European Union, you have the right to erasure ("right to be forgotten") under Article 17 of the GDPR. Nomiqa processes deletion requests immediately upon confirmation. For questions about your data rights, contact us at{" "}
-              <a href="mailto:privacy@nomiqa.com" className="text-primary hover:underline">privacy@nomiqa.com</a>.
+              <a href="mailto:dev@nomiqa-depin.com" className="text-primary hover:underline">dev@nomiqa-depin.com</a>.
             </p>
           </CardContent>
         </Card>
-      </main>
-
-      <Footer />
-    </div>
+      </div>
+    </>
   );
 };
 

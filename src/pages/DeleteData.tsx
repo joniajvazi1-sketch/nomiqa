@@ -151,14 +151,12 @@ const DeleteData = () => {
             <p className="text-sm text-muted-foreground">
               Under Article 17 of the GDPR, you have the right to request erasure of your personal data. Nomiqa fully supports this right. For full account deletion, visit our{" "}
               <a href="/delete-account" className="text-primary hover:underline">account deletion page</a>. For questions, contact{" "}
-              <a href="mailto:privacy@nomiqa.com" className="text-primary hover:underline">privacy@nomiqa.com</a>.
+              <a href="mailto:dev@nomiqa-depin.com" className="text-primary hover:underline">dev@nomiqa-depin.com</a>.
             </p>
           </CardContent>
         </Card>
-      </main>
-
-      <Footer />
-    </div>
+      </div>
+    </>
   );
 };
 
