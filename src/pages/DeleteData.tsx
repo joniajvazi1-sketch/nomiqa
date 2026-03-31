@@ -2,7 +2,7 @@ import { Shield, Database, AlertTriangle, CheckCircle, Clock, Mail, Trash2 } fro
 import { Card, CardContent } from "@/components/ui/card";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import { SEO } from "@/components/SEO";
+import { Helmet } from "react-helmet-async";
 
 const DeleteData = () => {
   return (
