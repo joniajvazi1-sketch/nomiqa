@@ -65,6 +65,28 @@ export const NotificationSettings: React.FC = () => {
 
   const handleEnablePush = async () => {
     selectionTap();
+    
+    // If permission was previously denied, guide user to OS settings
+    if (permissionStatus === 'denied') {
+      // On native, open app settings
+      if (Capacitor.isNativePlatform()) {
+        try {
+          const { App } = await import('@capacitor/app');
+          // There's no direct "open settings" in Capacitor core,
+          // but re-requesting will show "go to settings" on iOS/Android
+          const granted = await requestPermission();
+          if (granted) {
+            await updatePreference('push_enabled', true);
+            successPattern();
+          }
+        } catch (e) {
+          console.error('[NotificationSettings] Failed to open settings:', e);
+        }
+      }
+      return;
+    }
+    
+    // Request permission (shows native OS popup if status is 'prompt')
     const granted = await requestPermission();
     if (granted) {
       await updatePreference('push_enabled', true);
