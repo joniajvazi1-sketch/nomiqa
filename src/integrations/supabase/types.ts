@@ -2197,6 +2197,7 @@ export type Database = {
       cleanup_old_rate_limits: { Args: never; Returns: undefined }
       cleanup_old_signal_logs: { Args: never; Returns: number }
       cleanup_old_webhook_requests: { Args: never; Returns: undefined }
+      estimated_row_count: { Args: { table_name: string }; Returns: number }
       get_all_time_city_count: { Args: never; Returns: number }
       get_coverage_grid_cells: {
         Args: never

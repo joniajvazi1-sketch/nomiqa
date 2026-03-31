@@ -68,7 +68,7 @@ const DAILY_SPEED_TEST_LIMIT = 3; // Max rewarded speed tests per day (25 pts ea
 const SPEED_TEST_DAILY_KEY = 'nomiqa_speed_tests_today';
 const MAX_SESSION_DURATION_MS = 24 * 60 * 60 * 1000; // 24 hours max session - runs all day!
 const MAX_OFFLINE_QUEUE_SIZE = 1000; // FIFO cap to prevent localStorage overflow
-const AUTO_SAVE_INTERVAL_MS = 2 * 60 * 1000; // Auto-save points every 2 minutes (was 5min - users reported reward delays)
+const AUTO_SAVE_INTERVAL_MS = 5 * 60 * 1000; // Auto-save points every 5 minutes (optimized for scale — 60% fewer API calls)
 const LAST_AUTO_SAVE_KEY = 'nomiqa_last_auto_save';
 
 /**
