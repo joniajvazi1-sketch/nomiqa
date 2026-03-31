@@ -154,17 +154,18 @@ export const NotificationSettings: React.FC = () => {
                   </p>
                 </div>
               </div>
-              {permissionStatus !== 'denied' && (
-                <Switch 
+              <Switch 
                   checked={isEnabled}
-                  onCheckedChange={() => !isEnabled && handleEnablePush()}
-                  disabled={isEnabled}
+                  onCheckedChange={(checked) => {
+                    if (checked && !isEnabled) {
+                      handleEnablePush();
+                    }
+                  }}
                 />
-              )}
             </div>
             {permissionStatus === 'denied' && (
-              <p className="text-xs text-red-400 mt-2 ml-12">
-                Enable notifications in your device settings
+              <p className="text-xs text-destructive mt-2 ml-12">
+                Notifications are blocked. Tap the toggle to re-request or enable in your device settings.
               </p>
             )}
           </div>
