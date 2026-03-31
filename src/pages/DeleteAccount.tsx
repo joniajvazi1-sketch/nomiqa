@@ -1,19 +1,16 @@
 import { Shield, Trash2, AlertTriangle, CheckCircle, Clock, Mail } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
 import { Helmet } from "react-helmet-async";
 
 const DeleteAccount = () => {
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <>
       <Helmet>
         <title>Delete Your Account — Nomiqa</title>
         <meta name="description" content="Learn how to permanently delete your Nomiqa account and all associated data. GDPR compliant." />
       </Helmet>
-      <Navbar />
 
-      <main className="container max-w-3xl mx-auto px-4 py-16 md:py-24">
+      <div className="container max-w-3xl mx-auto px-4 py-16 md:py-24">
         <div className="text-center mb-12">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-destructive/10 mb-6">
             <Trash2 className="w-8 h-8 text-destructive" />
