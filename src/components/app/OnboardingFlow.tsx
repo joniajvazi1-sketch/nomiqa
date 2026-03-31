@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useHaptics } from '@/hooks/useHaptics';
 import { cn } from '@/lib/utils';
 import FullscreenPortal from '@/components/app/FullscreenPortal';
+import { usePushNotifications } from '@/hooks/usePushNotifications';
 
 interface OnboardingFlowProps {
   onComplete: () => void;
@@ -48,6 +49,7 @@ const SLIDES: OnboardingSlide[] = [
 export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) => {
   const navigate = useNavigate();
   const { mediumTap, success } = useHaptics();
+  const { requestPermission: requestNotificationPermission } = usePushNotifications();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isNavigating, setIsNavigating] = useState(false);
 
@@ -80,23 +82,41 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
     if (!isLastSlide) goToSlide(currentSlide + 1);
   };
 
-  const handleSkip = () => {
+  const handleSkip = async () => {
     success();
     localStorage.setItem('hasSeenOnboarding', 'true');
+    // Request notification permission on first launch
+    try {
+      await requestNotificationPermission();
+    } catch (e) {
+      console.log('[Onboarding] Notification permission request failed:', e);
+    }
     onComplete();
   };
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     mediumTap();
     setIsNavigating(true);
     localStorage.setItem('hasSeenOnboarding', 'true');
+    // Request notification permission before navigating
+    try {
+      await requestNotificationPermission();
+    } catch (e) {
+      console.log('[Onboarding] Notification permission request failed:', e);
+    }
     navigate('/app/auth?mode=login');
   };
 
-  const handleSignUp = () => {
+  const handleSignUp = async () => {
     mediumTap();
     setIsNavigating(true);
     localStorage.setItem('hasSeenOnboarding', 'true');
+    // Request notification permission before navigating
+    try {
+      await requestNotificationPermission();
+    } catch (e) {
+      console.log('[Onboarding] Notification permission request failed:', e);
+    }
     navigate('/app/auth?mode=signup');
   };
 

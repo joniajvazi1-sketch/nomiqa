@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bell, BellRing, Calendar, Trophy, Users, BarChart3, Clock } from 'lucide-react';
+import { Bell, BellRing, Calendar, Trophy, Users, BarChart3, Clock, ExternalLink } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import { useNotificationPreferences, NotificationPreferences } from '@/hooks/useNotificationPreferences';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { useEnhancedHaptics } from '@/hooks/useEnhancedHaptics';
+import { Capacitor } from '@capacitor/core';
 
 interface NotificationSettingItemProps {
   icon: React.ReactNode;
@@ -64,6 +65,28 @@ export const NotificationSettings: React.FC = () => {
 
   const handleEnablePush = async () => {
     selectionTap();
+    
+    // If permission was previously denied, guide user to OS settings
+    if (permissionStatus === 'denied') {
+      // On native, open app settings
+      if (Capacitor.isNativePlatform()) {
+        try {
+          const { App } = await import('@capacitor/app');
+          // There's no direct "open settings" in Capacitor core,
+          // but re-requesting will show "go to settings" on iOS/Android
+          const granted = await requestPermission();
+          if (granted) {
+            await updatePreference('push_enabled', true);
+            successPattern();
+          }
+        } catch (e) {
+          console.error('[NotificationSettings] Failed to open settings:', e);
+        }
+      }
+      return;
+    }
+    
+    // Request permission (shows native OS popup if status is 'prompt')
     const granted = await requestPermission();
     if (granted) {
       await updatePreference('push_enabled', true);
@@ -131,17 +154,18 @@ export const NotificationSettings: React.FC = () => {
                   </p>
                 </div>
               </div>
-              {permissionStatus !== 'denied' && (
-                <Switch 
+              <Switch 
                   checked={isEnabled}
-                  onCheckedChange={() => !isEnabled && handleEnablePush()}
-                  disabled={isEnabled}
+                  onCheckedChange={(checked) => {
+                    if (checked && !isEnabled) {
+                      handleEnablePush();
+                    }
+                  }}
                 />
-              )}
             </div>
             {permissionStatus === 'denied' && (
-              <p className="text-xs text-red-400 mt-2 ml-12">
-                Enable notifications in your device settings
+              <p className="text-xs text-destructive mt-2 ml-12">
+                Notifications are blocked. Tap the toggle to re-request or enable in your device settings.
               </p>
             )}
           </div>
