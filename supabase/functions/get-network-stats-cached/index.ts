@@ -41,24 +41,34 @@ Deno.serve(async (req) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Fetch all stats in parallel for maximum speed
-    const [signalLogsResult, contributorsResult, sessionsResult, productsResult] = await Promise.all([
-      supabase.from("signal_logs").select("id", { count: "exact", head: true }),
-      supabase.from("user_points").select("id", { count: "exact", head: true }),
+    // Use estimated counts (pg_class.reltuples) instead of exact counts
+    // This is ~1000x faster and avoids full table scans under load
+    const [estimatedCounts, sessionsResult, productsResult] = await Promise.all([
+      // Single query for all estimated counts
+      supabase.rpc('estimated_row_count', { table_name: 'signal_logs' }).then(async (signalRes) => {
+        const contributorRes = await supabase.rpc('estimated_row_count', { table_name: 'user_points' });
+        return {
+          signalLogs: signalRes.data as number || 0,
+          contributors: contributorRes.data as number || 0,
+        };
+      }),
+      // Sessions today still needs exact count (small result set with index)
       supabase.from("contribution_sessions")
         .select("id", { count: "exact", head: true })
         .gte("started_at", new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()),
-      supabase.from("products").select("country_code", { count: "exact", head: true }),
+      // Products estimated count
+      supabase.rpc('estimated_row_count', { table_name: 'products' }),
     ]);
 
     // Calculate countries covered (products / 5, max 200)
-    const countriesCovered = productsResult.count 
-      ? Math.min(Math.floor(productsResult.count / 5), 200) 
+    const productCount = productsResult.data as number || 0;
+    const countriesCovered = productCount
+      ? Math.min(Math.floor(productCount / 5), 200)
       : 180;
 
     const stats: NetworkStats = {
-      totalDataPoints: signalLogsResult.count || 0,
-      totalContributors: contributorsResult.count || 0,
+      totalDataPoints: estimatedCounts.signalLogs,
+      totalContributors: estimatedCounts.contributors,
       countriesCovered: countriesCovered,
       sessionsToday: sessionsResult.count || 0,
     };
@@ -74,7 +84,7 @@ Deno.serve(async (req) => {
     });
   } catch (error) {
     console.error("Error fetching network stats:", error);
-    
+
     // Return fallback stats on error
     const fallbackStats: NetworkStats = {
       totalDataPoints: 1247,

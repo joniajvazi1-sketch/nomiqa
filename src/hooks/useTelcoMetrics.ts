@@ -86,7 +86,7 @@ const MAX_SAMPLES_PER_HOUR = 12; // ~1 every 5 minutes max
 // Signal change threshold (dBm) to trigger a log
 const SIGNAL_CHANGE_THRESHOLD = 5;
 // Batch size before flushing to server
-const BATCH_SIZE = 25;
+const BATCH_SIZE = 50;
 // Tile saturation cache: geohash → { saturated, checkedAt }
 const TILE_SATURATION_CACHE_TTL = 30 * 60 * 1000; // 30 minutes
 const SATURATED_DISTANCE_THRESHOLD = 150; // Double distance in saturated tiles
