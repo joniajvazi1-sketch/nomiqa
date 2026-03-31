@@ -258,6 +258,8 @@ const WebRoutes = () => (
       <Route path="/download" element={<Download />} />
       <Route path="/how-it-works" element={<HowItWorks />} />
       <Route path="/network" element={<NetworkDashboard />} />
+      <Route path="/delete-account" element={<DeleteAccount />} />
+      <Route path="/delete-data" element={<DeleteData />} />
       <Route path="/my-account" element={<Navigate to="/account" replace />} />
 
       {/* Localized route groups */}
