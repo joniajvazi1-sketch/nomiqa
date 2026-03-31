@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useHaptics } from '@/hooks/useHaptics';
 import { cn } from '@/lib/utils';
 import FullscreenPortal from '@/components/app/FullscreenPortal';
+import { usePushNotifications } from '@/hooks/usePushNotifications';
 
 interface OnboardingFlowProps {
   onComplete: () => void;
