@@ -42,6 +42,8 @@ const HowItWorks = lazy(() => import("./pages/HowItWorks"));
 const MobileOnly = lazy(() => import("./pages/MobileOnly"));
 const SocialRewards = lazy(() => import("./pages/SocialRewards"));
 const NetworkDashboard = lazy(() => import("./pages/NetworkDashboard"));
+const DeleteAccount = lazy(() => import("./pages/DeleteAccount"));
+const DeleteData = lazy(() => import("./pages/DeleteData"));
 
 // Lazy load APP pages (native only)
 const AppHome = lazy(() => import("./pages/app/AppHome").then(m => ({ default: m.AppHome })));
@@ -256,6 +258,8 @@ const WebRoutes = () => (
       <Route path="/download" element={<Download />} />
       <Route path="/how-it-works" element={<HowItWorks />} />
       <Route path="/network" element={<NetworkDashboard />} />
+      <Route path="/delete-account" element={<DeleteAccount />} />
+      <Route path="/delete-data" element={<DeleteData />} />
       <Route path="/my-account" element={<Navigate to="/account" replace />} />
 
       {/* Localized route groups */}
