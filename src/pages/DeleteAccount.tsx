@@ -72,10 +72,10 @@ const DeleteAccount = () => {
               If you are unable to log in or access the app, you can request account deletion by emailing us:
             </p>
             <a 
-              href="mailto:privacy@nomiqa.com?subject=Account%20Deletion%20Request"
+              href="mailto:dev@nomiqa-depin.com?subject=Account%20Deletion%20Request"
               className="inline-flex items-center gap-2 text-primary hover:underline font-medium"
             >
-              privacy@nomiqa.com
+              dev@nomiqa-depin.com
             </a>
             <p className="text-xs text-muted-foreground mt-2">
               Please send the request from the email address associated with your Nomiqa account. We will process your request within 72 hours.
