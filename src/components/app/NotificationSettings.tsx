@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bell, BellRing, Calendar, Trophy, Users, BarChart3, Clock } from 'lucide-react';
+import { Bell, BellRing, Calendar, Trophy, Users, BarChart3, Clock, ExternalLink } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import { useNotificationPreferences, NotificationPreferences } from '@/hooks/useNotificationPreferences';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { useEnhancedHaptics } from '@/hooks/useEnhancedHaptics';
+import { Capacitor } from '@capacitor/core';
 
 interface NotificationSettingItemProps {
   icon: React.ReactNode;
