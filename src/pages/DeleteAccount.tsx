@@ -7,10 +7,10 @@ import { Helmet } from "react-helmet-async";
 const DeleteAccount = () => {
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <SEO
-        title="Delete Your Account — Nomiqa"
-        description="Learn how to permanently delete your Nomiqa account and all associated data. GDPR compliant."
-      />
+      <Helmet>
+        <title>Delete Your Account — Nomiqa</title>
+        <meta name="description" content="Learn how to permanently delete your Nomiqa account and all associated data. GDPR compliant." />
+      </Helmet>
       <Navbar />
 
       <main className="container max-w-3xl mx-auto px-4 py-16 md:py-24">

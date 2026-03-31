@@ -7,10 +7,10 @@ import { Helmet } from "react-helmet-async";
 const DeleteData = () => {
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <SEO
-        title="Delete Your Data — Nomiqa"
-        description="Request deletion of your collected data without deleting your Nomiqa account. GDPR compliant."
-      />
+      <Helmet>
+        <title>Delete Your Data — Nomiqa</title>
+        <meta name="description" content="Request deletion of your collected data without deleting your Nomiqa account. GDPR compliant." />
+      </Helmet>
       <Navbar />
 
       <main className="container max-w-3xl mx-auto px-4 py-16 md:py-24">
