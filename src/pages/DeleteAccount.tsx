@@ -2,7 +2,7 @@ import { Shield, Trash2, AlertTriangle, CheckCircle, Clock, Mail } from "lucide-
 import { Card, CardContent } from "@/components/ui/card";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import { SEO } from "@/components/SEO";
+import { Helmet } from "react-helmet-async";
 
 const DeleteAccount = () => {
   return (
