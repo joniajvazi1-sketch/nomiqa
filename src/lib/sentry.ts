@@ -14,7 +14,7 @@ import { Capacitor } from "@capacitor/core";
  */
 
 // App version - update this when releasing new versions
-const APP_VERSION = '1.0.2';
+const APP_VERSION = '1.0.3';
 
 /**
  * Get the environment based on build mode and URL
