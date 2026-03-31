@@ -1,19 +1,16 @@
 import { Shield, Database, AlertTriangle, CheckCircle, Clock, Mail, Trash2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
 import { Helmet } from "react-helmet-async";
 
 const DeleteData = () => {
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <>
       <Helmet>
         <title>Delete Your Data — Nomiqa</title>
         <meta name="description" content="Request deletion of your collected data without deleting your Nomiqa account. GDPR compliant." />
       </Helmet>
-      <Navbar />
 
-      <main className="container max-w-3xl mx-auto px-4 py-16 md:py-24">
+      <div className="container max-w-3xl mx-auto px-4 py-16 md:py-24">
         <div className="text-center mb-12">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-amber-500/10 mb-6">
             <Database className="w-8 h-8 text-amber-500" />
@@ -75,10 +72,10 @@ const DeleteData = () => {
               You can also request data deletion by emailing us:
             </p>
             <a 
-              href="mailto:privacy@nomiqa.com?subject=Data%20Deletion%20Request"
+              href="mailto:dev@nomiqa-depin.com?subject=Data%20Deletion%20Request"
               className="inline-flex items-center gap-2 text-primary hover:underline font-medium"
             >
-              privacy@nomiqa.com
+              dev@nomiqa-depin.com
             </a>
             <p className="text-xs text-muted-foreground mt-2">
               Please send the request from the email address associated with your Nomiqa account. We will process your request within 72 hours.
@@ -154,14 +151,12 @@ const DeleteData = () => {
             <p className="text-sm text-muted-foreground">
               Under Article 17 of the GDPR, you have the right to request erasure of your personal data. Nomiqa fully supports this right. For full account deletion, visit our{" "}
               <a href="/delete-account" className="text-primary hover:underline">account deletion page</a>. For questions, contact{" "}
-              <a href="mailto:privacy@nomiqa.com" className="text-primary hover:underline">privacy@nomiqa.com</a>.
+              <a href="mailto:dev@nomiqa-depin.com" className="text-primary hover:underline">dev@nomiqa-depin.com</a>.
             </p>
           </CardContent>
         </Card>
-      </main>
-
-      <Footer />
-    </div>
+      </div>
+    </>
   );
 };
 
