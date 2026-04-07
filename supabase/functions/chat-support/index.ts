@@ -55,7 +55,7 @@ const chatRequestSchema = z.object({
       .min(1, "Message cannot be empty")
       .max(2000, "Message too long")
       .transform(sanitizeContent)
-  })).min(1).max(20),
+  })).min(1).max(8),
   language: z.string().max(10).optional()
 });
 
