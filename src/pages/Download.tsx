@@ -6,7 +6,7 @@ import { SEO } from "@/components/SEO";
 import { lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
 
-const SupportChatbot = lazy(() => import("@/components/SupportChatbot").then(m => ({ default: m.SupportChatbot })));
+
 
 const Download = () => {
   const { t } = useTranslation();
@@ -203,9 +203,6 @@ const Download = () => {
       </section>
 
       <SiteNavigation />
-      <Suspense fallback={null}>
-        <SupportChatbot />
-      </Suspense>
     </div>
   );
 };

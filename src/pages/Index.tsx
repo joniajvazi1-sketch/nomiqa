@@ -6,7 +6,7 @@ import { SEO } from "@/components/SEO";
 const ChatbotBubble = lazy(() => import("@/components/ChatbotBubble").then(m => ({ default: m.ChatbotBubble })));
 
 // Lazy load all below-the-fold components to improve TTI
-const SupportChatbot = lazy(() => import("@/components/SupportChatbot").then(m => ({ default: m.SupportChatbot })));
+
 const DePINAdvantage = lazy(() => import("@/components/DePINAdvantage").then(m => ({ default: m.DePINAdvantage })));
 const WhatIsDePIN = lazy(() => import("@/components/WhatIsDePIN").then(m => ({ default: m.WhatIsDePIN })));
 const DataMarketplace = lazy(() => import("@/components/DataMarketplace").then(m => ({ default: m.DataMarketplace })));
@@ -149,9 +149,6 @@ const Index = () => {
         <>
           <Suspense fallback={null}>
             <ChatbotBubble />
-          </Suspense>
-          <Suspense fallback={null}>
-            <SupportChatbot />
           </Suspense>
         </>
       )}

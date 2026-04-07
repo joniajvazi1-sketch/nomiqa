@@ -1,5 +1,5 @@
 import { SiteNavigation } from "@/components/SiteNavigation";
-import { SupportChatbot } from "@/components/SupportChatbot";
+
 import { NetworkBackground } from "@/components/NetworkBackground";
 import { useTranslation } from "@/contexts/TranslationContext";
 import { SEO } from "@/components/SEO";
@@ -58,7 +58,7 @@ export default function Terms() {
       </div>
 
       <SiteNavigation />
-      <SupportChatbot />
+      
     </div>
   );
 }
