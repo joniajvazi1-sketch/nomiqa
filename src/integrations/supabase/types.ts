@@ -755,8 +755,6 @@ export type Database = {
           access_token: string | null
           access_token_expires_at: string | null
           access_token_invalidated: boolean | null
-          airlo_order_id: string | null
-          airlo_request_id: string | null
           created_at: string
           data_amount: string | null
           email: string | null
@@ -775,8 +773,6 @@ export type Database = {
           access_token?: string | null
           access_token_expires_at?: string | null
           access_token_invalidated?: boolean | null
-          airlo_order_id?: string | null
-          airlo_request_id?: string | null
           created_at?: string
           data_amount?: string | null
           email?: string | null
@@ -795,8 +791,6 @@ export type Database = {
           access_token?: string | null
           access_token_expires_at?: string | null
           access_token_invalidated?: boolean | null
-          airlo_order_id?: string | null
-          airlo_request_id?: string | null
           created_at?: string
           data_amount?: string | null
           email?: string | null
@@ -954,7 +948,6 @@ export type Database = {
       }
       products: {
         Row: {
-          airlo_package_id: string
           country_code: string
           country_image_url: string | null
           country_name: string
@@ -973,7 +966,6 @@ export type Database = {
           validity_days: number
         }
         Insert: {
-          airlo_package_id: string
           country_code: string
           country_image_url?: string | null
           country_name: string
@@ -992,7 +984,6 @@ export type Database = {
           validity_days: number
         }
         Update: {
-          airlo_package_id?: string
           country_code?: string
           country_image_url?: string | null
           country_name?: string
