@@ -128,15 +128,49 @@ export const SupportChatbot = () => {
     }
   }, [isOpen, t]);
 
+  // Daily message cap logic
+  const getDailyMessageCount = (): number => {
+    try {
+      const stored = localStorage.getItem('nomiqa_chat_usage');
+      if (!stored) return 0;
+      const { date, count } = JSON.parse(stored);
+      if (date !== new Date().toISOString().slice(0, 10)) return 0;
+      return count;
+    } catch { return 0; }
+  };
+
+  const incrementDailyCount = () => {
+    const today = new Date().toISOString().slice(0, 10);
+    const current = getDailyMessageCount();
+    localStorage.setItem('nomiqa_chat_usage', JSON.stringify({ date: today, count: current + 1 }));
+  };
+
+  const DAILY_LIMIT = 15;
+
   const sendMessage = async () => {
     if (!input.trim() || isLoading) return;
+
+    // Check daily limit
+    if (getDailyMessageCount() >= DAILY_LIMIT) {
+      setMessages((prev) => [...prev, 
+        { role: "user", content: input.trim() },
+        { role: "assistant", content: "Daily message limit reached. For further help, please email support@nomiqa-depin.com" }
+      ]);
+      setInput("");
+      return;
+    }
 
     const userMessage: Message = { role: "user", content: input.trim() };
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setIsLoading(true);
+    incrementDailyCount();
 
     let assistantContent = "";
+
+    // Only send last 6 messages to reduce token costs
+    const allMessages = [...messages, userMessage];
+    const trimmedMessages = allMessages.slice(-6);
 
     try {
       const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat-support`;
@@ -148,7 +182,7 @@ export const SupportChatbot = () => {
           Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
         },
         body: JSON.stringify({ 
-          messages: [...messages, userMessage],
+          messages: trimmedMessages,
           language 
         }),
       });

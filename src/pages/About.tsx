@@ -1,5 +1,5 @@
 import { SiteNavigation } from "@/components/SiteNavigation";
-import { SupportChatbot } from "@/components/SupportChatbot";
+
 import { SEO } from "@/components/SEO";
 import { Globe, Shield, Users, Zap, Network, Database, Coins, CheckCircle, Building2, Target } from "lucide-react";
 import { useTranslation } from "@/contexts/TranslationContext";
@@ -272,7 +272,7 @@ export default function About() {
       </section>
 
       <SiteNavigation />
-      <SupportChatbot />
+      
     </div>
   );
 }

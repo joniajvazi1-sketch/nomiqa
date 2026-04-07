@@ -1,5 +1,5 @@
 import { SiteNavigation } from "@/components/SiteNavigation";
-import { SupportChatbot } from "@/components/SupportChatbot";
+
 import { NetworkBackground } from "@/components/NetworkBackground";
 import { SEO } from "@/components/SEO";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -167,7 +167,7 @@ export default function Roadmap() {
       </div>
 
       <SiteNavigation />
-      <SupportChatbot />
+      
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { SiteNavigation } from "@/components/SiteNavigation";
-import { SupportChatbot } from "@/components/SupportChatbot";
+
 import { NetworkBackground } from "@/components/NetworkBackground";
 import { Shield, Eye, Lock, Globe, Fingerprint, Database, Network, Users, Coins, CheckCircle, XCircle, Server, Trash2 } from "lucide-react";
 import { useTranslation } from "@/contexts/TranslationContext";
@@ -299,7 +299,7 @@ export default function Privacy() {
       </section>
       
       <SiteNavigation />
-      <SupportChatbot />
+      
     </div>
   );
 }

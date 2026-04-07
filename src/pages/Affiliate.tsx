@@ -17,7 +17,7 @@ import { useTranslation } from "@/contexts/TranslationContext";
 import { EmailVerification } from "@/components/EmailVerification";
 import { localizedPath } from "@/utils/localizedLinks";
 
-const SupportChatbot = lazy(() => import("@/components/SupportChatbot").then(m => ({ default: m.SupportChatbot })));
+
 const MiningRewardsSection = lazy(() => import("@/components/MiningRewardsSection").then(m => ({ default: m.MiningRewardsSection })));
 const ConversionRewardsSection = lazy(() => import("@/components/ConversionRewardsSection").then(m => ({ default: m.ConversionRewardsSection })));
 const ReferralsList = lazy(() => import("@/components/ReferralsList").then(m => ({ default: m.ReferralsList })));
@@ -572,9 +572,6 @@ export default function Affiliate() {
       )}
 
       <SiteNavigation />
-      <Suspense fallback={null}>
-        <SupportChatbot />
-      </Suspense>
     </div>
   );
 }

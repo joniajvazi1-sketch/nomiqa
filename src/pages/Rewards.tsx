@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { SiteNavigation } from "@/components/SiteNavigation";
-import { SupportChatbot } from "@/components/SupportChatbot";
+
 import { NetworkBackground } from "@/components/NetworkBackground";
 import { SEO } from "@/components/SEO";
 import { Plane, Compass, Mountain, Rocket, Wallet, Sparkles, Zap } from "lucide-react";
@@ -180,7 +180,7 @@ export default function Rewards() {
       </main>
 
       <SiteNavigation />
-      <SupportChatbot />
+      
     </div>
   );
 }
