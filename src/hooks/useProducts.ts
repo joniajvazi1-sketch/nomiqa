@@ -4,7 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 export interface Product {
   id: string;
   name: string;
-  name: string;
   country_code: string;
   country_name: string;
   country_image_url: string | null;
