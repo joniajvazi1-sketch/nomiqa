@@ -205,18 +205,6 @@ serve(async (req) => {
 
     logStep("Checkout session created", { sessionId: session.id, url: session.url });
 
-    // Store Stripe session ID in order (using airlo_request_id field)
-    const { error: updateError } = await supabase
-      .from('orders')
-      .update({ 
-        airlo_request_id: `stripe_${session.id}`,
-      })
-      .eq('id', order.id);
-
-    if (updateError) {
-      logStep("Order update warning", { error: updateError.message });
-    }
-
     return new Response(
       JSON.stringify({ 
         url: session.url,

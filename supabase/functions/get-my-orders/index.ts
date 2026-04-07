@@ -57,7 +57,7 @@ serve(async (req) => {
       .select(`
         id, status, total_amount_usd, package_name, data_amount, validity_days,
         created_at, product_id, user_id, access_token, access_token_expires_at,
-        access_token_invalidated, airlo_order_id,
+        access_token_invalidated,
         products:product_id (country_name, country_code)
       `)
       .eq('user_id', user.id)
@@ -80,7 +80,7 @@ serve(async (req) => {
           .select(`
             id, status, total_amount_usd, package_name, data_amount, validity_days,
             created_at, product_id, user_id, access_token, access_token_expires_at,
-            access_token_invalidated, airlo_order_id,
+            access_token_invalidated,
             products:product_id (country_name, country_code)
           `)
           .in('id', piiOrderIds)
