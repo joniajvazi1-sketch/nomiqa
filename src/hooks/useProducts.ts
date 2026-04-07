@@ -3,7 +3,6 @@ import { supabase } from "@/integrations/supabase/client";
 
 export interface Product {
   id: string;
-  airlo_package_id?: string;
   name: string;
   country_code: string;
   country_name: string;
@@ -47,7 +46,7 @@ export const useProducts = () => {
         
         // Filter out packages with SMS or Voice (keep data-only)
         // Also filter out local packages without country images
-        const filteredData = (data as Product[]).filter(product => {
+        const filteredData = (data as unknown as Product[]).filter(product => {
           const name = product.name.toLowerCase();
           const hasNoSmsOrVoice = !name.includes('sms') && !name.includes('mins');
           
@@ -107,7 +106,7 @@ export const useFeaturedProducts = (localCountryCodes: string[], regionalCodes: 
       
       // Get cheapest local product per country
       const localByCountry = new Map<string, Product>();
-      for (const product of (localResult.data || []) as Product[]) {
+      for (const product of (localResult.data || []) as unknown as Product[]) {
         if (!localByCountry.has(product.country_code)) {
           localByCountry.set(product.country_code, product);
         }
@@ -116,7 +115,7 @@ export const useFeaturedProducts = (localCountryCodes: string[], regionalCodes: 
 
       // Get cheapest regional product per region
       const regionalByCode = new Map<string, Product>();
-      for (const product of (regionalResult.data || []) as Product[]) {
+      for (const product of (regionalResult.data || []) as unknown as Product[]) {
         if (!regionalByCode.has(product.country_code)) {
           regionalByCode.set(product.country_code, product);
         }
