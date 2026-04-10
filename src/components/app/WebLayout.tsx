@@ -18,6 +18,7 @@ export const WebLayout: React.FC<WebLayoutProps> = ({ children }) => {
   const isAdminPage = location.pathname.startsWith('/admin');
   const isCheckoutPage = location.pathname.includes('/checkout');
   const isAuthPage = location.pathname.includes('/auth');
+  const isPrivacyPolicy = location.pathname === '/privacy-policy';
   const [ready, setReady] = useState(false);
   const prevPath = useRef(location.pathname);
 
@@ -46,7 +47,7 @@ export const WebLayout: React.FC<WebLayoutProps> = ({ children }) => {
   return (
     <div className="fixed inset-0 overflow-y-auto overflow-x-hidden bg-background web-scroll-root">
       <div className="min-h-full flex flex-col">
-        {!isAdminPage && !isCheckoutPage && !isAuthPage && <Navbar />}
+        {!isAdminPage && !isCheckoutPage && !isAuthPage && !isPrivacyPolicy && <Navbar />}
         <main 
           className="flex-1"
           style={{
@@ -58,7 +59,7 @@ export const WebLayout: React.FC<WebLayoutProps> = ({ children }) => {
         >
           {children}
         </main>
-        {!isAdminPage && !isCheckoutPage && !isAuthPage && <Footer />}
+        {!isAdminPage && !isCheckoutPage && !isAuthPage && !isPrivacyPolicy && <Footer />}
       </div>
     </div>
   );
