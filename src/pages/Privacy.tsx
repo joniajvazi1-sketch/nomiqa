@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { SiteNavigation } from "@/components/SiteNavigation";
 import { NetworkBackground } from "@/components/NetworkBackground";
 import { Shield } from "lucide-react";
@@ -7,6 +8,10 @@ import { LegalPrivacyPolicy } from "@/components/privacy/LegalPrivacyPolicy";
 
 export default function Privacy() {
   const { t } = useTranslation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
