@@ -18,6 +18,7 @@ export const WebLayout: React.FC<WebLayoutProps> = ({ children }) => {
   const isAdminPage = location.pathname.startsWith('/admin');
   const isCheckoutPage = location.pathname.includes('/checkout');
   const isAuthPage = location.pathname.includes('/auth');
+  const isPrivacyPolicy = location.pathname === '/privacy-policy';
   const [ready, setReady] = useState(false);
   const prevPath = useRef(location.pathname);
 
