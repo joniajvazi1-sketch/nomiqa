@@ -128,6 +128,13 @@ export const Footer = () => {
             {t("footerAboutNomiqa")}
           </Link>
         </div>
+
+        {/* Legal Notices (Google Play / App Store compliance) */}
+        <div className="max-w-3xl mx-auto mb-8 p-4 rounded-xl bg-white/[0.02] border border-white/10">
+          <p className="text-[10px] md:text-xs text-white/40 leading-relaxed text-center">
+            {t("footerLegalNotice")}
+          </p>
+        </div>
         
         {/* Copyright */}
         <div className="border-t border-white/10 pt-6 text-center">
