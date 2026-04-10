@@ -115,7 +115,7 @@ export const Footer = () => {
           <Link to="/terms" onClick={() => window.scrollTo(0, 0)} className="text-white/80 hover:text-neon-cyan transition-colors duration-300 font-light text-xs md:text-sm">
             {t("footerTermsConditions")}
           </Link>
-          <Link to="/privacy" onClick={() => window.scrollTo(0, 0)} className="text-white/80 hover:text-neon-cyan transition-colors duration-300 font-light text-xs md:text-sm">
+          <Link to="/privacy-policy" onClick={() => window.scrollTo(0, 0)} className="text-white/80 hover:text-neon-cyan transition-colors duration-300 font-light text-xs md:text-sm">
             {t("footerPrivacySecurity")}
           </Link>
           <Link to="/delete-account" onClick={() => window.scrollTo(0, 0)} className="text-white/80 hover:text-neon-cyan transition-colors duration-300 font-light text-xs md:text-sm">

@@ -100,7 +100,7 @@ export const SiteNavigation = memo(() => {
               <AccordionContent className="pb-8">
                 <ul className="space-y-4 text-white/60 text-sm md:text-base pl-0">
                   <li><Link to="/about" className="hover:text-neon-cyan transition-colors duration-200 font-light block">{t("footerAboutNomiqa")}</Link></li>
-                  <li><Link to="/privacy" className="hover:text-neon-cyan transition-colors duration-200 font-light block">{t("footerPrivacySecurity")}</Link></li>
+                  <li><Link to="/privacy-policy" className="hover:text-neon-cyan transition-colors duration-200 font-light block">{t("footerPrivacySecurity")}</Link></li>
                 </ul>
               </AccordionContent>
               <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mt-4"></div>
