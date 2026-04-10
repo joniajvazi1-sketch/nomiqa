@@ -112,19 +112,19 @@ export const Footer = () => {
 
         {/* Legal Links */}
         <div className="flex flex-wrap justify-center gap-4 md:gap-6 mb-8">
-          <Link to="/terms" className="text-white/80 hover:text-neon-cyan transition-colors duration-300 font-light text-xs md:text-sm">
+          <Link to="/terms" onClick={() => window.scrollTo(0, 0)} className="text-white/80 hover:text-neon-cyan transition-colors duration-300 font-light text-xs md:text-sm">
             {t("footerTermsConditions")}
           </Link>
-          <Link to="/privacy" className="text-white/80 hover:text-neon-cyan transition-colors duration-300 font-light text-xs md:text-sm">
+          <Link to="/privacy" onClick={() => window.scrollTo(0, 0)} className="text-white/80 hover:text-neon-cyan transition-colors duration-300 font-light text-xs md:text-sm">
             {t("footerPrivacySecurity")}
           </Link>
-          <Link to="/delete-account" className="text-white/80 hover:text-neon-cyan transition-colors duration-300 font-light text-xs md:text-sm">
+          <Link to="/delete-account" onClick={() => window.scrollTo(0, 0)} className="text-white/80 hover:text-neon-cyan transition-colors duration-300 font-light text-xs md:text-sm">
             Delete Account
           </Link>
-          <Link to="/delete-data" className="text-white/80 hover:text-neon-cyan transition-colors duration-300 font-light text-xs md:text-sm">
+          <Link to="/delete-data" onClick={() => window.scrollTo(0, 0)} className="text-white/80 hover:text-neon-cyan transition-colors duration-300 font-light text-xs md:text-sm">
             Delete Data
           </Link>
-          <Link to="/about" className="text-white/80 hover:text-neon-cyan transition-colors duration-300 font-light text-xs md:text-sm">
+          <Link to="/about" onClick={() => window.scrollTo(0, 0)} className="text-white/80 hover:text-neon-cyan transition-colors duration-300 font-light text-xs md:text-sm">
             {t("footerAboutNomiqa")}
           </Link>
         </div>
