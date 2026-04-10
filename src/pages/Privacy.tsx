@@ -7,6 +7,7 @@ import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { localizedPath } from "@/utils/localizedLinks";
+import { LegalPrivacyPolicy } from "@/components/privacy/LegalPrivacyPolicy";
 
 export default function Privacy() {
   const { t, language } = useTranslation();
@@ -297,6 +298,9 @@ export default function Privacy() {
           </div>
         </div>
       </section>
+
+      {/* Full Legal Privacy Policy */}
+      <LegalPrivacyPolicy />
       
       <SiteNavigation />
       
