@@ -1,5 +1,5 @@
 import { useTranslation } from "@/contexts/TranslationContext";
-import { FileText, MapPin, Database, ShieldCheck, Users, Clock, Scale, Lock, Mail } from "lucide-react";
+import { FileText, MapPin, Database, ShieldCheck, Users, Clock, Scale, Lock, Mail, Trash2 } from "lucide-react";
 
 export const LegalPrivacyPolicy = () => {
   const { t } = useTranslation();
@@ -136,6 +136,13 @@ export const LegalPrivacyPolicy = () => {
           <PolicySection icon={Mail} title={t("privacyLegalContactTitle")}>
             <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
               {t("privacyLegalContactContent")}
+            </p>
+          </PolicySection>
+
+          {/* 11. Data Deletion */}
+          <PolicySection icon={Trash2} title={t("privacyLegalDeletionTitle")}>
+            <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
+              {t("privacyLegalDeletionContent")}
             </p>
           </PolicySection>
         </div>
