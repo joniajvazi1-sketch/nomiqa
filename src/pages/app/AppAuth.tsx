@@ -1318,7 +1318,7 @@ export const AppAuth: React.FC = () => {
                   I agree to the{' '}
                   <a href="/terms" className="text-primary hover:underline">Terms of Service</a>
                   {' '}and{' '}
-                  <a href="/privacy" className="text-primary hover:underline">Privacy Policy</a>
+                  <a href="/privacy-policy" className="text-primary hover:underline">Privacy Policy</a>
                 </Label>
               </div>
             )}

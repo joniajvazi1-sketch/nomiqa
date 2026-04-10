@@ -1173,7 +1173,7 @@ export default function Auth() {
                       </a>{" "}
                       {t("andWord") || "and"}{" "}
                       <a 
-                        href="/privacy" 
+                        href="/privacy-policy" 
                         target="_blank" 
                         className="text-primary hover:underline font-medium"
                       >

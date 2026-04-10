@@ -118,7 +118,7 @@ export const DataConsentModal: React.FC<DataConsentModalProps> = ({ onConsentCom
                 </p>
 
                 <a 
-                  href="https://nomiqa-depin.com/privacy" 
+                  href="https://nomiqa-depin.com/privacy-policy" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 text-sm font-medium text-primary underline underline-offset-2"

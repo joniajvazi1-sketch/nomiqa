@@ -235,7 +235,7 @@ export default function GettingStarted() {
           <div className="text-center">
             <Button 
               variant="outline"
-              onClick={() => navigate(localizedPath('/privacy', language))}
+              onClick={() => navigate(localizedPath('/privacy-policy', language))}
               className="border-white/20 text-white/80 hover:bg-white/5 gap-2"
             >
               {t("gsReadPrivacyPolicy")}

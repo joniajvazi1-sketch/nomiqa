@@ -227,7 +227,7 @@ export const PrivacyControls: React.FC = () => {
             className="w-full flex items-center justify-between p-4 text-left hover:bg-muted/30 transition-colors rounded-xl"
             onClick={async () => {
               lightTap();
-              const url = 'https://nomiqa-depin.com/privacy';
+              const url = 'https://nomiqa-depin.com/privacy-policy';
               try {
                 const { Capacitor } = await import('@capacitor/core');
                 if (Capacitor.isNativePlatform()) {
