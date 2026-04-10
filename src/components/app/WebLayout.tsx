@@ -47,7 +47,7 @@ export const WebLayout: React.FC<WebLayoutProps> = ({ children }) => {
   return (
     <div className="fixed inset-0 overflow-y-auto overflow-x-hidden bg-background web-scroll-root">
       <div className="min-h-full flex flex-col">
-        {!isAdminPage && !isCheckoutPage && !isAuthPage && <Navbar />}
+        {!isAdminPage && !isCheckoutPage && !isAuthPage && !isPrivacyPolicy && <Navbar />}
         <main 
           className="flex-1"
           style={{
@@ -59,7 +59,7 @@ export const WebLayout: React.FC<WebLayoutProps> = ({ children }) => {
         >
           {children}
         </main>
-        {!isAdminPage && !isCheckoutPage && !isAuthPage && <Footer />}
+        {!isAdminPage && !isCheckoutPage && !isAuthPage && !isPrivacyPolicy && <Footer />}
       </div>
     </div>
   );
