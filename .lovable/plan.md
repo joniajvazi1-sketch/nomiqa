@@ -1,61 +1,46 @@
 
 
-# Fix: Google Play Privacy Policy Rejection
+# Tighten Privacy Policy for Google Play Resubmission
 
-## Problem
+## Summary
+Apply the 3 critical wording fixes identified in the review to eliminate rejection risks, plus add a scope statement and data deletion contact section.
 
-Google Play rejected the app for two reasons:
+## Changes
 
-1. **Privacy Policy link leads to the wrong page** — The screenshot shows the Terms & Conditions page, meaning the Play Console link likely points to `/terms` instead of `/privacy`.
-2. **Missing comprehensive Location data disclosure** — The current `/privacy` page is a marketing-style page with principles and highlights. It does not contain the actual legal privacy policy text, and critically, it does not comprehensively disclose how Location data is accessed, collected, used, and shared.
+### 1. Fix "exact location" wording (Translation key `privacyLegalLocationItem1`)
 
-The full legal privacy policy text currently lives inside `TermsPrivacy` on the `/terms` page, but Google needs it at the `/privacy` URL.
+**Current**: "GPS coordinates — rounded to 4 decimal places (~11 meter precision). We never store your exact location."
 
-## Plan
+**New**: "GPS coordinates — the app may access precise device location data via GPS. Before storage, coordinates are rounded to 4 decimal places (~11 meter precision). We do not retain full precise coordinates in our production datasets."
 
-### Step 1: Add full legal privacy policy content to the `/privacy` page
+This matches Google's focus on *access and collection*, not just storage.
 
-Keep the existing marketing hero section and principles, but **append a comprehensive legal privacy policy section** below the marketing content. This section will include:
+### 2. Strengthen background location paragraph (Translation key `privacyLegalLocationWhen2`)
 
-- **Data Controller** information (Business Unlimited Worldwide Ltd.)
-- **Data We Collect** — explicitly listing Location data with details on precision, purpose, and retention
-- **How We Use Location Data** — dedicated subsection explaining:
-  - GPS coordinates are rounded to ~11m precision
-  - Used for network coverage mapping
-  - Background collection (with user consent)
-  - Retention period (auto-deleted after 60/90 days)
-- **Data We Do NOT Collect** — the existing list
-- **Purpose of Data Processing** — legal bases (GDPR Art. 6)
-- **Third-Party Sharing** — who receives aggregated data
-- **Data Retention** periods
-- **Your Rights** under GDPR (access, rectification, deletion, portability)
-- **Contact Information** for data requests
+**Current**: Mentions ACCESS_BACKGROUND_LOCATION and capping at 12 samples/hour.
 
-This content will be sourced from the existing `TermsPrivacy` translations plus new Location-specific disclosure text.
+**New**: "Background location is collected only if you explicitly grant background location permission (Android: ACCESS_BACKGROUND_LOCATION; iOS: 'Always' location permission) and enable contribution features that require passive network measurements while the app is not in the foreground. You can disable background collection at any time in the app settings or your device settings. When active, collection is capped at 12 samples per hour to minimize battery impact. A persistent notification is always visible while background collection is running."
 
-### Step 2: Add explicit Location data disclosure
+### 3. Add scope statement to controller section (Translation key `privacyLegalControllerContent`)
 
-Add new content that Google specifically requires — a dedicated "Location Data" section that covers:
-- **What**: GPS coordinates (rounded to 4 decimal places), cell tower identifiers (MCC, MNC, TAC, PCI)
-- **When**: Foreground and background (with explicit user permission)
-- **Why**: Network quality measurement and coverage mapping
-- **How shared**: Aggregated and anonymized (K-anonymity, min 5 users per tile) before any B2B export
-- **Retention**: Raw location data auto-deleted after 60 days
+**New**: "This Privacy Policy applies to the Nomiqa mobile application (Android and iOS) and related services operated by Business Unlimited Worldwide Ltd. ('Nomiqa', 'we', 'us'). Business Unlimited Worldwide Ltd. is the data controller for the personal data processed through these services. Contact: privacy@nomiqa-depin.com"
 
-### Step 3: Update Play Console link
+### 4. Add new Section 11: Data Deletion Requests
 
-After publishing, update the Privacy Policy URL in Play Console to: `https://nomiqa-depin.com/privacy`
+Add a new `PolicySection` in `LegalPrivacyPolicy.tsx` and corresponding translation keys:
 
-(This is a manual step in the Google Play Developer Console — not a code change.)
+**Title**: "11. How to Request Data Deletion"
+
+**Content**: "You may request deletion of your account and all associated personal data by: (1) Using the in-app delete account function (Settings > Delete Account), (2) Using the in-app delete data function (Settings > Delete Data) to remove contribution data only, or (3) Emailing privacy@nomiqa-depin.com. Requests are processed within 30 days in accordance with GDPR requirements."
+
+### 5. Soften aggregated tiles retention wording (Translation key `privacyLegalLocationRetention2`)
+
+**Current**: "Aggregated and anonymized coverage tiles are retained indefinitely as they contain no personal data."
+
+**New**: "Aggregated and anonymized coverage tiles are retained indefinitely. These tiles cannot be linked back to any individual user or device, as all identifying information is removed during the aggregation process."
 
 ## Files Modified
 
-- `src/pages/Privacy.tsx` — Add legal privacy policy sections below the existing marketing content
-- `src/contexts/TranslationContext.tsx` — Add new translation keys for Location data disclosure and legal sections
-
-## Technical Notes
-
-- The `TermsPrivacy` component on `/terms` will remain unchanged (Terms page still shows privacy info as part of the full legal terms)
-- The `/privacy` page will now serve as the standalone, Google-compliant privacy policy
-- All 10 languages will be updated with the new translation keys
+- `src/contexts/TranslationContext.tsx` — Update 4 existing translation keys + add 2 new keys (all 10 languages)
+- `src/components/privacy/LegalPrivacyPolicy.tsx` — Add Section 11 (Data Deletion)
 
