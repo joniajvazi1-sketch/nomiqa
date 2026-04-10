@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { localizedPath } from "@/utils/localizedLinks";
 import { LegalPrivacyPolicy } from "@/components/privacy/LegalPrivacyPolicy";
-import { localizedPath } from "@/utils/localizedLinks";
 
 export default function Privacy() {
   const { t, language } = useTranslation();
