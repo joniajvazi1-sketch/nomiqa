@@ -25,7 +25,7 @@ const TranslationContext: Context<TranslationContextType | undefined> = (() => {
 })();
 
 // Comprehensive translations for all pages and components
-const _translations: Record<string, Partial<Record<Language | 'HI', string>>> = {
+const translations: Record<string, Partial<Record<Language | 'HI', string>>> = {
   // ========== APP - Bottom Tab Bar ==========
   appTabHome: { EN: "Home", ES: "Inicio", FR: "Accueil", DE: "Start", RU: "Главная", ZH: "首页", JA: "ホーム", PT: "Início", AR: "الرئيسية", IT: "Home" },
   appTabEarn: { EN: "Earn", ES: "Ganar", FR: "Gagner", DE: "Verdienen", RU: "Зарабатывать", ZH: "赚取", JA: "稼ぐ", PT: "Ganhar", AR: "اكسب", IT: "Guadagna" },
@@ -1735,10 +1735,7 @@ const _translations: Record<string, Partial<Record<Language | 'HI', string>>> = 
   // Roadmap Evolving Message
   roadmapEvolvingTitle: { EN: "This roadmap is evolving", ES: "Esta hoja de ruta está evolucionando", FR: "Cette feuille de route évolue", DE: "Diese Roadmap entwickelt sich weiter", RU: "Эта дорожная карта развивается", ZH: "这个路线图正在演变", JA: "このロードマップは進化しています", PT: "Este roteiro está evoluindo", AR: "خارطة الطريق هذه تتطور", IT: "Questa roadmap è in evoluzione" },
   roadmapEvolvingDesc: { EN: "We are constantly listening to our community and adapting our plans. Follow our progress and share your feedback!", ES: "Escuchamos constantemente a nuestra comunidad y adaptamos nuestros planes. ¡Sigue nuestro progreso y comparte tu opinión!", FR: "Nous écoutons constamment notre communauté et adaptons nos plans. Suivez notre progression et partagez vos commentaires !", DE: "Wir hören ständig auf unsere Community und passen unsere Pläne an. Verfolge unseren Fortschritt und teile dein Feedback!", RU: "Мы постоянно слушаем наше сообщество и адаптируем наши планы. Следите за нашим прогрессом и делитесь отзывами!", ZH: "我们不断倾听社区的声音并调整我们的计划。关注我们的进展并分享您的反馈！", JA: "私たちは常にコミュニティの声に耳を傾け、計画を適応させています。進捗をフォローしてフィードバックをお寄せください！", PT: "Estamos constantemente ouvindo nossa comunidade e adaptando nossos planos. Acompanhe nosso progresso e compartilhe seu feedback!", AR: "نستمع باستمرار لمجتمعنا ونكيف خططنا. تابع تقدمنا وشارك ملاحظاتك!", IT: "Ascoltiamo costantemente la nostra comunità e adattiamo i nostri piani. Segui i nostri progressi e condividi il tuo feedback!" },
-};
-
-const translations: Record<string, Partial<Record<Language | 'HI', string>>> = {
-  ..._translations,
+  // Merge all terms translations
   ...termsTranslations,
 };
 
