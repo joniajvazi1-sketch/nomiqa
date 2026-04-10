@@ -5,21 +5,8 @@ export const LegalPrivacyPolicy = () => {
   const { t } = useTranslation();
 
   return (
-    <section className="relative py-12 md:py-16 px-4">
+    <section className="relative py-8 md:py-12 px-4">
       <div className="container max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 mb-4">
-            <FileText className="w-4 h-4 text-primary" />
-            <span className="text-xs font-medium text-primary uppercase tracking-wider">
-              {t("privacyLegalTitle")}
-            </span>
-          </div>
-          <h2 className="text-2xl md:text-3xl font-light text-white mb-2">
-            {t("privacyLegalTitle")}
-          </h2>
-          <p className="text-sm text-muted-foreground">{t("privacyLegalEffective")}</p>
-        </div>
 
         <div className="space-y-8">
           {/* 1. Data Controller */}
