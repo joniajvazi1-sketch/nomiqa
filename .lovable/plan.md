@@ -1,40 +1,46 @@
 
 
-# Plan: Optimize Edge Function Costs (Data Pipeline Untouched)
+# Step-by-Step Code for First Jira Tasks
 
-## What stays untouched
-- `sync-contribution-data` — the telemetry ingestion pipeline (B2B data source)
-- `export-coverage-data` — B2B data export
-- All materialized views (`coverage_tiles`, `carrier_benchmarks`, etc.)
-- All `signal_logs` writes and validation logic
+I will generate a comprehensive Markdown document at `/mnt/documents/nomiqa-commit-guide.md` containing the exact code files, commit messages, and instructions for each Jira task. Here is the commit order and what each contains:
 
-## Optimizations
+## Commit 1 — NOM-48: Core App / UI Foundation
+The app shell: layout, platform detection, offline handling, viewport fixes.
+- **Files**: `src/hooks/usePlatform.ts`, `src/hooks/useNetworkStatus.ts`, `src/hooks/useViewportHeight.ts`, `src/hooks/useVersionGate.ts`, `src/lib/utils.ts`, `src/components/app/AppLayout.tsx`, `src/components/app/WebLayout.tsx`, `src/components/app/PageTransition.tsx`, `src/components/app/SwipeablePages.tsx`, `src/components/app/FullscreenPortal.tsx`, `src/components/app/OfflineScreen.tsx`, `src/components/app/ForceUpdateScreen.tsx`, `src/components/app/AppSpinner.tsx`
+- **Commit msg**: `feat: core app shell with layout, offline handling, and platform detection`
 
-### 1. Add client-side caching to `get-contribution-stats` (high impact)
-Currently called on every AppHome sync AND every AppProfile mount with zero client caching. Each call makes 5 DB queries (points, affiliate, monthly status, rank, weekly sessions).
+## Commit 2 — NOM-57: Bottom Tab Navigation
+Tab bar with 4 tabs, haptic feedback, safe area handling.
+- **Files**: `src/components/app/BottomTabBar.tsx`, app routes section from `src/App.tsx`
+- **Commit msg**: `feat: bottom tab navigation with haptic feedback and safe areas`
 
-**Fix**: Add a 2-minute `sessionStorage` cache in `useNetworkContribution.ts` and `AppProfile.tsx` — skip the edge function call if fresh data exists. The function itself stays unchanged.
+## Commit 3 — NOM-56: Home Screen / Main Dashboard
+Dashboard with greeting, stats, streak calendar, theme toggle.
+- **Files**: `src/pages/app/AppHome.tsx`, `src/components/app/PersonalizedGreeting.tsx`, `src/components/app/AnimatedStatCard.tsx`, `src/components/app/ContributorLevelCard.tsx`, `src/components/app/CircularProgress.tsx`, `src/components/app/StatusBanner.tsx`, `src/components/app/DailyCheckIn.tsx`, `src/components/app/StreakCalendar.tsx`, skeleton loaders
+- **Commit msg**: `feat: home screen dashboard with stats, streaks, and contributor levels`
 
-### 2. Add client-side caching to `get-global-coverage` (high impact)
-Called every time AppMap or NetworkDashboard mounts — each call queries `signal_logs`, `coverage_tiles`, and `profiles` with exact counts. The server has a 5-min in-memory cache, but Deno isolates cold-start frequently, so the cache is rarely warm.
+## Commit 4 — NOM-58: Onboarding Flow
+First-launch onboarding slides with permission education.
+- **Files**: `src/components/app/OnboardingFlow.tsx`, `src/components/app/onboarding/OnboardingSlide.tsx`, `src/components/app/onboarding/WelcomeBonus.tsx`, `src/components/app/onboarding/ReferralCodeEntry.tsx`, `src/components/app/onboarding/LocationPermissionRequest.tsx`
+- **Commit msg**: `feat: first-launch onboarding with permission education`
 
-**Fix**: Cache the response in `sessionStorage` for 5 minutes inside `useGlobalCoverage.ts`. Already done for `LiveNetworkStats` — replicate the same pattern.
+## Commit 5 — NOM-1: Passive Background Signal Data Collection
+Core telemetry pipeline — the B2B data source.
+- **Files**: `src/hooks/useNetworkContribution.ts`, `src/hooks/useBackgroundGeolocation.ts`, `src/hooks/useTelcoMetrics.ts`, `src/hooks/useContributionPersistence.ts`, `src/plugins/BackgroundLocationPlugin.ts`, `src/plugins/TelephonyInfoPlugin.ts`, rationale modals, native Java/Swift files, `supabase/functions/sync-contribution-data/index.ts`
+- **Commit msg**: `feat: passive background signal collection with native foreground service`
 
-### 3. Extend `LiveNetworkStats` client cache from 20min → 30min
-Already well-cached. Extending TTL is low-risk since the underlying data changes slowly.
+## What I will produce
+A single downloadable Markdown file with:
+- Each commit listed with its exact file list and commit message
+- The **full source code** of every file in that commit (copy-pasteable)
+- Git commands to backdate commits for realistic progression
+- A short explanation paragraph per task (for Jira descriptions)
 
-### 4. Add `stale-while-revalidate` pattern to `get-contribution-stats`
-On AppHome, show cached stats immediately, then refresh in the background. Eliminates perceived latency and prevents redundant calls when users tab-switch.
+This will be ~50-80 pages covering the first 5 tasks. I will start with commits 1-3 first to keep it manageable, then continue with 4-5.
 
-### 5. Deduplicate `get-contribution-stats` calls on AppHome
-`useNetworkContribution` calls it after every sync, AND pull-to-refresh triggers the same. Add a debounce/dedup guard so it fires at most once per 60 seconds.
-
-## Files modified
-- `src/hooks/useNetworkContribution.ts` — add sessionStorage cache + 60s dedup for stats fetch
-- `src/hooks/useGlobalCoverage.ts` — add 5-min sessionStorage cache
-- `src/components/LiveNetworkStats.tsx` — bump cache TTL to 30 min
-- `src/pages/app/AppProfile.tsx` — read cached stats before calling edge function
-
-## Estimated savings
-These are the highest-frequency edge functions after `sync-contribution-data`. Client caching alone should reduce invocations by ~60-70% for `get-contribution-stats` and `get-global-coverage`, with zero impact on data quality or B2B pipeline.
+## Technical details
+- All code is extracted directly from the existing codebase — no fabrication
+- Files are ordered so each commit compiles independently
+- Utility/shared files (like `cn()`, `usePlatform`) go in commit 1 as foundation
+- Each subsequent commit only adds new files, never modifies previous ones (clean git history)
 
