@@ -530,10 +530,28 @@ export const useNetworkContribution = () => {
           }
           
           // SYNC WITH SERVER: Fetch the actual capped total from server to sync UI
+          // Uses 60s dedup to avoid redundant calls on rapid resume/tab-switch
+          const STATS_CACHE_KEY = 'nomiqa_contribution_stats_cache';
+          const STATS_DEDUP_MS = 60 * 1000; // 60 seconds
           try {
-            const { data, error } = await supabase.functions.invoke('get-contribution-stats');
-            if (!error && data?.points?.total !== undefined) {
-              const serverTotal = data.points.total;
+            let statsData: any = null;
+            const cachedRaw = sessionStorage.getItem(STATS_CACHE_KEY);
+            if (cachedRaw) {
+              const cached = JSON.parse(cachedRaw);
+              if (Date.now() - cached.ts < STATS_DEDUP_MS) {
+                statsData = cached.data;
+                console.log('[NetworkContribution] Using cached contribution stats (dedup)');
+              }
+            }
+            if (!statsData) {
+              const { data, error } = await supabase.functions.invoke('get-contribution-stats');
+              if (!error && data) {
+                statsData = data;
+                sessionStorage.setItem(STATS_CACHE_KEY, JSON.stringify({ data, ts: Date.now() }));
+              }
+            }
+            if (statsData?.points?.total !== undefined) {
+              const serverTotal = statsData.points.total;
               console.log(`[NetworkContribution] Server total points: ${serverTotal}`);
               
               // If server total is LESS than our local count, we've been capped

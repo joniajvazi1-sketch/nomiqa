@@ -61,7 +61,7 @@ export const LiveNetworkStats = () => {
 
   useEffect(() => {
     const CACHE_KEY = 'nomiqa_network_stats';
-    const CACHE_TTL = 20 * 60 * 1000; // 20 minutes
+    const CACHE_TTL = 30 * 60 * 1000; // 30 minutes
 
     const getCached = (): NetworkStats | null => {
       try {
