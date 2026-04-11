@@ -56,10 +56,30 @@ export const useGlobalCoverage = (
   const [error, setError] = useState<string | null>(null);
   const [networkFilter, setNetworkFilter] = useState<'5g' | 'lte' | '3g' | null>(initialNetworkFilter);
 
+  const COVERAGE_CACHE_KEY = 'nomiqa_global_coverage_cache';
+  const COVERAGE_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
   const fetchGlobalCoverage = useCallback(async (forceRefresh = false) => {
     try {
-      setLoading(true);
       setError(null);
+
+      // Check sessionStorage cache first (unless force refresh or filtered)
+      if (!forceRefresh && !networkFilter && !bounds) {
+        try {
+          const raw = sessionStorage.getItem(COVERAGE_CACHE_KEY);
+          if (raw) {
+            const cached = JSON.parse(raw);
+            if (Date.now() - cached.ts < COVERAGE_CACHE_TTL) {
+              console.log('[useGlobalCoverage] Using sessionStorage cache');
+              setData(cached.data);
+              setLoading(false);
+              return;
+            }
+          }
+        } catch {}
+      }
+
+      setLoading(true);
 
       // Build query params
       const params = new URLSearchParams();
@@ -70,8 +90,6 @@ export const useGlobalCoverage = (
 
       const queryString = params.toString();
 
-      // Use direct fetch with query params - the supabase.functions.invoke pattern
-      // with x-query-params header was causing silent failures
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
       const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
       
@@ -92,6 +110,11 @@ export const useGlobalCoverage = (
 
       const json = await response.json();
       setData(json);
+
+      // Cache unfiltered responses
+      if (!networkFilter && !bounds) {
+        sessionStorage.setItem(COVERAGE_CACHE_KEY, JSON.stringify({ data: json, ts: Date.now() }));
+      }
 
     } catch (err) {
       console.error('[useGlobalCoverage] Error:', err);

@@ -167,16 +167,38 @@ export const AppProfile: React.FC = () => {
   }, []);
 
   const loadData = async () => {
+    const STATS_CACHE_KEY = 'nomiqa_contribution_stats_cache';
+    const STATS_CACHE_TTL = 2 * 60 * 1000; // 2 minutes
+
     try {
       const { data: { user: currentUser } } = await supabase.auth.getUser();
       setUser(currentUser);
 
       if (currentUser) {
+        // Check sessionStorage cache for contribution stats to avoid redundant edge function calls
+        let cachedStats: any = null;
+        try {
+          const raw = sessionStorage.getItem(STATS_CACHE_KEY);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (Date.now() - parsed.ts < STATS_CACHE_TTL) {
+              cachedStats = parsed.data;
+            }
+          }
+        } catch {}
+
         const [profileResult, affiliateResult, ordersResult, statsResult] = await Promise.all([
           supabase.from('profiles_safe').select('username, solana_wallet').eq('user_id', currentUser.id).maybeSingle(),
           supabase.from('affiliates_safe').select('*').eq('user_id', currentUser.id).order('tier_level', { ascending: false }).limit(1).maybeSingle(),
           supabase.functions.invoke('get-my-orders'),
-          supabase.functions.invoke('get-contribution-stats')
+          cachedStats
+            ? Promise.resolve({ data: cachedStats, error: null })
+            : supabase.functions.invoke('get-contribution-stats').then(res => {
+                if (!res.error && res.data) {
+                  sessionStorage.setItem(STATS_CACHE_KEY, JSON.stringify({ data: res.data, ts: Date.now() }));
+                }
+                return res;
+              })
         ]);
 
         const profileData = profileResult.data;
