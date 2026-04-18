@@ -2099,48 +2099,25 @@ export type Database = {
       }
     }
     Functions: {
-      add_points_with_cap:
-        | {
-            Args: {
-              p_base_points: number
-              p_source?: string
-              p_user_id: string
-            }
-            Returns: Json
-          }
-        | {
-            Args: {
-              p_base_points: number
-              p_session_hours?: number
-              p_source?: string
-              p_user_id: string
-            }
-            Returns: Json
-          }
-        | {
-            Args: {
-              p_app_version?: string
-              p_base_points: number
-              p_session_hours?: number
-              p_source?: string
-              p_user_id: string
-            }
-            Returns: Json
-          }
-      add_referral_points:
-        | {
-            Args: { p_points: number; p_source?: string; p_user_id: string }
-            Returns: Json
-          }
-        | {
-            Args: {
-              p_app_version?: string
-              p_points: number
-              p_source?: string
-              p_user_id: string
-            }
-            Returns: Json
-          }
+      add_points_with_cap: {
+        Args: {
+          p_app_version?: string
+          p_base_points: number
+          p_session_hours?: number
+          p_source?: string
+          p_user_id: string
+        }
+        Returns: Json
+      }
+      add_referral_points: {
+        Args: {
+          p_app_version?: string
+          p_points: number
+          p_source?: string
+          p_user_id: string
+        }
+        Returns: Json
+      }
       admin_freeze_user_points: {
         Args: { p_reason?: string; p_target_user_id: string }
         Returns: Json
