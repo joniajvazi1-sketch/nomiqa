@@ -42,16 +42,22 @@ export const usePushNotifications = (): UsePushNotificationsReturn => {
       
       if (isNative) {
         try {
-          // Dynamically load modules
-          pushRef.current = await import('@capacitor/push-notifications');
+          // Always load local notifications (works without Firebase)
           localRef.current = await import('@capacitor/local-notifications');
-          
-          const { PushNotifications } = pushRef.current;
-          
-          // Check current permission status
-          const status = await PushNotifications.checkPermissions();
-          setPermissionStatus(status.receive as 'prompt' | 'granted' | 'denied');
-          setIsEnabled(status.receive === 'granted');
+
+          // Push notifications module is optional — guard against missing FCM
+          try {
+            pushRef.current = await import('@capacitor/push-notifications');
+          } catch (e) {
+            console.log('Push notifications module unavailable:', e);
+          }
+
+          // Use LOCAL notifications permission as source of truth
+          // (works on all devices, including those without Google Play Services)
+          const { LocalNotifications } = localRef.current;
+          const status = await LocalNotifications.checkPermissions();
+          setPermissionStatus(status.display as 'prompt' | 'granted' | 'denied');
+          setIsEnabled(status.display === 'granted');
           
           // Load user preference
           try {
