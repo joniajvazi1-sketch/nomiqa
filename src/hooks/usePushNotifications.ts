@@ -63,7 +63,7 @@ export const usePushNotifications = (): UsePushNotificationsReturn => {
           try {
             const savedPref = localStorage.getItem(NOTIFICATION_PREF_KEY);
             if (savedPref !== null) {
-              setIsEnabled(savedPref === 'true' && status.receive === 'granted');
+              setIsEnabled(savedPref === 'true' && status.display === 'granted');
             }
           } catch (e) {
             // localStorage not available
