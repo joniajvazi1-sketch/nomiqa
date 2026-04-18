@@ -72,6 +72,44 @@ export default function MyAccount() {
     checkAuth();
   }, []);
 
+  // Refresh user_points when the tab regains focus / becomes visible
+  // so points earned in the mobile app appear without a full page reload.
+  useEffect(() => {
+    const refreshPoints = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) return;
+        const { data: pointsData } = await supabase
+          .from('user_points')
+          .select('total_points, pending_points')
+          .eq('user_id', session.user.id)
+          .maybeSingle();
+        if (pointsData) {
+          setUserPoints({
+            total_points: pointsData.total_points || 0,
+            pending_points: pointsData.pending_points || 0,
+          });
+        }
+      } catch (e) {
+        // Silent — non-critical background refresh
+      }
+    };
+
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') refreshPoints();
+    };
+    window.addEventListener('focus', refreshPoints);
+    document.addEventListener('visibilitychange', onVisibility);
+    // Also poll every 30s while tab is open so points stay fresh
+    const interval = window.setInterval(refreshPoints, 30000);
+
+    return () => {
+      window.removeEventListener('focus', refreshPoints);
+      document.removeEventListener('visibilitychange', onVisibility);
+      window.clearInterval(interval);
+    };
+  }, []);
+
   const checkAuth = async () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();

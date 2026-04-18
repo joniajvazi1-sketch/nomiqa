@@ -111,8 +111,10 @@ export const AppChallenges: React.FC = () => {
 
       const result = data as any;
       if (result?.success) {
-        toast.success(`+${result.points_added} pts claimed! 🎉`);
-        window.dispatchEvent(new CustomEvent('points-updated', { detail: { newTotal: result.new_total } }));
+        const added = result.points_added ?? 0;
+        toast.success(`+${added} pts claimed! 🎉`);
+        // RPC doesn't return new_total — dispatch delta so cards update instantly
+        window.dispatchEvent(new CustomEvent('points-updated', { detail: { pointsAdded: added } }));
         loadChallenges();
       } else {
         toast.error(result?.reason === 'already_claimed' ? 'Already claimed!' : 'Could not claim');

@@ -141,10 +141,14 @@ export const DailyCheckIn = ({ userId, onClose }: DailyCheckInProps) => {
         });
       }
 
-      // Notify other screens to refresh points immediately (with newTotal for optimistic update)
-      window.dispatchEvent(new CustomEvent('points-updated', {
-        detail: { newTotal: result?.new_total }
-      }));
+      // Notify other screens to refresh points immediately.
+      // The RPC doesn't return new_total, so dispatch the delta (pointsAdded)
+      // so AppHome / AppProfile / AppRewards can optimistically increment.
+      if (actualPointsAdded > 0) {
+        window.dispatchEvent(new CustomEvent('points-updated', {
+          detail: { pointsAdded: actualPointsAdded }
+        }));
+      }
 
       setTimeout(() => {
         setIsOpen(false);
