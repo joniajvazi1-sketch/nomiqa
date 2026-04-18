@@ -106,35 +106,53 @@ export const usePushNotifications = (): UsePushNotificationsReturn => {
     };
   }, [isSupported]);
 
-  // Request notification permission
+  // Request notification permission.
+  // IMPORTANT: We request LOCAL notification permission (no Firebase required)
+  // and only attempt to register for PUSH if the FCM service is available.
+  // Without google-services.json, calling PushNotifications.register() crashes
+  // the Android app — so we wrap it in try/catch and never fail the user flow.
   const requestPermission = useCallback(async (): Promise<boolean> => {
-    if (!isSupported || !pushRef.current) {
-      console.log('Push notifications not supported on this platform');
+    if (!isSupported) {
+      console.log('Notifications not supported on this platform');
       return false;
     }
 
+    let granted = false;
+
+    // 1) Local notifications (works without Firebase) — primary permission
     try {
-      const { PushNotifications } = pushRef.current;
-      const status = await PushNotifications.requestPermissions();
-      const granted = status.receive === 'granted';
-      
-      setPermissionStatus(status.receive as 'prompt' | 'granted' | 'denied');
+      if (!localRef.current) {
+        localRef.current = await import('@capacitor/local-notifications');
+      }
+      const { LocalNotifications } = localRef.current;
+      const localStatus = await LocalNotifications.requestPermissions();
+      granted = localStatus.display === 'granted';
+      setPermissionStatus(granted ? 'granted' : 'denied');
       setIsEnabled(granted);
       try {
         localStorage.setItem(NOTIFICATION_PREF_KEY, granted.toString());
-      } catch (e) {
+      } catch {
         // localStorage not available
       }
-      
-      if (granted) {
-        await PushNotifications.register();
-      }
-      
-      return granted;
     } catch (error) {
-      console.error('Error requesting notification permission:', error);
+      console.error('Error requesting local notification permission:', error);
       return false;
     }
+
+    // 2) Push notifications (best-effort) — guarded so missing FCM never crashes
+    if (granted && pushRef.current) {
+      try {
+        const { PushNotifications } = pushRef.current;
+        await PushNotifications.requestPermissions();
+        await PushNotifications.register();
+      } catch (error) {
+        // Expected when google-services.json / FCM is not configured.
+        // Local notifications still work — do not surface this to the user.
+        console.log('Push registration unavailable (FCM not configured):', error);
+      }
+    }
+
+    return granted;
   }, [isSupported]);
 
   // Send a local notification
