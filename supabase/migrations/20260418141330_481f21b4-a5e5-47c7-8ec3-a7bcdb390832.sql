@@ -1,0 +1,1 @@
+DROP FUNCTION IF EXISTS public.claim_challenge_reward(p_user_id uuid, p_challenge_id uuid, p_reward_points integer, p_bonus_points integer, p_period_start date, p_is_daily boolean);
